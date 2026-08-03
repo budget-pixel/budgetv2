@@ -16,17 +16,18 @@
 <div id="layout">
 <main id="content">
 
-<div class="page-eyebrow">Constitutional Officers & Other Agencies</div>
-<h1 class="page-title">Constitutional Officers & Other Agencies</h1>
-<p class="page-intro">Explore Walton County's independently elected constitutional officers and autonomous entities, their budgets, staffing, and services.</p>
+<div class="page-eyebrow wc-sr-only">Constitutional Officers & Other Agencies</div>
+<h1 class="page-title wc-sr-only">Constitutional Officers & Other Agencies</h1>
 
-<section class="wc-dept-fund-panel" aria-label="Constitutional officers and agencies by fund, at a glance">
-  <div class="wc-dept-fund-summary" id="officerFundSummary"></div>
+<section id="constitutional-budget-explorer" aria-label="Constitutional Officers Budget Explorer">
+  <div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading Constitutional Officer budgets"><span></span><span></span><span></span></span></div>
 </section>
 
-<p class="wc-dept-fund-filter-status" id="officerFilterStatus"></p>
+<div class="wc-department-explorer-list-footer">
+  <button type="button" class="wc-department-list-link" id="officerListToggle" aria-expanded="false" aria-controls="officerSection">Browse Constitutional Officers List <span class="wc-department-list-link-icon" aria-hidden="true">&darr;</span></button>
+</div>
 
-<section aria-label="Constitutional Officers directory" class="page-text" id="officerSection">
+<section aria-label="Constitutional Officers directory" class="page-text" id="officerSection" style="margin-top:40px;" hidden>
   <h2>Constitutional Officers</h2>
   <ul class="wc-directory-list" id="officerList"></ul>
 </section>
@@ -327,245 +328,7 @@
       });
     }
 
-    // Top-of-page "at a glance" callouts. General Fund is split into two
-    // cards instead of one combined total -- "Constitutional Officers"
-    // (Board of County Commissioners, Clerk, Property Appraiser, Sheriff's
-    // Office, Supervisor of Elections, Tax Collector) and "Agencies & State
-    // Mandates" (the Autonomous Entities group below) draw on the same
-    // General Fund for very different reasons, so lumping them together
-    // would hide which side of a county-wide change came from which.
-    // Sheriff Fund gets its own card since Sheriff's Office is the only
-    // listed entity that uses it.
-    var FUND_SUMMARY_SPECS = [
-      { code:"001", label:"General Fund (Constitutional Officers)", groupIndex:0 },
-      { code:"001", label:"General Fund (Agencies & State Mandates)", groupIndex:1 },
-      { code:"107", label:"Sheriff Fund", groupIndex:0 }
-    ];
-
-    function computeFundSummaries(data){
-      var expenditures = Array.isArray(data && data.expenditures) ? data.expenditures : [];
-      var dedupedExpenditures = Array.isArray(data && data.dedupedExpenseRows) ? data.dedupedExpenseRows : expenditures;
-      var staffing = Array.isArray(data && data.staffing) ? data.staffing : [];
-
-      // Property Tax funds a fund two ways: directly, as Ad Valorem Taxes
-      // (Revenue_Code 311000, matched by the item's own Dept_Name the same
-      // way its budget figure is -- e.g. Board of County Commissioners'
-      // own 311000 row), or via an interfund transfer FROM a fund that
-      // collects it INTO a fund that doesn't levy it directly (Sheriff
-      // Fund's transfer from the General Fund, tagged with Note "Property
-      // Tax" on its own 381000 row, Dept_Name "Walton County Sheriff's
-      // Office" -- which matches the Sheriff item by name too). Items with
-      // no revenue row under their own name (Clerk, Tax Collector,
-      // Property Appraiser, Supervisor of Elections, and every Autonomous
-      // Entity) total $0 -- the sheet simply never books property tax
-      // against them individually.
-      var revenues = Array.isArray(data && data.revenues) ? data.revenues : [];
-      function propertyTaxForGroup(group, code){
-        var items = buildBaseItems(group);
-        return revenues.reduce(function(sum, row){
-          var isDirectPropertyTax = String(row.Revenue_Code || "").trim() === "311000";
-          var isPropertyTaxTransfer = String(row.Note || "").trim() === "Property Tax";
-          if(!isDirectPropertyTax && !isPropertyTaxTransfer) return sum;
-          var rowCode = String(row.Fund_code || fundCodeForRow(row)).trim();
-          if(rowCode !== code) return sum;
-          var matchesItem = items.some(function(item){ return rowMatches(row, item.name, group.aliasMap); });
-          if(!matchesItem) return sum;
-          return sum + (Number(row.FY2027_Proposed) || 0);
-        }, 0);
-      }
-
-      function sumForGroup(group, code){
-        var items = buildBaseItems(group);
-        var totals = { budget:0, priorBudget:0, fte:0, priorFte:0 };
-        items.forEach(function(item){
-          var expRows = expenditureRowsForItem(expenditures, item, group);
-          // Staffing rows for these entities (Board of County
-          // Commissioners, Sheriff, Clerk, etc.) carry no usable Dept_Code
-          // of their own (it's blank in the sheet) -- so which fund an
-          // item's personnel count belongs to is determined from its
-          // EXPENDITURE rows instead (those do carry a real Dept_Code):
-          // an item's staffing counts toward this fund only if the item
-          // itself has real FY2027 spending booked under this same code.
-          var itemUsesThisFund = expRows.some(function(row){
-            return fundCodeForRow(row) === code && (Number(row.FY2027_Proposed) || 0) !== 0;
-          });
-          expRows.forEach(function(row){
-            if(fundCodeForRow(row) === code) totals.budget += Number(row.FY2027_Proposed) || 0;
-          });
-          priorBudgetRowsForItem(dedupedExpenditures, expenditures, item, group).forEach(function(row){
-            if(fundCodeForRow(row) === code) totals.priorBudget += Number(row.FY2026_Original_Budget) || 0;
-          });
-          if(itemUsesThisFund){
-            staffing.forEach(function(row){
-              if(!rowMatches(row, item.name, group.aliasMap)) return;
-              totals.fte += Number(row["2027"]) || 0;
-              totals.priorFte += Number(row["2026"]) || 0;
-            });
-          }
-        });
-        return totals;
-      }
-
-      return FUND_SUMMARY_SPECS.map(function(spec){
-        var t = sumForGroup(GROUPS[spec.groupIndex], spec.code);
-        var propertyTaxShare = propertyTaxForGroup(GROUPS[spec.groupIndex], spec.code);
-        return {
-          label:spec.label,
-          budget:formatCurrency(t.budget),
-          trend:formatTrend(t.budget, t.priorBudget),
-          trendDollar:formatTrendDollar(t.budget, t.priorBudget),
-          fte:formatFte(t.fte),
-          fteTrend:formatFteTrend(t.fte, t.priorFte),
-          propertyTax:propertyTaxShare ? formatCurrency(propertyTaxShare) : ""
-        };
-      });
-    }
-
-    // sublines is an optional array of { label, value } pairs (value
-    // already-escaped HTML) shown indented under this chip's own
-    // label/value row -- see the Budget chip's "Property Tax Allocation"
-    // line in renderFundSummary.
-    function fundChipHtml(value, label, trendClass){
-      return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">' + escapeHtml(label) + '</span><strong' + (trendClass ? ' class="' + trendClass + '"' : "") + '>' + value + '</strong></div>';
-    }
-
-    function fundTrendChipHtml(trendDollar, trendPercent, trendClass){
-      if(trendDollar === "Loading"){
-        return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">YoY Change</span>' +
-          '<span class="wc-dept-fund-chip-value-wrap"><strong>' + LOADING_DOTS_HTML + '</strong>' +
-          '<span class="wc-dept-fund-chip-percent">' + LOADING_DOTS_HTML + "</span></span></div>";
-      }
-      var valueHtml = trendDollar ? escapeHtml(trendDollar) : "&mdash;";
-      var percentHtml = (trendDollar && trendPercent)
-        ? '<span class="wc-dept-fund-chip-percent">(' + escapeHtml(trendPercent) + ")</span>"
-        : "";
-      return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">YoY Change</span>' +
-        '<span class="wc-dept-fund-chip-value-wrap"><strong' + (trendClass ? ' class="' + trendClass + '"' : "") + '>' + valueHtml + "</strong>" + percentHtml + "</span></div>";
-    }
-
-    // Clicking a fund card filters the directory list(s) below to just the
-    // items on that card's fund AND group (two specs can share the same
-    // fund code -- e.g. General Fund is split into a Constitutional
-    // Officers card and an Agencies & State Mandates card -- so the active
-    // filter tracks the card's index in FUND_SUMMARY_SPECS, not just its
-    // fund code, and hides the section for the *other* group entirely
-    // while active).
-    var activeSpecIndex = null;
-    var shouldScrollToDirectoryFromUrl = false;
-    var lastFundSummaries = null;
     var lastGroupItems = null;
-
-    // Lets a link from elsewhere on the site (e.g. the homepage's General
-    // Fund picker) land here with the Constitutional Officers or Agencies
-    // & State Mandates card already selected, instead of always landing
-    // on the unfiltered, both-groups view.
-    (function initActiveSpecIndexFromUrl(){
-      try {
-        var params = new URLSearchParams(window.location.search);
-        var card = params.get("card");
-        if(card === "constitutional"){
-          activeSpecIndex = 0;
-          shouldScrollToDirectoryFromUrl = true;
-        } else if(card === "agencies"){
-          activeSpecIndex = 1;
-          shouldScrollToDirectoryFromUrl = true;
-        }
-      } catch (e) {}
-    })();
-
-    function renderFundSummary(fundSummaries){
-      lastFundSummaries = fundSummaries;
-      var el = $("#officerFundSummary");
-      if(!el) return;
-      el.innerHTML = fundSummaries.map(function(f, index){
-        var trendClass = (f.trendDollar && f.trendDollar !== "Loading") ? (f.trendDollar.charAt(0) === "-" ? "wc-directory-item-trend-down" : "wc-directory-item-trend-up") : "";
-        var fteTrendClass = (f.fteTrend && f.fteTrend !== "Loading") ? (f.fteTrend.charAt(0) === "-" ? "wc-directory-item-trend-down" : "wc-directory-item-trend-up") : "";
-        var propertyTaxLabel = "Property Tax";
-        var propertyTaxValueHtml = f.propertyTax === "Loading"
-          ? LOADING_DOTS_HTML
-          : escapeHtml(f.propertyTax || "$0");
-        var isActive = activeSpecIndex === index;
-        return '<button type="button" class="wc-dept-fund-card wc-dept-fund-card--clickable' + (isActive ? " wc-dept-fund-card--active" : "") + '" data-spec-index="' + index + '" aria-pressed="' + (isActive ? "true" : "false") + '">' +
-          '<p class="wc-dept-fund-card-label">' + escapeHtml(f.label) + '</p>' +
-          '<div class="wc-dept-fund-card-chips">' +
-            fundChipHtml(valueOrLoadingHtml(f.budget), "Budget") +
-            fundTrendChipHtml(f.trendDollar, f.trend, trendClass) +
-            fundChipHtml(propertyTaxValueHtml, propertyTaxLabel) +
-            fundChipHtml(valueOrLoadingHtml(f.fte) + '<span class="wc-dept-fund-staff-change">' + (f.fteTrend === "Loading" ? LOADING_DOTS_HTML : " (" + (f.fteTrend ? escapeHtml(f.fteTrend) + " FTE" : "0") + ")") + '</span>', "Personnel") +
-            fundChipHtml(f.fteTrend === "Loading" ? LOADING_DOTS_HTML : (f.fteTrend ? escapeHtml(f.fteTrend) : "&mdash;"), "YoY FTE", fteTrendClass) +
-          '</div>' +
-        '</button>';
-      }).join("");
-
-      Array.prototype.forEach.call(el.querySelectorAll(".wc-dept-fund-card--clickable"), function(card){
-        card.addEventListener("click", function(){
-          var index = Number(card.getAttribute("data-spec-index"));
-          activeSpecIndex = activeSpecIndex === index ? null : index;
-          renderFundSummary(lastFundSummaries);
-          renderFilteredGroups();
-          scrollDirectoryIntoViewOnMobile();
-        });
-      });
-    }
-
-    function scrollDirectoryIntoViewOnMobile(){
-      var target = $("#officerFilterStatus") || $("#officerSection") || $("#entitySection");
-      if(!target) return;
-      window.requestAnimationFrame(function(){
-        var nav = document.querySelector("nav#nav-menu.nav-menu");
-        var navHeight = nav ? nav.getBoundingClientRect().height : 0;
-        var top = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
-        window.scrollTo({ top:Math.max(0, top), behavior:"smooth" });
-      });
-    }
-
-    function renderFilterStatus(){
-      var status = $("#officerFilterStatus");
-      if(!status) return;
-      if(activeSpecIndex === null){
-        status.innerHTML = "";
-        return;
-      }
-      var spec = FUND_SUMMARY_SPECS[activeSpecIndex];
-      var label = spec ? spec.label : "";
-      status.innerHTML = "Showing entries in <strong>" + escapeHtml(label) + "</strong> &middot; " +
-        '<button type="button" id="officerFilterClear">Show all</button>';
-      var clearBtn = $("#officerFilterClear");
-      if(clearBtn){
-        clearBtn.addEventListener("click", function(){
-          activeSpecIndex = null;
-          renderFundSummary(lastFundSummaries);
-          renderFilteredGroups();
-          scrollDirectoryIntoViewOnMobile();
-        });
-      }
-    }
-
-    // Re-renders both directory lists (and shows/hides their sections)
-    // against the currently-active fund card, using whichever items were
-    // last computed by initDirectory (loading placeholders or real data).
-    function renderFilteredGroups(){
-      renderFilterStatus();
-      if(!lastGroupItems) return;
-      var spec = activeSpecIndex === null ? null : FUND_SUMMARY_SPECS[activeSpecIndex];
-      lastGroupItems.forEach(function(entry, groupIndex){
-        var sectionId = groupIndex === 0 ? "officerSection" : "entitySection";
-        var section = $("#" + sectionId);
-        if(!spec){
-          if(section) section.style.display = "";
-          renderItems(entry.group, entry.items);
-          return;
-        }
-        if(spec.groupIndex !== groupIndex){
-          if(section) section.style.display = "none";
-          return;
-        }
-        if(section) section.style.display = "";
-        renderItems(entry.group, entry.items.filter(function(item){
-          return (item.fundCodes || []).indexOf(spec.code) !== -1;
-        }));
-      });
-    }
 
     function statBlockHtml(modifierClass, valueHtml, label, trendClass){
       return '<div class="wc-directory-item-stat ' + modifierClass + '">' +
@@ -647,42 +410,17 @@
         return { group:group, baseItems:baseItems };
       });
 
-      // Render the fund summary cards with placeholder values immediately
-      // (rather than leaving the section empty until loadBudgetData
-      // resolves) so the directory lists below don't shift down once the
-      // real cards pop in -- without this, clicking an officer/agency link
-      // quickly after the page loads but before data arrives can land on
-      // the wrong link once the layout shifts.
-      renderFundSummary(FUND_SUMMARY_SPECS.map(function(spec){
-        // trendDollar/trend both need a truthy placeholder (not "") so the
-        // YoY Change chip's % subline renders during loading too -- see
-        // fundTrendChipHtml's loading branch -- otherwise the placeholder
-        // card is one line shorter than the real card, shifting the
-        // directory lists below once real data with a % arrives.
-        return { label:spec.label, budget:"Loading", trend:"Loading", trendDollar:"Loading", fte:"Loading", fteTrend:"Loading", propertyTax:"Loading" };
-      }));
-
-      if(shouldScrollToDirectoryFromUrl){
-        renderFilteredGroups();
-        scrollDirectoryIntoViewOnMobile();
-      }
-
       if(window.WCBudgetData && typeof window.WCBudgetData.loadBudgetData === "function"){
         window.WCBudgetData.loadBudgetData()
           .then(function(data){
             groupItems.forEach(function(entry, groupIndex){
               lastGroupItems[groupIndex] = { group:entry.group, items:enrichItems(entry.group, entry.baseItems, data) };
+              renderItems(entry.group, lastGroupItems[groupIndex].items);
             });
-            renderFundSummary(computeFundSummaries(data));
-            renderFilteredGroups();
-            if(shouldScrollToDirectoryFromUrl){
-              shouldScrollToDirectoryFromUrl = false;
-              scrollDirectoryIntoViewOnMobile();
-            }
           })
           .catch(function(){
             groupItems.forEach(function(entry, groupIndex){
-              lastGroupItems[groupIndex] = { group:entry.group, items:entry.baseItems.map(function(item){
+              var items = entry.baseItems.map(function(item){
                 return {
                   name:item.name,
                   href:item.href,
@@ -695,14 +433,32 @@
                   fteTrend:"",
                   fundCodes:[]
                 };
-              }) };
+              });
+              lastGroupItems[groupIndex] = { group:entry.group, items:items };
+              renderItems(entry.group, items);
             });
-            renderFilteredGroups();
           });
       }
     }
 
-    document.addEventListener("DOMContentLoaded", initDirectory);
+    function initOfficerListToggle(){
+      var toggle = document.getElementById("officerListToggle");
+      var section = document.getElementById("officerSection");
+      if(!toggle || !section) return;
+      toggle.addEventListener("click", function(){
+        var expanded = toggle.getAttribute("aria-expanded") === "true";
+        expanded = !expanded;
+        toggle.setAttribute("aria-expanded", String(expanded));
+        section.hidden = !expanded;
+        toggle.firstChild.textContent = expanded ? "Hide Constitutional Officers List " : "Browse Constitutional Officers List ";
+        if(expanded) section.scrollIntoView({ behavior:"smooth", block:"start" });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function(){
+      initDirectory();
+      initOfficerListToggle();
+    });
   })();
 </script>
 </body>

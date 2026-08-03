@@ -2019,8 +2019,11 @@
   var WC_NAV_LINKS = [
     { label:"Our County", href:"our-county.html" },
     { label:"Budget Overview", href:"budget-overview.html" },
+    { label:"Revenue Budget", href:"summary-of-revenues.html" },
+    { label:"Personnel Budget", href:"summary-of-personnel.html" },
+    { label:"Department Budgets", href:"department-budget.html" },
     { label:"Officers & Agencies", href:"constitutional-officers.html" },
-    { label:"Department Budgets", href:"department-budget.html" }
+    { label:"Capital Budget", href:"capital-projects.html" }
   ];
   function ensureWcNavChrome(){
     var nav = document.querySelector("nav#nav-menu.nav-menu");
