@@ -560,18 +560,20 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-personnel-explorer-head > div:first-child > span { color: var(--green); font-size: .68rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
 .wc-personnel-explorer-head h2 { margin: 5px 0 7px; color: var(--navy); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; line-height: 1.12; }
 .wc-personnel-explorer-head > div:first-child { flex: 1 1 auto; min-width: 0; }
-.wc-personnel-explorer-head p { max-width: 900px; margin: 0; color: var(--text); font-size: .82rem; text-align: justify; text-justify: inter-word; }
-.wc-personnel-total-budget { display: flex; flex: 0 0 auto; align-items: flex-start; gap: 14px; text-align: right; }
-.wc-personnel-budget-split { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; padding-top: 2px; }
-.wc-personnel-budget-split > div { min-width: 135px; padding: 0 12px; border-right: 1px solid rgba(0,63,40,.14); }
+.wc-personnel-explorer-head p { max-width: 1100px; margin: 0; color: var(--text); font-size: .82rem; text-align: justify; text-justify: inter-word; }
+.wc-personnel-total-budget { display: flex; flex: 0 0 220px; min-width: 220px; flex-direction: column; align-items: flex-end; gap: 14px; text-align: right; }
+.wc-personnel-total-budget .wc-personnel-explorer-total { order: 1; }
+.wc-personnel-total-budget .wc-personnel-budget-split { order: 2; }
+.wc-personnel-budget-split { display: grid; grid-template-columns: 1fr; gap: 9px; padding-top: 2px; }
+.wc-personnel-budget-split > div { min-width: 135px; padding: 0 0 9px; border-bottom: 1px solid rgba(0,63,40,.14); }
 .wc-personnel-budget-split > div:first-child { padding-left: 0; }
-.wc-personnel-budget-split > div:last-child { border-right: 0; }
-.wc-personnel-budget-split span { display: block; color: var(--muted); font-size: .58rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
-.wc-personnel-budget-split b { display: block; margin-top: 4px; color: var(--green); font-size: .96rem; }
+.wc-personnel-budget-split > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.wc-personnel-budget-split span { display: block; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
+.wc-personnel-budget-split b { display: block; margin-top: 4px; color: var(--green); font-size: 1.2rem; }
 .wc-personnel-explorer-total { flex: 0 0 auto; min-width: 210px; text-align: right; }
 .wc-personnel-explorer-total > span { display: block; color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
 .wc-personnel-explorer-total > strong { display: block; margin-top: 3px; color: var(--navy); font-size: 1.65rem; }
-.wc-personnel-explorer-total > small { display: block; color: var(--muted); font-size: 1rem; line-height: 1.35; }
+.wc-personnel-explorer-total > small { display: block; color: var(--muted); font-size: 1rem; line-height: 1.35; white-space: nowrap; }
 .wc-personnel-explorer-total > small.is-increase { color: #087443; font-weight: 800; }
 .wc-personnel-explorer-total > small.is-decrease { color: #b42318; font-weight: 800; }
 .wc-personnel-explorer-total > div { display: flex; justify-content: flex-end; gap: 7px; margin-top: 9px; }
@@ -583,6 +585,7 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-personnel-explorer-metrics span { display: block; color: var(--muted); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
 .wc-personnel-explorer-metrics strong { display: block; margin: 5px 0 2px; color: var(--navy); font-size: 1.12rem; }
 .wc-personnel-explorer-metrics small { color: var(--muted); font-size: .74rem; }
+.wc-personnel-explorer-metrics article:nth-child(2) small { line-height: 1.45; }
 .wc-workforce-type-split { display: flex; flex-wrap: wrap; gap: 5px 10px; margin-top: 9px; padding-top: 8px; border-top: 1px solid var(--border); }
 .wc-personnel-explorer-metrics .wc-workforce-type-split span { display: inline-flex; align-items: baseline; gap: 4px; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
 .wc-workforce-type-split b { color: var(--green); font-size: .78rem; }
@@ -614,6 +617,10 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-personnel-cost-help-text { display: none; position: absolute; z-index: 5; top: calc(100% + 9px); left: 0; width: 280px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card,#fff); color: var(--text); box-shadow: 0 8px 22px rgba(0,0,0,.15); font-size: .72rem; font-weight: 500; line-height: 1.45; text-align: left; }
 .wc-personnel-cost-help-badge:hover .wc-personnel-cost-help-text,.wc-personnel-cost-help-badge:focus .wc-personnel-cost-help-text { display: block; }
 .wc-personnel-function-list b { color: #2f6072; }
+.wc-personnel-net-change-pills { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: 12px; }
+.wc-personnel-net-change-pills span { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; background: #eef1f4; color: var(--muted); font-size: .7rem; font-weight: 500; text-transform: none; letter-spacing: normal; cursor: pointer; }
+.wc-personnel-net-change-pills span:hover, .wc-personnel-net-change-pills span:focus-visible { background: #dfe7ec; }
+.wc-personnel-net-change-pills b { color: #2f6072; font-weight: 800; }
 .wc-personnel-profile-card > p { margin: 10px 0 0; color: var(--muted); font-size: .7rem; line-height: 1.45; }
 .wc-personnel-ledger { margin: 34px 0 42px; scroll-margin-top: 105px; }
 .wc-personnel-ledger-close { padding: 9px 14px; border: 1px solid rgba(0,63,40,.2); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .7rem; font-weight: 850; }
@@ -701,7 +708,7 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
   .wc-revenue-concentration-head { display: block; }
   .wc-revenue-total-budget { min-width: 0; margin-top: 14px; justify-content: flex-start; text-align: left; }
   .wc-personnel-explorer-head { flex-direction: column; }
-  .wc-personnel-total-budget { width: 100%; justify-content: flex-start; text-align: left; }
+  .wc-personnel-total-budget { width: 100%; align-items: flex-start; justify-content: flex-start; text-align: left; }
   .wc-personnel-explorer-total { text-align: left; }
   .wc-personnel-explorer-total > div { justify-content: flex-start; }
 }

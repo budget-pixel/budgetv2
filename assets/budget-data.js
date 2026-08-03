@@ -13285,16 +13285,31 @@
       // Compliance Beach/Street -> Code Compliance), so this list of
       // increases/reductions lines up with the table below it.
       const deltaByDept = new Map();
+      const areaByDept = new Map();
       staffingRows.forEach((r) => {
         const name = personnelDeptDisplayName(r.Dept_Name);
         deltaByDept.set(name, (deltaByDept.get(name) || 0) + ((Number(r[2027]) || 0) - (Number(r[2026]) || 0)));
+        if (!areaByDept.has(name)) areaByDept.set(name, expenseActivityForRow(r) || "General Government");
       });
       const increases = Array.from(deltaByDept.entries()).filter(([, d]) => d > 0).sort((a, b) => b[1] - a[1]);
       const decreases = Array.from(deltaByDept.entries()).filter(([, d]) => d < 0).sort((a, b) => a[1] - b[1]);
-      function deltaListText(list) {
-        if (!list.length) return "none";
-        return list.map(([name, delta]) => name + " (" + (delta > 0 ? "+" : "") + formatNumber(delta) + ")").join(", ");
-      }
+      // Functional areas (not individual departments) touched by a staffing
+      // change, netted by actual FTE delta (not just department count) --
+      // shown on the "Departments changing staff" card so a reader sees
+      // *what kind* of service is net adding or cutting positions without
+      // having to open the full department table. An area whose FTE deltas
+      // cancel out to zero is left out.
+      const areaNetCounts = (() => {
+        const counts = new Map();
+        deltaByDept.forEach((delta, name) => {
+          if (!delta) return;
+          const area = areaByDept.get(name) || "General Government";
+          counts.set(area, (counts.get(area) || 0) + delta);
+        });
+        return Array.from(counts.entries())
+          .filter(([, net]) => net !== 0)
+          .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]) || a[0].localeCompare(b[0]));
+      })();
 
       // COLA and Health Insurance Increase, the two named drivers this site
       // already quantifies per department (see PERSONNEL_COST_COLA_RATE /
@@ -13393,9 +13408,38 @@
           '<div class="wc-personnel-explorer-grid"><div><h3>Largest staffing departments</h3><div class="wc-personnel-dept-cards">' + deptCards + '</div></div><div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff organized by functional area?</h3><div class="wc-personnel-profile-card"><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div><p>Functional areas follow the County activity classifications used throughout the budget.</p></div></section></div></div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
         if (personnelKicker && personnelKicker.textContent.trim() === 'FY 2027 workforce and cost') personnelKicker.remove();
+        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Departments changing staff');
+        if (staffChangeCard) {
+          const note = staffChangeCard.querySelector('small');
+          if (note) {
+            note.innerHTML = areaNetCounts.length
+              ? '<span class="wc-personnel-net-change-pills">' + areaNetCounts.map(([area, net]) =>
+                  '<span data-personnel-net-function="' + escapeHtml(area) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(area) + '</span>'
+                ).join('') + '</span>'
+              : 'No net change by function';
+          }
+        }
+        const personnelDescription = explorer.querySelectorAll('.wc-personnel-explorer-head > div:first-child > p')[1];
+        if (personnelDescription) personnelDescription.textContent = 'FTE counts include full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is shown across Salaries & Wages (regular salaries and other salaries), Overtime & Weekend Pay, Retirement, Health Insurance, and Other Benefits & Taxes (FICA/Medicare, workers’ compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff’s Office.';
         explorer.querySelectorAll('.wc-personnel-explorer-metrics article > span').forEach((label) => {
           label.textContent = label.textContent.replace(/^Board department\s+/i, '');
         });
+        const healthInsuranceCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Health insurance');
+        if (healthInsuranceCard) {
+          const healthLabel = healthInsuranceCard.querySelector('span');
+          if (healthLabel) healthLabel.textContent = 'Health insurance & turnover';
+          const healthNote = healthInsuranceCard.querySelector('small');
+          if (healthNote) healthNote.textContent = 'About ' + formatCurrency(healthInsuranceIncrease) + ' within Board department health insurance · FY 2026 turnover: 11.40% (89 separations / 781 average)';
+        }
+        const salaryCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Salary adjustment');
+        if (salaryCard) {
+          const salaryLabel = salaryCard.querySelector('span');
+          const salaryValue = salaryCard.querySelector('strong');
+          const salaryNote = salaryCard.querySelector('small');
+          if (salaryLabel) salaryLabel.textContent = 'Personnel cost drivers';
+          if (salaryValue) salaryValue.textContent = '3% COLA · 5% health';
+          if (salaryNote) salaryNote.textContent = 'FRS retirement rates vary by employee class';
+        }
         const personnelTotalLabel = explorer.querySelector('.wc-personnel-explorer-total > span');
         if (personnelTotalLabel) personnelTotalLabel.textContent = 'Total personnel budget';
         const personnelCostHeading = Array.from(explorer.querySelectorAll('.wc-personnel-profile-section h3')).find((heading) => heading.textContent.trim() === 'What drives Board department personnel cost?');
@@ -13441,6 +13485,10 @@
         explorer.querySelectorAll(".wc-personnel-function-list span").forEach((pill) => pill.addEventListener("click", () => {
           showPersonnelLedger("cost", false);
           document.dispatchEvent(new CustomEvent("wc-personnel-select-function", { detail: { functionName: pill.textContent.replace(/^\s*[0-9.]+\s*/, "").trim() } }));
+        }));
+        explorer.querySelectorAll("[data-personnel-net-function]").forEach((pill) => pill.addEventListener("click", () => {
+          showPersonnelLedger("cost", false);
+          document.dispatchEvent(new CustomEvent("wc-personnel-select-function", { detail: { functionName: pill.dataset.personnelNetFunction } }));
         }));
         document.querySelectorAll("[data-personnel-close]").forEach((button) => button.addEventListener("click", () => {
           const ledger = button.closest(".wc-personnel-ledger");
