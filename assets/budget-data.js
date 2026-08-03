@@ -13261,6 +13261,8 @@
       const totalFte2027 = staffingRows.reduce((sum, r) => sum + (Number(r[2027]) || 0), 0);
       const totalFte2026 = staffingRows.reduce((sum, r) => sum + (Number(r[2026]) || 0), 0);
       const fteChange = totalFte2027 - totalFte2026;
+      const boardFte2027 = staffingRows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name)).reduce((sum, r) => sum + (Number(r[2027]) || 0), 0);
+      const constitutionalFte2027 = totalFte2027 - boardFte2027;
       const workforceTypeTotals = staffingRows.reduce((totals, row) => {
         const fte = Math.max(0, Number(row[2027]) || 0);
         const wholeFte = Math.floor(fte + 0.000001);
@@ -13395,6 +13397,8 @@
       const overtimeByDept = buildPersonnelCostOvertimeByDept();
       const overtimeTotal = Array.from(overtimeByDept.entries()).filter(([dept]) => boardCostRows.some((row) => row.Dept_Name === dept)).reduce((sum, [, amount]) => sum + amount, 0);
       const retirementTotal = boardCostRows.reduce((sum, row) => sum + row.Retirement, 0);
+      const retirementPriorTotal = (cache.expenditures || []).filter((row) => String(row.Object_Code || '').trim() === PERSONNEL_COST_RETIREMENT_CODE && !isConstitutionalPersonnelDept(row.Dept_Name)).reduce((sum, row) => sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0), 0);
+      const retirementChangePct = retirementPriorTotal ? ((retirementTotal - retirementPriorTotal) / retirementPriorTotal * 100) : 0;
       const otherBenefitsTotal = boardCostRows.reduce((sum, row) => sum + row.OtherBenefits, 0);
       const explorer = document.getElementById("personnel-explorer");
       if (explorer) {
@@ -13404,11 +13408,11 @@
         }).join("");
       const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
         explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Explorer</h2><p>Personnel is the County&rsquo;s largest budgeted cost. The Personnel Budget presents Full-Time Equivalent (FTE) position counts and budgeted personnel costs together so users can review workforce levels and costs for each department side by side.</p><p>FTE counts both full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is split into Salaries &amp; Wages (regular salaries, other salaries, and overtime), Retirement, Health Insurance, and Other Benefits &amp; Taxes (FICA/Medicare, workers&rsquo; compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff&rsquo;s Office.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(formatCurrency(boardDepartmentPersonnelCost)) + '</b></div><div><span>Constitutional Officers</span><b>' + escapeHtml(formatCurrency(constitutionalPersonnelCost)) + '</b></div></div><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(formatCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
-          '<div class="wc-personnel-explorer-metrics"><article><span>Total budgeted workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change" : (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article><span>Departments changing staff</span><strong>' + (increases.length + decreases.length) + '</strong><small>' + increases.length + ' increasing · ' + decreases.length + ' reducing</small></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
+          '<div class="wc-personnel-explorer-metrics"><article><span>Total budgeted workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change" : (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article><span>Functional area staff changes</span><strong>' + areaNetCounts.length + '</strong><small>' + increases.length + ' increasing · ' + decreases.length + ' reducing</small></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
           '<div class="wc-personnel-explorer-grid"><div><h3>Largest staffing departments</h3><div class="wc-personnel-dept-cards">' + deptCards + '</div></div><div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff organized by functional area?</h3><div class="wc-personnel-profile-card"><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div><p>Functional areas follow the County activity classifications used throughout the budget.</p></div></section></div></div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
         if (personnelKicker && personnelKicker.textContent.trim() === 'FY 2027 workforce and cost') personnelKicker.remove();
-        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Departments changing staff');
+        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Functional area staff changes');
         if (staffChangeCard) {
           const note = staffChangeCard.querySelector('small');
           if (note) {
@@ -13424,24 +13428,44 @@
         explorer.querySelectorAll('.wc-personnel-explorer-metrics article > span').forEach((label) => {
           label.textContent = label.textContent.replace(/^Board department\s+/i, '');
         });
-        const healthInsuranceCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Health insurance');
-        if (healthInsuranceCard) {
-          const healthLabel = healthInsuranceCard.querySelector('span');
-          if (healthLabel) healthLabel.textContent = 'Health insurance & turnover';
-          const healthNote = healthInsuranceCard.querySelector('small');
-          if (healthNote) healthNote.textContent = 'About ' + formatCurrency(healthInsuranceIncrease) + ' within Board department health insurance · FY 2026 turnover: 11.40% (89 separations / 781 average)';
+        const metricCards = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article'));
+        if (metricCards[0]) {
+          const workforceSplit = document.createElement('div');
+          workforceSplit.className = 'wc-personnel-workforce-split';
+          workforceSplit.innerHTML = '<span><b>' + formatNumber(boardFte2027) + '</b> Board departments</span><span><b>' + formatNumber(constitutionalFte2027) + '</b> Constitutional officers</span>';
+          metricCards[0].appendChild(workforceSplit);
         }
-        const salaryCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Salary adjustment');
-        if (salaryCard) {
-          const salaryLabel = salaryCard.querySelector('span');
-          const salaryValue = salaryCard.querySelector('strong');
-          const salaryNote = salaryCard.querySelector('small');
-          if (salaryLabel) salaryLabel.textContent = 'Personnel cost drivers';
-          if (salaryValue) salaryValue.textContent = '3% COLA · 5% health';
-          if (salaryNote) salaryNote.textContent = 'FRS retirement rates vary by employee class';
+        const costDriversCard = metricCards[2];
+        if (costDriversCard) {
+          const retirementChangeAmount = retirementTotal - retirementPriorTotal;
+          costDriversCard.innerHTML = '<span>Personnel cost drivers</span><div class="wc-personnel-driver-row"><strong>3% COLA</strong><small>About ' + formatCurrency(totalCola) + ' within Board department salaries and wages</small></div><div class="wc-personnel-driver-row"><strong>5% Health Insurance</strong><small>About ' + formatCurrency(healthInsuranceIncrease) + ' within Board department health insurance</small></div><div class="wc-personnel-driver-row"><strong>' + Math.abs(retirementChangePct).toFixed(1) + '% FRS Retirement</strong><small>About ' + formatCurrency(Math.abs(retirementChangeAmount)) + ' ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ' in Board department retirement costs</small></div>';
+        }
+        const turnoverCard = metricCards[3];
+        if (turnoverCard) {
+          turnoverCard.innerHTML = '<span>FY 2026 turnover</span><strong>11.40%</strong><small>89 separations / 781 average workforce</small><div class="wc-personnel-driver-row"><strong>8.2% average</strong><small>State &amp; local government annual voluntary turnover</small></div><div class="wc-personnel-driver-row"><strong>125–130 expected hires <span class="wc-personnel-cost-help-badge" tabindex="0" aria-label="Expected hiring estimate details">?</span></strong><small>FY 2026 replacement estimate</small></div><div class="wc-personnel-driver-row"><strong>FY 2027 outlook</strong><small>Turnover is expected to remain near FY 2026</small></div>';
+          const hiringBadge = turnoverCard.querySelector('.wc-personnel-cost-help-badge');
+          if (hiringBadge) {
+            const floatingHelp = document.createElement('div');
+            floatingHelp.className = 'wc-personnel-floating-help';
+            floatingHelp.textContent = 'Based on 108 separations through August 3 and about 21 projected through September 30. Planning formula: projected separations + new positions − positions not backfilled.';
+            document.body.appendChild(floatingHelp);
+            const showFloatingHelp = () => {
+              const rect = hiringBadge.getBoundingClientRect();
+              floatingHelp.style.left = Math.min(rect.left, window.innerWidth - 290) + 'px';
+              floatingHelp.style.top = (rect.bottom + 8) + 'px';
+              floatingHelp.classList.add('is-visible');
+            };
+            const hideFloatingHelp = () => floatingHelp.classList.remove('is-visible');
+            hiringBadge.addEventListener('mouseenter', showFloatingHelp);
+            hiringBadge.addEventListener('mouseleave', hideFloatingHelp);
+            hiringBadge.addEventListener('focus', showFloatingHelp);
+            hiringBadge.addEventListener('blur', hideFloatingHelp);
+          }
         }
         const personnelTotalLabel = explorer.querySelector('.wc-personnel-explorer-total > span');
         if (personnelTotalLabel) personnelTotalLabel.textContent = 'Total personnel budget';
+        const personnelTotalChange = explorer.querySelector('.wc-personnel-explorer-total > small');
+        if (personnelTotalChange) personnelTotalChange.textContent = personnelTotalChange.textContent.replace(/\s+from FY 2026\s*$/i, '');
         const personnelCostHeading = Array.from(explorer.querySelectorAll('.wc-personnel-profile-section h3')).find((heading) => heading.textContent.trim() === 'What drives Board department personnel cost?');
         if (personnelCostHeading) {
           const personnelCostHelp = 'This breakdown represents Board of County Commissioners department personnel only. Contact the applicable constitutional office directly for information about its personnel costs and associated increases.';
@@ -13563,7 +13587,8 @@
   ]);
 
   function isConstitutionalPersonnelDept(deptName) {
-    return PERSONNEL_COST_CONSTITUTIONAL_DEPTS.has(normalizeDeptName(deptName));
+    const normalized = normalizeDeptName(deptName);
+    return PERSONNEL_COST_CONSTITUTIONAL_DEPTS.has(normalized) || /(^| )(sheriff|sheriffs office|clerk of circuit court|clerk of courts|property appraiser|supervisor of elections|tax collector)( |$)/.test(normalized);
   }
 
   function isAggregateOnlyPersonnelDept(deptName) {
