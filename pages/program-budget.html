@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program Budget — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260802-program-budget">
+</head>
+<body>
+<nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
+<div id="layout"><main id="content">
+  <div class="page-eyebrow">Budget Overview</div>
+  <h1 class="page-title">Program Budget</h1>
+  <p class="page-intro">Explore major services across County departments and connect each service area to cost, funding, expected activity, measurable results, and strategic priorities.</p>
+
+  <style>
+    .wc-foundation-disclosure{margin:0 0 32px;border:1px solid var(--border);border-radius:14px;background:#fff;overflow:hidden}
+    .wc-foundation-disclosure>summary{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:15px 18px;cursor:pointer;list-style:none;color:var(--navy);font:800 .88rem/1.3 Arial,Helvetica,sans-serif}
+    .wc-foundation-disclosure>summary::-webkit-details-marker{display:none}
+    .wc-foundation-disclosure>summary::after{content:"View";color:var(--green);font-size:.72rem}
+    .wc-foundation-disclosure[open]>summary::after{content:"Hide"}
+    .wc-strategy-foundation{display:grid;grid-template-columns:1.15fr .85fr 1fr;gap:12px;margin:0;padding:0 14px 14px}
+    .wc-strategy-statement{position:relative;min-height:0;padding:20px 20px 20px 26px;border:1px solid var(--border);border-radius:14px;background:#fff;box-shadow:0 7px 18px rgba(36,52,77,.05)}
+    .wc-strategy-statement::before{content:"";position:absolute;left:0;top:24px;bottom:24px;width:6px;border-radius:0 5px 5px 0;background:#d1be78}
+    .wc-strategy-statement--vision::before{background:var(--green)}
+    .wc-strategy-statement span{display:block;color:var(--green);font:800 .7rem/1.2 Arial,Helvetica,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+    .wc-strategy-statement h2{margin:6px 0 8px;color:var(--navy);font-size:1.25rem}
+    .wc-strategy-statement p{margin:0;color:var(--text);font:400 .84rem/1.55 Arial,Helvetica,sans-serif}
+    :root[data-theme="dark"] .wc-strategy-statement{background:rgba(14,28,22,.92)}
+    :root[data-theme="dark"] .wc-foundation-disclosure{background:rgba(14,28,22,.92)}
+    .wc-strategy-values{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none}
+    .wc-strategy-values li{padding:6px 8px;border-radius:999px;background:var(--light);color:var(--navy);font:700 .7rem/1 Arial,Helvetica,sans-serif}
+    @media(max-width:900px){.wc-strategy-foundation{grid-template-columns:1fr 1fr}.wc-strategy-statement--values{grid-column:1/-1}}
+    @media(max-width:680px){.wc-strategy-foundation{grid-template-columns:1fr}.wc-strategy-statement--values{grid-column:auto}}
+  </style>
+  <details class="wc-foundation-disclosure">
+    <summary>Mission, vision, and core values</summary>
+    <section class="wc-strategy-foundation" aria-label="Mission, vision, and core values">
+      <article class="wc-strategy-statement">
+        <span>Our foundation</span>
+        <h2>Mission</h2>
+        <p>To efficiently and effectively serve the citizens of Walton County by providing a safe community and a sustainable economy while preserving our quality of life and natural resources.</p>
+      </article>
+      <article class="wc-strategy-statement wc-strategy-statement--vision">
+        <span>Our direction</span>
+        <h2>Vision</h2>
+        <p>To be the premier county in which to live, visit, work, and play.</p>
+      </article>
+      <article class="wc-strategy-statement wc-strategy-statement--values">
+        <span>How we serve</span>
+        <h2>Core values</h2>
+        <ul class="wc-strategy-values">
+          <li>Transparent</li><li>Proactive</li><li>Service oriented</li><li>Integrity</li><li>Professional</li><li>Accountable</li>
+        </ul>
+      </article>
+    </section>
+  </details>
+
+  <section id="program-budget-checklist" class="wc-revenue-questions" aria-label="Program budget build checklist"></section>
+  <section id="program-budget-explorer" aria-label="Program Budget Explorer">
+    <div class="wc-data-loading">Loading program budgets...</div>
+  </section>
+</main></div>
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260802-program-total-fix"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/program-budget.js?v=20260802-program-total-fix"></script>
+</body>
+</html>

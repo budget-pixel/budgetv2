@@ -1,0 +1,2682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walton County FY 2027 Proposed Budget</title>
+<script>
+  /* Microsoft Clarity -- every other page loads this via assets/nav.js,
+     but the homepage builds its own nav inline and never includes that
+     file, so this session-recording snippet never loaded here at all.
+     Kept identical to assets/nav.js's own copy (same project id). */
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);
+    t.async=1;
+    t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];
+    y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "xb6teb7sh7");
+  window.clarity("consentv2", {
+    ad_Storage: "denied",
+    analytics_Storage: "granted"
+  });
+</script>
+<script>
+  (function(){
+    try{
+      var adminTheme = new URLSearchParams(window.location.search).get("adminTheme");
+      if(adminTheme === "dark" || adminTheme === "light"){
+        /* Hidden local developer preference only; this is not a public feature or navigation setting. */
+        window.localStorage.setItem("waltonBudgetTheme", adminTheme);
+      }
+      if(window.localStorage.getItem("waltonBudgetTheme") === "dark"){
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    }catch(e){}
+  })();
+</script>
+<style>
+  :root{
+    --wc-green:#006231;
+    --wc-green-2:#0b7741;
+    --wc-green-3:#003f28;
+    --wc-gold:#d1be78;
+    --wc-gold-2:#f1dc94;
+    --wc-ink:#172033;
+    --wc-muted:#607184;
+    --wc-line:rgba(23,32,51,.11);
+    --wc-soft:#f6f8f5;
+    --wc-white:#ffffff;
+    --wc-shadow:0 22px 54px rgba(23,32,51,.12);
+    --wc-radius:28px;
+    --wc-header-h:76px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{
+    max-width:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+  }
+  body{
+    margin:0;
+    max-width:100%;
+    overflow-x:hidden;
+    color:var(--wc-ink);
+    background:
+      radial-gradient(circle at top left, rgba(209,190,120,.16), transparent 34rem),
+      linear-gradient(180deg,#fbfcfa 0%,#f3f7f1 45%,#ffffff 100%);
+    font-family:Arial, Helvetica, sans-serif;
+    line-height:1.5;
+  }
+  a{color:inherit}
+  img{max-width:100%;display:block}
+
+  .wc-skip-link{
+    position:fixed;
+    top:12px;
+    left:12px;
+    z-index:10000;
+    transform:translateY(-160%);
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    padding:10px 14px;
+    border:2px solid #0b4b3a;
+    border-radius:6px;
+    background:#ffffff;
+    color:#063b2d;
+    font:700 15px/1.2 Arial, Helvetica, sans-serif;
+    text-decoration:none;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+  }
+  .wc-skip-link:focus{
+    transform:translateY(0);
+    outline:3px solid var(--wc-gold);
+    outline-offset:3px;
+  }
+
+  .wc-home-shell{
+    width:min(1440px, calc(100% - 32px));
+    margin:0 auto;
+  }
+
+  .wc-story-nav{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:24px;
+    min-height:76px;
+    padding:22px clamp(22px, 4vw, 64px) 14px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+  }
+  .logo-container{
+    flex:0 0 auto;
+    min-width:284px;
+    display:flex;
+    align-items:center;
+  }
+  .wc-story-nav .wc-split-brand{
+    height:52px !important;
+  }
+  .wc-story-nav .wc-split-brand-top{
+    color:#ffffff !important;
+    font-size:24px !important;
+  }
+  .wc-story-nav .wc-split-brand-bottom{
+    color:rgba(255,255,255,.82) !important;
+  }
+  .wc-story-nav .wc-split-brand-seal,
+  .wc-story-nav .wc-seal-mark{
+    width:46px !important;
+    height:46px !important;
+    flex-basis:46px !important;
+    background-size:42px 42px !important;
+  }
+  .wc-top-links{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:6px;
+    margin-left:auto;
+  }
+  .wc-top-links a{
+    display:inline-flex;
+    align-items:center;
+    min-height:38px;
+    padding:0 12px;
+    border:0;
+    border-radius:999px;
+    background:transparent;
+    color:rgba(255,255,255,.92);
+    font:700 14px/1 Arial, Helvetica, sans-serif;
+    text-decoration:none;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .wc-top-links a:hover{
+    background:rgba(255,255,255,.14);
+    color:var(--wc-gold-2);
+  }
+  .wc-search-focus{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    flex:0 0 auto;
+    margin-left:4px;
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:999px;
+    background:rgba(255,255,255,.14);
+    color:#ffffff;
+    cursor:pointer;
+  }
+  .wc-theme-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    flex:0 0 auto;
+    margin-left:4px;
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:999px;
+    background:rgba(255,255,255,.14);
+    color:#ffffff;
+    cursor:pointer;
+  }
+  .wc-theme-toggle:hover{
+    background:rgba(255,255,255,.24);
+  }
+  .wc-theme-toggle svg{
+    width:17px;
+    height:17px;
+    stroke:currentColor;
+    fill:none;
+  }
+  .wc-theme-toggle .wc-theme-sun{display:none}
+  html[data-theme="dark"] .wc-theme-toggle .wc-theme-moon{display:none}
+  html[data-theme="dark"] .wc-theme-toggle .wc-theme-sun{display:block}
+  .wc-theme-toggle-mobile{display:none}
+  .wc-search-focus:hover{
+    background:rgba(255,255,255,.24);
+  }
+  .wc-search-focus svg{
+    width:17px;
+    height:17px;
+  }
+  .wc-menu-toggle{
+    display:none;
+    width:40px;
+    height:40px;
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:999px;
+    background:rgba(255,255,255,.14);
+    color:#ffffff;
+    cursor:pointer;
+    position:relative;
+  }
+  .wc-menu-toggle span{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:18px;
+    height:2px;
+    border-radius:999px;
+    background:currentColor;
+    transform:translate(-50%,-50%);
+    transform-origin:center;
+  }
+  .wc-menu-toggle span:nth-child(1){transform:translate(-50%, calc(-50% - 6px))}
+  .wc-menu-toggle span:nth-child(3){transform:translate(-50%, calc(-50% + 6px))}
+
+  .wc-top-links{
+    transition:opacity .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  .wc-story-nav.is-search-open .wc-top-links{
+    opacity:0;
+    transform:translateY(-8px);
+    pointer-events:none;
+  }
+  .wc-search-wrap{
+    position:absolute;
+    top:0;
+    left:var(--wc-search-left, 220px);
+    right:0;
+    height:100%;
+    display:flex;
+    align-items:center;
+    padding:0 clamp(20px, 5vw, 60px) 0 0;
+    box-sizing:border-box;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translateY(-6px);
+    transition:opacity .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.4,0,.2,1), visibility .3s;
+  }
+  .wc-story-nav.is-search-open .wc-search-wrap{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+  .wc-search-box{
+    width:100%;
+    max-width:560px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-height:auto;
+    padding:0 0 10px;
+    border:0;
+    border-radius:0;
+    border-bottom:1px solid rgba(255,255,255,.32);
+    background:transparent;
+    box-shadow:none;
+    transition:border-color .2s ease;
+  }
+  .wc-search-box:focus-within{
+    border-color:rgba(255,255,255,.6);
+    box-shadow:none;
+  }
+  .wc-search-icon{
+    width:16px;
+    height:16px;
+    margin-right:0;
+    flex:0 0 auto;
+    color:rgba(255,255,255,.8);
+  }
+  #wcTocSearch{
+    width:100%;
+    min-width:0;
+    border:0;
+    outline:0;
+    appearance:none;
+    -webkit-appearance:none;
+    background:transparent;
+    color:#ffffff;
+    font:500 17px/1.3 Georgia, "Times New Roman", serif;
+    letter-spacing:.01em;
+  }
+  #wcTocSearch::-webkit-search-cancel-button,
+  #wcTocSearch::-webkit-search-decoration,
+  #wcTocSearch::-webkit-search-results-button,
+  #wcTocSearch::-webkit-search-results-decoration{
+    display:none;
+    -webkit-appearance:none;
+  }
+  #wcTocSearch::placeholder{color:rgba(255,255,255,.52)}
+  .wc-nav-search-results{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    display:none;
+    width:100%;
+    max-height:calc(100vh - var(--wc-header-h, 76px));
+    overflow:auto;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    border:0;
+    border-radius:0;
+    background:rgba(0,20,13,.22);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    box-shadow:none;
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+  .wc-nav-search-results.is-active{display:block;opacity:1}
+  .wc-search-group{
+    max-width:760px;
+    margin:0 auto;
+    padding:30px clamp(24px, 6vw, 86px) 6px;
+  }
+  .wc-search-group + .wc-search-group{
+    border-top:1px solid rgba(255,255,255,.12);
+    padding-top:28px;
+  }
+  .wc-search-group-label{
+    margin:0 0 12px;
+    color:rgba(255,255,255,.55);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .wc-nav-search-result{
+    display:block;
+    position:relative;
+    overflow:hidden;
+    padding:14px 2px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+    border-radius:0;
+    text-decoration:none;
+    list-style:none;
+    background-image:none;
+    outline:0;
+    transition:background .2s ease;
+  }
+  .wc-nav-search-result::before,
+  .wc-nav-search-result::after,
+  .wc-nav-search-result strong::before,
+  .wc-nav-search-result strong::after{
+    content:none;
+    display:none;
+  }
+  .wc-nav-search-result::marker{content:""}
+  .wc-nav-search-result:last-child{border-bottom:0}
+  .wc-nav-search-result:hover{background:rgba(255,255,255,.05)}
+  .wc-nav-search-result strong{
+    display:block;
+    margin-bottom:2px;
+    color:#ffffff;
+    font-size:15px;
+    font-weight:600;
+    line-height:1.3;
+  }
+  .wc-nav-search-result span,
+  .wc-nav-search-empty{
+    display:block;
+    color:rgba(255,255,255,.55);
+    font-size:12px;
+    font-weight:600;
+  }
+  .wc-nav-search-empty{padding:30px clamp(24px, 6vw, 86px)}
+
+  body.wc-global-search-open .wc-home-main,
+  body.wc-global-search-open .wc-home-shell,
+  body.wc-global-search-open .wc-hero-inner,
+  body.wc-global-search-open footer[role="contentinfo"]{
+    filter:blur(6px);
+    transition:filter .3s cubic-bezier(.4,0,.2,1);
+  }
+  nav#nav-menu .wc-nav-search-slot{
+    position:fixed;
+    inset:0;
+    z-index:9998;
+    pointer-events:none;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  nav#nav-menu.is-search-open .wc-nav-search-slot{
+    pointer-events:auto;
+  }
+  nav#nav-menu .wc-search-wrap{
+    position:fixed;
+    top:calc(var(--wc-header-h, 76px) + 48px);
+    left:50%;
+    right:auto;
+    width:min(760px, calc(100vw - 40px));
+    height:auto;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:0;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translate(-50%, -10px);
+    transition:opacity .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.4,0,.2,1), visibility .3s;
+    z-index:10000;
+  }
+  nav#nav-menu.is-search-open .wc-search-wrap{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translate(-50%, 0);
+  }
+  nav#nav-menu .wc-search-box{
+    max-width:760px;
+    gap:14px;
+    padding:0 0 16px;
+    border-bottom:1px solid rgba(255,255,255,.22);
+  }
+  nav#nav-menu .wc-search-box:focus-within{
+    border-color:rgba(255,255,255,.42);
+  }
+  nav#nav-menu .wc-search-icon{
+    width:20px;
+    height:20px;
+    color:rgba(255,255,255,.62);
+  }
+  nav#nav-menu #wcTocSearch{
+    appearance:none;
+    -webkit-appearance:none;
+    color:rgba(255,255,255,.94);
+    font:500 24px/1.25 Arial, Helvetica, sans-serif;
+    letter-spacing:0;
+  }
+  nav#nav-menu #wcTocSearch::placeholder{
+    color:rgba(255,255,255,.46);
+  }
+  nav#nav-menu .wc-search-close{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    flex:0 0 32px;
+    border:0;
+    border-radius:999px;
+    background:transparent;
+    color:rgba(255,255,255,.58);
+    cursor:pointer;
+  }
+  nav#nav-menu .wc-search-close:hover{
+    background:rgba(255,255,255,.08);
+    color:rgba(255,255,255,.9);
+  }
+  nav#nav-menu .wc-search-close svg{
+    width:18px;
+    height:18px;
+  }
+  nav#nav-menu .wc-nav-search-results{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    max-height:none;
+    padding:calc(var(--wc-header-h, 76px) + 214px) 20px 54px;
+    background:rgba(4,18,14,.64);
+    backdrop-filter:blur(14px) saturate(120%);
+    -webkit-backdrop-filter:blur(14px) saturate(120%);
+    transition:opacity .3s cubic-bezier(.4,0,.2,1);
+    z-index:9999;
+  }
+  nav#nav-menu .wc-search-panel{
+    width:min(760px, 100%);
+    margin:0 auto;
+  }
+  nav#nav-menu .wc-search-kicker,
+  nav#nav-menu .wc-search-recent-label{
+    margin:0 0 12px;
+    color:rgba(255,255,255,.46);
+    font-size:11px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+  }
+  nav#nav-menu .wc-search-kicker{
+    margin-bottom:28px;
+  }
+  nav#nav-menu .wc-search-group{
+    max-width:none;
+    padding:0 0 22px;
+  }
+  nav#nav-menu .wc-search-group + .wc-search-group{
+    padding-top:24px;
+  }
+  nav#nav-menu .wc-nav-search-result{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    gap:18px;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+    padding:13px 0;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    list-style:none;
+    background-image:none;
+    outline:0;
+    transition:border-color .2s ease;
+  }
+  nav#nav-menu .wc-nav-search-result::before,
+  nav#nav-menu .wc-nav-search-result::after,
+  nav#nav-menu .wc-nav-search-result strong::before,
+  nav#nav-menu .wc-nav-search-result strong::after{
+    content:none;
+    display:none;
+  }
+  nav#nav-menu .wc-nav-search-result::marker{content:""}
+  nav#nav-menu .wc-nav-search-result:hover{
+    background:transparent;
+    border-color:rgba(255,255,255,.22);
+  }
+  nav#nav-menu .wc-nav-search-result strong{
+    margin:0;
+    color:rgba(255,255,255,.92);
+    font-size:16px;
+    line-height:1.35;
+    font-weight:650;
+  }
+  nav#nav-menu .wc-nav-search-result span{
+    color:rgba(255,255,255,.46);
+    font-size:12px;
+    line-height:1.35;
+    text-align:right;
+    max-width:140px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  nav#nav-menu .wc-search-recent{
+    margin-top:12px;
+    padding-top:0;
+    border-top:0;
+  }
+  nav#nav-menu .wc-search-recent-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  nav#nav-menu .wc-search-recent-pill{
+    min-height:30px;
+    padding:0 12px;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.68);
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  nav#nav-menu .wc-search-recent-pill:hover{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.24);
+    color:rgba(255,255,255,.9);
+  }
+
+  .wc-hero{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    max-width:100vw;
+    min-height:560px;
+    margin:0;
+    overflow:hidden;
+    border-radius:0;
+    background:
+      linear-gradient(90deg, rgba(9,20,32,.72) 0%, rgba(9,20,32,.34) 48%, rgba(9,20,32,.12) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,98,49,.24)),
+      url("assets/images/page-images/homepage-hero.jpg") center center / cover no-repeat,
+      linear-gradient(135deg, #23354d 0%, #0b7741 58%, #d1be78 100%);
+    box-shadow:none;
+    isolation:isolate;
+  }
+  .wc-hero::after{
+    content:"";
+    position:absolute;
+    inset:auto 0 0;
+    height:190px;
+    background:linear-gradient(180deg, transparent, rgba(0,63,40,.82));
+    z-index:1;
+  }
+  .wc-hero-inner{
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    flex:1;
+    padding:40px clamp(28px, 6vw, 86px) 56px;
+  }
+  .wc-hero-panel{
+    max-width:720px;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:none;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    box-shadow:none;
+  }
+  .wc-kicker{
+    display:block;
+    margin-bottom:18px;
+    color:var(--wc-gold-2);
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+  }
+  .wc-hero h1{
+    margin:0;
+    color:#ffffff;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(48px, 6vw, 86px);
+    line-height:.98;
+    font-weight:500;
+    letter-spacing:0;
+    text-shadow:0 16px 34px rgba(0,0,0,.28);
+  }
+  .wc-hero-subtitle{
+    margin:20px 0 0;
+    color:#ffffff;
+    font-size:clamp(22px, 2.1vw, 32px);
+    font-weight:800;
+  }
+  .wc-hero-copy{
+    max-width:620px;
+    margin:16px 0 0;
+    color:rgba(255,255,255,.88);
+    font-size:18px;
+    line-height:1.72;
+  }
+  .wc-hero-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:30px;
+  }
+  .wc-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:48px;
+    padding:0 18px;
+    border:1px solid transparent;
+    border-radius:999px;
+    background:var(--wc-gold);
+    color:#162033;
+    font:inherit;
+    font-weight:800;
+    text-decoration:none;
+    box-shadow:0 12px 26px rgba(0,0,0,.18);
+    cursor:pointer;
+  }
+  .wc-button.secondary{
+    background:rgba(255,255,255,.14);
+    border-color:rgba(255,255,255,.34);
+    color:#ffffff;
+    box-shadow:none;
+  }
+  .wc-section{
+    padding:86px clamp(2px, 2vw, 18px) 0;
+  }
+  .wc-section-heading{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    gap:24px;
+    margin:0 0 26px;
+  }
+  .wc-section-heading span{
+    display:block;
+    margin-bottom:8px;
+    color:var(--wc-green);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .wc-section-heading h2{
+    margin:0;
+    max-width:760px;
+    color:var(--wc-ink);
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(34px, 4vw, 58px);
+    line-height:1.05;
+    font-weight:500;
+  }
+  .wc-section-heading p{
+    max-width:430px;
+    margin:0;
+    color:var(--wc-muted);
+    font-size:16px;
+  }
+  .wc-section-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    color:var(--wc-green);
+    font-weight:800;
+    font-size:14px;
+    text-decoration:none;
+  }
+  .wc-section-link:hover{
+    text-decoration:underline;
+  }
+  #main-content:focus{
+    outline:0;
+  }
+  .wc-investment-heading{
+    margin-top:54px;
+  }
+  .wc-section-heading-aside{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    flex-shrink:0;
+    gap:28px;
+  }
+  .wc-section-stat{
+    display:flex;
+    flex-shrink:0;
+    gap:28px;
+  }
+  .wc-section-stat-item strong{
+    display:block;
+    color:var(--wc-green);
+    font-size:clamp(24px, 2.4vw, 34px);
+    line-height:1;
+  }
+  .wc-section-stat-item small{
+    display:block;
+    margin-top:6px;
+    color:var(--wc-muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  @media (max-width:760px){
+    .wc-section-heading{ flex-wrap:wrap; }
+    .wc-section-stat{ gap:20px; }
+    .wc-section-heading-aside{ flex-wrap:wrap; gap:16px; }
+  }
+
+  .wc-budget-guide-dialog{
+    width:min(94vw, 760px);
+    border:1px solid var(--wc-line);
+    border-radius:22px;
+    background:#ffffff;
+    color:var(--wc-ink);
+    box-shadow:0 28px 80px rgba(23,32,51,.3);
+    padding:0;
+  }
+  .wc-budget-guide-dialog::backdrop{
+    background:rgba(4,16,11,.58);
+  }
+  .wc-budget-guide-inner{
+    padding:26px;
+  }
+  .wc-budget-guide-head{
+    display:flex;
+    align-items:start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:18px;
+  }
+  .wc-budget-guide-head h2{
+    margin:0;
+    color:var(--wc-ink);
+    font-size:24px;
+    line-height:1.15;
+    letter-spacing:0;
+  }
+  .wc-budget-guide-head p{
+    margin:8px 0 0;
+    color:var(--wc-muted);
+    font-size:14px;
+    line-height:1.55;
+  }
+  .wc-budget-guide-close{
+    width:38px;
+    height:38px;
+    flex:0 0 auto;
+    border:1px solid var(--wc-line);
+    border-radius:999px;
+    background:#ffffff;
+    color:var(--wc-ink);
+    font-size:24px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .wc-budget-guide-form{
+    display:grid;
+    gap:18px;
+  }
+  .wc-budget-guide-field label,
+  .wc-budget-guide-field legend{
+    display:block;
+    margin:0 0 8px;
+    color:var(--wc-ink);
+    font-size:13px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .wc-budget-guide-options{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin:0;
+    padding:0;
+    border:0;
+  }
+  .wc-budget-guide-choice{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:48px;
+    padding:12px 13px;
+    border:1px solid var(--wc-line);
+    border-radius:14px;
+    background:#fbfcfa;
+    color:var(--wc-ink);
+    font-size:14px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .wc-budget-guide-choice input{
+    flex:0 0 auto;
+    accent-color:var(--wc-green);
+  }
+  .wc-budget-guide-choice:has(input:checked){
+    border-color:rgba(0,98,49,.55);
+    background:rgba(0,98,49,.08);
+  }
+  .wc-budget-guide-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .wc-budget-guide-submit,
+  .wc-budget-guide-reset,
+  .wc-budget-guide-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:0 16px;
+    border-radius:999px;
+    font-weight:900;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .wc-budget-guide-result .wc-budget-guide-link + .wc-budget-guide-link{
+    margin-left:10px;
+  }
+  .wc-budget-guide-submit,
+  .wc-budget-guide-link{
+    border:1px solid var(--wc-green);
+    background:var(--wc-green);
+    color:#ffffff;
+  }
+  .wc-budget-guide-reset{
+    border:1px solid var(--wc-line);
+    background:#ffffff;
+    color:var(--wc-ink);
+  }
+  .wc-budget-guide-result{
+    margin-top:2px;
+    padding:18px;
+    border:1px solid rgba(0,98,49,.22);
+    border-radius:16px;
+    background:linear-gradient(180deg, rgba(0,98,49,.08), rgba(0,98,49,.04));
+  }
+  .wc-budget-guide-result h3{
+    margin:0;
+    color:var(--wc-ink);
+    font-size:18px;
+    line-height:1.25;
+  }
+  .wc-budget-guide-result p{
+    margin:8px 0 14px;
+    color:var(--wc-muted);
+    font-size:14px;
+    line-height:1.55;
+  }
+  html[data-theme="dark"] .wc-budget-guide-dialog,
+  html[data-theme="dark"] .wc-budget-guide-close,
+  html[data-theme="dark"] .wc-budget-guide-reset{
+    background:#0a1410;
+    border-color:var(--wc-line);
+    color:var(--wc-ink);
+  }
+  html[data-theme="dark"] .wc-budget-guide-choice{
+    background:rgba(255,255,255,.04);
+    border-color:var(--wc-line);
+    color:var(--wc-ink);
+  }
+  html[data-theme="dark"] .wc-budget-guide-choice:has(input:checked),
+  html[data-theme="dark"] .wc-budget-guide-result{
+    border-color:rgba(142,203,166,.32);
+    background:rgba(0,98,49,.22);
+  }
+  .wc-budget-grid{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0,1fr));
+    gap:14px;
+  }
+  .wc-investment-grid{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0,1fr));
+    gap:14px;
+    margin-top:22px;
+  }
+  .wc-budget-card,
+  .wc-investment-card,
+  .wc-project-card{
+    border:1px solid var(--wc-line);
+    background:rgba(255,255,255,.86);
+    box-shadow:0 14px 34px rgba(23,32,51,.08);
+  }
+  .wc-budget-card,
+  .wc-investment-card{
+    display:block;
+    min-height:180px;
+    padding:22px;
+    border-radius:24px;
+    color:inherit;
+    text-decoration:none;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .wc-budget-card:hover,
+  .wc-investment-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(0,98,49,.28);
+    box-shadow:0 22px 48px rgba(23,32,51,.12);
+  }
+  .wc-budget-card:focus,
+  .wc-investment-card:focus{
+    outline:0;
+  }
+  .wc-budget-card:focus-visible,
+  .wc-investment-card:focus-visible{
+    border-color:rgba(0,98,49,.44);
+    box-shadow:0 0 0 4px rgba(209,190,120,.34), 0 22px 48px rgba(23,32,51,.12);
+  }
+  .wc-budget-card small,
+  .wc-investment-card small{
+    display:block;
+    min-height:34px;
+    color:var(--wc-muted);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.08em;
+    line-height:1.35;
+    text-transform:uppercase;
+  }
+  .wc-budget-card strong,
+  .wc-investment-card strong{
+    display:block;
+    margin-top:8px;
+    color:var(--wc-green);
+    font-size:clamp(28px, 3vw, 42px);
+    line-height:1;
+  }
+  .wc-investment-card-meta{
+    display:block;
+    margin-top:6px;
+    color:var(--wc-muted);
+    font-size:15px;
+    font-weight:800;
+    line-height:1.4;
+  }
+  .wc-fund-picker-dialog{
+    width:min(92vw, 480px);
+    margin:auto;
+    border:1px solid var(--wc-line);
+    border-radius:16px;
+    background:#fff;
+    color:var(--wc-ink);
+    box-shadow:0 24px 70px rgba(23,32,51,.28);
+    padding:0;
+  }
+  .wc-fund-picker-dialog:focus{
+    outline:0;
+  }
+  .wc-fund-picker-dialog::backdrop{
+    background:rgba(4,16,11,.52);
+  }
+  .wc-fund-picker-dialog-inner{
+    padding:22px;
+  }
+  .wc-fund-picker-dialog-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:14px;
+  }
+  .wc-fund-picker-dialog-head h3{
+    margin:0;
+    color:var(--wc-ink);
+    font-size:18px;
+    font-weight:900;
+  }
+  .wc-fund-picker-close{
+    border:1px solid var(--wc-line);
+    background:#fff;
+    border-radius:999px;
+    width:30px;
+    height:30px;
+    color:var(--wc-muted);
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .wc-fund-picker-close:hover{
+    border-color:rgba(0,98,49,.28);
+    color:var(--wc-green);
+  }
+  .wc-fund-picker-close:focus{
+    outline:0;
+  }
+  .wc-fund-picker-close:focus-visible{
+    border-color:rgba(0,98,49,.38);
+    box-shadow:0 0 0 3px rgba(209,190,120,.38);
+  }
+  .wc-fund-picker-list{
+    display:grid;
+    gap:8px;
+  }
+  .wc-fund-picker-list a{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    border:1px solid var(--wc-line);
+    border-radius:12px;
+    color:var(--wc-ink);
+    font-size:14px;
+    font-weight:700;
+    text-decoration:none;
+    transition:border-color .15s ease, background-color .15s ease;
+  }
+  .wc-fund-picker-list a > span:first-child{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .wc-fund-picker-option-meta{
+    color:var(--wc-muted);
+    font-size:12px;
+    font-weight:700;
+  }
+  .wc-fund-picker-list a:hover,
+  .wc-fund-picker-list a:focus-visible{
+    border-color:rgba(0,98,49,.32);
+    background:rgba(0,98,49,.06);
+  }
+  .wc-fund-picker-list a::after{
+    content:"\2192";
+    flex:0 0 auto;
+    color:var(--wc-green);
+  }
+  html[data-theme="dark"] .wc-fund-picker-dialog{
+    background:#0a1410;
+    border-color:var(--wc-line);
+    color:var(--wc-ink);
+    box-shadow:0 24px 70px rgba(0,0,0,.5);
+  }
+  html[data-theme="dark"] .wc-fund-picker-close{
+    background:rgba(10,20,16,.7);
+    border-color:var(--wc-line);
+  }
+  html[data-theme="dark"] .wc-fund-picker-list a{
+    border-color:var(--wc-line);
+  }
+  html[data-theme="dark"] .wc-fund-picker-list a:hover,
+  html[data-theme="dark"] .wc-fund-picker-list a:focus-visible{
+    background:rgba(123,211,159,.12);
+  }
+  .wc-budget-card p,
+  .wc-investment-card p{
+    margin:16px 0 0;
+    color:var(--wc-muted);
+    font-size:14px;
+    line-height:1.55;
+  }
+  /* Shown in these cards' <strong> figure while loadBudgetData() is in
+     flight -- three dots that bounce in sequence rather than static
+     placeholder text, so it's visually obvious the value is still
+     loading rather than reading as a real (tiny/blank) figure. */
+  .wc-loading-dots{ display:inline-flex; gap:3px; align-items:center; vertical-align:middle; }
+  .wc-loading-dots span{
+    width:6px; height:6px; border-radius:50%; background:currentColor;
+    display:inline-block; animation:wcLoadingDotBounce 1s infinite ease-in-out both;
+  }
+  .wc-loading-dots span:nth-child(2){ animation-delay:.15s; }
+  .wc-loading-dots span:nth-child(3){ animation-delay:.3s; }
+  @keyframes wcLoadingDotBounce{
+    0%, 80%, 100%{ transform:translateY(0); opacity:.35; }
+    40%{ transform:translateY(-4px); opacity:1; }
+  }
+  .wc-budget-card-millage{
+    display:block;
+    margin-top:10px;
+    color:var(--wc-muted);
+    font-size:12px;
+    font-weight:700;
+    line-height:1.5;
+    text-align:left;
+  }
+  .wc-budget-card-millage-label{
+    display:block;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .wc-project-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(0,98,49,.28);
+    box-shadow:0 22px 48px rgba(23,32,51,.12);
+  }
+  .wc-project-card h3{
+    margin:18px 0 10px;
+    color:var(--wc-ink);
+    font-size:22px;
+    line-height:1.15;
+  }
+  .wc-project-card p{
+    margin:0;
+    color:var(--wc-muted);
+    font-size:15px;
+  }
+  .wc-card-link{
+    display:inline-flex;
+    margin-top:18px;
+    color:var(--wc-green);
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  .wc-projects-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:18px;
+  }
+  .wc-project-card{
+    overflow:hidden;
+    border-radius:26px;
+    text-decoration:none;
+    background:#ffffff;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .wc-project-visual{
+    position:relative;
+    height:210px;
+    background:#e7eee8;
+    overflow:hidden;
+  }
+  .wc-project-visual img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .wc-project-visual::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(135deg, rgba(0,98,49,.44), rgba(36,52,77,.24)),
+      linear-gradient(180deg, transparent 35%, rgba(0,0,0,.46));
+  }
+  .wc-project-badge{
+    position:absolute;
+    left:16px;
+    bottom:16px;
+    z-index:2;
+    padding:8px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.92);
+    color:var(--wc-green);
+    font-size:12px;
+    font-weight:900;
+  }
+  .wc-project-body{padding:22px}
+  .wc-project-meta{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+    color:var(--wc-muted);
+    font-size:13px;
+    font-weight:800;
+  }
+  .wc-project-amount{color:var(--wc-green)}
+  .wc-project-empty{
+    grid-column:1 / -1;
+    padding:28px;
+    border:1px dashed rgba(96,113,132,.35);
+    border-radius:20px;
+    color:var(--wc-muted);
+    background:#ffffff;
+  }
+
+  .wc-home-footer{
+    width:100vw;
+    margin:64px calc(50% - 50vw) 0;
+    padding:42px clamp(22px, 4vw, 44px) 36px;
+    border-top:1px solid rgba(36,52,77,.10);
+    background:#f6f8f5;
+    color:var(--wc-ink);
+    box-sizing:border-box;
+  }
+  .wc-home-footer-inner{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    align-items:end;
+    gap:24px;
+    width:min(1180px, 100%);
+    margin:0 auto;
+  }
+  .wc-footer-search-copy{
+    max-width:680px;
+  }
+  .wc-footer-search-copy h2{
+    margin:0;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(28px, 3.2vw, 42px);
+    line-height:1.05;
+    font-weight:500;
+    letter-spacing:0;
+    color:#172033;
+  }
+  .wc-footer-search-copy p{
+    max-width:560px;
+    margin:10px 0 0;
+    color:rgba(36,52,77,.72);
+    font-size:15px;
+    line-height:1.55;
+    font-weight:500;
+  }
+  .wc-footer-search-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:42px;
+    padding:0 18px;
+    border:1px solid rgba(0,63,40,.18);
+    border-radius:999px;
+    background:#003f28;
+    color:#ffffff;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.04em;
+    cursor:pointer;
+    box-shadow:0 10px 24px rgba(0,63,40,.14);
+    transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
+    white-space:nowrap;
+  }
+  .wc-footer-search-button:hover{
+    transform:translateY(-1px);
+    background:#002f1f;
+    box-shadow:0 12px 28px rgba(0,63,40,.18);
+  }
+  .wc-footer-search-button svg{
+    width:15px;
+    height:15px;
+  }
+  .wc-footer-links{
+    display:flex;
+    gap:20px;
+    margin-top:28px;
+    margin-left:auto;
+    margin-right:auto;
+    padding-top:18px;
+    border-top:1px solid rgba(36,52,77,.10);
+    width:min(1180px, 100%);
+  }
+  .wc-footer-links a,
+  .wc-footer-contact-button{
+    padding:0;
+    border:0;
+    background:transparent;
+    color:#172033;
+    font-family:inherit;
+    font-size:11px;
+    font-weight:700;
+    text-decoration:none;
+    transition:color .2s ease;
+    cursor:pointer;
+  }
+  .wc-footer-links a:hover,
+  .wc-footer-contact-button:hover{
+    color:#004b2d;
+  }
+  .wc-footer-contact-dialog{
+    position:fixed;
+    inset:0;
+    margin:auto;
+    width:min(520px, calc(100% - 32px));
+    max-height:calc(100vh - 32px);
+    overflow:auto;
+    padding:0;
+    border:1px solid rgba(36,52,77,.16);
+    border-radius:18px;
+    background:#fff;
+    color:#172033;
+    box-shadow:0 24px 70px rgba(0,0,0,.24);
+  }
+  .wc-footer-contact-dialog::backdrop{
+    background:rgba(10,18,28,.58);
+  }
+  .wc-footer-contact-dialog-inner{
+    padding:26px;
+  }
+  .wc-footer-contact-dialog h2{
+    margin:0 0 12px;
+    font:700 24px/1.2 Georgia, "Times New Roman", serif;
+  }
+  .wc-footer-contact-dialog p{
+    margin:0;
+    color:#4e5d69;
+    font-size:14px;
+    line-height:1.65;
+  }
+  .wc-footer-contact-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:22px;
+  }
+  .wc-footer-contact-actions button,
+  .wc-footer-contact-actions a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    padding:0 16px;
+    border:1px solid rgba(0,63,40,.22);
+    border-radius:999px;
+    background:#fff;
+    color:#003f28;
+    font:700 12px/1 Arial, Helvetica, sans-serif;
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .wc-footer-contact-actions a{
+    background:#003f28;
+    color:#fff;
+  }
+
+  html[data-theme="dark"]{
+    --wc-green:#7bd39f;
+    --wc-green-2:#48b778;
+    --wc-green-3:#0f3f2d;
+    --wc-gold:#d8c77e;
+    --wc-gold-2:#f1dc94;
+    --wc-ink:#edf3ef;
+    --wc-muted:#a9b9b0;
+    --wc-line:rgba(226,235,229,.16);
+    --wc-soft:#101d17;
+    --wc-white:#0f1b16;
+    --wc-shadow:0 24px 70px rgba(0,0,0,.38);
+    color-scheme:dark;
+  }
+  html[data-theme="dark"] body{
+    background:
+      radial-gradient(circle at top left, rgba(123,211,159,.13), transparent 34rem),
+      linear-gradient(180deg,#07110d 0%,#0c1712 45%,#09120e 100%);
+  }
+  html[data-theme="dark"] .wc-story-nav{
+    background:linear-gradient(180deg, rgba(5,20,14,.18), transparent);
+  }
+  html[data-theme="dark"] .wc-home-shell{
+    color:var(--wc-ink);
+  }
+  html[data-theme="dark"] .wc-section-heading h2,
+  html[data-theme="dark"] .wc-budget-card strong,
+  html[data-theme="dark"] .wc-investment-card strong,
+  html[data-theme="dark"] .wc-project-card h3,
+  html[data-theme="dark"] .wc-footer-search-copy h2{
+    color:var(--wc-ink);
+  }
+  html[data-theme="dark"] .wc-budget-card,
+  html[data-theme="dark"] .wc-investment-card,
+  html[data-theme="dark"] .wc-project-card,
+  html[data-theme="dark"] .wc-home-footer{
+    background:rgba(14,28,22,.92);
+    border-color:var(--wc-line);
+    box-shadow:0 18px 46px rgba(0,0,0,.28);
+  }
+  html[data-theme="dark"] .wc-budget-card small,
+  html[data-theme="dark"] .wc-investment-card small,
+  html[data-theme="dark"] .wc-budget-card p,
+  html[data-theme="dark"] .wc-investment-card p,
+  html[data-theme="dark"] .wc-budget-card-millage,
+  html[data-theme="dark"] .wc-project-card p,
+  html[data-theme="dark"] .wc-footer-search-copy p,
+  html[data-theme="dark"] .wc-footer-links a,
+  html[data-theme="dark"] .wc-footer-contact-button{
+    color:var(--wc-muted);
+  }
+  html[data-theme="dark"] .wc-footer-contact-dialog{
+    border-color:rgba(226,235,229,.18);
+    background:#101d17;
+    color:#edf3ef;
+  }
+  html[data-theme="dark"] .wc-footer-contact-dialog p{
+    color:#a9b9b0;
+  }
+  html[data-theme="dark"] .wc-footer-contact-actions button{
+    border-color:rgba(123,211,159,.34);
+    background:transparent;
+    color:#edf3ef;
+  }
+  html[data-theme="dark"] .wc-footer-contact-actions a{
+    border-color:rgba(123,211,159,.38);
+    background:rgba(123,211,159,.16);
+    color:#edf3ef;
+  }
+  html[data-theme="dark"] .wc-footer-search-button{
+    background:rgba(123,211,159,.13);
+    border-color:rgba(123,211,159,.38);
+    color:var(--wc-ink);
+  }
+  html[data-theme="dark"] .wc-footer-search-button:hover{
+    background:rgba(123,211,159,.2);
+  }
+
+  .wc-reveal{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .wc-reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  @media(max-width:1180px){
+    .wc-story-nav{
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .logo-container{min-width:246px}
+    .wc-top-links{display:none}
+    .wc-story-nav.is-menu-open .wc-top-links{
+      order:4;
+      display:flex;
+      flex:1 0 100%;
+      justify-content:flex-start;
+      padding-top:8px;
+    }
+    .wc-story-nav.is-menu-open .wc-top-links .wc-theme-toggle{display:none}
+    .wc-theme-toggle-mobile{display:none}
+    .wc-menu-toggle{display:inline-flex;margin-left:auto}
+    .wc-budget-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
+  }
+
+  @media(max-width:860px){
+    html,
+    body{
+      width:100%;
+      overflow-x:hidden;
+      overscroll-behavior-x:none;
+    }
+    body{
+      position:relative;
+    }
+    .wc-home-shell{width:min(100% - 20px, 760px)}
+    .wc-story-nav{
+      padding:12px 14px;
+      flex-wrap:wrap;
+      gap:10px;
+      background:linear-gradient(180deg, rgba(0,62,40,.98), rgba(0,62,40,.92));
+    }
+    .logo-container{
+      min-width:0;
+      max-width:calc(100% - 54px);
+    }
+    .wc-story-nav .wc-split-brand{
+      height:44px !important;
+      gap:5px !important;
+    }
+    .wc-story-nav .wc-split-brand-top{
+      font-size:18px !important;
+      color:#ffffff !important;
+    }
+    .wc-story-nav .wc-split-brand-bottom{
+      font-size:7px !important;
+      line-height:7px !important;
+      color:rgba(255,255,255,.78) !important;
+    }
+    .wc-story-nav .wc-split-brand-seal,
+    .wc-story-nav .wc-seal-mark{
+      width:36px !important;
+      height:36px !important;
+      flex:0 0 36px !important;
+      background-size:32px 32px !important;
+    }
+    .wc-menu-toggle{
+      color:#ffffff;
+      border-color:rgba(255,255,255,.38);
+      background:rgba(255,255,255,.13);
+    }
+    .wc-menu-toggle span{
+      background:#ffffff;
+    }
+    .wc-search-wrap{
+      left:0;
+      padding:0 20px;
+    }
+    nav#nav-menu .wc-search-wrap{
+      position:sticky;
+      top:0;
+      left:auto;
+      right:auto;
+      width:100%;
+      padding:18px 18px 0;
+      transform:none;
+    }
+    nav#nav-menu.is-search-open .wc-search-wrap{
+      transform:none;
+    }
+    nav#nav-menu .wc-nav-search-results{
+      padding:calc(var(--wc-header-h, 72px) + 20px) 12px 24px;
+    }
+    nav#nav-menu .wc-search-panel{
+      width:100%;
+      max-height:78vh;
+      border-radius:22px;
+    }
+    nav#nav-menu .wc-search-scroll{
+      padding:16px 18px 18px;
+    }
+    nav#nav-menu #wcTocSearch{
+      font-size:19px;
+    }
+    nav#nav-menu .wc-nav-search-result{
+      grid-template-columns:1fr;
+      gap:4px;
+    }
+    nav#nav-menu .wc-nav-search-result span{
+      text-align:left;
+    }
+    .wc-budget-guide-dialog{
+      width:min(94vw, 560px);
+      max-height:88vh;
+    }
+    .wc-budget-guide-inner{
+      padding:20px;
+    }
+    .wc-budget-guide-head h2{
+      font-size:21px;
+    }
+    .wc-budget-guide-options{
+      grid-template-columns:1fr;
+    }
+    .wc-budget-guide-actions{
+      flex-direction:column;
+    }
+    .wc-budget-guide-submit,
+    .wc-budget-guide-reset,
+    .wc-budget-guide-link{
+      width:100%;
+    }
+    .wc-top-links{
+      order:4;
+      display:none;
+      flex:1 0 100%;
+      flex-direction:column;
+      align-items:stretch;
+      padding-top:8px;
+    }
+    .wc-story-nav.is-menu-open .wc-top-links{display:flex}
+    .wc-top-links a{
+      justify-content:flex-start;
+      border-radius:14px;
+      background:rgba(0,98,49,.06);
+    }
+    .wc-top-links .wc-search-focus{
+      order:-1;
+      align-self:flex-start;
+      margin-bottom:8px;
+    }
+    .wc-hero{min-height:480px}
+    .wc-hero-inner{padding:32px 18px 30px}
+    .wc-section{padding-top:64px}
+    .wc-section-heading{
+      display:block;
+    }
+    .wc-section-heading p{margin-top:12px}
+    .wc-budget-grid,
+    .wc-investment-grid,
+    .wc-projects-grid{
+      grid-template-columns:1fr;
+    }
+    .wc-home-footer{
+      margin-top:48px;
+      padding:38px 20px 34px;
+    }
+    .wc-home-footer-inner{
+      grid-template-columns:1fr;
+      align-items:start;
+      gap:18px;
+    }
+    .wc-footer-search-button{
+      width:100%;
+      max-width:320px;
+    }
+    .wc-footer-links{
+      flex-direction:column;
+      gap:12px;
+    }
+  }
+
+  @media(max-width:768px){
+    .wc-menu-toggle{
+      width:38px;
+      height:38px;
+    }
+  }
+
+  @media(max-width:560px){
+    .wc-hero h1{font-size:44px}
+    .wc-hero-subtitle{font-size:22px}
+    .wc-hero-copy{font-size:16px}
+    .wc-button{width:100%}
+    .wc-budget-grid,
+    .wc-investment-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<a class="wc-skip-link" href="#main-content">Skip to main content</a>
+<section class="wc-hero" id="top" aria-label="Walton County FY 2027 Proposed Budget">
+  <nav id="nav-menu" class="wc-story-nav nav-menu" aria-label="Primary navigation">
+    <div class="logo-container"></div>
+    <button class="wc-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="wc-top-links">
+      <a href="pages/our-county.html">Our County</a>
+      <a href="pages/budget-overview.html">Budget Overview</a>
+      <a href="pages/constitutional-officers.html">Officers & Agencies</a>
+      <a href="pages/departments.html">Departments</a>
+      <a href="pages/capital-projects.html">Capital Projects</a>
+      <a href="pages/financials.html">Financials</a>
+      <button class="wc-search-focus" type="button" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+  <div class="wc-hero-inner">
+    <div class="wc-hero-panel wc-reveal">
+      <span class="wc-kicker">Walton County, Florida</span>
+      <h1>Fiscal Year 2027 Proposed Budget</h1>
+      <p class="wc-hero-copy">Investing in infrastructure, public safety, and quality of life for a better Walton County.</p>
+      <div class="wc-hero-actions">
+        <button class="wc-button" type="button" id="budgetGuideOpen" aria-haspopup="dialog" aria-controls="budgetGuideDialog">Explore the Budget</button>
+        <a class="wc-button secondary" href="pages/capital-projects.html">View Capital Plan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<dialog class="wc-budget-guide-dialog" id="budgetGuideDialog" aria-labelledby="budgetGuideTitle">
+  <div class="wc-budget-guide-inner">
+    <div class="wc-budget-guide-head">
+      <div>
+        <h2 id="budgetGuideTitle">What are you trying to find?</h2>
+        <p>Choose a topic and we’ll point you to the best budget page.</p>
+      </div>
+      <button class="wc-budget-guide-close" type="button" aria-label="Close budget guide" id="budgetGuideClose">&times;</button>
+    </div>
+    <form class="wc-budget-guide-form" id="budgetGuideForm">
+      <fieldset class="wc-budget-guide-options wc-budget-guide-field">
+        <legend>Choose a topic</legend>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="overview"> Budget changes</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="taxes"> Property taxes</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="departments"> Departments</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="officers"> Constitutional officers</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="capital"> Capital projects</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="financials"> Financial schedules</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="process"> Budget process</label>
+        <label class="wc-budget-guide-choice"><input type="radio" name="budgetGuideTopic" value="staffing"> Staffing</label>
+      </fieldset>
+      <div class="wc-budget-guide-actions">
+        <button class="wc-budget-guide-reset" type="button" id="budgetGuideReset">Start Over</button>
+      </div>
+      <div class="wc-budget-guide-result" id="budgetGuideResult" hidden></div>
+    </form>
+  </div>
+</dialog>
+
+<div class="wc-home-shell">
+  <main id="main-content" tabindex="-1">
+    <section class="wc-section wc-reveal" id="budget">
+      <div class="wc-section-heading">
+        <div>
+          <span>Budget At A Glance</span>
+          <h2>The revenues that support countywide services.</h2>
+        </div>
+        <a class="wc-section-link" href="pages/summary-of-revenues.html">View Summary of Revenues &rarr;</a>
+      </div>
+      <div class="wc-budget-grid">
+        <a class="wc-budget-card" href="pages/summary-of-property-tax-allocations.html" data-revenue-card="property"><small>Property Taxes</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><p>Supports core county services, public safety, facilities, and general operations.</p><span class="wc-budget-card-millage"><span class="wc-budget-card-millage-label">Millage</span>Countywide 3.4347<br>North Walton Mosquito Control 0.441</span></a>
+        <a class="wc-budget-card" href="pages/summary-of-revenues.html#tourist-development-taxes" data-revenue-card="tdt"><small>Tourist Development Tax</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><p>Visitor lodging taxes restricted to tourism, beaches, facilities, and eligible visitor impacts.</p></a>
+        <a class="wc-budget-card" href="pages/summary-of-revenues.html#local-discretionary-sales-surtax" data-revenue-card="surtax"><small>Local Discretionary Sales Surtax</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><p>Supports solid waste, transportation, road maintenance, capital, infrastructure, and other general governmental operations.</p></a>
+        <a class="wc-budget-card" href="pages/summary-of-revenues.html#local-government-half-cent-sales-tax" data-revenue-card="halfcent"><small>Local Government Half-Cent Sales Tax</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><p>State-shared sales tax used for county purposes, debt service, and public improvements.</p></a>
+        <a class="wc-budget-card" href="pages/summary-of-revenues.html" data-revenue-card="other"><small>All Other Revenues</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><p>Fees, permits, interest, intergovernmental revenues, and other program support.</p></a>
+      </div>
+      <div class="wc-section-heading wc-investment-heading">
+        <div>
+          <span>Major Expense Areas</span>
+          <h2>Where those resources are invested.</h2>
+        </div>
+        <a class="wc-section-link" href="pages/summary-of-expenses.html">View Summary of Expenses &rarr;</a>
+      </div>
+      <div class="wc-investment-grid">
+        <a class="wc-investment-card" href="pages/sheriffs-office.html" data-expense-card="sheriff"><small>Sheriff Fund</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><span class="wc-investment-card-meta" data-expense-card-meta="sheriff"></span><p>Public safety operations and law enforcement services.</p></a>
+        <a class="wc-investment-card" href="pages/tourism-administration.html" data-expense-card="tourism" data-fund-picker="tourism"><small>Tourist Development Fund</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><span class="wc-investment-card-meta" data-expense-card-meta="tourism"></span><p>Tourism operations, beach services, destination support, and visitor impacts.</p></a>
+        <a class="wc-investment-card" href="pages/public-works.html" data-expense-card="transportation" data-fund-picker="transportation"><small>Transportation Fund</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><span class="wc-investment-card-meta" data-expense-card-meta="transportation"></span><p>Road maintenance, construction, and transportation priorities.</p></a>
+        <a class="wc-investment-card" href="pages/cip-capital-projects.html" data-expense-card="capital"><small>Capital Projects Fund</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><span class="wc-investment-card-meta" data-expense-card-meta="capital"></span><p>Roads, facilities, public infrastructure, and major improvements.</p></a>
+        <a class="wc-investment-card" href="pages/departments.html" data-expense-card="general" data-fund-picker="general"><small>General Fund</small><strong><span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></strong><span class="wc-investment-card-meta" data-expense-card-meta="general"></span><p>Funding for constitutional offices, county departments, and programs not covered in a special revenue fund.</p></a>
+      </div>
+
+      <dialog class="wc-fund-picker-dialog" id="fundPickerDialog" aria-labelledby="fundPickerDialogTitle">
+        <div class="wc-fund-picker-dialog-inner">
+          <div class="wc-fund-picker-dialog-head">
+            <h3 id="fundPickerDialogTitle">Choose a department</h3>
+            <button type="button" class="wc-fund-picker-close" id="fundPickerClose" aria-label="Close">&times;</button>
+          </div>
+          <div class="wc-fund-picker-list" id="fundPickerList"></div>
+        </div>
+      </dialog>
+    </section>
+
+    <section class="wc-section wc-reveal" id="projects">
+      <div class="wc-section-heading">
+        <div>
+          <span>Featured Capital Projects</span>
+          <h2>Investments moving from plans to places.</h2>
+        </div>
+        <div class="wc-section-heading-aside">
+          <div class="wc-section-stat" id="projectsStatCallout">
+            <div class="wc-section-stat-item"><strong>...</strong><small>FY 2027 Projects</small></div>
+            <div class="wc-section-stat-item"><strong>...</strong><small>FY 2027 Funding</small></div>
+          </div>
+          <a class="wc-section-link" href="pages/capital-projects.html">View Capital Projects Directory &rarr;</a>
+        </div>
+      </div>
+      <div class="wc-projects-grid" id="featuredProjects">
+        <div class="wc-project-empty">Loading featured capital projects...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="wc-home-footer" role="contentinfo">
+    <div class="wc-home-footer-inner">
+      <div class="wc-footer-search-copy">
+        <h2>Still looking for something?</h2>
+        <p>Search departments, budgets, personnel, funds, publications, and county information.</p>
+      </div>
+      <button class="wc-footer-search-button" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
+        </svg>
+        Search the Budget
+      </button>
+    </div>
+    <nav class="wc-footer-links" aria-label="Footer utility links">
+      <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
+      <a href="pages/accessibility.html">Accessibility</a>
+      <a href="pages/privacy.html">Privacy</a>
+    </nav>
+    <dialog class="wc-footer-contact-dialog" aria-labelledby="wcHomeFooterContactTitle" aria-describedby="wcHomeFooterContactNotice">
+      <div class="wc-footer-contact-dialog-inner">
+        <h2 id="wcHomeFooterContactTitle">Contact Budget Office</h2>
+        <p id="wcHomeFooterContactNotice">Under Florida law, email addresses are public records. If you do not want your email address released in response to a public records request, do not send electronic mail to this entity. Instead, contact this office by phone or in writing.</p>
+        <div class="wc-footer-contact-actions">
+          <form method="dialog"><button type="submit">Cancel</button></form>
+          <a href="mailto:budget@mywaltonfl.gov">Continue to Email</a>
+        </div>
+      </div>
+    </dialog>
+  </footer>
+</div>
+
+<script src="assets/brand-logo.js?v=20260723-asset-path-cleanup"></script>
+<script src="assets/search-data.js"></script>
+<script src="assets/search.js?v=20260627-lighthouse-a11y"></script>
+<script src="assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="assets/cip-projects-data.js?v=20260723-asset-path-cleanup"></script>
+<script>
+  (function(){
+    function $(selector, root){
+      return (root || document).querySelector(selector);
+    }
+
+    function formatCurrencyShort(value){
+      var n = Number(value) || 0;
+      var abs = Math.abs(n);
+      if(abs >= 1000000){
+        return "$" + (n / 1000000).toLocaleString("en-US", { maximumFractionDigits:1, minimumFractionDigits: abs < 10000000 ? 1 : 0 }) + "M";
+      }
+      return "$" + Math.round(n).toLocaleString("en-US");
+    }
+
+    function formatNumber0(value){
+      var n = Number(value) || 0;
+      return n.toLocaleString("en-US", { maximumFractionDigits: 1, minimumFractionDigits: n % 1 === 0 ? 0 : 1 });
+    }
+
+    function parseMoney(value){
+      var text = String(value === undefined || value === null ? "" : value).replace(/[$,]/g, "").trim();
+      if(!text) return 0;
+      var n = Number(text.replace(/[()]/g, ""));
+      if(!Number.isFinite(n)) return 0;
+      return /^\(.*\)$/.test(text) ? -n : n;
+    }
+
+    function escapeHtml(value){
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function getTheme(){
+      try{
+        return window.localStorage.getItem("waltonBudgetTheme") === "dark" ? "dark" : "light";
+      }catch(e){
+        return "light";
+      }
+    }
+
+    function applyTheme(theme){
+      var nextTheme = theme === "dark" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      document.querySelectorAll(".wc-theme-toggle").forEach(function(button){
+        var isDark = nextTheme === "dark";
+        button.setAttribute("aria-pressed", String(isDark));
+        button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+        button.title = isDark ? "Light mode" : "Dark mode";
+      });
+    }
+
+    function setTheme(theme){
+      var nextTheme = theme === "dark" ? "dark" : "light";
+      try{
+        window.localStorage.setItem("waltonBudgetTheme", nextTheme);
+      }catch(e){}
+      applyTheme(nextTheme);
+    }
+
+    function initTheme(){
+      applyTheme(getTheme());
+    }
+
+    function initLogo(){
+      if(window.WaltonSplitLogo){
+        $(".logo-container").innerHTML = window.WaltonSplitLogo.getHtml("", "");
+        window.WaltonSplitLogo.equalizeAll();
+      }
+    }
+
+    function initSearch(){
+      if(typeof window.initWaltonBudgetSearch === "function"){
+        window.initWaltonBudgetSearch({ nav: $("#nav-menu") });
+      }
+    }
+
+    function initMenu(){
+      var nav = $("#nav-menu");
+      var toggle = $(".wc-menu-toggle");
+      var searchToggle = $(".wc-search-focus");
+      if(!nav || !toggle) return;
+      toggle.addEventListener("click", function(){
+        var open = !nav.classList.contains("is-menu-open");
+        nav.classList.toggle("is-menu-open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+      nav.querySelectorAll("a").forEach(function(link){
+        link.addEventListener("click", function(){
+          nav.classList.remove("is-menu-open");
+          toggle.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      function syncHeaderMetrics(){
+        var navRect = nav.getBoundingClientRect();
+        document.documentElement.style.setProperty("--wc-header-h", navRect.height + "px");
+        var logo = $(".logo-container");
+        if(logo){
+          var logoRect = logo.getBoundingClientRect();
+          document.documentElement.style.setProperty("--wc-search-left", Math.max(0, logoRect.right - navRect.left + 24) + "px");
+        }
+      }
+
+      function closeSearch(){
+        if(window.WaltonBudgetGlobalSearch && window.WaltonBudgetGlobalSearch.nav === nav){
+          window.WaltonBudgetGlobalSearch.close();
+        }else{
+          nav.classList.remove("is-search-open");
+          document.body.classList.remove("wc-global-search-open");
+          document.body.style.overflow = "";
+        }
+      }
+
+      function openSearch(){
+        nav.classList.remove("is-menu-open");
+        toggle.setAttribute("aria-expanded", "false");
+        syncHeaderMetrics();
+        if(window.WaltonBudgetGlobalSearch && window.WaltonBudgetGlobalSearch.nav === nav){
+          window.WaltonBudgetGlobalSearch.open();
+        }else{
+          nav.classList.add("is-search-open");
+          document.body.classList.add("wc-global-search-open");
+          document.body.style.overflow = "hidden";
+          setTimeout(function(){
+            var input = $("#wcTocSearch");
+            if(input) input.focus();
+          }, 60);
+        }
+      }
+
+      if(searchToggle){
+        searchToggle.addEventListener("click", function(){
+          if(nav.classList.contains("is-search-open")){
+            closeSearch();
+          }else{
+            openSearch();
+          }
+        });
+      }
+      document.querySelectorAll(".wc-footer-search-button").forEach(function(button){
+        button.addEventListener("click", function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          openSearch();
+        });
+      });
+      var footerContactDialog = $(".wc-footer-contact-dialog");
+      document.querySelectorAll(".wc-footer-contact-button").forEach(function(button){
+        button.addEventListener("click", function(){
+          if(footerContactDialog && typeof footerContactDialog.showModal === "function"){
+            footerContactDialog.showModal();
+          }else if(footerContactDialog){
+            footerContactDialog.setAttribute("open", "");
+          }
+        });
+      });
+      if(footerContactDialog){
+        footerContactDialog.addEventListener("click", function(event){
+          if(event.target === footerContactDialog){
+            footerContactDialog.close();
+          }
+        });
+        var footerEmailLink = footerContactDialog.querySelector('a[href^="mailto:"]');
+        if(footerEmailLink){
+          footerEmailLink.addEventListener("click", function(){ footerContactDialog.close(); });
+        }
+      }
+      window.addEventListener("resize", function(){
+        if(nav.classList.contains("is-search-open")) syncHeaderMetrics();
+      });
+      document.addEventListener("click", function(e){
+        var resultsEl = $(".wc-nav-search-results");
+        if(resultsEl && e.target === resultsEl){
+          closeSearch();
+          return;
+        }
+        if(!nav.contains(e.target) && !e.target.closest(".wc-home-footer")){
+          closeSearch();
+        }
+      });
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" && nav.classList.contains("is-search-open")){
+          closeSearch();
+        }
+        if(e.key === "Escape" && nav.classList.contains("is-menu-open")){
+          nav.classList.remove("is-menu-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.focus({ preventScroll:true });
+        }
+      });
+    }
+
+    function initBudgetGuide(){
+      var openButton = $("#budgetGuideOpen");
+      var dialog = $("#budgetGuideDialog");
+      var closeButton = $("#budgetGuideClose");
+      var form = $("#budgetGuideForm");
+      var result = $("#budgetGuideResult");
+      var resetButton = $("#budgetGuideReset");
+      if(!openButton || !dialog || !form || !result) return;
+
+      var recommendations = {
+        overview: {
+          title: "See Budget Changes",
+          href: "pages/summary-of-budget-changes-and-adjustments.html",
+          answer: "See how each department's proposed budget changed from the prior year, broken out by personnel, operating, and capital expenses."
+        },
+        taxes: {
+          title: "See Summary of Property Tax Allocations",
+          href: "pages/summary-of-property-tax-allocations.html",
+          answer: "For property tax questions, start with Summary of Property Tax Allocations. It shows the dollar amount each department receives from the countywide ad valorem tax."
+        },
+        departments: {
+          title: "Browse Departments",
+          href: "pages/departments.html",
+          answer: "The Departments directory lets you compare department budgets, budget changes, staffing, funds, and department detail pages."
+        },
+        officers: {
+          title: "View Constitutional Officers & Other Agencies",
+          href: "pages/constitutional-officers.html",
+          answer: "This page is the best match for the Sheriff, Clerk, Tax Collector, Property Appraiser, Supervisor of Elections, courts, and outside agencies."
+        },
+        capital: {
+          title: "Explore Capital Projects",
+          href: "pages/capital-projects.html",
+          answer: "Capital Projects is the best place to see infrastructure, roads, facilities, project funding, and project-level detail."
+        },
+        financials: {
+          title: "Open Financials",
+          href: "pages/financials.html",
+          answer: "Financials gathers the detailed schedules, fund summaries, revenues, expenses, personnel, equipment, and interfund transfers."
+        },
+        process: {
+          title: "See Budget Process & Calendar",
+          href: "pages/budget-process-and-calendar.html",
+          answer: "This explains how the budget is developed, reviewed, heard publicly, amended, and adopted."
+        },
+        staffing: {
+          title: "Go to Summary of Personnel",
+          href: "pages/summary-of-personnel.html",
+          answer: "For staffing questions, the Summary of Personnel shows positions and staffing changes across the budget.",
+          secondaryTitle: "Also See Summary of Personnel Cost",
+          secondaryHref: "pages/summary-of-personnel-cost.html"
+        }
+      };
+
+      function getSelectedTopic(){
+        var selected = form.querySelector('input[name="budgetGuideTopic"]:checked');
+        return selected ? selected.value : "";
+      }
+
+      function renderRecommendation(topic){
+        var rec = recommendations[topic] || recommendations.overview;
+        var secondaryLink = rec.secondaryHref
+          ? '<a class="wc-budget-guide-link" href="' + escapeHtml(rec.secondaryHref) + '">' + escapeHtml(rec.secondaryTitle || "Open This Page") + '</a>'
+          : "";
+        result.hidden = false;
+        result.innerHTML = '<h3>' + escapeHtml(rec.title) + '</h3>' +
+          '<p>' + escapeHtml(rec.answer) + '</p>' +
+          '<a class="wc-budget-guide-link" href="' + escapeHtml(rec.href) + '">Open This Page</a>' +
+          secondaryLink;
+      }
+
+      function openGuide(event){
+        if(event) event.preventDefault();
+        if(typeof dialog.showModal === "function"){
+          dialog.showModal();
+        }else{
+          dialog.setAttribute("open", "");
+        }
+        setTimeout(function(){
+          var firstChoice = form.querySelector('input[name="budgetGuideTopic"]');
+          if(firstChoice) firstChoice.focus();
+        }, 30);
+      }
+
+      function closeGuide(){
+        if(typeof dialog.close === "function"){
+          dialog.close();
+        }else{
+          dialog.removeAttribute("open");
+        }
+        openButton.focus({ preventScroll:true });
+      }
+
+      openButton.addEventListener("click", openGuide);
+      if(closeButton) closeButton.addEventListener("click", closeGuide);
+      dialog.addEventListener("click", function(event){
+        if(event.target === dialog) closeGuide();
+      });
+      form.addEventListener("submit", function(event){
+        event.preventDefault();
+        renderRecommendation(getSelectedTopic());
+      });
+      form.querySelectorAll('input[name="budgetGuideTopic"]').forEach(function(input){
+        input.addEventListener("change", function(){
+          renderRecommendation(input.value);
+        });
+      });
+      if(resetButton){
+        resetButton.addEventListener("click", function(){
+          form.reset();
+          result.hidden = true;
+          result.innerHTML = "";
+          var firstChoice = form.querySelector('input[name="budgetGuideTopic"]');
+          if(firstChoice) firstChoice.focus();
+        });
+      }
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape" && dialog.open){
+          closeGuide();
+        }
+      });
+    }
+
+    function updateRevenueCards(){
+      if(!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
+      window.WCBudgetData.loadBudgetData().then(function(data){
+        var rows = Array.isArray(data.revenues) ? data.revenues.filter(function(row){
+          var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
+          var revenueCode = String(row.Revenue_Code || "").trim();
+          return fundCode !== "503" && revenueCode !== "381000";
+        }) : [];
+        if(!rows.length) return;
+
+        function sumWhere(predicate){
+          return rows.reduce(function(total, row){
+            return predicate(row) ? total + parseMoney(row.FY2027_Proposed) : total;
+          }, 0);
+        }
+
+        var property = sumWhere(function(row){ return ["311000","311001"].indexOf(String(row.Revenue_Code || "").trim()) !== -1; });
+        var tdt = sumWhere(function(row){ return ["312120","312130","312150","312160","312170"].indexOf(String(row.Revenue_Code || "").trim()) !== -1; });
+        var surtax = sumWhere(function(row){ return String(row.Revenue_Code || "").trim() === "312600"; });
+        var halfcent = sumWhere(function(row){ return String(row.Revenue_Code || "").trim() === "335180"; });
+        var total = rows.reduce(function(sum, row){ return sum + parseMoney(row.FY2027_Proposed); }, 0);
+        var other = total - property - tdt - surtax - halfcent;
+
+        [
+          ["property", property],
+          ["tdt", tdt],
+          ["surtax", surtax],
+          ["halfcent", halfcent],
+          ["other", other]
+        ].forEach(function(item){
+          if(item[1] <= 0) return;
+          var card = $('[data-revenue-card="' + item[0] + '"] strong');
+          if(card) card.textContent = formatCurrencyShort(item[1]);
+        });
+      }).catch(function(){});
+    }
+
+    // Same department-to-fund breakdown shown on Department to Fund
+    // Relationship (see its "Separate Fund Paths" section) -- surfaced
+    // here as a quick picker so a reader landing on one of these
+    // multi-department funds can jump straight to the specific
+    // department/division they're after instead of always landing on the
+    // fund's single largest department.
+    // expenseMatch/staffingMatch are separate because the expenditure and
+    // staffing sheets sometimes name the same division differently (e.g.
+    // "Engineering Services" vs. "Engineering Department", or "Marketing"
+    // vs. "Tourism Marketing").
+    var FUND_PICKER_OPTIONS = {
+      tourism: {
+        title: "Tourist Development Fund — choose a department",
+        options: [
+          { label: "Tourism Administration", href: "pages/tourism-administration.html#tourism-administration", expenseMatch: ["Tourism Administration"], staffingMatch: ["Tourism Administration"] },
+          { label: "Tourism Marketing", href: "pages/tourism-administration.html#marketing", expenseMatch: ["Marketing"], staffingMatch: ["Marketing", "Tourism Marketing"] },
+          { label: "Tourism Sales and Visitors Center", href: "pages/tourism-administration.html#sales-and-visitor-center", expenseMatch: ["Sales and Visitors Center"], staffingMatch: ["Sales and Visitors Center", "Tourism Sales and Visitors Center"] },
+          { label: "Tourism Communications", href: "pages/tourism-administration.html#communications", expenseMatch: ["Communications"], staffingMatch: ["Communications", "Tourism Communications"] },
+          { label: "North Walton Tourist Development Tax", href: "pages/tourism-administration.html#north-walton", expenseMatch: ["North Walton Tourist Development Tax"], staffingMatch: [] },
+          { label: "Tourism Beach Operations", href: "pages/tourism-beach-operations.html#beach-operations", expenseMatch: ["Beach Operations"], staffingMatch: ["Tourism Beach Operations"] },
+          { label: "Beach Renourishment", href: "pages/tourism-beach-operations.html#beach-renourishment", expenseMatch: ["Beach Renourishment"], staffingMatch: [] },
+          { label: "Tourism Beach Tram", href: "pages/tourism-beach-operations.html#beach-tram", expenseMatch: ["Beach Tram"], staffingMatch: ["Tourism Beach Tram"] },
+          { label: "Tourism Lifeguard Services and Beach Safety", href: "pages/tourism-lifeguard-services-and-beach-safety.html", expenseMatch: ["South Walton Fire Lifeguard Services", "Public Safety", "Tourism Public Safety"], staffingMatch: [] }
+        ]
+      },
+      transportation: {
+        title: "Transportation Fund — choose a department",
+        options: [
+          { label: "Public Works", href: "pages/public-works.html", expenseMatch: ["Public Works"], staffingMatch: ["Public Works"] },
+          { label: "Engineering Department", href: "pages/engineering-department.html", expenseMatch: ["Engineering Services"], staffingMatch: ["Engineering Department"] },
+          { label: "Mossy Head Wastewater Treatment Facility", href: "pages/mossy-head-wastewater-treatment-facility.html", expenseMatch: ["Mossy Head Wastewater Treatment Facility"], staffingMatch: ["Mossy Head Wastewater Treatment Facility"] }
+        ]
+      },
+      general: {
+        title: "General Fund — choose a view",
+        options: [
+          { label: "General Fund (Board Departments)", href: "pages/departments.html?fund=001", generalGroup: "board" },
+          { label: "General Fund (Constitutional Officers)", href: "pages/constitutional-officers.html?card=constitutional", generalGroup: "constitutional" },
+          { label: "General Fund (Agencies & State Mandates)", href: "pages/constitutional-officers.html?card=agencies", generalGroup: "statutory" }
+        ]
+      }
+    };
+
+    // Within the General Fund, every dollar/FTE falls into exactly one of
+    // these three buckets: the four elected Constitutional Officers (the
+    // Sheriff is excluded -- Sheriff Fund is its own separate card),
+    // Statutory & Other Agency Funding (identified by Note, same as
+    // assets/budget-data.js's own "Statutory & Other" filter), and
+    // everything else (Board of County Commissioners and every county
+    // department) as "Board Departments". Agencies & State Mandates names
+    // match constitutional-officers.html's own "Autonomous Entities" group
+    // (its Statutory & Other Agency Funding entry is itemized by Note
+    // rather than Dept_Name -- see STATUTORY_OTHER_NOTE below).
+    var GENERAL_FUND_BOARD_DEPARTMENT_NAMES = [
+      "Building Construction and Maintenance", "Building Department", "Code Compliance",
+      "County Administration", "Eagle Springs Golf and Recreation Center", "Eagle Springs Grill",
+      "Emergency Management", "Engineering Department", "Environmental Resources", "Extension Office",
+      "Geographic Info Systems", "Housing & Urban Development", "Human Resources", "Libraries",
+      "Mosquito Control", "Mossy Head Wastewater Treatment Facility", "Office of Management and Budget",
+      "Office of the County Attorney", "Planning", "Probation", "Public Works", "Purchasing",
+      "Recreation", "Soil Conservation", "Solid Waste", "Tourism Administration",
+      "Tourism Beach Operations", "Tourism Lifeguard Services and Beach Safety", "Veteran Services"
+    ];
+    var GENERAL_FUND_CONSTITUTIONAL_NAMES = [
+      "Board of County Commissioners", "Clerk of Courts and County Comptroller",
+      "Property Appraiser", "Supervisor of Elections", "Tax Collector"
+    ];
+    var GENERAL_FUND_AGENCY_NAMES = [
+      "Circuit Court", "County Court", "Court Technology & Innovations", "Court Innovations",
+      "Guardian Ad Litem", "Medical Examiner", "Non-Profit Funding Program", "Public Defender",
+      "South Walton Fire & State Control", "South Walton Fire", "State Fire", "Volunteer Fire",
+      "State Attorney", "Statutory & Other Agency Funding", "Walton County Health Department"
+    ];
+    var GENERAL_FUND_EXPENSE_ALIASES = {
+      "clerk of courts and county comptroller": ["clerk of court", "clerk of circuit court"],
+      "engineering department": ["public works engineering services", "engineering services"],
+      "environmental resources": ["environmental services"],
+      "probation": ["probation services"],
+      "purchasing": ["procurement"],
+      "code compliance": ["code compliance beach", "code compliance street"],
+      "libraries": ["county libraries"],
+      "planning": ["planning short term rental"],
+      "tourism administration": [
+        "sales and visitor center", "sales and visitors center",
+        "tourism sales and visitor center", "tourism sales and visitors center",
+        "communications", "tourism communications", "marketing", "tourism marketing",
+        "north walton", "north walton tourist development tax"
+      ],
+      "tourism beach operations": ["beach operations", "beach renourishment", "beach tram", "tourism beach tram"],
+      "tourism lifeguard services and beach safety": ["south walton fire lifeguard services", "public safety", "tourism public safety"],
+      "court technology and innovations": ["court technology innovations", "court technology court administration", "court technology state attorney", "court technology public defender", "court technology", "court innovations"],
+      "south walton fire and state control": ["south walton fire", "state fire", "volunteer fire"],
+      "statutory and other agency funding": ["statutory and other", "culture and recreation senior centers", "culture and recreation senior centers and mainstreet", "senior centers", "senior centers and mainstreet"]
+    };
+    var STATUTORY_OTHER_NOTE = "Statutory & Other";
+
+    function initFundPickerDialog(){
+      var dialog = $("#fundPickerDialog");
+      if(!dialog) return;
+      var titleEl = $("#fundPickerDialogTitle");
+      var listEl = $("#fundPickerList");
+      var closeButton = $("#fundPickerClose");
+      var fundPickerReturnFocusTarget = null;
+      var fundPickerOpenedByKeyboard = false;
+
+      function normalizeName(value){
+        return String(value || "")
+          .toLowerCase()
+          .replace(/&/g, " and ")
+          .replace(/[^a-z0-9]+/g, " ")
+          .trim();
+      }
+
+      function expandedExpenseNames(names){
+        var output = [];
+        names.forEach(function(name){
+          var norm = normalizeName(name);
+          output.push(norm);
+          (GENERAL_FUND_EXPENSE_ALIASES[norm] || []).forEach(function(alias){ output.push(normalizeName(alias)); });
+        });
+        return output;
+      }
+
+      function sumExpenseForNames(expenseRows, names, requiredFundCode){
+        var normNames = expandedExpenseNames(names);
+        return expenseRows.reduce(function(total, row){
+          if(requiredFundCode && String(row.Dept_Code || "").trim().slice(0, 3) !== requiredFundCode) return total;
+          return normNames.indexOf(normalizeName(row.Dept_Name)) !== -1 ? total + parseMoney(row.FY2027_Proposed) : total;
+        }, 0);
+      }
+
+      function sumAgencyExpense(expenseRows){
+        var normNames = expandedExpenseNames(GENERAL_FUND_AGENCY_NAMES);
+        return expenseRows.reduce(function(total, row){
+          if(String(row.Dept_Code || "").trim().slice(0, 3) !== "001") return total;
+          if(String(row.Note || "").trim() === STATUTORY_OTHER_NOTE || normNames.indexOf(normalizeName(row.Dept_Name)) !== -1){
+            return total + parseMoney(row.FY2027_Proposed);
+          }
+          return total;
+        }, 0);
+      }
+
+      function sumFteForNames(staffingRows, names){
+        var normNames = names.map(normalizeName);
+        return staffingRows.reduce(function(total, row){
+          return normNames.indexOf(normalizeName(row.Dept_Name)) !== -1 ? total + (Number(row[2027]) || 0) : total;
+        }, 0);
+      }
+
+      function fteAndBudgetLabel(amount, fte){
+        var parts = [];
+        if(amount > 0) parts.push(formatCurrencyShort(amount));
+        if(fte > 0) parts.push(formatNumber0(fte) + " FTE");
+        return parts.join(" · ");
+      }
+
+      function openPicker(key, trigger, openedByKeyboard){
+        var config = FUND_PICKER_OPTIONS[key];
+        if(!config) return;
+        fundPickerReturnFocusTarget = trigger || null;
+        fundPickerOpenedByKeyboard = !!openedByKeyboard;
+        titleEl.textContent = config.title;
+        listEl.innerHTML = config.options.map(function(opt){
+          var meta = opt.metaText ? '<span class="wc-fund-picker-option-meta">' + escapeHtml(opt.metaText) + "</span>" : "";
+          return '<a href="' + escapeHtml(opt.href) + '"><span><span class="wc-fund-picker-option-label">' + escapeHtml(opt.label) + "</span>" + meta + "</span></a>";
+        }).join("");
+        if(typeof dialog.showModal === "function"){
+          dialog.showModal();
+        } else {
+          dialog.setAttribute("open", "");
+        }
+      }
+
+      document.querySelectorAll("[data-fund-picker]").forEach(function(trigger){
+        trigger.addEventListener("click", function(event){
+          var key = trigger.getAttribute("data-fund-picker");
+          if(!FUND_PICKER_OPTIONS[key]) return;
+          event.preventDefault();
+          openPicker(key, trigger, event.detail === 0);
+        });
+      });
+
+      function closeDialog(){
+        if(typeof dialog.close === "function"){
+          dialog.close();
+        } else {
+          dialog.removeAttribute("open");
+        }
+        function clearPointerFocus(){
+          if(fundPickerOpenedByKeyboard) return;
+          var active = document.activeElement;
+          if(active && typeof active.blur === "function"){
+            active.blur();
+          }
+          if(fundPickerReturnFocusTarget && typeof fundPickerReturnFocusTarget.blur === "function"){
+            fundPickerReturnFocusTarget.blur();
+          }
+          if(closeButton && typeof closeButton.blur === "function"){
+            closeButton.blur();
+          }
+          if(typeof dialog.blur === "function"){
+            dialog.blur();
+          }
+        }
+        window.requestAnimationFrame(clearPointerFocus);
+        window.setTimeout(function(){
+          clearPointerFocus();
+          fundPickerReturnFocusTarget = null;
+          fundPickerOpenedByKeyboard = false;
+        }, 80);
+      }
+      if(closeButton) closeButton.addEventListener("click", closeDialog);
+      dialog.addEventListener("click", function(event){
+        if(event.target === dialog) closeDialog();
+      });
+
+      // Fills in each option's metaText (budget + FTE) once data loads,
+      // so it's ready by the time a card is actually clicked.
+      if(window.WCBudgetData && typeof window.WCBudgetData.loadBudgetData === "function"){
+        window.WCBudgetData.loadBudgetData().then(function(data){
+          var expenseRows = Array.isArray(data.expenditures) ? data.expenditures : [];
+          var staffingRows = Array.isArray(data.staffing) ? data.staffing : [];
+
+          FUND_PICKER_OPTIONS.tourism.options.concat(FUND_PICKER_OPTIONS.transportation.options).forEach(function(opt){
+            var amount = sumExpenseForNames(expenseRows, opt.expenseMatch || opt.match || []);
+            var fte = sumFteForNames(staffingRows, opt.staffingMatch || opt.match || []);
+            opt.metaText = fteAndBudgetLabel(amount, fte);
+          });
+
+          var boardAmount = sumExpenseForNames(expenseRows, GENERAL_FUND_BOARD_DEPARTMENT_NAMES, "001");
+          var constitutionalAmount = sumExpenseForNames(expenseRows, GENERAL_FUND_CONSTITUTIONAL_NAMES, "001");
+          var agencyAmount = sumAgencyExpense(expenseRows);
+
+          // FTE: Clerk of Court, Tax Collector, Property Appraiser, and
+          // Supervisor of Elections' staffing rows carry no Dept_Code at
+          // all (unlike their expenditure rows), so General Fund's total
+          // FTE is summed via the same named fund-grouping the expense
+          // cards' own FTE counts use, then split the same three ways as
+          // the dollar totals above.
+          var personnelCallouts = [];
+          var totalGeneralFte = 0;
+          if(typeof window.WCBudgetData.getPersonnelFundCallouts === "function"){
+            personnelCallouts = window.WCBudgetData.getPersonnelFundCallouts(staffingRows);
+            personnelCallouts.forEach(function(c){
+              if(c.filterLabel.indexOf("General Fund (") === 0) totalGeneralFte += c.total;
+            });
+          }
+          function personnelCalloutTotal(filterLabels){
+            return personnelCallouts.reduce(function(total, c){
+              return filterLabels.indexOf(c.filterLabel) !== -1 ? total + c.total : total;
+            }, 0);
+          }
+          var constitutionalFte = personnelCalloutTotal([
+            "General Fund (Board of County Commissioners)",
+            "General Fund (Clerk of Court)",
+            "General Fund (Tax Collector)",
+            "General Fund (Property Appraiser)",
+            "General Fund (Supervisor of Elections)"
+          ]);
+          var agencyFte = personnelCalloutTotal(["General Fund (Circuit Court)"]);
+          var boardFte = totalGeneralFte - constitutionalFte - agencyFte;
+
+          FUND_PICKER_OPTIONS.general.options.forEach(function(opt){
+            if(opt.generalGroup === "constitutional") opt.metaText = fteAndBudgetLabel(constitutionalAmount, constitutionalFte);
+            else if(opt.generalGroup === "statutory") opt.metaText = fteAndBudgetLabel(agencyAmount, agencyFte);
+            else if(opt.generalGroup === "board") opt.metaText = fteAndBudgetLabel(boardAmount, boardFte);
+          });
+        }).catch(function(){});
+      }
+    }
+
+    function updateExpenseCards(){
+      if(!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
+      window.WCBudgetData.loadBudgetData().then(function(data){
+        var rows = Array.isArray(data.expenditures) ? data.expenditures.filter(function(row){
+          return String(row.Dept_Code || "").trim().slice(0, 3) !== "503";
+        }) : [];
+        if(!rows.length) return;
+
+        function fundCode(row){
+          return String(row.Dept_Code || "").trim().slice(0, 3);
+        }
+
+        function sumWhere(predicate){
+          return rows.reduce(function(total, row){
+            return predicate(row) ? total + parseMoney(row.FY2027_Proposed) : total;
+          }, 0);
+        }
+
+        // Reuses the Summary of Personnel's own fund grouping (handles
+        // Sheriff, Clerk, Tax Collector, etc. -- whose staffing rows carry
+        // no Dept_Code at all and are matched by Dept_Name instead) rather
+        // than re-deriving fund membership from Dept_Code here.
+        var fteByFund = { sheriff: 0, capital: 0, transportation: 0, tourism: 0, general: 0 };
+        if(typeof window.WCBudgetData.getPersonnelFundCallouts === "function"){
+          window.WCBudgetData.getPersonnelFundCallouts(data.staffing || []).forEach(function(c){
+            var key = c.filterLabel === "Sheriff Fund" ? "sheriff"
+              : c.filterLabel === "Transportation Fund" ? "transportation"
+              : c.filterLabel === "Tourist Development Fund" ? "tourism"
+              : c.filterLabel.indexOf("General Fund (") === 0 ? "general"
+              : null;
+            if(!key) return;
+            fteByFund[key] += c.total;
+          });
+        }
+
+        var predicates = {
+          sheriff: function(row){ return fundCode(row) === "107"; },
+          capital: function(row){ return fundCode(row) === "300"; },
+          transportation: function(row){ return fundCode(row) === "101"; },
+          tourism: function(row){ return fundCode(row) === "111"; },
+          general: function(row){
+            return fundCode(row) === "001" && String(row.Object_Code || "").trim() !== "591000";
+          }
+        };
+
+        Object.keys(predicates).forEach(function(key){
+          var amount = sumWhere(predicates[key]);
+          if(amount <= 0) return;
+          var card = $('[data-expense-card="' + key + '"] strong');
+          if(card) card.textContent = formatCurrencyShort(amount);
+
+          var fte = fteByFund[key];
+          var meta = $('[data-expense-card-meta="' + key + '"]');
+          if(meta && fte > 0) meta.textContent = formatNumber0(fte) + " FTE";
+        });
+      }).catch(function(){});
+    }
+
+    function projectNarrative(project){
+      var text = project.description || project.pertinent_information || project.funding_source || "";
+      text = String(text).replace(/\s+/g, " ").trim();
+      if(!text) return "A capital investment supporting county infrastructure, service delivery, and long-term community needs.";
+      return text.length > 150 ? text.slice(0, 147).replace(/\s+\S*$/, "") + "..." : text;
+    }
+
+    function projectImageSlug(value){
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    var projectImages = {
+      "huckaba-road-604114-bridge-replacement":"assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.jpg",
+      "huchaba-road-604114-bridge-replacement":"assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.jpg",
+      "huckaba-rd-604114-bridge-replacement":"assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.jpg",
+      "huchaba-rd-604114-bridge-replacement":"assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.jpg"
+    };
+
+    function projectImageUrl(project){
+      if(project && project.image_url) return project.image_url;
+      var projectText = [
+        project && project.slug,
+        project && project.title,
+        project && project.name,
+        project && project.project_name,
+        project && project.description,
+        project && project.pertinent_information
+      ].join(" ").toLowerCase();
+
+      if((projectText.indexOf("huckaba") !== -1 || projectText.indexOf("huchaba") !== -1) &&
+        (projectText.indexOf("road") !== -1 || projectText.indexOf(" rd") !== -1 || projectText.indexOf("bridge") !== -1)){
+        return projectImages["huckaba-road-604114-bridge-replacement"];
+      }
+
+      var candidates = [
+        project && project.slug,
+        project && project.title,
+        project && project.name,
+        project && project.project_name
+      ].map(projectImageSlug);
+      for(var i = 0; i < candidates.length; i++){
+        if(projectImages[candidates[i]]) return projectImages[candidates[i]];
+      }
+      return "";
+    }
+
+    // FY2027 funding for one project, summed across whichever
+    // funding_by_year entries (a project can draw from more than one
+    // source/fund in the same year) are tagged "FY2027" -- see
+    // cip-projects-data.js.
+    function fy2027FundingAmount(project){
+      var entries = Array.isArray(project && project.funding_by_year) ? project.funding_by_year : [];
+      return entries.reduce(function(sum, entry){
+        return entry && entry.year === "FY2027" ? sum + (Number(entry.amount_value) || 0) : sum;
+      }, 0);
+    }
+
+    // Counts every real CIP project with FY2027 funding (not just the 6
+    // featured cards above, which are limited to ones with their own
+    // image) -- the legacy in-house engineering row is excluded the same
+    // way the featured list and the Financial Forecast's own CIP totals
+    // already exclude it.
+    function renderProjectsStatCallout(projects){
+      var callout = $("#projectsStatCallout");
+      if(!callout) return;
+      var items = callout.querySelectorAll(".wc-section-stat-item strong");
+      if(items.length < 2) return;
+
+      // Excludes grant-funded projects (project.funding === "Grant Funded",
+      // same match used by the Grant Funded Schedule page -- see
+      // renderFundSchedule in cip-fund-schedule.js) -- this callout
+      // is meant to reflect the County's own FY2027 capital investment,
+      // not grant dollars that are awarded/administered separately.
+      var realProjects = (projects || []).filter(function(project){
+        return project && !project.is_legacy_in_house_engineering_row &&
+          String(project.funding || "").trim().toLowerCase() !== "grant funded";
+      });
+      var fundedProjects = realProjects.filter(function(project){ return fy2027FundingAmount(project) > 0; });
+      var totalFunding = realProjects.reduce(function(sum, project){ return sum + fy2027FundingAmount(project); }, 0);
+
+      items[0].textContent = fundedProjects.length.toLocaleString("en-US");
+      items[1].textContent = formatCurrencyShort(totalFunding);
+    }
+
+    function renderFeaturedProjects(projects){
+      var mount = $("#featuredProjects");
+      if(!mount) return;
+      var featured = (projects || [])
+        .filter(function(project){ return project && !project.is_legacy_in_house_engineering_row && Number(project.budget_value || 0) > 0 && projectImageUrl(project); })
+        .sort(function(a, b){ return Number(b.budget_value || 0) - Number(a.budget_value || 0); })
+        .slice(0, 6);
+
+      if(!featured.length){
+        mount.innerHTML = '<div class="wc-project-empty">Capital project data is not available right now.</div>';
+        return;
+      }
+
+      mount.innerHTML = featured.map(function(project){
+        var href = "pages/cip-project.html?project=" + encodeURIComponent(project.slug || "");
+        var imageUrl = projectImageUrl(project);
+        return '<a class="wc-project-card" href="' + href + '">' +
+          '<div class="wc-project-visual"><img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(project.title || "Capital project image") + '" loading="lazy" decoding="async"><span class="wc-project-badge">' + escapeHtml(project.department || "Capital Project") + '</span></div>' +
+          '<div class="wc-project-body">' +
+            '<div class="wc-project-meta"><span class="wc-project-amount">' + escapeHtml(project.budget || "") + '</span></div>' +
+            '<h3>' + escapeHtml(project.title || "Capital Project") + '</h3>' +
+            '<p>' + escapeHtml(projectNarrative(project)) + '</p>' +
+            '<span class="wc-card-link">View Project</span>' +
+          '</div>' +
+        '</a>';
+      }).join("");
+    }
+
+    function initProjects(){
+      var ready = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+      ready.then(function(projects){
+        renderFeaturedProjects(projects);
+        renderProjectsStatCallout(projects);
+      }).catch(function(){
+        renderFeaturedProjects([]);
+        renderProjectsStatCallout([]);
+      });
+    }
+
+    function initReveal(){
+      var items = document.querySelectorAll(".wc-reveal");
+      if(!("IntersectionObserver" in window)){
+        items.forEach(function(item){ item.classList.add("is-visible"); });
+        return;
+      }
+      var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold:.14 });
+      items.forEach(function(item){ observer.observe(item); });
+    }
+
+    document.addEventListener("DOMContentLoaded", function(){
+      initTheme();
+      initLogo();
+      initSearch();
+      initMenu();
+      initBudgetGuide();
+      updateRevenueCards();
+      updateExpenseCards();
+      initFundPickerDialog();
+      initProjects();
+      initReveal();
+    });
+  })();
+</script>
+</body>
+</html>

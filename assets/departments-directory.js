@@ -1,0 +1,813 @@
+  (function(){
+    var fallbackDepartments = [
+      ["Building Construction and Maintenance", "building-construction-and-maintenance.html"],
+      ["Building Department", "building-department.html"],
+      ["Code Compliance", "code-compliance.html"],
+      ["County Administration Departments", "county-administration.html"],
+      ["Eagle Springs Golf and Recreation Center", "eagle-springs-golf-and-recreation-center.html"],
+      ["Eagle Springs Grill", "eagle-springs-grill.html"],
+      ["Emergency Management", "emergency-management.html"],
+      ["Engineering Department", "engineering-department.html"],
+      ["Environmental Services", "environmental-resources.html"],
+      ["Extension Office", "extension-office.html"],
+      ["Geographic Info Systems", "geographic-info-systems.html"],
+      ["Housing & Urban Development", "housing-and-urban-development.html"],
+      ["Human Resources", "human-resources.html"],
+      ["Libraries", "libraries.html"],
+      ["Mosquito Control", "mosquito-control.html"],
+      ["Mossy Head Wastewater Treatment Facility", "mossy-head-wastewater-treatment-facility.html"],
+      ["Office of Management and Budget", "office-of-management-and-budget.html"],
+      ["Office of the County Attorney", "office-of-the-county-attorney.html"],
+      ["Planning", "planning.html"],
+      ["Probation", "probation.html"],
+      ["Public Works", "public-works.html"],
+      ["Purchasing", "purchasing.html"],
+      ["Recreation", "recreation.html"],
+      ["Soil Conservation", "soil-conservation.html"],
+      ["Solid Waste", "solid-waste.html"],
+      ["Tourism Administration", "tourism-administration.html"],
+      ["Tourism Beach Operations", "tourism-beach-operations.html"],
+      ["Tourism Lifeguard Services and Beach Safety", "tourism-lifeguard-services-and-beach-safety.html"],
+      ["Veteran Services", "veteran-services.html"]
+    ];
+
+    var aliasMap = {
+      "sheriffs office": ["walton county sheriffs office", "sheriff"],
+      "clerk of courts and county comptroller": ["clerk of court", "clerk of circuit court"],
+      "engineering department": ["public works engineering services", "engineering services"],
+      "environmental services": ["environmental resources"],
+      "county administration departments": ["county administration"],
+      "probation": ["probation services"],
+      "purchasing": ["procurement"],
+      "code compliance": ["code compliance beach", "code compliance street"],
+      "libraries": ["county libraries"],
+      "planning": ["planning short term rental"],
+      "tourism administration": [
+        "sales and visitor center",
+        "sales and visitors center",
+        "tourism sales and visitor center",
+        "tourism sales and visitors center",
+        "communications",
+        "tourism communications",
+        "marketing",
+        "tourism marketing",
+        "north walton",
+        "north walton tourist development tax"
+      ],
+      "tourism beach operations": [
+        "beach operations",
+        "beach renourishment",
+        "beach tram",
+        "tourism beach tram"
+      ],
+      "tourism lifeguard services and beach safety": [
+        "south walton fire lifeguard services",
+        "public safety",
+        "tourism public safety"
+      ]
+    };
+
+    var departments = [];
+
+    function $(selector){
+      return document.querySelector(selector);
+    }
+
+    function escapeHtml(value){
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Bouncing-dots markup shown in place of the literal "Loading" text
+    // while loadBudgetData() is in flight (see style.css's .wc-loading-dots).
+    var LOADING_DOTS_HTML = '<span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+
+    function valueOrLoadingHtml(value){
+      return value === "Loading" ? LOADING_DOTS_HTML : escapeHtml(value);
+    }
+
+    function normalize(value){
+      return String(value || "")
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function formatCurrency(value){
+      var n = Number(value) || 0;
+      if(!n) return "Not listed";
+      if(Math.abs(n) >= 1000000){
+        return "$" + (n / 1000000).toLocaleString("en-US", { maximumFractionDigits:1 }) + "M";
+      }
+      return "$" + Math.round(n).toLocaleString("en-US");
+    }
+
+    function formatFte(value){
+      var n = Number(value) || 0;
+      if(!n) return "Not listed";
+      return n.toLocaleString("en-US", { maximumFractionDigits:2 }).replace(/\.00$/, "");
+    }
+
+    function formatTrend(current, prior){
+      if(!prior) return "";
+      var pct = ((current - prior) / prior) * 100;
+      return (pct > 0 ? "+" : "") + pct.toFixed(2) + "%";
+    }
+
+    function formatTrendDollar(current, prior){
+      if(!prior) return "";
+      var diff = current - prior;
+      var abs = Math.abs(diff);
+      var amount = abs >= 1000000
+        ? "$" + (abs / 1000000).toLocaleString("en-US", { maximumFractionDigits:1 }) + "M"
+        : abs >= 1000
+        ? "$" + Math.round(abs / 1000).toLocaleString("en-US") + "K"
+        : "$" + Math.round(abs).toLocaleString("en-US");
+      return (diff > 0 ? "+" : diff < 0 ? "-" : "") + amount;
+    }
+
+    function formatFteTrend(current, prior){
+      var diff = current - prior;
+      if(!diff) return "";
+      var amount = Math.abs(diff).toLocaleString("en-US", { maximumFractionDigits:2 }).replace(/\.00$/, "");
+      return (diff > 0 ? "+" : "-") + amount;
+    }
+
+    function fundCodeForRow(row){
+      return String((row && row.Dept_Code) || "").trim().slice(0, 3);
+    }
+
+    // Top-of-page "at a glance" callouts -- one card per fund, each showing
+    // that fund's total FY2026 -> FY2027 dollar change, total FY2027
+    // personnel, and FY2026 -> FY2027 FTE change, summed across every
+    // department/program booked under that fund code (not just the
+    // departments listed below, which only cover ones with their own page).
+    var FUND_SUMMARY_GROUPS = [
+      { code:"001", label:"General Fund (Board Departments)" },
+      { code:"101", label:"Transportation Fund" },
+      { code:"111", label:"Tourist Development Fund", fullFund:true },
+      { code:"112", label:"Solid Waste Fund", fullFund:true },
+      { code:"105", label:"Mosquito Control Fund" },
+      { code:"103", label:"Building Fund" }
+    ];
+
+    function computeFundSummaries(data){
+      var expenditures = Array.isArray(data && data.expenditures) ? data.expenditures : [];
+      // Same dedup as enrichDepartments' own priorBudget -- a shared
+      // account split across multiple Dept_Names (e.g. Code Compliance /
+      // Code Compliance Beach) would otherwise count its FY2026 total once
+      // per Dept_Name sharing it.
+      var dedupedExpenditures = Array.isArray(data && data.dedupedExpenseRows) ? data.dedupedExpenseRows : expenditures;
+      var staffing = Array.isArray(data && data.staffing) ? data.staffing : [];
+
+      var revenues = Array.isArray(data && data.revenues) ? data.revenues : [];
+
+      // General Fund (and, in principle, any fund) is also used by
+      // constitutional officers and other agencies that have their own
+      // separate directory (constitutional-officers.html) -- those aren't
+      // "Board Departments" and have no page listed below, so a row only
+      // counts toward a fund callout here when it also matches one of the
+      // departments actually listed on this page.
+      var deptNames = departments.map(function(d){ return d.name; });
+      function isListedDepartmentRow(row){
+        for(var i = 0; i < deptNames.length; i++){
+          if(rowMatchesDepartment(row, deptNames[i])) return true;
+        }
+        return false;
+      }
+      var listedExpenditures = expenditures.filter(isListedDepartmentRow);
+      var listedDedupedExpenditures = dedupedExpenditures.filter(isListedDepartmentRow);
+      var listedStaffing = staffing.filter(isListedDepartmentRow);
+      var listedRevenues = revenues.filter(isListedDepartmentRow);
+
+      // Engineering moved from the General Fund to the Transportation Fund
+      // starting FY2027 (see budget-data.js's DEPT_CODE_ACTUALS_ALIASES
+      // comment) -- the budget figures reflect that via a brand new FY2027
+      // Dept_Code (10116002, naturally fund 101) while the legacy code
+      // (00120000, fund 001) keeps holding its real FY2020-FY2026 history.
+      // The staffing sheet has no such split: every year's headcount,
+      // including FY2027, is still booked under the one legacy 00120000
+      // row. Left alone that overcounts the General Fund's FY2027
+      // Personnel figure (and undercounts Transportation's) by
+      // Engineering's full headcount, while its FY2026 prior-year
+      // headcount genuinely did still belong to the General Fund and
+      // shouldn't move.
+      var STAFFING_FY2027_FUND_CODE_OVERRIDES = { "00120000": "101" };
+      function fundCodeForStaffingRow(row, isCurrentYear){
+        var code = String((row && row.Dept_Code) || "").trim();
+        if(isCurrentYear && STAFFING_FY2027_FUND_CODE_OVERRIDES[code]) return STAFFING_FY2027_FUND_CODE_OVERRIDES[code];
+        return code.slice(0, 3);
+      }
+
+      return FUND_SUMMARY_GROUPS.map(function(group){
+        var expenseRows = group.fullFund ? expenditures : listedExpenditures;
+        var priorExpenseRows = group.fullFund ? dedupedExpenditures : listedDedupedExpenditures;
+        var staffingRows = group.fullFund ? staffing : listedStaffing;
+        var revenueRows = group.fullFund ? revenues : listedRevenues;
+
+        var budget = expenseRows.reduce(function(sum, row){
+          return fundCodeForRow(row) === group.code ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
+        }, 0);
+        var priorBudget = priorExpenseRows.reduce(function(sum, row){
+          return fundCodeForRow(row) === group.code ? sum + (Number(row.FY2026_Original_Budget) || 0) : sum;
+        }, 0);
+        var fte = staffingRows.reduce(function(sum, row){
+          return fundCodeForStaffingRow(row, true) === group.code ? sum + (Number(row["2027"]) || 0) : sum;
+        }, 0);
+        var priorFte = staffingRows.reduce(function(sum, row){
+          return fundCodeForStaffingRow(row, false) === group.code ? sum + (Number(row["2026"]) || 0) : sum;
+        }, 0);
+        // The YoY FTE chip only -- priorFte above (this fund's real,
+        // unadjusted FY2026 headcount) is left alone. Engineering's move
+        // shouldn't read as a personnel change on either fund's card, so
+        // the trend comparison groups its FY2026 headcount with whichever
+        // fund it now belongs to (same attribution fte above already
+        // uses), the same way the actual move means neither fund hired or
+        // lost anyone because of it.
+        var trendPriorFte = staffingRows.reduce(function(sum, row){
+          return fundCodeForStaffingRow(row, true) === group.code ? sum + (Number(row["2026"]) || 0) : sum;
+        }, 0);
+
+        // Each listed department's own direct Ad Valorem Taxes line
+        // (Revenue_Code 311000, same Dept_Name match as the budget figure
+        // above) -- the sheet books property tax per department for the
+        // General Fund and Mosquito Control Fund, so this reads the real
+        // allocation rather than estimating a share of the whole fund.
+        // Funds without any department-level 311000 rows (Transportation,
+        // Tourist Development, Solid Waste, Building, Housing & Urban
+        // Development) simply total $0 here, same as before.
+        var propertyTaxShare = revenueRows.reduce(function(sum, row){
+          if(String(row.Revenue_Code || "").trim() !== "311000") return sum;
+          return fundCodeForRow(row) === group.code ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
+        }, 0);
+
+        return {
+          label:group.label,
+          budget:formatCurrency(budget),
+          trend:formatTrend(budget, priorBudget),
+          trendDollar:formatTrendDollar(budget, priorBudget),
+          fte:formatFte(fte),
+          fteTrend:formatFteTrend(fte, trendPriorFte),
+          propertyTax:propertyTaxShare ? formatCurrency(propertyTaxShare) : ""
+        };
+      });
+    }
+
+    // sublines is an optional array of { label, value } pairs (value
+    // already-escaped HTML) shown indented under this chip's own
+    // label/value row -- see the Budget chip's "Property Tax Allocation"
+    // line in renderFundSummary.
+    function fundChipHtml(value, label, trendClass){
+      return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">' + escapeHtml(label) + '</span><strong' + (trendClass ? ' class="' + trendClass + '"' : "") + '>' + value + '</strong></div>';
+    }
+
+    // The YoY Change chip needs its own markup: the % is dropped onto its
+    // own line under the $ amount (there's no room to keep label + $
+    // amount + (%) all on one line on the narrower cards), so the label
+    // and the dollar amount stay inline with each other while the percent
+    // sits stacked below the dollar amount, right-aligned to match it.
+    function fundTrendChipHtml(trendDollar, trendPercent, trendClass){
+      if(trendDollar === "Loading"){
+        return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">YoY Change</span>' +
+          '<span class="wc-dept-fund-chip-value-wrap"><strong>' + LOADING_DOTS_HTML + '</strong>' +
+          '<span class="wc-dept-fund-chip-percent">' + LOADING_DOTS_HTML + "</span></span></div>";
+      }
+      var valueHtml = trendDollar ? escapeHtml(trendDollar) : "&mdash;";
+      var percentHtml = (trendDollar && trendPercent)
+        ? '<span class="wc-dept-fund-chip-percent">(' + escapeHtml(trendPercent) + ")</span>"
+        : "";
+      return '<div class="wc-dept-fund-chip"><span class="wc-dept-fund-chip-label">YoY Change</span>' +
+        '<span class="wc-dept-fund-chip-value-wrap"><strong' + (trendClass ? ' class="' + trendClass + '"' : "") + '>' + valueHtml + "</strong>" + percentHtml + "</span></div>";
+    }
+
+    // Compact cards, one per fund, beside each other -- each card lists its
+    // own budget/change/personnel/FTE metrics one per line, with that
+    // line's own label and value sitting inline with each other (not
+    // stacked), so every metric's label/value pair lines up the same way
+    // down the card.
+    // Clicking a fund card filters the directory list below to just that
+    // fund's departments (see rendered wc-dept-fund-card--clickable
+    // buttons' click handler in initDirectory); clicking the active card
+    // again clears the filter back to showing every department.
+    var activeFundCode = null;
+    var shouldScrollToDepartmentListFromUrl = false;
+    var lastFundSummaries = null;
+
+    // Lets a link from elsewhere on the site (e.g. the homepage's General
+    // Fund picker) land here with the General Fund card already selected,
+    // instead of always landing on the unfiltered, every-fund view.
+    (function initActiveFundCodeFromUrl(){
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var code = params.get("fund");
+        if(code && FUND_SUMMARY_GROUPS.some(function(g){ return g.code === code; })){
+          activeFundCode = code;
+          shouldScrollToDepartmentListFromUrl = true;
+        }
+      } catch (e) {}
+    })();
+
+    function renderFundSummary(fundSummaries){
+      lastFundSummaries = fundSummaries;
+      var el = $("#departmentFundSummary");
+      if(!el) return;
+      el.innerHTML = fundSummaries.map(function(f, index){
+        var trendClass = (f.trendDollar && f.trendDollar !== "Loading") ? (f.trendDollar.charAt(0) === "-" ? "wc-directory-item-trend-down" : "wc-directory-item-trend-up") : "";
+        var fteTrendClass = (f.fteTrend && f.fteTrend !== "Loading") ? (f.fteTrend.charAt(0) === "-" ? "wc-directory-item-trend-down" : "wc-directory-item-trend-up") : "";
+        var propertyTaxLabel = "Property Tax";
+        var propertyTaxValueHtml = f.propertyTax === "Loading"
+          ? LOADING_DOTS_HTML
+          : escapeHtml(f.propertyTax || "$0");
+        var group = FUND_SUMMARY_GROUPS[index];
+        var isActive = group && activeFundCode === group.code;
+        return '<button type="button" class="wc-dept-fund-card wc-dept-fund-card--clickable' + (isActive ? " wc-dept-fund-card--active" : "") + '" data-fund-code="' + escapeHtml(group ? group.code : "") + '" aria-pressed="' + (isActive ? "true" : "false") + '">' +
+          '<p class="wc-dept-fund-card-label">' + escapeHtml(f.label) + '</p>' +
+          '<div class="wc-dept-fund-card-chips">' +
+            fundChipHtml(valueOrLoadingHtml(f.budget), "Budget") +
+            fundTrendChipHtml(f.trendDollar, f.trend, trendClass) +
+            fundChipHtml(propertyTaxValueHtml, propertyTaxLabel) +
+            fundChipHtml(valueOrLoadingHtml(f.fte) + '<span class="wc-dept-fund-staff-change">' + (f.fteTrend === "Loading" ? LOADING_DOTS_HTML : " (" + (f.fteTrend ? escapeHtml(f.fteTrend) + " FTE" : "0") + ")") + '</span>', "Personnel") +
+            fundChipHtml(f.fteTrend === "Loading" ? LOADING_DOTS_HTML : (f.fteTrend ? escapeHtml(f.fteTrend) : "&mdash;"), "YoY FTE", fteTrendClass) +
+          '</div>' +
+        '</button>';
+      }).join("");
+
+      Array.prototype.forEach.call(el.querySelectorAll(".wc-dept-fund-card--clickable"), function(card){
+        card.addEventListener("click", function(){
+          var code = card.getAttribute("data-fund-code");
+          activeFundCode = activeFundCode === code ? null : code;
+          renderFundSummary(lastFundSummaries);
+          renderDepartments();
+          scrollDepartmentListIntoViewOnMobile();
+        });
+      });
+    }
+
+    function descriptionFromNarrative(text){
+      var clean = String(text || "").replace(/\s+/g, " ").trim();
+      if(!clean) return "View budget, staffing, performance measures, and service information for this Walton County department.";
+      return clean.length > 190 ? clean.slice(0, 187).replace(/\s+\S*$/, "") + "..." : clean;
+    }
+
+    function aliasesFor(name){
+      var key = normalize(name);
+      return [key].concat(aliasMap[key] || []);
+    }
+
+    function rowMatchesDepartment(row, name){
+      var dept = normalize(row && row.Dept_Name);
+      return aliasesFor(name).indexOf(dept) !== -1;
+    }
+
+    function buildBaseDepartments(){
+      var pages = Array.isArray(window.wcBudgetPages) ? window.wcBudgetPages : [];
+      var localHrefByTitle = {};
+      fallbackDepartments.forEach(function(item){
+        localHrefByTitle[normalize(item[0])] = item[1];
+      });
+      var items = pages
+        .filter(function(page){
+          return page && page.section === "Departments" && page.title !== "Departments";
+        })
+        .map(function(page){
+          return { name:page.title, href:localHrefByTitle[normalize(page.title)] || page.href };
+        });
+
+      if(!items.length){
+        items = fallbackDepartments.map(function(item){
+          return { name:item[0], href:item[1] };
+        });
+      }
+
+      var seen = {};
+      return items
+        .filter(function(item){
+          var key = normalize(item.name);
+          if(seen[key]) return false;
+          seen[key] = true;
+          return true;
+        })
+        .sort(function(a, b){ return a.name.localeCompare(b.name); });
+    }
+
+    function fundCodesForDepartment(name, expenditures){
+      var codes = [];
+      expenditures.forEach(function(row){
+        if(!rowMatchesDepartment(row, name)) return;
+        // Some departments carry a placeholder row under a legacy fund
+        // purely so historical actuals stay visible (e.g. Engineering
+        // moved from the General Fund to the Transportation Fund starting
+        // FY2027 -- see DEPT_CODE_ACTUALS_ALIASES' comment in budget-data.js).
+        // Those placeholders have no FY2027 budget of their own, so they're
+        // skipped here to keep this in sync with the budget figure shown,
+        // which is FY2027-only.
+        if(!(Number(row.FY2027_Proposed) || 0)) return;
+        var code = fundCodeForRow(row);
+        if(code && codes.indexOf(code) === -1) codes.push(code);
+      });
+      return codes;
+    }
+
+    function fundLabelForDepartment(codes, fundsByCode){
+      if(!codes.length) return "Not listed";
+      var names = codes
+        .map(function(code){
+          var fund = fundsByCode[code];
+          return fund && fund.Fund_Name ? fund.Fund_Name : code;
+        })
+        .sort();
+      return names.join(", ");
+    }
+
+    // Some departments' own budget is really the sum of several raw,
+    // separately-booked Dept_Name accounts (e.g. Tourism Administration
+    // also covers Marketing, Communications, and the Sales & Visitor
+    // Center; Code Compliance covers a Beach and a Street account) -- see
+    // aliasMap above. Grouping those matched rows by their own raw
+    // Dept_Name (rather than collapsing them into the single department
+    // total) lets the list show which offices actually make up that
+    // total, instead of it reading as one flat number.
+    // Planning (Planning + Planning Short Term Rental) and Code Compliance
+    // (Code Compliance + Code Compliance Beach + Code Compliance Street)
+    // already report as one combined total via aliasMap above -- unlike
+    // Tourism Administration's offices, these underlying accounts aren't
+    // meaningfully distinct services, so they stay a single row with no
+    // office breakdown instead of splitting back apart underneath it.
+    var OFFICE_BREAKDOWN_EXCLUDED = { "planning":true, "code compliance":true };
+
+    function officesForDepartment(name, href, expenditures){
+      if(OFFICE_BREAKDOWN_EXCLUDED[normalize(name)]) return [];
+      var byName = {};
+      var order = [];
+      expenditures.forEach(function(row){
+        if(!rowMatchesDepartment(row, name)) return;
+        var amount = Number(row.FY2027_Proposed) || 0;
+        if(!amount) return;
+        var rawName = String((row && row.Dept_Name) || "").trim();
+        if(!rawName) return;
+        if(!byName[rawName]){
+          byName[rawName] = 0;
+          order.push(rawName);
+        }
+        byName[rawName] += amount;
+      });
+      if(order.length < 2) return [];
+      // These raw accounts don't have pages of their own -- they're all
+      // just line items inside this one department's page -- so every
+      // office in the breakdown links to that same page rather than only
+      // the entry that happens to share the department's exact name.
+      return order
+        .map(function(rawName){
+          return { name:rawName, amount:byName[rawName], href:href };
+        })
+        .sort(function(a, b){ return b.amount - a.amount; });
+    }
+
+    // These department pages each carry a real budget of their own, but on
+    // the Department Budget Explorer above they're rolled up as offices
+    // under a broader umbrella department (see budget-data.js's
+    // boardDepartmentNames map). Nesting them the same way here -- instead
+    // of listing them a second time as flat, unrelated rows -- keeps the
+    // two views consistent and makes the umbrella department's own total
+    // read as the sum of its offices rather than a smaller, unrelated
+    // number.
+    var CHILD_DEPARTMENT_GROUPS = {
+      "county administration departments": ["human resources", "extension office", "geographic info systems", "housing and urban development", "libraries", "probation", "veteran services"],
+      "environmental services": ["solid waste", "mosquito control", "soil conservation"],
+      "engineering department": ["mossy head wastewater treatment facility"],
+      "recreation": ["eagle springs golf and recreation center", "eagle springs grill"]
+    };
+
+    // The Environmental Services page's own direct budget (outside of
+    // Solid Waste/Mosquito Control/Soil Conservation) is booked under the
+    // raw account name "Environmental Resources" -- its office entry keeps
+    // that original account name instead of repeating "Environmental
+    // Services", which is already the section header above it.
+    var PARENT_SELF_OFFICE_LABEL_OVERRIDES = { "environmental services": "Environmental Resources", "county administration departments": "County Administration" };
+
+    function applyChildDepartmentGroups(list, fundsByCode){
+      var byKey = {};
+      list.forEach(function(dept){ byKey[normalize(dept.name)] = dept; });
+      var removedKeys = {};
+      Object.keys(CHILD_DEPARTMENT_GROUPS).forEach(function(parentKey){
+        var parent = byKey[parentKey];
+        if(!parent) return;
+        var children = CHILD_DEPARTMENT_GROUPS[parentKey]
+          .map(function(key){ return byKey[key]; })
+          .filter(Boolean);
+        if(!children.length) return;
+        var offices = (parent.offices || []).slice();
+        // The umbrella name (e.g. "County Administration") isn't its own
+        // clickable destination once it's grouping other departments'
+        // pages -- its own budget (if it books anything directly, outside
+        // of its offices) is listed as one more office alongside them,
+        // clickable there, instead of the whole row linking to its page.
+        if(parent.budgetValue > 0) offices.push({ name:PARENT_SELF_OFFICE_LABEL_OVERRIDES[parentKey] || parent.name, amount:parent.budgetValue, href:parent.href });
+        children.forEach(function(child){
+          offices.push({ name:child.name, amount:child.budgetValue || 0, href:child.href });
+          parent.budgetValue = (parent.budgetValue || 0) + (child.budgetValue || 0);
+          parent.priorBudgetValue = (parent.priorBudgetValue || 0) + (child.priorBudgetValue || 0);
+          parent.fteValue = (parent.fteValue || 0) + (child.fteValue || 0);
+          parent.priorFteValue = (parent.priorFteValue || 0) + (child.priorFteValue || 0);
+          (child.fundCodes || []).forEach(function(code){
+            if(parent.fundCodes.indexOf(code) === -1) parent.fundCodes.push(code);
+          });
+          removedKeys[normalize(child.name)] = true;
+        });
+        offices.sort(function(a, b){ return (b.amount || 0) - (a.amount || 0); });
+        parent.offices = offices;
+        parent.budget = formatCurrency(parent.budgetValue);
+        parent.trend = formatTrend(parent.budgetValue, parent.priorBudgetValue);
+        parent.trendDollar = formatTrendDollar(parent.budgetValue, parent.priorBudgetValue);
+        parent.fte = formatFte(parent.fteValue);
+        parent.fteTrend = formatFteTrend(parent.fteValue, parent.priorFteValue);
+        parent.fund = fundLabelForDepartment(parent.fundCodes, fundsByCode);
+      });
+      return list.filter(function(dept){ return !removedKeys[normalize(dept.name)]; });
+    }
+
+    function enrichDepartments(data){
+      var narratives = Array.isArray(data && data.departmentNarratives) ? data.departmentNarratives : [];
+      var expenditures = Array.isArray(data && data.expenditures) ? data.expenditures : [];
+      // Some departments split one Dept_Code across multiple display-only
+      // Dept_Names (e.g. Code Compliance / Code Compliance Beach) that each
+      // carry the *same* full FY2026_Original_Budget total for a shared
+      // account (see applyOriginalBudgetToRows in budget-data.js) -- summing
+      // every raw row would double-count that total once per Dept_Name
+      // sharing it. dedupedExpenseRows collapses that back to one row per
+      // true accounting record, so the prior-year total here matches the
+      // one used for the Fund Financial Schedules/Consolidated Expense
+      // Summary instead of being inflated.
+      var dedupedExpenditures = Array.isArray(data && data.dedupedExpenseRows) ? data.dedupedExpenseRows : expenditures;
+      var staffing = Array.isArray(data && data.staffing) ? data.staffing : [];
+      var funds = Array.isArray(data && data.funds) ? data.funds : [];
+      var fundsByCode = {};
+      funds.forEach(function(fund){
+        if(fund && fund.Fund_Code) fundsByCode[fund.Fund_Code] = fund;
+      });
+
+      departments = buildBaseDepartments().map(function(dept){
+        var narrative = narratives.find(function(row){ return rowMatchesDepartment(row, dept.name); });
+        var budget = expenditures.reduce(function(sum, row){
+          return rowMatchesDepartment(row, dept.name) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
+        }, 0);
+        var priorBudget = dedupedExpenditures.reduce(function(sum, row){
+          return rowMatchesDepartment(row, dept.name) ? sum + (Number(row.FY2026_Original_Budget) || 0) : sum;
+        }, 0);
+        var fte = staffing.reduce(function(sum, row){
+          return rowMatchesDepartment(row, dept.name) ? sum + (Number(row["2027"]) || 0) : sum;
+        }, 0);
+        var priorFte = staffing.reduce(function(sum, row){
+          return rowMatchesDepartment(row, dept.name) ? sum + (Number(row["2026"]) || 0) : sum;
+        }, 0);
+        var fundCodes = fundCodesForDepartment(dept.name, expenditures);
+
+        return {
+          name:dept.name,
+          href:dept.href,
+          description:descriptionFromNarrative(narrative && narrative.Narrative),
+          budget:formatCurrency(budget),
+          budgetValue:budget,
+          priorBudgetValue:priorBudget,
+          trend:formatTrend(budget, priorBudget),
+          trendDollar:formatTrendDollar(budget, priorBudget),
+          fte:formatFte(fte),
+          fteValue:fte,
+          priorFteValue:priorFte,
+          fteTrend:formatFteTrend(fte, priorFte),
+          fund:fundLabelForDepartment(fundCodes, fundsByCode),
+          fundCodes:fundCodes,
+          offices:officesForDepartment(dept.name, dept.href, expenditures)
+        };
+      });
+
+      departments = applyChildDepartmentGroups(departments, fundsByCode);
+    }
+
+    function statBlockHtml(modifierClass, valueHtml, label, trendClass){
+      return '<div class="wc-directory-item-stat ' + modifierClass + '">' +
+        '<strong' + (trendClass ? ' class="' + trendClass + '"' : "") + '>' + valueHtml + '</strong>' +
+        '<span>' + escapeHtml(label) + '</span></div>';
+    }
+
+    function trendValueHtml(trend, trendDollar){
+      if(trend === "Loading") return LOADING_DOTS_HTML;
+      if(!trend) return "&mdash;";
+      var dollarHtml = trendDollar ? escapeHtml(trendDollar) : "";
+      return dollarHtml + ' <span class="wc-directory-item-trend-paren">(' + escapeHtml(trend) + ')</span>';
+    }
+
+    // "Loading" isn't a real up/down value, so it shouldn't pick up the
+    // green/red trend color while the page is still loading.
+    function trendClassFor(trend){
+      if(!trend || trend === "Loading") return "";
+      return trend.charAt(0) === "-" ? "wc-directory-item-trend-down" : "wc-directory-item-trend-up";
+    }
+
+    function scrollDepartmentListIntoViewOnMobile(){
+      var target = $("#departmentFilterStatus") || $("#departmentList");
+      if(!target) return;
+      window.requestAnimationFrame(function(){
+        var nav = document.querySelector("nav#nav-menu.nav-menu");
+        var navHeight = nav ? nav.getBoundingClientRect().height : 0;
+        var top = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 14;
+        window.scrollTo({ top:Math.max(0, top), behavior:"smooth" });
+      });
+    }
+
+    function renderFilterStatus(){
+      var status = $("#departmentFilterStatus");
+      if(!status) return;
+      if(!activeFundCode){
+        status.innerHTML = "";
+        return;
+      }
+      var group = FUND_SUMMARY_GROUPS.filter(function(g){ return g.code === activeFundCode; })[0];
+      var label = group ? group.label : activeFundCode;
+      status.innerHTML = "Showing departments in <strong>" + escapeHtml(label) + "</strong> &middot; " +
+        '<button type="button" id="departmentFilterClear">Show all departments</button>';
+      var clearBtn = $("#departmentFilterClear");
+      if(clearBtn){
+        clearBtn.addEventListener("click", function(){
+          activeFundCode = null;
+          renderFundSummary(lastFundSummaries);
+          renderDepartments();
+          scrollDepartmentListIntoViewOnMobile();
+        });
+      }
+    }
+
+    function renderDepartments(){
+      var list = $("#departmentList");
+      renderFilterStatus();
+
+      var visibleDepartments = (activeFundCode
+        ? departments.filter(function(dept){ return (dept.fundCodes || []).indexOf(activeFundCode) !== -1; })
+        : departments.slice()
+      ).sort(function(a, b){ return (b.budgetValue || 0) - (a.budgetValue || 0); });
+
+      // Every stat renders in the same fixed-width slot, in the same order,
+      // on every row -- even when a department has no data for it -- so
+      // the columns line up down the whole list instead of shifting left
+      // whenever one department is missing a fund, trend, or FTE figure.
+      list.innerHTML = visibleDepartments.map(function(dept){
+        var fundStat = statBlockHtml("wc-directory-item-stat--fund", dept.fund === "Loading" ? LOADING_DOTS_HTML : escapeHtml(dept.fund && dept.fund !== "Not listed" ? dept.fund : "Not listed"), "Fund");
+        var budgetStat = statBlockHtml("wc-directory-item-stat--budget", valueOrLoadingHtml(dept.budget), "FY 2027 Budget");
+        var trendStat = statBlockHtml("wc-directory-item-stat--trend", trendValueHtml(dept.trend, dept.trendDollar), "YoY Change", trendClassFor(dept.trend));
+        var staffChange = dept.fteTrend === "Loading" ? LOADING_DOTS_HTML : " (" + (dept.fteTrend ? escapeHtml(dept.fteTrend) + " FTE" : "0") + ")";
+        var personnelStat = statBlockHtml("wc-directory-item-stat--personnel", valueOrLoadingHtml(dept.fte) + '<span class="wc-directory-staff-change">' + staffChange + '</span>', "Personnel");
+        var fteTrendStat = statBlockHtml("wc-directory-item-stat--fte-trend", dept.fteTrend === "Loading" ? LOADING_DOTS_HTML : (dept.fteTrend ? escapeHtml(dept.fteTrend) : "&mdash;"), "YoY FTE", trendClassFor(dept.fteTrend));
+        var offices = Array.isArray(dept.offices) ? dept.offices : [];
+        var officesHtml = offices.length ? '<ul class="wc-directory-item-offices">' + offices.map(function(office){
+          var nameHtml = office.href
+            ? '<a class="wc-directory-item-office-name" href="' + escapeHtml(office.href) + '">' + escapeHtml(office.name) + '</a>'
+            : '<span class="wc-directory-item-office-name">' + escapeHtml(office.name) + '</span>';
+          return '<li>' + nameHtml + '<span class="wc-directory-item-office-amount">' + valueOrLoadingHtml(office.amount === "Loading" ? "Loading" : formatCurrency(office.amount)) + '</span></li>';
+        }).join("") + '</ul>' : "";
+        // Any department showing an office breakdown below it -- whether
+        // from raw-account grouping (e.g. Tourism Administration's
+        // Marketing/Communications/Sales & Visitor Center) or from
+        // CHILD_DEPARTMENT_GROUPS (e.g. County Administration's Human
+        // Resources, Libraries, etc.) -- reads as an umbrella total rather
+        // than its own single destination, so its own row isn't a link.
+        var isGroupHeader = offices.length > 0;
+        var tag = isGroupHeader ? "div" : "a";
+        var hrefAttr = isGroupHeader ? "" : ' href="' + escapeHtml(dept.href) + '"';
+        var arrowHtml = "";
+        // If none of this department's offices already links back to its
+        // own page (e.g. Tourism Beach Operations' raw accounts are all
+        // named differently from the department itself), the title stays
+        // the one way to still reach it -- otherwise that page would have
+        // no link into it anywhere in the list.
+        var hasSelfLinkOffice = offices.some(function(office){ return office.href === dept.href; });
+        var titleHtml = (isGroupHeader && !hasSelfLinkOffice)
+          ? '<a class="wc-directory-item-title wc-directory-item-title-link" href="' + escapeHtml(dept.href) + '">' + escapeHtml(dept.name) + '</a>'
+          : '<span class="wc-directory-item-title">' + escapeHtml(dept.name) + '</span>';
+        return '<li class="wc-directory-item-row' + (offices.length ? " wc-directory-item-row--grouped" : "") + '">' +
+          '<' + tag + ' class="wc-directory-item' + (isGroupHeader ? " wc-directory-item--static" : "") + '"' + hrefAttr + '>' +
+          '<div class="wc-directory-item-main">' +
+            titleHtml +
+            '<span class="wc-directory-item-desc">' + escapeHtml(dept.description) + '</span>' +
+          '</div>' +
+          '<div class="wc-directory-item-meta">' +
+            fundStat +
+            budgetStat +
+            trendStat +
+            personnelStat +
+            fteTrendStat +
+          '</div>' +
+          arrowHtml +
+        '</' + tag + '>' + officesHtml + '</li>';
+      }).join("");
+    }
+
+    // Mirrors applyChildDepartmentGroups' shape (children hidden, folded
+    // under their parent as offices) using only the static fallback
+    // name/href data available before loadBudgetData() resolves -- so the
+    // very first render already looks like the final grouped list instead
+    // of briefly flashing every department as its own flat, alphabetical
+    // row and then re-shuffling once real numbers arrive.
+    function applyChildDepartmentGroupsPlaceholder(list){
+      var byKey = {};
+      list.forEach(function(dept){ byKey[normalize(dept.name)] = dept; });
+      var removedKeys = {};
+      Object.keys(CHILD_DEPARTMENT_GROUPS).forEach(function(parentKey){
+        var parent = byKey[parentKey];
+        if(!parent) return;
+        var children = CHILD_DEPARTMENT_GROUPS[parentKey]
+          .map(function(key){ return byKey[key]; })
+          .filter(Boolean);
+        if(!children.length) return;
+        parent.offices = children.map(function(child){
+          return { name:child.name, amount:"Loading", href:child.href };
+        });
+        children.forEach(function(child){ removedKeys[normalize(child.name)] = true; });
+      });
+      return list.filter(function(dept){ return !removedKeys[normalize(dept.name)]; });
+    }
+
+    // Standing in for the real FY 2027 budget total (unknown until
+    // loadBudgetData() resolves) so the loading skeleton already sits in
+    // roughly the same order the real, budget-sorted list settles into --
+    // otherwise every row starts in alphabetical order and visibly jumps
+    // to a different spot once real numbers arrive (e.g. "Building
+    // Construction and Maintenance" briefly at the top, well above where
+    // its actual budget ranks).
+    var PLACEHOLDER_BUDGET_RANK = [
+      "tourism beach operations", "environmental services", "public works", "tourism administration",
+      "county administration departments", "building construction and maintenance", "tourism lifeguard services and beach safety",
+      "planning", "code compliance", "building department", "recreation", "engineering department",
+      "office of the county attorney", "purchasing", "office of management and budget", "emergency management"
+    ].reduce(function(map, name, index, arr){ map[name] = arr.length - index; return map; }, {});
+
+    function initDirectory(){
+      departments = buildBaseDepartments().map(function(dept){
+        return {
+          name:dept.name,
+          href:dept.href,
+          description:descriptionFromNarrative(""),
+          budget:"Loading",
+          budgetValue:PLACEHOLDER_BUDGET_RANK[normalize(dept.name)] || 0,
+          fte:"Loading",
+          fund:"Loading",
+          trend:"Loading",
+          trendDollar:"Loading",
+          fteTrend:"Loading",
+          offices:[]
+        };
+      });
+      departments = applyChildDepartmentGroupsPlaceholder(departments);
+      renderDepartments();
+
+      // Render the fund summary cards with placeholder values immediately
+      // (rather than leaving the section empty until loadBudgetData
+      // resolves) so the directory list below doesn't shift down once the
+      // real cards pop in -- without this, clicking a department link
+      // quickly after the page loads but before data arrives can land on
+      // the wrong link once the layout shifts.
+      renderFundSummary(FUND_SUMMARY_GROUPS.map(function(group){
+        // trendDollar/trend both need a truthy placeholder (not "") so the
+        // YoY Change chip's % subline renders during loading too -- it's
+        // only rendered when trendDollar is truthy (see
+        // fundTrendChipHtml), so leaving it empty here would make the
+        // placeholder card one line shorter than the real card once data
+        // with a real % arrives, shifting the directory list below.
+        return { label:group.label, budget:"Loading", trend:"Loading", trendDollar:"Loading", fte:"Loading", fteTrend:"Loading", propertyTax:"Loading" };
+      }));
+
+      if(shouldScrollToDepartmentListFromUrl){
+        scrollDepartmentListIntoViewOnMobile();
+      }
+
+      if(window.WCBudgetData && typeof window.WCBudgetData.loadBudgetData === "function"){
+        window.WCBudgetData.loadBudgetData()
+          .then(function(data){
+            enrichDepartments(data);
+            renderDepartments();
+            renderFundSummary(computeFundSummaries(data));
+            if(shouldScrollToDepartmentListFromUrl){
+              shouldScrollToDepartmentListFromUrl = false;
+              scrollDepartmentListIntoViewOnMobile();
+            }
+          })
+          .catch(function(){
+            departments = departments.map(function(dept){
+              dept.budget = "Not listed";
+              dept.fte = "Not listed";
+              dept.fund = "Not listed";
+              dept.trend = "";
+              dept.trendDollar = "";
+              dept.fteTrend = "";
+              return dept;
+            });
+            renderDepartments();
+          });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initDirectory);
+  })();

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our County — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+</head>
+<body>
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Our County</div>
+<h1 class="page-title">Our County</h1>
+<p class="page-intro">Explore Walton County's community profile, demographics, governance structure, and organization before diving into the budget.</p>
+
+<section aria-label="Our County directory">
+  <ul class="wc-directory-list" id="hubList"></ul>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script>
+  (function(){
+    var pages = [
+      {
+        title:"Overview of Walton County",
+        href:"overview-of-walton-county.html",
+        label:"County Profile",
+        description:"Explore community context, demographics, economic indicators, geography, and the story behind Walton County."
+      },
+      {
+        title:"Organizational Structure",
+        href:"organizational-structure.html",
+        label:"Governance",
+        description:"See how County government is organized and how departments, offices, and elected leadership connect."
+      },
+      {
+        title:"Strategic Initiatives",
+        href:"program-budget.html",
+        label:"Priorities",
+        description:"Review the mission, vision, and Board priorities that guide County decisions, and see how County programs connect to them on the Program Budget page."
+      },
+      {
+        title:"Statistical & Supplemental Information",
+        href:"statistical-and-supplemental-information.html",
+        label:"Supplemental",
+        description:"Explore demographic, economic, statistical, and supplemental information that provides context for Walton County."
+      },
+      {
+        title:"Glossary, Acronyms, and Frequently Asked Questions",
+        href:"glossary-acronyms-and-frequently-asked-questions.html",
+        label:"Reference",
+        description:"Find definitions, acronyms, and answers to common questions about Walton County's budget and public finance terms."
+      }
+    ];
+
+    function $(selector){
+      return document.querySelector(selector);
+    }
+
+    function escapeHtml(value){
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderHub(){
+      $("#hubList").innerHTML = pages.map(function(page){
+        return '<li><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+          '<div class="wc-directory-item-main">' +
+            '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
+            '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +
+          '</div>' +
+          '<span class="wc-directory-item-arrow" aria-hidden="true">&rarr;</span>' +
+        '</a></li>';
+      }).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", renderHub);
+  })();
+</script>
+</body>
+</html>

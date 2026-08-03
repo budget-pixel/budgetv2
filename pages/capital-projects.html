@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capital Budget — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+</head>
+<body>
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Budget Overview</div>
+<h1 class="page-title">Capital Budget</h1>
+<p class="page-intro">Explore Walton County's capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p>
+
+<section aria-label="Capital budget explorer" class="wc-department-explorer-metrics" id="capitalExplorerMetrics">
+  <article><span>Capital Budget</span><strong><span class="wc-loading-dots" aria-label="Loading total"><span></span><span></span><span></span></span></strong><small>FY 2027 across all capital funds</small></article>
+  <article><span>Capital Projects</span><strong><span class="wc-loading-dots" aria-label="Loading total"><span></span><span></span><span></span></span></strong><small>with FY 2027 funding</small></article>
+  <article><span>Machinery, Vehicles &amp; Equipment</span><strong><span class="wc-loading-dots" aria-label="Loading total"><span></span><span></span><span></span></span></strong><small>FY 2027 budget</small></article>
+</section>
+
+<h3 class="wc-department-explorer-subhead">Explore by fund and ledger</h3>
+<section aria-label="Capital budget directory">
+  <ul class="wc-directory-list" id="capitalDirectory"></ul>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
+<script src="../assets/cip-overview.js?v=20260802-capital-explorer"></script>
+<script src="../assets/budget-data.js?v=20260802-capital-directory-equipment-total"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script>
+  (function(){
+    // "funding"/"fundings" matches each fund schedule page's own
+    // renderFundSchedule config (see cip-fund-schedule.js). Sheriff
+    // Projects is a standalone rollup of all Sheriff's Office projects
+    // regardless of funding source, so its totals intentionally overlap
+    // with whichever fund page each project's funding source belongs to.
+    var pages = [
+      {
+        title:"Capital Improvement Plan Overview",
+        href:"capital-improvement-plan.html",
+        description:"Review the County's capital improvement plan overview, priorities, totals, and project portfolio context."
+      },
+      {
+        title:"Machinery, Vehicles, & Equipment Ledger",
+        href:"summary-of-machinery-vehicles-and-equipment.html",
+        description:"Review budgeted machinery, vehicles, and equipment by department, fund, and equipment type.",
+        metric:"machinery"
+      },
+      {
+        title:"Project Search",
+        href:"search.html",
+        description:"Search capital projects by name, fund, department, district, and project detail."
+      },
+      {
+        title:"Transportation and Infrastructure Ledger",
+        href:"cip-capital-projects.html",
+        description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project.",
+        match:function(project){
+          var funding = String(project && project.funding || "").toLowerCase();
+          return funding === "transportation fund" || funding === "capital projects fund" ||
+            (funding === "grant funded" && String(project && project.department_filter || "").toLowerCase() !== "sheriff");
+        }
+      },
+      {
+        title:"Tourist Development Fund Ledger",
+        href:"cip-tourist-development.html",
+        description:"Explore tourism-related capital investments funded through tourist development resources.",
+        funding:"tourist development fund"
+      },
+      {
+        title:"Sheriff Project Ledger",
+        href:"cip-sheriff.html",
+        description:"Review all capital projects associated with the Walton County Sheriff's Office.",
+        departmentFilter:"sheriff"
+      },
+      {
+        title:"Recreation Plat Fee Fund Ledger",
+        href:"recreation-plat-fee-fund.html",
+        description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects.",
+        funding:"recreation plat fee fund"
+      },
+      {
+        title:"Sidewalk Fund Ledger",
+        href:"sidewalk-fund.html",
+        description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects.",
+        funding:"sidewalk fund"
+      }
+    ];
+
+    function escapeHtml(value){
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatMoneyShort(value){
+      var amount = Number(value) || 0;
+      var abs = Math.abs(amount);
+      if(abs >= 1000000){
+        return "$" + (amount / 1000000).toLocaleString("en-US", { maximumFractionDigits:1 }) + "M";
+      }
+      if(abs >= 1000){
+        return "$" + (amount / 1000).toLocaleString("en-US", { maximumFractionDigits:0 }) + "K";
+      }
+      return "$" + Math.round(amount).toLocaleString("en-US");
+    }
+
+    function isLegacyInHouseEngineeringRow(project){
+      var title = String(project.title || "").toLowerCase();
+      var accountCode = String(project.budget_account_code || "").trim();
+      return Boolean(project.is_legacy_in_house_engineering_row) ||
+        title.indexOf("in-house engineering") !== -1 ||
+        accountCode === "534000";
+    }
+
+    function getFy2027Amount(project){
+      var rows = Array.isArray(project.funding_by_year) ? project.funding_by_year : [];
+      var fy2027 = rows.filter(function(r){ return r.year === "FY2027"; });
+      return fy2027.reduce(function(sum, r){ return sum + (Number(r.amount_value) || 0); }, 0);
+    }
+
+    function getInHouseEngineeringAmount(project){
+      if(Number(project.in_house_engineering_value || 0) > 0){
+        return Number(project.in_house_engineering_value) || 0;
+      }
+      var rows = Array.isArray(project.in_house_engineering_rows) ? project.in_house_engineering_rows : [];
+      return rows.reduce(function(sum, r){ return sum + (Number(r.amount_value) || 0); }, 0);
+    }
+
+    // Bouncing-dots markup shown in place of a real stat value while
+    // wcCipProjectsReady hasn't resolved yet (see style.css's
+    // .wc-loading-dots) -- otherwise renderDirectory([]) renders real-
+    // looking "$0"/"0" stats immediately, which then jump to their real
+    // values once project data loads instead of reading as still-loading.
+    var LOADING_DOTS_HTML = '<span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+    var currentProjects = [];
+    var projectsLoading = true;
+    var machineryTotal = null;
+    var machineryItemCount = null;
+
+    function statHtml(modifierClass, value, label){
+      return '<div class="wc-directory-item-stat ' + modifierClass + '"><strong>' + value + '</strong><span>' + escapeHtml(label) + '</span></div>';
+    }
+
+    function pageProjectMatches(page, project){
+      if(!project || isLegacyInHouseEngineeringRow(project)) return false;
+      if(typeof page.match === "function"){
+        return page.match(project);
+      }
+      if(page.departmentFilter){
+        return String(project.department_filter || "").toLowerCase() === page.departmentFilter;
+      }
+      var projectFunding = String(project.funding || "").toLowerCase();
+      if(Array.isArray(page.fundings)){
+        return page.fundings.indexOf(projectFunding) !== -1;
+      }
+      return projectFunding === page.funding;
+    }
+
+    function projectStatsHtml(page, allProjects, isLoading){
+      if(isLoading){
+        return statHtml("wc-directory-item-stat--fund-budget", LOADING_DOTS_HTML, "FY 2027 Budget") +
+          statHtml("wc-directory-item-stat--fund-projects", LOADING_DOTS_HTML, "Number of Projects") +
+          statHtml("wc-directory-item-stat--fund-inhouse", LOADING_DOTS_HTML, "In-House Engineering");
+      }
+      var matching = allProjects.filter(function(p){
+        return pageProjectMatches(page, p);
+      });
+      var projectCount = matching.filter(function(p){ return getFy2027Amount(p) > 0; }).length;
+      var inHouseTotal = matching.reduce(function(sum, p){ return sum + getInHouseEngineeringAmount(p); }, 0);
+      var budgetTotal = matching.reduce(function(sum, p){ return sum + getFy2027Amount(p); }, 0);
+
+      return statHtml("wc-directory-item-stat--fund-budget", escapeHtml(formatMoneyShort(budgetTotal)), "FY 2027 Budget") +
+        statHtml("wc-directory-item-stat--fund-projects", escapeHtml(projectCount.toLocaleString("en-US")), "Number of Projects") +
+        statHtml("wc-directory-item-stat--fund-inhouse", escapeHtml(formatMoneyShort(inHouseTotal)), "In-House Engineering");
+    }
+
+    function renderDirectory(allProjects, isLoading){
+      var list = document.getElementById("capitalDirectory");
+      if(!list) return;
+
+      list.innerHTML = pages.map(function(page){
+        var statsHtml = "";
+        if(page.metric === "machinery"){
+          statsHtml = '<div class="wc-directory-item-meta">' +
+            statHtml("wc-directory-item-stat--overview-budget", machineryTotal === null ? LOADING_DOTS_HTML : escapeHtml(formatMoneyShort(machineryTotal)), "FY 2027 Budget") +
+            statHtml("wc-directory-item-stat--fund-projects", machineryItemCount === null ? LOADING_DOTS_HTML : escapeHtml(machineryItemCount.toLocaleString("en-US")), "Funded Items") +
+            '</div>';
+        }else if(page.funding || page.fundings || page.departmentFilter || page.match){
+          statsHtml = '<div class="wc-directory-item-meta">' + projectStatsHtml(page, allProjects, isLoading) + '</div>';
+        }
+        return '<li><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+          '<div class="wc-directory-item-main">' +
+            '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
+            '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +
+          '</div>' +
+          statsHtml +
+          '<span class="wc-directory-item-arrow" aria-hidden="true">&rarr;</span>' +
+        '</a></li>';
+      }).join("");
+    }
+
+    function renderCapitalExplorerMetrics(){
+      var metricsEl = document.getElementById("capitalExplorerMetrics");
+      if(!metricsEl) return;
+      var articles = metricsEl.querySelectorAll("article");
+      if(!projectsLoading){
+        var searchable = (typeof getSearchableProjects === "function") ? getSearchableProjects() : currentProjects;
+        var stats = (typeof getCipOverviewStats === "function") ? getCipOverviewStats(searchable) : { totalBudget:0, projectCount:0 };
+        articles[0].querySelector("strong").textContent = formatMoneyShort(stats.totalBudget);
+        articles[1].querySelector("strong").textContent = stats.projectCount.toLocaleString("en-US");
+      }
+      if(machineryTotal !== null){
+        articles[2].querySelector("strong").textContent = formatMoneyShort(machineryTotal);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function(){
+      renderDirectory(currentProjects, projectsLoading);
+      renderCapitalExplorerMetrics();
+      var ready = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+      ready.then(function(projects){
+        currentProjects = Array.isArray(projects) ? projects : (window.wcCipProjects || []);
+        projectsLoading = false;
+        renderDirectory(currentProjects, projectsLoading);
+        renderCapitalExplorerMetrics();
+      }).catch(function(){
+        currentProjects = window.wcCipProjects || [];
+        projectsLoading = false;
+        renderDirectory(currentProjects, projectsLoading);
+        renderCapitalExplorerMetrics();
+      });
+      if(window.WCBudgetData && typeof window.WCBudgetData.loadBudgetData === "function"){
+        window.WCBudgetData.loadBudgetData().then(function(data){
+          var machineryRows = data.machinery || [];
+          machineryTotal = machineryRows.reduce(function(sum, row){ return sum + (Number(row.Amount) || 0); }, 0);
+          machineryItemCount = machineryRows.length;
+          renderDirectory(currentProjects, projectsLoading);
+          renderCapitalExplorerMetrics();
+        }).catch(function(){
+          machineryTotal = 0;
+          machineryItemCount = 0;
+          renderDirectory(currentProjects, projectsLoading);
+          renderCapitalExplorerMetrics();
+        });
+      }
+    });
+  })();
+</script>
+</body>
+</html>

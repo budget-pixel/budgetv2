@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIP Project Detail — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+</head>
+<body>
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+<style>
+
+  *{
+    box-sizing:border-box;
+  }
+
+  body{
+    margin:0;
+    background:var(--light);
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+  }
+
+  .wc-project-page{
+    width:100%;
+    max-width:1040px;
+    margin:0 auto;
+    padding:28px 22px 56px;
+  }
+
+  .wc-project-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+
+  .wc-project-back,
+  .wc-project-full-search{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:36px;
+    padding:8px 13px;
+    border-radius:999px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+
+  .wc-project-back{
+    color:var(--green);
+    background:#ffffff;
+    border:1px solid rgba(0,98,49,0.14);
+  }
+
+  .wc-project-full-search{
+    color:#ffffff;
+    background:#006231;
+    border:1px solid #006231;
+    box-shadow:0 8px 18px rgba(0,98,49,0.16);
+  }
+
+  .wc-project-back:hover,
+  .wc-project-full-search:hover{
+    transform:translateY(-1px);
+  }
+
+  .wc-project-category{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(0,98,49,0.08);
+    color:var(--green);
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+
+  .wc-project-hero-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+
+  .wc-project-hero-top .wc-project-category{
+    margin-bottom:0;
+  }
+
+  .wc-project-hero{
+    background:#ffffff;
+    border-radius:16px;
+    padding:24px 28px;
+    margin-bottom:18px;
+    border:1px solid rgba(209,190,120,0.34);
+    box-shadow:
+      0 18px 44px rgba(0,98,49,0.08),
+      0 6px 14px rgba(36,52,77,0.06);
+  }
+
+  .wc-project-title{
+    margin:0;
+    font-size:34px;
+    line-height:1.12;
+    font-weight:800;
+    color:var(--text);
+  }
+
+  .wc-project-description{
+    font-size:15px;
+    line-height:1.62;
+    color:var(--muted);
+    max-width:920px;
+  }
+
+  .wc-project-overview-text{
+    font-size:14px;
+    line-height:1.62;
+    color:var(--muted);
+    text-align:justify;
+    text-justify:inter-word;
+  }
+
+  .wc-project-image-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+
+  .wc-project-image-card{
+    margin:0;
+    overflow:hidden;
+    border-radius:12px;
+    background:var(--light);
+    border:1px solid rgba(0,98,49,0.08);
+  }
+
+  .wc-project-image-card img{
+    display:block;
+    width:100%;
+    height:190px;
+    object-fit:cover;
+    background:var(--light);
+    cursor:zoom-in;
+  }
+
+  .wc-project-image-card figcaption{
+    padding:9px 11px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.45;
+  }
+
+  .wc-project-lightbox{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    background:rgba(13,24,38,0.84);
+  }
+
+  .wc-project-lightbox.is-open{
+    display:flex;
+  }
+
+  .wc-project-lightbox-inner{
+    position:relative;
+    width:min(1100px,100%);
+    max-height:90vh;
+  }
+
+  .wc-project-lightbox img{
+    display:block;
+    width:100%;
+    max-height:82vh;
+    object-fit:contain;
+    border-radius:18px;
+    background:#ffffff;
+    box-shadow:0 24px 70px rgba(0,0,0,0.38);
+  }
+
+  .wc-project-lightbox-caption{
+    margin-top:12px;
+    color:#ffffff;
+    font-size:14px;
+    line-height:1.45;
+    text-align:center;
+  }
+
+  .wc-project-lightbox-close{
+    position:absolute;
+    top:-16px;
+    right:-16px;
+    width:42px;
+    height:42px;
+    border:0;
+    border-radius:999px;
+    background:#ffffff;
+    color:#172033;
+    font-size:24px;
+    line-height:1;
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(0,0,0,0.26);
+  }
+
+  .wc-project-kicker{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    margin-top:28px;
+    margin-bottom:32px;
+  }
+
+  .wc-project-kicker-item{
+    padding:18px;
+    border-radius:18px;
+    background:#006231;
+    border:1px solid #006231;
+    box-shadow:0 10px 22px rgba(0,98,49,0.18);
+  }
+
+  .wc-project-kicker-item span{
+    display:block;
+    margin-bottom:7px;
+    color:rgba(255,255,255,0.72);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-kicker-item strong{
+    display:block;
+    color:#ffffff;
+    font-size:15px;
+    line-height:1.35;
+  }
+
+  .wc-project-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);
+    gap:16px;
+  }
+
+  .wc-project-panel{
+    background:#ffffff;
+    border-radius:14px;
+    padding:18px;
+    border:1px solid rgba(209,190,120,0.34);
+    box-shadow:
+      0 10px 24px rgba(0,98,49,0.07),
+      0 3px 9px rgba(36,52,77,0.05);
+  }
+
+  .wc-project-panel h2{
+    margin:0 0 14px 0;
+    font-size:17px;
+    color:var(--text);
+  }
+
+  .wc-project-panel p{
+    margin:0;
+  }
+
+  .wc-project-stack{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .wc-project-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .wc-project-list-item{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    padding:10px 0;
+    border-bottom:1px solid rgba(23,32,51,0.08);
+  }
+
+  .wc-project-list-item:last-child{
+    border-bottom:0;
+    padding-bottom:0;
+  }
+
+  .wc-project-list-item span{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-list-item strong{
+    color:var(--text);
+    font-size:13px;
+    line-height:1.4;
+    text-align:right;
+  }
+
+  .wc-project-budget-highlight{
+    padding:16px;
+    border-radius:12px;
+    background:#006231;
+    border:1px solid #006231;
+    margin-bottom:12px;
+    box-shadow:0 10px 20px rgba(0,98,49,0.16);
+  }
+
+  .wc-project-budget-highlight span{
+    display:block;
+    margin-bottom:8px;
+    color:rgba(255,255,255,0.72);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-budget-highlight strong{
+    display:block;
+    color:#ffffff;
+    font-size:23px;
+    line-height:1.2;
+  }
+
+  .wc-project-staff-value{
+    padding:17px;
+    border-radius:13px;
+    background:linear-gradient(135deg,#006231,#0b7741);
+    border:1px solid #006231;
+    color:#ffffff;
+    box-shadow:0 10px 22px rgba(0,98,49,0.18);
+  }
+
+  .wc-project-staff-value span{
+    display:block;
+    margin-bottom:8px;
+    color:rgba(255,255,255,0.72);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-staff-value .wc-project-staff-label{
+    margin-bottom:10px;
+  }
+
+  .wc-project-staff-value strong{
+    display:block;
+    color:#ffffff;
+    font-size:24px;
+    line-height:1.1;
+    margin-bottom:10px;
+  }
+
+  .wc-project-staff-value p{
+    margin:0;
+    color:rgba(255,255,255,0.86);
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  .wc-project-staff-rows{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .wc-project-staff-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:9px 11px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.16);
+  }
+
+  .wc-project-staff-row span{
+    margin:0;
+    color:rgba(255,255,255,0.74);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-staff-row strong{
+    margin:0;
+    color:#ffffff;
+    font-size:12px;
+    line-height:1.35;
+    text-align:right;
+  }
+
+  .wc-project-year-breakdown{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:12px;
+  }
+
+  .wc-project-year-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:9px 11px;
+    border-radius:10px;
+    background:var(--light);
+    border:1px solid rgba(0,98,49,0.08);
+  }
+
+  .wc-project-year-row span{
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-year-row strong{
+    color:var(--text);
+    font-size:13px;
+    line-height:1.35;
+    text-align:right;
+  }
+
+  .wc-project-status{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:12px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+
+  .wc-project-status::before{
+    content:"";
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:currentColor;
+  }
+
+  .wc-project-highlight-badges{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .wc-project-highlight-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 11px;
+    border-radius:999px;
+    background:rgba(0,98,49,0.10);
+    color:var(--green);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.04em;
+    border:1px solid rgba(0,98,49,0.12);
+  }
+
+  .wc-project-highlight-badge::before{
+    content:"✔";
+    font-size:11px;
+    line-height:1;
+  }
+
+  .wc-status-planning{
+    background:rgba(209,190,120,0.18);
+    color:#8b6d12;
+  }
+
+  .wc-status-design{
+    background:rgba(90,110,127,0.12);
+    color:#5a6e7f;
+  }
+
+  .wc-status-construction{
+    background:rgba(0,98,49,0.12);
+    color:#006231;
+  }
+
+  .wc-status-complete{
+    background:rgba(52,64,84,0.10);
+    color:#24344d;
+  }
+
+  .wc-project-not-found{
+    text-align:center;
+    padding:120px 20px;
+  }
+
+  .wc-project-timeline{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding-left:18px;
+  }
+
+  .wc-project-timeline::before{
+    content:"";
+    position:absolute;
+    top:5px;
+    bottom:5px;
+    left:4px;
+    width:2px;
+    background:rgba(0,98,49,0.16);
+  }
+
+  .wc-project-timeline-item{
+    position:relative;
+  }
+
+  .wc-project-timeline-item::before{
+    content:"";
+    position:absolute;
+    top:5px;
+    left:-18px;
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:#006231;
+    box-shadow:0 0 0 4px rgba(0,98,49,0.12);
+  }
+
+  .wc-project-timeline-item span{
+    display:block;
+    margin-bottom:5px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-project-timeline-item strong{
+    display:block;
+    color:var(--text);
+    font-size:13px;
+    line-height:1.45;
+  }
+
+  @media(max-width:900px){
+
+    .wc-project-grid{
+      grid-template-columns:1fr;
+    }
+
+    .wc-project-title{
+      font-size:30px;
+    }
+
+    .wc-project-kicker{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+  }
+
+  @media(max-width:700px){
+
+    .wc-project-page{
+      padding:22px 14px 46px;
+    }
+
+    .wc-project-hero,
+    .wc-project-panel{
+      padding:16px;
+      border-radius:14px;
+    }
+
+    .wc-project-title{
+      font-size:25px;
+    }
+
+    .wc-project-description{
+      font-size:14px;
+    }
+
+    .wc-project-actions{
+      align-items:stretch;
+    }
+
+    .wc-project-back,
+    .wc-project-full-search{
+      width:100%;
+    }
+
+    .wc-project-kicker{
+      grid-template-columns:1fr;
+    }
+
+    .wc-project-list-item{
+      display:block;
+    }
+
+    .wc-project-list-item strong{
+      display:block;
+      margin-top:6px;
+      text-align:left;
+    }
+
+    .wc-project-year-row{
+      display:block;
+    }
+
+    .wc-project-year-row strong{
+      display:block;
+      margin-top:6px;
+      text-align:left;
+    }
+
+    .wc-project-staff-row{
+      display:block;
+    }
+
+    .wc-project-staff-row strong{
+      display:block;
+      margin-top:6px;
+      text-align:left;
+    }
+
+    .wc-project-metrics{
+      grid-template-columns:1fr;
+    }
+
+    .wc-project-image-grid{
+      grid-template-columns:1fr;
+    }
+
+    .wc-project-image-card img{
+      height:180px;
+    }
+
+    .wc-project-lightbox{
+      padding:18px;
+    }
+
+    .wc-project-lightbox-close{
+      top:10px;
+      right:10px;
+    }
+
+  }
+
+  /* Card/panel backgrounds below are hardcoded white -- close to but not
+     identical to var(--light), so left as-is for light mode and only
+     overridden here for dark, matching the dark surface treatment used on
+     the Project Search page (cip-overview.js). The lightbox and its
+     close button are left out: that overlay is always a dark backdrop
+     regardless of site theme, so a white close button already reads fine
+     unchanged in both. */
+  :root[data-theme="dark"] .wc-project-back,
+  :root[data-theme="dark"] .wc-project-hero,
+  :root[data-theme="dark"] .wc-project-panel{
+    background: rgba(14,28,22,.92);
+    border-color: var(--border);
+  }
+
+  :root[data-theme="dark"] .wc-project-list-item{
+    border-bottom-color: var(--border);
+  }
+
+</style>
+<div id="app"></div>
+<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
+<script src="../assets/cip-project-detail.js?v=20260723-asset-path-cleanup"></script>
+  </main>
+</div>
+
+<!-- nav.js will inject footer[role="contentinfo"] here -->
+
+<script>
+/* set wcBudgetPages before nav script runs so search is fully populated */
+window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/gfoa-distinguished-budget-presentation-award.html"},
+  {title:"Transmittal Letter",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/transmittal-letter.html"},
+  {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
+  {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
+  {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
+  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/strategic-initiatives.html"},
+  {title:"Budget Overview",section:"Budget Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
+  {title:"Constitutional Officers & Other Agencies",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/constitutional-officers.html"},
+  {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
+  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process-and-calendar.html"},
+  {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
+  {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
+  {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
+  {title:"Consolidated Financial Schedules",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/consolidated-financial-schedules.html"},
+  {title:"Fund Financial Schedules",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-financial-schedules.html"},
+  {title:"Summary of Revenues",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-revenues.html"},
+  {title:"Summary of Expenses",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-expenses.html"},
+  {title:"Summary of Interfund Transfers",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-interfund-transfers.html"},
+  {title:"Summary of Personnel",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-personnel.html"},
+  {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
+  {title:"Summary of Property Tax Allocations",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
+  {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
+  {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
+  {title:"Sheriff's Office",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/sheriffs-office.html"},
+  {title:"Supervisor of Elections",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supervisor-of-elections.html"},
+  {title:"Tax Collector",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tax-collector.html"},
+  {title:"Circuit Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/circuit-court.html"},
+  {title:"County Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-court.html"},
+  {title:"Court Technology & Innovations",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/court-technology-and-innovations.html"},
+  {title:"Guardian Ad Litem",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/guardian-ad-litem.html"},
+  {title:"Medical Examiner",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/medical-examiner.html"},
+  {title:"Non-Profit Funding Program",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/non-profit-funding-program.html"},
+  {title:"Public Defender",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-defender.html"},
+  {title:"South Walton Fire & State Control",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/south-walton-fire-and-state-control.html"},
+  {title:"State Attorney",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/state-attorney.html"},
+  {title:"Statutory & Other Agency Funding",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statutory-and-other-agency-funding.html"},
+  {title:"Walton County Health Department",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/walton-county-health-department.html"},
+  {title:"Building Construction and Maintenance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-construction-and-maintenance.html"},
+  {title:"Building Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-department.html"},
+  {title:"Code Compliance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/code-compliance.html"},
+  {title:"County Administration Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-administration.html"},
+  {title:"Eagle Springs Golf and Recreation Center",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-golf-and-recreation-center.html"},
+  {title:"Eagle Springs Grill",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-grill.html"},
+  {title:"Emergency Management",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/emergency-management.html"},
+  {title:"Engineering Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/engineering-department.html"},
+  {title:"Environmental Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/environmental-resources.html"},
+  {title:"Extension Office",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/extension-office.html"},
+  {title:"Geographic Info Systems",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/geographic-info-systems.html"},
+  {title:"Housing & Urban Development",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/housing-and-urban-development.html"},
+  {title:"Human Resources",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/human-resources.html"},
+  {title:"Libraries",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/libraries.html"},
+  {title:"Mosquito Control",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mosquito-control.html"},
+  {title:"Mossy Head Wastewater Treatment Facility",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mossy-head-wastewater-treatment-facility.html"},
+  {title:"Office of Management and Budget",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-management-and-budget.html"},
+  {title:"Office of the County Attorney",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-the-county-attorney.html"},
+  {title:"Planning",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/planning.html"},
+  {title:"Probation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/probation.html"},
+  {title:"Public Works",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-works.html"},
+  {title:"Purchasing",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/purchasing.html"},
+  {title:"Recreation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/recreation.html"},
+  {title:"Soil Conservation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/soil-conservation.html"},
+  {title:"Solid Waste",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/solid-waste.html"},
+  {title:"Tourism Administration",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-administration.html"},
+  {title:"Tourism Beach Operations",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-beach-operations.html"},
+  {title:"Tourism Lifeguard Services and Beach Safety",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-lifeguard-services-and-beach-safety.html"},
+  {title:"Veteran Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/veteran-services.html"},
+  {title:"Capital Projects",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/capital-projects.html"},
+  {title:"Capital Improvement Plan Overview",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/capital-improvement-plan.html"},
+  {title:"CIP Project Search",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/search.html"},
+  {title:"Capital Projects Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-capital-projects.html"},
+  {title:"Sheriff Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-sheriff.html"},
+  {title:"Tourist Development Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-tourist-development.html"},
+  {title:"Transportation Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-transportation.html"},
+  {title:"Debt Overview",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/debt-overview.html"},
+  {title:"Financial Forecast",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-forecast.html"},
+  {title:"Glossary, Acronyms, and Frequently Asked Questions",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/glossary-acronyms-and-frequently-asked-questions.html"},
+  {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
+];
+</script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+</body>
+</html>

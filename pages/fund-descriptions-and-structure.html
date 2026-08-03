@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fund Descriptions and Structure — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<style>
+  .wc-fund-hero{
+    margin:34px 0 32px;
+    padding:34px;
+    border-radius:24px;
+    background:var(--light);
+    border:1px solid var(--border);
+  }
+  .wc-fund-hero p{
+    max-width:880px;
+    margin:0;
+    color:var(--muted);
+    font-size:18px;
+    line-height:1.75;
+  }
+  .wc-fund-section{
+    margin-top:46px;
+  }
+  .wc-fund-section h2{
+    margin:0 0 18px;
+    color:var(--text);
+    font-size:clamp(28px, 4vw, 42px);
+    line-height:1.1;
+  }
+  .wc-fund-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:18px;
+  }
+  .wc-fund-card,
+  .wc-fund-panel,
+  .wc-fund-link{
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:#ffffff;
+  }
+  .wc-fund-card{
+    padding:24px;
+  }
+  .wc-fund-card span{
+    display:block;
+    margin-bottom:12px;
+    color:var(--green);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .wc-fund-card h3,
+  .wc-fund-panel h3{
+    margin:0 0 10px;
+    color:var(--text);
+    font-size:21px;
+    line-height:1.25;
+  }
+  .wc-fund-card p,
+  .wc-fund-panel p,
+  .wc-fund-panel li{
+    margin:0;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.65;
+  }
+  .wc-fund-major-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+  }
+  .wc-fund-panel{
+    padding:22px;
+  }
+  .wc-fund-panel p + p{
+    margin-top:10px;
+  }
+  .wc-fund-list{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .wc-fund-list li{
+    padding:16px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--light);
+    color:var(--text);
+    font-size:14px;
+    font-weight:800;
+    line-height:1.35;
+  }
+  .wc-fund-list small{
+    display:block;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+    line-height:1.45;
+  }
+  .wc-fund-related{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:14px;
+  }
+  .wc-fund-link{
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    padding:18px;
+    color:var(--text);
+    text-decoration:none;
+    font-weight:800;
+  }
+  .wc-fund-link small{
+    display:block;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+    line-height:1.45;
+  }
+  @media(max-width:980px){
+    .wc-fund-grid,
+    .wc-fund-major-grid,
+    .wc-fund-related{
+      grid-template-columns:1fr;
+    }
+  }
+  @media(max-width:680px){
+    .wc-fund-hero,
+    .wc-fund-card,
+    .wc-fund-panel{
+      padding:22px;
+    }
+    .wc-fund-list{
+      grid-template-columns:1fr;
+    }
+  }
+
+  /* Dark mode: the white card surfaces below need an explicit dark surface,
+     matching the dark card treatment used elsewhere on the site. */
+  :root[data-theme="dark"] .wc-fund-card,
+  :root[data-theme="dark"] .wc-fund-panel,
+  :root[data-theme="dark"] .wc-fund-link{
+    background: rgba(14,28,22,.92);
+    border-color: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Financial Structure, Policies, and Process</div>
+<h1 class="page-title">Fund Descriptions and Structure</h1>
+<p class="page-intro">How Walton County organizes public resources by purpose, restriction, and financial reporting requirements.</p>
+
+<section class="wc-fund-hero" aria-label="Fund accounting overview">
+  <p>Walton County uses fund accounting to separate resources by legal restriction, program purpose, and intended use. This structure supports transparency, budgetary control, and clear reporting for operating services, capital investments, enterprise activities, and resources held on behalf of others.</p>
+</section>
+
+<section class="wc-fund-section" aria-label="Fund type summary">
+  <h2>Fund Types At A Glance</h2>
+  <div class="wc-fund-grid">
+    <article class="wc-fund-card">
+      <span>Public Services</span>
+      <h3>Governmental Funds</h3>
+      <p>Used to account for core public services, including general operations, transportation, public safety, tourism, capital projects, grants, assessments, and other restricted activities.</p>
+    </article>
+    <article class="wc-fund-card">
+      <span>Business-Type</span>
+      <h3>Proprietary Funds</h3>
+      <p>Used for activities that operate similarly to business-type functions or internal service activities, where costs are recovered through user charges or internal allocations.</p>
+    </article>
+    <article class="wc-fund-card">
+      <span>Custodial</span>
+      <h3>Fiduciary Funds</h3>
+      <p>Used to account for resources held by the County on behalf of other individuals, agencies, governments, or funds.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wc-fund-section" aria-label="Major governmental funds">
+  <h2>Major Governmental Funds</h2>
+  <div class="wc-fund-major-grid">
+    <article class="wc-fund-panel">
+      <h3>General Fund</h3>
+      <p>The County's primary operating fund. It accounts for financial resources not required to be reported in another fund, with major funding from ad valorem taxes.</p>
+    </article>
+    <article class="wc-fund-panel">
+      <h3>Transportation Fund</h3>
+      <p>Accounts for motor fuel taxes, local option gas taxes, state revenue sharing, and grants supporting roadway construction, maintenance, drainage, and infrastructure operations.</p>
+    </article>
+    <article class="wc-fund-panel">
+      <h3>Sheriff Fund</h3>
+      <p>Accounts for fines, forfeitures, grants, and transfers supporting Sheriff operations in accordance with Florida Statutes.</p>
+    </article>
+    <article class="wc-fund-panel">
+      <h3>Tourist Development Fund</h3>
+      <p>Supports tourism promotion, beach renourishment, visitor-serving infrastructure, and public safety initiatives funded primarily by tourist development taxes.</p>
+    </article>
+    <article class="wc-fund-panel">
+      <h3>Solid Waste Fund</h3>
+      <p>Accounts for landfill operations funded through County surtaxes, state grants, landfill fees, and scrap sales revenues.</p>
+    </article>
+    <article class="wc-fund-panel">
+      <h3>Capital Projects Fund</h3>
+      <p>Accounts for resources designated for acquiring, constructing, and improving major capital facilities and infrastructure.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wc-fund-section" aria-label="Non-major governmental funds">
+  <h2>Non-Major Governmental Funds</h2>
+  <ul class="wc-fund-list">
+    <li>MSBU Fund<small>Special assessments for infrastructure improvements.</small></li>
+    <li>Building Fund<small>Fees and assessments supporting building compliance activities.</small></li>
+    <li>SHIP Fund<small>State Housing Initiatives Partnership Program grant resources.</small></li>
+    <li>Mosquito Control Fund<small>Dependent district activities for mosquito and insect control.</small></li>
+    <li>Mosquito Control State Aid Fund<small>State grant resources for mosquito and insect control.</small></li>
+    <li>E911 Fund<small>Phone charges assessed for emergency assistance services.</small></li>
+    <li>Housing &amp; Urban Development Fund<small>Federal Department of Housing and Urban Development grants.</small></li>
+    <li>Preservation Fund<small>Fees paid in lieu of reserved land for restoration of native vegetation on public lands.</small></li>
+    <li>Recreation Plat Fee Fund<small>Developer assessments supporting recreational facilities.</small></li>
+    <li>Sidewalk Fund<small>Assessments paid in lieu of constructing required sidewalks.</small></li>
+  </ul>
+</section>
+
+<section class="wc-fund-section" aria-label="Related fund pages">
+  <h2>Explore Related Detail</h2>
+  <div class="wc-fund-related">
+    <a class="wc-fund-link" href="fund-financial-schedules.html">
+      <span>Fund Financial Schedules<small>Fund-level revenues, expenditures, transfers, and balances.</small></span>
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="wc-fund-link" href="department-to-fund-relationship.html">
+      <span>Department to Fund Relationship<small>How departments and offices map to County funds.</small></span>
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="wc-fund-link" href="summary-of-interfund-transfers.html">
+      <span>Interfund Transfers<small>How resources move between funds to support services and projects.</small></span>
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+</body>
+</html>

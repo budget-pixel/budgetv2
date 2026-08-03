@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Department to Fund Relationship — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+</head>
+<body class="fund-relationship-page">
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Financial Structure, Policies, and Process</div>
+<h1 class="page-title">Department to Fund Relationship</h1>
+
+<style>
+  body.fund-relationship-page #content{
+    max-width:1240px;
+    padding:44px 32px 78px;
+  }
+
+  .wc-fund-relationship{
+    font-family:Arial, Helvetica, sans-serif;
+  }
+
+  .wc-fund-hero{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 320px;
+    gap:22px;
+    margin:0 0 34px;
+  }
+
+  .wc-fund-hero-copy{
+    padding:40px;
+    border-radius:30px;
+    background:#003f28;
+    color:#ffffff;
+  }
+
+  .wc-fund-kicker{
+    display:block;
+    margin:0 0 12px;
+    color:#d1be78;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+
+  .wc-fund-hero-copy h2{
+    margin:0 0 16px;
+    color:#ffffff;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(40px, 5.6vw, 68px);
+    line-height:1;
+    font-weight:500;
+  }
+
+  .wc-fund-hero-copy p{
+    max-width:760px;
+    margin:0;
+    color:rgba(255,255,255,.86);
+    font-size:17px;
+    line-height:1.7;
+  }
+
+  .wc-fund-hero-copy p a{
+    color:#d1be78;
+    font-weight:700;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+
+  .wc-fund-hero-copy p a:hover,
+  .wc-fund-hero-copy p a:focus-visible{
+    color:#ffffff;
+  }
+
+  .wc-fund-route-card{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:22px;
+    padding:26px;
+    border:1px solid var(--border);
+    border-radius:30px;
+    background:var(--light);
+  }
+
+  .wc-fund-route-card strong{
+    display:block;
+    color:var(--green);
+    font-size:34px;
+    line-height:1.05;
+  }
+
+  .wc-fund-route-card span{
+    display:block;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+  }
+
+  .wc-fund-summary-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:14px;
+    margin:0 0 34px;
+  }
+
+  .wc-fund-summary-card{
+    min-height:178px;
+    padding:22px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:var(--light);
+  }
+
+  .wc-fund-summary-card strong{
+    display:block;
+    margin:0 0 10px;
+    color:var(--green);
+    font-size:18px;
+    line-height:1.2;
+  }
+
+  .wc-fund-summary-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  .wc-fund-flow{
+    margin:0 0 42px;
+    padding:28px;
+    border:1px solid var(--border);
+    border-radius:28px;
+    background:#ffffff;
+    box-shadow:0 14px 34px rgba(23,32,51,.05);
+  }
+
+  .wc-fund-flow-head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:18px;
+    margin:0 0 22px;
+  }
+
+  .wc-fund-flow-head h2{
+    margin:0 0 8px;
+    color:var(--text);
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(30px, 4vw, 48px);
+    line-height:1.05;
+    font-weight:500;
+  }
+
+  .wc-fund-flow-head p{
+    max-width:720px;
+    margin:0;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.65;
+  }
+
+  .wc-fund-flow-total{
+    min-width:180px;
+    text-align:right;
+  }
+
+  .wc-fund-flow-total strong{
+    display:block;
+    color:var(--green);
+    font-size:30px;
+    line-height:1;
+  }
+
+  .wc-fund-flow-total span{
+    display:block;
+    margin-top:8px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+  }
+
+  .wc-fund-flow-list{
+    display:grid;
+    gap:10px;
+  }
+
+  .wc-fund-flow-row{
+    padding:14px;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--light);
+  }
+
+  .wc-fund-flow-row-main{
+    display:grid;
+    grid-template-columns:minmax(220px,.34fr) minmax(0,1fr) minmax(150px,.18fr);
+    gap:14px;
+    align-items:center;
+  }
+
+  /* General Fund's breakdown into Constitutional Officers / Agencies and
+     State Mandates / Board Departments -- same grouping as the site's own
+     directories (constitutional-officers.html, departments.html) -- shown
+     as sublines under its one combined bar, not as separate fund rows. */
+  .wc-fund-flow-sublines{
+    display:grid;
+    gap:6px;
+    margin:12px 0 0;
+    padding-top:12px;
+    border-top:1px solid var(--border);
+  }
+
+  .wc-fund-flow-subline{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    padding-left:14px;
+  }
+
+  .wc-fund-flow-subline span{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .wc-fund-flow-subline strong{
+    color:var(--text);
+    font-size:13px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+
+  .wc-fund-flow-name strong{
+    display:block;
+    color:var(--text);
+    font-size:15px;
+    line-height:1.25;
+  }
+
+  .wc-fund-flow-name span{
+    display:block;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-fund-flow-track{
+    position:relative;
+    height:14px;
+    overflow:hidden;
+    border-radius:999px;
+    background:var(--border);
+  }
+
+  .wc-fund-flow-bar{
+    position:absolute;
+    inset:0 auto 0 0;
+    width:var(--fund-share, 0%);
+    min-width:8px;
+    border-radius:999px;
+    background:var(--green);
+  }
+
+  .wc-fund-flow-amount{
+    color:var(--green);
+    font-size:20px;
+    font-weight:900;
+    text-align:right;
+    white-space:nowrap;
+  }
+
+  .wc-fund-flow-amount span{
+    display:block;
+    margin-top:5px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-fund-flow-note{
+    margin:16px 0 0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.55;
+  }
+
+  .wc-fund-flow-loading,
+  .wc-fund-flow-error{
+    padding:20px;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--light);
+    color:var(--muted);
+    font-weight:800;
+  }
+
+  .wc-fund-section{
+    margin:0 0 34px;
+  }
+
+  .wc-fund-section-header{
+    max-width:800px;
+    margin:0 0 20px;
+  }
+
+  .wc-fund-section-header h2{
+    margin:0 0 10px;
+    color:var(--text);
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(32px, 4vw, 54px);
+    line-height:1.06;
+    font-weight:500;
+  }
+
+  .wc-fund-section-header p{
+    margin:0;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.7;
+  }
+
+  .wc-relationship-map{
+    display:grid;
+    gap:18px;
+  }
+
+  .wc-relationship-row{
+    display:grid;
+    grid-template-columns:minmax(230px,.32fr) minmax(0,1fr) minmax(180px,.22fr);
+    gap:14px;
+    align-items:stretch;
+  }
+
+  .wc-relationship-node{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:20px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    background:var(--light);
+  }
+
+  .wc-relationship-node strong{
+    color:var(--green);
+    font-size:20px;
+    line-height:1.15;
+  }
+
+  .wc-relationship-node span{
+    margin-top:7px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .wc-relationship-list{
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:8px;
+    padding:18px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:#ffffff;
+    box-shadow:0 14px 34px rgba(23,32,51,.05);
+  }
+
+  .wc-relationship-chip{
+    display:inline-flex;
+    align-items:center;
+    min-height:34px;
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:var(--light);
+    color:var(--text);
+    font-size:13px;
+    font-weight:800;
+    line-height:1.2;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background-color .15s ease,border-color .15s ease;
+  }
+  .wc-relationship-chip:hover,
+  .wc-relationship-chip:focus-visible{
+    background:var(--wc-green,#006231);
+    border-color:var(--wc-green,#006231);
+    color:#ffffff;
+  }
+
+  .wc-relationship-fund{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    border-radius:20px;
+    background:#003f28;
+    color:#ffffff;
+    font-weight:900;
+    text-align:center;
+    line-height:1.25;
+  }
+
+  .wc-fund-detail-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:14px;
+  }
+
+  .wc-fund-detail-card{
+    padding:24px;
+    border:1px solid var(--border);
+    border-radius:22px;
+    background:#ffffff;
+    box-shadow:0 14px 34px rgba(23,32,51,.05);
+  }
+
+  .wc-fund-detail-card h3{
+    margin:0 0 10px;
+    color:var(--green);
+    font-size:20px;
+    line-height:1.2;
+  }
+
+  .wc-fund-detail-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.65;
+  }
+
+  .wc-relationship-fund.is-light{
+    border:1px solid var(--border);
+    background:var(--light);
+    color:var(--green);
+  }
+
+  @media(max-width:960px){
+    body.fund-relationship-page #content{
+      padding:34px 22px 64px;
+    }
+
+    .wc-fund-hero,
+    .wc-relationship-row,
+    .wc-fund-flow-row-main{
+      grid-template-columns:1fr;
+    }
+
+    .wc-fund-flow-head{
+      display:block;
+    }
+
+    .wc-fund-flow-total{
+      margin-top:18px;
+      text-align:left;
+    }
+
+    .wc-fund-flow-amount{
+      text-align:left;
+    }
+
+    .wc-fund-summary-grid,
+    .wc-fund-detail-grid{
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+
+    .wc-relationship-fund{
+      justify-content:flex-start;
+      text-align:left;
+    }
+  }
+
+  @media(max-width:640px){
+    body.fund-relationship-page #content{
+      padding:28px 16px 54px;
+    }
+
+    .wc-fund-hero-copy,
+    .wc-fund-route-card,
+    .wc-fund-flow{
+      padding:22px;
+      border-radius:22px;
+    }
+
+    .wc-fund-summary-grid,
+    .wc-fund-detail-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  /* Dark mode: the light/white card surfaces below need an explicit dark
+     surface, matching the dark card treatment used elsewhere on the site.
+     The dark-green hero block and .wc-relationship-fund tag keep their
+     hardcoded #003f28 background -- those are intentional brand-colored
+     blocks with white text that read fine in either theme, not neutral
+     cards that should react to it. */
+  :root[data-theme="dark"] .wc-fund-route-card,
+  :root[data-theme="dark"] .wc-fund-summary-card,
+  :root[data-theme="dark"] .wc-fund-flow,
+  :root[data-theme="dark"] .wc-fund-flow-row,
+  :root[data-theme="dark"] .wc-fund-flow-loading,
+  :root[data-theme="dark"] .wc-fund-flow-error,
+  :root[data-theme="dark"] .wc-relationship-node,
+  :root[data-theme="dark"] .wc-relationship-list,
+  :root[data-theme="dark"] .wc-relationship-chip,
+  :root[data-theme="dark"] .wc-fund-detail-card,
+  :root[data-theme="dark"] .wc-relationship-fund.is-light{
+    background: rgba(14,28,22,.92);
+    border-color: var(--border);
+  }
+</style>
+
+<section class="wc-fund-relationship">
+  <div class="wc-fund-hero">
+    <div class="wc-fund-hero-copy">
+      <span class="wc-fund-kicker">How the Budget Is Organized</span>
+      <h2>Departments are grouped by function, then tied to the fund that pays for the service.</h2>
+      <p>This page shows how departments, constitutional officers, activities, transfers, and major operating funds connect inside the County budget. For how property tax revenue specifically breaks down by department, see <a href="summary-of-property-tax-allocations.html">Summary of Property Tax Allocations</a>.</p>
+    </div>
+
+    <aside class="wc-fund-route-card">
+      <div>
+        <strong>3 Steps</strong>
+        <span>Department to Activity to Fund</span>
+      </div>
+      <div>
+        <strong>1 Budget</strong>
+        <span>Connected Financial Plan</span>
+      </div>
+    </aside>
+  </div>
+
+  <div class="wc-fund-summary-grid" aria-label="Major fund relationship summary">
+    <article class="wc-fund-summary-card">
+      <strong>General Fund</strong>
+      <p>Primary operating fund for countywide services, constitutional offices, and programs not accounted for in a special revenue fund.</p>
+    </article>
+    <article class="wc-fund-summary-card">
+      <strong>Sheriff Fund</strong>
+      <p>Accounts for the Sheriff&rsquo;s Office and other public safety costs historically shown in the Fine &amp; Forfeiture Fund.</p>
+    </article>
+    <article class="wc-fund-summary-card">
+      <strong>Special Revenue Funds</strong>
+      <p>Track restricted resources such as transportation, tourist development, solid waste, mosquito control, and grant-supported programs.</p>
+    </article>
+    <article class="wc-fund-summary-card">
+      <strong>Capital Projects</strong>
+      <p>Separates major infrastructure, facility, technology, and equipment investments from regular operating costs.</p>
+    </article>
+  </div>
+
+  <section class="wc-fund-flow" id="wc-fund-flow" aria-live="polite">
+    <div class="wc-fund-flow-loading">Loading fund budget amounts...</div>
+  </section>
+
+  <section class="wc-fund-section">
+    <div class="wc-fund-section-header">
+      <span class="wc-fund-kicker">Relationship Map</span>
+      <h2>General Fund activity groups.</h2>
+      <p>The General Fund supports many County departments. Those departments are reported by activity type so readers can see how services roll into broad financial categories.</p>
+    </div>
+
+    <div class="wc-relationship-map" aria-label="Department to activity to fund relationship">
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>General Government</strong>
+          <span>Administration and Support</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="board-of-county-commissioners.html">Board of County Commissioners</a>
+          <a class="wc-relationship-chip" href="county-administration.html">County Administration</a>
+          <a class="wc-relationship-chip" href="office-of-the-county-attorney.html">County Attorney</a>
+          <a class="wc-relationship-chip" href="office-of-management-and-budget.html">Office of Management &amp; Budget</a>
+          <a class="wc-relationship-chip" href="human-resources.html">Human Resources</a>
+          <a class="wc-relationship-chip" href="purchasing.html">Purchasing</a>
+          <a class="wc-relationship-chip" href="geographic-info-systems.html">Geographic Information Systems</a>
+          <a class="wc-relationship-chip" href="building-construction-and-maintenance.html">Building Construction and Maintenance</a>
+          <a class="wc-relationship-chip" href="tax-collector.html">Tax Collector</a>
+          <a class="wc-relationship-chip" href="property-appraiser.html">Property Appraiser</a>
+          <a class="wc-relationship-chip" href="clerk-of-courts-and-county-comptroller.html">Clerk of Court</a>
+          <a class="wc-relationship-chip" href="supervisor-of-elections.html">Supervisor of Elections</a>
+          <a class="wc-relationship-chip" href="planning.html">Planning</a>
+        </div>
+        <div class="wc-relationship-fund">General Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Public Safety</strong>
+          <span>Protection and Response</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="code-compliance.html">Code Compliance</a>
+          <a class="wc-relationship-chip" href="emergency-management.html">Emergency Management</a>
+          <a class="wc-relationship-chip" href="south-walton-fire-and-state-control.html">South Walton Fire District</a>
+          <a class="wc-relationship-chip" href="medical-examiner.html">Medical Examiner</a>
+          <a class="wc-relationship-chip" href="probation.html">Probation Services</a>
+          <a class="wc-relationship-chip" href="south-walton-fire-and-state-control.html">State Fire Control</a>
+        </div>
+        <div class="wc-relationship-fund">General Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Culture and Recreation</strong>
+          <span>Parks, Libraries, and Recreation</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="libraries.html">Libraries</a>
+          <a class="wc-relationship-chip" href="recreation.html">Recreation</a>
+          <a class="wc-relationship-chip" href="eagle-springs-golf-and-recreation-center.html">Eagle Springs Golf and Recreation Center</a>
+          <a class="wc-relationship-chip" href="eagle-springs-grill.html">Eagle Springs Grill</a>
+        </div>
+        <div class="wc-relationship-fund">General Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Other Activity Groups</strong>
+          <span>Community and Court-Related Services</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="statutory-and-other-agency-funding.html">Statutory &amp; Other Agency Funding</a>
+          <a class="wc-relationship-chip" href="extension-office.html">Extension Office</a>
+          <a class="wc-relationship-chip" href="environmental-resources.html">Environmental Resources</a>
+          <a class="wc-relationship-chip" href="soil-conservation.html">Soil Conservation</a>
+          <a class="wc-relationship-chip" href="veteran-services.html">Veteran Services</a>
+          <a class="wc-relationship-chip" href="circuit-court.html">Circuit Court</a>
+          <a class="wc-relationship-chip" href="county-court.html">County Court</a>
+          <a class="wc-relationship-chip" href="court-technology-and-innovations.html">Court Technology</a>
+          <a class="wc-relationship-chip" href="state-attorney.html">State Attorney</a>
+          <a class="wc-relationship-chip" href="guardian-ad-litem.html">Guardian Ad Litem</a>
+          <a class="wc-relationship-chip" href="public-defender.html">Public Defender</a>
+          <a class="wc-relationship-chip" href="walton-county-health-department.html">Walton County Health Department</a>
+          <a class="wc-relationship-chip" href="non-profit-funding-program.html">Non-Profit Funding Program</a>
+        </div>
+        <div class="wc-relationship-fund">General Fund</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wc-fund-section">
+    <div class="wc-fund-section-header">
+      <span class="wc-fund-kicker">Separate Fund Paths</span>
+      <h2>Dedicated funds follow the same activity structure.</h2>
+      <p>Some services are separated from the General Fund, but they still connect to a public activity, the departments or programs delivering the service, and the fund where the budget is recorded.</p>
+    </div>
+
+    <div class="wc-relationship-map" aria-label="Dedicated department to fund relationships">
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Public Safety</strong>
+          <span>Sheriff Fund Path</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="sheriffs-office.html">Sheriff&rsquo;s Office</a>
+          <a class="wc-relationship-chip" href="cip-sheriff.html">Sheriff Capital Projects</a>
+        </div>
+        <div class="wc-relationship-fund is-light">Sheriff Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Transportation</strong>
+          <span>Transportation Fund Path</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="public-works.html">Public Works</a>
+          <a class="wc-relationship-chip" href="cip-transportation.html">Transportation Capital Projects</a>
+        </div>
+        <div class="wc-relationship-fund is-light">Transportation Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Economic Activity</strong>
+          <span>Tourist Development Fund Path</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="tourism-administration.html#tourism-administration">Tourism Administration</a>
+          <a class="wc-relationship-chip" href="tourism-administration.html#marketing">Marketing</a>
+          <a class="wc-relationship-chip" href="tourism-administration.html#sales-and-visitor-center">Sales &amp; Visitor Center</a>
+          <a class="wc-relationship-chip" href="tourism-administration.html#communications">Communications</a>
+          <a class="wc-relationship-chip" href="tourism-administration.html#north-walton">North Walton</a>
+          <a class="wc-relationship-chip" href="tourism-beach-operations.html#beach-operations">Beach Operations</a>
+          <a class="wc-relationship-chip" href="tourism-beach-operations.html#beach-tram">Beach Tram</a>
+          <a class="wc-relationship-chip" href="tourism-lifeguard-services-and-beach-safety.html">Lifeguard Services and Beach Safety</a>
+        </div>
+        <div class="wc-relationship-fund is-light">Tourist Development Fund</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Physical Environment and Community Services</strong>
+          <span>Special Revenue and Enterprise Paths</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="solid-waste.html">Solid Waste</a>
+          <a class="wc-relationship-chip" href="building-department.html">Building Department</a>
+          <a class="wc-relationship-chip" href="e911-fund.html">E911</a>
+          <a class="wc-relationship-chip" href="housing-and-urban-development.html">Housing &amp; Urban Development</a>
+          <a class="wc-relationship-chip" href="mosquito-control.html">Mosquito Control</a>
+          <a class="wc-relationship-chip" href="recreation-plat-fee-fund.html">Recreation Plat Fee</a>
+          <a class="wc-relationship-chip" href="fund-descriptions-and-structure.html">Preservation</a>
+          <a class="wc-relationship-chip" href="sidewalk-fund.html">Sidewalk</a>
+        </div>
+        <div class="wc-relationship-fund is-light">Special Revenue and Enterprise Funds</div>
+      </div>
+
+      <div class="wc-relationship-row">
+        <div class="wc-relationship-node">
+          <strong>Capital and Financing</strong>
+          <span>Capital Project and Debt Paths</span>
+        </div>
+        <div class="wc-relationship-list">
+          <a class="wc-relationship-chip" href="capital-projects.html">Capital Projects</a>
+          <a class="wc-relationship-chip" href="cip-capital-projects.html">Grant-Funded Capital Projects</a>
+          <a class="wc-relationship-chip" href="debt-overview.html">Debt Service</a>
+        </div>
+        <div class="wc-relationship-fund is-light">Capital Projects and Debt Service Funds</div>
+      </div>
+    </div>
+
+  </section>
+</section>
+</main>
+</div>
+
+<!-- nav.js will inject footer[role="contentinfo"] here -->
+
+<script>
+/* set wcBudgetPages before nav script runs so search is fully populated */
+window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/gfoa-distinguished-budget-presentation-award.html"},
+  {title:"Transmittal Letter",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/transmittal-letter.html"},
+  {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
+  {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
+  {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
+  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/strategic-initiatives.html"},
+  {title:"Budget Overview",section:"Budget Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
+  {title:"Constitutional Officers & Other Agencies",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/constitutional-officers.html"},
+  {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
+  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process-and-calendar.html"},
+  {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
+  {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
+  {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
+  {title:"Consolidated Financial Schedules",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/consolidated-financial-schedules.html"},
+  {title:"Fund Financial Schedules",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-financial-schedules.html"},
+  {title:"Summary of Revenues",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-revenues.html"},
+  {title:"Summary of Expenses",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-expenses.html"},
+  {title:"Summary of Interfund Transfers",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-interfund-transfers.html"},
+  {title:"Summary of Personnel",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-personnel.html"},
+  {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
+  {title:"Summary of Property Tax Allocations",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
+  {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
+  {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
+  {title:"Sheriff's Office",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/sheriffs-office.html"},
+  {title:"Supervisor of Elections",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supervisor-of-elections.html"},
+  {title:"Tax Collector",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tax-collector.html"},
+  {title:"Circuit Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/circuit-court.html"},
+  {title:"County Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-court.html"},
+  {title:"Court Technology & Innovations",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/court-technology-and-innovations.html"},
+  {title:"Guardian Ad Litem",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/guardian-ad-litem.html"},
+  {title:"Medical Examiner",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/medical-examiner.html"},
+  {title:"Non-Profit Funding Program",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/non-profit-funding-program.html"},
+  {title:"Public Defender",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-defender.html"},
+  {title:"South Walton Fire & State Control",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/south-walton-fire-and-state-control.html"},
+  {title:"State Attorney",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/state-attorney.html"},
+  {title:"Statutory & Other Agency Funding",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statutory-and-other-agency-funding.html"},
+  {title:"Walton County Health Department",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/walton-county-health-department.html"},
+  {title:"Building Construction and Maintenance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-construction-and-maintenance.html"},
+  {title:"Building Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-department.html"},
+  {title:"Code Compliance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/code-compliance.html"},
+  {title:"County Administration Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-administration.html"},
+  {title:"Eagle Springs Golf and Recreation Center",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-golf-and-recreation-center.html"},
+  {title:"Eagle Springs Grill",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-grill.html"},
+  {title:"Emergency Management",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/emergency-management.html"},
+  {title:"Engineering Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/engineering-department.html"},
+  {title:"Environmental Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/environmental-resources.html"},
+  {title:"Extension Office",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/extension-office.html"},
+  {title:"Geographic Info Systems",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/geographic-info-systems.html"},
+  {title:"Housing & Urban Development",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/housing-and-urban-development.html"},
+  {title:"Human Resources",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/human-resources.html"},
+  {title:"Libraries",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/libraries.html"},
+  {title:"Mosquito Control",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mosquito-control.html"},
+  {title:"Mossy Head Wastewater Treatment Facility",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mossy-head-wastewater-treatment-facility.html"},
+  {title:"Office of Management and Budget",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-management-and-budget.html"},
+  {title:"Office of the County Attorney",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-the-county-attorney.html"},
+  {title:"Planning",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/planning.html"},
+  {title:"Probation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/probation.html"},
+  {title:"Public Works",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-works.html"},
+  {title:"Purchasing",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/purchasing.html"},
+  {title:"Recreation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/recreation.html"},
+  {title:"Soil Conservation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/soil-conservation.html"},
+  {title:"Solid Waste",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/solid-waste.html"},
+  {title:"Tourism Administration",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-administration.html"},
+  {title:"Tourism Beach Operations",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-beach-operations.html"},
+  {title:"Tourism Lifeguard Services and Beach Safety",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-lifeguard-services-and-beach-safety.html"},
+  {title:"Veteran Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/veteran-services.html"},
+  {title:"Capital Projects",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/capital-projects.html"},
+  {title:"Capital Improvement Plan Overview",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/capital-improvement-plan.html"},
+  {title:"CIP Project Search",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/search.html"},
+  {title:"Capital Projects Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-capital-projects.html"},
+  {title:"Sheriff Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-sheriff.html"},
+  {title:"Tourist Development Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-tourist-development.html"},
+  {title:"Transportation Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-transportation.html"},
+  {title:"Debt Overview",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/debt-overview.html"},
+  {title:"Financial Forecast",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-forecast.html"},
+  {title:"Glossary, Acronyms, and Frequently Asked Questions",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/glossary-acronyms-and-frequently-asked-questions.html"},
+  {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
+];
+</script>
+<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script>
+(function(){
+  function escapeHtml(value){
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function normalizeDeptName(name){
+    return String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/['’]/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
+  // The General Fund (001) is split into the same three groups used by the
+  // site's own directories (constitutional-officers.html, departments.html)
+  // instead of one combined bar, so this view lines up with how residents
+  // already browse departments elsewhere. Every alias spelling that shows
+  // up across the expenditures sheet for each department is listed here so
+  // no General Fund spending silently falls through to "General Fund
+  // (Other)" below.
+  const GENERAL_FUND_GROUPS = [
+    {
+      key: "001-constitutional",
+      name: "Constitutional Officers",
+      type: "001 / General Fund",
+      deptNames: [
+        "board of county commissioners", "bcc other uses contingency",
+        "clerk of court", "clerk of courts and county comptroller", "clerk of circuit court",
+        "property appraiser",
+        "supervisor of elections",
+        "tax collector"
+      ]
+    },
+    {
+      key: "001-agencies",
+      name: "Agencies and State Mandates",
+      type: "001 / General Fund",
+      deptNames: [
+        "circuit court",
+        "county court",
+        "court technology and innovations", "court technology innovations", "court technology court administration",
+        "court technology state attorney", "court technology public defender", "court technology", "court innovations",
+        "guardian ad litem",
+        "medical examiner",
+        "public defender",
+        "south walton fire and state control", "south walton fire", "state fire", "volunteer fire",
+        "state attorney",
+        "walton county health department",
+        // Statutory & Other Agency Funding rolls up several small,
+        // independent aid/grant recipients under their own raw Dept_Name
+        // (see applyStatutoryExpenseOverrides/STATUTORY_EXPENSE_OVERRIDES
+        // in assets/budget-data.js) -- each listed here so its share of
+        // General Fund spending lands in this group, not "Other".
+        "statutory and other agency funding", "statutory and other agency fund", "statutory and other",
+        "statutory other agency funding", "statutory other agency fund", "statutory other",
+        "non profit funding program", "human services", "economic development alliance",
+        "gulf coast kids house", "culture and recreation senior centers and mainstreet",
+        "culture and recreation senior centers", "senior centers and mainstreet", "senior centers",
+        "indigent cremation program", "lakeview"
+      ]
+    },
+    {
+      key: "001-board",
+      name: "Board Departments",
+      type: "001 / General Fund",
+      deptNames: [
+        "county administration",
+        "office of the county attorney", "office of county attorney",
+        "office of management and budget",
+        "human resources",
+        "purchasing", "procurement",
+        "geographic info systems",
+        "building construction and maintenance",
+        "planning", "planning short term rental",
+        "code compliance", "code compliance beach", "code compliance street",
+        "emergency management",
+        "probation", "probation services",
+        "libraries", "county libraries",
+        "recreation", "recreation fbip boating allocation",
+        "eagle springs golf and recreation center",
+        "eagle springs grill",
+        "extension office",
+        "environmental resources", "environmental services",
+        "soil conservation",
+        "veteran services"
+      ]
+    }
+  ];
+  function generalFundGroupKeyFor(deptName){
+    const norm = normalizeDeptName(deptName);
+    for (let i = 0; i < GENERAL_FUND_GROUPS.length; i++){
+      if (GENERAL_FUND_GROUPS[i].deptNames.indexOf(norm) !== -1) return GENERAL_FUND_GROUPS[i].key;
+    }
+    return null;
+  }
+
+  function fundCodeForRow(row){
+    return String((row && row.Dept_Code) || "").trim().slice(0, 3);
+  }
+
+  function compactCurrency(value){
+    const amount = Number(value) || 0;
+    const abs = Math.abs(amount);
+    if (abs >= 1000000000) return "$" + (amount / 1000000000).toFixed(1).replace(/\.0$/, "") + "B";
+    if (abs >= 1000000) return "$" + (amount / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (abs >= 1000) return "$" + (amount / 1000).toFixed(0) + "K";
+    return "$" + amount.toLocaleString();
+  }
+
+  function fundTypeLabel(fund){
+    return [fund.Fund_Code, fund.Fund_Type || fund.Fund_Category || fund.Major_NonMajor]
+      .filter(Boolean)
+      .join(" / ");
+  }
+
+  function isInterfundTransferOut(row){
+    return String((row && row.Object_Code) || "").trim() === "591000";
+  }
+
+  function isSelfInsuranceFund(fund){
+    const code = String((fund && fund.code) || "").trim();
+    const name = String((fund && fund.name) || "").toLowerCase();
+    return code === "503" || name.indexOf("self-insurance") !== -1 || name.indexOf("self insurance") !== -1;
+  }
+
+  function renderFundFlow(data){
+    const mount = document.getElementById("wc-fund-flow");
+    if (!mount) return;
+
+    const fundMap = new Map();
+    (data.funds || []).forEach(function(fund){
+      if (!fund.Fund_Code) return;
+      fundMap.set(fund.Fund_Code, {
+        code: fund.Fund_Code,
+        name: fund.Fund_Name || ("Fund " + fund.Fund_Code),
+        type: fundTypeLabel(fund),
+        expense: 0
+      });
+    });
+
+    function ensureFund(code){
+      if (!code) return null;
+      if (!fundMap.has(code)){
+        fundMap.set(code, {
+          code: code,
+          name: "Fund " + code,
+          type: code,
+          expense: 0
+        });
+      }
+      return fundMap.get(code);
+    }
+
+    // General Fund (001) stays one row/bar, same as every other fund, but
+    // also breaks down into the same three groups the site's own
+    // directories use (Constitutional Officers, Agencies and State
+    // Mandates, Board Departments) as sublines underneath it -- see
+    // GENERAL_FUND_GROUPS.
+    const generalFundGroupTotals = new Map();
+    GENERAL_FUND_GROUPS.forEach(function(group){ generalFundGroupTotals.set(group.key, 0); });
+    let generalFundOtherTotal = 0;
+
+    (data.expenditures || []).forEach(function(row){
+      if (isInterfundTransferOut(row)) return;
+      const code = fundCodeForRow(row);
+      const amount = Number(row.FY2027_Proposed) || 0;
+      if (code === "001"){
+        const key = generalFundGroupKeyFor(row.Dept_Name);
+        if (key) generalFundGroupTotals.set(key, generalFundGroupTotals.get(key) + amount);
+        else generalFundOtherTotal += amount;
+        const fund = ensureFund(code);
+        if (fund) fund.expense += amount;
+        return;
+      }
+      const fund = ensureFund(code);
+      if (fund) fund.expense += amount;
+    });
+
+    const generalFund = fundMap.get("001");
+    if (generalFund){
+      const sublines = GENERAL_FUND_GROUPS
+        .map(function(group){ return { name: group.name, expense: generalFundGroupTotals.get(group.key) || 0 }; })
+        .filter(function(s){ return Math.abs(s.expense) > 0; })
+        .sort(function(a, b){ return Math.abs(b.expense) - Math.abs(a.expense); });
+      // Catches any General Fund spending whose Dept_Name isn't covered by
+      // one of the three groups above, so it stays visible (and easy to
+      // spot as a gap to fix) instead of silently disappearing.
+      if (Math.abs(generalFundOtherTotal) > 0){
+        sublines.push({ name: "General Fund (Other)", expense: generalFundOtherTotal });
+      }
+      generalFund.sublines = sublines;
+    }
+
+    const funds = Array.from(fundMap.values())
+      .filter(function(fund){ return !isSelfInsuranceFund(fund) && Math.abs(fund.expense) > 0; })
+      .sort(function(a, b){ return Math.abs(b.expense) - Math.abs(a.expense); });
+
+    if (!funds.length){
+      mount.innerHTML = '<div class="wc-fund-flow-error">Fund budget amounts are not available right now.</div>';
+      return;
+    }
+
+    const totalExpense = funds.reduce(function(sum, fund){ return sum + fund.expense; }, 0);
+    const maxAmount = Math.max.apply(null, funds.map(function(fund){ return Math.abs(fund.expense); }));
+    const currency = (window.WCBudgetData && window.WCBudgetData.formatCurrency) || compactCurrency;
+
+    const rows = funds.map(function(fund){
+      const amount = fund.expense;
+      const share = maxAmount ? Math.max(2, (Math.abs(amount) / maxAmount) * 100) : 0;
+      const sublinesHtml = fund.sublines && fund.sublines.length
+        ? '<div class="wc-fund-flow-sublines">' + fund.sublines.map(function(s){
+            return '<div class="wc-fund-flow-subline"><span>' + escapeHtml(s.name) + '</span><strong>' + escapeHtml(compactCurrency(s.expense)) + '</strong></div>';
+          }).join("") + '</div>'
+        : '';
+      return (
+        '<div class="wc-fund-flow-row">' +
+          '<div class="wc-fund-flow-row-main">' +
+          '<div class="wc-fund-flow-name">' +
+            '<strong>' + escapeHtml(fund.name) + '</strong>' +
+            '<span>' + escapeHtml(fund.type || fund.code) + '</span>' +
+          '</div>' +
+          '<div class="wc-fund-flow-track">' +
+            '<div class="wc-fund-flow-bar" style="--fund-share:' + share.toFixed(2) + '%"></div>' +
+          '</div>' +
+          '<div class="wc-fund-flow-amount" title="' + escapeHtml(currency(fund.expense)) + '">' +
+            escapeHtml(compactCurrency(fund.expense)) +
+          '</div>' +
+          '</div>' +
+          sublinesHtml +
+        '</div>'
+      );
+    }).join("");
+
+    mount.innerHTML =
+      '<div class="wc-fund-flow-head">' +
+        '<div>' +
+          '<span class="wc-fund-kicker">Fund Flow</span>' +
+          '<h2>Budget by fund.</h2>' +
+          '<p>Each row shows the expenditure budget for an active fund.</p>' +
+        '</div>' +
+        '<div class="wc-fund-flow-total">' +
+          '<strong>' + escapeHtml(compactCurrency(totalExpense)) + '</strong>' +
+          '<span>Total Expenditures Less Transfers</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wc-fund-flow-list">' + rows + '</div>';
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const mount = document.getElementById("wc-fund-flow");
+    if (!mount || !window.WCBudgetData) return;
+    window.WCBudgetData.loadBudgetData()
+      .then(renderFundFlow)
+      .catch(function(error){
+        console.error("Failed to load department-to-fund relationship data", error);
+        mount.innerHTML = '<div class="wc-fund-flow-error">Fund budget amounts are not available right now.</div>';
+      });
+  });
+})();
+</script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+</body>
+</html>

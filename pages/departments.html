@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Departments — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260802-metric-changes">
+</head>
+<body>
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Departments</div>
+<h1 class="page-title">Departments</h1>
+<p class="page-intro">Explore Walton County departments, budgets, staffing, performance measures, and services.</p>
+
+<section class="wc-dept-fund-panel" aria-label="Departments by fund, at a glance">
+  <div class="wc-dept-fund-summary" id="departmentFundSummary"></div>
+</section>
+
+<p class="wc-dept-fund-filter-status" id="departmentFilterStatus"></p>
+
+<section aria-label="Department directory">
+  <ul class="wc-directory-list" id="departmentList"></ul>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260802-metric-changes"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script src="../assets/departments-directory.js?v=20260802-county-admin-fix"></script>
+</body>
+</html>

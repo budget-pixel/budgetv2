@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budget Overview — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+</head>
+<body>
+
+<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Budget Overview</div>
+<h1 class="page-title">Budget Overview</h1>
+<p class="page-intro">Explore the proposed budget, county priorities, organizational structure, financial policies, and the process that guides Walton County's annual budget.</p>
+
+<section aria-label="Budget overview directory">
+  <ul class="wc-directory-list" id="hubList"></ul>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260802-debt-total-callout"></script>
+<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
+<script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script>
+  (function(){
+    var pages = [
+      {
+        title:"Table of Contents",
+        href:"table-of-contents.html",
+        label:"Guide",
+        description:"Start here for a complete guide to the budget pages, directories, schedules, departments, capital projects, and financial summaries."
+      },
+      {
+        title:"GFOA Distinguished Budget Presentation Award",
+        href:"gfoa-distinguished-budget-presentation-award.html",
+        label:"Recognition",
+        description:"Review the award standards and presentation recognition for Walton County's budget document."
+      },
+      {
+        title:"Budget Process",
+        href:"budget-process.html",
+        label:"Process",
+        description:"Explore budget development, the calendar, budget changes, financial policies, fund structure, and department funding relationships."
+      },
+      {
+        title:"Revenue Budget",
+        href:"summary-of-revenues.html",
+        label:"Revenue Outlook",
+        metric:"revenue",
+        description:"See anticipated revenue, funding diversity, restrictions, community impacts, and projections through FY 2029."
+      },
+      {
+        title:"Personnel Budget",
+        href:"summary-of-personnel.html",
+        label:"Staffing & Cost",
+        metric:"personnel",
+        description:"See budgeted FTE by department and function, personnel dollar cost, year-over-year staffing changes, and what's driving personnel cost."
+      },
+      {
+        title:"Constitutional Officers Budget",
+        href:"constitutional-officers-budget.html",
+        label:"Elected Offices",
+        metric:"constitutionalOfficers",
+        description:"Explore the proposed budgets, staffing, cost structure, and available supporting information for each independently elected Constitutional Officer."
+      },
+      {
+        title:"Program Budget",
+        href:"program-budget.html",
+        label:"Programs & Service Levels",
+        description:"Explore major services across departments, including cost, funding, service measures, community impact, and alignment with County priorities."
+      },
+      {
+        title:"Capital Budget",
+        href:"capital-projects.html",
+        label:"Capital Improvement Plan",
+        metric:"capital",
+        description:"Explore the capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail."
+      },
+      {
+        title:"Debt Overview",
+        href:"debt-overview.html",
+        label:"Debt & Obligations",
+        metrics:[
+          { key:"debtPrincipal", label:"Principal" },
+          { key:"debtInterest", label:"Interest" }
+        ],
+        description:"Explore outstanding debt, annual debt service, borrowing strategy, and long-term obligations."
+      },
+      {
+        title:"Interfund Transfer Ledger",
+        href:"summary-of-interfund-transfers.html",
+        label:"Transfers Between Funds",
+        description:"Review planned transfers into and out of County funds and see how resources move between funds to support services, projects, and obligations."
+      },
+      {
+        title:"Consolidated Financial Ledger",
+        href:"consolidated-financial-schedules.html",
+        label:"All Funds",
+        description:"Review combined County financial schedules across funds, revenues, expenses, transfers, and balances."
+      },
+      {
+        title:"Fund Financial Ledger",
+        href:"fund-financial-schedules.html",
+        label:"Fund Detail",
+        description:"Explore fund-level financial schedules for major operating, special revenue, and capital funds."
+      },
+      {
+        title:"Property Tax Allocation",
+        href:"summary-of-property-tax-allocations.html",
+        label:"Property Tax",
+        description:"See the dollar amount each department receives from the countywide property tax."
+      },
+      {
+        title:"Summary of Expenses",
+        href:"summary-of-expenses.html",
+        label:"Expenses",
+        description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
+      },
+      {
+        title:"Summary of Budget Changes and Adjustments",
+        href:"summary-of-budget-changes-and-adjustments.html",
+        label:"Changes",
+        description:"Compare proposed expenditures to the prior budget by department, showing both increases and decreases."
+      },
+      {
+        title:"Summary of Contractual Services",
+        href:"summary-of-contractual-services.html",
+        label:"Contracts",
+        description:"Review budgeted contractual services and outside-vendor spending by department.",
+        darkModeOnly:true
+      },
+      {
+        title:"Financial Forecast",
+        href:"financial-forecast.html",
+        label:"Forecast",
+        description:"Review long-range financial assumptions, revenue outlook, expense projections, and planning considerations."
+      },
+      {
+        title:"Transaction Search",
+        href:"transaction-search.html",
+        label:"Raw Data",
+        description:"Search every public vendor payment and revenue receipt on file since FY 2020 by vendor, amount, date, or fund."
+      },
+      {
+        title:"Supporting Budget Documentation",
+        href:"supporting-budget-documentation.html",
+        label:"Documents",
+        description:"Open supporting budget requests, certifications, policies, ordinances, fee schedules, and reference workbooks."
+      }
+    ];
+
+    function $(selector){
+      return document.querySelector(selector);
+    }
+
+    function escapeHtml(value){
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function statHtml(key, label){
+      return '<div class="wc-directory-item-stat wc-directory-item-stat--overview-budget" data-budget-overview-total="' + escapeHtml(key) + '"><strong><span class="wc-loading-dots" aria-label="Loading total"><span></span><span></span><span></span></span></strong><span>' + escapeHtml(label) + '</span></div>';
+    }
+
+    function metaHtml(page){
+      if(page.metrics){
+        return '<div class="wc-directory-item-meta">' + page.metrics.map(function(m){ return statHtml(m.key, m.label); }).join("") + '</div>';
+      }
+      if(page.metric){
+        return '<div class="wc-directory-item-meta">' + statHtml(page.metric, "FY 2027 Proposed") + '</div>';
+      }
+      return "";
+    }
+
+    function renderHub(){
+      $("#hubList").innerHTML = pages.map(function(page){
+        var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
+        return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+          '<div class="wc-directory-item-main">' +
+            '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
+            '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +
+          '</div>' +
+          metaHtml(page) +
+          '<span class="wc-directory-item-arrow" aria-hidden="true">&rarr;</span>' +
+        '</a></li>';
+      }).join("");
+    }
+
+    function normalize(value){
+      return String(value || "").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    }
+
+    function renderBudgetTotals(){
+      if(!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
+      window.WCBudgetData.loadBudgetData().then(function(data){
+        var revenueTotal = (data.revenues || []).reduce(function(sum, row){
+          var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
+          var revenueCode = String(row.Revenue_Code || "").trim();
+          if(fundCode === "503" || revenueCode === "381000") return sum;
+          return sum + (Number(row.FY2027_Proposed) || 0);
+        }, 0);
+
+        var personnelCodes = new Set(["510000", "511000", "512000", "512007", "513000", "514000", "521000", "522000", "523000", "524000", "525000"]);
+        var personnelTotal = (data.expenditures || []).reduce(function(sum, row){
+          if(String(row.Object_Type || "").trim() !== "Personnel Services") return sum;
+          if(!personnelCodes.has(String(row.Object_Code || "").trim())) return sum;
+          return sum + (Number(row.FY2027_Proposed) || 0);
+        }, 0);
+
+        var constitutionalOfficersTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);
+        var debtTotals = window.WCBudgetData.getDebtOverviewTotals();
+
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, debtPrincipal:debtTotals.principal, debtInterest:debtTotals.interest };
+        document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital'])").forEach(function(element){
+          var amount = totals[element.dataset.budgetOverviewTotal] || 0;
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "debtPrincipal", "debtInterest"].indexOf(element.dataset.budgetOverviewTotal) !== -1;
+          element.querySelector("strong").textContent = useRoundedMillions
+            ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
+            : window.WCBudgetData.formatCurrency(amount);
+        });
+      }).catch(function(){
+        document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital']) strong").forEach(function(element){element.textContent = "Not available";});
+      });
+    }
+
+    function renderCapitalTotal(){
+      var element = document.querySelector("[data-budget-overview-total='capital']");
+      if(!element) return;
+      var ready = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+      ready.then(function(projects){
+        var searchable = (typeof getSearchableProjects === "function") ? getSearchableProjects() : (projects || []);
+        var stats = (typeof getCipOverviewStats === "function") ? getCipOverviewStats(searchable) : { totalBudget:0 };
+        element.querySelector("strong").textContent = "$" + Math.round(stats.totalBudget / 1000000).toLocaleString("en-US") + "M";
+      }).catch(function(){
+        element.querySelector("strong").textContent = "Not available";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function(){
+      renderHub();
+      renderBudgetTotals();
+      renderCapitalTotal();
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budget Process — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<style>
+  .wc-process-hero{
+    margin:34px 0 32px;
+    padding:34px;
+    border-radius:24px;
+    background:var(--light);
+    border:1px solid var(--border);
+  }
+  .wc-process-hero p{
+    max-width:850px;
+    margin:0;
+    color:var(--muted);
+    font-size:18px;
+    line-height:1.75;
+  }
+  .wc-process-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:24px;
+  }
+  .wc-process-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+    padding:0 18px;
+    border-radius:999px;
+    background:var(--green);
+    color:#ffffff;
+    font-size:13px;
+    font-weight:800;
+    text-decoration:none;
+  }
+  .wc-process-section{
+    margin-top:46px;
+  }
+  .wc-process-section h2{
+    margin:0 0 18px;
+    color:var(--text);
+    font-size:clamp(28px, 4vw, 42px);
+    line-height:1.1;
+  }
+  .wc-process-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:18px;
+  }
+  .wc-process-card{
+    min-height:100%;
+    padding:24px;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:#ffffff;
+  }
+  .wc-process-card span{
+    display:block;
+    margin-bottom:12px;
+    color:var(--green);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .wc-process-card h3{
+    margin:0 0 10px;
+    color:var(--text);
+    font-size:21px;
+    line-height:1.25;
+  }
+  .wc-process-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.65;
+  }
+  .wc-process-detail{
+    display:grid;
+    grid-template-columns:minmax(0, 1.2fr) minmax(280px, .8fr);
+    gap:24px;
+    align-items:start;
+    margin-top:28px;
+  }
+  .wc-process-panel{
+    padding:28px;
+    border-radius:20px;
+    background:#ffffff;
+    border:1px solid var(--border);
+  }
+  .wc-process-panel h3{
+    margin:0 0 12px;
+    color:var(--text);
+    font-size:24px;
+  }
+  .wc-process-panel p,
+  .wc-process-panel li{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+  }
+  .wc-process-panel ul{
+    margin:12px 0 0;
+    padding-left:20px;
+  }
+  .wc-process-links{
+    display:grid;
+    gap:12px;
+  }
+  .wc-process-note-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:18px;
+    margin-top:18px;
+  }
+  .wc-process-link{
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    padding:18px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:#ffffff;
+    color:var(--text);
+    text-decoration:none;
+    font-weight:800;
+  }
+  .wc-process-link small{
+    display:block;
+    margin-top:6px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+    line-height:1.45;
+  }
+  @media(max-width:980px){
+    .wc-process-grid,
+    .wc-process-detail,
+    .wc-process-note-grid{
+      grid-template-columns:1fr;
+    }
+  }
+  @media(max-width:640px){
+    .wc-process-hero,
+    .wc-process-panel,
+    .wc-process-card{
+      padding:22px;
+    }
+  }
+
+  /* Dark mode: var(--green) becomes a light mint in dark mode, so the solid
+     button needs a dark text color instead of white to stay readable; the
+     white card/panel/link surfaces need an explicit dark surface too,
+     matching the dark card treatment used elsewhere on the site. */
+  :root[data-theme="dark"] .wc-process-button{
+    color:#07110d;
+  }
+  :root[data-theme="dark"] .wc-process-card,
+  :root[data-theme="dark"] .wc-process-panel,
+  :root[data-theme="dark"] .wc-process-link{
+    background: rgba(14,28,22,.92);
+    border-color: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav-menu" class="nav-menu">
+  <div class="logo-container"></div>
+</nav>
+
+<div id="layout">
+<main id="content">
+
+<div class="page-eyebrow">Financial Structure, Policies, and Process</div>
+<h1 class="page-title">Budget Process</h1>
+<p class="page-intro">A simplified guide to how Walton County develops, reviews, adopts, and manages the annual budget.</p>
+
+<section class="wc-process-hero" aria-label="Budget process summary">
+  <p>The annual budget process turns department needs, revenue forecasts, public priorities, Board direction, and Florida statutory requirements into an adopted spending plan for the fiscal year.</p>
+  <div class="wc-process-actions">
+    <a class="wc-process-button" href="budget-calendar.html">View Budget Calendar</a>
+    <a class="wc-process-button" href="financial-policies.html">Review Financial Policies</a>
+  </div>
+</section>
+
+<section class="wc-process-section" aria-label="Budget process phases">
+  <h2>Four Phases, One Adopted Budget</h2>
+  <div class="wc-process-grid">
+    <article class="wc-process-card">
+      <span>Phase 1</span>
+      <h3>Preparation</h3>
+      <p>Departments prepare operating and capital requests based on service needs, staffing, projects, and funding assumptions.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Phase 2</span>
+      <h3>Review</h3>
+      <p>OMB and County Administration evaluate requests against revenue estimates, priorities, fund capacity, and policy guidance.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Phase 3</span>
+      <h3>Workshops</h3>
+      <p>The tentative budget is reviewed publicly with the Board, including funding requests, service levels, and the proposed millage rate.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Phase 4</span>
+      <h3>Adoption</h3>
+      <p>Required public hearings are held before the Board adopts the final millage rate and annual operating budget.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wc-process-section" aria-label="Basis of budgeting">
+  <h2>Basis of Budgeting</h2>
+  <div class="wc-process-hero">
+    <p>Walton County prepares and adopts its annual budget in accordance with Generally Accepted Accounting Principles and applicable Florida Statutes governing local government budgeting practices.</p>
+  </div>
+  <div class="wc-process-grid">
+    <article class="wc-process-card">
+      <span>GAAP</span>
+      <h3>Budgeting Standards</h3>
+      <p>Annual budgets for governmental fund types that are legally required to prepare a budget are adopted on a basis consistent with GAAP.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Control</span>
+      <h3>Encumbrance Accounting</h3>
+      <p>Encumbrances represent commitments for goods or services, including purchase orders and contractual obligations.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Accounting</span>
+      <h3>Modified Accrual Basis</h3>
+      <p>The modified accrual basis is used for budgeting purposes and audited financial statements for governmental funds.</p>
+    </article>
+    <article class="wc-process-card">
+      <span>Grants</span>
+      <h3>Grant Revenue Treatment</h3>
+      <p>Grant revenue is generally added to the budget after grant agreements are executed or prior-year grant balances are carried forward.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wc-process-section" aria-label="Budget process details">
+  <h2>What Happens During The Process</h2>
+  <div class="wc-process-detail">
+    <article class="wc-process-panel">
+      <h3>From requests to recommendations</h3>
+      <p>Budget development begins when departments receive instructions from the Office of Management and Budget. Departments review current programs, service demands, staffing, capital needs, and operating requirements before submitting requests.</p>
+      <p>OMB reviews requests with County Administration and departments, compares proposed expenditures to available resources, and prepares recommendations for Board consideration.</p>
+      <ul>
+        <li>Operating and capital requests are reviewed together.</li>
+        <li>Constitutional Officer budgets are incorporated at required points in the process.</li>
+        <li>Public workshops and hearings provide transparency before adoption.</li>
+      </ul>
+    </article>
+    <aside class="wc-process-links" aria-label="Related budget process pages">
+      <a class="wc-process-link" href="budget-calendar.html">
+        <span>Budget Calendar<small>Key dates, workshops, hearings, TRIM notices, and adoption milestones.</small></span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a class="wc-process-link" href="fund-descriptions-and-structure.html">
+        <span>Fund Structure<small>How the County organizes resources by fund type and purpose.</small></span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a class="wc-process-link" href="financial-policies.html">
+        <span>Financial Policies<small>Fiscal policies that guide reserves, budgeting, debt, and stewardship.</small></span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </aside>
+  </div>
+</section>
+
+<section class="wc-process-section" aria-label="Budget implementation and amendment process">
+  <h2>Budget Implementation &amp; Amendments</h2>
+  <div class="wc-process-note-grid">
+    <article class="wc-process-panel">
+      <h3>Ongoing budget monitoring</h3>
+      <p>After adoption, the budget remains an active financial management tool. The Office of Management and Budget and County departments monitor spending, revenues, appropriations, and amendments throughout the fiscal year.</p>
+      <p>Budgetary control is established at the fund level for all funds to ensure total fund appropriations remain within approved limits.</p>
+    </article>
+    <article class="wc-process-panel">
+      <h3>Budget amendment process</h3>
+      <p>When circumstances require changes to the approved budget, the Board of County Commissioners may amend the budget by resolution in accordance with Section 129.06, Florida Statutes.</p>
+      <p>Amendments may be needed for unforeseen expenditures, use of contingency reserves, allocation of unanticipated revenues, grant revenues, or carry-forward funding.</p>
+    </article>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script src="../assets/search-data.js"></script>
+<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+</body>
+</html>
