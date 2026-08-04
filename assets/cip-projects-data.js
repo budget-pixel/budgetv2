@@ -121,7 +121,11 @@
       else if (noBudgetYears.has("FY2026")) fundingByYear.push({ year: "FY2026", amount_value: 0, amount: "No amount recorded" });
       const total = (entry.fy2025 || 0) + (entry.fy2026 || 0);
       const isSheriff = /sheriff/i.test(entry.category || "");
-      const statusText = entry.status || "Completed";
+      // phase = where the project sits in the delivery lifecycle (Design,
+      // Construction, Programmed, ...); status = whether it's finished.
+      // Sheriff's Office rows carry neither and default to Complete.
+      const phaseText = entry.phase || "";
+      const statusText = entry.status || "Complete";
       const baseDescription = "Historical capital project from the County's FY2025-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.";
       return {
         title: entry.name,
@@ -143,6 +147,7 @@
         district: "Not specified",
         target: fundingByYear.map((f) => f.year).join(", "), target_years: fundingByYear.map((f) => f.year),
         status_text: statusText, status_class: getStatusClass(statusText),
+        phase_text: phaseText, phase_class: getStatusClass(phaseText),
         status_note: entry.statusNote || "",
         eng_color: entry.eng_color || "",
         budget_org_code: "", budget_account_code: "", budget_account_name: "",
