@@ -4911,7 +4911,7 @@
   function renderTableFooterRow(budgetLineRows, descriptionField, kind, combineByName) {
     const stamp = new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric" });
     const updated = '<em>Last Updated: ' + escapeHtml(stamp) + "</em>";
-    const toggle = budgetLineRows ? renderBudgetLinesToggle(budgetLineRows, descriptionField, kind, combineByName) : { button: "", detail: "" };
+    const toggle = budgetLineRows && kind !== "revenue" ? renderBudgetLinesToggle(budgetLineRows, descriptionField, kind, combineByName) : { button: "", detail: "" };
     return (
       '<div class="wc-table-footer-row">' +
       '<p class="wc-data-updated-note">' + updated + "</p>" +
@@ -8267,7 +8267,7 @@
       String(r.Revenue_Code || "").trim() === "381000" ||
       CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r));
 
-    const bodyRows = CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec) => {
+    const bodyRows = CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec, specIndex) => {
       // Revenue_Code 381000 (Interfund Group Transfer In) is reported on
       // the Summary of Interfund Transfers page instead, and the
       // Self-Insurance Fund (503) is an Internal Service fund rather than
@@ -8298,15 +8298,34 @@
         }
       }
       allMatchingRows.push(...matchingForDetail);
+      const individualRevenueTotals = new Map();
+      matchingForDetail.forEach((row) => {
+        const name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
+        const entry = individualRevenueTotals.get(name) || { rows: [] };
+        entry.rows.push(row);
+        individualRevenueTotals.set(name, entry);
+      });
+      const individualRevenueHtml = Array.from(individualRevenueTotals.entries())
+        .sort((a, b) => dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed"))
+        .map(([name, values]) => '<tr><th scope="row">' + escapeHtml(name) + '</th>' + CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num">' + formatCurrency(dedupedRevenueSum(values.rows, col.field)) + '</td>').join("") + '</tr>')
+        .join("");
+      const individualRevenueTableHtml = individualRevenueHtml
+        ? '<div class="wc-revenue-classification-detail-scroll"><table><thead><tr><th>Revenue</th>' + CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<th class="wc-num">' + escapeHtml(col.label) + '</th>').join("") + '</tr></thead><tbody>' + individualRevenueHtml + '</tbody></table></div>'
+        : "";
+      const detailId = "wc-revenue-classification-" + specIndex;
+      const classificationLabelHtml = individualRevenueTableHtml
+        ? '<button type="button" class="wc-revenue-classification-toggle" data-revenue-classification-toggle="' + detailId + '" aria-controls="' + detailId + '" aria-expanded="false">' + escapeHtml(spec.label) + '</button>'
+        : escapeHtml(spec.label);
       return (
-        "<tr><td>" + escapeHtml(spec.label) + "</td>" +
+        "<tr><td>" + classificationLabelHtml + "</td>" +
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = dedupedRevenueSum(matching, col.field);
           totals[i] += sum;
           const extraYear = col.field !== "FY2026_Original_Budget" && col.field !== "FY2027_Proposed";
           return '<td class="wc-num' + (extraYear ? " wc-prior-year" : "") + (col.field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") + (col.field === "FY2028_Projected" ? " wc-fy-2028" : "") + (col.field === "FY2029_Projected" ? " wc-fy-2029" : "") + (col.projected ? " wc-revenue-projected" : "") + '">' + formatCurrency(sum) + "</td>";
         }).join("") +
-        "</tr>"
+        "</tr>" +
+        (individualRevenueTableHtml ? '<tr id="' + detailId + '" class="wc-revenue-classification-detail" hidden><td colspan="' + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.length + 1) + '"><div><strong>Individual revenues</strong>' + individualRevenueTableHtml + '</div></td></tr>' : "")
       );
     });
     // Catch-all for any row whose Revenue_Type doesn't match a known
@@ -8339,13 +8358,13 @@
       "</tr>"
     );
 
-    const showPrior = getShowPriorYears();
+    const showPrior = true;
     return (
       '<div class="wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '">' +
       '<div class="wc-table-wrap">' +
       '<div class="wc-table-label-row">' +
       '<p class="wc-table-label">Revenue Ledger</p>' +
-      priorYearsToggleHtml(showPrior).replace(/View Prior Years/g, "View Additional Years").replace(/Hide Prior Years/g, "Hide Additional Years").replace('class="wc-fy-column-toggle-button"', 'class="wc-fy-column-toggle-button" data-wc-open-label="Hide Additional Years" data-wc-closed-label="View Additional Years"') +
+      "" +
       "</div>" +
       '<div class="wc-data-table-scroll">' +
       '<table class="wc-data-table">' +
@@ -8356,18 +8375,31 @@
       "</table>" +
       "</div>" +
       "</div>" +
-      renderTableFooterRow(allMatchingRows, null, "revenue", true) +
-      '<p class="wc-revenue-ledger-note">FY 2028 and FY 2029 are planning projections based on the assumptions used throughout this page.</p>' +
+      renderTableFooterRow(allMatchingRows, null, "revenue", false) +
+      "" +
       "</div>"
     );
   }
 
   function initConsolidatedRevenueSummaryPage() {
+    const bindRevenueClassificationToggles = (container) => {
+      bindPriorYearsToggle(container);
+      container.querySelectorAll("[data-revenue-classification-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const detail = document.getElementById(button.dataset.revenueClassificationToggle);
+          if (!detail) return;
+          const expanded = detail.hidden;
+          detail.hidden = !expanded;
+          button.setAttribute("aria-expanded", String(expanded));
+          button.classList.toggle("is-expanded", expanded);
+        });
+      });
+    };
     initConsolidatedFundTableContainer(
       "consolidated-revenue-summary-table",
       renderConsolidatedRevenueSummaryTable,
       "consolidated revenue summary",
-      bindPriorYearsToggle
+      bindRevenueClassificationToggles
     );
   }
 
@@ -10058,13 +10090,19 @@
           '<p>Tourist Development Tax is presented as entirely visitor-supported because it is collected on short-term lodging rather than residents&rsquo; regular property-tax bills. <a href="https://www.mywaltonfl.gov/162/Tourism-Department" target="_blank" rel="noopener noreferrer">Learn how the tax is collected</a>.</p></div>'
         : '';
       const accessBadgeHtml = topic.accessLabel
-        ? '<div class="wc-revenue-snapshot-access ' + (/restricted/i.test(topic.accessLabel) && !/^unrestricted$/i.test(topic.accessLabel) ? 'is-restricted' : 'is-unrestricted') + '">' + escapeHtml(topic.accessLabel) + '</div>'
+        ? (/interest and investment earnings/i.test(topic.title) && new Set(topicRows.map((row) => revenueRestrictionLabel(row.Revenue_Name))).size > 1
+          ? '<div class="wc-revenue-snapshot-access is-restricted">Restricted</div><span class="wc-revenue-badge-separator">/</span><div class="wc-revenue-snapshot-access is-unrestricted">Unrestricted</div>'
+          : '<div class="wc-revenue-snapshot-access ' + (/restricted/i.test(topic.accessLabel) && !/^unrestricted$/i.test(topic.accessLabel) ? 'is-restricted' : 'is-unrestricted') + '">' + escapeHtml(topic.accessLabel) + '</div>')
         : '';
       const recurrenceBadgeHtml = topic.recurrenceLabel
         ? '<div class="wc-revenue-recurrence-badge ' + (topic.recurrenceLabel === "Non-recurring" ? 'is-nonrecurring' : 'is-recurring') + '">' + escapeHtml(topic.recurrenceLabel) + '</div>'
         : '';
-      const topicBadgesHtml = accessBadgeHtml || recurrenceBadgeHtml
-        ? '<div class="wc-revenue-topic-badges">' + accessBadgeHtml + recurrenceBadgeHtml + '</div>'
+      const topicControl = revenueControlProfile(topic, topicRows[0] && topicRows[0].Revenue_Type);
+      const controlBadgeHtml = topicControl && topicControl.level
+        ? '<div class="wc-revenue-control-badge ' + escapeHtml(topicControl.className) + '">' + escapeHtml(topicControl.level.replace(/ local control$/i, " control")) + '</div>'
+        : '';
+      const topicBadgesHtml = accessBadgeHtml || recurrenceBadgeHtml || controlBadgeHtml
+        ? '<div class="wc-revenue-topic-badges">' + accessBadgeHtml + recurrenceBadgeHtml + controlBadgeHtml + '</div>'
         : '';
       const matchingTopicRows = topicRows;
       const topicType = matchingTopicRows.length ? matchingTopicRows[0].Revenue_Type : "";
@@ -10085,7 +10123,7 @@
       const controlProfile = revenueControlProfile(topic, topicType);
       const controlProfileHtml =
         '<div class="wc-revenue-control-profile">' +
-        '<div><strong>County ability to increase revenue</strong><span class="' + controlProfile.className + '">' + escapeHtml(controlProfile.level) + '</span></div>' +
+        '<div><strong>County ability to increase revenue</strong><span class="' + controlProfile.className + '">' + escapeHtml(controlProfile.level.replace(/ local control$/i, " control")) + '</span></div>' +
         '<p>' + escapeHtml(controlProfile.text) + '</p>' +
         '</div>';
       const chartCardHtml =
@@ -10468,6 +10506,27 @@
         return !/(balance brought forward|fund balance|cash balance|prior[- ]year balance|carryforward|carry forward)/i.test(name);
       });
       const sourceAnalysisTotal = sourceAnalysisRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0);
+      // The rows sourceAnalysisRows excludes above aren't collected revenue
+      // -- they're prior-year money the County already had that's being
+      // appropriated to balance FY2027 (see "why is all sources not
+      // $341,432,816" -- the Total revenue budget headline includes this,
+      // the source-card/browse-list analysis intentionally doesn't). Shown
+      // as one non-interactive row below so the browse list's total can
+      // still foot to the headline figure when no filters are applied.
+      const fundBalanceTotal = rows.reduce((sum, row) => {
+        const name = String(row.Revenue_Name || "").trim();
+        return /(balance brought forward|fund balance|cash balance|prior[- ]year balance|carryforward|carry forward)/i.test(name) ? sum + (row.FY2027_Proposed || 0) : sum;
+      }, 0);
+      // Several revenue codes (e.g. Ad Valorem Taxes 311000) repeat the
+      // full county-wide FY2026_Original_Budget figure on every
+      // Dept_Name/fund row instead of splitting it -- summing the raw
+      // column double- (or twenty-times-) counts it. sumRevenueRowsForField
+      // dedupes by revenueBudgetUniqueKey (Fund+Dept_Code+Revenue_Code+
+      // Project_Code) the same way the per-source cards below already do.
+      const priorTotal = sumRevenueRowsForField(rows, "FY2026_Original_Budget");
+      const sourceAnalysisPriorTotal = sumRevenueRowsForField(sourceAnalysisRows, "FY2026_Original_Budget");
+      const totalRevenueChange = total - priorTotal;
+      const totalRevenueChangePercent = priorTotal ? totalRevenueChange / Math.abs(priorTotal) * 100 : null;
       const revenueBySource = new Map();
       const revenueRowsBySource = new Map();
       sourceAnalysisRows.forEach((row) => {
@@ -10505,19 +10564,33 @@
       function revenueChangeHtml(currentAmount, priorAmount) {
         const change = currentAmount - priorAmount;
         const percent = priorAmount ? change / Math.abs(priorAmount) * 100 : null;
-        const amountText = (change >= 0 ? "+" : "−") + formatCurrency(Math.abs(change));
+        const amountText = (change >= 0 ? "+" : "−") + compactRevenueCurrency(Math.abs(change));
         const percentText = percent === null ? "No FY 2026 base" : ((percent >= 0 ? "+" : "") + percent.toFixed(1) + "%");
         return '<div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '"><span>Change from FY 2026</span><strong>' + escapeHtml(amountText) + '</strong><em>' + escapeHtml(percentText) + '</em></div>';
+      }
+      function compactRevenueCurrency(value) {
+        const amount = Math.abs(value || 0);
+        const sign = value < 0 ? "−" : "";
+        if (amount >= 1000000000) return sign + "$" + (amount / 1000000000).toFixed(amount >= 10000000000 ? 1 : 2).replace(/\.0+$/, "") + "B";
+        if (amount >= 1000000) return sign + "$" + (amount / 1000000).toFixed(amount >= 10000000 ? 1 : 2).replace(/\.0+$/, "") + "M";
+        if (amount >= 1000) return sign + "$" + Math.round(amount / 1000).toLocaleString("en-US") + "K";
+        return sign + formatCurrency(amount);
       }
       const largestSourceCardsHtml = fiveLargestSources.map((source, sourceIndex) => {
         const target = revenueSourceExplorerTarget(source);
         const isRestrictedTourism = /tourist development/i.test(source.name);
+        const recurrenceLabel = /^Interest and Investment Earnings$/i.test(source.name) ? "Non-recurring" : "Recurring";
         const sourceRows = revenueRowsBySource.get(source.name) || [];
+        const control = revenueControlProfile({ title: source.name }, sourceRows[0] && sourceRows[0].Revenue_Type);
+        const sourceRestrictionLabels = new Set(sourceRows.map((row) => revenueRestrictionLabel(row.Revenue_Name)));
+        const sourceAccessBadgeHtml = /interest and investment earnings/i.test(source.name) && sourceRestrictionLabels.size > 1
+          ? '<div class="wc-revenue-snapshot-access is-restricted">Restricted</div><span class="wc-revenue-badge-separator">/</span><div class="wc-revenue-snapshot-access is-unrestricted">Unrestricted</div>'
+          : '<div class="wc-revenue-snapshot-access ' + (isRestrictedTourism ? "is-restricted" : "is-unrestricted") + '">' + (isRestrictedTourism ? "State Restricted" : "Unrestricted") + '</div>';
         const priorAmount = /^(?:ad valorem|property) taxes$/i.test(source.name)
           ? source.amount
           : sumRevenueRowsForField(sourceRows, "FY2026_Original_Budget");
         const tag = target ? "button" : "article";
-        return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><span class="wc-department-card-rank">' + (sourceIndex + 1) + '</span><strong>' + escapeHtml(source.name) + '</strong><div class="wc-revenue-snapshot-access ' + (isRestrictedTourism ? "is-restricted" : "is-unrestricted") + '">' + (isRestrictedTourism ? "State Restricted" : "Unrestricted") + '</div><div class="wc-revenue-share"><b>' + (source.share * 100).toFixed(1) + '%</b><small>of total budget</small></div><small>' + escapeHtml(formatCurrency(source.amount)) + '</small>' + revenueChangeHtml(source.amount, priorAmount) + (target ? '<em>Explore source →</em>' : "") + '</' + tag + '>';
+        return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(source.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(source.amount)) + '</b><small class="wc-revenue-card-share">' + (source.share * 100).toFixed(1) + '% of total budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-department-card-rank">' + (sourceIndex + 1) + '</span><div class="wc-revenue-card-badges"><div class="wc-revenue-snapshot-access ' + (isRestrictedTourism ? "is-restricted" : "is-unrestricted") + '">' + (isRestrictedTourism ? "State Restricted" : "Unrestricted") + '</div><div class="wc-revenue-recurrence-badge ' + (recurrenceLabel === "Non-recurring" ? "is-nonrecurring" : "is-recurring") + '">' + recurrenceLabel + '</div><div class="wc-revenue-control-badge ' + escapeHtml(control.className) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</div></div></div></div>' + revenueChangeHtml(source.amount, priorAmount) + '</' + tag + '>';
       }).join("");
       const otherSourceRows = sourceAnalysisRows.filter((row) => !fiveLargestNames.has((() => {
         let name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
@@ -10529,50 +10602,54 @@
         return name;
       })()));
       const otherPriorAmount = sumRevenueRowsForField(otherSourceRows, "FY2026_Original_Budget");
+      const otherRevenueByRestriction = (restriction) => otherSourceRows.filter((row) => {
+        const name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
+        return revenueRestrictionLabel(name) === restriction;
+      });
+      const otherRestrictedRows = otherRevenueByRestriction("Restricted");
+      const otherUnrestrictedRows = otherRevenueByRestriction("Unrestricted");
+      const otherRestrictedAmount = sumRevenueRowsForField(otherRestrictedRows, "FY2027_Proposed");
+      const otherUnrestrictedAmount = sumRevenueRowsForField(otherUnrestrictedRows, "FY2027_Proposed");
+      const otherRestrictedPriorAmount = sumRevenueRowsForField(otherRestrictedRows, "FY2026_Original_Budget");
+      const otherUnrestrictedPriorAmount = sumRevenueRowsForField(otherUnrestrictedRows, "FY2026_Original_Budget");
+      const otherRevenueHalfHtml = (amount, priorAmount, restrictionClass) => '<div class="wc-revenue-other-half"><div class="wc-revenue-card-badges"><div class="wc-revenue-snapshot-access ' + restrictionClass + '">' + (restrictionClass === "is-restricted" ? "Restricted" : "Unrestricted") + '</div></div><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(amount)) + '</b><small class="wc-revenue-card-share">' + (sourceAnalysisTotal ? (amount / sourceAnalysisTotal * 100).toFixed(1) : "0.0") + '% of total budget</small>' + revenueChangeHtml(amount, priorAmount) + '</div>';
       const browseRevenueRowsHtml = rankedSources.map((source) => {
         const sourceRows = revenueRowsBySource.get(source.name) || [];
         const restriction = revenueRestrictionLabel(source.name);
         const control = revenueControlProfile({ title: source.name }, sourceRows[0] && sourceRows[0].Revenue_Type);
         const controlKey = control.className.replace(/^is-/, "");
+        const sharePct = (source.share * 100).toFixed(1);
         return '<button type="button" class="wc-revenue-browse-row" data-revenue-explorer-target="' + escapeHtml(revenueSourceExplorerTarget(source)) + '" data-restriction="' + restriction.toLowerCase() + '" data-control="' + escapeHtml(controlKey) + '" data-name="' + escapeHtml(source.name.toLowerCase()) + '" data-amount="' + source.amount + '">' +
-          '<span><strong>' + escapeHtml(source.name) + '</strong><small>' + escapeHtml(formatCurrency(source.amount)) + ' · ' + (source.share * 100).toFixed(1) + '% of total</small></span>' +
+          '<span><strong>' + escapeHtml(source.name) + '</strong><small>' + escapeHtml(formatCurrency(source.amount)) + (sharePct === "0.0" ? "" : ' · ' + sharePct + '% of total') + '</small></span>' +
           '<em class="' + (restriction === "Restricted" ? 'is-restricted' : 'is-unrestricted') + '">' + restriction + '</em>' +
-          '<em class="' + escapeHtml(control.className) + '">' + escapeHtml(control.level) + '</em><b aria-hidden="true">→</b></button>';
+          '<em class="' + escapeHtml(control.className) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</em><b aria-hidden="true">→</b></button>';
       }).join("");
+      // Not clickable (there's no source detail page for it) and its
+      // sentinel restriction/control values never match a specific filter
+      // option, so it only shows under "All sources" + "All levels" --
+      // exactly when the visible total should foot to the $341.4M
+      // headline instead of the $332.2M revenue-only figure.
+      const fundBalanceRowHtml = fundBalanceTotal > 0
+        ? '<div class="wc-revenue-browse-row is-static" data-restriction="fund-balance" data-control="fund-balance" data-name="nonoperating balance brought forward" data-amount="' + fundBalanceTotal + '">' +
+          '<span><strong>Nonoperating Balance Brought Forward</strong><small>' + escapeHtml(formatCurrency(fundBalanceTotal)) + ' · Beginning fund balance, not new revenue</small></span>' +
+          '<em class="is-low">Fund balance</em><em></em></div>'
+        : "";
       const browseRevenueHtml = '<details class="wc-revenue-browse"><summary>Sort or filter all revenue sources</summary>' +
         '<div class="wc-revenue-browse-controls"><label>Restriction<select data-revenue-filter="restriction"><option value="all">All sources</option><option value="unrestricted">Unrestricted</option><option value="restricted">Restricted</option></select></label>' +
         '<label>Local control<select data-revenue-filter="control"><option value="all">All levels</option><option value="moderate">Moderate</option><option value="limited">Limited</option><option value="low">Low</option></select></label>' +
         '<label>Sort by<select data-revenue-sort><option value="amount-desc">Largest amount</option><option value="amount-asc">Smallest amount</option><option value="name">Revenue name</option></select></label></div>' +
-        '<p class="wc-revenue-browse-count" aria-live="polite"></p><div class="wc-revenue-browse-results">' + browseRevenueRowsHtml + '</div></details>';
+        '<p class="wc-revenue-browse-count" aria-live="polite"></p><div class="wc-revenue-browse-results">' + browseRevenueRowsHtml + fundBalanceRowHtml + '</div></details>';
       const concentrationHtml = '<section class="wc-revenue-concentration" aria-labelledby="revenue-explorer-title">' +
-        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Explorer</h3><p>Walton County&rsquo;s revenue structure is comprised of a diverse range of funding sources that support public services, infrastructure, public safety, and long-term capital investment. The following section provides an overview of the County&rsquo;s primary revenue classifications and the major funding sources within each category.</p><p>Revenue projections are developed using a combination of historical trend analysis, economic forecasting, state-shared revenue estimates, and information provided by the Florida Office of Economic and Demographic Research. Additional consideration is given to local development activity, tourism trends, fuel consumption patterns, and broader economic conditions that may impact County revenues.</p><p>Together, these revenue sources form the financial foundation that supports County operations and strategic priorities. This analysis provides a summary of the County&rsquo;s fiscal structure while illustrating the diversity and stability of revenues used to fund services for residents and visitors throughout Walton County.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(formatCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(formatCurrency(locallySupportedRevenue)) + '</b></div></div><div class="wc-revenue-total-primary"><span>FY 2027 proposed revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><div class="wc-revenue-view-actions"><button type="button" class="wc-revenue-ledger-trigger" aria-controls="revenue-ledger" aria-expanded="false">View Revenue Ledger</button><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
+        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>Walton County&rsquo;s revenue structure is comprised of a diverse range of funding sources that support public services, infrastructure, public safety, and long-term capital investment. The following section provides an overview of the County&rsquo;s primary revenue classifications and the major funding sources within each category.</p><p>Revenue projections are developed using a combination of historical trend analysis, economic forecasting, state-shared revenue estimates, and information provided by the Florida Office of Economic and Demographic Research. Additional consideration is given to local development activity, tourism trends, fuel consumption patterns, and broader economic conditions that may impact County revenues.</p><p>Together, these revenue sources form the financial foundation that supports County operations and strategic priorities. This analysis provides a summary of the County&rsquo;s fiscal structure while illustrating the diversity and stability of revenues used to fund services for residents and visitors throughout Walton County.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(compactRevenueCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(compactRevenueCurrency(locallySupportedRevenue)) + '</b></div></div><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No FY 2026 base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><button type="button" class="wc-revenue-ledger-trigger" aria-controls="revenue-ledger" aria-expanded="false">View Revenue Ledger</button><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
         '<div class="wc-revenue-snapshot">' +
           largestSourceCardsHtml +
-          '<button type="button" data-revenue-explorer-target="all-other-revenue"><span>Remaining revenue sources</span><strong>All Other Revenue</strong><div class="wc-revenue-share"><b>' + (otherCurrentShare * 100).toFixed(1) + '%</b><small>of total budget</small></div><small>' + escapeHtml(formatCurrency(otherCurrentRevenue)) + ' across all remaining current sources</small>' + revenueChangeHtml(otherCurrentRevenue, otherPriorAmount) + '<em>Explore other revenue →</em></button>' +
+          '<button type="button" class="wc-revenue-other-card" data-revenue-explorer-target="all-other-revenue"><strong class="wc-revenue-other-title">All Other Revenue</strong><div class="wc-revenue-other-split">' +
+          otherRevenueHalfHtml(otherRestrictedAmount, otherRestrictedPriorAmount, "is-restricted") +
+          otherRevenueHalfHtml(otherUnrestrictedAmount, otherUnrestrictedPriorAmount, "is-unrestricted") +
+          '</div></button>' +
         '</div>' +
         browseRevenueHtml +
         '</section>';
-      const guideChecklist = [
-        ["mix", "Revenue mix", "Identify recurring and one-time revenue."],
-        ["sources", "Revenue mix", "Identify major and minor sources and concentration risk."],
-        ["restriction", "Revenue mix", "Identify revenue dedicated or restricted to specific purposes."],
-        ["trend", "Forecast", "Explain prior-year changes and short-term trends."],
-        ["forecast", "Forecast", "Document forecasting assumptions and uncertainty."],
-        ["policy", "County control", "Explain policy, rate, or fee changes affecting collections."],
-        ["control", "County control", "Describe revenue options and authority to adjust rates or fees."],
-        ["recovery", "County control", "Evaluate service cost recovery and reimbursement targets."],
-        ["peer", "Community context", "Compare revenue with similar Florida counties."],
-        ["visitor", "Community context", "Estimate revenue collected from visitors and non-residents."],
-        ["sector", "Community context", "Describe the residential and commercial tax burden."],
-        ["foregone", "Community context", "Estimate revenue foregone through exemptions and discounts."]
-      ];
-      const checklistHtml = '<section class="wc-revenue-guide-checklist" aria-labelledby="revenue-guide-title">' +
-        '<div class="wc-revenue-guide-head"><div><strong id="revenue-guide-title">Revenue page build status</strong><p>Tracks which questions the Revenue Explorer answers and highlights the remaining analysis.</p></div><span data-revenue-guide-progress>0 of ' + guideChecklist.length + ' complete</span></div>' +
-        '<div class="wc-revenue-guide-progress-track" aria-hidden="true"><i data-revenue-guide-progress-bar></i></div>' +
-        '<div class="wc-revenue-guide-grid">' + guideChecklist.map((item) =>
-          '<label><input type="checkbox" data-revenue-guide-item="' + item[0] + '"><span><small>' + escapeHtml(item[1]) + '</small><b>' + escapeHtml(item[2]) + '</b></span><em data-revenue-guide-state>Next</em></label>'
-        ).join("") + '</div></section>';
-      container.innerHTML = '<div class="wc-revenue-question-heading"><span>Revenue plan build progress</span><h2>Understand the revenue plan</h2></div>' + checklistHtml;
       const concentrationContainer = document.getElementById("revenue-source-concentration");
       if (concentrationContainer) concentrationContainer.innerHTML = concentrationHtml;
       if (concentrationContainer) {
@@ -10591,14 +10668,18 @@
               return sortControl.value === "amount-asc" ? difference : -difference;
             }).forEach((row) => results.appendChild(row));
             let visible = 0;
+            let visibleTotal = 0;
             rows.forEach((row) => {
               const showRestriction = restrictionFilter.value === "all" || row.dataset.restriction === restrictionFilter.value;
               const showControl = controlFilter.value === "all" || row.dataset.control === controlFilter.value;
               row.hidden = !(showRestriction && showControl);
               row.style.display = row.hidden ? "none" : "";
-              if (!row.hidden) visible += 1;
+              if (!row.hidden) {
+                visible += 1;
+                visibleTotal += Number(row.dataset.amount) || 0;
+              }
             });
-            count.textContent = visible + (visible === 1 ? " revenue source" : " revenue sources");
+            count.textContent = visible + (visible === 1 ? " revenue source" : " revenue sources") + " · " + formatCurrency(visibleTotal) + " total";
           };
           [restrictionFilter, controlFilter, sortControl].forEach((control) => control.addEventListener("change", applyRevenueBrowse));
           applyRevenueBrowse();
@@ -10676,35 +10757,6 @@
         if (peerTrigger) peerTrigger.setAttribute("aria-expanded", "false");
         if (concentrationContainer) concentrationContainer.scrollIntoView({ behavior: "smooth", block: "start" });
       });
-
-      const checklistKey = "wc-revenue-analysis-checklist-v3";
-      const completedChecklistItems = new Set(["mix", "trend", "peer", "sources", "forecast", "policy", "control", "restriction", "visitor", "sector"]);
-      let savedChecklist = {};
-      try { savedChecklist = JSON.parse(window.localStorage.getItem(checklistKey) || "{}"); } catch (error) { savedChecklist = {}; }
-      const checklistInputs = Array.from(container.querySelectorAll("[data-revenue-guide-item]"));
-      const progress = container.querySelector("[data-revenue-guide-progress]");
-      const progressBar = container.querySelector("[data-revenue-guide-progress-bar]");
-      function updateGuideProgress() {
-        const completed = checklistInputs.filter((input) => input.checked).length;
-        if (progress) progress.textContent = completed + " of " + checklistInputs.length + " complete";
-        if (progressBar) progressBar.style.width = ((completed / checklistInputs.length) * 100).toFixed(1) + "%";
-        checklistInputs.forEach((input) => {
-          const label = input.closest("label");
-          const state = label && label.querySelector("[data-revenue-guide-state]");
-          if (label) label.classList.toggle("is-complete", input.checked);
-          if (state) state.textContent = input.checked ? "Complete" : "Next";
-        });
-      }
-      checklistInputs.forEach((input) => {
-        if (savedChecklist[input.dataset.revenueGuideItem] === undefined && completedChecklistItems.has(input.dataset.revenueGuideItem)) savedChecklist[input.dataset.revenueGuideItem] = true;
-        input.checked = savedChecklist[input.dataset.revenueGuideItem] === true;
-        input.addEventListener("change", () => {
-          savedChecklist[input.dataset.revenueGuideItem] = input.checked;
-          try { window.localStorage.setItem(checklistKey, JSON.stringify(savedChecklist)); } catch (error) { /* storage may be unavailable */ }
-          updateGuideProgress();
-        });
-      });
-      updateGuideProgress();
     }).catch(() => {
       container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
     });
@@ -13310,7 +13362,7 @@
         });
         return Array.from(counts.entries())
           .filter(([, net]) => net !== 0)
-          .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]) || a[0].localeCompare(b[0]));
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
       })();
 
       // COLA and Health Insurance Increase, the two named drivers this site
@@ -13330,55 +13382,6 @@
       const activeEmployeeHealthInsurance = Math.max(0, totalHealthInsurance - retireeHealthInsuranceSubsidy);
       const healthInsuranceIncrease = activeEmployeeHealthInsurance * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
 
-      const checklist = [
-        ["total", "Workforce size", "Show total budgeted staff/FTE."],
-        ["employment", "Workforce size", "Separate full-time and part-time headcount."],
-        ["department", "Workforce size", "Show staff in each department."],
-        ["function", "Workforce size", "Organize staff by program or function."],
-        ["optimal", "Workforce planning", "Explain how optimal staffing is determined."],
-        ["cost", "Year-over-year change", "Explain the change in all personnel costs."],
-        ["staffchange", "Year-over-year change", "Show the overall staffing increase or decrease."],
-        ["turnover", "Year-over-year change", "Report overall, trend, and key-position turnover."],
-        ["hiring", "Workforce planning", "Identify expected hires and vacancies to fill."],
-        ["where", "Staffing changes", "Identify positions and functions with major changes."],
-        ["salary", "Cost drivers", "Explain salary changes planned for FY 2027."],
-        ["benefits", "Cost drivers", "Explain benefit and retirement cost changes."],
-        ["premium", "Cost drivers", "Assess overtime, shift premium, and other premium pay."],
-        ["industry", "Cost drivers", "Compare cost growth with industry trends and responses."]
-      ];
-      const completed = new Set(["total", "employment", "department", "function", "cost", "staffchange", "where", "salary", "benefits"]);
-      container.innerHTML = '<div class="wc-revenue-question-heading"><span>Personnel plan build progress</span><h2>Understand the personnel plan</h2></div>' +
-        '<section class="wc-revenue-guide-checklist" aria-labelledby="personnel-guide-title"><div class="wc-revenue-guide-head"><div><strong id="personnel-guide-title">Personnel page build status</strong><p>Tracks the workforce and personnel-cost questions addressed by this page.</p></div><span data-personnel-guide-progress>0 of ' + checklist.length + ' complete</span></div><div class="wc-revenue-guide-progress-track" aria-hidden="true"><i data-personnel-guide-progress-bar></i></div><div class="wc-revenue-guide-grid">' +
-        checklist.map((item) => '<label><input type="checkbox" data-personnel-guide-item="' + item[0] + '"><span><small>' + escapeHtml(item[1]) + '</small><b>' + escapeHtml(item[2]) + '</b></span><em data-personnel-guide-state>Next</em></label>').join("") +
-        '</div></section>';
-
-      const checklistKey = "wc-personnel-analysis-checklist-v1";
-      let saved = {};
-      try { saved = JSON.parse(window.localStorage.getItem(checklistKey) || "{}"); } catch (error) { saved = {}; }
-      const checklistInputs = Array.from(container.querySelectorAll("[data-personnel-guide-item]"));
-      const checklistProgress = container.querySelector("[data-personnel-guide-progress]");
-      const checklistBar = container.querySelector("[data-personnel-guide-progress-bar]");
-      function updatePersonnelChecklist() {
-        const done = checklistInputs.filter((input) => input.checked).length;
-        if (checklistProgress) checklistProgress.textContent = done + " of " + checklistInputs.length + " complete";
-        if (checklistBar) checklistBar.style.width = ((done / checklistInputs.length) * 100).toFixed(1) + "%";
-        checklistInputs.forEach((input) => {
-          const label = input.closest("label");
-          const state = label && label.querySelector("[data-personnel-guide-state]");
-          if (label) label.classList.toggle("is-complete", input.checked);
-          if (state) state.textContent = input.checked ? "Complete" : "Next";
-        });
-      }
-      checklistInputs.forEach((input) => {
-        if (saved[input.dataset.personnelGuideItem] === undefined && completed.has(input.dataset.personnelGuideItem)) saved[input.dataset.personnelGuideItem] = true;
-        input.checked = saved[input.dataset.personnelGuideItem] === true;
-        input.addEventListener("change", () => {
-          saved[input.dataset.personnelGuideItem] = input.checked;
-          try { window.localStorage.setItem(checklistKey, JSON.stringify(saved)); } catch (error) { /* storage may be unavailable */ }
-          updatePersonnelChecklist();
-        });
-      });
-      updatePersonnelChecklist();
 
       const fteByDept = new Map();
       const fteByFunction = new Map();
@@ -13407,18 +13410,18 @@
           return '<button type="button"' + (item[0] === "All Other Departments" ? ' data-personnel-view="board"' : ' data-personnel-dept="' + escapeHtml(item[0]) + '"') + '>' + (index < 5 ? '<span class="wc-department-card-rank">' + (index + 1) + '</span>' : '<span>Remaining departments</span>') + '<strong>' + escapeHtml(item[0]) + '</strong><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b><small>' + (item[0] === "All Other Departments" ? "Combined staffing" : (delta === 0 ? "No change from FY 2026" : (delta > 0 ? "+" : "") + formatNumber(delta) + " FTE from FY 2026")) + '</small><em>Explore staffing →</em></button>';
         }).join("");
       const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
-        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Explorer</h2><p>Personnel is the County&rsquo;s largest budgeted cost. The Personnel Budget presents Full-Time Equivalent (FTE) position counts and budgeted personnel costs together so users can review workforce levels and costs for each department side by side.</p><p>FTE counts both full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is split into Salaries &amp; Wages (regular salaries, other salaries, and overtime), Retirement, Health Insurance, and Other Benefits &amp; Taxes (FICA/Medicare, workers&rsquo; compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff&rsquo;s Office.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(formatCurrency(boardDepartmentPersonnelCost)) + '</b></div><div><span>Constitutional Officers</span><b>' + escapeHtml(formatCurrency(constitutionalPersonnelCost)) + '</b></div></div><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(formatCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
-          '<div class="wc-personnel-explorer-metrics"><article><span>Total budgeted workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change" : (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article><span>Functional area staff changes</span><strong>' + areaNetCounts.length + '</strong><small>' + increases.length + ' increasing · ' + decreases.length + ' reducing</small></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
+        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Explorer</h2><p>Personnel is the County&rsquo;s largest budgeted cost. The Personnel Budget presents Full-Time Equivalent (FTE) position counts and budgeted personnel costs together so users can review workforce levels and costs for each department side by side.</p><p>FTE counts both full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is split into Salaries &amp; Wages (regular salaries, other salaries, and overtime), Retirement, Health Insurance, and Other Benefits &amp; Taxes (FICA/Medicare, workers&rsquo; compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff&rsquo;s Office.</p><p>No countywide salary schedule changes are planned during the budget period. The only changes employees will see during the year are merit increases, awarded as determined by a director and in coordination with Human Resources and Administration. Premium salary costs (overtime and weekend pay) are not expected to increase.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(formatCurrency(boardDepartmentPersonnelCost)) + '</b></div><div><span>Constitutional Officers</span><b>' + escapeHtml(formatCurrency(constitutionalPersonnelCost)) + '</b></div></div><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(formatCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
+          '<div class="wc-personnel-explorer-metrics"><article><span>Total Budgeted Workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change from FY 2026" : "FY 2027 " + (fteChange > 0 ? "increase" : "decrease") + ": " + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article><span>Functional Area Staff Changes</span><strong>' + areaNetCounts.length + ' functional area' + (areaNetCounts.length === 1 ? "" : "s") + ' affected</strong><small>' + increases.length + ' increasing · ' + decreases.length + ' reducing</small></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
           '<div class="wc-personnel-explorer-grid"><div><h3>Largest staffing departments</h3><div class="wc-personnel-dept-cards">' + deptCards + '</div></div><div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff organized by functional area?</h3><div class="wc-personnel-profile-card"><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div><p>Functional areas follow the County activity classifications used throughout the budget.</p></div></section></div></div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
         if (personnelKicker && personnelKicker.textContent.trim() === 'FY 2027 workforce and cost') personnelKicker.remove();
-        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Functional area staff changes');
+        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Functional Area Staff Changes');
         if (staffChangeCard) {
           const note = staffChangeCard.querySelector('small');
           if (note) {
             note.innerHTML = areaNetCounts.length
               ? '<span class="wc-personnel-net-change-pills">' + areaNetCounts.map(([area, net]) =>
-                  '<span data-personnel-net-function="' + escapeHtml(area) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(area) + '</span>'
+                  '<span class="' + (net > 0 ? "is-increase" : "is-decrease") + '" data-personnel-net-function="' + escapeHtml(area) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(area === "Court Related Cost" ? "Court-Related Costs" : area) + '</span>'
                 ).join('') + '</span>'
               : 'No net change by function';
           }
@@ -13438,12 +13441,16 @@
         const costDriversCard = metricCards[2];
         if (costDriversCard) {
           const retirementChangeAmount = retirementTotal - retirementPriorTotal;
-          costDriversCard.innerHTML = '<span>Personnel cost drivers</span><div class="wc-personnel-driver-row"><strong>3% COLA</strong><small>About ' + formatCurrency(totalCola) + ' within Board department salaries and wages</small></div><div class="wc-personnel-driver-row"><strong>5% Health Insurance</strong><small>About ' + formatCurrency(healthInsuranceIncrease) + ' within Board department health insurance</small></div><div class="wc-personnel-driver-row"><strong>' + Math.abs(retirementChangePct).toFixed(1) + '% FRS Retirement</strong><small>About ' + formatCurrency(Math.abs(retirementChangeAmount)) + ' ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ' in Board department retirement costs</small></div>';
+          const formatDriverAmount = (value) => {
+            const abs = Math.abs(value);
+            return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
+          };
+          costDriversCard.innerHTML = '<span>Personnel Cost Drivers</span><div class="wc-personnel-driver-row"><strong>3% COLA</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(totalCola) + ' estimated salary and wage impact</small></div><div class="wc-personnel-driver-row"><strong>5% Health Insurance</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(healthInsuranceIncrease) + ' estimated health insurance impact</small></div><div class="wc-personnel-driver-row"><strong>' + Math.abs(retirementChangePct).toFixed(1) + '% FRS Retirement</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(Math.abs(retirementChangeAmount)) + ' estimated ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ' in retirement costs</small></div>';
         }
         const turnoverCard = metricCards[3];
         if (turnoverCard) {
-          turnoverCard.innerHTML = '<span>FY 2026 turnover</span><strong>11.40%</strong><small>89 separations / 781 average workforce</small><div class="wc-personnel-driver-row"><strong>8.2% average</strong><small>State &amp; local government annual voluntary turnover</small></div><div class="wc-personnel-driver-row"><strong>125–130 expected hires <span class="wc-personnel-cost-help-badge" tabindex="0" aria-label="Expected hiring estimate details">?</span></strong><small>FY 2026 replacement estimate</small></div><div class="wc-personnel-driver-row"><strong>FY 2027 outlook</strong><small>Turnover is expected to remain near FY 2026</small></div>';
-          const hiringBadge = turnoverCard.querySelector('.wc-personnel-cost-help-badge');
+          turnoverCard.innerHTML = '<span>Workforce Turnover & Hiring Outlook</span><strong>11.4%</strong><small>FY 2026 board department turnover</small><div class="wc-personnel-driver-row"><strong>8.2% benchmark</strong><small>State and local government voluntary turnover</small></div><div class="wc-personnel-driver-row"><strong>125–130 projected replacement hires <span class="wc-personnel-info-badge" tabindex="0" aria-label="Hiring estimate methodology">i</span></strong><small>Estimated FY 2026 hiring need</small></div><div class="wc-personnel-driver-row"><strong>FY 2027 outlook</strong><small>Turnover expected to remain near 11%.</small></div>';
+          const hiringBadge = turnoverCard.querySelector('.wc-personnel-info-badge');
           if (hiringBadge) {
             const floatingHelp = document.createElement('div');
             floatingHelp.className = 'wc-personnel-floating-help';

@@ -1069,6 +1069,14 @@
     background:rgba(255,255,255,.14) !important;
     color:#d1be78 !important;
   }
+  nav#nav-menu .wc-nav-budget-dropdown{position:relative !important;}
+  nav#nav-menu .wc-nav-budget-dropdown summary{display:inline-flex !important;align-items:center !important;min-height:38px !important;padding:0 12px !important;border-radius:999px !important;color:rgba(255,255,255,.92) !important;cursor:pointer !important;font-size:14px !important;font-weight:700 !important;list-style:none !important;white-space:nowrap !important;}
+  nav#nav-menu .wc-nav-budget-dropdown summary::-webkit-details-marker{display:none !important;}
+  nav#nav-menu .wc-nav-budget-dropdown summary::after{content:"▾" !important;margin-left:7px !important;font-size:11px !important;}
+  nav#nav-menu .wc-nav-budget-dropdown[open] summary,nav#nav-menu .wc-nav-budget-dropdown summary:hover{background:rgba(255,255,255,.14) !important;color:#d1be78 !important;}
+  nav#nav-menu .wc-nav-budget-menu{position:absolute !important;top:44px !important;right:0 !important;z-index:20 !important;display:grid !important;min-width:220px !important;padding:8px !important;border:1px solid rgba(209,190,120,.38) !important;border-radius:14px !important;background:#fff !important;box-shadow:0 16px 34px rgba(36,52,77,.14) !important;}
+  nav#nav-menu .wc-nav-budget-menu a{justify-content:flex-start !important;color:#20324d !important;border-radius:9px !important;}
+  nav#nav-menu .wc-nav-budget-menu a:hover{background:#eef7f1 !important;color:#006231 !important;}
   nav#nav-menu .wc-nav-links-search{
     display:none !important;
   }
@@ -1161,6 +1169,10 @@
       border-radius:12px !important;
       background:rgba(255,255,255,.12) !important;
     }
+    nav#nav-menu .wc-nav-budget-dropdown{width:100% !important;}
+    nav#nav-menu .wc-nav-budget-dropdown summary{justify-content:flex-start !important;width:100% !important;border-radius:12px !important;background:rgba(255,255,255,.12) !important;box-sizing:border-box !important;}
+    nav#nav-menu .wc-nav-budget-menu{position:static !important;min-width:0 !important;margin:4px 0 0 12px !important;padding:4px !important;border:0 !important;border-left:1px solid rgba(255,255,255,.28) !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;}
+    nav#nav-menu .wc-nav-budget-menu a{background:rgba(255,255,255,.08) !important;color:rgba(255,255,255,.92) !important;}
     nav#nav-menu .wc-nav-links-search{
       order:-1 !important;
       display:inline-flex !important;
@@ -2018,11 +2030,13 @@
   loadWaltonMobileStylesheet();
   var WC_NAV_LINKS = [
     { label:"Our County", href:"our-county.html" },
-    { label:"Budget Overview", href:"budget-overview.html" },
+    { label:"Budget Overview", href:"budget-overview.html" }
+  ];
+  var WC_BUDGET_LINKS = [
     { label:"Revenue Budget", href:"summary-of-revenues.html" },
     { label:"Personnel Budget", href:"summary-of-personnel.html" },
     { label:"Department Budgets", href:"department-budget.html" },
-    { label:"Officers & Agencies", href:"constitutional-officers.html" },
+    { label:"Officers & Agencies Budgets", href:"constitutional-officers.html" },
     { label:"Capital Budget", href:"capital-projects.html" }
   ];
   function ensureWcNavChrome(){
@@ -2058,7 +2072,10 @@
         '</button>' +
         WC_NAV_LINKS.map(function(link){
           return '<a href="' + link.href + '">' + link.label + '</a>';
-        }).join("");
+        }).join("") +
+        '<details class="wc-nav-budget-dropdown"><summary>Budgets</summary><div class="wc-nav-budget-menu">' + WC_BUDGET_LINKS.map(function(link){
+          return '<a href="' + link.href + '">' + link.label + '</a>';
+        }).join("") + '</div></details>';
       nav.appendChild(linksWrap);
     }
     if(!nav.querySelector(".wc-nav-actions")){

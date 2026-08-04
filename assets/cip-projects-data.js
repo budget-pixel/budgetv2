@@ -108,11 +108,21 @@
   function historicalCipProjects() {
     const source = Array.isArray(window.wcHistoricalCipProjects) ? window.wcHistoricalCipProjects : [];
     return source.map((entry, index) => {
+      // noBudgetYears: County Engineering's FY25/FY26 project notes list a
+      // phase/status for these but never a dollar figure -- included as an
+      // explicit $0 entry (rather than skipped like a normal falsy fy2025/
+      // fy2026) so the row still appears under that year instead of
+      // vanishing, without fabricating a budget number.
+      const noBudgetYears = new Set(entry.noBudgetYears || []);
       const fundingByYear = [];
       if (entry.fy2025) fundingByYear.push({ year: "FY2025", amount_value: entry.fy2025, amount: formatMoney(entry.fy2025) });
+      else if (noBudgetYears.has("FY2025")) fundingByYear.push({ year: "FY2025", amount_value: 0, amount: "No amount recorded" });
       if (entry.fy2026) fundingByYear.push({ year: "FY2026", amount_value: entry.fy2026, amount: formatMoney(entry.fy2026) });
+      else if (noBudgetYears.has("FY2026")) fundingByYear.push({ year: "FY2026", amount_value: 0, amount: "No amount recorded" });
       const total = (entry.fy2025 || 0) + (entry.fy2026 || 0);
       const isSheriff = /sheriff/i.test(entry.category || "");
+      const statusText = entry.status || "Completed";
+      const baseDescription = "Historical capital project from the County's FY2025-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.";
       return {
         title: entry.name,
         slug: "historical-" + slugify(entry.name || "project-" + index),
@@ -124,7 +134,7 @@
         priority: "None",
         strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
         category: entry.category || "Capital Project", category_label: entry.category || "Capital Project",
-        description: "Historical capital project from the County's FY2025-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.",
+        description: entry.statusNote ? baseDescription + " Status: " + entry.statusNote : baseDescription,
         budget: formatMoney(total), budget_value: 0,
         funding_by_year: fundingByYear,
         funding: entry.category || "",
@@ -132,7 +142,9 @@
         image_url: "",
         district: "Not specified",
         target: fundingByYear.map((f) => f.year).join(", "), target_years: fundingByYear.map((f) => f.year),
-        status_text: "Completed", status_class: "wc-status-complete",
+        status_text: statusText, status_class: getStatusClass(statusText),
+        status_note: entry.statusNote || "",
+        eng_color: entry.eng_color || "",
         budget_org_code: "", budget_account_code: "", budget_account_name: "",
         is_legacy_in_house_engineering_row: false,
         has_in_house_engineering: false,

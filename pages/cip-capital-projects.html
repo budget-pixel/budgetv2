@@ -18,23 +18,28 @@
 <div class="page-eyebrow">Capital Improvement Plan</div>
 <h1 class="page-title">Transportation and Infrastructure Ledger</h1>
 
-<section class="statement-of-function content-section">
-  <p>This combined schedule brings together infrastructure funded through the Transportation Fund, Capital Projects Fund, and applicable state or federal grants. The Fund column identifies the funding source supporting each project.</p>
+<section id="infrastructureIntro" class="statement-of-function content-section">
+  <p>This combined schedule brings together infrastructure funded through the Transportation Fund, Capital Projects Fund, and applicable state or federal grants. The Fund column on the FY2027-FY2031 ledger identifies the funding source supporting each project.</p>
   <p>The Transportation Fund supports roads and related infrastructure through fuel taxes, state revenue sharing, interfund transfers, and grants. The Capital Projects Fund accounts for resources dedicated to major facilities and infrastructure, including transfers from the General Fund.</p>
 </section>
 
 <div id="infrastructureTables"></div>
 
-<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
-<script src="../assets/cip-fund-schedule.js?v=20260802-ledger-rename"></script>
+<script src="../assets/cip-fy2025-2026-supplement.js?v=20260803-transportation-historical"></script>
+<script src="../assets/cip-projects-data.js?v=20260803-transportation-historical"></script>
+<script src="../assets/cip-fund-schedule.js?v=20260803-transportation-historical"></script>
 <script>
   renderFundSchedule({
     mountId:"infrastructureTables",
     label:"Transportation and Infrastructure",
     showFundingColumn:true,
+    showStatusColumn:true,
+    splitGrantFunded:true,
+    splitRedNoAmount:true,
     projectFilter:function(project){
       var funding = String(project && project.funding || "").toLowerCase();
       return funding === "transportation fund" || funding === "capital projects fund" ||
+        funding === "transportation & public works" ||
         (funding === "grant funded" && String(project && project.department_filter || "").toLowerCase() !== "sheriff");
     }
   });

@@ -1148,6 +1148,17 @@ var PRINT_CSS = `
     display:none !important;
   }
 
+  /* Transportation and Infrastructure Ledger's intro blurb stays visible
+     on-screen for every year, but is dropped from print entirely -- the
+     printed page only shows whichever single fiscal year's table is
+     currently active (see the .wc-cip-schedule-controls rule above), so
+     this general "Fund column identifies the funding source..." blurb
+     doesn't fit cleanly above a historical FY2025/FY2026 table's fund-less
+     columns. */
+  #infrastructureIntro{
+    display:none !important;
+  }
+
   /* Give every table caption (see renderTable/.wc-table-label in
      budget-data.js -- used sitewide, including Interfund Transfers Out/In,
      Revenue/Expenditure Budget, and every other captioned data table) the
