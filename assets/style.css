@@ -415,6 +415,8 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 #judgments-fines-topics,
 #miscellaneous-revenue-topics { padding-top: 32px; }
 #consolidated-revenue-summary-table { margin-bottom: 32px; }
+#consolidated-revenue-summary-table > h2 { margin: 0 0 6px; color: var(--navy); font-size: 1.35rem; }
+#consolidated-revenue-summary-table > p { margin: 0 0 16px; color: var(--muted); font-size: .75rem; }
 .wc-revenue-ledger-section { margin: 34px 0 18px; border: 1px solid var(--border); border-radius: 18px; background: var(--card); overflow: hidden; }
 .wc-revenue-ledger-section > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; cursor: pointer; list-style: none; }
 .wc-revenue-ledger-section > summary::-webkit-details-marker { display: none; }
@@ -498,13 +500,15 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-browse-controls select { background: #fff; border: 1px solid #cbd8d1; border-radius: 10px; color: #20324d; display: block; font: inherit; font-size: .92rem; margin-top: 6px; padding: 10px 12px; text-transform: none; width: 100%; }
 .wc-revenue-browse-count { color: #607286; font-size: .85rem; margin: 10px 0; }
 .wc-revenue-browse-results { border: 1px solid #d7e2dc; border-radius: 14px; max-height: 390px; overflow: auto; }
-.wc-revenue-browse-row { align-items: center; background: #fff; border: 0; border-bottom: 1px solid #e1e9e5; color: #20324d; cursor: pointer; display: grid; font: inherit; gap: 12px; grid-template-columns: minmax(220px, 1fr) auto auto auto; padding: 13px 16px; text-align: left; width: 100%; }
+.wc-revenue-browse-row { align-items: center; background: #fff; border: 0; border-bottom: 1px solid #e1e9e5; color: #20324d; cursor: pointer; display: grid; font: inherit; gap: 12px; grid-template-columns: minmax(190px, .9fr) minmax(260px, 1.5fr) auto auto; padding: 10px 16px; text-align: left; width: 100%; }
 .wc-revenue-browse-row[hidden] { display: none; }
 .wc-revenue-browse-row:last-child { border-bottom: 0; }
 .wc-revenue-browse-row:hover { background: #f4f9f6; }
 .wc-revenue-browse-row > span strong, .wc-revenue-browse-row > span small { display: block; }
 .wc-revenue-browse-row > span small { color: #607286; font-size: .82rem; margin-top: 3px; }
-.wc-revenue-browse-row > em { border-radius: 999px; font-size: .75rem; font-style: normal; font-weight: 800; padding: 5px 9px; white-space: nowrap; }
+.wc-revenue-browse-row > span small.wc-revenue-browse-amount { color: #20324d; font-size: .78rem; font-weight: 700; }
+.wc-revenue-browse-description { display: -webkit-box; overflow: hidden; color: #52677b; font-size: .76rem; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.wc-revenue-browse-row > em { justify-self: start; border-radius: 999px; font-size: .75rem; font-style: normal; font-weight: 800; padding: 5px 9px; white-space: nowrap; }
 .wc-revenue-browse-row > em.is-unrestricted, .wc-revenue-browse-row > em.is-moderate { background: #e6f5e9; color: #087332; }
 .wc-revenue-browse-row > em.is-restricted { background: #fde8e6; color: #a6231b; }
 .wc-revenue-browse-row > em.is-limited { background: #fff3d5; color: #805a00; }
@@ -515,6 +519,7 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 @media (max-width: 760px) {
   .wc-revenue-browse-controls { grid-template-columns: 1fr; }
   .wc-revenue-browse-row { grid-template-columns: 1fr auto; }
+  .wc-revenue-browse-description { grid-column: 1 / -1; grid-row: 2; }
   .wc-revenue-browse-row > em { justify-self: start; }
 }
 .wc-revenue-concentration { padding: 24px; border: 1px solid rgba(0,63,40,.16); border-radius: 20px; background: linear-gradient(145deg,#f8fcf9,#eef6f1); box-shadow: 0 12px 32px rgba(0,63,40,.07); }
@@ -524,7 +529,7 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-concentration-head span { color: var(--green); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .wc-revenue-concentration-head h3 { margin: 5px 0 0; color: var(--navy); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; line-height: 1.12; }
 .wc-revenue-concentration-head > div:first-child { flex: 1 1 auto; min-width: 0; }
-.wc-revenue-concentration-head > div > p { max-width: 960px; margin: 7px 0 0; color: #000; font-size: .82rem; line-height: 1.5; }
+.wc-revenue-concentration-head > div > p { max-width: 960px; margin: 7px 0 0; color: #000; font-size: .94rem; line-height: 1.55; }
 .wc-revenue-concentration-head > strong { flex: 0 0 auto; padding: 6px 10px; border-radius: 999px; background: rgba(209,190,120,.2); color: #64551c; font-size: .72rem; }
 .wc-revenue-total-budget { display: flex; flex: 0 0 220px; min-width: 220px; flex-direction: column; align-items: flex-end; gap: 14px; padding-top: 3px; text-align: right; }
 .wc-revenue-total-budget span { display: block; color: var(--muted); font-size: .65rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
@@ -649,7 +654,10 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-personnel-net-change-pills span.is-decrease b { color: #b42318; }
 .wc-personnel-profile-card > p { margin: 10px 0 0; color: var(--muted); font-size: .7rem; line-height: 1.45; }
 .wc-personnel-ledger { margin: 34px 0 42px; scroll-margin-top: 105px; }
-.wc-personnel-ledger-close { padding: 9px 14px; border: 1px solid rgba(0,63,40,.2); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .7rem; font-weight: 850; }
+.wc-personnel-section-heading { margin-bottom: 18px; }
+.wc-personnel-section-heading h2 { margin: 0; }
+.wc-personnel-section-heading p { margin: 6px 0 0; }
+.wc-personnel-ledger-close { display: block; width: max-content; margin: 0 0 12px; padding: 9px 14px; border: 1px solid rgba(0,63,40,.2); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .7rem; font-weight: 850; }
 .wc-personnel-ledger-tabs { display: inline-flex; gap: 4px; margin: 4px 0 20px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: #edf3ef; }
 .wc-personnel-ledger-tabs button { padding: 8px 13px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: .68rem; font-weight: 800; }
 .wc-personnel-ledger-tabs button.is-active { background: var(--green); color: #fff; }
@@ -666,13 +674,21 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-support-split > div:last-child { border-bottom: 0; padding-bottom: 0; }
 .wc-revenue-support-split span { display: block; color: var(--muted); font-size: .65rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
 .wc-revenue-support-split b { display: block; margin-top: 4px; color: var(--green); font-size: 1.2rem; }
-.wc-revenue-concentration-summary { margin: 14px 0 18px !important; font-size: .86rem; }
+.wc-revenue-concentration-summary { margin: 14px 0 18px !important; font-size: .98rem; }
+.wc-revenue-concentration-summary strong { color: var(--green); font-size: 1.25rem; }
+.wc-revenue-card-summary-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 14px 0 18px; }
+.wc-revenue-card-summary-row .wc-revenue-concentration-summary { flex: 1 1 auto; margin: 0 !important; }
+.wc-revenue-card-summary-row .wc-revenue-support-split { display: flex; flex: 0 0 auto; gap: 28px; width: auto; padding: 0; }
+.wc-revenue-card-summary-row .wc-revenue-support-split > div { min-width: 170px; padding: 0; border: 0; text-align: right; }
+.wc-revenue-card-summary-row + .wc-revenue-snapshot { margin-top: 0; }
 .wc-revenue-snapshot { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 20px; }
 .wc-revenue-snapshot > * { position: relative; display: grid; align-content: start; min-width: 0; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: #fff; color: var(--text); font: inherit; text-align: left; }
 .wc-revenue-snapshot span.wc-department-card-rank { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; line-height: 1; padding: 0; border-radius: 999px; background: var(--green); color: #fff; font-size: .72rem; font-weight: 850; text-transform: none; }
 .wc-revenue-snapshot strong { padding-right: 32px; }
 .wc-revenue-snapshot > button { cursor: pointer; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
 .wc-revenue-snapshot > button:hover { transform: translateY(-2px); border-color: #79b99a; box-shadow: 0 9px 22px rgba(0,63,40,.1); }
+.wc-revenue-snapshot > button:has([data-revenue-tooltip]:hover),
+.wc-revenue-snapshot > article:has([data-revenue-tooltip]:hover) { z-index: 30; overflow: visible; }
 .wc-revenue-snapshot > button:focus-visible { outline: 3px solid rgba(121,185,154,.45); outline-offset: 2px; }
 .wc-revenue-snapshot span { color: var(--green); font-size: .67rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .wc-revenue-snapshot strong { margin-top: 6px; overflow: hidden; color: var(--navy); font-size: .95rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -703,11 +719,26 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-card-badge-stack .wc-revenue-snapshot-access,
 .wc-revenue-card-badge-stack .wc-revenue-recurrence-badge,
 .wc-revenue-card-badge-stack .wc-revenue-control-badge { margin-top: 0; white-space: nowrap; }
+.wc-revenue-access-pair { display: flex; align-items: center; gap: 5px; }
+.wc-revenue-card-badge-stack .wc-revenue-access-pair { justify-content: flex-end; }
 .wc-revenue-control-badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: .65rem; font-weight: 900; }
 .wc-revenue-control-badge.is-moderate { background: #e6f3e9; color: #176b3a; }
 .wc-revenue-control-badge.is-limited { background: #fff3d6; color: #785800; }
 .wc-revenue-control-badge.is-low { background: #eef1f5; color: #46566b; }
 .wc-revenue-control-badge.is-varied { background: #e8eef7; color: #315a85; }
+.wc-revenue-snapshot-access[data-revenue-tooltip],
+.wc-revenue-recurrence-badge[data-revenue-tooltip],
+.wc-revenue-control-badge[data-revenue-tooltip] { position: relative; cursor: help; }
+.wc-revenue-snapshot-access[data-revenue-tooltip]::after,
+.wc-revenue-recurrence-badge[data-revenue-tooltip]::after,
+.wc-revenue-control-badge[data-revenue-tooltip]::after { content: attr(data-revenue-tooltip); position: absolute; z-index: 20; top: calc(100% + 8px); left: 0; display: none; width: 250px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 9px; background: #fff; color: var(--text); box-shadow: 0 8px 22px rgba(0,0,0,.16); font-size: .8rem; font-weight: 500; line-height: 1.5; text-align: left; white-space: normal; text-transform: none; letter-spacing: normal; }
+.wc-revenue-snapshot-access[data-revenue-tooltip]:hover::after,
+.wc-revenue-snapshot-access[data-revenue-tooltip]:focus-visible::after,
+.wc-revenue-recurrence-badge[data-revenue-tooltip]:hover::after,
+.wc-revenue-recurrence-badge[data-revenue-tooltip]:focus-visible::after,
+.wc-revenue-control-badge[data-revenue-tooltip]:hover::after,
+.wc-revenue-control-badge[data-revenue-tooltip]:focus-visible::after { display: block; }
+.wc-revenue-card-badge-stack [data-revenue-tooltip]::after { right: 0; left: auto; }
 .wc-revenue-other-card { grid-column: span 1; }
 .wc-revenue-other-title { display: block; padding-right: 32px; color: var(--navy); font-size: .95rem; }
 .wc-revenue-other-split { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-top: 14px; }
@@ -717,13 +748,14 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-other-half .wc-revenue-card-amount,.wc-revenue-other-half .wc-revenue-card-share { display: block; }
 .wc-revenue-other-half .wc-revenue-card-share { margin-top: 4px; }
 .wc-revenue-other-half .wc-revenue-snapshot-change { margin-top: 10px; }
-.wc-revenue-snapshot-change { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
-.wc-revenue-snapshot-change span { grid-column: 1 / -1; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-.wc-revenue-snapshot-change strong { margin: 0; color: var(--navy); font-size: .78rem; }
-.wc-revenue-snapshot-change em { margin: 0; color: var(--green); font-size: .72rem; text-align: right; }
-.wc-revenue-snapshot-change strong { font-size: 1rem; font-weight: 850; }
-.wc-revenue-snapshot-change em { font-size: .92rem; font-weight: 800; }
-.wc-revenue-snapshot-change.is-down strong,.wc-revenue-snapshot-change.is-down em { color: #b42318; }
+.wc-revenue-snapshot-change { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.wc-revenue-comparison span,.wc-revenue-trend small { display: block; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.wc-revenue-comparison > div { display: flex; align-items: baseline; gap: 8px; margin-top: 3px; }
+.wc-revenue-comparison strong { margin: 0; color: var(--navy); font-size: 1rem; font-weight: 850; }
+.wc-revenue-comparison em { margin: 0; color: var(--green); font-size: .92rem; font-weight: 800; }
+.wc-revenue-trend { min-width: 120px; text-align: right; }
+.wc-revenue-trend b { display: block; margin: 3px 0 0; color: var(--green); font-size: .78rem; font-weight: 850; letter-spacing: .02em; text-transform: uppercase; }
+.wc-revenue-snapshot-change.is-down .wc-revenue-comparison strong,.wc-revenue-snapshot-change.is-down .wc-revenue-comparison em,.wc-revenue-snapshot-change.is-down .wc-revenue-trend b { color: #b42318; }
 .wc-revenue-takeaway { position: relative; margin-top: 20px; padding: 20px 22px 20px 26px; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 8px 22px rgba(0,63,40,.08); }
 .wc-revenue-takeaway::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: linear-gradient(#003f28,#79b99a); }
 .wc-revenue-takeaway > span { color: var(--green); font-size: .7rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
@@ -766,6 +798,9 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
   .wc-personnel-total-budget { width: 100%; align-items: flex-start; justify-content: flex-start; text-align: left; }
   .wc-personnel-explorer-total { text-align: left; }
   .wc-personnel-explorer-total > div { justify-content: flex-start; }
+  .wc-revenue-card-summary-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .wc-revenue-card-summary-row .wc-revenue-support-split { flex-wrap: wrap; gap: 14px 28px; }
+  .wc-revenue-card-summary-row .wc-revenue-support-split > div { min-width: 150px; text-align: left; }
 }
 @media (max-width: 600px) {
   .wc-revenue-guide-head { display: block; }
@@ -826,6 +861,16 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
 .wc-budget-detail-body tr.wc-table-total-row td.wc-revenue-projected { background: #e2d18c !important; color: #14253b !important; }
 .wc-budget-detail-body td.wc-revenue-budget-year,
 .wc-budget-detail-body td.wc-revenue-projected { background: transparent !important; color: inherit !important; }
+/* Revenue Ledger: FY2027-2029 shouldn't stand out from the other fiscal
+   years shown -- these ID-scoped rules override the general
+   wc-revenue-budget-year/wc-revenue-projected highlight colors above,
+   without touching the same classes used on other pages' tables. */
+#consolidated-revenue-summary-table td.wc-revenue-budget-year,
+#consolidated-revenue-summary-table td.wc-revenue-projected { background: transparent !important; color: inherit !important; }
+#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-budget-year,
+#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-projected { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%) !important; color: var(--navy) !important; }
+#consolidated-revenue-summary-table th.wc-revenue-budget-year,
+#consolidated-revenue-summary-table th.wc-revenue-projected { background: linear-gradient(135deg, #003f28 0%, #005236 100%) !important; color: #fff !important; }
 .wc-revenue-assumption {
   margin-top: auto;
   padding: 16px 18px;
@@ -2918,6 +2963,13 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   cursor: pointer;
   transition: background-color .15s ease, color .15s ease;
 }
+/* Same display:flex-beats-[hidden] issue as .wc-filter-bar above -- the
+   Personnel Ledger's "Show COLA, Health Insurance & Increase" toggle sets
+   this element's hidden attribute for non-board scopes, which needs this
+   override to actually take effect on screen. */
+.wc-view-budget-lines-toggle[hidden] {
+  display: none;
+}
 .wc-view-budget-lines-toggle:hover {
   background: var(--green);
   color: #ffffff;
@@ -3714,6 +3766,13 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
   padding: 16px; margin-bottom: 14px;
   background: var(--light); border: 1px solid var(--border); border-radius: 12px;
+}
+/* display:flex above is an author rule, so it beats the browser's native
+   [hidden]{display:none} UA default -- without this, setting the hidden
+   attribute (e.g. the Personnel Ledger's board-only filter bar under
+   Constitutional Officers scope) doesn't actually hide the bar on screen. */
+.wc-filter-bar[hidden] {
+  display: none;
 }
 .wc-filter-field { display: flex; flex-direction: column; gap: 6px; font-size: .78rem; min-width: 180px; }
 .wc-filter-field span { font-weight: 800; text-transform: uppercase; letter-spacing: .05em; font-size: .68rem; color: var(--muted); }

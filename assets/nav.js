@@ -2030,7 +2030,7 @@
   loadWaltonMobileStylesheet();
   var WC_NAV_LINKS = [
     { label:"Our County", href:"our-county.html" },
-    { label:"Budget Overview", href:"budget-overview.html" }
+    { label:"Financial Overview", href:"budget-overview.html" }
   ];
   var WC_BUDGET_LINKS = [
     { label:"Revenue Budget", href:"summary-of-revenues.html" },
@@ -2365,16 +2365,16 @@
       sectionCrumb = '<a href="constitutional-officers.html">Constitutional Officers & Other Agencies</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Autonomous Entities"){
       sectionCrumb = '<a href="constitutional-officers.html">Constitutional Officers & Other Agencies</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Budget Overview" || eyebrowText === "Introduction and Overview" || eyebrowText === "Financial Structure, Policies, and Process"){
-      sectionCrumb = '<a href="budget-overview.html">Budget Overview</a><span class="wc-breadcrumb-sep">/</span>';
+    }else if(eyebrowText === "Financial Overview" || eyebrowText === "Introduction and Overview" || eyebrowText === "Financial Structure, Policies, and Process"){
+      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(currentPage === "debt-overview.html"){
-      // Debt Overview is listed in the Budget Overview directory, not the
+      // Debt Ledger is listed in the Financial Overview directory, not the
       // Financials directory -- other "Debt and Financial Forecast"
       // eyebrow pages (e.g. Financial Forecast) still fall through to the
       // Financials branch below.
-      sectionCrumb = '<a href="budget-overview.html">Budget Overview</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Financials" || eyebrowText === "Financial Summaries" || eyebrowText === "Debt and Financial Forecast" || eyebrowText === "Glossary, Statistical, and Supplemental Information"){
-      sectionCrumb = '<a href="budget-overview.html">Budget Overview</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Supporting Budget Documentation"){
       sectionCrumb = '<a href="supporting-budget-documentation.html">Supporting Budget Documentation</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(currentPage === "cip-project.html" || eyebrowText === "Capital Projects" || eyebrowText === "Capital Budget" || eyebrowText === "Capital Improvement Plan"){

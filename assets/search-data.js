@@ -15,28 +15,28 @@ var wcCoreBudgetPages = [
   { title:"Overview of Walton County", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd2e29b2249e0a5b99" },
   { title:"Organizational Structure", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1af21806371d68e7" },
   { title:"Strategic Initiatives", section:"Our County", href:"program-budget.html" },
-  { title:"Budget Overview", section:"Budget Overview", href:"budget-overview.html" },
-  { title:"Program Budget", section:"Budget Overview", href:"program-budget.html" },
+  { title:"Financial Overview", section:"Financial Overview", href:"budget-overview.html" },
+  { title:"Program Budget", section:"Financial Overview", href:"program-budget.html" },
   { title:"Constitutional Officers & Other Agencies", section:"Constitutional Officers", href:"constitutional-officers.html" },
   { title:"Departments", section:"Departments", href:"departments.html" },
-  { title:"Budget Process", section:"Budget Overview", href:"budget-process.html" },
+  { title:"Budget Process", section:"Financial Overview", href:"budget-process.html" },
   { title:"Budget Calendar", section:"Financial Structure, Policies, and Process", href:"budget-calendar.html" },
   { title:"Fund Descriptions and Structure", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd623edf6822e6e54d" },
   { title:"Department to Fund Relationship", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdcf5e99561d6ee920" },
   { title:"Financial Policies", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd42737a8f8389d90a" },
-  { title:"Consolidated Financial Ledger", section:"Budget Overview", href:"consolidated-financial-schedules.html" },
-  { title:"Fund Financial Ledger", section:"Budget Overview", href:"fund-financial-schedules.html" },
-  { title:"Revenue Budget", section:"Budget Overview", href:"summary-of-revenues.html" },
+  { title:"Consolidated Financial Ledger", section:"Financial Overview", href:"consolidated-financial-schedules.html" },
+  { title:"Fund Financial Ledger", section:"Financial Overview", href:"fund-financial-schedules.html" },
+  { title:"Revenue Budget", section:"Financial Overview", href:"summary-of-revenues.html" },
   { title:"Summary of Expenses", section:"Financial Summaries", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdf2d67fd0fb063ce6" },
   { title:"Summary of Budget Changes and Adjustments", section:"Financial Summaries", href:"summary-of-budget-changes-and-adjustments.html" },
-  { title:"Interfund Transfer Ledger", section:"Budget Overview", href:"summary-of-interfund-transfers.html" },
-  { title:"Personnel Budget", section:"Budget Overview", href:"summary-of-personnel.html" },
+  { title:"Interfund Transfer Ledger", section:"Financial Overview", href:"summary-of-interfund-transfers.html" },
+  { title:"Personnel Budget", section:"Financial Overview", href:"summary-of-personnel.html" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
-  { title:"Property Tax Allocation", section:"Budget Overview", href:"summary-of-property-tax-allocations.html" },
+  { title:"Property Tax Allocation", section:"Financial Overview", href:"summary-of-property-tax-allocations.html" },
   { title:"Summary of Contractual Services", section:"Financial Summaries", href:"summary-of-contractual-services.html", darkModeOnly:true },
   { title:"Transaction Search", section:"Financial Summaries", href:"transaction-search.html", keywords:["forensic audit","vendor search","payments","vendor payments","spending search","every transaction","raw transactions","citizen audit"] },
-  { title:"Financials", section:"Budget Overview", href:"budget-overview.html" },
-  { title:"Supporting Budget Documentation", section:"Budget Overview", href:"supporting-budget-documentation.html" },
+  { title:"Financials", section:"Financial Overview", href:"budget-overview.html" },
+  { title:"Supporting Budget Documentation", section:"Financial Overview", href:"supporting-budget-documentation.html" },
   { title:"TRIM Newspaper Advertisements", section:"Supporting Budget Documentation", href:"trim-newspaper-advertisements.html", darkModeOnly:true },
   { title:"Board of County Commissioners", section:"Constitutional Officers", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbc6947be859271a418" },
   { title:"Clerk of Courts & County Comptroller", section:"Constitutional Officers", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbcc965cb8dc61a1909" },
@@ -94,7 +94,7 @@ var wcCoreBudgetPages = [
   { title:"Transportation and Infrastructure Ledger", section:"Capital Budget", href:"cip-capital-projects.html" },
   { title:"Sheriff Project Ledger", section:"Capital Improvement Plan", href:"cip-sheriff.html" },
   { title:"Tourist Development Fund Ledger", section:"Capital Improvement Plan", href:"cip-tourist-development.html" },
-  { title:"Debt Overview", section:"Budget Overview", href:"debt-overview.html" },
+  { title:"Debt Ledger", section:"Financial Overview", href:"debt-overview.html" },
   { title:"Financial Forecast", section:"Debt and Financial Forecast", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd986e584c322f6216" },
   { title:"Glossary, Acronyms, and Frequently Asked Questions", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd48feef483c784fe0" },
   { title:"Statistical & Supplemental Information", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1da6285c17aaf19a" }
@@ -148,7 +148,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "programs", "services", "service areas", "strategic plan", "goals", "priorities", "initiatives", "objectives", "county priorities", "strategic priorities", "performance", "vision", "mission", "core values", "program cost", "service level", "subsidy", "cost recovery"
     ],
 
-    "Budget Overview": [
+    "Financial Overview": [
       "budget overview", "overview hub", "budget process", "calendar", "transmittal", "budget message", "county profile", "fund structure", "financial policies", "strategic initiatives"
     ],
 
@@ -464,7 +464,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "transportation fund", "roads", "road projects", "transportation projects", "gas tax", "road schedule"
     ],
 
-    "Debt Overview": [
+    "Debt Ledger": [
       "debt", "bonds", "loans", "debt service", "principal", "interest", "bond rating", "outstanding debt", "long term debt", "borrowing"
     ],
 
@@ -488,7 +488,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Overview of Walton County": "overview-of-walton-county.html",
     "Organizational Structure": "organizational-structure.html",
     "Strategic Initiatives": "program-budget.html",
-    "Budget Overview": "budget-overview.html",
+    "Financial Overview": "budget-overview.html",
     "Program Budget": "program-budget.html",
     "Constitutional Officers & Other Agencies": "constitutional-officers.html",
     "Departments": "departments.html",
@@ -564,7 +564,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Transportation and Infrastructure Ledger": "cip-capital-projects.html",
     "Sheriff Project Ledger": "cip-sheriff.html",
     "Tourist Development Fund Ledger": "cip-tourist-development.html",
-    "Debt Overview": "debt-overview.html",
+    "Debt Ledger": "debt-overview.html",
     "Financial Forecast": "financial-forecast.html",
     "Glossary, Acronyms, and Frequently Asked Questions": "glossary-acronyms-and-frequently-asked-questions.html",
     "Statistical & Supplemental Information": "statistical-and-supplemental-information.html"

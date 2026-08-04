@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Budget Overview — Walton County FY 2027 Budget</title>
+<title>Financial Overview — Walton County FY 2027 Budget</title>
 <link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
 </head>
 <body>
@@ -16,9 +16,9 @@
 <div id="layout">
 <main id="content">
 
-<div class="page-eyebrow">Budget Overview</div>
-<h1 class="page-title">Budget Overview</h1>
-<p class="page-intro">Explore the proposed budget, county priorities, organizational structure, financial policies, and the process that guides Walton County's annual budget.</p>
+<div class="page-eyebrow">Financial Overview</div>
+<h1 class="page-title">Financial Overview</h1>
+<p class="page-intro">Explore Walton County's financial resources, including the budget process, financial policies, debt, fund activity, property tax allocation, and financial reports.</p>
 
 <section aria-label="Budget overview directory">
   <ul class="wc-directory-list" id="hubList"></ul>
@@ -31,11 +31,16 @@
 <script src="../assets/budget-data.js?v=20260802-debt-total-callout"></script>
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
-<script src="../assets/nav.js?v=20260802-financials-merge"></script>
+<script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
     var pages = [
+      {
+        title:"Table of Contents",
+        href:"table-of-contents.html",
+        description:"Browse every budget section, county directory, and supporting page."
+      },
       {
         title:"GFOA Distinguished Budget Presentation Award",
         href:"gfoa-distinguished-budget-presentation-award.html",
@@ -55,7 +60,7 @@
         description:"Explore major services across departments, including cost, funding, service measures, community impact, and alignment with County priorities."
       },
       {
-        title:"Debt Overview",
+        title:"Debt Ledger",
         href:"debt-overview.html",
         label:"Debt & Obligations",
         metrics:[
