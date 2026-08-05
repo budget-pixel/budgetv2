@@ -10643,6 +10643,13 @@
   function renderRevenueBudgetQuestions() {
     const container = document.getElementById("revenue-budget-questions");
     if (!container) return;
+    // The Revenue Budget Explorer mounts into an empty section further up the
+    // page, so without this the page sits blank while the budget data is in
+    // flight -- same loading state every other data-backed page uses.
+    const explorerLoadingTarget = document.getElementById("revenue-source-concentration");
+    if (explorerLoadingTarget && !explorerLoadingTarget.innerHTML.trim()) {
+      explorerLoadingTarget.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>";
+    }
     loadBudgetData().then(() => {
       const rows = (cache.revenues || []).filter((r) =>
         String(r.Revenue_Code || "").trim() !== "381000" &&
@@ -10910,6 +10917,10 @@
       });
     }).catch(() => {
       container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+      const explorerContainer = document.getElementById("revenue-source-concentration");
+      if (explorerContainer) {
+        explorerContainer.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+      }
     });
   }
 
