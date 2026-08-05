@@ -8534,7 +8534,7 @@
     );
   }
 
-  // "Summary of Budget Changes and Adjustments": how each Department's
+  // "Budget Change Summary": how each Department's
   // FY2027 Proposed expenditures compare to its FY2026 Original Budget,
   // split into Personnel, Operating, and Capital changes (both increases
   // and decreases), plus an "Other" catch-all (debt service, grants, and
@@ -9863,7 +9863,7 @@
     if (title === "Tourist Development Taxes") return {
       level: "Limited local control",
       className: "is-limited",
-      text: "Walton County levies this local-option lodging tax, but the available rate, adoption process, and permitted uses are governed by Florida law. Any change must follow those requirements, and additional proceeds remain restricted to eligible tourism-related purposes."
+      text: "Walton County can levy additional percentages of this local-option lodging tax, up to the maximum rate Florida law allows and subject to the statutory adoption requirements. That authority is why local control is limited rather than low: the Board can act on the rate, but only within the levies, adoption process, and eligible tourism-related uses the state defines."
     };
     if (/discretionary sales surtax/i.test(title)) return {
       level: "Low local control",
@@ -10016,7 +10016,7 @@
     const evidence = String(name || "");
     const explicitlyUnrestricted = /short-term rental certificate|beach vending permit|beach bonfire permit/i;
     if (explicitlyUnrestricted.test(evidence)) return "Unrestricted";
-    const dedicatedPattern = /(?:discretionary sales surtax|fuel tax|federal grant|state grant|tourist development|\btdc\b|\bmsbu\b|e-?911|boating improvement|recreation plat|sidewalk|sewer|wastewater|court|law library|juvenile justice|legal aid|innovative programs|building permits|beach (?:dog|vehicle)|coastal armoring|landfill|resource officer|opioid|miscellaneous revenue|supplemental fire|planning fees|development order inspection|code enforcement fees|\$2 recording fee)/i;
+    const dedicatedPattern = /(?:fuel tax|federal grant|state grant|tourist development|\btdc\b|\bmsbu\b|e-?911|boating improvement|recreation plat|sidewalk|sewer|wastewater|court|law library|juvenile justice|legal aid|innovative programs|building permits|beach (?:dog|vehicle)|coastal armoring|landfill|resource officer|opioid|miscellaneous revenue|supplemental fire|planning fees|development order inspection|code enforcement fees|\$2 recording fee)/i;
     return dedicatedPattern.test(evidence) ? "Restricted" : "Unrestricted";
   }
 
@@ -10261,6 +10261,28 @@
         : (projectionRate
           ? "FY 2028 and FY 2029 apply " + (projectionRate * 100).toFixed(1).replace(/\.0$/, "") + "% annual growth to the FY 2027 proposed amount."
           : "FY 2028 and FY 2029 hold the FY 2027 proposed amount level because no recurring growth assumption is applied.");
+      // Historical compound annual growth rate across the actual years the
+      // chart already plots (FY2022-FY2025), so the forward assumption can be
+      // read against what collections actually did. Skipped when either
+      // endpoint is zero/missing (a CAGR off a $0 base is meaningless) or when
+      // the source has fewer than two actual years.
+      const actualChartYears = REVENUE_TOPIC_CHART_YEARS.filter((y) => /_Actual$/.test(y.field));
+      const actualSeries = actualChartYears
+        .map((y) => ({ year: Number(y.field.slice(2, 6)), value: sumRevenueRowsForField(topicRows, y.field, topic) }))
+        .filter((point) => point.value > 0);
+      let historicalNote = "";
+      if (actualSeries.length >= 2) {
+        const first = actualSeries[0];
+        const last = actualSeries[actualSeries.length - 1];
+        const span = last.year - first.year;
+        if (span > 0) {
+          const cagr = (Math.pow(last.value / first.value, 1 / span) - 1) * 100;
+          historicalNote = " For comparison, actual collections changed " +
+            (cagr >= 0 ? "+" : "−") + Math.abs(cagr).toFixed(1) +
+            "% per year from FY " + first.year + " to FY " + last.year + " (" +
+            formatAbbreviatedCurrency(first.value) + " to " + formatAbbreviatedCurrency(last.value) + ").";
+        }
+      }
       const comparisonNote = topic.title === "Property Taxes"
         ? " The FY 2026 comparison is normalized to the FY 2027 rolled-back-rate planning basis because the separate 95% presentation changed between years; the Revenue Ledger retains the reported accounting amounts."
         : "";
@@ -10268,7 +10290,7 @@
         ? '<div class="wc-revenue-control-profile wc-revenue-policy-context"><div><strong>Current policy context</strong><span class="is-varied">Policy update</span></div><p>Walton County is utilizing the 3.4347 rolled-back countywide millage rate for the FY 2027 proposal. Florida voters are scheduled to consider a property-tax constitutional amendment in November 2026. If approved, it would increase the non-school homestead exemption to $150,000 in 2027 and $250,000 in 2028. Because voter approval and the local revenue effect remain uncertain, the two planning years are held flat. <a href="https://www.flsenate.gov/Session/Bill/2026F/2F/BillText/c1/HTML" target="_blank" rel="noopener noreferrer">Review the proposed amendment</a>.</p></div>'
         : "";
       const assumptionHtml = topic.isAllOtherRevenue ? "" :
-        '<div class="wc-revenue-assumption"><strong>Projection assumption</strong><p>' + escapeHtml(projectionNote + comparisonNote) + ' These estimates are for planning and will be updated as economic and state guidance changes.</p></div>';
+        '<div class="wc-revenue-assumption"><strong>Projection assumption</strong><p>' + escapeHtml(projectionNote + historicalNote + comparisonNote) + ' These estimates are for planning and will be updated as economic and state guidance changes.</p></div>';
       const controlProfile = revenueControlProfile(topic, topicType);
       const controlProfileHtml =
         '<div class="wc-revenue-control-profile">' +
@@ -10734,13 +10756,19 @@
       const largestSourceCardsHtml = sixLargestSources.map((source, sourceIndex) => {
         const target = revenueSourceExplorerTarget(source);
         const isRestrictedTourism = /tourist development/i.test(source.name);
+        // Use the same restriction rule the detail panel/graph badge uses
+        // (revenueRestrictionLabel) instead of treating only tourist
+        // development as restricted -- otherwise a dedicated revenue could
+        // read "Unrestricted" on the card while its own detail view
+        // correctly reads "Restricted".
+        const cardIsRestricted = isRestrictedTourism || revenueRestrictionLabel(source.name) === "Restricted";
         const recurrenceLabel = /^Interest and Investment Earnings$/i.test(source.name) ? "Non-recurring" : "Recurring";
         const sourceRows = revenueRowsBySource.get(source.name) || [];
         const control = revenueControlProfile({ title: source.name }, sourceRows[0] && sourceRows[0].Revenue_Type);
         const sourceRestrictionLabels = new Set(sourceRows.map((row) => revenueRestrictionLabel(row.Revenue_Name)));
         const sourceAccessBadgeHtml = /interest and investment earnings/i.test(source.name) && sourceRestrictionLabels.size > 1
           ? '<div class="wc-revenue-access-pair"><div class="wc-revenue-snapshot-access is-restricted" data-revenue-tooltip="Restricted funds may be used only for the legally or locally designated purpose.">Restricted</div><span class="wc-revenue-badge-separator">&amp;</span><div class="wc-revenue-snapshot-access is-unrestricted" data-revenue-tooltip="Unrestricted revenue may support general County priorities through the adopted budget.">Unrestricted</div></div>'
-          : '<div class="wc-revenue-snapshot-access ' + (isRestrictedTourism ? "is-restricted" : "is-unrestricted") + '" data-revenue-tooltip="' + (isRestrictedTourism ? "Restricted funds may be used only for the legally or locally designated purpose." : "Unrestricted revenue may support general County priorities through the adopted budget.") + '">' + (isRestrictedTourism ? "State Restricted" : "Unrestricted") + '</div>';
+          : '<div class="wc-revenue-snapshot-access ' + (cardIsRestricted ? "is-restricted" : "is-unrestricted") + '" data-revenue-tooltip="' + (cardIsRestricted ? "Restricted funds may be used only for the legally or locally designated purpose." : "Unrestricted revenue may support general County priorities through the adopted budget.") + '">' + (isRestrictedTourism ? "State Restricted" : cardIsRestricted ? "Restricted" : "Unrestricted") + '</div>';
         const priorAmount = /^(?:ad valorem|property) taxes$/i.test(source.name)
           ? source.amount
           : sumRevenueRowsForField(sourceRows, "FY2026_Original_Budget");
@@ -16004,7 +16032,7 @@
       }
       const supportingPages = { "board of county commissioners": "board-of-county-commissioners.html", "clerk of court": "clerk-of-courts-and-county-comptroller.html", "property appraiser": "property-appraiser.html", "supervisor of elections": "supervisor-of-elections.html", "tax collector": "tax-collector.html", "walton county sheriffs office": "sheriffs-office.html" };
       const explorerBadges = '<div class="wc-department-explorer-badges"><div><span>Constitutional Officers</span><b>' + offices.length + '</b></div><div><span>Total FTE</span><b>' + formatNumber(totalFte) + '</b></div></div>';
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2>' + explorerBadges + '<p>Select an office to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total proposed budget</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-constitutional-ledger-open>View Officers Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + pct(totalPersonnel, total) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + pct(totalOperating, total) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article><article><span>Capital</span><strong>' + formatCurrency(totalCapital) + '</strong><small>FY 2027 capital outlay · ' + pct(totalCapital, total) + '% of total</small>' + metricChangeHtml(totalCapital, totalPriorCapital) + '</article></div><h3 class="wc-department-explorer-subhead">Explore Constitutional Officers</h3><div class="wc-department-budget-cards">' + offices.map((office, index) => '<button type="button" data-constitutional-key="' + office.key + '"><span class="wc-department-card-rank">' + (index + 1) + '</span><strong>' + escapeHtml(office.name) + '</strong><b>' + compactCurrency(office.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2>' + explorerBadges + '<p>Select an office to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total proposed budget</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-constitutional-ledger-open>View Officers Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + pct(totalPersonnel, total) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + pct(totalOperating, total) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article><article><span>Capital</span><strong>' + formatCurrency(totalCapital) + '</strong><small>FY 2027 capital outlay · ' + pct(totalCapital, total) + '% of total</small>' + metricChangeHtml(totalCapital, totalPriorCapital) + '</article></div><h3 class="wc-department-explorer-subhead">Explore Constitutional Officers</h3><div class="wc-department-budget-cards">' + offices.map((office) => '<button type="button" data-constitutional-key="' + office.key + '"><strong>' + escapeHtml(office.name) + '</strong><b>' + compactCurrency(office.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalBadgeGroup = explorer.querySelector(".wc-department-explorer-badges");
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector("[data-constitutional-ledger-open]");

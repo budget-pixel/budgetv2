@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Process — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260803-budget-process-redesign">
+<link rel="stylesheet" href="../assets/style.css?v=20260805-projection-cagr">
 <style>
   .bp-hero{position:relative;overflow:hidden;margin:30px 0 52px;padding:clamp(28px,5vw,58px);border-radius:28px;background:linear-gradient(135deg,#063b2b 0%,#07533a 62%,#14704d 100%);color:#fff;box-shadow:0 22px 55px rgba(0,63,40,.16)}
   .bp-hero:after{content:"";position:absolute;right:-90px;bottom:-150px;width:360px;height:360px;border:70px solid rgba(255,255,255,.06);border-radius:50%}
   .bp-hero>*{position:relative;z-index:1}.bp-kicker{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:.7rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.bp-kicker:before{content:"";width:32px;height:2px;background:#a9d8ad}
   .bp-hero h2{max-width:800px;margin:0;color:#fff;font-size:clamp(2rem,5vw,4.2rem);line-height:.98;letter-spacing:-.045em}.bp-hero p{max-width:720px;margin:22px 0 0;color:rgba(255,255,255,.82);font-size:clamp(1rem,2vw,1.18rem);line-height:1.7}
   .bp-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.bp-button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 19px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#fff;font-size:.76rem;font-weight:850;text-decoration:none}.bp-button-primary{border-color:#fff;background:#fff;color:#063b2b}.bp-button:hover{transform:translateY(-2px)}
-  .bp-section{margin:0 0 58px}.bp-section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.65fr);gap:30px;align-items:end;margin-bottom:24px}.bp-label{display:block;margin-bottom:9px;color:var(--green);font-size:.66rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.bp-section h2{margin:0;color:var(--text);font-size:clamp(1.8rem,4vw,3.1rem);line-height:1.04;letter-spacing:-.035em}.bp-section-head p{margin:0;color:var(--text);font-size:.88rem;line-height:1.65;text-align:justify;text-justify:inter-word}.bp-section-head p + p{margin-top:14px}
+  .bp-section{margin:0 0 58px}.bp-section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.65fr);gap:30px;align-items:end;margin-bottom:24px}.bp-label{display:block;margin-bottom:9px;color:var(--green);font-size:.66rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.bp-section h2{margin:0;color:var(--navy);font-size:1.55rem;font-weight:800;line-height:1.2;letter-spacing:normal}.bp-section-head p{margin:0;color:var(--text);font-size:.88rem;line-height:1.65;text-align:justify;text-justify:inter-word}.bp-section-head p + p{margin-top:14px}
   .bp-phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}.bp-phase{position:relative;min-height:230px;padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--card,#fff)}.bp-phase span{display:block;margin-bottom:14px;color:var(--green);font-size:.66rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.bp-phase:not(:last-child):after{content:"→";position:absolute;z-index:2;top:22px;right:-23px;display:grid;width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:var(--bg,#fff);place-items:center;color:var(--green);font-size:.8rem}.bp-phase h3{margin:0 0 10px;color:var(--text);font-size:1.22rem}.bp-phase p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.65}.bp-phase small{display:block;margin-top:18px;color:var(--muted);font-size:.63rem;font-weight:750;letter-spacing:.04em}
   .bp-role-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.bp-role-main,.bp-public{padding:clamp(24px,4vw,38px);border:1px solid var(--border);border-radius:22px;background:#fff}.bp-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.bp-role{padding:20px 20px 20px 0;border-bottom:1px solid var(--border)}.bp-role:nth-last-child(-n+2){border-bottom:0}.bp-role h3{margin:0 0 7px;color:var(--text);font-size:.95rem}.bp-role p{margin:0;color:var(--muted);font-size:.73rem;line-height:1.55}.bp-public{background:var(--light)}.bp-public-icon{display:grid;width:48px;height:48px;margin-bottom:28px;border-radius:15px;background:var(--green);place-items:center;color:#fff;font-size:1.25rem}.bp-public h3{margin:0 0 12px;color:var(--text);font-size:1.45rem}.bp-public p{color:var(--muted);font-size:.82rem;line-height:1.65}.bp-public ul{margin:20px 0 0;padding:0;list-style:none}.bp-public li{padding:11px 0;border-top:1px solid var(--border);color:var(--text);font-size:.76rem;font-weight:750}.bp-public li:before{content:"✓";margin-right:10px;color:var(--green)}
   .bp-after{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.bp-after article{padding:24px;border:1px solid var(--border);border-radius:18px}.bp-after span{color:var(--green);font-size:.64rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.bp-after h3{margin:10px 0;color:var(--text);font-size:1.05rem}.bp-after p{margin:0;color:var(--muted);font-size:.75rem;line-height:1.6}
@@ -29,14 +29,14 @@
   <p class="page-intro">See how a department request becomes Walton County's adopted annual spending plan—and how residents can follow the decisions along the way.</p>
 
   <section class="bp-hero" aria-labelledby="bp-hero-title">
-    <span class="bp-kicker">FY 2027 budget cycle</span>
+    
     <h2 id="bp-hero-title">From community needs to an adopted budget.</h2>
     <p>Each year, departments, the Office of Management and Budget, County Administration, elected officials, and the public shape a balanced plan for services and investments. The process runs from early preparation through September adoption.</p>
     <div class="bp-actions"><a class="bp-button bp-button-primary" href="budget-calendar.html">Explore the calendar</a><a class="bp-button" href="budget-overview.html">View the proposed budget</a></div>
   </section>
 
   <section class="bp-section" aria-labelledby="phases-title">
-    <div class="bp-section-head"><div><span class="bp-label">The annual cycle</span><h2 id="phases-title">Four phases. One public plan.</h2></div><p>The proposed budget evolves as forecasts are refined, requests are reviewed, and the Board considers priorities in public meetings.</p></div>
+    <div class="bp-section-head"><div><h2 id="phases-title">Four phases. One public plan.</h2></div><p>The proposed budget evolves as forecasts are refined, requests are reviewed, and the Board considers priorities in public meetings.</p></div>
     <div class="bp-phases">
       <article class="bp-phase"><span>Phase 1</span><h3>Preparation</h3><p>Departments prepare operating and capital requests based on service needs, staffing, projects, and funding assumptions.</p><small>February–April</small></article>
       <article class="bp-phase"><span>Phase 2</span><h3>Review</h3><p>OMB and County Administration evaluate requests against revenue estimates, priorities, fund capacity, and policy guidance.</p><small>April–June</small></article>
@@ -46,7 +46,7 @@
   </section>
 
   <section class="bp-section" aria-labelledby="roles-title">
-    <div class="bp-section-head"><div><span class="bp-label">People in the process</span><h2 id="roles-title">Who does what?</h2></div><p>Budget development is collaborative, but each participant has a distinct responsibility.</p></div>
+    <div class="bp-section-head"><div><h2 id="roles-title">Who does what?</h2></div><p>Budget development is collaborative, but each participant has a distinct responsibility.</p></div>
     <div class="bp-role-grid">
       <div class="bp-role-main"><div class="bp-roles">
         <article class="bp-role"><h3>Departments &amp; constitutional offices</h3><p>Define service needs and submit operating, personnel, and capital requests.</p></article>
@@ -54,12 +54,12 @@
         <article class="bp-role"><h3>County Administration</h3><p>Evaluates tradeoffs and aligns recommendations with County priorities and capacity.</p></article>
         <article class="bp-role"><h3>Board of County Commissioners</h3><p>Provides direction, considers public input, sets millage rates, and adopts the budget.</p></article>
       </div></div>
-      <aside class="bp-public"><div class="bp-public-icon" aria-hidden="true">◎</div><span class="bp-label">Your role</span><h3>Public input is part of the process.</h3><p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p><ul><li>Attend budget workshops</li><li>Review the tentative budget</li><li>Comment at public hearings</li></ul></aside>
+      <aside class="bp-public"><div class="bp-public-icon" aria-hidden="true">◎</div><h3>Public input is part of the process.</h3><p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p><ul><li>Attend budget workshops</li><li>Review the tentative budget</li><li>Comment at public hearings</li></ul></aside>
     </div>
   </section>
 
   <section class="bp-section" aria-labelledby="adoption-title">
-    <div class="bp-section-head"><div><span class="bp-label">After adoption</span><h2 id="adoption-title">The work continues all year.</h2></div><p>The adopted budget is both a legal spending plan and an active management tool.</p></div>
+    <div class="bp-section-head"><div><h2 id="adoption-title">The work continues all year.</h2></div><p>The adopted budget is both a legal spending plan and an active management tool.</p></div>
     <div class="bp-after">
       <article><span>Monitor</span><h3>Track performance</h3><p>Departments and OMB monitor revenues, spending, appropriations, and operational needs throughout the fiscal year.</p></article>
       <article><span>Control</span><h3>Stay within authority</h3><p>Fund-level budgetary control keeps total appropriations within the limits approved by the Board.</p></article>
@@ -68,7 +68,7 @@
   </section>
 
   <section class="bp-section" aria-labelledby="details-title">
-    <div class="bp-section-head"><div><span class="bp-label">Go deeper</span><h2 id="details-title">Explore the details.</h2></div><p>Open a focused page for dates, fiscal rules, fund structure, or changes to the proposed plan.</p></div>
+    <div class="bp-section-head"><div><h2 id="details-title">Explore the details.</h2></div><p>Open a focused page for dates, fiscal rules, fund structure, or changes to the proposed plan.</p></div>
     <div class="bp-links">
       <a class="bp-link" href="budget-calendar.html"><small>Key dates</small><strong>Budget Calendar</strong><span>Workshops, notices, hearings, and adoption milestones.</span><b aria-hidden="true">→</b></a>
       <a class="bp-link" href="financial-policies.html"><small>Fiscal guardrails</small><strong>Financial Policies</strong><span>Budgeting, reserves, fund balance, debt, and stewardship.</span><b aria-hidden="true">→</b></a>
@@ -79,7 +79,7 @@
   </section>
 </main></div>
 <script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/budget-data.js?v=20260805-projection-cagr"></script>
 <script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>

@@ -28,7 +28,7 @@ var wcCoreBudgetPages = [
   { title:"Fund Financial Ledger", section:"Financial Overview", href:"fund-financial-schedules.html" },
   { title:"Revenue Budget", section:"Financial Overview", href:"summary-of-revenues.html" },
   { title:"Summary of Expenses", section:"Financial Summaries", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdf2d67fd0fb063ce6" },
-  { title:"Summary of Budget Changes and Adjustments", section:"Financial Summaries", href:"summary-of-budget-changes-and-adjustments.html" },
+  { title:"Budget Change Summary", section:"Financial Summaries", href:"summary-of-budget-changes-and-adjustments.html" },
   { title:"Interfund Transfer Ledger", section:"Financial Overview", href:"summary-of-interfund-transfers.html" },
   { title:"Personnel Budget", section:"Financial Overview", href:"summary-of-personnel.html" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
