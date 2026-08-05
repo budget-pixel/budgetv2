@@ -1224,6 +1224,24 @@
     width:100% !important;
     margin:-12px 0 24px !important;
   }
+  .wc-breadcrumb-trail{
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex-wrap:wrap !important;
+    min-width:0 !important;
+  }
+  .wc-breadcrumb [data-wc-breadcrumb-action]{
+    margin:0 0 0 auto !important;
+  }
+  /* the breadcrumb link color would otherwise render green-on-green inside
+     the action button */
+  .wc-breadcrumb [data-wc-breadcrumb-action] a{
+    color:#ffffff !important;
+  }
+  .wc-breadcrumb [data-wc-breadcrumb-action] a:hover{
+    color:#ffffff !important;
+  }
   .wc-breadcrumb a{
     color:#006231 !important;
     text-decoration:none !important;
@@ -2039,6 +2057,9 @@
     { label:"Officers & Agencies Budgets", href:"constitutional-officers.html" },
     { label:"Capital Budget", href:"capital-projects.html" }
   ];
+  function wcPageHref(href){
+    return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
+  }
   function ensureWcNavChrome(){
     var nav = document.querySelector("nav#nav-menu.nav-menu");
     if(!nav){
@@ -2071,12 +2092,32 @@
           '<span>Search</span>' +
         '</button>' +
         WC_NAV_LINKS.map(function(link){
-          return '<a href="' + link.href + '">' + link.label + '</a>';
+          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
         }).join("") +
         '<details class="wc-nav-budget-dropdown"><summary>Budgets</summary><div class="wc-nav-budget-menu">' + WC_BUDGET_LINKS.map(function(link){
-          return '<a href="' + link.href + '">' + link.label + '</a>';
+          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
         }).join("") + '</div></details>';
       nav.appendChild(linksWrap);
+      // <details> stays open until its own summary is clicked again --
+      // close it when the click (or Escape) lands anywhere else.
+      if(!document.documentElement.hasAttribute("data-wc-nav-dropdown-dismiss")){
+        document.documentElement.setAttribute("data-wc-nav-dropdown-dismiss", "true");
+        document.addEventListener("click", function(event){
+          Array.prototype.forEach.call(document.querySelectorAll(".wc-nav-budget-dropdown[open]"), function(dropdown){
+            if(!dropdown.contains(event.target)){
+              dropdown.removeAttribute("open");
+            }
+          });
+        });
+        document.addEventListener("keydown", function(event){
+          if(event.key !== "Escape"){
+            return;
+          }
+          Array.prototype.forEach.call(document.querySelectorAll(".wc-nav-budget-dropdown[open]"), function(dropdown){
+            dropdown.removeAttribute("open");
+          });
+        });
+      }
     }
     if(!nav.querySelector(".wc-nav-actions")){
       var actions = document.createElement("div");
@@ -2396,8 +2437,21 @@
         anchor.parentNode.insertBefore(crumb, anchor.nextSibling);
       }
     }
-    if(crumb.innerHTML !== html){
-      crumb.innerHTML = html;
+    // The trail lives in its own element so a page can park an action
+    // (e.g. the Capital Budget page's Project Search button) inline with the
+    // breadcrumbs without the repair pass wiping it out.
+    var trail = crumb.querySelector(".wc-breadcrumb-trail");
+    if(!trail){
+      trail = document.createElement("span");
+      trail.className = "wc-breadcrumb-trail";
+      crumb.insertBefore(trail, crumb.firstChild);
+    }
+    if(trail.innerHTML !== html){
+      trail.innerHTML = html;
+    }
+    var breadcrumbAction = document.querySelector("[data-wc-breadcrumb-action]");
+    if(breadcrumbAction && breadcrumbAction.parentNode !== crumb){
+      crumb.appendChild(breadcrumbAction);
     }
   }
   function openWaltonBudgetFooterSearch(){

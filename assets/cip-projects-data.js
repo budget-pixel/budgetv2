@@ -42,6 +42,250 @@
   // machinery, rather than a separate one-off page design.
   function placeholderFundProjects() {
     return [
+      // General Fund buildings (562000) and infrastructure (563000) capital
+      // that has no row in the CIP project sheet. Listed on the
+      // Transportation and Infrastructure ledger so the County's budgeted
+      // capital is visible in one place. Library materials (566000) and the
+      // Clerk/Supervisor of Elections capital outlay budgets are
+      // deliberately not included.
+      {
+        title: "Board-Approved Capital Improvements (Managed Vendor Program Revenue)",
+        slug: "",
+        proposal_name: "Board-Approved Capital Improvements (Managed Vendor Program Revenue)",
+        dept: "Board of County Commissioners", department: "Board of County Commissioners",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Managed Vendor Program Revenue set aside by the Board for future program needs or Board-approved purposes.",
+        budget: "$1,530,000", budget_value: 1530000,
+        funding_by_year: [{ year: "FY2027", amount_value: 1530000, amount: "$1,530,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Managed Vendor Program Revenue",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Board-Approved Capital Improvements",
+        slug: "",
+        proposal_name: "Board-Approved Capital Improvements",
+        dept: "Board of County Commissioners", department: "Board of County Commissioners",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Funds capital improvement projects identified and approved by the Board.",
+        budget: "$75,000", budget_value: 75000,
+        funding_by_year: [{ year: "FY2027", amount_value: 75000, amount: "$75,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Property Taxes",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Boating Improvements (Vessel Registration Fees)",
+        slug: "",
+        proposal_name: "Boating Improvements (Vessel Registration Fees)",
+        dept: "Board of County Commissioners", department: "Board of County Commissioners",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Funds capital improvements supported by vessel registration fees for public boat ramps, docks, waterway access, and other eligible boating-related projects.",
+        budget: "$100,000", budget_value: 100000,
+        funding_by_year: [{ year: "FY2027", amount_value: 100000, amount: "$100,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Vessel Registration Fees",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Eagle Springs Golf and Recreation Center Infrastructure",
+        slug: "",
+        proposal_name: "Eagle Springs Golf and Recreation Center Infrastructure",
+        dept: "Eagle Springs Golf and Recreation Center", department: "Eagle Springs Golf and Recreation Center",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Budgeted General Fund infrastructure capital for the Eagle Springs Golf and Recreation Center.",
+        budget: "$125,000", budget_value: 125000,
+        funding_by_year: [{ year: "FY2027", amount_value: 125000, amount: "$125,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Local Government 1/2 Cent Sales Tax",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Planning Short-Term Rental Building Improvements",
+        slug: "",
+        proposal_name: "Planning Short-Term Rental Building Improvements",
+        dept: "Planning Short-Term Rental", department: "Planning Short-Term Rental",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Budgeted General Fund building capital for Planning Short-Term Rental.",
+        budget: "$100,000", budget_value: 100000,
+        funding_by_year: [{ year: "FY2027", amount_value: 100000, amount: "$100,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Short-Term Rental Certificate Fee",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Procurement Building Improvements",
+        slug: "",
+        proposal_name: "Procurement Building Improvements",
+        dept: "Procurement", department: "Procurement",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Budgeted General Fund building capital for Procurement.",
+        budget: "$50,000", budget_value: 50000,
+        funding_by_year: [{ year: "FY2027", amount_value: 50000, amount: "$50,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Property Taxes",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        title: "Recreation Building Improvements",
+        slug: "",
+        proposal_name: "Recreation Building Improvements",
+        dept: "Recreation", department: "Recreation",
+        department_filter: "",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Budgeted General Fund building capital for Recreation.",
+        budget: "$30,000", budget_value: 30000,
+        funding_by_year: [{ year: "FY2027", amount_value: 30000, amount: "$30,000" }],
+        funding: "General Fund",
+        funding_source: "General Fund",
+        revenue_source: "Property Taxes",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
+      {
+        // Beach renourishment is budgeted as capital outlay in the Tourist
+        // Development Fund (Dept_Code 11141020, Object_Code 563000
+        // Infrastructure) but has no row in the CIP project sheet, so it
+        // was missing from the Tourist Development ledger entirely. No
+        // individual renourishment project has been identified yet, so it
+        // carries no slug and therefore no project detail page.
+        title: "Beach Renourishment (Additional Fund for Future Project)",
+        slug: "",
+        proposal_name: "Beach Renourishment (Additional Fund for Future Project)",
+        dept: "Beach Renourishment", department: "Beach Renourishment",
+        department_filter: "beach operations",
+        project_code: "", project_manager: "",
+        estimated_completion_date: "", start_date: "",
+        priority: "None",
+        strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
+        category: "Capital Project", category_label: "Capital Project",
+        description: "Budgeted Tourist Development Fund capital for future beach renourishment work; no individual project has been identified yet.",
+        budget: "$10,750,000", budget_value: 10750000,
+        funding_by_year: [{ year: "FY2027", amount_value: 10750000, amount: "$10,750,000" }],
+        funding: "Tourist Development Fund",
+        funding_source: "Tourist Development Fund",
+        revenue_source: "Tourist Development Taxes",
+        image_url: "",
+        district: "Not specified",
+        target: "FY2027", target_years: ["FY2027"],
+        status_text: "Identification", status_class: "",
+        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        is_legacy_in_house_engineering_row: false,
+        has_in_house_engineering: false,
+        in_house_engineering_value: 0,
+        in_house_engineering_value_formatted: "",
+        in_house_engineering_rows: [],
+        raw: {}
+      },
       {
         title: "Recreation Plat Fee Fund Project (Board-Directed, To Be Determined)",
         slug: "recreation-plat-fee-fund-placeholder",
@@ -57,6 +301,7 @@
         funding_by_year: [{ year: "FY2027", amount_value: 600000, amount: "$600,000" }],
         funding: "Recreation Plat Fee Fund",
         funding_source: "Recreation Plat Fee Fund",
+        revenue_source: "Recreation Plat Fee",
         image_url: "",
         district: "Not specified",
         target: "FY2027", target_years: ["FY2027"],
@@ -84,6 +329,7 @@
         funding_by_year: [{ year: "FY2027", amount_value: 300000, amount: "$300,000" }],
         funding: "Sidewalk Fund",
         funding_source: "Sidewalk Fund",
+        revenue_source: "Sidewalk Fees",
         image_url: "",
         district: "Not specified",
         target: "FY2027", target_years: ["FY2027"],
@@ -121,6 +367,17 @@
       else if (noBudgetYears.has("FY2026")) fundingByYear.push({ year: "FY2026", amount_value: 0, amount: "No amount recorded" });
       const total = (entry.fy2025 || 0) + (entry.fy2026 || 0);
       const isSheriff = /sheriff/i.test(entry.category || "");
+      // The supplement's "Transportation & Public Works" category is a work-
+      // plan heading, not a department -- these rows belong to the same
+      // Public Works/Engineering department the FY2027 projects use, so the
+      // Project Search department filter lists one department instead of two
+      // names for the same group. Grant Funded rows keep the department the
+      // title/notes imply.
+      const historicalDepartment = isSheriff
+        ? "Sheriff"
+        : (/transportation|public works/i.test(entry.category || "")
+          ? "Public Works/Engineering"
+          : normalizeDepartment({}, entry.name || "", entry.category || "", ""));
       // phase = where the project sits in the delivery lifecycle (Design,
       // Construction, Programmed, ...); status = whether it's finished.
       // Sheriff's Office rows carry neither and default to Complete.
@@ -131,8 +388,8 @@
         title: entry.name,
         slug: "historical-" + slugify(entry.name || "project-" + index),
         proposal_name: entry.name,
-        dept: entry.category || "", department: entry.category || "",
-        department_filter: isSheriff ? "Sheriff" : "",
+        dept: historicalDepartment, department: historicalDepartment,
+        department_filter: departmentFilterValue(historicalDepartment),
         project_code: "", project_manager: "",
         estimated_completion_date: "", start_date: "",
         priority: "None",
@@ -143,6 +400,9 @@
         funding_by_year: fundingByYear,
         funding: entry.category || "",
         funding_source: entry.category || "",
+        // The FY2025/FY2026 supplement records a work-plan heading rather
+        // than a budgeted fund, so no revenue is claimed for these rows.
+        revenue_source: "",
         image_url: "",
         district: "Not specified",
         target: fundingByYear.map((f) => f.year).join(", "), target_years: fundingByYear.map((f) => f.year),
@@ -314,6 +574,30 @@
   // projects like "CR 30A Sidewalk..." and "CR 83 N (Blue Mountain Rd)..."
   // as Beach Operations just because "30a"/"blue mountain" appeared in the
   // title.
+  // The revenue that pays for a project, by the fund it is budgeted in --
+  // the same mapping the fund schedules use for their Revenue Source column
+  // (see cip-fund-schedule.js). Capital funds are property-tax supported;
+  // grant-funded work is paid for by the awarding agency.
+  const CIP_REVENUE_SOURCE_BY_FUND = {
+    "capital projects fund": "Property Taxes",
+    "general fund": "Property Taxes",
+    "sheriff fund": "Property Taxes",
+    "grant funded": "State or Federal Funding",
+    "transportation fund": "Local Option Fuel Tax",
+    "tourist development fund": "Tourist Development Taxes",
+    "recreation plat fee fund": "Recreation Plat Fee",
+    "sidewalk fund": "Sidewalk Fees"
+  };
+
+  function revenueSourceForFund(fund, departmentFilter) {
+    const source = CIP_REVENUE_SOURCE_BY_FUND[cleanText(fund).toLowerCase()];
+    if (source) return source;
+    // Some Sheriff rows carry the department rather than a fund label --
+    // still property-tax supported.
+    if (cleanText(departmentFilter).toLowerCase() === "sheriff") return "Property Taxes";
+    return "";
+  }
+
   const CIP_DEPT_MAP = {
     "sheriff": "Sheriff",
     "beach operations": "Beach Operations",
@@ -442,6 +726,7 @@
         funding_by_year: yearlyFunding,
         funding: fund,
         funding_source: fundingSource,
+        revenue_source: revenueSourceForFund(fund, departmentFilterValue(department)),
         image_url: imageUrl,
         district: get(row, "Commissioner District") || "Not specified",
         target: targetYears.join(", ") || getPrimaryYear(yearlyFunding),

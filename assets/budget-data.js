@@ -2292,15 +2292,23 @@
   function buildMachineryRowsFromExpenditures(rows) {
     return (rows || [])
       .filter((row) => String(row.Object_Code || "").trim() === "564000")
-      .map((row) => ({
-        Dept_Code: row.Dept_Code || "",
-        Dept_Name: row.Dept_Name || "",
-        Item_Description: row.Note || row.Project_Name || row.Object_Name || "Machinery & Equipment",
-        Amount: row.FY2027_Proposed || 0,
-        ME_Type: row.ME_Type || "",
-        BCC_Replacement: row.BCC_Replacement || "",
-        Fleet_Note: row.Fleet_Note || ""
-      }))
+      .map((row) => {
+        // Same fund lookup the contractual services page uses -- the fund
+        // is the revenue source paying for each equipment request.
+        const fundCode = fundCodeForRow(row);
+        const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === fundCode);
+        return {
+          Dept_Code: row.Dept_Code || "",
+          Dept_Name: row.Dept_Name || "",
+          Fund_Code: fundCode,
+          Fund_Name: (fund && fund.Fund_Name) || (fundCode ? "Fund " + fundCode : ""),
+          Item_Description: row.Note || row.Project_Name || row.Object_Name || "Machinery & Equipment",
+          Amount: row.FY2027_Proposed || 0,
+          ME_Type: row.ME_Type || "",
+          BCC_Replacement: row.BCC_Replacement || "",
+          Fleet_Note: row.Fleet_Note || ""
+        };
+      })
       .filter((row) => row.Amount !== 0);
   }
 
@@ -2314,6 +2322,8 @@
     return {
       Dept_Code: (row.Dept_Code || "").trim(),
       Dept_Name: (row.Dept_Name || "").trim(),
+      Fund_Code: (row.Fund_Code || "").trim(),
+      Fund_Name: (row.Fund_Name || "").trim(),
       Item_Description: (row.Note || "").trim() || "Machinery & Equipment",
       Amount: toNumber(row.FY2027_Proposed),
       ME_Type: (row["M&E_type"] || "").trim(),
@@ -9640,6 +9650,126 @@
     }
   ];
 
+  // Revenue sources that aren't really a revenue *source* -- interfund
+  // transfers in (381000) and carried-forward balances -- excluded when
+  // working out what actually pays for a fund's spending.
+  const NON_SOURCE_REVENUE_NAME_PATTERN = /(carry ?forward|brought forward|cash forward|fund balance|appropriated balance|less 5%)/i;
+
+  // The named revenue topic a row rolls up to on the Summary of Revenues
+  // page ("Tourist Development Taxes", "Property Taxes", ...). The
+  // "All Other Revenue" catch-all is skipped so callers get a specific
+  // source name or nothing.
+  function revenueTopicTitleForRow(row) {
+    for (const section of REVENUE_CLASSIFICATION_SECTIONS) {
+      for (const topic of section.topics) {
+        if (topic.isAllOtherRevenue) continue;
+        try {
+          if (topic.matches(row)) return topic.title;
+        } catch (err) {
+          /* a topic matcher that can't read this row simply doesn't match */
+        }
+      }
+    }
+    return "";
+  }
+
+  // Largest single FY 2027 revenue source in a set of revenue rows, rolled
+  // up to the named topics used on the Summary of Revenues page. Interfund
+  // transfers in are never a source; carried-forward balances only count
+  // when nothing else is available (includeBalances).
+  // The Summary of Revenues topic title for 335180 is "Local Government
+  // Half-Cent Sales Tax"; the revenue sheet's own line, and the label used
+  // when naming what funds a request, writes it as "1/2 Cent". Only the
+  // revenue-source label is renamed -- the topic title itself still keys
+  // narratives, slugs, and charts elsewhere.
+  function revenueSourceLabel(label) {
+    return String(label || "").replace(/half-?cent/i, "1/2 Cent");
+  }
+
+  function largestRevenueSourceFromRows(rows, includeBalances) {
+    const totals = new Map();
+    (rows || []).forEach((r) => {
+      if (String(r.Revenue_Code || "").trim() === "381000") return;
+      const name = String(r.Revenue_Name || "").trim();
+      if (!name) return;
+      if (!includeBalances && NON_SOURCE_REVENUE_NAME_PATTERN.test(name)) return;
+      const amount = r.FY2027_Proposed || 0;
+      if (amount <= 0) return;
+      const label = revenueSourceLabel(revenueTopicTitleForRow(r) || name);
+      totals.set(label, (totals.get(label) || 0) + amount);
+    });
+
+    let best = "";
+    let bestAmount = 0;
+    totals.forEach((amount, label) => {
+      if (amount > bestAmount) {
+        bestAmount = amount;
+        best = label;
+      }
+    });
+    return best;
+  }
+
+  // A department's largest revenue allocation isn't always the revenue that
+  // pays for its equipment requests. These two lists carry the exceptions.
+
+  // Revenue that is dedicated to something other than the department's
+  // general operations, so it shouldn't be named as what funds a request.
+  // Code Compliance's TDC Public Safety Reimbursements ($2.2M, its largest
+  // line) reimburse beach-patrol salaries specifically.
+  const REVENUE_SOURCE_EXCLUDED_BY_DEPARTMENT = new Map([
+    ["code compliance", /tdc public safety reimbursement/i]
+  ]);
+
+  // Departments whose revenue is booked under a different Dept_Name in the
+  // revenue sheet -- Planning Short-Term Rental has no revenue rows of its
+  // own; its Short-Term Rental Certificate Fee sits under Planning.
+  // Departments whose equipment is paid for by a countywide source rather
+  // than the program revenue they collect -- Eagle Springs' membership and
+  // greens fees don't cover its capital, the General Fund's half-cent sales
+  // tax share does.
+  const REVENUE_SOURCE_DEPARTMENT_OVERRIDES = new Map([
+    ["planning short term rental", "Short-Term Rental Certificate Fee"],
+    ["eagle springs golf and recreation center", "Local Government 1/2 Cent Sales Tax"]
+  ]);
+
+  const revenueSourceByDepartment = new Map();
+
+  // The revenue that pays for a department's request: the department's own
+  // largest budgeted revenue allocation, falling back to the largest source
+  // in its fund for departments with no revenue of their own (Tourism
+  // departments, for instance, resolve to Tourist Development Taxes), and
+  // finally to a carried-forward balance when that is genuinely all a fund
+  // has. Answers the question straight from the budgeted revenue rather
+  // than a hand-kept list.
+  function largestRevenueSourceForDepartment(deptName, deptCode) {
+    const normalizedDept = normalizeDeptName(deptName);
+    const key = String(deptCode || "").trim() + "|" + normalizedDept;
+    if (revenueSourceByDepartment.has(key)) return revenueSourceByDepartment.get(key);
+
+    const override = REVENUE_SOURCE_DEPARTMENT_OVERRIDES.get(normalizedDept);
+    if (override) {
+      revenueSourceByDepartment.set(key, override);
+      return override;
+    }
+
+    const excluded = REVENUE_SOURCE_EXCLUDED_BY_DEPARTMENT.get(normalizedDept);
+    const departmentRows = rowsForDepartment(cache.revenues, deptName, deptCode)
+      .filter((r) => !excluded || !excluded.test(String(r.Revenue_Name || "")));
+    const fundCode = fundCodeForRow({ Dept_Code: deptCode });
+    const fundRows = fundCode
+      ? (cache.revenues || []).filter((r) => fundCodeForRow(r) === fundCode)
+      : [];
+
+    const source = largestRevenueSourceFromRows(departmentRows, false) ||
+      largestRevenueSourceFromRows(fundRows, false) ||
+      largestRevenueSourceFromRows(departmentRows, true) ||
+      largestRevenueSourceFromRows(fundRows, true);
+
+    revenueSourceByDepartment.set(key, source);
+    return source;
+  }
+
   const REVENUE_TOPIC_CHART_YEARS = [
     { field: "FY2022_Actual", label: "FY 2022 Actual" },
     { field: "FY2023_Actual", label: "FY 2023 Actual" },
@@ -12394,11 +12524,19 @@
     // rows above, kept in its own clearly-labeled section so an unfunded
     // request is never mistaken for a funded one.
     const unfundedRows = cache.machineryUnfunded || [];
+    // Both helpers below are function declarations further down in this
+    // function, so they're available here.
+    const allRows = rows.concat(unfundedRows);
+    const requestTypes = uniqueSorted(allRows.map((r) => machineryRequestType(r)));
+    const revenueSources = uniqueSorted(allRows.map((r) => revenueSourceText(r)));
 
     container.innerHTML =
+      '<div class="wc-machinery-source-totals"></div>' +
       '<div class="wc-filter-bar wc-machinery-picker">' +
       filterComboFieldHtml({ idPrefix: "wcMachineryDept", label: "Department", options: departments }) +
       filterComboFieldHtml({ idPrefix: "wcMachineryType", label: "Type", options: types }) +
+      filterComboFieldHtml({ idPrefix: "wcMachineryRequest", label: "New / Replacement", options: requestTypes }) +
+      filterComboFieldHtml({ idPrefix: "wcMachinerySource", label: "Revenue Source", options: revenueSources }) +
       "</div>" +
       '<div class="wc-financial-summary-table"></div>' +
       (unfundedRows.length
@@ -12408,8 +12546,11 @@
 
     const tableEl = container.querySelector(".wc-financial-summary-table");
     const unfundedTableEl = container.querySelector(".wc-machinery-unfunded-table");
+    const sourceTotalsEl = container.querySelector(".wc-machinery-source-totals");
     let selectedDept = "";
     let selectedType = "";
+    let selectedRequestType = "";
+    let selectedSource = "";
 
     function assetNumberHtml(row) {
       const assetNumber = String(row.BCC_Replacement || "").trim();
@@ -12428,30 +12569,130 @@
       return '<a class="wc-asset-record-link" href="asset-detail.html?' + query.toString() + '" aria-label="View equipment record and cost-benefit analysis for BCC asset ' + escapeHtml(assetNumber) + '">' + escapeHtml(assetNumber) + '<span aria-hidden="true"> →</span></a>';
     }
 
+    // The revenue actually paying for the request -- the requesting
+    // department's largest budgeted revenue allocation, not simply the
+    // name of the fund it is charged to. See
+    // largestRevenueSourceForDepartment for the fallbacks.
+    // Whether a request replaces an existing item or adds a new one. The
+    // sheet records this inside the item description ("SUV - Replacement",
+    // "... - Rpl #1234") rather than its own field, with a BCC asset number
+    // as a second signal. Anything unmarked is treated as new.
+    function machineryRequestType(row) {
+      const description = String(row.Item_Description || "");
+      if (/\b(replacement|replace|rpl)\b/i.test(description)) return "Replacement";
+      if (/\bnew\b/i.test(description)) return "New";
+      return String(row.BCC_Replacement || "").trim() ? "Replacement" : "New";
+    }
+
+    // The same marker removed from the description now that it has its own
+    // column. Only a trailing marker is stripped, so a mid-sentence "New"
+    // that qualifies the item ("Crew Cab Truck - New (Morrison Center)")
+    // is left alone.
+    function machineryItemDescription(row) {
+      return String(row.Item_Description || "")
+        .replace(/[\s.,]*[-–—]?\s*\b(replacement|replace|rpl)\b[\s.#:-]*\d*\s*$/i, "")
+        .replace(/[\s.,]*[-–—]\s*\bnew\b\s*$/i, "")
+        .trim();
+    }
+
+    function revenueSourceText(row) {
+      const source = largestRevenueSourceForDepartment(row.Dept_Name, row.Dept_Code);
+      if (source) return source;
+      const fundCode = String(row.Fund_Code || "").trim();
+      return String(row.Fund_Name || "").trim() ||
+        (((cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === fundCode) || {}).Fund_Name || "");
+    }
+
+    function revenueSourceHtml(row) {
+      const source = revenueSourceText(row);
+      return source ? escapeHtml(source) : "&mdash;";
+    }
+
+    // What each revenue source pays for across the requests currently shown,
+    // largest first -- the same per-department source used in the table's
+    // Revenue Source column, totalled.
+    function renderSourceTotals(items) {
+      if (!sourceTotalsEl) return;
+      const totals = new Map();
+      items.forEach((r) => {
+        const fundCode = String(r.Fund_Code || "").trim();
+        const fund = String(r.Fund_Name || "").trim() ||
+          (((cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === fundCode) || {}).Fund_Name || "") ||
+          (fundCode ? "Fund " + fundCode : "Not identified");
+        const source = revenueSourceLabel(largestRevenueSourceForDepartment(r.Dept_Name, r.Dept_Code)) || "Not identified";
+        const key = fund + "\u0000" + source;
+        const entry = totals.get(key) || { fund: fund, source: source, amount: 0 };
+        entry.amount += r.Amount || 0;
+        totals.set(key, entry);
+      });
+      const total = items.reduce((sum, r) => sum + (r.Amount || 0), 0);
+      // Grouped by fund, General Fund first, then the remaining funds
+      // alphabetically -- within a fund, largest revenue source first.
+      const ordered = Array.from(totals.values()).sort((a, b) => {
+        if (a.fund !== b.fund) {
+          const aGeneral = /^general fund$/i.test(a.fund);
+          const bGeneral = /^general fund$/i.test(b.fund);
+          if (aGeneral !== bGeneral) return aGeneral ? -1 : 1;
+          return a.fund.localeCompare(b.fund);
+        }
+        return b.amount - a.amount;
+      });
+      if (!ordered.length) {
+        mountOrHide(sourceTotalsEl, "");
+        return;
+      }
+      const bodyRows = ordered.map((entry) =>
+        "<tr><td>" + escapeHtml(entry.fund) + "</td>" +
+        "<td>" + escapeHtml(entry.source) + "</td>" +
+        '<td class="wc-num">' + (total ? ((entry.amount / total) * 100).toFixed(1) : "0.0") + "%</td>" +
+        '<td class="wc-num">' + formatCurrency(entry.amount) + "</td></tr>"
+      );
+      bodyRows.push('<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">' + formatCurrency(total) + "</td></tr>");
+      mountOrHide(
+        sourceTotalsEl,
+        renderTable({
+          caption: "Funding by Revenue Source",
+          columns: [{ label: "Fund" }, { label: "Revenue Source" }, { label: "Share", num: true }, { label: "Amount", num: true }],
+          bodyRows: bodyRows
+        })
+      );
+    }
+
+    function matchesMachineryFilters(row, deptName, typeName) {
+      if (deptName && row.Dept_Name !== deptName) return false;
+      if (typeName && row.ME_Type !== typeName) return false;
+      if (selectedRequestType && machineryRequestType(row) !== selectedRequestType) return false;
+      if (selectedSource && revenueSourceText(row) !== selectedSource) return false;
+      return true;
+    }
+
     function showFiltered() {
       const deptName = selectedDept;
       const typeName = selectedType;
       const items = rows
-        .filter((r) => (!deptName || r.Dept_Name === deptName) && (!typeName || r.ME_Type === typeName))
+        .filter((r) => matchesMachineryFilters(r, deptName, typeName))
         .slice()
         .sort((a, b) => String(a.Dept_Name || "").localeCompare(String(b.Dept_Name || "")));
       const total = items.reduce((s, r) => s + (r.Amount || 0), 0);
       const showDeptColumn = !deptName;
+      renderSourceTotals(items);
 
       const bodyRows = items.map((r) =>
         "<tr>" +
         (showDeptColumn ? "<td>" + escapeHtml(r.Dept_Name || "") + "</td>" : "") +
-        "<td>" + escapeHtml(r.Item_Description || "") + "</td>" +
+        "<td>" + escapeHtml(machineryItemDescription(r)) + "</td>" +
+        "<td>" + escapeHtml(machineryRequestType(r)) + "</td>" +
         "<td>" + escapeHtml(r.ME_Type || "") + "</td>" +
         "<td>" + assetNumberHtml(r) + "</td>" +
+        "<td>" + revenueSourceHtml(r) + "</td>" +
         '<td class="wc-num">' + formatCurrency(r.Amount || 0) + "</td></tr>"
       );
       bodyRows.push(
-        '<tr class="wc-table-total-row"><td' + (showDeptColumn ? ' colspan="4"' : ' colspan="3"') + ">Total</td><td class=\"wc-num\">" + formatCurrency(total) + "</td></tr>"
+        '<tr class="wc-table-total-row"><td' + (showDeptColumn ? ' colspan="6"' : ' colspan="5"') + ">Total</td><td class=\"wc-num\">" + formatCurrency(total) + "</td></tr>"
       );
 
       const columns = (showDeptColumn ? [{ label: "Department" }] : [])
-        .concat([{ label: "Item Description" }, { label: "Type" }, { label: "BCC Replacement #" }, { label: "Amount", num: true }]);
+        .concat([{ label: "Item Description" }, { label: "New / Replacement" }, { label: "Type" }, { label: "BCC Replacement #" }, { label: "Revenue Source" }, { label: "Amount", num: true }]);
 
       if (!items.length) {
         mountOrHide(tableEl, '<div class="wc-data-empty">No rows match the current filters.</div>');
@@ -12468,21 +12709,23 @@
 
       if (!unfundedTableEl) return;
       const unfundedItems = unfundedRows
-        .filter((r) => (!deptName || r.Dept_Name === deptName) && (!typeName || r.ME_Type === typeName))
+        .filter((r) => matchesMachineryFilters(r, deptName, typeName))
         .slice()
         .sort((a, b) => String(a.Dept_Name || "").localeCompare(String(b.Dept_Name || "")));
       const unfundedTotal = unfundedItems.reduce((s, r) => s + (r.Amount || 0), 0);
       const unfundedBodyRows = unfundedItems.map((r) =>
         "<tr>" +
         (showDeptColumn ? "<td>" + escapeHtml(r.Dept_Name || "") + "</td>" : "") +
-        "<td>" + escapeHtml(r.Item_Description || "") + "</td>" +
+        "<td>" + escapeHtml(machineryItemDescription(r)) + "</td>" +
+        "<td>" + escapeHtml(machineryRequestType(r)) + "</td>" +
         "<td>" + escapeHtml(r.ME_Type || "") + "</td>" +
         "<td>" + assetNumberHtml(r) + "</td>" +
+        "<td>" + revenueSourceHtml(r) + "</td>" +
         '<td class="wc-num">' + formatCurrency(r.Amount || 0) + "</td></tr>"
       );
       if (unfundedBodyRows.length) {
         unfundedBodyRows.push(
-          '<tr class="wc-table-total-row"><td' + (showDeptColumn ? ' colspan="4"' : ' colspan="3"') + ">Total</td><td class=\"wc-num\">" + formatCurrency(unfundedTotal) + "</td></tr>"
+          '<tr class="wc-table-total-row"><td' + (showDeptColumn ? ' colspan="6"' : ' colspan="5"') + ">Total</td><td class=\"wc-num\">" + formatCurrency(unfundedTotal) + "</td></tr>"
         );
         mountOrHide(
           unfundedTableEl,
@@ -12513,6 +12756,26 @@
       getCurrentValue: () => selectedType,
       onSelect: (value) => {
         selectedType = value;
+        showFiltered();
+      }
+    });
+    setupFilterCombo({
+      input: container.querySelector("#wcMachineryRequestInput"),
+      results: container.querySelector("#wcMachineryRequestResults"),
+      options: requestTypes,
+      getCurrentValue: () => selectedRequestType,
+      onSelect: (value) => {
+        selectedRequestType = value;
+        showFiltered();
+      }
+    });
+    setupFilterCombo({
+      input: container.querySelector("#wcMachinerySourceInput"),
+      results: container.querySelector("#wcMachinerySourceResults"),
+      options: revenueSources,
+      getCurrentValue: () => selectedSource,
+      onSelect: (value) => {
+        selectedSource = value;
         showFiltered();
       }
     });
@@ -15560,6 +15823,11 @@
       const totalPriorPersonnel = departments.reduce((sum, dept) => sum + dept.priorPersonnel, 0);
       const totalPriorOperating = departments.reduce((sum, dept) => sum + dept.priorContracts + dept.priorInternal + dept.priorOperating, 0);
       const totalPriorCapital = departments.reduce((sum, dept) => sum + dept.priorCapital, 0);
+      // The explorer card headline reports personnel + operating only --
+      // capital outlay is presented on the Capital Budget pages, so it is
+      // left out of both the amount shown here and its FY 2026 comparison.
+      const totalExcludingCapital = total - totalCapital;
+      const totalPriorExcludingCapital = departments.reduce((sum, dept) => sum + dept.prior, 0) - totalPriorCapital;
       const totalFte = Array.from(staffingByDept.values()).reduce((sum, fte) => sum + fte, 0);
       const explorerBadges = '<div class="wc-department-explorer-badges"><div><span>Board Departments</span><b>' + departments.length + '</b></div><div><span>Total FTE</span><b>' + formatNumber(totalFte) + '</b></div></div>';
       function metricChangeHtml(current, prior) {
@@ -15570,15 +15838,15 @@
         return '<em class="wc-department-metric-change' + (diff < 0 ? " is-decrease" : diff > 0 ? " is-increase" : "") + '">' + escapeHtml(amountText) + ' (' + escapeHtml(pctText) + ') from FY 2026</em>';
       }
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2>' + explorerBadges + '<p>Select any County department to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Board department budgets shown</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + percent(totalPersonnel, total) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + percent(totalOperating, total) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article><article><span>Capital</span><strong>' + formatCurrency(totalCapital) + '</strong><small>FY 2027 capital outlay · ' + percent(totalCapital, total) + '% of total</small>' + metricChangeHtml(totalCapital, totalPriorCapital) + '</article></div><h3 class="wc-department-explorer-subhead">Explore County departments</h3><div class="wc-department-budget-cards">' + departments.map((dept) => '<button type="button" data-department-key="' + escapeHtml(dept.key) + '"><strong>' + escapeHtml(dept.name) + '</strong><b>' + compactCurrency(dept.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2>' + explorerBadges + '<p>Select any County department to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Board department budgets shown</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + percent(totalPersonnel, totalExcludingCapital) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + percent(totalOperating, totalExcludingCapital) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article></div><h3 class="wc-department-explorer-subhead">Explore County departments</h3><div class="wc-department-budget-cards">' + departments.map((dept) => '<button type="button" data-department-key="' + escapeHtml(dept.key) + '"><strong>' + escapeHtml(dept.name) + '</strong><b>' + compactCurrency(dept.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
       const departmentBadgeGroup = explorer.querySelector(".wc-department-explorer-badges");
       const departmentTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const departmentLedgerButton = explorer.querySelector("[data-department-ledger-open]");
       const departmentTotalAmount = departmentTotalCallout && departmentTotalCallout.querySelector(":scope > strong");
       if (departmentBadgeGroup && departmentTotalCallout) departmentTotalCallout.insertBefore(departmentBadgeGroup, departmentTotalAmount || departmentLedgerButton || null);
       if (departmentTotalCallout) {
-        const priorTotal = departments.reduce((sum, dept) => sum + dept.prior, 0);
-        const change = total - priorTotal;
+        const priorTotal = totalPriorExcludingCapital;
+        const change = totalExcludingCapital - priorTotal;
         const changePercent = priorTotal ? change / Math.abs(priorTotal) * 100 : null;
         const changeColor = change < 0 ? "#b42318" : change > 0 ? "#087332" : "";
         const changeLine = document.createElement("div");

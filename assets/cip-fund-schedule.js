@@ -37,6 +37,120 @@ function isLegacyInHouseEngineeringRow(project){
     accountCode === "534000";
 }
 
+// The revenue that pays for a project, by the fund it is budgeted in.
+// Capital funds are supported by property taxes; grant-funded work is paid
+// for by the awarding agency rather than a County revenue; the Sheriff's
+// capital program is property-tax supported the same way the Capital
+// Projects Fund is. The dedicated funds keep the revenue that created them.
+const CIP_REVENUE_SOURCE_BY_FUND = {
+  "capital projects fund": "Property Taxes",
+  "general fund": "Property Taxes",
+  "sheriff fund": "Property Taxes",
+  "grant funded": "State or Federal Funding",
+  "transportation fund": "Local Option Fuel Tax",
+  "transportation & public works": "Local Option Fuel Tax",
+  "tourist development fund": "Tourist Development Taxes",
+  "recreation plat fee fund": "Recreation Plat Fee",
+  "sidewalk fund": "Sidewalk Fees"
+};
+
+function revenueSourceFor(project){
+  // A row can name its own revenue when the fund's default doesn't apply
+  // (e.g. General Fund rows paid from vessel registration or short-term
+  // rental fees) -- see cip-projects-data.js.
+  const explicit = String((project && project.revenue_source) || "").trim();
+  if(explicit){
+    return explicit;
+  }
+
+  const fund = String((project && project.funding) || "").trim().toLowerCase();
+  const source = CIP_REVENUE_SOURCE_BY_FUND[fund];
+
+  if(source){
+    return source;
+  }
+
+  // A Sheriff project carries its department rather than a fund label on
+  // some rows -- still property-tax supported.
+  if(String((project && project.department_filter) || "").toLowerCase() === "sheriff"){
+    return "Property Taxes";
+  }
+
+  return "Not listed";
+}
+
+function renderRevenueSource(project){
+  return escapeHtml(revenueSourceFor(project));
+}
+
+// What each revenue source pays for across the year's ledger, grouped by
+// fund then source -- the same summary the Machinery, Vehicles & Equipment
+// ledger opens with.
+function renderRevenueSourceSummary(projects, yearLabel){
+  const totals = new Map();
+  let total = 0;
+
+  (projects || []).forEach(project => {
+    const amount = Number(project.year_amount_value || 0);
+
+    if(amount <= 0){
+      return;
+    }
+
+    const fund = String(project.funding || "").trim() || "Not listed";
+    const source = revenueSourceFor(project);
+    const key = fund + "\u0000" + source;
+    const entry = totals.get(key) || { fund, source, amount: 0 };
+    entry.amount += amount;
+    totals.set(key, entry);
+    total += amount;
+  });
+
+  if(!totals.size){
+    return "";
+  }
+
+  const ordered = Array.from(totals.values()).sort((a, b) =>
+    a.fund.localeCompare(b.fund) || b.amount - a.amount
+  );
+
+  const rowsHtml = ordered.map(entry => `
+    <tr>
+      <td>${escapeHtml(entry.fund)}</td>
+      <td>${escapeHtml(entry.source)}</td>
+      <td class="wc-num">${total ? ((entry.amount / total) * 100).toFixed(1) : "0.0"}%</td>
+      <td class="wc-num">${money(entry.amount)}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="wc-table-wrap wc-cip-year-table wc-cip-source-summary">
+      <div class="wc-cip-table-label-row">
+        <p class="wc-table-label">${escapeHtml(yearLabel)} Funding by Revenue Source</p>
+      </div>
+      <div class="wc-data-table-scroll">
+        <table class="wc-data-table">
+          <thead>
+            <tr>
+              <th>Fund</th>
+              <th>Revenue Source</th>
+              <th class="wc-num">Share</th>
+              <th class="wc-num">${escapeHtml(yearLabel)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+            <tr class="wc-table-total-row">
+              <td colspan="3">Total</td>
+              <td class="wc-num">${money(total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 function displayYear(year){
   return String(year || "").replace(/^FY(\d{4})$/, "FY $1");
 }
@@ -75,7 +189,11 @@ function renderProjectTitle(project, year, disableLink){
 
 function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const total = projects.reduce((sum, project) => sum + project.year_amount_value, 0);
-  const showFundingColumn = Boolean(options && options.showFundingColumn);
+  // In-House Engineering rows are County staff time absorbed instead of
+  // contracted out -- there's no fund or revenue paying an outside cost, so
+  // both columns are suppressed on that ledger.
+  const hideFundColumns = Boolean(options && options.hideFundColumns);
+  const showFundingColumn = Boolean(options && options.showFundingColumn) && !hideFundColumns;
   const showDistrictColumn = Boolean(options && options.showDistrictColumn);
   const showStatusColumn = Boolean(options && options.showStatusColumn);
   const disableLinks = Boolean(options && options.disableLinks);
@@ -86,13 +204,17 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const isHistoricalYear = year === "FY2025" || year === "FY2026";
   const showPhaseColumn = isHistoricalYear && showStatusColumn;
   const showAmountColumn = !isHistoricalYear;
+  // Historical rows carry only a category-derived funding label, so the
+  // revenue behind them isn't reliable -- shown for FY2027-2031 only, the
+  // same way the Fund column is.
+  const showRevenueSourceColumn = !isHistoricalYear && !hideFundColumns;
 
   if(!projects.length){
     return "";
   }
 
   const yearLabel = displayYear(year);
-  const leadColumns = 1 + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0);
+  const leadColumns = 1 + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0);
 
   const rowsHtml = [];
   let currentDistrict = null;
@@ -127,6 +249,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
         <td>${renderProjectTitle(project, year, disableLinks)}</td>
         ${showDistrictColumn ? `<td>${escapeHtml(project.district || "Not specified")}</td>` : ""}
         ${showFundingColumn ? `<td>${escapeHtml(project.funding || "Not listed")}</td>` : ""}
+        ${showRevenueSourceColumn ? `<td>${renderRevenueSource(project)}</td>` : ""}
         ${showPhaseColumn ? `<td>${project.phase_text ? `<span class="wc-cip-status-badge ${escapeHtml(project.phase_class || "wc-status-planning")}">${escapeHtml(project.phase_text)}</span>` : "&mdash;"}</td>` : ""}
         ${showStatusColumn ? `<td><span class="wc-cip-status-badge ${escapeHtml(project.status_class || "wc-status-planning")}"${project.status_note ? ` title="${escapeHtml(project.status_note)}"` : ""}>${escapeHtml(project.status_text || "Not available")}</span></td>` : ""}
         ${showAmountColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">No amount recorded</span>'}</td>` : ""}
@@ -151,6 +274,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               <th>Project</th>
               ${showDistrictColumn ? "<th>Commissioner District</th>" : ""}
               ${showFundingColumn ? "<th>Fund</th>" : ""}
+              ${showRevenueSourceColumn ? "<th>Revenue Source</th>" : ""}
               ${showPhaseColumn ? "<th>Phase</th>" : ""}
               ${showStatusColumn ? "<th>Status</th>" : ""}
               ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
@@ -431,6 +555,13 @@ function renderFundSchedule(config){
         background:rgba(0,63,40,.12);
       }
 
+      /* the In-House Engineering stat only appears on ledgers that have
+         in-house work, so the row sizes itself to the stats present rather
+         than leaving an empty third cell */
+      .wc-cip-year-summary.is-two-up{
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
+
       .wc-cip-year-stat{
         padding:18px;
         background:#ffffff;
@@ -506,7 +637,8 @@ function renderFundSchedule(config){
         }
 
         .wc-cip-year-picker,
-        .wc-cip-year-summary{
+        .wc-cip-year-summary,
+        .wc-cip-year-summary.is-two-up{
           grid-template-columns:1fr;
         }
 
@@ -536,7 +668,17 @@ function renderFundSchedule(config){
     const noAmountProjects = splitRedNoAmount ? preGrantProjects.filter(isRedNoAmount) : [];
     const allScheduleProjects = splitRedNoAmount ? preGrantProjects.filter(project => !isRedNoAmount(project)) : preGrantProjects;
     const grantProjects = splitGrantFunded ? allScheduleProjects.filter(isGrantFunded) : [];
-    const scheduleProjects = splitGrantFunded ? allScheduleProjects.filter(project => !isGrantFunded(project)) : allScheduleProjects;
+    const nonGrantProjects = splitGrantFunded ? allScheduleProjects.filter(project => !isGrantFunded(project)) : allScheduleProjects;
+
+    // Projects funded elsewhere in the County budget. They belong on the
+    // fund's ledger for completeness but would double-count if they sat in
+    // its total, so they get their own sub-ledger the same way grant-funded
+    // work does. Configured per page as a list of title fragments.
+    const budgetedElsewhereTitles = (config.budgetedElsewhereTitles || []).map(title => String(title).toLowerCase());
+    const isBudgetedElsewhere = project => budgetedElsewhereTitles.length > 0 &&
+      budgetedElsewhereTitles.some(title => String(project && project.title || "").toLowerCase().includes(title));
+    const budgetedElsewhereProjects = nonGrantProjects.filter(isBudgetedElsewhere);
+    const scheduleProjects = nonGrantProjects.filter(project => !isBudgetedElsewhere(project));
     const inHouseProjects = scheduleProjects.filter(project => getInHouseEngineeringAmount(project) > 0);
 
     function getYearProjects(projectSource, year){
@@ -571,6 +713,7 @@ function renderFundSchedule(config){
       const yearInHouseProjects = getYearInHouseProjects(inHouseProjects, year);
       const yearGrantProjects = getYearProjects(grantProjects, year);
       const yearNoAmountProjects = getYearProjects(noAmountProjects, year);
+      const yearBudgetedElsewhereProjects = getYearProjects(budgetedElsewhereProjects, year);
       const total = yearProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
       const inHouseTotal = yearInHouseProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
       const grantTotal = yearGrantProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
@@ -580,6 +723,7 @@ function renderFundSchedule(config){
         inHouseProjects: yearInHouseProjects,
         grantProjects: yearGrantProjects,
         noAmountProjects: yearNoAmountProjects,
+        budgetedElsewhereProjects: yearBudgetedElsewhereProjects,
         total,
         inHouseTotal,
         grantTotal
@@ -589,10 +733,10 @@ function renderFundSchedule(config){
     }, {});
 
     const hasProjects = years.some(year =>
-      yearData[year].projects.length || yearData[year].inHouseProjects.length || yearData[year].grantProjects.length || yearData[year].noAmountProjects.length
+      yearData[year].projects.length || yearData[year].inHouseProjects.length || yearData[year].grantProjects.length || yearData[year].noAmountProjects.length || yearData[year].budgetedElsewhereProjects.length
     );
     const availableYears = years.filter(year =>
-      yearData[year].projects.length || yearData[year].inHouseProjects.length || yearData[year].grantProjects.length || yearData[year].noAmountProjects.length
+      yearData[year].projects.length || yearData[year].inHouseProjects.length || yearData[year].grantProjects.length || yearData[year].noAmountProjects.length || yearData[year].budgetedElsewhereProjects.length
     );
 
     if(!hasProjects){
@@ -667,7 +811,10 @@ function renderFundSchedule(config){
         showDistrictColumn: sortByDistrict && !isHistoricalYear,
         showStatusColumn: Boolean(config.showStatusColumn) && isHistoricalYear,
         showFundingColumn: Boolean(config.showFundingColumn) && !isHistoricalYear,
-        disableLinks: isHistoricalYear
+        // Ledgers whose rows are a single budgeted fund amount rather than
+        // named projects (Sidewalk, Recreation Plat Fee) opt out of the
+        // project detail link entirely via config.disableLinks.
+        disableLinks: isHistoricalYear || Boolean(config.disableLinks)
       });
       const districtToggleHtml = isHistoricalYear ? "" : `
         <button type="button" class="wc-cip-district-toggle${sortByDistrict ? " is-active" : ""}" id="wcCipDistrictToggle" aria-pressed="${sortByDistrict ? "true" : "false"}">
@@ -695,7 +842,7 @@ function renderFundSchedule(config){
         ? renderYearScheduleTable(
             activeYear,
             config.label + " Ledger",
-            sortProjects(data.projects.concat(data.noAmountProjects, data.grantProjects, data.inHouseProjects)),
+            sortProjects(data.projects.concat(data.noAmountProjects, data.grantProjects, data.inHouseProjects, data.budgetedElsewhereProjects)),
             config.label,
             Object.assign({}, tableOptions, { toggleHtml: historicalSortHtml })
           )
@@ -703,7 +850,8 @@ function renderFundSchedule(config){
             renderYearScheduleTable(activeYear, config.label + " Ledger", sortProjects(data.projects), config.label, Object.assign({}, tableOptions, { toggleHtml: districtToggleHtml })),
             renderYearScheduleTable(activeYear, "Ledger", sortProjects(data.noAmountProjects), "Ledger", tableOptions),
             renderYearScheduleTable(activeYear, "Grant Funded Ledger", sortProjects(data.grantProjects), "Grant Funded", tableOptions),
-            renderYearScheduleTable(activeYear, "In-House Engineering Ledger", sortProjects(data.inHouseProjects), "In-House Engineering", tableOptions)
+            renderYearScheduleTable(activeYear, "Budgeted Elsewhere Ledger", sortProjects(data.budgetedElsewhereProjects), "Budgeted Elsewhere", tableOptions),
+            renderYearScheduleTable(activeYear, "In-House Engineering Ledger", sortProjects(data.inHouseProjects), "In-House Engineering", Object.assign({}, tableOptions, { hideFundColumns: true }))
           ].join("");
 
       mount.innerHTML = `
@@ -729,7 +877,7 @@ function renderFundSchedule(config){
           </div>
           <div class="wc-cip-year-body">
             ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This is historical capital project data from the County&rsquo;s 5-year work plans, shown for past-project tracking.</p>` : ""}
-            ${isHistoricalYear ? "" : `<div class="wc-cip-year-summary" aria-label="${escapeHtml(yearLabel)} schedule summary">
+            ${isHistoricalYear ? "" : `<div class="wc-cip-year-summary${data.inHouseTotal > 0 ? "" : " is-two-up"}" aria-label="${escapeHtml(yearLabel)} schedule summary">
               <div class="wc-cip-year-stat">
                 <strong>${money(data.total)}</strong>
                 <span>${escapeHtml(config.label)}</span>
@@ -738,11 +886,20 @@ function renderFundSchedule(config){
                 <strong>${escapeHtml(data.projects.length)}</strong>
                 <span>Projects Listed</span>
               </div>
-              <div class="wc-cip-year-stat">
+              ${data.inHouseTotal > 0 ? `<div class="wc-cip-year-stat">
                 <strong>${money(data.inHouseTotal)}</strong>
                 <span>In-House Engineering</span>
-              </div>
+              </div>` : ""}
             </div>`}
+            ${isHistoricalYear ? "" : renderRevenueSourceSummary(
+              // Grant-funded work is paid for by the awarding agency rather
+              // than a County revenue, and In-House Engineering is staff
+              // time saved rather than a funded request -- both are totalled
+              // in their own sub-ledgers below and stay out of this summary,
+              // so its total ties to the year's headline total.
+              data.projects,
+              yearLabel
+            )}
             ${tables || `<p class="wc-data-empty">No ${escapeHtml(config.label)} projects are listed for ${escapeHtml(yearLabel)}.</p>`}
           </div>
         </section>

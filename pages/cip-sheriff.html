@@ -32,6 +32,10 @@
     mountId:"sheriffTables",
     label:"Sheriff Projects",
     showFundingColumn:true,
+    // Grant-funded Sheriff work is paid for by the awarding agency, so it
+    // gets its own sub-ledger and total below rather than sitting in the
+    // County-funded headline total.
+    splitGrantFunded:true,
     projectFilter:function(project){
       return String(project && project.department_filter || "").toLowerCase() === "sheriff";
     }

@@ -218,10 +218,21 @@
       input.blur();
     }
 
+    function resolvePageHref(href){
+      if(!href || window.location.pathname.indexOf("/pages/") !== -1){
+        return href;
+      }
+      if(/^(https?:|mailto:|tel:|#|\/|\.\.?\/|pages\/)/.test(href)){
+        return href;
+      }
+      return "pages/" + href;
+    }
+
     function addSearchLink(title, section, href, extraSearchText, darkModeOnly, keywordTerms){
       title = title ? String(title).trim() : "";
       section = section ? String(section).trim() : "Budget Book";
       href = href ? String(href).trim() : "";
+      href = resolvePageHref(href);
       extraSearchText = normalizeSearchText(extraSearchText);
 
       if(!title || !href || href === "#" || seenHrefs[href]){

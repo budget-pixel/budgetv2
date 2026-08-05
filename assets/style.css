@@ -549,6 +549,10 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-department-explorer-head .wc-department-ledger-trigger,
 .wc-personnel-explorer-head .wc-personnel-explorer-total button { font-size: .78rem; }
 .wc-revenue-ledger-trigger, .wc-revenue-peer-trigger { padding: 7px 11px; }
+/* the capital budget page uses an <a> for its Project Search action */
+a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text-align: center; }
+.wc-capital-page-actions { margin: 0 0 10px; }
+.wc-breadcrumb .wc-capital-page-actions { margin: 0; }
 .wc-revenue-peer-trigger { background: #fff; color: var(--green); }
 .wc-revenue-peer-trigger:hover { background: #eef7f1; }
 .wc-revenue-ledger-close { margin: 18px 0 0; padding: 8px 12px; }

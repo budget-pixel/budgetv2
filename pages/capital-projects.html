@@ -19,13 +19,14 @@
 <div class="page-eyebrow wc-sr-only">Capital Budget</div>
 <h1 class="page-title wc-sr-only">Capital Budget</h1>
 
+<div class="wc-revenue-view-actions wc-capital-page-actions" data-wc-breadcrumb-action>
+  <a class="wc-revenue-ledger-trigger" href="capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a>
+  <a class="wc-revenue-ledger-trigger" href="search.html">Project Search</a>
+</div>
+
 <section id="capital-budget-explorer" aria-label="Capital Budget Explorer">
   <div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading capital budget"><span></span><span></span><span></span></span></div>
 </section>
-
-<div class="wc-department-explorer-list-footer">
-  <button type="button" class="wc-department-list-link" id="capitalDirectoryToggle" aria-expanded="false" aria-controls="capitalDirectorySection">Browse Capital Budget Directory <span class="wc-department-list-link-icon" aria-hidden="true">&darr;</span></button>
-</div>
 
 <section aria-label="Capital budget directory" id="capitalDirectorySection" hidden>
   <ul class="wc-directory-list" id="capitalDirectory"></ul>
@@ -66,34 +67,58 @@
       },
       {
         title:"Transportation and Infrastructure Ledger",
+        priorFunds:["101","300","001"],
         href:"cip-capital-projects.html",
         description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project.",
+        // Grant-funded work is listed on that page in its own sub-ledger
+        // with its own total and is paid for by the awarding agency, so it
+        // stays out of this card's amount -- keeping it equal to the
+        // ledger's FY 2027 headline total.
         match:function(project){
+          if(String(project && project.department_filter || "").toLowerCase() === "sheriff"){
+            return false;
+          }
           var funding = String(project && project.funding || "").toLowerCase();
           return funding === "transportation fund" || funding === "capital projects fund" ||
-            (funding === "grant funded" && String(project && project.department_filter || "").toLowerCase() !== "sheriff");
+            funding === "general fund";
         }
       },
       {
         title:"Tourist Development Fund Ledger",
+        priorFunds:["111"],
         href:"cip-tourist-development.html",
         description:"Explore tourism-related capital investments funded through tourist development resources.",
-        funding:"tourist development fund"
+        // Matches the ledger's headline total, which lists US 331 Bridge
+        // Lighting separately because it is funded elsewhere in the budget.
+        match:function(project){
+          return String(project && project.funding || "").toLowerCase() === "tourist development fund" &&
+            String(project && project.title || "").toLowerCase().indexOf("us 331 bridge lighting") === -1;
+        }
       },
       {
         title:"Sheriff Project Ledger",
+        priorFunds:["107"],
         href:"cip-sheriff.html",
         description:"Review all capital projects associated with the Walton County Sheriff's Office.",
-        departmentFilter:"sheriff"
+        // Matches the ledger's headline total, which lists grant-funded work
+        // in its own sub-ledger rather than the County-funded total.
+        match:function(project){
+          return String(project && project.department_filter || "").toLowerCase() === "sheriff" &&
+            String(project && project.funding || "").toLowerCase() !== "grant funded";
+        }
       },
       {
         title:"Recreation Plat Fee Fund Ledger",
+        budgetFunds:["114"],
+        priorFunds:["114"],
         href:"recreation-plat-fee-fund.html",
         description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects.",
         funding:"recreation plat fee fund"
       },
       {
         title:"Sidewalk Fund Ledger",
+        budgetFunds:["115"],
+        priorFunds:["115"],
         href:"sidewalk-fund.html",
         description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects.",
         funding:"sidewalk fund"
@@ -118,6 +143,10 @@
         return "$" + (amount / 1000).toLocaleString("en-US", { maximumFractionDigits:0 }) + "K";
       }
       return "$" + Math.round(amount).toLocaleString("en-US");
+    }
+
+    function formatMoneyFull(value){
+      return "$" + Math.round(Number(value) || 0).toLocaleString("en-US");
     }
 
     function isLegacyInHouseEngineeringRow(project){
@@ -155,6 +184,29 @@
     var machineryVehicleCount = null;
     var machineryEquipmentCount = null;
     var capitalOutlayPrior = null;
+    // FY 2027 capital outlay straight from the expenditure budget (object
+    // codes 560000-566000: Capital Outlay Budget, Land, Buildings,
+    // Infrastructure, Machinery & Equipment, Library Materials) rather than
+    // rolled up from the CIP project sheet -- the budgeted total is the
+    // authoritative capital figure and reconciles to the expense summaries.
+    var capitalOutlayTotal = null;
+    // FY 2027 capital outlay by fund code -- lets a ledger card report the
+    // budgeted amount straight from the expenditure sheet instead of a
+    // stand-in project row (see budgetFunds below).
+    var capitalOutlayByFund = null;
+    // FY 2026 capital outlay by fund code (machinery objects excluded, since
+    // those belong to the equipment ledger rather than a CIP fund ledger),
+    // plus the machinery ledger's own prior-year total. Both feed the
+    // per-card "Compared to Prior Year" line below.
+    var capitalOutlayPriorByFund = null;
+    var machineryPrior = null;
+    var MACHINERY_OBJECT_CODE = "564000";
+    var EXCLUDED_CAPITAL_OBJECT_CODES = [];
+
+    function isCapitalOutlayRow(row){
+      if(String(row.Object_Type || "").trim().toLowerCase() !== "capital outlay") return false;
+      return EXCLUDED_CAPITAL_OBJECT_CODES.indexOf(String(row.Object_Code || "").trim()) === -1;
+    }
 
     function statHtml(modifierClass, value, label){
       return '<div class="wc-directory-item-stat ' + modifierClass + '"><strong>' + value + '</strong><span>' + escapeHtml(label) + '</span></div>';
@@ -234,40 +286,72 @@
         var equipment = machineryEquipmentCount || 0;
         return { budget: machineryTotal || 0, detail: vehicles.toLocaleString("en-US") + " vehicles · " + equipment.toLocaleString("en-US") + " machinery & equipment" };
       }
+      // Funds whose ledger has no individual Board-directed projects yet
+      // report the budgeted fund amount from the expenditure sheet rather
+      // than a placeholder project row.
+      if(page.budgetFunds && capitalOutlayByFund){
+        return {
+          budget: page.budgetFunds.reduce(function(sum, fundCode){
+            return sum + (capitalOutlayByFund[fundCode] || 0);
+          }, 0),
+          detail: "FY 2027 budgeted fund amount"
+        };
+      }
       var matching = currentProjects.filter(function(p){ return pageProjectMatches(page, p); });
       var budget = matching.reduce(function(sum, p){ return sum + getFy2027Amount(p); }, 0);
       var count = matching.filter(function(p){ return getFy2027Amount(p) > 0; }).length;
       return { budget: budget, detail: count.toLocaleString("en-US") + (count === 1 ? " project" : " projects") };
     }
 
+    // FY 2026 comparison for a ledger card, or null when the ledger has no
+    // prior-year capital budget to compare against (the CIP Overview and
+    // Project Search cards aren't a fund).
+    function ledgerCardPrior(page){
+      if(page.metric === "machinery") return machineryPrior;
+      if(!page.priorFunds || !capitalOutlayPriorByFund) return null;
+      return page.priorFunds.reduce(function(sum, fundCode){
+        return sum + (capitalOutlayPriorByFund[fundCode] || 0);
+      }, 0);
+    }
+
+    function ledgerCardChangeHtml(page, budget){
+      var prior = ledgerCardPrior(page);
+      if(prior === null) return "";
+      var change = budget - prior;
+      var changePct = prior ? (change / Math.abs(prior)) * 100 : null;
+      var direction = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
+      return '<div class="wc-department-card-change' + direction + '">' +
+        '<span>Compared to Prior Year</span>' +
+        '<strong>' + (change > 0 ? "+" : change < 0 ? "−" : "") + escapeHtml(formatMoneyShort(Math.abs(change))) + '</strong>' +
+        '<small>' + (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + '%') + '</small>' +
+        '</div>';
+    }
+
     function ledgerCardHtml(page){
       var stats = ledgerCardStats(page);
-      return '<a href="' + escapeHtml(page.href) + '"><strong>' + escapeHtml(page.title) + '</strong><b>' + escapeHtml(formatMoneyShort(stats.budget)) + '</b><small>' + escapeHtml(stats.detail) + '</small><em>Explore ledger →</em></a>';
+      return '<a href="' + escapeHtml(page.href) + '"><strong>' + escapeHtml(page.title) + '</strong><b>' + escapeHtml(formatMoneyShort(stats.budget)) + '</b><small>' + escapeHtml(stats.detail) + '</small>' + ledgerCardChangeHtml(page, stats.budget) + '</a>';
     }
 
     function renderCapitalBudgetExplorer(){
       var explorer = document.getElementById("capital-budget-explorer");
       if(!explorer) return;
-      if(projectsLoading || machineryTotal === null){
+      if(projectsLoading || machineryTotal === null || capitalOutlayTotal === null){
         explorer.innerHTML = '<div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading capital budget"><span></span><span></span><span></span></span></div>';
         return;
       }
-      var searchable = (typeof getSearchableProjects === "function") ? getSearchableProjects() : currentProjects;
-      var fy2027Total = searchable.reduce(function(sum, p){ return sum + getFy2027Amount(p); }, 0);
-      var fy2027Count = searchable.filter(function(p){ return getFy2027Amount(p) > 0; }).length;
-      var grantTotal = searchable.reduce(function(sum, p){
-        return String(p.funding || "").toLowerCase() === "grant funded" ? sum + getFy2027Amount(p) : sum;
-      }, 0);
-      var combinedTotal = fy2027Total + (machineryTotal || 0);
+      var combinedTotal = capitalOutlayTotal || 0;
+      var fy2027Total = combinedTotal - (machineryTotal || 0);
       var prior = capitalOutlayPrior || 0;
       var change = combinedTotal - prior;
       var changePct = prior ? (change / Math.abs(prior)) * 100 : null;
-      var changeHtml = '<small>' + (changePct === null
-        ? "No FY 2026 base"
-        : (change >= 0 ? "+" : "−") + escapeHtml(formatMoneyShort(Math.abs(change))) + ' (' + (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + '%) from FY 2026') + '</small>';
+      var changeHtml = '<small class="wc-revenue-total-change ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' +
+        (change >= 0 ? "+" : "−") + escapeHtml(formatMoneyShort(Math.abs(change))) +
+        ' (' + (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + '%') + ')</small>';
+      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary">The FY 2027 capital budget combines multi-year capital projects with annual machinery, vehicle, and equipment purchases.</p>' +
+        '<div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b></div></div></div>';
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p></div>' +
-        '<aside class="wc-personnel-total-budget"><div class="wc-personnel-budget-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b></div></div><div class="wc-personnel-explorer-total"><span>FY 2027 capital budget shown</span><strong>' + escapeHtml(formatMoneyShort(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
-        '<div class="wc-department-explorer-metrics"><article><span>Capital Projects</span><strong>' + escapeHtml(fy2027Count.toLocaleString("en-US")) + '</strong><small>with FY 2027 funding</small></article><article><span>Grant Funded</span><strong>' + escapeHtml(formatMoneyShort(grantTotal)) + '</strong><small>FY 2027 across all capital funds</small></article><article><span>Machinery, Vehicles &amp; Equipment</span><strong>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</strong><small>FY 2027 budget</small></article></div>' +
+        '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
+        compositionHtml +
         '<h3 class="wc-department-explorer-subhead">Explore by ledger</h3><div class="wc-department-budget-cards">' + ledgerPages.map(ledgerCardHtml).join("") + '</div></section>';
     }
 
@@ -308,17 +392,45 @@
           machineryItemCount = machineryRows.length;
           machineryVehicleCount = machineryRows.filter(function(row){ return /^vehicles?$/i.test(String(row.ME_Type || "").trim()); }).length;
           machineryEquipmentCount = machineryItemCount - machineryVehicleCount;
-          capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
-            return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay"
-              ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0)
-              : sum;
+          capitalOutlayTotal = (data.expenditures || []).reduce(function(sum, row){
+            return isCapitalOutlayRow(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
           }, 0);
+          capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
+            return isCapitalOutlayRow(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;
+          }, 0);
+          capitalOutlayByFund = {};
+          capitalOutlayPriorByFund = {};
+          machineryPrior = 0;
+          (data.expenditures || []).forEach(function(row){
+            if(!isCapitalOutlayRow(row)) return;
+            var amount = Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0;
+            if(!amount) return;
+            if(String(row.Object_Code || "").trim() === MACHINERY_OBJECT_CODE){
+              machineryPrior += amount;
+              return;
+            }
+            var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
+            if(!fundCode) return;
+            capitalOutlayPriorByFund[fundCode] = (capitalOutlayPriorByFund[fundCode] || 0) + amount;
+          });
+          (data.expenditures || []).forEach(function(row){
+            if(!isCapitalOutlayRow(row)) return;
+            var amount = Number(row.FY2027_Proposed) || 0;
+            if(!amount) return;
+            var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
+            if(!fundCode) return;
+            capitalOutlayByFund[fundCode] = (capitalOutlayByFund[fundCode] || 0) + amount;
+          });
           renderDirectory(currentProjects, projectsLoading);
           renderCapitalBudgetExplorer();
         }).catch(function(){
           machineryTotal = 0;
           machineryItemCount = 0;
+          capitalOutlayTotal = 0;
           capitalOutlayPrior = 0;
+          capitalOutlayByFund = {};
+          capitalOutlayPriorByFund = {};
+          machineryPrior = 0;
           machineryVehicleCount = 0;
           machineryEquipmentCount = 0;
           renderDirectory(currentProjects, projectsLoading);

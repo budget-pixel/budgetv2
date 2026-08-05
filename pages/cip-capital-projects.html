@@ -38,9 +38,17 @@
     splitRedNoAmount:true,
     projectFilter:function(project){
       var funding = String(project && project.funding || "").toLowerCase();
+      // Sheriff projects are shown and totalled on the Sheriff ledger, even
+      // when they're budgeted in the Capital Projects Fund (e.g. the
+      // Freeport/Bear Creek and Pleasant Ridge fire stations) -- excluded
+      // here so they aren't counted on both ledgers.
+      if(String(project && project.department_filter || "").toLowerCase() === "sheriff"){
+        return false;
+      }
       return funding === "transportation fund" || funding === "capital projects fund" ||
+        funding === "general fund" ||
         funding === "transportation & public works" ||
-        (funding === "grant funded" && String(project && project.department_filter || "").toLowerCase() !== "sheriff");
+        funding === "grant funded";
     }
   });
 </script>

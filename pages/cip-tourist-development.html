@@ -28,7 +28,16 @@
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-fund-schedule.js?v=20260802-ledger-rename"></script>
 <script>
-  renderFundSchedule({funding:"tourist development fund", mountId:"touristTables", label:"Tourist Development Fund"});
+  renderFundSchedule({
+    funding:"tourist development fund",
+    mountId:"touristTables",
+    label:"Tourist Development Fund",
+    showFundingColumn:true,
+    // US 331 Bridge Lighting is already funded elsewhere in the County
+    // budget -- listed below in its own sub-ledger so it isn't counted
+    // twice in the Tourist Development Fund total.
+    budgetedElsewhereTitles:["US 331 Bridge Lighting"]
+  });
 </script>
 </main>
 </div>
