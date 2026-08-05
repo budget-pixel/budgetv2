@@ -759,8 +759,8 @@ function renderFundSchedule(config){
     // Lifecycle order so a Phase sort reads Design -> Permitting ->
     // Construction rather than alphabetically, and Complete leads a Status
     // sort. Anything unrecognized sorts last.
-    const PHASE_ORDER = ["Programmed", "Report/Study", "Design", "Permitting", "Construction"];
-    const STATUS_ORDER = ["Complete", "In Progress"];
+    const PHASE_ORDER = ["Programmed", "Report/Study", "Preliminary Engineering", "Design", "Design & Permitting", "Permitting", "Construction", "Design & Construction"];
+    const STATUS_ORDER = ["Complete", "In Progress", "Programmed"];
 
     function rankIn(list, value){
       const index = list.indexOf(String(value || "").trim());
