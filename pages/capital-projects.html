@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capital Budget — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260806-card-style-fix">
+<link rel="stylesheet" href="../assets/style.css?v=20260806-card-share-pct">
 </head>
 <body>
 
@@ -157,11 +157,22 @@
     // budget". BCC Other Uses Contingency (00101001/599000) is real
     // appropriation authority, not a transfer, so it stays counted despite
     // its "Other Sources" activity label.
-    function isExcludedFromCountywideTotal(row){
+    // Activity is looked up from the Activities sheet by Dept_Code (same as
+    // budget-data.js's own activityForDeptCode) rather than read off the
+    // expenditure row directly -- normalizeExpenditureRow only keeps a
+    // fixed whitelist of fields, and "activity" isn't one of them, so a raw
+    // row here never carries it.
+    function activityForDeptCode(deptCode, activities){
+      var code = String(deptCode || "").trim();
+      if(!code) return "";
+      var match = (activities || []).find(function(a){ return a.Dept_Code === code; });
+      return match ? match.Activity : "";
+    }
+    function isExcludedFromCountywideTotal(row, activities){
       var deptCode = String(row.Dept_Code || "").trim();
       if(deptCode.slice(0, 3) === "503") return true;
       if(deptCode === "00101001" && String(row.Object_Code || "").trim() === "599000") return false;
-      var activity = String(row.activity || "").trim().toLowerCase();
+      var activity = activityForDeptCode(deptCode, activities).trim().toLowerCase();
       return activity === "interfund transfers" || activity === "other sources";
     }
 
@@ -310,13 +321,12 @@
       // Funds whose ledger has no individual Board-directed projects yet
       // report the budgeted fund amount from the expenditure sheet rather
       // than a placeholder project row -- no project/vehicle count exists
-      // to badge, so this stays as a plain caption.
+      // to badge.
       if(page.budgetFunds && capitalOutlayByFund){
         return {
           budget: page.budgetFunds.reduce(function(sum, fundCode){
             return sum + (capitalOutlayByFund[fundCode] || 0);
-          }, 0),
-          caption: "FY 2027 budgeted fund amount"
+          }, 0)
         };
       }
       var matching = currentProjects.filter(function(p){ return pageProjectMatches(page, p); });
@@ -347,12 +357,13 @@
         (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "") + Math.abs(changePct).toFixed(1) + '%') + '</em></div></div></div>';
     }
 
-    function ledgerCardHtml(page){
+    function ledgerCardHtml(page, totalCapitalBudget){
       var stats = ledgerCardStats(page);
       var badgeHtml = stats.badges && stats.badges.length ?
         '<div class="wc-revenue-card-badge-stack">' + stats.badges.map(function(b){ return '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(b) + '</span>'; }).join("") + '</div>' : "";
-      var captionHtml = stats.caption ? '<small class="wc-revenue-card-share">' + escapeHtml(stats.caption) + '</small>' : "";
-      return '<a href="' + escapeHtml(page.href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(page.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(formatMoneyShort(stats.budget)) + '</b>' + captionHtml + '</div>' + badgeHtml + '</div>' + ledgerCardChangeHtml(page, stats.budget) + '</a>';
+      var sharePct = totalCapitalBudget ? (stats.budget / totalCapitalBudget * 100) : 0;
+      var shareHtml = '<small class="wc-revenue-card-share">' + sharePct.toFixed(1) + '% of capital budget</small>';
+      return '<a href="' + escapeHtml(page.href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(page.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(formatMoneyShort(stats.budget)) + '</b>' + shareHtml + '</div>' + badgeHtml + '</div>' + ledgerCardChangeHtml(page, stats.budget) + '</a>';
     }
 
     function renderCapitalBudgetExplorer(){
@@ -371,11 +382,13 @@
         (change >= 0 ? "+" : "−") + escapeHtml(formatMoneyShort(Math.abs(change))) +
         ' (' + (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + '%') + ')</small>';
       var capitalShareOfBudgetPct = totalCountywideBudget2027 ? (combinedTotal / totalCountywideBudget2027 * 100) : 0;
-      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b></div></div></div>';
+      var fy2027SharePct = combinedTotal ? (fy2027Total / combinedTotal * 100) : 0;
+      var machinerySharePct = combinedTotal ? ((machineryTotal || 0) / combinedTotal * 100) : 0;
+      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b><small>' + fy2027SharePct.toFixed(1) + '% of capital budget</small></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b><small>' + machinerySharePct.toFixed(1) + '% of capital budget</small></div></div></div>';
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p></div>' +
         '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
         compositionHtml +
-        '<div class="wc-department-budget-cards">' + ledgerPages.map(ledgerCardHtml).join("") + '</div></section>';
+        '<div class="wc-department-budget-cards">' + ledgerPages.map(function(page){ return ledgerCardHtml(page, combinedTotal); }).join("") + '</div></section>';
     }
 
     function initCapitalDirectoryToggle(){
@@ -419,7 +432,7 @@
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
           }, 0);
           totalCountywideBudget2027 = (data.expenditures || []).reduce(function(sum, row){
-            return isExcludedFromCountywideTotal(row) ? sum : sum + (Number(row.FY2027_Proposed) || 0);
+            return isExcludedFromCountywideTotal(row, data.activities) ? sum : sum + (Number(row.FY2027_Proposed) || 0);
           }, 0);
           capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;

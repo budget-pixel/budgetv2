@@ -28,7 +28,24 @@
   }
 </style>
 
+<div class="wc-cip-year-picker" role="tablist" aria-label="Select machinery, vehicles &amp; equipment ledger year" id="machineryYearPicker">
+  <button class="wc-cip-year-button" type="button" data-machinery-year="FY2025" role="tab" aria-selected="false">FY 2025<i class="wc-cip-year-button-tag">Past</i></button>
+  <button class="wc-cip-year-button" type="button" data-machinery-year="FY2026" role="tab" aria-selected="false">FY 2026<i class="wc-cip-year-button-tag">Past</i></button>
+  <button class="wc-cip-year-button is-active" type="button" data-machinery-year="FY2027" role="tab" aria-selected="true">FY 2027</button>
+</div>
+
 <div id="machinery-summary"></div>
+<div id="machinery-historical-body" hidden></div>
+<style>
+  .wc-cip-year-picker{ display: grid; grid-template-columns: repeat(auto-fit, minmax(116px,1fr)); gap: 8px; margin-bottom: 16px; max-width: 420px; }
+  .wc-cip-year-button{ min-height: 44px; border: 1px solid rgba(0,63,40,.14); border-radius: 999px; background: #ffffff; color: #24344d; font-size: 13px; font-weight: 800; cursor: pointer; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease; }
+  .wc-cip-year-button:hover, .wc-cip-year-button.is-active{ border-color: #003f28; background: #003f28; color: #ffffff; }
+  .wc-cip-year-button:hover{ transform: translateY(-1px); }
+  .wc-cip-year-button-tag{ display: block; margin-top: 2px; color: inherit; font-size: 9px; font-weight: 800; font-style: normal; letter-spacing: .06em; text-transform: uppercase; opacity: .65; }
+  :root[data-theme="dark"] .wc-cip-year-button{ background: #172235; color: #d7e2ef; border-color: rgba(158,217,168,.18); }
+  #machinery-historical-body{ margin-top: 6px; }
+</style>
+
 </main>
 </div>
 
@@ -117,7 +134,39 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/machinery-fy2025-2026-supplement.js?v=20260806-fund-overrides"></script>
+<script src="../assets/budget-data.js?v=20260806-fund-overrides"></script>
 <script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
+<script>
+(function(){
+  document.addEventListener("DOMContentLoaded", function(){
+    const picker = document.getElementById("machineryYearPicker");
+    const liveEl = document.getElementById("machinery-summary");
+    const historicalEl = document.getElementById("machinery-historical-body");
+    if(!picker || !liveEl || !historicalEl) return;
+    picker.querySelectorAll("[data-machinery-year]").forEach(function(button){
+      button.addEventListener("click", function(){
+        const year = button.getAttribute("data-machinery-year");
+        picker.querySelectorAll("[data-machinery-year]").forEach(function(b){
+          const active = b === button;
+          b.classList.toggle("is-active", active);
+          b.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        if(year === "FY2027"){
+          historicalEl.hidden = true;
+          historicalEl.innerHTML = "";
+          liveEl.hidden = false;
+        } else {
+          liveEl.hidden = true;
+          historicalEl.hidden = false;
+          if(window.WCBudgetData && window.WCBudgetData.renderHistoricalMachineryLedgerYear){
+            window.WCBudgetData.renderHistoricalMachineryLedgerYear(historicalEl, year);
+          }
+        }
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>

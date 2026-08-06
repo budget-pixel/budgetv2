@@ -12043,6 +12043,7 @@
       "department-expense-table",
       "department-revenue-table",
       "department-staffing-table",
+      "department-personnel-ledger",
       "department-machinery-table",
       "department-state-aid-tables",
       "department-solid-waste-tables",
@@ -12087,7 +12088,7 @@
           showErrorState(containers);
           return;
         }
-        const [narrativeEl, performanceEl, expenseEl, revenueEl, staffingEl, machineryEl, stateAidEl, solidWasteEl, buildingConstructionEl, bccEl, countyAttorneyEl, courtInnovationsEl, fundScheduleEl] = containers;
+        const [narrativeEl, performanceEl, expenseEl, revenueEl, staffingEl, personnelLedgerEl, machineryEl, stateAidEl, solidWasteEl, buildingConstructionEl, bccEl, countyAttorneyEl, courtInnovationsEl, fundScheduleEl] = containers;
 
         // Some pages combine several separately budgeted divisions; for
         // those, narrative/expenditures/revenue/staffing/machinery (and,
@@ -12110,6 +12111,7 @@
           mountOrHide(expenseEl, "");
           mountOrHide(revenueEl, "");
           mountOrHide(staffingEl, "");
+          mountOrHide(personnelLedgerEl, "");
           mountOrHide(machineryEl, "");
           mountOrHide(stateAidEl, "");
           mountOrHide(solidWasteEl, "");
@@ -12139,6 +12141,7 @@
           bindPriorYearsToggle(expenseEl);
           mountOrHide(revenueEl, "");
           mountOrHide(staffingEl, "");
+          mountOrHide(personnelLedgerEl, "");
           mountOrHide(machineryEl, "");
           mountOrHide(stateAidEl, "");
           mountOrHide(solidWasteEl, "");
@@ -12284,6 +12287,7 @@
 
         mountOrHide(staffingEl, renderStaffingTable(getDepartmentStaffing(deptName, deptCode)));
         bindPriorYearsToggle(staffingEl);
+        mountOrHide(personnelLedgerEl, renderDepartmentPersonnelLedgerSection(deptName, expenseRowsForRevenuePlug || getDepartmentExpenses(deptName, deptCode)));
         mountOrHide(machineryEl, "");
         mountOrHide(
           stateAidEl,
@@ -12821,6 +12825,127 @@
     showFiltered();
   }
 
+  // A few historical departments' equipment is clearly paid for by a
+  // specific revenue source (and fund) that largestRevenueSourceForDepartment/
+  // historicalMachineryFundForDept can't reliably derive on their own --
+  // either because the department has no revenue rows of its own (Beach
+  // Operations/Beach Tram are Tourist Development Fund divisions with no
+  // direct revenue line) or its historical dept spelling doesn't match a
+  // live expenditure Dept_Name closely enough to resolve a fund
+  // automatically (Facilities Maintenance/Park Maintenance/Custodial
+  // Services). Local Government 1/2 Cent Sales Tax is General Fund revenue,
+  // mirroring the same override REVENUE_SOURCE_DEPARTMENT_OVERRIDES already
+  // uses for Eagle Springs.
+  const HISTORICAL_MACHINERY_SOURCE_OVERRIDES = new Map([
+    ["beach operations", { source: "Tourist Development Taxes", fund: "Tourist Development Fund" }],
+    ["beach tram", { source: "Tourist Development Taxes", fund: "Tourist Development Fund" }],
+    ["building department", { source: "Building Permits", fund: "Building Fund" }],
+    ["facilities maintenance", { source: "Local Government 1/2 Cent Sales Tax", fund: "General Fund" }],
+    ["park maintenance", { source: "Local Government 1/2 Cent Sales Tax", fund: "General Fund" }],
+    ["custodial services", { source: "Local Government 1/2 Cent Sales Tax", fund: "General Fund" }]
+  ]);
+
+  // The fund a historical department's equipment is booked against --
+  // derived from that department's own FY2027 expenditure rows (the
+  // largest-dollar fund among them), since the historical rows themselves
+  // carry no Fund_Code to read directly. This mirrors what the live
+  // ledger's own Fund column shows (the fund paying for the request), just
+  // sourced from expenditures instead of a per-row Fund_Code.
+  function historicalMachineryFundForDept(dept) {
+    const rows = rowsForDepartment(cache.expenditures, dept, "");
+    const totals = new Map();
+    rows.forEach((r) => {
+      const code = fundCodeForRow(r);
+      if (!code) return;
+      totals.set(code, (totals.get(code) || 0) + (r.FY2027_Proposed || 0));
+    });
+    let bestCode = "";
+    let bestAmount = -1;
+    totals.forEach((amount, code) => {
+      if (amount > bestAmount) { bestAmount = amount; bestCode = code; }
+    });
+    if (!bestCode) return "";
+    const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === bestCode);
+    return (fund && fund.Fund_Name) || "";
+  }
+
+  // FY 2025/FY 2026 Machinery, Vehicles & Equipment -- a locally-maintained
+  // historical reference (see assets/machinery-fy2025-2026-supplement.js),
+  // not part of the live FY2027 machinery sheet. Same Revenue Source lookup
+  // the live ledger's own table/source-totals use
+  // (largestRevenueSourceForDepartment), plus the manual overrides above,
+  // keyed by department name only since the historical rows carry no
+  // Dept_Code to match on more precisely.
+  function renderHistoricalMachineryLedgerYear(container, year) {
+    if (!container) return;
+    const historical = window.wcHistoricalMachinery || {};
+    const items = historical[year === "FY2026" ? "fy2026" : "fy2025"] || [];
+    const yearLabel = year === "FY2026" ? "FY 2026" : "FY 2025";
+    if (!items.length) {
+      container.innerHTML = '<p class="wc-data-empty">No Machinery, Vehicles &amp; Equipment data is available for ' + escapeHtml(yearLabel) + ".</p>";
+      return;
+    }
+    container.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>";
+    loadBudgetData().then(() => {
+      const byDept = new Map();
+      items.forEach((row) => {
+        if (!byDept.has(row.dept)) byDept.set(row.dept, []);
+        byDept.get(row.dept).push(row);
+      });
+      const deptNames = Array.from(byDept.keys()).sort((a, b) => a.localeCompare(b));
+      let grandTotal = 0;
+      const bodyRows = [];
+      const sourceTotals = new Map();
+      deptNames.forEach((dept) => {
+        const override = HISTORICAL_MACHINERY_SOURCE_OVERRIDES.get(normalizeDeptName(dept));
+        const fund = (override && override.fund) || historicalMachineryFundForDept(dept);
+        const source = (override && override.source) ||
+          revenueSourceLabel(largestRevenueSourceForDepartment(dept, "")) || "Not identified";
+        byDept.get(dept).forEach((row) => {
+          grandTotal += row.amount;
+          const key = fund + " " + source;
+          const entry = sourceTotals.get(key) || { fund, source, amount: 0 };
+          entry.amount += row.amount;
+          sourceTotals.set(key, entry);
+          bodyRows.push(
+            "<tr><td>" + escapeHtml(dept) + "</td><td>" + (row.item ? escapeHtml(row.item) : "&mdash;") +
+            "</td><td>" + escapeHtml(source) + '</td><td class="wc-num">' + formatCurrency(row.amount) + "</td></tr>"
+          );
+        });
+      });
+      bodyRows.push('<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">' + formatCurrency(grandTotal) + "</td></tr>");
+
+      const sourceRows = Array.from(sourceTotals.values())
+        .sort((a, b) => {
+          if (a.fund !== b.fund) {
+            const aGeneral = /^general fund$/i.test(a.fund);
+            const bGeneral = /^general fund$/i.test(b.fund);
+            if (aGeneral !== bGeneral) return aGeneral ? -1 : 1;
+            return a.fund.localeCompare(b.fund);
+          }
+          return b.amount - a.amount;
+        })
+        .map((entry) =>
+          "<tr><td>" + (entry.fund ? escapeHtml(entry.fund) : "&mdash;") + "</td><td>" + escapeHtml(entry.source) + '</td><td class="wc-num">' +
+          (grandTotal ? ((entry.amount / grandTotal) * 100).toFixed(1) : "0.0") + '%</td><td class="wc-num">' +
+          formatCurrency(entry.amount) + "</td></tr>"
+        );
+      sourceRows.push('<tr class="wc-table-total-row"><td colspan="2">Total</td><td class="wc-num"></td><td class="wc-num">' + formatCurrency(grandTotal) + "</td></tr>");
+
+      container.innerHTML =
+        renderTable({
+          caption: "Funding by Revenue Source",
+          columns: [{ label: "Fund" }, { label: "Revenue Source" }, { label: "Share", num: true }, { label: "Amount", num: true }],
+          bodyRows: sourceRows
+        }) +
+        renderTable({
+          caption: yearLabel + " Machinery, Vehicles & Equipment",
+          columns: [{ label: "Department" }, { label: "Item" }, { label: "Revenue Source" }, { label: "Amount", num: true }],
+          bodyRows: bodyRows
+        });
+    });
+  }
+
   function initMachinerySummaryPage() {
     const container = document.getElementById("machinery-summary");
     if (!container) return;
@@ -13181,6 +13306,57 @@
     if (norm === "code compliance beach" || norm === "code compliance street") return "Code Compliance";
     if (norm === "tourism beach operations" || norm === "tourism beach tram") return "Tourism Beach Operations";
     return deptName;
+  }
+
+  // Where a "largest staffing department" card on the Personnel Explorer
+  // sends the user -- that department/office's own budget page, anchored to
+  // its staffing table, the same page Departments/Constitutional Officers
+  // link to it elsewhere on the site. Keyed by normalizeDeptName so it
+  // matches regardless of which staffing-sheet spelling produced the card.
+  // Not every department has been given its own page yet; anything missing
+  // here falls back to the Departments directory.
+  const PERSONNEL_DEPT_PAGE_HREF = new Map([
+    ["board of county commissioners", "board-of-county-commissioners.html"],
+    ["building construction and maintenance", "building-construction-and-maintenance.html"],
+    ["building department", "building-department.html"],
+    ["circuit court", "circuit-court.html"],
+    ["clerk of circuit court", "clerk-of-courts-and-county-comptroller.html"],
+    ["code compliance", "code-compliance.html"],
+    ["county administration", "county-administration.html"],
+    ["eagle springs golf and recreation center", "eagle-springs-golf-and-recreation-center.html"],
+    ["eagle springs grill", "eagle-springs-grill.html"],
+    ["emergency management", "emergency-management.html"],
+    ["engineering department", "engineering-department.html"],
+    ["environmental resources", "environmental-resources.html"],
+    ["extension office", "extension-office.html"],
+    ["geographic info systems", "geographic-info-systems.html"],
+    ["housing and urban development", "housing-and-urban-development.html"],
+    ["human resources", "human-resources.html"],
+    ["mosquito control", "mosquito-control.html"],
+    ["mossy head wastewater treatment facility", "mossy-head-wastewater-treatment-facility.html"],
+    ["office of management and budget", "office-of-management-and-budget.html"],
+    ["office of the county attorney", "office-of-the-county-attorney.html"],
+    ["planning", "planning.html"],
+    ["probation", "probation.html"],
+    ["property appraiser", "property-appraiser.html"],
+    ["public works", "public-works.html"],
+    ["purchasing", "purchasing.html"],
+    ["recreation", "recreation.html"],
+    ["sheriff", "sheriffs-office.html"],
+    ["soil conservation", "soil-conservation.html"],
+    ["solid waste", "solid-waste.html"],
+    ["supervisor of elections", "supervisor-of-elections.html"],
+    ["tax collector", "tax-collector.html"],
+    ["tourism administration", "tourism-administration.html"],
+    ["tourism beach operations", "tourism-beach-operations.html"],
+    ["tourism communications", "tourism-administration.html"],
+    ["tourism marketing", "tourism-administration.html"],
+    ["tourism sales and visitors center", "tourism-administration.html"],
+    ["veteran services", "veteran-services.html"]
+  ]);
+  function personnelDeptPageHref(deptDisplayName) {
+    const href = PERSONNEL_DEPT_PAGE_HREF.get(normalizeDeptName(deptDisplayName));
+    return href ? href + "#department-staffing-table" : "departments.html";
   }
 
   // One label per staffing row -- the single source of truth for both the
@@ -13774,7 +13950,8 @@
           const shareOfPersonnel = totalCost2027 ? (cost2027 / totalCost2027 * 100) : 0;
           const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (costChangeAmt >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChangeAmt))) + '</strong><em>' + (costChangePctDept === null ? "No FY 2026 base" : (costChangePctDept >= 0 ? "+" : "") + costChangePctDept.toFixed(1) + "%") + '</em></div></div>';
           const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
-          return '<button type="button"' + (isAllOther ? ' data-personnel-view="board"' : ' data-personnel-dept="' + escapeHtml(item[0]) + '"') + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></button>';
+          const href = isAllOther ? "departments.html" : personnelDeptPageHref(item[0]);
+          return '<a href="' + escapeHtml(href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
         }).join("");
       const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
         // Department-level FTE changes -- more directly useful to the Board
@@ -13867,10 +14044,6 @@
           ledger.hidden = false;
           if (shouldScroll) ledger.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-        explorer.querySelectorAll("[data-personnel-dept]").forEach((button) => button.addEventListener("click", () => {
-          showPersonnelLedger("cost", false);
-          document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: button.dataset.personnelDept } }));
-        }));
         explorer.querySelectorAll("[data-personnel-view]").forEach((button) => button.addEventListener("click", () => {
           showPersonnelLedger(button.dataset.personnelView, false);
           if (button.dataset.personnelView === "board") {
@@ -14830,6 +15003,20 @@
     mergedPositions.unemploymentTotal = unemploymentTotal;
     mergedPositions.seasonalPositions = mergedSeasonal;
     return personnelCostDeptDetailHtml(label, mergedPositions, mergedStaffing);
+  }
+
+  // A permanent, always-visible "Personnel Ledger" section for the bottom
+  // of a department/constitutional officer page -- the same position-level
+  // cost detail as personnelCostDetailForRows' popup (see above), just
+  // unhidden and given its own section heading instead of sitting behind a
+  // "View Positions" toggle. Returns "" for departments with no
+  // position-level cost data (e.g. fund-only pages with no staff), so the
+  // page doesn't show an empty placeholder section.
+  function renderDepartmentPersonnelLedgerSection(deptName, rows) {
+    const { detailHtml } = personnelCostDetailForRows(deptName, rows);
+    if (detailHtml.indexOf("No position-level cost data is available") !== -1) return "";
+    const visibleHtml = detailHtml.replace(' hidden>', '>');
+    return '<section class="wc-department-personnel-ledger"><h2 class="wc-department-explorer-subhead">Personnel Ledger</h2>' + visibleHtml + '</section>';
   }
 
   // Turns a dollar amount in a "Budget structure" cost-row into a clickable
@@ -16313,6 +16500,7 @@
     renderConsolidatedExpenditureBudgetTable,
     renderConsolidatedFinancialBudgetTable,
     renderMachinerySummary,
+    renderHistoricalMachineryLedgerYear,
     renderContractualServicesSummary,
     renderPersonnelSummary,
     getPersonnelFundCallouts,
