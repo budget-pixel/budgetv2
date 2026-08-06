@@ -190,6 +190,11 @@
     // rolled up from the CIP project sheet -- the budgeted total is the
     // authoritative capital figure and reconciles to the expense summaries.
     var capitalOutlayTotal = null;
+    // Total countywide FY 2027 proposed expenditures across every
+    // department, office, and fund -- same source rows capital outlay
+    // itself is drawn from, so "capital funding is X% of the total budget"
+    // reconciles with the underlying data.
+    var totalCountywideBudget2027 = null;
     // FY 2027 capital outlay by fund code -- lets a ledger card report the
     // budgeted amount straight from the expenditure sheet instead of a
     // stand-in project row (see budgetFunds below).
@@ -347,12 +352,12 @@
       var changeHtml = '<small class="wc-revenue-total-change ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' +
         (change >= 0 ? "+" : "−") + escapeHtml(formatMoneyShort(Math.abs(change))) +
         ' (' + (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + '%') + ')</small>';
-      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary">The FY 2027 capital budget combines multi-year capital projects with annual machinery, vehicle, and equipment purchases.</p>' +
-        '<div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b></div></div></div>';
+      var capitalShareOfBudgetPct = totalCountywideBudget2027 ? (combinedTotal / totalCountywideBudget2027 * 100) : 0;
+      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b></div></div></div>';
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p></div>' +
         '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
         compositionHtml +
-        '<h3 class="wc-department-explorer-subhead">Explore by ledger</h3><div class="wc-department-budget-cards">' + ledgerPages.map(ledgerCardHtml).join("") + '</div></section>';
+        '<div class="wc-department-budget-cards">' + ledgerPages.map(ledgerCardHtml).join("") + '</div></section>';
     }
 
     function initCapitalDirectoryToggle(){
@@ -394,6 +399,9 @@
           machineryEquipmentCount = machineryItemCount - machineryVehicleCount;
           capitalOutlayTotal = (data.expenditures || []).reduce(function(sum, row){
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
+          }, 0);
+          totalCountywideBudget2027 = (data.expenditures || []).reduce(function(sum, row){
+            return sum + (Number(row.FY2027_Proposed) || 0);
           }, 0);
           capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;

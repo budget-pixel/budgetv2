@@ -13179,6 +13179,7 @@
   function personnelDeptDisplayName(deptName) {
     const norm = normalizeDeptName(deptName);
     if (norm === "code compliance beach" || norm === "code compliance street") return "Code Compliance";
+    if (norm === "tourism beach operations" || norm === "tourism beach tram") return "Tourism Beach Operations";
     return deptName;
   }
 
@@ -13668,6 +13669,7 @@
       const constitutionalShareOfPersonnelPct = totalCost2027 ? (constitutionalPersonnelCost / totalCost2027 * 100) : 0;
       function compactCurrency(value) {
         if (Math.abs(value) >= 1000000) return "$" + (value / 1000000).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M";
+        if (Math.abs(value) >= 1000) return "$" + Math.round(Math.abs(value) / 1000).toLocaleString("en-US") + "K";
         return formatCurrency(value);
       }
 
@@ -13714,11 +13716,16 @@
       const largestDeptNames = new Set(largestDepartments.map((item) => item[0]));
       const allOtherFte = Array.from(fteByDept.entries()).filter((item) => !largestDeptNames.has(item[0])).reduce((sum, item) => sum + item[1], 0);
       const functionRows = Array.from(fteByFunction.entries()).sort((a, b) => b[1] - a[1]);
-      // Per-department personnel cost (current + prior), keyed by the same
-      // display name fteByDept uses, so the largest-staffing-department
-      // cards can show a dollar total alongside their FTE count. Mirrors
-      // buildPersonnelCostRows' own Object_Type/Object_Code filtering, just
-      // grouped by department instead of department+fund.
+      // Per-department personnel cost (current + prior), keyed the same
+      // alias-canonical way buildPersonnelCostFteByDept matches cost rows to
+      // staffing rows, so the largest-staffing-department cards can show a
+      // dollar total alongside their FTE count even where the expenditures
+      // sheet spells a department differently than the staffing sheet does
+      // (e.g. "Walton County Sheriff's Office" vs. "Sheriff", "Clerk of
+      // Court" vs. "Clerk of Circuit Court", or Tourism's per-fund rows).
+      // Mirrors buildPersonnelCostRows' own Object_Type/Object_Code
+      // filtering, just grouped by department instead of department+fund.
+      const deptCostMatchKey = (rawDeptName) => personnelCostFteMatchKey(rawDeptName);
       const costByDept = new Map();
       const priorCostByDept = new Map();
       (cache.expenditures || []).forEach((row) => {
@@ -13732,12 +13739,13 @@
         const isHealthInsurance = code === PERSONNEL_COST_HEALTH_INSURANCE_CODE;
         const isOtherBenefit = PERSONNEL_COST_OTHER_BENEFIT_CODES.has(code);
         if (!isSalary && !isRetirement && !isHealthInsurance && !isOtherBenefit) return;
-        const dept = personnelDeptDisplayName(row.Dept_Name);
-        costByDept.set(dept, (costByDept.get(dept) || 0) + amount);
-        priorCostByDept.set(dept, (priorCostByDept.get(dept) || 0) + priorAmount);
+        const key = deptCostMatchKey(row.Dept_Name);
+        costByDept.set(key, (costByDept.get(key) || 0) + amount);
+        priorCostByDept.set(key, (priorCostByDept.get(key) || 0) + priorAmount);
       });
-      const allOtherCost = Array.from(costByDept.entries()).filter(([name]) => !largestDeptNames.has(name)).reduce((sum, [, amount]) => sum + amount, 0);
-      const allOtherCostPrior = Array.from(priorCostByDept.entries()).filter(([name]) => !largestDeptNames.has(name)).reduce((sum, [, amount]) => sum + amount, 0);
+      const largestDeptMatchKeys = new Set(largestDepartments.map((item) => deptCostMatchKey(item[0])));
+      const allOtherCost = Array.from(costByDept.entries()).filter(([key]) => !largestDeptMatchKeys.has(key)).reduce((sum, [, amount]) => sum + amount, 0);
+      const allOtherCostPrior = Array.from(priorCostByDept.entries()).filter(([key]) => !largestDeptMatchKeys.has(key)).reduce((sum, [, amount]) => sum + amount, 0);
       const salaryTotal = boardCostRows.reduce((sum, row) => sum + row.Salaries, 0);
       const overtimeByDept = buildPersonnelCostOvertimeByDept();
       const overtimeTotal = Array.from(overtimeByDept.entries()).filter(([dept]) => boardCostRows.some((row) => row.Dept_Name === dept)).reduce((sum, [, amount]) => sum + amount, 0);
@@ -13753,13 +13761,13 @@
           const fteDelta = isAllOther ? 0 : (deltaByDept.get(item[0]) || 0);
           const ftePrior = fte2027 - fteDelta;
           const fteChangePct = ftePrior ? (fteDelta / ftePrior * 100) : null;
-          const cost2027 = isAllOther ? allOtherCost : (costByDept.get(item[0]) || 0);
-          const costPrior = isAllOther ? allOtherCostPrior : (priorCostByDept.get(item[0]) || 0);
+          const cost2027 = isAllOther ? allOtherCost : (costByDept.get(deptCostMatchKey(item[0])) || 0);
+          const costPrior = isAllOther ? allOtherCostPrior : (priorCostByDept.get(deptCostMatchKey(item[0])) || 0);
           const costChangeAmt = cost2027 - costPrior;
           const costChangePctDept = costPrior ? (costChangeAmt / costPrior * 100) : null;
           const shareOfPersonnel = totalCost2027 ? (cost2027 / totalCost2027 * 100) : 0;
           const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (costChangeAmt >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChangeAmt))) + '</strong><em>' + (costChangePctDept === null ? "No FY 2026 base" : (costChangePctDept >= 0 ? "+" : "") + costChangePctDept.toFixed(1) + "%") + '</em></div></div>';
-          const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE (' + (fteChangePct === null ? "No FY 2026 base" : (fteChangePct >= 0 ? "+" : "") + fteChangePct.toFixed(1) + "%") + ')</b></div>';
+          const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
           return '<button type="button"' + (isAllOther ? ' data-personnel-view="board"' : ' data-personnel-dept="' + escapeHtml(item[0]) + '"') + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></button>';
         }).join("");
       const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
@@ -13770,8 +13778,8 @@
           '<span class="' + (net > 0 ? "is-increase" : "is-decrease") + '" data-personnel-explore-dept="' + escapeHtml(dept) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(dept) + '</span>'
         ).join("");
         explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>See how Walton County budgets its full-time equivalent (FTE) positions and the salaries, retirement, health insurance, and other benefits that support them &mdash; the County&rsquo;s largest budgeted cost.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
-          '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
-          '<h3 class="wc-department-explorer-subhead">Largest staffing departments</h3><div class="wc-revenue-snapshot">' + deptCards + '</div>' +
+          '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel funding.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
+          '<div class="wc-revenue-snapshot">' + deptCards + '</div>' +
           '<div class="wc-personnel-explorer-metrics"><article><span>Total Budgeted Workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change from FY 2026" : "FY 2027 " + (fteChange > 0 ? "increase" : "decrease") + ": " + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article class="wc-personnel-function-metric"><span>Staff by Functional Area</span><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
           '<div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff changing?</h3><div class="wc-personnel-profile-card"><p>' + (increases.length + decreases.length) + ' department' + ((increases.length + decreases.length) === 1 ? "" : "s") + ' changing &mdash; ' + increases.length + ' increasing, ' + decreases.length + ' reducing.</p>' + (deptChangePills ? '<div class="wc-personnel-net-change-pills">' + deptChangePills + '</div>' : '<p>No net change by department.</p>') + '</div></section></div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
@@ -14052,7 +14060,12 @@
     "probation services": "probation",
     "procurement": "purchasing",
     "clerk of court": "clerk of circuit court",
-    "walton county sheriffs office": "sheriff"
+    "walton county sheriffs office": "sheriff",
+    "beach operations": "tourism beach operations",
+    "beach tram": "tourism beach operations",
+    "communications": "tourism communications",
+    "marketing": "tourism marketing",
+    "sales and visitors center": "tourism sales and visitors center"
   };
   function personnelCostFteMatchKey(deptName) {
     const norm = normalizeDeptName(deptName);
