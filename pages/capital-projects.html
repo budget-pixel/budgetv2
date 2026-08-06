@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capital Budget — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<link rel="stylesheet" href="../assets/style.css?v=20260806-card-style-fix">
 </head>
 <body>
 
@@ -38,7 +38,7 @@
 <script src="../assets/search-data.js"></script>
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-overview.js?v=20260802-capital-explorer"></script>
-<script src="../assets/budget-data.js?v=20260802-capital-directory-equipment-total"></script>
+<script src="../assets/budget-data.js?v=20260806-total-budget-fix"></script>
 <script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
@@ -147,6 +147,22 @@
 
     function formatMoneyFull(value){
       return "$" + Math.round(Number(value) || 0).toLocaleString("en-US");
+    }
+
+    // Same exclusions the Consolidated Schedule/Personnel Explorer use for
+    // "Total All Funds": the Self-Insurance Fund (503) and interfund
+    // transfers/other financing sources are internal pass-throughs, not
+    // real county spending, so they're left out of the countywide
+    // denominator this page uses for "capital funding is X% of the total
+    // budget". BCC Other Uses Contingency (00101001/599000) is real
+    // appropriation authority, not a transfer, so it stays counted despite
+    // its "Other Sources" activity label.
+    function isExcludedFromCountywideTotal(row){
+      var deptCode = String(row.Dept_Code || "").trim();
+      if(deptCode.slice(0, 3) === "503") return true;
+      if(deptCode === "00101001" && String(row.Object_Code || "").trim() === "599000") return false;
+      var activity = String(row.activity || "").trim().toLowerCase();
+      return activity === "interfund transfers" || activity === "other sources";
     }
 
     function isLegacyInHouseEngineeringRow(project){
@@ -289,23 +305,24 @@
       if(page.metric === "machinery"){
         var vehicles = machineryVehicleCount || 0;
         var equipment = machineryEquipmentCount || 0;
-        return { budget: machineryTotal || 0, detail: vehicles.toLocaleString("en-US") + " vehicles · " + equipment.toLocaleString("en-US") + " machinery & equipment" };
+        return { budget: machineryTotal || 0, badges: [vehicles.toLocaleString("en-US") + " vehicles", equipment.toLocaleString("en-US") + " equipment"] };
       }
       // Funds whose ledger has no individual Board-directed projects yet
       // report the budgeted fund amount from the expenditure sheet rather
-      // than a placeholder project row.
+      // than a placeholder project row -- no project/vehicle count exists
+      // to badge, so this stays as a plain caption.
       if(page.budgetFunds && capitalOutlayByFund){
         return {
           budget: page.budgetFunds.reduce(function(sum, fundCode){
             return sum + (capitalOutlayByFund[fundCode] || 0);
           }, 0),
-          detail: "FY 2027 budgeted fund amount"
+          caption: "FY 2027 budgeted fund amount"
         };
       }
       var matching = currentProjects.filter(function(p){ return pageProjectMatches(page, p); });
       var budget = matching.reduce(function(sum, p){ return sum + getFy2027Amount(p); }, 0);
       var count = matching.filter(function(p){ return getFy2027Amount(p) > 0; }).length;
-      return { budget: budget, detail: count.toLocaleString("en-US") + (count === 1 ? " project" : " projects") };
+      return { budget: budget, badges: [count.toLocaleString("en-US") + (count === 1 ? " project" : " projects")] };
     }
 
     // FY 2026 comparison for a ledger card, or null when the ledger has no
@@ -324,17 +341,18 @@
       if(prior === null) return "";
       var change = budget - prior;
       var changePct = prior ? (change / Math.abs(prior)) * 100 : null;
-      var direction = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
-      return '<div class="wc-department-card-change' + direction + '">' +
-        '<span>Compared to Prior Year</span>' +
-        '<strong>' + (change > 0 ? "+" : change < 0 ? "−" : "") + escapeHtml(formatMoneyShort(Math.abs(change))) + '</strong>' +
-        '<small>' + (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + '%') + '</small>' +
-        '</div>';
+      var isDown = change < 0;
+      return '<div class="wc-revenue-snapshot-change' + (isDown ? " is-down" : "") + '"><div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' +
+        (change >= 0 ? "+" : "−") + escapeHtml(formatMoneyShort(Math.abs(change))) + '</strong><em>' +
+        (changePct === null ? "No prior-year base" : (changePct >= 0 ? "+" : "") + Math.abs(changePct).toFixed(1) + '%') + '</em></div></div></div>';
     }
 
     function ledgerCardHtml(page){
       var stats = ledgerCardStats(page);
-      return '<a href="' + escapeHtml(page.href) + '"><strong>' + escapeHtml(page.title) + '</strong><b>' + escapeHtml(formatMoneyShort(stats.budget)) + '</b><small>' + escapeHtml(stats.detail) + '</small>' + ledgerCardChangeHtml(page, stats.budget) + '</a>';
+      var badgeHtml = stats.badges && stats.badges.length ?
+        '<div class="wc-revenue-card-badge-stack">' + stats.badges.map(function(b){ return '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(b) + '</span>'; }).join("") + '</div>' : "";
+      var captionHtml = stats.caption ? '<small class="wc-revenue-card-share">' + escapeHtml(stats.caption) + '</small>' : "";
+      return '<a href="' + escapeHtml(page.href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(page.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(formatMoneyShort(stats.budget)) + '</b>' + captionHtml + '</div>' + badgeHtml + '</div>' + ledgerCardChangeHtml(page, stats.budget) + '</a>';
     }
 
     function renderCapitalBudgetExplorer(){
@@ -401,7 +419,7 @@
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
           }, 0);
           totalCountywideBudget2027 = (data.expenditures || []).reduce(function(sum, row){
-            return sum + (Number(row.FY2027_Proposed) || 0);
+            return isExcludedFromCountywideTotal(row) ? sum : sum + (Number(row.FY2027_Proposed) || 0);
           }, 0);
           capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
             return isCapitalOutlayRow(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;

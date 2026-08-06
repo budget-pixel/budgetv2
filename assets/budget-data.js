@@ -13662,8 +13662,14 @@
       // drawn from -- so "personnel is X% of the total budget" reconciles
       // with the underlying data rather than an unrelated total pulled from
       // elsewhere. Capital project spending (a separate CIP dataset) isn't
-      // included.
-      const totalCountywideBudget2027 = (cache.expenditures || []).reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
+      // included. Excludes the Self-Insurance Fund (503) and interfund
+      // transfers/other financing sources, same as the Consolidated
+      // Schedule's own "Total All Funds" figure -- those rows are internal
+      // pass-throughs, not real county spending, and counting them would
+      // understate personnel's true share of the operating budget.
+      const totalCountywideBudget2027 = (cache.expenditures || [])
+        .filter((r) => !CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r)) && !isOtherFinancingExpenseRow(r))
+        .reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
       const personnelShareOfBudgetPct = totalCountywideBudget2027 ? (totalCost2027 / totalCountywideBudget2027 * 100) : 0;
       const boardShareOfPersonnelPct = totalCost2027 ? (boardDepartmentPersonnelCost / totalCost2027 * 100) : 0;
       const constitutionalShareOfPersonnelPct = totalCost2027 ? (constitutionalPersonnelCost / totalCost2027 * 100) : 0;
