@@ -13656,6 +13656,16 @@
       const boardCostRows = costRows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name));
       const costChange = totalCost2027 - totalCostPrior;
       const costChangePct = totalCostPrior ? (costChange / totalCostPrior) * 100 : 0;
+      // Countywide FY2027 proposed expenditures across every department,
+      // office, and fund -- the same source rows personnel cost itself is
+      // drawn from -- so "personnel is X% of the total budget" reconciles
+      // with the underlying data rather than an unrelated total pulled from
+      // elsewhere. Capital project spending (a separate CIP dataset) isn't
+      // included.
+      const totalCountywideBudget2027 = (cache.expenditures || []).reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
+      const personnelShareOfBudgetPct = totalCountywideBudget2027 ? (totalCost2027 / totalCountywideBudget2027 * 100) : 0;
+      const boardShareOfPersonnelPct = totalCost2027 ? (boardDepartmentPersonnelCost / totalCost2027 * 100) : 0;
+      const constitutionalShareOfPersonnelPct = totalCost2027 ? (constitutionalPersonnelCost / totalCost2027 * 100) : 0;
       function compactCurrency(value) {
         if (Math.abs(value) >= 1000000) return "$" + (value / 1000000).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M";
         return formatCurrency(value);
@@ -13666,31 +13676,12 @@
       // Compliance Beach/Street -> Code Compliance), so this list of
       // increases/reductions lines up with the table below it.
       const deltaByDept = new Map();
-      const areaByDept = new Map();
       staffingRows.forEach((r) => {
         const name = personnelDeptDisplayName(r.Dept_Name);
         deltaByDept.set(name, (deltaByDept.get(name) || 0) + ((Number(r[2027]) || 0) - (Number(r[2026]) || 0)));
-        if (!areaByDept.has(name)) areaByDept.set(name, expenseActivityForRow(r) || "General Government");
       });
       const increases = Array.from(deltaByDept.entries()).filter(([, d]) => d > 0).sort((a, b) => b[1] - a[1]);
       const decreases = Array.from(deltaByDept.entries()).filter(([, d]) => d < 0).sort((a, b) => a[1] - b[1]);
-      // Functional areas (not individual departments) touched by a staffing
-      // change, netted by actual FTE delta (not just department count) --
-      // shown on the "Departments changing staff" card so a reader sees
-      // *what kind* of service is net adding or cutting positions without
-      // having to open the full department table. An area whose FTE deltas
-      // cancel out to zero is left out.
-      const areaNetCounts = (() => {
-        const counts = new Map();
-        deltaByDept.forEach((delta, name) => {
-          if (!delta) return;
-          const area = areaByDept.get(name) || "General Government";
-          counts.set(area, (counts.get(area) || 0) + delta);
-        });
-        return Array.from(counts.entries())
-          .filter(([, net]) => net !== 0)
-          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-      })();
 
       // COLA and Health Insurance Increase, the two named drivers this site
       // already quantifies per department (see PERSONNEL_COST_COLA_RATE /
@@ -13734,25 +13725,21 @@
       if (explorer) {
         const deptCards = largestDepartments.concat([["All Other Departments", allOtherFte]]).map((item, index) => {
           const delta = item[0] === "All Other Departments" ? 0 : (deltaByDept.get(item[0]) || 0);
-          return '<button type="button"' + (item[0] === "All Other Departments" ? ' data-personnel-view="board"' : ' data-personnel-dept="' + escapeHtml(item[0]) + '"') + '>' + (index < 5 ? '<span class="wc-department-card-rank">' + (index + 1) + '</span>' : '<span>Remaining departments</span>') + '<strong>' + escapeHtml(item[0]) + '</strong><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b><small>' + (item[0] === "All Other Departments" ? "Combined staffing" : (delta === 0 ? "No change from FY 2026" : (delta > 0 ? "+" : "") + formatNumber(delta) + " FTE from FY 2026")) + '</small><em>Explore staffing →</em></button>';
+          return '<button type="button"' + (item[0] === "All Other Departments" ? ' data-personnel-view="board"' : ' data-personnel-dept="' + escapeHtml(item[0]) + '"') + '>' + (item[0] === "All Other Departments" ? '<span>Remaining departments</span>' : '') + '<strong>' + escapeHtml(item[0]) + '</strong><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b><small>' + (item[0] === "All Other Departments" ? "Combined staffing" : (delta === 0 ? "No change from FY 2026" : (delta > 0 ? "+" : "") + formatNumber(delta) + " FTE from FY 2026")) + '</small></button>';
         }).join("");
       const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
-        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Explorer</h2><p>Personnel is the County&rsquo;s largest budgeted cost. The Personnel Budget presents Full-Time Equivalent (FTE) position counts and budgeted personnel costs together so users can review workforce levels and costs for each department side by side.</p><p>FTE counts both full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is split into Salaries &amp; Wages (regular salaries, other salaries, and overtime), Retirement, Health Insurance, and Other Benefits &amp; Taxes (FICA/Medicare, workers&rsquo; compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff&rsquo;s Office.</p><p>No countywide salary schedule changes are planned during the budget period. The only changes employees will see during the year are merit increases, awarded as determined by a director and in coordination with Human Resources and Administration. Premium salary costs (overtime and weekend pay) are not expected to increase.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b></div></div><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
-          '<div class="wc-personnel-explorer-metrics"><article><span>Total Budgeted Workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change from FY 2026" : "FY 2027 " + (fteChange > 0 ? "increase" : "decrease") + ": " + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article><span>Functional Area Staff Changes</span><strong>' + areaNetCounts.length + ' functional area' + (areaNetCounts.length === 1 ? "" : "s") + ' affected</strong><small>' + increases.length + ' increasing · ' + decreases.length + ' reducing</small></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
-          '<div class="wc-personnel-explorer-grid"><div><h3>Largest staffing departments</h3><div class="wc-personnel-dept-cards">' + deptCards + '</div></div><div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff organized by functional area?</h3><div class="wc-personnel-profile-card"><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div><p>Functional areas follow the County activity classifications used throughout the budget.</p></div></section></div></div></section>';
+        // Department-level FTE changes -- more directly useful to the Board
+        // than a functional-area rollup, since each pill names the exact
+        // department a reader would need to look up in the ledger.
+        const deptChangePills = increases.concat(decreases).map(([dept, net]) =>
+          '<span class="' + (net > 0 ? "is-increase" : "is-decrease") + '" data-personnel-explore-dept="' + escapeHtml(dept) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(dept) + '</span>'
+        ).join("");
+        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>See how Walton County budgets its full-time equivalent (FTE) positions and the salaries, retirement, health insurance, and other benefits that support them &mdash; the County&rsquo;s largest budgeted cost.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%) from FY 2026</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button></div></div></aside></div>' +
+          '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
+          '<div class="wc-personnel-explorer-metrics"><article><span>Total Budgeted Workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change from FY 2026" : "FY 2027 " + (fteChange > 0 ? "increase" : "decrease") + ": " + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article class="wc-personnel-function-metric"><span>Staff by Functional Area</span><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div></article><article><span>Board department salary adjustment</span><strong>' + (PERSONNEL_COST_COLA_RATE * 100).toFixed(0) + '% COLA</strong><small>About ' + escapeHtml(formatCurrency(totalCola)) + ' within Board department salaries and wages</small></article><article><span>Board department health insurance</span><strong>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '%</strong><small>' + (PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE * 100).toFixed(0) + '% premium increase · Potential increase of ' + escapeHtml(formatCurrency(healthInsuranceIncrease)) + ' above the current Board department budget</small></article></div>' +
+          '<div class="wc-personnel-explorer-grid"><div><h3>Largest staffing departments</h3><div class="wc-personnel-dept-cards">' + deptCards + '</div></div><div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is Board department staff changing?</h3><div class="wc-personnel-profile-card"><p>' + (increases.length + decreases.length) + ' department' + ((increases.length + decreases.length) === 1 ? "" : "s") + ' changing &mdash; ' + increases.length + ' increasing, ' + decreases.length + ' reducing.</p>' + (deptChangePills ? '<div class="wc-personnel-net-change-pills">' + deptChangePills + '</div>' : '<p>No net change by department.</p>') + '</div></section></div></div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
         if (personnelKicker && personnelKicker.textContent.trim() === 'FY 2027 workforce and cost') personnelKicker.remove();
-        const staffChangeCard = Array.from(explorer.querySelectorAll('.wc-personnel-explorer-metrics article')).find((card) => card.querySelector('span') && card.querySelector('span').textContent.trim() === 'Functional Area Staff Changes');
-        if (staffChangeCard) {
-          const note = staffChangeCard.querySelector('small');
-          if (note) {
-            note.innerHTML = areaNetCounts.length
-              ? '<span class="wc-personnel-net-change-pills">' + areaNetCounts.map(([area, net]) =>
-                  '<span class="' + (net > 0 ? "is-increase" : "is-decrease") + '" data-personnel-net-function="' + escapeHtml(area) + '"><b>' + (net > 0 ? "+" : "−") + escapeHtml(formatNumber(Math.abs(net))) + ' FTE</b>' + escapeHtml(area === "Court Related Cost" ? "Court-Related Costs" : area) + '</span>'
-                ).join('') + '</span>'
-              : 'No net change by function';
-          }
-        }
         const personnelDescription = explorer.querySelectorAll('.wc-personnel-explorer-head > div:first-child > p')[1];
         if (personnelDescription) personnelDescription.textContent = 'FTE counts include full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is shown across Salaries & Wages (regular salaries and other salaries), Overtime & Weekend Pay, Retirement, Health Insurance, and Other Benefits & Taxes (FICA/Medicare, workers’ compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff’s Office.';
         explorer.querySelectorAll('.wc-personnel-explorer-metrics article > span').forEach((label) => {
@@ -13844,9 +13831,9 @@
           showPersonnelLedger("cost", false);
           document.dispatchEvent(new CustomEvent("wc-personnel-select-function", { detail: { functionName: pill.textContent.replace(/^\s*[0-9.]+\s*/, "").trim() } }));
         }));
-        explorer.querySelectorAll("[data-personnel-net-function]").forEach((pill) => pill.addEventListener("click", () => {
+        explorer.querySelectorAll("[data-personnel-explore-dept]").forEach((pill) => pill.addEventListener("click", () => {
           showPersonnelLedger("cost", false);
-          document.dispatchEvent(new CustomEvent("wc-personnel-select-function", { detail: { functionName: pill.dataset.personnelNetFunction } }));
+          document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: pill.dataset.personnelExploreDept } }));
         }));
         document.querySelectorAll("[data-personnel-close]").forEach((button) => button.addEventListener("click", () => {
           const ledger = button.closest(".wc-personnel-ledger");
