@@ -15979,7 +15979,6 @@
         };
         return combined[key] || pageHref(name);
       }
-      function percent(value, base) { return base ? (value / base * 100).toFixed(1) : "0.0"; }
       const costCellLinkOptions = { plain: true, linkClass: "wc-table-row-link" };
       function operatingRowsFor(rows) {
         return rows.filter((row) => {
@@ -16085,11 +16084,7 @@
       ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(total) + '</td><td class="wc-num">' + formatCurrency(total - departments.reduce((sum, dept) => sum + dept.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.capital, 0)) + '</td></tr>');
       const ledgerTable = renderTable({ caption: "Board Department Budget Ledger", columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerBody });
 
-      const totalPersonnel = departments.reduce((sum, dept) => sum + dept.personnel, 0);
-      const totalOperating = departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0);
       const totalCapital = departments.reduce((sum, dept) => sum + dept.capital, 0);
-      const totalPriorPersonnel = departments.reduce((sum, dept) => sum + dept.priorPersonnel, 0);
-      const totalPriorOperating = departments.reduce((sum, dept) => sum + dept.priorContracts + dept.priorInternal + dept.priorOperating, 0);
       const totalPriorCapital = departments.reduce((sum, dept) => sum + dept.priorCapital, 0);
       // The explorer card headline reports personnel + operating only --
       // capital outlay is presented on the Capital Budget pages, so it is
@@ -16098,15 +16093,28 @@
       const totalPriorExcludingCapital = departments.reduce((sum, dept) => sum + dept.prior, 0) - totalPriorCapital;
       const totalFte = Array.from(staffingByDept.values()).reduce((sum, fte) => sum + fte, 0);
       const explorerBadges = '<div class="wc-department-explorer-badges"><div><span>Board Departments</span><b>' + departments.length + '</b></div><div><span>Total FTE</span><b>' + formatNumber(totalFte) + '</b></div></div>';
-      function metricChangeHtml(current, prior) {
-        const diff = current - prior;
-        const pct = prior ? (diff / Math.abs(prior)) * 100 : null;
-        const amountText = (diff >= 0 ? "+" : "−") + formatCurrency(Math.abs(diff));
-        const pctText = pct === null ? "No FY 2026 base" : ((pct >= 0 ? "+" : "") + pct.toFixed(1) + "%");
-        return '<em class="wc-department-metric-change' + (diff < 0 ? " is-decrease" : diff > 0 ? " is-increase" : "") + '">' + escapeHtml(amountText) + ' (' + escapeHtml(pctText) + ') from FY 2026</em>';
-      }
+      // Countywide FY2027 proposed expenditures, same exclusions the
+      // Personnel Explorer/Capital Explorer use for "Total All Funds": the
+      // Self-Insurance Fund (503) and interfund transfers/other financing
+      // sources are internal pass-throughs, not real county spending.
+      const totalCountywideBudget2027 = (data.expenditures || [])
+        .filter((r) => !CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r)) && !isOtherFinancingExpenseRow(r))
+        .reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
+      const boardShareOfBudgetPct = totalCountywideBudget2027 ? (totalExcludingCapital / totalCountywideBudget2027 * 100) : 0;
+      const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(boardShareOfBudgetPct) + '%</strong> of the total expenditure budget is board department funding.</p></div>';
+      const deptCards = departments.map((dept) => {
+        const fte = staffingByDept.get(dept.key) || 0;
+        const priorFte = priorStaffingByDept.get(dept.key) || 0;
+        const fteDelta = fte - priorFte;
+        const change = dept.current - dept.prior;
+        const changePct = dept.prior ? (change / Math.abs(dept.prior) * 100) : null;
+        const shareOfBoard = totalExcludingCapital ? (dept.current / totalExcludingCapital * 100) : 0;
+        const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' + (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%") + '</em></div></div>';
+        const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
+        return '<button type="button" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></button>';
+      }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2>' + explorerBadges + '<p>Select any County department to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Board department budgets shown</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + percent(totalPersonnel, totalExcludingCapital) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + percent(totalOperating, totalExcludingCapital) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article></div><h3 class="wc-department-explorer-subhead">Explore County departments</h3><div class="wc-department-budget-cards">' + departments.map((dept) => '<button type="button" data-department-key="' + escapeHtml(dept.key) + '"><strong>' + escapeHtml(dept.name) + '</strong><b>' + compactCurrency(dept.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2>' + explorerBadges + '<p>Select any County department to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Board department budgets shown</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
       const departmentBadgeGroup = explorer.querySelector(".wc-department-explorer-badges");
       const departmentTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const departmentLedgerButton = explorer.querySelector("[data-department-ledger-open]");
@@ -16127,16 +16135,6 @@
         [totalLabel, departmentTotalAmount, changeLine, departmentLedgerButton].forEach((element) => { if (element) primary.appendChild(element); });
         departmentTotalCallout.appendChild(primary);
       }
-      departments.forEach((dept) => {
-        const button = Array.from(explorer.querySelectorAll("[data-department-key]")).find((candidate) => candidate.dataset.departmentKey === dept.key);
-        if (!button) return;
-        const change = dept.current - dept.prior;
-        const changePercent = dept.prior ? change / Math.abs(dept.prior) * 100 : null;
-        const changeBlock = document.createElement("div");
-        changeBlock.className = "wc-department-card-change" + (change < 0 ? " is-decrease" : change > 0 ? " is-increase" : "");
-        changeBlock.innerHTML = '<span>Change from FY 2026</span><strong>' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</strong><small>' + (changePercent === null ? "No FY 2026 base" : (changePercent > 0 ? "+" : "") + changePercent.toFixed(1) + "%") + '</small>';
-        button.insertBefore(changeBlock, button.querySelector("em"));
-      });
       explorer.querySelectorAll("[data-department-key]").forEach((button) => button.addEventListener("click", () => renderDetail(groups.get(button.dataset.departmentKey))));
       const ledger = explorer.querySelector("[data-department-ledger]");
       const explorerCards = explorer.querySelector(".wc-department-explorer");

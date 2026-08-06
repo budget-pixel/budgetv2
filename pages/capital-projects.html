@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capital Budget — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260806-card-share-pct">
+<link rel="stylesheet" href="../assets/style.css?v=20260806-composition-layout">
 </head>
 <body>
 
@@ -384,8 +384,8 @@
       var capitalShareOfBudgetPct = totalCountywideBudget2027 ? (combinedTotal / totalCountywideBudget2027 * 100) : 0;
       var fy2027SharePct = combinedTotal ? (fy2027Total / combinedTotal * 100) : 0;
       var machinerySharePct = combinedTotal ? ((machineryTotal || 0) / combinedTotal * 100) : 0;
-      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b><small>' + fy2027SharePct.toFixed(1) + '% of capital budget</small></div><div><span>Machinery, Vehicles &amp; Equipment</span><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b><small>' + machinerySharePct.toFixed(1) + '% of capital budget</small></div></div></div>';
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p></div>' +
+      var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b><small>' + fy2027SharePct.toFixed(1) + '% of capital budget</small></div></div><div><span>Machinery, Vehicles &amp; Equipment</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b><small>' + machinerySharePct.toFixed(1) + '% of capital budget</small></div></div></div></div>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Start with the total capital budget below, or select a ledger card to review its projects, funding sources, and year-over-year change.</p></div>' +
         '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
         compositionHtml +
         '<div class="wc-department-budget-cards">' + ledgerPages.map(function(page){ return ledgerCardHtml(page, combinedTotal); }).join("") + '</div></section>';
