@@ -3252,6 +3252,16 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 }
 :root[data-theme="dark"] .wc-personnel-fund-stat { background: rgba(14,28,22,.92); }
 .wc-personnel-constitutional-row .wc-visually-muted { color: var(--muted); }
+.wc-personnel-dept-expand-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: none; color: var(--navy); cursor: pointer; font: inherit; font-weight: 800; text-align: left; }
+.wc-personnel-dept-expand-caret { display: inline-block; width: 0; height: 0; flex: 0 0 auto; border-left: 5px solid var(--green); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s ease; }
+tr.is-expanded .wc-personnel-dept-expand-caret { transform: rotate(90deg); }
+.wc-personnel-board-group-row td { font-weight: 700; }
+.wc-personnel-dept-office-detail > td { padding: 0 12px 20px; border-bottom: 1px solid var(--border); }
+.wc-personnel-office-detail-wrap { padding: 14px 16px; border-radius: 12px; background: rgba(0,63,40,.04); }
+.wc-personnel-office-detail-heading { margin: 0 0 10px; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.wc-personnel-office-detail-wrap .wc-data-table thead th { background: #e8f3eb; color: var(--navy); box-shadow: none; }
+:root[data-theme="dark"] .wc-personnel-office-detail-wrap { background: rgba(255,255,255,.04); }
+:root[data-theme="dark"] .wc-personnel-office-detail-wrap .wc-data-table thead th { background: #1c2c22; color: #fff; }
 .wc-personnel-constitutional-note {
   margin: 14px 0 0;
   padding: 12px 14px;

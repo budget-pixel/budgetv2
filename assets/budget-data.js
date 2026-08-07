@@ -4387,6 +4387,21 @@
     openBudgetDetailModal(toggle, detail);
   });
 
+  // Personnel Ledger: expands a rolled-up Board department row (see
+  // boardDepartmentRollupName in renderPersonnelCostSummary) to reveal the
+  // offices that were summed into it. Delegated to document since the
+  // table body is re-rendered on every filter change.
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-personnel-dept-expand]");
+    if (!toggle) return;
+    const row = document.getElementById(toggle.dataset.personnelDeptExpand);
+    if (!row) return;
+    const expanded = row.hidden;
+    row.hidden = !expanded;
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.closest("tr").classList.toggle("is-expanded", expanded);
+  });
+
   let requestedBudgetLinesOpened = false;
 
   function requestedBudgetLinesTarget() {
@@ -14013,7 +14028,9 @@
 
   function isConstitutionalPersonnelDept(deptName) {
     const normalized = normalizeDeptName(deptName);
-    return PERSONNEL_COST_CONSTITUTIONAL_DEPTS.has(normalized) || /(^| )(sheriff|sheriffs office|clerk of circuit court|clerk of courts|property appraiser|supervisor of elections|tax collector)( |$)/.test(normalized);
+    return PERSONNEL_COST_CONSTITUTIONAL_DEPTS.has(normalized) ||
+      /(^| )(sheriff|sheriffs office|clerk of circuit court|clerk of courts|property appraiser|supervisor of elections|tax collector)( |$)/.test(normalized) ||
+      /^(circuit|county) court( bailiff services)?$/.test(normalized);
   }
 
   function isAggregateOnlyPersonnelDept(deptName) {
@@ -14085,7 +14102,13 @@
       const deptName = tourismDeptLabel(personnelCostDeptDisplayName(rawDeptNameForRow), fundName);
       const key = deptName + "|" + fundName;
       if (!byKey.has(key)) {
-        byKey.set(key, { Dept_Name: deptName, Fund_Name: fundName, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, PriorTotal: 0 });
+        // RawDeptName is the pre-display-name-merge department name (i.e.
+        // before the Code Compliance Beach/Street and Tourism prefixing
+        // above) -- kept only so the Board Departments scope can roll a row
+        // up into one of the 15 canonical Board departments via
+        // boardDepartmentRollupName(), the same lookup the Department
+        // Ledger uses.
+        byKey.set(key, { Dept_Name: deptName, Fund_Name: fundName, RawDeptName: rawDeptNameForRow, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, PriorTotal: 0 });
       }
       const entry = byKey.get(key);
       if (isSalary) entry.Salaries += amount;
@@ -14945,7 +14968,11 @@
     const staffingPositionsByDept = buildStaffingPositionListByDept();
 
     const boardRows = rows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name));
-    const departments = uniqueSorted(boardRows.map((r) => r.Dept_Name));
+    // The Department filter lists the same 15 canonical Board departments
+    // the table itself now rolls up into (see boardDepartmentRollupName),
+    // not each individual office -- so a selection here always matches a
+    // row actually shown in the table.
+    const departments = uniqueSorted(boardRows.map((r) => boardDepartmentRollupName(r.RawDeptName) || r.Dept_Name));
     const funds = uniqueSorted(boardRows.map((r) => r.Fund_Name));
 
     container.innerHTML =
@@ -15011,10 +15038,11 @@
       increasesToggle.hidden = selectedScope !== "board";
       const deptName = selectedDept;
       const fundName = selectedFund;
+      const isBoardScope = selectedScope === "board";
       const items = rows.filter((r) =>
         (selectedScope === "all" ? true : selectedScope === "constitutional" ? isConstitutionalPersonnelDept(r.Dept_Name) : !isConstitutionalPersonnelDept(r.Dept_Name)) &&
         (!selectedFunction || (personnelFunctionByDept.get(personnelCostFteMatchKey(r.Dept_Name)) || personnelFunctionByDept.get(normalizeDeptName(r.Dept_Name)) || expenseActivityForRow(r)) === selectedFunction) &&
-        (!deptName || r.Dept_Name === deptName) && (!fundName || r.Fund_Name === fundName)
+        (!deptName || (isBoardScope ? (boardDepartmentRollupName(r.RawDeptName) || r.Dept_Name) : r.Dept_Name) === deptName) && (!fundName || r.Fund_Name === fundName)
       );
 
       if (!items.length) {
@@ -15023,14 +15051,32 @@
         return;
       }
 
+      // Board scope rolls each office up into its canonical Board
+      // department (the same 15 the Department Ledger uses -- see
+      // boardDepartmentRollupName), while keeping each contributing
+      // office's own totals in officesByGroup so the row can be expanded
+      // to show the offices underneath it. Constitutional/"all" scope is
+      // unaffected -- those offices are still their own rows.
       const totals = new Map();
+      const officesByGroup = new Map();
       items.forEach((r) => {
-        if (!totals.has(r.Dept_Name)) totals.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0 });
-        const t = totals.get(r.Dept_Name);
+        const groupKey = isBoardScope ? (boardDepartmentRollupName(r.RawDeptName) || r.Dept_Name) : r.Dept_Name;
+        if (!totals.has(groupKey)) totals.set(groupKey, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0 });
+        const t = totals.get(groupKey);
         t.Salaries += r.Salaries;
         t.Retirement += r.Retirement;
         t.HealthInsurance += r.HealthInsurance;
         t.OtherBenefits += r.OtherBenefits;
+        if (isBoardScope) {
+          if (!officesByGroup.has(groupKey)) officesByGroup.set(groupKey, new Map());
+          const offices = officesByGroup.get(groupKey);
+          if (!offices.has(r.Dept_Name)) offices.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0 });
+          const o = offices.get(r.Dept_Name);
+          o.Salaries += r.Salaries;
+          o.Retirement += r.Retirement;
+          o.HealthInsurance += r.HealthInsurance;
+          o.OtherBenefits += r.OtherBenefits;
+        }
       });
 
       const deptsInView = uniqueSorted(Array.from(totals.keys()));
@@ -15047,6 +15093,13 @@
       // Services line items instead of leaving users stuck at the
       // department-level rollup.
       const detailMarkup = [];
+      // Once Health Insurance has its own visible column (the toggle is
+      // on), the combined column's label drops "Health Insurance" from its
+      // name -- otherwise the same figure looks like it's named in both
+      // columns at once. Computed up front since the expanded office
+      // sub-table (below) needs this same label too.
+      const showingOptionalCols = document.body.classList.contains("wc-show-personnel-cost-optional-cols");
+      const combinedColumnLabel = showingOptionalCols ? "Retirement & Other Benefits" : "Retirement, Health Insurance & Other Benefits";
       const bodyRows = deptsInView.map((d) => {
         const t = totals.get(d);
         const isAggregateOnly = isAggregateOnlyPersonnelDept(d);
@@ -15055,19 +15108,33 @@
         // of the current total attributable to that 3% increase, not an
         // additional amount on top of it.
         const cola = t.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
-        const fteEntry = fteByDept.get(personnelCostFteMatchKey(d)) || { prior: 0, current: 0 };
+        // For a rolled-up Board department, FTE/retiree-subsidy are summed
+        // across every office that feeds into it -- for everything else
+        // (Constitutional Officers, "all" scope, or a Board department
+        // with only one contributing office) this is just [d] itself,
+        // same lookup as before.
+        const officeMap = isBoardScope ? officesByGroup.get(d) : null;
+        const officeNames = officeMap ? Array.from(officeMap.keys()) : [d];
+        const fteEntry = officeNames.reduce((acc, name) => {
+          const entry = fteByDept.get(personnelCostFteMatchKey(name)) || { prior: 0, current: 0 };
+          acc.prior += entry.prior;
+          acc.current += entry.current;
+          return acc;
+        }, { prior: 0, current: 0 });
         const fte = fteEntry.current;
         const fteChange = fteEntry.current - fteEntry.prior;
         const fteChangeText = (fteChange > 0 ? "+" : fteChange < 0 ? "−" : "") + formatNumber(Math.abs(fteChange));
         const fteChangeClass = fteChange > 0 ? " is-increase" : fteChange < 0 ? " is-decrease" : "";
-        const deptPositions = positionsByDept.get(d);
         // Board of County Commissioners' Retiree Health Insurance
         // Subsidies aren't active-employee premiums, so a hypothetical 5%
         // active-employee premium increase shouldn't apply to that portion
         // of Health Insurance -- excluded from the base before applying
         // the rate, same as the popup's own per-position calculation
         // already does (that row has no Health Insurance Increase value).
-        const retireeHealthInsuranceSubsidy = (deptPositions && deptPositions.retireeHealthInsuranceSubsidy) || 0;
+        const retireeHealthInsuranceSubsidy = officeNames.reduce((sum, name) => {
+          const positions = positionsByDept.get(name);
+          return sum + ((positions && positions.retireeHealthInsuranceSubsidy) || 0);
+        }, 0);
         const healthInsuranceIncrease = (t.HealthInsurance - retireeHealthInsuranceSubsidy) * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
         // Retirement, Health Insurance, and Other Benefits & Taxes are
         // combined into one column here, same as the per-position popup --
@@ -15107,7 +15174,79 @@
               '<td class="wc-num"><strong>' + formatCurrency(total) + "</strong></td></tr>"
             );
         }
-        const { detailId, detailHtml } = personnelCostDeptDetailHtml(d, deptPositions, staffingPositionsByDept.get(personnelCostFteMatchKey(d)));
+        // A rolled-up Board department with more than one contributing
+        // office gets an expand toggle instead of its own "View Budget
+        // Lines" popup (there's no single merged position list for a
+        // department that's really several offices) -- expanding it
+        // reveals each office's own row, still individually clickable
+        // into its own position-level detail popup exactly as before.
+        if (officeMap && officeMap.size > 1) {
+          const expandId = "wc-personnel-board-group-" + slugifyId(d);
+          const officeBodyRows = uniqueSorted(officeNames).map((officeName) => {
+            const ot = officeMap.get(officeName);
+            const officeFteEntry = fteByDept.get(personnelCostFteMatchKey(officeName)) || { prior: 0, current: 0 };
+            const officeFte = officeFteEntry.current;
+            const officeFteChange = officeFteEntry.current - officeFteEntry.prior;
+            const officeFteChangeText = (officeFteChange > 0 ? "+" : officeFteChange < 0 ? "−" : "") + formatNumber(Math.abs(officeFteChange));
+            const officeFteChangeClass = officeFteChange > 0 ? " is-increase" : officeFteChange < 0 ? " is-decrease" : "";
+            const officeCola = ot.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
+            const officePositions = positionsByDept.get(officeName);
+            const officeRetireeSubsidy = (officePositions && officePositions.retireeHealthInsuranceSubsidy) || 0;
+            const officeBenefits = ot.Retirement + ot.HealthInsurance + ot.OtherBenefits;
+            const officeActiveHealthInsurance = ot.HealthInsurance - officeRetireeSubsidy;
+            const officeHealthInsuranceIncrease = (ot.HealthInsurance - officeRetireeSubsidy) * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
+            const officeTotal = ot.Salaries + officeBenefits;
+            const office = personnelCostDeptDetailHtml(officeName, officePositions, staffingPositionsByDept.get(personnelCostFteMatchKey(officeName)));
+            detailMarkup.push(office.detailHtml);
+            return (
+              "<tr><td>" +
+              '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + office.detailId + '" data-closed-label="' + escapeHtml(officeName) + '" aria-expanded="false">' +
+              escapeHtml(officeName) + "</button>" +
+              "</td>" +
+              '<td class="wc-num">' + formatNumber(officeFte) + "</td>" +
+              '<td class="wc-num' + officeFteChangeClass + '">' + officeFteChangeText + "</td>" +
+              '<td class="wc-num">' + formatCurrency(ot.Salaries) + "</td>" +
+              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeCola) + "</td>" +
+              '<td class="wc-num">' + formatCurrency(officeBenefits) + "</td>" +
+              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeActiveHealthInsurance) + "</td>" +
+              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeHealthInsuranceIncrease) + "</td>" +
+              '<td class="wc-num">' + formatCurrency(officeTotal) + "</td></tr>"
+            );
+          });
+          const officeTable = renderTable({
+            caption: d + " Offices",
+            hideVisualCaption: true,
+            columns: [
+              { label: "Office" },
+              { label: "FTE", num: true },
+              { label: "+/−", num: true },
+              { label: "Salaries & Wages", num: true },
+              { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
+              { label: combinedColumnLabel, num: true },
+              { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
+              { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"] },
+              { label: "Total", num: true }
+            ],
+            bodyRows: officeBodyRows
+          });
+          return (
+            '<tr class="wc-personnel-board-group-row"><td>' +
+            '<button type="button" class="wc-personnel-dept-expand-toggle" data-personnel-dept-expand="' + expandId + '" aria-controls="' + expandId + '" aria-expanded="false">' +
+            '<span class="wc-personnel-dept-expand-caret" aria-hidden="true"></span>' + escapeHtml(d) + "</button>" +
+            "</td>" +
+            '<td class="wc-num">' + formatNumber(fte) + "</td>" +
+            '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
+            '<td class="wc-num">' + formatCurrency(t.Salaries) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(cola) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(total) + "</td></tr>" +
+            '<tr id="' + expandId + '" class="wc-personnel-dept-office-detail" hidden><td colspan="9"><div class="wc-personnel-office-detail-wrap"><p class="wc-personnel-office-detail-heading">Offices within ' + escapeHtml(d) + "</p>" + officeTable + "</div></td></tr>"
+          );
+        }
+        const soleOfficeName = officeNames[0];
+        const { detailId, detailHtml } = personnelCostDeptDetailHtml(d, positionsByDept.get(soleOfficeName), staffingPositionsByDept.get(personnelCostFteMatchKey(soleOfficeName)));
         detailMarkup.push(detailHtml);
         return (
           "<tr><td>" +
@@ -15149,12 +15288,6 @@
         grand.Fte = Array.from((cache.staffing || [])).filter((row) => (expenseActivityForRow(row) || "General Government") === selectedFunction).reduce((sum, row) => sum + (Number(row[2027]) || 0), 0);
       }
 
-      // Once Health Insurance has its own visible column (the toggle is
-      // on), the combined column's label drops "Health Insurance" from its
-      // name -- otherwise the same figure looks like it's named in both
-      // columns at once.
-      const showingOptionalCols = document.body.classList.contains("wc-show-personnel-cost-optional-cols");
-      const combinedColumnLabel = showingOptionalCols ? "Retirement & Other Benefits" : "Retirement, Health Insurance & Other Benefits";
       const includesConstitutional = deptsInView.some(isConstitutionalPersonnelDept);
       const constitutionalNote = includesConstitutional
         ? '<p class="wc-personnel-constitutional-note"><strong>Constitutional Officer personnel budgets:</strong> Only each office\'s total FTE and total personnel cost are shown. Contact the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, or Sheriff\'s Office directly for details about their respective personnel budgets.</p>'
@@ -15261,11 +15394,16 @@
       const matchedRow = rows.find((row) => personnelCostFteMatchKey(row.Dept_Name) === requestedKey);
       if (!matchedRow) return;
       const isConstitutional = isConstitutionalPersonnelDept(matchedRow.Dept_Name);
+      // The Department filter (and the table itself) now matches on the
+      // rolled-up Board department name, not the raw office -- so a deep
+      // link into e.g. "Human Resources" selects "County Administration
+      // Departments" instead of a name the filter no longer recognizes.
+      const targetDept = isConstitutional ? matchedRow.Dept_Name : (boardDepartmentRollupName(matchedRow.RawDeptName) || matchedRow.Dept_Name);
       selectedScope = isConstitutional ? "constitutional" : "board";
       selectedFunction = "";
-      selectedDept = matchedRow.Dept_Name;
+      selectedDept = targetDept;
       selectedFund = "";
-      deptCombo.setValue(isConstitutional ? "" : matchedRow.Dept_Name);
+      deptCombo.setValue(isConstitutional ? "" : targetDept);
       fundCombo.setValue("");
       scopeButtons.forEach((item) => {
         const active = item.dataset.personnelCostScope === selectedScope;
@@ -15639,6 +15777,89 @@
     "Beach Operations": "Beach Operations supports and maintains Walton County's public beaches, funding beach renourishment projects and operating the Beach Tram Program, which improves beach access while reducing traffic congestion and parking demand."
   };
 
+  // Explicit Board-department rollup. Financial schedules, transfers,
+  // autonomous entities, Constitutional Officers, and program-only
+  // accounting rows are intentionally absent. Known subprograms are
+  // consolidated into the department that manages them. Shared by the
+  // Department Ledger, the Budget Overview directory callouts
+  // (getDepartmentBudgetTotal), and the Personnel Ledger's Board
+  // Departments rollup -- all three need the exact same 15 canonical
+  // Board departments, not three drifting copies of this list.
+  const BOARD_DEPARTMENT_ROLLUP_NAMES = new Map([
+    ["building construction and maintenance", "Building Construction & Maintenance"],
+    ["building department", "Building"],
+    ["code compliance", "Code Compliance"],
+    ["code compliance beach", "Code Compliance"],
+    ["code compliance street", "Code Compliance"],
+    ["county administration", "County Administration Departments"],
+    ["human resources", "County Administration Departments"],
+    ["office of management and budget", "Office of Management and Budget"],
+    ["office of the county attorney", "Office of the County Attorney"],
+    ["purchasing", "Purchasing"],
+    ["extension office", "County Administration Departments"],
+    ["geographic info systems", "County Administration Departments"],
+    ["housing and urban development", "County Administration Departments"],
+    ["county libraries", "County Administration Departments"],
+    ["libraries", "County Administration Departments"],
+    ["probation services", "County Administration Departments"],
+    ["veteran services", "County Administration Departments"],
+    ["eagle springs golf and recreation center", "Parks & Recreation"],
+    ["eagle springs grill", "Parks & Recreation"],
+    ["recreation", "Parks & Recreation"],
+    ["culture and recreation senior centers and mainstreet", "Parks & Recreation"],
+    ["emergency management", "Emergency Management"],
+    ["engineering services", "Engineering Department"],
+    ["environmental services", "Environmental Services"],
+    ["solid waste", "Environmental Services"],
+    ["mosquito control", "Environmental Services"],
+    ["mosquito control state aid", "Environmental Services"],
+    ["soil conservation", "Environmental Services"],
+    ["mossy head wastewater treatment facility", "Engineering Department"],
+    ["planning", "Planning"],
+    ["planning short term rental", "Planning"],
+    ["public works", "Public Works"],
+    ["tourism administration", "Tourism Administration"],
+    ["marketing", "Tourism Administration"],
+    ["tourism marketing", "Tourism Administration"],
+    ["communications", "Tourism Administration"],
+    ["tourism communications", "Tourism Administration"],
+    ["sales and visitors center", "Tourism Administration"],
+    ["north walton tourist development tax", "Tourism Administration"],
+    ["tourism public safety", "Tourism Administration"],
+    ["south walton fire lifeguard services", "Tourism Administration"],
+    ["beach operations", "Beach Operations"],
+    ["beach renourishment", "Beach Operations"],
+    ["beach tram", "Beach Operations"]
+  ]);
+  const BOARD_DEPARTMENT_ROLLUP_ALIASES = new Map([
+    ["tourism marketing", "marketing"],
+    ["tourism communications", "communications"],
+    ["tourism sales and visitor center", "sales and visitors center"],
+    ["tourism sales and visitors center", "sales and visitors center"],
+    ["tourism beach tram", "beach tram"],
+    ["tourism beach operations", "beach operations"],
+    ["code compliance beach", "code compliance"],
+    ["code compliance street", "code compliance"],
+    ["engineering department", "engineering services"],
+    ["county libraries", "libraries"],
+    ["probation", "probation services"],
+    ["procurement", "purchasing"],
+    ["environmental resources", "environmental services"],
+    ["planning short term rental", "planning"]
+  ]);
+  function boardDepartmentRollupKey(name) {
+    const rawKey = normalizeDeptName(name || "");
+    if (BOARD_DEPARTMENT_ROLLUP_ALIASES.has(rawKey)) return BOARD_DEPARTMENT_ROLLUP_ALIASES.get(rawKey);
+    return normalizeDeptName(departmentDisplayName(name || ""));
+  }
+  // The canonical Board department name for a raw Dept_Name, or undefined
+  // if it isn't one of the 15 Board departments (Constitutional Officers,
+  // Board of County Commissioners, Circuit/County Court, financial
+  // schedules, etc.).
+  function boardDepartmentRollupName(name) {
+    return BOARD_DEPARTMENT_ROLLUP_NAMES.get(boardDepartmentRollupKey(name));
+  }
+
   function initDepartmentBudgetPage() {
     const checklistContainer = document.getElementById("department-budget-questions");
     const explorerEl = document.getElementById("department-budget-explorer");
@@ -15696,77 +15917,8 @@
 
     if (!explorer) return;
     loadBudgetData().then((data) => {
-      // Explicit Board-department rollup. Financial schedules, transfers,
-      // autonomous entities, Constitutional Officers, and program-only
-      // accounting rows are intentionally absent. Known subprograms are
-      // consolidated into the department that manages them.
-      const boardDepartmentNames = new Map([
-        ["building construction and maintenance", "Building Construction & Maintenance"],
-        ["building department", "Building"],
-        ["code compliance", "Code Compliance"],
-        ["code compliance beach", "Code Compliance"],
-        ["code compliance street", "Code Compliance"],
-        ["county administration", "County Administration Departments"],
-        ["human resources", "County Administration Departments"],
-        ["office of management and budget", "Office of Management and Budget"],
-        ["office of the county attorney", "Office of the County Attorney"],
-        ["purchasing", "Purchasing"],
-        ["extension office", "County Administration Departments"],
-        ["geographic info systems", "County Administration Departments"],
-        ["housing and urban development", "County Administration Departments"],
-        ["county libraries", "County Administration Departments"],
-        ["libraries", "County Administration Departments"],
-        ["probation services", "County Administration Departments"],
-        ["veteran services", "County Administration Departments"],
-        ["eagle springs golf and recreation center", "Parks & Recreation"],
-        ["eagle springs grill", "Parks & Recreation"],
-        ["recreation", "Parks & Recreation"],
-        ["culture and recreation senior centers and mainstreet", "Parks & Recreation"],
-        ["emergency management", "Emergency Management"],
-        ["engineering services", "Engineering Department"],
-        ["environmental services", "Environmental Services"],
-        ["solid waste", "Environmental Services"],
-        ["mosquito control", "Environmental Services"],
-        ["mosquito control state aid", "Environmental Services"],
-        ["soil conservation", "Environmental Services"],
-        ["mossy head wastewater treatment facility", "Engineering Department"],
-        ["planning", "Planning"],
-        ["planning short term rental", "Planning"],
-        ["public works", "Public Works"],
-        ["tourism administration", "Tourism Administration"],
-        ["marketing", "Tourism Administration"],
-        ["tourism marketing", "Tourism Administration"],
-        ["communications", "Tourism Administration"],
-        ["tourism communications", "Tourism Administration"],
-        ["sales and visitors center", "Tourism Administration"],
-        ["north walton tourist development tax", "Tourism Administration"],
-        ["tourism public safety", "Tourism Administration"],
-        ["south walton fire lifeguard services", "Tourism Administration"],
-        ["beach operations", "Beach Operations"],
-        ["beach renourishment", "Beach Operations"],
-        ["beach tram", "Beach Operations"]
-      ]);
-      const sourceKeyAliases = new Map([
-        ["tourism marketing", "marketing"],
-        ["tourism communications", "communications"],
-        ["tourism sales and visitor center", "sales and visitors center"],
-        ["tourism sales and visitors center", "sales and visitors center"],
-        ["tourism beach tram", "beach tram"],
-        ["tourism beach operations", "beach operations"],
-        ["code compliance beach", "code compliance"],
-        ["code compliance street", "code compliance"],
-        ["engineering department", "engineering services"],
-        ["county libraries", "libraries"],
-        ["probation", "probation services"],
-        ["procurement", "purchasing"],
-        ["environmental resources", "environmental services"],
-        ["planning short term rental", "planning"]
-      ]);
-      function rollupSourceKey(name) {
-        const rawKey = normalizeDeptName(name || "");
-        if (sourceKeyAliases.has(rawKey)) return sourceKeyAliases.get(rawKey);
-        return normalizeDeptName(departmentDisplayName(name || ""));
-      }
+      const boardDepartmentNames = BOARD_DEPARTMENT_ROLLUP_NAMES;
+      const rollupSourceKey = boardDepartmentRollupKey;
       const groups = new Map();
       (data.expenditures || []).forEach((row) => {
         const sourceKey = rollupSourceKey(row.Dept_Name);
@@ -16339,73 +16491,8 @@
   // directory callouts can show the same figures as those pages' own totals
   // without loading their full explorer UI.
   function getDepartmentBudgetTotal(data) {
-    const boardDepartmentNames = new Map([
-      ["building construction and maintenance", "Building Construction & Maintenance"],
-      ["building department", "Building"],
-      ["code compliance", "Code Compliance"],
-      ["code compliance beach", "Code Compliance"],
-      ["code compliance street", "Code Compliance"],
-      ["county administration", "County Administration Departments"],
-      ["human resources", "County Administration Departments"],
-      ["office of management and budget", "Office of Management and Budget"],
-      ["office of the county attorney", "Office of the County Attorney"],
-      ["purchasing", "Purchasing"],
-      ["extension office", "County Administration Departments"],
-      ["geographic info systems", "County Administration Departments"],
-      ["housing and urban development", "County Administration Departments"],
-      ["county libraries", "County Administration Departments"],
-      ["libraries", "County Administration Departments"],
-      ["probation services", "County Administration Departments"],
-      ["veteran services", "County Administration Departments"],
-      ["eagle springs golf and recreation center", "Parks & Recreation"],
-      ["eagle springs grill", "Parks & Recreation"],
-      ["recreation", "Parks & Recreation"],
-      ["culture and recreation senior centers and mainstreet", "Parks & Recreation"],
-      ["emergency management", "Emergency Management"],
-      ["engineering services", "Engineering Department"],
-      ["environmental services", "Environmental Services"],
-      ["solid waste", "Environmental Services"],
-      ["mosquito control", "Environmental Services"],
-      ["mosquito control state aid", "Environmental Services"],
-      ["soil conservation", "Environmental Services"],
-      ["mossy head wastewater treatment facility", "Engineering Department"],
-      ["planning", "Planning"],
-      ["planning short term rental", "Planning"],
-      ["public works", "Public Works"],
-      ["tourism administration", "Tourism Administration"],
-      ["marketing", "Tourism Administration"],
-      ["tourism marketing", "Tourism Administration"],
-      ["communications", "Tourism Administration"],
-      ["tourism communications", "Tourism Administration"],
-      ["sales and visitors center", "Tourism Administration"],
-      ["north walton tourist development tax", "Tourism Administration"],
-      ["tourism public safety", "Tourism Administration"],
-      ["south walton fire lifeguard services", "Tourism Administration"],
-      ["beach operations", "Beach Operations"],
-      ["beach renourishment", "Beach Operations"],
-      ["beach tram", "Beach Operations"]
-    ]);
-    const sourceKeyAliases = new Map([
-      ["tourism marketing", "marketing"],
-      ["tourism communications", "communications"],
-      ["tourism sales and visitor center", "sales and visitors center"],
-      ["tourism sales and visitors center", "sales and visitors center"],
-      ["tourism beach tram", "beach tram"],
-      ["tourism beach operations", "beach operations"],
-      ["code compliance beach", "code compliance"],
-      ["code compliance street", "code compliance"],
-      ["engineering department", "engineering services"],
-      ["county libraries", "libraries"],
-      ["probation", "probation services"],
-      ["procurement", "purchasing"],
-      ["environmental resources", "environmental services"],
-      ["planning short term rental", "planning"]
-    ]);
-    function rollupSourceKey(name) {
-      const rawKey = normalizeDeptName(name || "");
-      if (sourceKeyAliases.has(rawKey)) return sourceKeyAliases.get(rawKey);
-      return normalizeDeptName(departmentDisplayName(name || ""));
-    }
+    const boardDepartmentNames = BOARD_DEPARTMENT_ROLLUP_NAMES;
+    const rollupSourceKey = boardDepartmentRollupKey;
     const groups = new Map();
     (data.expenditures || []).forEach((row) => {
       const sourceKey = rollupSourceKey(row.Dept_Name);
