@@ -16180,11 +16180,16 @@
       const offices = Array.from(groups.values()).sort((a, b) => b.current - a.current);
       const staffingAlias = { "walton county sheriffs office": "sheriff", "clerk of court": "clerk of circuit court" };
       const staffing = new Map();
+      const priorStaffing = new Map();
       (data.staffing || []).forEach((row) => {
         const key = normalizeDeptName(row.Dept_Name);
         staffing.set(key, (staffing.get(key) || 0) + (Number(row[2027]) || 0));
+        priorStaffing.set(key, (priorStaffing.get(key) || 0) + (Number(row[2026]) || 0));
       });
-      offices.forEach((office) => { office.fte = staffing.get(staffingAlias[office.key] || office.key) || 0; });
+      offices.forEach((office) => {
+        office.fte = staffing.get(staffingAlias[office.key] || office.key) || 0;
+        office.priorFte = priorStaffing.get(staffingAlias[office.key] || office.key) || 0;
+      });
       const total = offices.reduce((sum, office) => sum + office.current, 0);
       function pct(value, base) { return base ? (value / base * 100).toFixed(1) : "0.0"; }
       function compactCurrency(value) {
@@ -16246,25 +16251,26 @@
       const totalPersonnel = offices.reduce((sum, office) => sum + office.personnel, 0);
       const totalOperating = offices.reduce((sum, office) => sum + office.operating, 0);
       const totalCapital = offices.reduce((sum, office) => sum + office.capital, 0);
-      const totalPriorPersonnel = offices.reduce((sum, office) => sum + office.priorPersonnel, 0);
-      const totalPriorOperating = offices.reduce((sum, office) => sum + office.priorOperating, 0);
-      const totalPriorCapital = offices.reduce((sum, office) => sum + office.priorCapital, 0);
       const totalFte = offices.reduce((sum, office) => sum + office.fte, 0);
-      function metricChangeHtml(current, prior) {
-        const diff = current - prior;
-        const changePct = prior ? (diff / Math.abs(prior)) * 100 : null;
-        const amountText = (diff >= 0 ? "+" : "−") + formatCurrency(Math.abs(diff));
-        const pctText = changePct === null ? "No FY 2026 base" : ((changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%");
-        return '<em class="wc-department-metric-change' + (diff < 0 ? " is-decrease" : diff > 0 ? " is-increase" : "") + '">' + escapeHtml(amountText) + ' (' + escapeHtml(pctText) + ') from FY 2026</em>';
-      }
-      const supportingPages = { "board of county commissioners": "board-of-county-commissioners.html", "clerk of court": "clerk-of-courts-and-county-comptroller.html", "property appraiser": "property-appraiser.html", "supervisor of elections": "supervisor-of-elections.html", "tax collector": "tax-collector.html", "walton county sheriffs office": "sheriffs-office.html" };
-      const explorerBadges = '<div class="wc-department-explorer-badges"><div><span>Constitutional Officers</span><b>' + offices.length + '</b></div><div><span>Total FTE</span><b>' + formatNumber(totalFte) + '</b></div></div>';
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2>' + explorerBadges + '<p>Select an office to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total proposed budget</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-constitutional-ledger-open>View Officers Ledger</button></div></div><div class="wc-department-explorer-metrics"><article><span>Personnel</span><strong>' + formatCurrency(totalPersonnel) + '</strong><small>FY 2027 personnel cost · ' + pct(totalPersonnel, total) + '% of total</small>' + metricChangeHtml(totalPersonnel, totalPriorPersonnel) + '</article><article><span>Operating</span><strong>' + formatCurrency(totalOperating) + '</strong><small>FY 2027 operating cost · ' + pct(totalOperating, total) + '% of total</small>' + metricChangeHtml(totalOperating, totalPriorOperating) + '</article><article><span>Capital</span><strong>' + formatCurrency(totalCapital) + '</strong><small>FY 2027 capital outlay · ' + pct(totalCapital, total) + '% of total</small>' + metricChangeHtml(totalCapital, totalPriorCapital) + '</article></div><h3 class="wc-department-explorer-subhead">Explore Constitutional Officers</h3><div class="wc-department-budget-cards">' + offices.map((office) => '<button type="button" data-constitutional-key="' + office.key + '"><strong>' + escapeHtml(office.name) + '</strong><b>' + compactCurrency(office.current) + '</b></button>').join("") + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
-      const constitutionalBadgeGroup = explorer.querySelector(".wc-department-explorer-badges");
+      const officePages = { "board of county commissioners": "board-of-county-commissioners.html", "clerk of court": "clerk-of-courts-and-county-comptroller.html", "property appraiser": "property-appraiser.html", "supervisor of elections": "supervisor-of-elections.html", "tax collector": "tax-collector.html", "walton county sheriffs office": "sheriffs-office.html" };
+      const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + pct(totalPersonnel, total) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperating)) + '</b><small>' + pct(totalOperating, total) + '%</small></div></div><div><span>Total Capital</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalCapital)) + '</b><small>' + pct(totalCapital, total) + '%</small></div></div></div>';
+      const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary">Proposed FY 2027 spending across personnel, operating, and capital costs.</p>' + costCategorySplitHtml + '</div>';
+      const officeCards = offices.map((office) => {
+        const change = office.current - office.prior;
+        const changePct = office.prior ? (change / Math.abs(office.prior) * 100) : null;
+        const fteDelta = office.fte - office.priorFte;
+        const shareOfTotal = total ? (office.current / total * 100) : 0;
+        const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' + (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%") + '</em></div></div>';
+        const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
+        const officeHref = officePages[office.key];
+        const tag = officeHref ? "a" : "button";
+        const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
+        return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total proposed budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
+      }).join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total proposed budget</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-constitutional-ledger-open>View Officers Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector("[data-constitutional-ledger-open]");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");
-      if (constitutionalBadgeGroup && constitutionalTotalCallout) constitutionalTotalCallout.insertBefore(constitutionalBadgeGroup, constitutionalTotalAmount || constitutionalLedgerButton || null);
       if (constitutionalTotalCallout) {
         const priorTotal = offices.reduce((sum, office) => sum + office.prior, 0);
         const change = total - priorTotal;
@@ -16279,32 +16285,6 @@
         [totalLabel, constitutionalTotalAmount, changeLine, constitutionalLedgerButton].forEach((element) => { if (element) primary.appendChild(element); });
         constitutionalTotalCallout.appendChild(primary);
       }
-      offices.forEach((office) => {
-        const button = explorer.querySelector('[data-constitutional-key="' + office.key + '"]');
-        if (!button) return;
-        const change = office.current - office.prior;
-        const changePercent = office.prior ? change / Math.abs(office.prior) * 100 : null;
-        const changeBlock = document.createElement("div");
-        changeBlock.className = "wc-department-card-change" + (change < 0 ? " is-decrease" : change > 0 ? " is-increase" : "");
-        changeBlock.innerHTML = '<span>Change from FY 2026</span><strong>' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</strong><small>' + (changePercent === null ? "No FY 2026 base" : (changePercent > 0 ? "+" : "") + changePercent.toFixed(1) + "%") + '</small>';
-        button.appendChild(changeBlock);
-      });
-      explorer.querySelectorAll("[data-constitutional-key]").forEach((button) => {
-        const href = supportingPages[button.dataset.constitutionalKey];
-        if (!href) return;
-        const wrapper = document.createElement("article");
-        wrapper.className = "wc-constitutional-card-wrap";
-        button.parentNode.insertBefore(wrapper, button);
-        wrapper.appendChild(button);
-        const supportingLink = document.createElement("a");
-        supportingLink.className = "wc-constitutional-supporting-link";
-        supportingLink.href = href;
-        const officeName = button.querySelector("strong") ? button.querySelector("strong").textContent : "constitutional officer";
-        supportingLink.setAttribute("aria-label", "View supporting documents for " + officeName);
-        supportingLink.title = "Supporting documents";
-        supportingLink.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"></path><path d="M14 2v5h5M9 12h6M9 16h6"></path></svg>';
-        wrapper.appendChild(supportingLink);
-      });
       explorer.querySelectorAll("[data-constitutional-key]").forEach((button) => button.addEventListener("click", () => renderOffice(groups.get(button.dataset.constitutionalKey))));
       const ledgerSection = explorer.querySelector("[data-constitutional-ledger]");
       const constitutionalCards = explorer.querySelector(".wc-department-explorer");
