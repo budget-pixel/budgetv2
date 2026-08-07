@@ -13995,11 +13995,15 @@
   // current Health Insurance figure, so it's not counted in Total.
   const PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE = 0.05;
 
-  // These independently elected offices are included in the Countywide
-  // personnel total, but their ledger rows stay at the office-total level.
-  // Their internal salary and benefit mix is managed by each office and
-  // should not be presented here as a County department breakdown.
+  // These offices are included in the Countywide personnel total, but their
+  // ledger rows stay at the office-total level rather than a Board
+  // department breakdown -- the five independently elected offices manage
+  // their own internal salary and benefit mix, and the Board of County
+  // Commissioners is grouped alongside them here (as it already is on the
+  // Constitutional Officers Budget Explorer) rather than counted as one of
+  // the Board departments.
   const PERSONNEL_COST_CONSTITUTIONAL_DEPTS = new Set([
+    "board of county commissioners",
     "clerk of court",
     "property appraiser",
     "supervisor of elections",
