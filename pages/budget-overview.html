@@ -28,10 +28,10 @@
 </div>
 
 <script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260802-debt-total-callout"></script>
+<script src="../assets/budget-data.js?v=20260807-ledger-directory-entries"></script>
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
-<script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
+<script src="../assets/nav.js?v=20260807-budgets-nav-reorder"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
@@ -74,6 +74,34 @@
         href:"summary-of-interfund-transfers.html",
         label:"Transfers Between Funds",
         description:"Review planned transfers into and out of County funds and see how resources move between funds to support services, projects, and obligations."
+      },
+      {
+        title:"Revenue Ledger",
+        href:"revenue-ledger.html",
+        label:"Revenue",
+        metric:"revenue",
+        description:"The complete FY 2027 revenue classification schedule, by revenue category and source, with prior-year comparisons."
+      },
+      {
+        title:"Personnel Ledger",
+        href:"personnel-ledger.html",
+        label:"Personnel",
+        metric:"personnel",
+        description:"Review FY 2027 personnel cost and staffing by Board department, Constitutional Officer, function, or fund."
+      },
+      {
+        title:"Department Ledger",
+        href:"department-ledger.html",
+        label:"Board Departments",
+        metric:"department",
+        description:"Compare proposed spending and major cost categories across Board departments."
+      },
+      {
+        title:"Constitutional Officers Ledger",
+        href:"constitutional-ledger.html",
+        label:"Constitutional Officers",
+        metric:"constitutionalOfficers",
+        description:"Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices."
       },
       {
         title:"Consolidated Financial Ledger",
@@ -194,12 +222,13 @@
         }, 0);
 
         var constitutionalOfficersTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);
+        var departmentTotal = window.WCBudgetData.getDepartmentBudgetTotal(data);
         var debtTotals = window.WCBudgetData.getDebtOverviewTotals();
 
-        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, debtPrincipal:debtTotals.principal, debtInterest:debtTotals.interest };
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, debtPrincipal:debtTotals.principal, debtInterest:debtTotals.interest };
         document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital'])").forEach(function(element){
           var amount = totals[element.dataset.budgetOverviewTotal] || 0;
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "debtPrincipal", "debtInterest"].indexOf(element.dataset.budgetOverviewTotal) !== -1;
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "debtPrincipal", "debtInterest"].indexOf(element.dataset.budgetOverviewTotal) !== -1;
           element.querySelector("strong").textContent = useRoundedMillions
             ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
             : window.WCBudgetData.formatCurrency(amount);

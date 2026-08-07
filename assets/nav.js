@@ -2046,8 +2046,10 @@
   }
   style.textContent = css;
   loadWaltonMobileStylesheet();
-  var WC_NAV_LINKS = [
-    { label:"Our County", href:"our-county.html" },
+  var WC_NAV_LINKS_BEFORE_BUDGETS = [
+    { label:"Our County", href:"our-county.html" }
+  ];
+  var WC_NAV_LINKS_AFTER_BUDGETS = [
     { label:"Financial Overview", href:"budget-overview.html" }
   ];
   var WC_BUDGET_LINKS = [
@@ -2091,12 +2093,15 @@
           '</svg>' +
           '<span>Search</span>' +
         '</button>' +
-        WC_NAV_LINKS.map(function(link){
+        WC_NAV_LINKS_BEFORE_BUDGETS.map(function(link){
           return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
         }).join("") +
         '<details class="wc-nav-budget-dropdown"><summary>Budgets</summary><div class="wc-nav-budget-menu">' + WC_BUDGET_LINKS.map(function(link){
           return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
-        }).join("") + '</div></details>';
+        }).join("") + '</div></details>' +
+        WC_NAV_LINKS_AFTER_BUDGETS.map(function(link){
+          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
+        }).join("");
       nav.appendChild(linksWrap);
       // <details> stays open until its own summary is clicked again --
       // close it when the click (or Escape) lands anywhere else.

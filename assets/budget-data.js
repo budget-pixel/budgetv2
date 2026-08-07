@@ -16530,6 +16530,12 @@
     const rollupSourceKey = boardDepartmentRollupKey;
     const groups = new Map();
     (data.expenditures || []).forEach((row) => {
+      // Capital outlay is excluded, same as initDepartmentBudgetPage's own
+      // "Total Board Department Budget" headline -- it's presented on the
+      // Capital Budget pages instead, so this total should reconcile with
+      // what the Department Ledger/Explorer themselves show, not double-
+      // count it here.
+      if (String(row.Object_Type || "").toLowerCase().indexOf("capital") >= 0) return;
       const sourceKey = rollupSourceKey(row.Dept_Name);
       const rawName = boardDepartmentNames.get(sourceKey);
       if (!rawName) return;
@@ -16540,7 +16546,12 @@
   }
 
   function getConstitutionalOfficersBudgetTotal(data) {
-    const allowed = new Set(["clerk of court", "property appraiser", "supervisor of elections", "tax collector", "walton county sheriffs office"]);
+    // Matches initConstitutionalOfficersBudgetPage's own "allowed" set --
+    // the Constitutional Officers Budget Explorer/Ledger group the Board
+    // of County Commissioners alongside the five independently elected
+    // offices, so this total needs to as well or it won't reconcile with
+    // those pages' own headline.
+    const allowed = new Set(["board of county commissioners", "clerk of court", "property appraiser", "supervisor of elections", "tax collector", "walton county sheriffs office"]);
     return (data.expenditures || []).reduce((sum, row) => {
       if (!allowed.has(normalizeDeptName(row.Dept_Name))) return sum;
       return sum + (Number(row.FY2027_Proposed) || 0);
