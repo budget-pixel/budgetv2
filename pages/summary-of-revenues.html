@@ -249,10 +249,15 @@
       0 6px 18px rgba(36,52,77,0.06);
   }
 
+  :root[data-theme="dark"] .wc-revenue-heading-inner{
+    background:#172235;
+    border-color:rgba(158,217,168,.18);
+  }
+
   .wc-revenue-heading-inner span{
     display:inline-block;
     margin-bottom:14px;
-    color:#003f28;
+    color:var(--green);
     font-size:13px;
     font-weight:700;
     letter-spacing:.14em;
@@ -261,7 +266,7 @@
 
   .wc-revenue-heading-inner h2{
     margin:0 0 18px 0;
-    color:#172033;
+    color:var(--navy);
     font-size:28px;
     line-height:1.08;
     font-weight:700;
@@ -280,7 +285,7 @@
   .wc-revenue-heading-inner p{
     margin:0;
     max-width:980px;
-    color:#344054;
+    color:var(--muted);
     font-size:14px;
     line-height:1.6;
     text-align:left;
