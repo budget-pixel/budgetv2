@@ -15997,7 +15997,8 @@
         if (popup.detail) popupDetailsArr.push(popup.detail);
         return '<td class="wc-num">' + popup.html + '</td>';
       }
-      function renderDetail(dept) {
+      function renderDetail(dept, options) {
+        const standalone = !!(options && options.standalone);
         const ledgerSection = explorer.querySelector("[data-department-ledger]");
         if (ledgerSection) ledgerSection.hidden = true;
         const cardsSection = explorer.querySelector(".wc-department-explorer");
@@ -16062,13 +16063,18 @@
         const functionStatementHtml = functionStatement ? '<p class="wc-department-detail-function">' + escapeHtml(functionStatement) + '</p>' : "";
 
         const detail = explorer.querySelector("[data-department-detail]");
-        detail.innerHTML = '<button type="button" class="wc-department-detail-close" data-department-detail-close>Close Department Ledger</button><div class="wc-department-detail-head"><div><span>FY 2027 proposed department budget</span><h3>' + escapeHtml(dept.name) + '</h3>' + functionStatementHtml + '</div><div><strong>' + formatCurrency(dept.current) + '</strong><small>' + (change >= 0 ? "+" : "−") + formatCurrency(Math.abs(change)) + ' (' + (dept.prior ? ((change / dept.prior) * 100).toFixed(1) : "0.0") + '%) from FY 2026</small></div></div><div class="wc-department-office-ledger">' + officeLedger + '</div>' + popupDetails.join("");
+        detail.innerHTML = '<button type="button" class="wc-department-detail-close" data-department-detail-close>' + (standalone ? "Back to Department Explorer" : "Close Department Ledger") + '</button><div class="wc-department-detail-head"><div><span>FY 2027 proposed department budget</span><h3>' + escapeHtml(dept.name) + '</h3>' + functionStatementHtml + '</div><div><strong>' + formatCurrency(dept.current) + '</strong><small>' + (change >= 0 ? "+" : "−") + formatCurrency(Math.abs(change)) + ' (' + (dept.prior ? ((change / dept.prior) * 100).toFixed(1) : "0.0") + '%) from FY 2026</small></div></div><div class="wc-department-office-ledger">' + officeLedger + '</div>' + popupDetails.join("");
         detail.hidden = false;
         detail.querySelector("[data-department-detail-close]").addEventListener("click", () => {
+          if (standalone) {
+            window.location.href = "department-budget.html";
+            return;
+          }
           detail.hidden = true;
           const cardsSection = explorer.querySelector(".wc-department-explorer");
           if (cardsSection) cardsSection.hidden = false;
         });
+        if (standalone) document.title = dept.name + " Budget Ledger — Walton County FY 2027 Budget";
       }
 
       const ledgerPopupDetails = [];
@@ -16114,7 +16120,7 @@
         const shareOfBoard = totalExcludingCapital ? (dept.current / totalExcludingCapital * 100) : 0;
         const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' + (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%") + '</em></div></div>';
         const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
-        return '<button type="button" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></button>';
+        return '<a href="department-budget.html?dept=' + encodeURIComponent(dept.key) + '" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
       }).join("");
 
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
@@ -16135,7 +16141,6 @@
         [totalLabel, departmentTotalAmount, changeLine, departmentLedgerButton].forEach((element) => { if (element) primary.appendChild(element); });
         departmentTotalCallout.appendChild(primary);
       }
-      explorer.querySelectorAll("[data-department-key]").forEach((button) => button.addEventListener("click", () => renderDetail(groups.get(button.dataset.departmentKey))));
       const ledger = explorer.querySelector("[data-department-ledger]");
       const explorerCards = explorer.querySelector(".wc-department-explorer");
       explorer.querySelector("[data-department-ledger-open]").addEventListener("click", () => {
@@ -16149,6 +16154,16 @@
         if (explorerCards) explorerCards.hidden = false;
       });
       explorer.querySelectorAll("[data-department-ledger-key]").forEach((button) => button.addEventListener("click", () => renderDetail(groups.get(button.dataset.departmentLedgerKey))));
+      const deptParam = new URLSearchParams(window.location.search).get("dept");
+      if (deptParam && groups.has(deptParam)) {
+        renderDetail(groups.get(deptParam), { standalone: true });
+        const directoryToggle = document.getElementById("departmentListToggle");
+        const directoryHeading = document.getElementById("departmentListHeading");
+        const directorySection = document.getElementById("departmentListSection");
+        if (directoryToggle) directoryToggle.style.display = "none";
+        if (directoryHeading) directoryHeading.hidden = false;
+        if (directorySection) directorySection.hidden = false;
+      }
     }).catch((error) => {
       console.error("WCBudgetData: failed to load department budget explorer", error);
       explorer.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + '</div>';
