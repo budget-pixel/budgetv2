@@ -725,6 +725,19 @@ function renderProjects(){
         font-family:Arial, Helvetica, sans-serif;
       }
 
+      .wc-cip-hero{position:relative;overflow:hidden;margin:0 0 52px;padding:clamp(28px,5vw,58px);border-radius:28px;background:linear-gradient(135deg,#003f28 0%,#005236 100%);color:#fff;box-shadow:0 22px 55px rgba(0,63,40,.16)}
+      .wc-cip-hero:after{content:"";position:absolute;right:-90px;bottom:-150px;width:360px;height:360px;border:70px solid rgba(255,255,255,.06);border-radius:50%}
+      .wc-cip-hero>*{position:relative;z-index:1}
+      .wc-cip-hero-kicker{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--gold);font-size:.7rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+      .wc-cip-hero-kicker:before{content:"";width:32px;height:2px;background:#a9d8ad}
+      .wc-cip-hero h1{max-width:800px;margin:0;color:#fff;font-size:clamp(2rem,5vw,3.6rem);line-height:1.02;letter-spacing:-.03em}
+      .wc-cip-hero p{max-width:720px;margin:22px 0 0;color:rgba(255,255,255,.85);font-size:clamp(1rem,2vw,1.14rem);line-height:1.7}
+      .wc-cip-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+      .wc-cip-hero-button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 19px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#fff;font-size:.76rem;font-weight:850;text-decoration:none}
+      .wc-cip-hero-button-primary{border-color:#fff;background:#fff;color:#003f28}
+      .wc-cip-hero-button:hover{transform:translateY(-2px)}
+      @media(max-width:650px){.wc-cip-hero{border-radius:20px}}
+
       .wc-cip-page-header .page-intro{
         max-width:820px;
         text-align:left;
@@ -2733,12 +2746,21 @@ function renderProjects(){
 
     ${!isStandaloneSearchPage ? `
     <div class="wc-cip-page-header">
-      <!-- nav.js builds the breadcrumb from .page-eyebrow + .page-title, and
-           the page still needs an h1 -- kept for those, visually hidden so the
-           page opens on the capital project definition. -->
+      <!-- nav.js builds the breadcrumb from .page-eyebrow + .page-title --
+           kept for those, visually hidden since the visible heading lives
+           in the hero card below. -->
       <div class="page-eyebrow wc-sr-only">Capital Projects</div>
       <h1 class="page-title wc-sr-only">Capital Improvement Plan</h1>
     </div>
+    <section class="wc-cip-hero" aria-labelledby="wc-cip-hero-title">
+      <span class="wc-cip-hero-kicker">Capital Improvement Plan</span>
+      <h1 id="wc-cip-hero-title">How Walton County plans, funds, and builds its infrastructure.</h1>
+      <p>Capital projects turn revenue into roads, buildings, parks, and utility systems that serve the public for years. This page walks through what counts as a capital project, what goes into one, and why new projects are necessary.</p>
+      <div class="wc-cip-hero-actions">
+        <a class="wc-cip-hero-button wc-cip-hero-button-primary" href="capital-projects.html">Back to Capital Projects</a>
+        <a class="wc-cip-hero-button" href="search.html">Search Projects</a>
+      </div>
+    </section>
     ` : ""}
 
     <section class="wc-cip-main-section">
