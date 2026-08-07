@@ -16126,6 +16126,41 @@
       function costCategoryPct(value) { return total ? (value / total * 100).toFixed(1) : "0.0"; }
       const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div><div><span>Total Capital</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalCapital)) + '</b><small>' + costCategoryPct(totalCapital) + '%</small></div></div></div>';
       const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(boardShareOfBudgetPct) + '%</strong> of the total expenditure budget is board department funding.</p>' + costCategorySplitHtml + '</div>';
+      // Department "Services / Changing / Challenges" badge content, sourced
+      // from assets/department-services-data.js (keyed by normalized raw
+      // department name) plus a live "what's changing" sentence computed
+      // from this department's own expenditure rows -- mirrors the
+      // non-salary top-line-item logic used on the individual department
+      // pages, so the badge stays in sync with this year's actual numbers
+      // instead of a static description.
+      function buildChangingText(dept) {
+        const budgetChange = dept.current - dept.prior;
+        const changesByObject = new Map();
+        dept.rows.forEach((row) => {
+          const code = String(row.Object_Code || "").trim();
+          const name = row.Object_Name || "Budget line";
+          const changeKey = code || normalizeDeptName(String(row.Object_Type || "") + " " + name);
+          if (!changesByObject.has(changeKey)) changesByObject.set(changeKey, { name, prior: 0, current: 0 });
+          const item = changesByObject.get(changeKey);
+          item.prior += Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0;
+          item.current += Number(row.FY2027_Proposed) || 0;
+        });
+        const changes = Array.from(changesByObject.values())
+          .map((item) => ({ name: item.name, diff: item.current - item.prior }))
+          .filter((item) => item.diff !== 0 && !/salar(?:y|ies)/i.test(item.name))
+          .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+        const topItem = changes[0];
+        const personnelDiff = dept.personnel - (dept.priorPersonnel || 0);
+        const isPersonnelDriven = personnelDiff !== 0 && Math.abs(personnelDiff) >= Math.abs(topItem ? topItem.diff : 0);
+        let text = "The department budget is " + (budgetChange > 0 ? "increasing" : budgetChange < 0 ? "decreasing" : "remaining level") + (budgetChange !== 0 ? " by " + formatCurrency(Math.abs(budgetChange)) + (dept.prior ? " (" + Math.abs(budgetChange / dept.prior * 100).toFixed(1) + "%)" : "") : "") + ".";
+        if (isPersonnelDriven) {
+          text += " The primary change can be attributed to additional staffing requested, needed to keep pace with growing service demand across the county.";
+        } else if (topItem) {
+          text += " The primary change is " + topItem.name + " " + (topItem.diff > 0 ? "increasing" : "decreasing") + " by " + formatCurrency(Math.abs(topItem.diff)) + ".";
+        }
+        return text;
+      }
+      const deptBadgeData = new Map();
       const deptCards = departments.map((dept) => {
         const fte = staffingByDept.get(dept.key) || 0;
         const priorFte = priorStaffingByDept.get(dept.key) || 0;
@@ -16135,10 +16170,74 @@
         const shareOfBoard = totalExcludingCapital ? (dept.current / totalExcludingCapital * 100) : 0;
         const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' + (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%") + '</em></div></div>';
         const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
-        return '<a href="department-budget.html?dept=' + encodeURIComponent(dept.key) + '" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
+        if (window.WCDepartmentServices) {
+          // Rolled-up department cards (e.g. "County Administration
+          // Departments", "Environmental Services") combine several source
+          // departments into one card. Order candidate lookup keys by that
+          // source department's own FY2027 budget share, largest first, so
+          // the badge content reflects the sub-department that actually
+          // dominates the card rather than whichever happens to match a
+          // services/challenges group first.
+          const amountByKey = new Map();
+          dept.rows.forEach((row) => {
+            const amount = Number(row.FY2027_Proposed) || 0;
+            [normalizeDeptName(row.Dept_Name || ""), rollupSourceKey(row.Dept_Name || "")].forEach((key) => {
+              amountByKey.set(key, (amountByKey.get(key) || 0) + amount);
+            });
+          });
+          const sourceKeys = Array.from(amountByKey.keys()).sort((a, b) => (amountByKey.get(b) || 0) - (amountByKey.get(a) || 0));
+          deptBadgeData.set(dept.key, {
+            services: window.WCDepartmentServices.servicesForKeys(sourceKeys),
+            challenge: window.WCDepartmentServices.challengeForKeys(sourceKeys),
+            changing: buildChangingText(dept)
+          });
+        }
+        const badgesHtml = window.WCDepartmentServices ? '<div class="wc-department-card-badges"><span class="wc-department-info-badge" data-dept-badge="services" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' services">S</span><span class="wc-department-info-badge" data-dept-badge="changing" tabindex="0" role="button" aria-label="What is changing at ' + escapeHtml(dept.name) + '">C</span><span class="wc-department-info-badge" data-dept-badge="challenges" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' challenges">!</span></div>' : "";
+        return '<a href="department-budget.html?dept=' + encodeURIComponent(dept.key) + '" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span>' + badgesHtml + '</div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
       }).join("");
 
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
+      if (window.WCDepartmentServices) {
+        const badgeTooltip = document.createElement("div");
+        badgeTooltip.className = "wc-department-badge-tooltip";
+        document.body.appendChild(badgeTooltip);
+        const badgeTitles = { services: "Department Services", changing: "What's Changing", challenges: "Challenges" };
+        function badgeTooltipHtml(type, data) {
+          if (type === "services") {
+            return '<strong>' + escapeHtml(badgeTitles.services) + '</strong>' + (data.services.length ? '<ul>' + data.services.map((item) => '<li><b>' + escapeHtml(item[0]) + '</b> — ' + escapeHtml(item[1]) + '</li>').join("") + '</ul>' : '<p>No service detail listed.</p>');
+          }
+          if (type === "changing") return '<strong>' + escapeHtml(badgeTitles.changing) + '</strong><p>' + escapeHtml(data.changing) + '</p>';
+          return '<strong>' + escapeHtml(badgeTitles.challenges) + '</strong><p>' + escapeHtml(data.challenge) + '</p>';
+        }
+        let activeBadge = null;
+        function hideBadgeTooltip() {
+          badgeTooltip.classList.remove("is-visible");
+          activeBadge = null;
+        }
+        function showBadgeTooltip(badge) {
+          const card = badge.closest("[data-department-key]");
+          const data = card && deptBadgeData.get(card.dataset.departmentKey);
+          if (!data) return;
+          activeBadge = badge;
+          badgeTooltip.innerHTML = badgeTooltipHtml(badge.dataset.deptBadge, data);
+          const rect = badge.getBoundingClientRect();
+          const width = 300;
+          badgeTooltip.style.left = Math.max(10, Math.min(rect.left, window.innerWidth - width - 10)) + "px";
+          badgeTooltip.style.top = (rect.bottom + 8) + "px";
+          badgeTooltip.classList.add("is-visible");
+        }
+        explorer.querySelectorAll("[data-dept-badge]").forEach((badge) => {
+          badge.addEventListener("mouseenter", () => showBadgeTooltip(badge));
+          badge.addEventListener("mouseleave", hideBadgeTooltip);
+          badge.addEventListener("focus", () => showBadgeTooltip(badge));
+          badge.addEventListener("blur", hideBadgeTooltip);
+          badge.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (activeBadge === badge) { hideBadgeTooltip(); } else { showBadgeTooltip(badge); }
+          });
+        });
+      }
       const departmentTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const departmentLedgerButton = explorer.querySelector("[data-department-ledger-open]");
       const departmentTotalAmount = departmentTotalCallout && departmentTotalCallout.querySelector(":scope > strong");
