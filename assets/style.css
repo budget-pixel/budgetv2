@@ -188,6 +188,13 @@ a:where(:visited) {
 .wc-dark-mode-only { display: none; }
 :root[data-theme="dark"] .wc-dark-mode-only { display: revert; }
 
+/* ── HB 1329 (F.S. 129.03(3)(f)) compliance document PNG export button ── */
+.wc-png-export-controls { display: flex; justify-content: flex-end; margin: 14px 0 0; }
+.wc-png-export-button { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1px solid var(--green); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .76rem; font-weight: 800; }
+.wc-png-export-button:hover, .wc-png-export-button:focus-visible { background: var(--green2); border-color: var(--green2); }
+.wc-png-export-button:disabled { opacity: .65; cursor: default; }
+:root[data-theme="dark"] .wc-png-export-button:disabled { opacity: .55; }
+
 /* ── directory list (our-county / departments / budget-overview / financials) ── */
 .wc-directory-list { list-style: none; margin: 0; padding: 0; }
 .wc-directory-list li {
