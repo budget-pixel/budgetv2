@@ -10775,105 +10775,15 @@
         const tag = target ? "button" : "article";
         return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(source.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(source.amount)) + '</b><small class="wc-revenue-card-share">' + Math.round(source.share * 100) + '% of total budget</small></div><div class="wc-revenue-card-badge-stack"><div class="wc-revenue-card-badges">' + sourceAccessBadgeHtml + '<div class="wc-revenue-recurrence-badge ' + (recurrenceLabel === "Non-recurring" ? "is-nonrecurring" : "is-recurring") + '" data-revenue-tooltip="' + (recurrenceLabel === "Non-recurring" ? "Non-recurring revenue is expected as a one-time or irregular source rather than a dependable annual stream." : "Recurring revenue is expected to continue as an annual source, subject to changes in collections and policy.") + '">' + recurrenceLabel + '</div><div class="wc-revenue-control-badge ' + escapeHtml(control.className) + '" data-revenue-tooltip="' + escapeHtml(control.text) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</div></div></div></div>' + revenueChangeHtml(source.amount, priorAmount, source.name) + '</' + tag + '>';
       }).join("");
-      const browseNarrativeTopics = REVENUE_CLASSIFICATION_SECTIONS.reduce((all, section) => all.concat(section.topics || []), []).filter((topic) => !topic.isAllOtherRevenue);
-      function revenueBrowseDescription(source, sourceRows) {
-        if (/local government\s+(?:half|1\s*\/\s*2)[ -]?cent sales tax/i.test(source.name)) {
-          return "Walton County's monthly share of Florida sales-tax collections, distributed under the State's half-cent sales-tax program.";
-        }
-        if (/housing prisoners revenue/i.test(source.name)) {
-          return "Reimbursements collected by the Sheriff's Office for housing prisoners under applicable agreements.";
-        }
-        if (/ambulance/i.test(source.name)) {
-          return "Fees collected by the Sheriff's Office for emergency medical transport services.";
-        }
-        const matchedTopic = browseNarrativeTopics.find((topic) => normalizeDeptName(topic.title) === normalizeDeptName(source.name)) ||
-          browseNarrativeTopics.find((topic) => sourceRows.some((row) => topic.matches(row)));
-        const narrativeKey = matchedTopic ? matchedTopic.narrativeKey : source.name;
-        const narrativeRow = (cache.departmentNarratives || []).find((row) => normalizeDeptName(row.Dept_Name) === normalizeDeptName(narrativeKey));
-        const narrativeParagraphs = narrativeRow && narrativeRow.Narrative ? splitIntoParagraphs(narrativeRow.Narrative) : [];
-        if (narrativeParagraphs.length) return narrativeParagraphs[0];
-        const ledgerNote = sourceRows.map((row) => String(row.Note || "").trim()).find(Boolean);
-        if (ledgerNote) return ledgerNote;
-        const revenueType = sourceRows[0] && sourceRows[0].Revenue_Type;
-        return TYPE_TOOLTIPS[revenueType] || "Revenue received by Walton County to support the services and purposes identified in the adopted budget.";
-      }
-      const browseRevenueRowsHtml = rankedSources.map((source) => {
-        const sourceRows = revenueRowsBySource.get(source.name) || [];
-        const restriction = revenueRestrictionLabel(source.name);
-        const control = revenueControlProfile({ title: source.name }, sourceRows[0] && sourceRows[0].Revenue_Type);
-        const controlKey = control.className.replace(/^is-/, "");
-        const sharePct = (source.share * 100).toFixed(1);
-        const sourceDescription = revenueBrowseDescription(source, sourceRows);
-        return '<button type="button" class="wc-revenue-browse-row" data-revenue-explorer-target="' + escapeHtml(revenueSourceExplorerTarget(source)) + '" data-restriction="' + restriction.toLowerCase() + '" data-control="' + escapeHtml(controlKey) + '" data-name="' + escapeHtml(source.name.toLowerCase()) + '" data-amount="' + source.amount + '">' +
-          '<span><strong>' + escapeHtml(source.name) + '</strong><small class="wc-revenue-browse-amount">' + escapeHtml(formatCurrency(source.amount)) + (sharePct === "0.0" ? "" : ' · ' + sharePct + '% of total') + '</small></span>' +
-          '<span class="wc-revenue-browse-description">' + escapeHtml(sourceDescription) + '</span>' +
-          '<em class="' + (restriction === "Restricted" ? 'is-restricted' : 'is-unrestricted') + '">' + restriction + '</em>' +
-          '<em class="' + escapeHtml(control.className) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</em><b aria-hidden="true">→</b></button>';
-      }).join("");
-      // Not clickable (there's no source detail page for it) and its
-      // sentinel restriction/control values never match a specific filter
-      // option, so it only shows under "All sources" + "All levels" --
-      // exactly when the visible total should foot to the $341.4M
-      // headline instead of the $332.2M revenue-only figure.
-      const fundBalanceRowHtml = fundBalanceTotal > 0
-        ? '<div class="wc-revenue-browse-row is-static" data-restriction="fund-balance" data-control="fund-balance" data-name="nonoperating balance brought forward" data-amount="' + fundBalanceTotal + '">' +
-          '<span><strong>Nonoperating Balance Brought Forward</strong><small class="wc-revenue-browse-amount">' + escapeHtml(formatCurrency(fundBalanceTotal)) + '</small></span>' +
-          '<span class="wc-revenue-browse-description">Beginning fund balance carried forward from the prior year; this is available funding, not new revenue.</span>' +
-          '<em class="is-low">Fund balance</em><em></em></div>'
-        : "";
-      const browseRevenueHtml = '<details class="wc-revenue-browse"><summary>Sort or filter all revenue sources</summary>' +
-        '<div class="wc-revenue-browse-controls"><label>Restriction<select data-revenue-filter="restriction"><option value="all">All sources</option><option value="unrestricted">Unrestricted</option><option value="restricted">Restricted</option></select></label>' +
-        '<label>Local control<select data-revenue-filter="control"><option value="all">All levels</option><option value="moderate">Moderate</option><option value="limited">Limited</option><option value="low">Low</option></select></label>' +
-        '<label>Sort by<select data-revenue-sort><option value="amount-desc">Largest amount</option><option value="amount-asc">Smallest amount</option><option value="name">Revenue name</option></select></label></div>' +
-        '<p class="wc-revenue-browse-count" aria-live="polite"></p><div class="wc-revenue-browse-results">' + browseRevenueRowsHtml + fundBalanceRowHtml + '</div></details>';
       const concentrationHtml = '<section class="wc-revenue-concentration" aria-labelledby="revenue-explorer-title">' +
-        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Start with the six largest sources below. Hover over a badge to learn whether revenue is restricted, recurring, or within the County&rsquo;s control. Select a card for details, use the source list to sort or filter all revenues, or open the ledger to review the full budget.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><button type="button" class="wc-revenue-ledger-trigger" aria-controls="revenue-ledger" aria-expanded="false">View Revenue Ledger</button><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
+        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Start with the six largest sources below. Hover over a badge to learn whether revenue is restricted, recurring, or within the County&rsquo;s control. Select a card for details, or open the ledger to review the full budget.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="revenue-ledger.html">View Revenue Ledger</a><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
         '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + sixLargestSharePercent + '%</strong> of the total revenue budget is represented by the six sources shown below.</p><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(compactRevenueCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(compactRevenueCurrency(locallySupportedRevenue)) + '</b></div></div></div>' +
         '<div class="wc-revenue-snapshot">' +
           largestSourceCardsHtml +
         '</div>' +
-        browseRevenueHtml +
         '</section>';
       const concentrationContainer = document.getElementById("revenue-source-concentration");
       if (concentrationContainer) concentrationContainer.innerHTML = concentrationHtml;
-      if (concentrationContainer) {
-        const browse = concentrationContainer.querySelector(".wc-revenue-browse");
-        if (browse) {
-          const restrictionFilter = browse.querySelector('[data-revenue-filter="restriction"]');
-          const controlFilter = browse.querySelector('[data-revenue-filter="control"]');
-          const sortControl = browse.querySelector("[data-revenue-sort]");
-          const results = browse.querySelector(".wc-revenue-browse-results");
-          const count = browse.querySelector(".wc-revenue-browse-count");
-          const applyRevenueBrowse = () => {
-            const rows = Array.from(results.querySelectorAll(".wc-revenue-browse-row"));
-            rows.sort((a, b) => {
-              if (a.classList.contains("is-static")) return 1;
-              if (b.classList.contains("is-static")) return -1;
-              if (sortControl.value === "name") return a.dataset.name.localeCompare(b.dataset.name);
-              const difference = Number(a.dataset.amount) - Number(b.dataset.amount);
-              return sortControl.value === "amount-asc" ? difference : -difference;
-            }).forEach((row) => results.appendChild(row));
-            let visible = 0;
-            let visibleTotal = 0;
-            rows.forEach((row) => {
-              const showRestriction = restrictionFilter.value === "all" || row.dataset.restriction === restrictionFilter.value;
-              const showControl = controlFilter.value === "all" || row.dataset.control === controlFilter.value;
-              row.hidden = !(showRestriction && showControl);
-              row.style.display = row.hidden ? "none" : "";
-              if (!row.hidden) {
-                visible += 1;
-                visibleTotal += Number(row.dataset.amount) || 0;
-              }
-            });
-            count.textContent = visible + (visible === 1 ? " revenue source" : " revenue sources") + " · " + formatCurrency(visibleTotal) + " total";
-          };
-          [restrictionFilter, controlFilter, sortControl].forEach((control) => control.addEventListener("change", applyRevenueBrowse));
-          applyRevenueBrowse();
-        }
-      }
-      const ledger = document.getElementById("revenue-ledger");
-      const ledgerTrigger = concentrationContainer ? concentrationContainer.querySelector(".wc-revenue-ledger-trigger") : null;
-      const ledgerClose = ledger ? ledger.querySelector(".wc-revenue-ledger-close") : null;
       const peerSection = document.getElementById("revenue-peer-comparison");
       const peerTrigger = concentrationContainer ? concentrationContainer.querySelector(".wc-revenue-peer-trigger") : null;
       const peerClose = peerSection ? peerSection.querySelector(".wc-revenue-peer-close") : null;
@@ -10913,21 +10823,7 @@
         const insight = document.getElementById("revenue-peer-insight");
         if (insight) insight.innerHTML = '<strong>Walton ranks #' + rank + ' of ' + sorted.length + '</strong><span>' + escapeHtml(formatCurrency(walton)) + ' per resident compared with a peer median of ' + escapeHtml(formatCurrency(median)) + '.</span>';
       }
-      if (ledgerTrigger && ledger) ledgerTrigger.addEventListener("click", () => {
-        if (peerSection) peerSection.hidden = true;
-        if (peerTrigger) peerTrigger.setAttribute("aria-expanded", "false");
-        ledger.open = true;
-        ledgerTrigger.setAttribute("aria-expanded", "true");
-        if (concentrationContainer) concentrationContainer.hidden = true;
-      });
-      if (ledgerClose && ledger) ledgerClose.addEventListener("click", () => {
-        ledger.open = false;
-        if (ledgerTrigger) ledgerTrigger.setAttribute("aria-expanded", "false");
-        if (concentrationContainer) { concentrationContainer.hidden = false; concentrationContainer.scrollIntoView({ behavior: "smooth", block: "start" }); }
-      });
       if (peerTrigger && peerSection) peerTrigger.addEventListener("click", () => {
-        if (ledger) ledger.open = false;
-        if (ledgerTrigger) ledgerTrigger.setAttribute("aria-expanded", "false");
         peerSection.hidden = false;
         peerTrigger.setAttribute("aria-expanded", "true");
         const metricSelect = document.getElementById("revenue-peer-metric");
