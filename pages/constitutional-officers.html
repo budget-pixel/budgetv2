@@ -23,15 +23,6 @@
   <div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading Constitutional Officer budgets"><span></span><span></span><span></span></span></div>
 </section>
 
-<div class="wc-department-explorer-list-footer">
-  <button type="button" class="wc-department-list-link" id="officerListToggle" aria-expanded="false" aria-controls="officerSection">Browse Constitutional Officers List <span class="wc-department-list-link-icon" aria-hidden="true">&darr;</span></button>
-</div>
-
-<section aria-label="Constitutional Officers directory" class="page-text" id="officerSection" style="margin-top:40px;" hidden>
-  <h2>Constitutional Officers</h2>
-  <ul class="wc-directory-list" id="officerList"></ul>
-</section>
-
 <section aria-label="Other Agencies directory" class="page-text" id="entitySection" style="margin-top:40px;">
   <h2>Other Agencies</h2>
   <ul class="wc-directory-list" id="entityList"></ul>
@@ -47,24 +38,6 @@
 <script>
   (function(){
     var GROUPS = [
-      {
-        listId:"officerList",
-        section:"Constitutional Officers",
-        fallback:[
-          ["Board of County Commissioners", "board-of-county-commissioners.html"],
-          ["Clerk of Courts & County Comptroller", "clerk-of-courts-and-county-comptroller.html"],
-          ["Property Appraiser", "property-appraiser.html"],
-          ["Sheriff's Office", "sheriffs-office.html"],
-          ["Supervisor of Elections", "supervisor-of-elections.html"],
-          ["Tax Collector", "tax-collector.html"]
-        ],
-        aliasMap:{
-          "sheriff s office": ["walton county sheriff s office", "walton county sheriffs office", "sheriff"],
-          "sheriffs office": ["walton county sheriff s office", "walton county sheriffs office", "sheriff"],
-          "clerk of courts and county comptroller": ["clerk of court", "clerk of circuit court"]
-        },
-        defaultDescription:"View budget, staffing, performance measures, and service information for this constitutional officer."
-      },
       {
         listId:"entityList",
         section:"Autonomous Entities",
@@ -441,23 +414,8 @@
       }
     }
 
-    function initOfficerListToggle(){
-      var toggle = document.getElementById("officerListToggle");
-      var section = document.getElementById("officerSection");
-      if(!toggle || !section) return;
-      toggle.addEventListener("click", function(){
-        var expanded = toggle.getAttribute("aria-expanded") === "true";
-        expanded = !expanded;
-        toggle.setAttribute("aria-expanded", String(expanded));
-        section.hidden = !expanded;
-        toggle.firstChild.textContent = expanded ? "Hide Constitutional Officers List " : "Browse Constitutional Officers List ";
-        if(expanded) section.scrollIntoView({ behavior:"smooth", block:"start" });
-      });
-    }
-
     document.addEventListener("DOMContentLoaded", function(){
       initDirectory();
-      initOfficerListToggle();
     });
   })();
 </script>

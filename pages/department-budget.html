@@ -16,10 +16,6 @@
     <div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading department budgets"><span></span><span></span><span></span></span></div>
   </section>
 
-  <div class="wc-department-explorer-list-footer">
-    <button type="button" class="wc-department-list-link" id="departmentListToggle" aria-expanded="false" aria-controls="departmentListSection">Browse Department List <span class="wc-department-list-link-icon" aria-hidden="true">&darr;</span></button>
-  </div>
-
   <h2 class="wc-department-directory-heading" id="departmentListHeading" hidden>Browse departments</h2>
   <section aria-label="Department directory" id="departmentListSection" hidden>
     <ul class="wc-directory-list" id="departmentList"></ul>
@@ -30,22 +26,5 @@
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script src="../assets/departments-directory.js?v=20260802-county-admin-fix"></script>
 <script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
-<script>
-  (function(){
-    var toggle = document.getElementById("departmentListToggle");
-    var heading = document.getElementById("departmentListHeading");
-    var section = document.getElementById("departmentListSection");
-    if(!toggle || !heading || !section) return;
-    toggle.addEventListener("click", function(){
-      var expanded = toggle.getAttribute("aria-expanded") === "true";
-      expanded = !expanded;
-      toggle.setAttribute("aria-expanded", String(expanded));
-      heading.hidden = !expanded;
-      section.hidden = !expanded;
-      toggle.firstChild.textContent = expanded ? "Hide Department List " : "Browse Department List ";
-      if(expanded) section.scrollIntoView({ behavior:"smooth", block:"start" });
-    });
-  })();
-</script>
 </body>
 </html>
