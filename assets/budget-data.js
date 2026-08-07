@@ -15061,21 +15061,23 @@
       const officesByGroup = new Map();
       items.forEach((r) => {
         const groupKey = isBoardScope ? (boardDepartmentRollupName(r.RawDeptName) || r.Dept_Name) : r.Dept_Name;
-        if (!totals.has(groupKey)) totals.set(groupKey, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0 });
+        if (!totals.has(groupKey)) totals.set(groupKey, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Funds: new Set() });
         const t = totals.get(groupKey);
         t.Salaries += r.Salaries;
         t.Retirement += r.Retirement;
         t.HealthInsurance += r.HealthInsurance;
         t.OtherBenefits += r.OtherBenefits;
+        t.Funds.add(r.Fund_Name);
         if (isBoardScope) {
           if (!officesByGroup.has(groupKey)) officesByGroup.set(groupKey, new Map());
           const offices = officesByGroup.get(groupKey);
-          if (!offices.has(r.Dept_Name)) offices.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0 });
+          if (!offices.has(r.Dept_Name)) offices.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Funds: new Set() });
           const o = offices.get(r.Dept_Name);
           o.Salaries += r.Salaries;
           o.Retirement += r.Retirement;
           o.HealthInsurance += r.HealthInsurance;
           o.OtherBenefits += r.OtherBenefits;
+          o.Funds.add(r.Fund_Name);
         }
       });
 
@@ -15100,6 +15102,16 @@
       // sub-table (below) needs this same label too.
       const showingOptionalCols = document.body.classList.contains("wc-show-personnel-cost-optional-cols");
       const combinedColumnLabel = showingOptionalCols ? "Retirement & Other Benefits" : "Retirement, Health Insurance & Other Benefits";
+      // A department/office row can span more than one fund (rare, but
+      // happens) -- shows the single fund name when there's only one,
+      // otherwise a plain "Multiple Funds" rather than an inaccurate
+      // single name.
+      function fundCellHtml(fundsSet) {
+        const names = Array.from(fundsSet || []).filter(Boolean);
+        if (!names.length) return '<span class="wc-visually-muted">&mdash;</span>';
+        if (names.length === 1) return escapeHtml(names[0]);
+        return "Multiple Funds";
+      }
       const bodyRows = deptsInView.map((d) => {
         const t = totals.get(d);
         const isAggregateOnly = isAggregateOnlyPersonnelDept(d);
@@ -15203,6 +15215,8 @@
               '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + office.detailId + '" data-closed-label="' + escapeHtml(officeName) + '" aria-expanded="false">' +
               escapeHtml(officeName) + "</button>" +
               "</td>" +
+              "<td>" + fundCellHtml(ot.Funds) + "</td>" +
+              '<td class="wc-num">' + formatNumber(officeFteEntry.prior) + "</td>" +
               '<td class="wc-num">' + formatNumber(officeFte) + "</td>" +
               '<td class="wc-num' + officeFteChangeClass + '">' + officeFteChangeText + "</td>" +
               '<td class="wc-num">' + formatCurrency(ot.Salaries) + "</td>" +
@@ -15218,7 +15232,9 @@
             hideVisualCaption: true,
             columns: [
               { label: "Office" },
-              { label: "FTE", num: true },
+              { label: "Fund" },
+              { label: "FY 2026 FTE", num: true },
+              { label: "FY 2027 FTE", num: true },
               { label: "+/−", num: true },
               { label: "Salaries & Wages", num: true },
               { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
@@ -15234,6 +15250,8 @@
             '<button type="button" class="wc-personnel-dept-expand-toggle" data-personnel-dept-expand="' + expandId + '" aria-controls="' + expandId + '" aria-expanded="false">' +
             '<span class="wc-personnel-dept-expand-caret" aria-hidden="true"></span>' + escapeHtml(d) + "</button>" +
             "</td>" +
+            "<td>" + fundCellHtml(t.Funds) + "</td>" +
+            '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
             '<td class="wc-num">' + formatNumber(fte) + "</td>" +
             '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
             '<td class="wc-num">' + formatCurrency(t.Salaries) + "</td>" +
@@ -15242,7 +15260,7 @@
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
             '<td class="wc-num">' + formatCurrency(total) + "</td></tr>" +
-            '<tr id="' + expandId + '" class="wc-personnel-dept-office-detail" hidden><td colspan="9"><div class="wc-personnel-office-detail-wrap"><p class="wc-personnel-office-detail-heading">Offices within ' + escapeHtml(d) + "</p>" + officeTable + "</div></td></tr>"
+            '<tr id="' + expandId + '" class="wc-personnel-dept-office-detail" hidden><td colspan="11"><div class="wc-personnel-office-detail-wrap"><p class="wc-personnel-office-detail-heading">Offices within ' + escapeHtml(d) + "</p>" + officeTable + "</div></td></tr>"
           );
         }
         const soleOfficeName = officeNames[0];
@@ -15253,6 +15271,8 @@
           '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d) + '" aria-expanded="false">' +
           escapeHtml(d) + "</button>" +
           "</td>" +
+          "<td>" + fundCellHtml(t.Funds) + "</td>" +
+          '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
           '<td class="wc-num">' + formatNumber(fte) + "</td>" +
           '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
           '<td class="wc-num">' + formatCurrency(t.Salaries) + "</td>" +
@@ -15274,6 +15294,8 @@
           )
           : (
             '<tr class="wc-table-total-row"><td>Total</td>' +
+            "<td></td>" +
+            '<td class="wc-num">' + formatNumber(grand.Fte - grand.FteChange) + "</td>" +
             '<td class="wc-num">' + formatNumber(grand.Fte) + "</td>" +
             '<td class="wc-num">' + (grand.FteChange > 0 ? "+" : grand.FteChange < 0 ? "−" : "") + formatNumber(Math.abs(grand.FteChange)) + "</td>" +
             '<td class="wc-num">' + formatCurrency(grand.Salaries) + "</td>" +
@@ -15307,7 +15329,9 @@
             { label: "Total", num: true }
           ] : [
             { label: "Department" },
-            { label: "FTE", num: true },
+            { label: "Fund" },
+            { label: "FY 2026 FTE", num: true },
+            { label: "FY 2027 FTE", num: true },
             { label: "+/−", num: true },
             { label: "Salaries & Wages", num: true },
             { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },

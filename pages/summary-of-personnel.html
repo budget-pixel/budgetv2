@@ -23,28 +23,6 @@
     font-family:Arial, Helvetica, sans-serif;
     text-align:justify;
   }
-  .wc-personnel-cost-optional-col{
-    display:none;
-  }
-  body.wc-show-personnel-cost-optional-cols .wc-personnel-cost-optional-col{
-    display:table-cell;
-  }
-  /* The "Show COLA, Health Insurance & Increase" toggle sets a body-level
-     class (see renderPersonnelCostSummary in budget-data.js), but the
-     per-department "View Budget Lines" popup reuses this same
-     .wc-personnel-cost-optional-col class on its own Cost by Position
-     table. Without this override, toggling the main page's columns on
-     would also reveal those columns inside the popup, which should always
-     stay hidden regardless of the main table's toggle state. */
-  body.wc-show-personnel-cost-optional-cols .wc-budget-detail-modal .wc-personnel-cost-optional-col{
-    display:none;
-  }
-  #wcPersonnelCostExportAllButton{
-    display:none;
-  }
-  :root[data-theme="dark"] #wcPersonnelCostExportAllButton{
-    display:inline-block;
-  }
   .wc-personnel-section-heading{margin:38px 0 14px}
   .wc-personnel-section-heading h2{margin:0 0 6px;color:var(--navy)}
   .wc-personnel-section-heading p{margin:0;font-family:Arial, Helvetica, sans-serif;color:var(--muted);max-width:900px}

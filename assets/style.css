@@ -680,6 +680,20 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-personnel-ledger-panel-heading p { margin: 0; color: var(--muted); font-size: .74rem; }
 .wc-personnel-ledger-close:hover { background: #075d3d; }
 .wc-personnel-ledger-close:focus-visible { outline: 3px solid rgba(121,185,154,.5); outline-offset: 2px; }
+/* The "Show COLA, Health Insurance & Increase" toggle (see
+   renderPersonnelCostSummary in budget-data.js) sets this body-level
+   class -- shared globally since the personnel cost table renders on
+   both summary-of-personnel.html and personnel-ledger.html. */
+.wc-personnel-cost-optional-col { display: none; }
+body.wc-show-personnel-cost-optional-cols .wc-personnel-cost-optional-col { display: table-cell; }
+/* The per-department "View Budget Lines" popup reuses this same
+   .wc-personnel-cost-optional-col class on its own Cost by Position
+   table. Without this override, toggling the main table's columns on
+   would also reveal those columns inside the popup, which should always
+   stay hidden regardless of the main table's toggle state. */
+body.wc-show-personnel-cost-optional-cols .wc-budget-detail-modal .wc-personnel-cost-optional-col { display: none; }
+#wcPersonnelCostExportAllButton { display: none; }
+:root[data-theme="dark"] #wcPersonnelCostExportAllButton { display: inline-block; }
 .wc-revenue-support-split { order: 2; display: grid; grid-template-columns: 1fr; gap: 9px; width: 100%; padding-top: 2px; }
 .wc-revenue-support-split > div { min-width: 135px; padding: 0 0 9px; border-bottom: 1px solid rgba(0,63,40,.14); }
 .wc-revenue-support-split > div:last-child { border-bottom: 0; padding-bottom: 0; }
