@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understanding the Personnel Budget — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260807-personnel-explained">
+<style>
+  .pq-hero{position:relative;overflow:hidden;margin:30px 0 52px;padding:clamp(28px,5vw,58px);border-radius:28px;background:linear-gradient(135deg,#003f28 0%,#005236 100%);color:#fff;box-shadow:0 22px 55px rgba(0,63,40,.16)}
+  .pq-hero:after{content:"";position:absolute;right:-90px;bottom:-150px;width:360px;height:360px;border:70px solid rgba(255,255,255,.06);border-radius:50%}
+  .pq-hero>*{position:relative;z-index:1}
+  .pq-kicker{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--gold);font-size:.7rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+  .pq-kicker:before{content:"";width:32px;height:2px;background:#a9d8ad}
+  .pq-hero h1{max-width:800px;margin:0;color:#fff;font-size:clamp(2rem,5vw,3.6rem);line-height:1.02;letter-spacing:-.03em}
+  .pq-hero p{max-width:720px;margin:22px 0 0;color:rgba(255,255,255,.85);font-size:clamp(1rem,2vw,1.14rem);line-height:1.7}
+  .pq-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .pq-button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 19px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#fff;font-size:.76rem;font-weight:850;text-decoration:none}
+  .pq-button-primary{border-color:#fff;background:#fff;color:#003f28}
+  .pq-button:hover{transform:translateY(-2px)}
+
+  .pq-section{margin:0 0 56px}
+  .pq-section-head{max-width:760px;margin:0 0 22px}
+  .pq-label{display:block;margin-bottom:9px;color:var(--green);font-size:.66rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+  .pq-section h2{margin:0;color:var(--navy);font-size:1.55rem;font-weight:800;line-height:1.2}
+  .pq-section-head p{margin:10px 0 0;color:var(--text);font-size:.9rem;line-height:1.65}
+
+  .pq-test-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start}
+  .pq-test-list{display:grid;gap:12px;margin:0;padding:0;list-style:none;counter-reset:pq-step}
+  .pq-test-list li{position:relative;padding:16px 16px 16px 54px;border:1px solid var(--border);border-radius:16px;background:#fff;counter-increment:pq-step}
+  .pq-test-list li:before{content:counter(pq-step);position:absolute;top:16px;left:16px;display:grid;width:26px;height:26px;border-radius:50%;background:var(--green);place-items:center;color:#fff;font-size:.75rem;font-weight:800}
+  .pq-test-list strong{display:block;margin-bottom:3px;color:var(--navy);font-size:.92rem}
+  .pq-test-list span{color:var(--muted);font-size:.8rem;line-height:1.5}
+  .pq-fte-example{padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--light)}
+  .pq-fte-example h3{margin:0 0 12px;color:var(--navy);font-size:.95rem}
+  .pq-fte-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+  .pq-fte-row:first-of-type{border-top:0}
+  .pq-fte-row span{color:var(--text);font-size:.82rem}
+  .pq-fte-row b{color:var(--green);font-size:.9rem;white-space:nowrap}
+
+  .pq-cost-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+  .pq-cost-card{padding:20px 16px;border:1px solid var(--border);border-radius:16px;background:#fff}
+  .pq-cost-card span{display:block;margin-bottom:10px;color:var(--green);font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .pq-cost-card h3{margin:0 0 8px;color:var(--navy);font-size:.95rem;line-height:1.25}
+  .pq-cost-card p{margin:0;color:var(--muted);font-size:.75rem;line-height:1.55}
+
+  .pq-driver-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .pq-driver-card{padding:22px;border:1px solid var(--border);border-radius:18px;background:#fff}
+  .pq-driver-card b{display:block;color:var(--green);font-size:1.6rem;font-weight:800}
+  .pq-driver-card strong{display:block;margin:6px 0 8px;color:var(--navy);font-size:.9rem}
+  .pq-driver-card p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.55}
+
+  .pq-faq{display:grid;gap:12px}
+  .pq-faq-item{padding:20px 22px;border:1px solid var(--border);border-radius:16px;background:#fff}
+  .pq-faq-item h3{margin:0 0 8px;color:var(--navy);font-size:.95rem}
+  .pq-faq-item p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.65}
+  .pq-faq-item p+p{margin-top:8px}
+
+  .pq-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .pq-link{display:flex;min-height:130px;padding:21px;border:1px solid var(--border);border-radius:18px;background:#fff;color:inherit;text-decoration:none;flex-direction:column}
+  .pq-link small{color:var(--green);font-size:.61rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+  .pq-link strong{margin:8px 0;color:var(--text);font-size:.96rem}
+  .pq-link span{margin-top:auto;color:var(--muted);font-size:.7rem;line-height:1.5}
+  .pq-link b{align-self:flex-end;color:var(--green);font-size:1.1rem}
+  .pq-link:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 12px 25px rgba(0,63,40,.08)}
+
+  :root[data-theme="dark"] .pq-test-list li,
+  :root[data-theme="dark"] .pq-cost-card,
+  :root[data-theme="dark"] .pq-driver-card,
+  :root[data-theme="dark"] .pq-faq-item,
+  :root[data-theme="dark"] .pq-link{background:#172235}
+  :root[data-theme="dark"] .pq-fte-example{background:#14251d}
+
+  @media(max-width:980px){
+    .pq-test-grid{grid-template-columns:1fr}
+    .pq-cost-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .pq-driver-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:650px){
+    .pq-cost-grid{grid-template-columns:1fr}
+    .pq-links{grid-template-columns:1fr}
+    .pq-hero{border-radius:20px}
+  }
+</style>
+</head>
+<body>
+<nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
+<div id="layout"><main id="content">
+  <div class="page-eyebrow wc-sr-only">Personnel Budget</div>
+  <h1 class="page-title wc-sr-only">Understanding the Personnel Budget</h1>
+
+  <section class="pq-hero" aria-labelledby="pq-hero-title">
+    <span class="pq-kicker">Personnel Budget</span>
+    <h1 id="pq-hero-title">What's behind the County's largest budgeted cost.</h1>
+    <p>Personnel is the single biggest line in Walton County's budget. This page walks through how positions are counted, what "personnel cost" actually includes, and what drives it up or down from year to year.</p>
+    <div class="pq-hero-actions">
+      <a class="pq-button pq-button-primary" href="summary-of-personnel.html">Back to Personnel Explorer</a>
+      <a class="pq-button" href="summary-of-personnel.html#personnel-ledger">View the Personnel Ledger</a>
+    </div>
+  </section>
+
+  <section class="pq-section" aria-labelledby="pq-fte-title">
+    <div class="pq-section-head">
+      <span class="pq-label">Counting Staff</span>
+      <h2 id="pq-fte-title">What is an FTE?</h2>
+      <p>An FTE, or full-time equivalent, is the standard unit Walton County uses to measure staffing &mdash; regardless of whether a position is filled by one full-time employee or several part-time employees sharing the hours.</p>
+    </div>
+    <div class="pq-test-grid">
+      <ol class="pq-test-list">
+        <li><strong>A full-time position counts as 1.0 FTE</strong><span>A standard, budgeted full-time position &mdash; typically 40 hours a week &mdash; is always counted as one whole FTE.</span></li>
+        <li><strong>Part-time hours are converted proportionally</strong><span>A part-time position is counted as the share of a full-time work week it represents, so its FTE value is always less than 1.0.</span></li>
+        <li><strong>FTE measures budgeted positions, not people</strong><span>Two part-time employees splitting one role can add up to the same FTE as a single full-time employee in that role.</span></li>
+        <li><strong>FTE totals roll up by department and countywide</strong><span>Individual position FTEs are summed to get a department total, and department totals roll up to the countywide figure shown on the Personnel Explorer.</span></li>
+      </ol>
+      <div class="pq-fte-example">
+        <h3>A simple example</h3>
+        <div class="pq-fte-row"><span>1 full-time employee, 40 hrs/week</span><b>1.0 FTE</b></div>
+        <div class="pq-fte-row"><span>2 part-time employees, 20 hrs/week each</span><b>1.0 FTE</b></div>
+        <div class="pq-fte-row"><span>1 part-time employee, 20 hrs/week</span><b>0.5 FTE</b></div>
+        <div class="pq-fte-row"><span>1 part-time employee, 24 hrs/week</span><b>0.6 FTE</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pq-section" aria-labelledby="pq-cost-title">
+    <div class="pq-section-head">
+      <span class="pq-label">What's Included</span>
+      <h2 id="pq-cost-title">What makes up "personnel cost"?</h2>
+      <p>Personnel cost is more than salaries. Every budgeted position carries five categories of cost, and the Personnel Explorer totals reflect all five.</p>
+    </div>
+    <div class="pq-cost-grid">
+      <article class="pq-cost-card"><span>1</span><h3>Salaries &amp; Wages</h3><p>Regular salaries and other salaries paid for budgeted positions, both full-time and part-time.</p></article>
+      <article class="pq-cost-card"><span>2</span><h3>Overtime &amp; Weekend Pay</h3><p>Additional pay for hours worked beyond a regular schedule, including weekend and shift coverage.</p></article>
+      <article class="pq-cost-card"><span>3</span><h3>Retirement</h3><p>The County's contribution to the Florida Retirement System (FRS) on behalf of each employee.</p></article>
+      <article class="pq-cost-card"><span>4</span><h3>Health Insurance</h3><p>The County's share of medical, dental, and other health plan premiums for covered employees.</p></article>
+      <article class="pq-cost-card"><span>5</span><h3>Other Benefits &amp; Taxes</h3><p>FICA/Medicare, workers' compensation, and unemployment compensation required for every position.</p></article>
+    </div>
+  </section>
+
+  <section class="pq-section" aria-labelledby="pq-drivers-title">
+    <div class="pq-section-head">
+      <span class="pq-label">Year Over Year</span>
+      <h2 id="pq-drivers-title">What drives personnel cost up or down?</h2>
+      <p>Even with no change in staffing, personnel cost moves every year because of countywide pay and benefit adjustments. These are the largest drivers behind this year's change.</p>
+    </div>
+    <div class="pq-driver-grid">
+      <article class="pq-driver-card"><b>3%</b><strong>Cost-of-Living Adjustment</strong><p>Board department salaries and wages are adjusted for this year's COLA, applied across every budgeted position.</p></article>
+      <article class="pq-driver-card"><b>5%</b><strong>Health Insurance Premium Increase</strong><p>The estimated increase in health plan premiums the County pays on top of the current Board department budget.</p></article>
+      <article class="pq-driver-card"><b>FRS</b><strong>Retirement Rate Changes</strong><p>The State sets FRS contribution rates each year, which can raise or lower the County's required retirement cost per position &mdash; independent of staffing changes.</p></article>
+    </div>
+  </section>
+
+  <section class="pq-section" aria-labelledby="pq-faq-title">
+    <div class="pq-section-head">
+      <span class="pq-label">Common Questions</span>
+      <h2 id="pq-faq-title">A few more things worth knowing.</h2>
+    </div>
+    <div class="pq-faq">
+      <article class="pq-faq-item">
+        <h3>Why do FTE count and personnel cost sometimes move in different directions?</h3>
+        <p>FTE and cost are related but not identical. Cost can rise even with flat staffing because of COLA, benefit rate changes, or step increases. Likewise, FTE can grow while cost per position stays flat if new positions are added at entry-level pay.</p>
+      </article>
+      <article class="pq-faq-item">
+        <h3>Why are Board departments and Constitutional Officers shown separately?</h3>
+        <p>The Board of County Commissioners sets the budget for its own departments, but each Constitutional Officer &mdash; the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff &mdash; adopts and manages their own personnel budget independently. The Personnel Explorer reports a combined countywide total, while cost drivers like COLA apply specifically to Board departments.</p>
+      </article>
+      <article class="pq-faq-item">
+        <h3>What counts as a "Board department" for personnel purposes?</h3>
+        <p>Any department that reports to the County Administrator and whose budget is adopted directly by the Board of County Commissioners, as opposed to an independently elected Constitutional Officer.</p>
+      </article>
+      <article class="pq-faq-item">
+        <h3>Where can I see personnel cost by individual position?</h3>
+        <p>Open the Personnel Ledger from the Personnel Explorer to browse FTE and cost by department, function, or fund, including position-level detail for Board departments.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="pq-section" aria-labelledby="pq-links-title">
+    <div class="pq-section-head">
+      <span class="pq-label">Keep Exploring</span>
+      <h2 id="pq-links-title">Related pages.</h2>
+    </div>
+    <div class="pq-links">
+      <a class="pq-link" href="summary-of-personnel.html"><small>Explore the data</small><strong>Personnel Budget Explorer</strong><span>FTE and cost by department, with year-over-year comparisons.</span><b aria-hidden="true">&rarr;</b></a>
+      <a class="pq-link" href="department-budget.html"><small>Department detail</small><strong>Department Budget Explorer</strong><span>See personnel alongside operating and capital cost by department.</span><b aria-hidden="true">&rarr;</b></a>
+      <a class="pq-link" href="financial-policies.html"><small>Fiscal guardrails</small><strong>Financial Policies</strong><span>Budgeting, reserves, fund balance, debt, and stewardship.</span><b aria-hidden="true">&rarr;</b></a>
+    </div>
+  </section>
+</main></div>
+<script src="../assets/search-data.js"></script>
+<script src="../assets/nav.js?v=20260804-financial-overview-rename"></script>
+</body>
+</html>

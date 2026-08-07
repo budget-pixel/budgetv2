@@ -596,13 +596,17 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-personnel-explorer-total > small.is-decrease { color: #b42318; font-weight: 800; }
 .wc-personnel-explorer-total > div { display: flex; justify-content: flex-end; gap: 7px; margin-top: 9px; }
 .wc-personnel-explorer-total > div:has([data-personnel-view]) { position: absolute; top: -46px; right: 0; margin: 0; }
-.wc-personnel-explorer-total button { padding: 7px 10px; border: 1px solid var(--green); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
-.wc-personnel-explorer-total button + button { background: #fff; color: var(--green); }
-.wc-personnel-explorer-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin-top: 22px; }
-.wc-personnel-explorer-metrics article { padding: 14px; border: 1px solid rgba(0,63,40,.11); border-radius: 12px; background: #fff; }
-.wc-personnel-explorer-metrics span { display: block; color: var(--muted); font-size: .7rem; font-weight: 800; text-transform: uppercase; }
-.wc-personnel-explorer-metrics strong { display: block; margin: 5px 0 2px; color: var(--navy); font-size: 1.12rem; }
-.wc-personnel-explorer-metrics small { color: var(--muted); font-size: .74rem; }
+.wc-personnel-explorer-total button, .wc-personnel-explainer-link { padding: 7px 10px; border: 1px solid var(--green); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.wc-personnel-explorer-total button + button, .wc-personnel-explorer-total button + .wc-personnel-explainer-link { background: #fff; color: var(--green); }
+.wc-personnel-explorer-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; margin-top: 26px; }
+.wc-personnel-explorer-metrics article { position: relative; padding: 20px 18px 18px; border: 1px solid var(--border); border-radius: 18px; background: #fff; box-shadow: 0 8px 20px rgba(0,63,40,.05); overflow: hidden; }
+.wc-personnel-explorer-metrics article:before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg,#003f28,#79b99a); }
+.wc-personnel-explorer-metrics article:nth-child(2):before { background: linear-gradient(90deg,#0b7741,#79b99a); }
+.wc-personnel-explorer-metrics article:nth-child(3):before { background: linear-gradient(90deg,#c2ac5f,#d1be78); }
+.wc-personnel-explorer-metrics article:nth-child(4):before { background: linear-gradient(90deg,#2f6072,#79b99a); }
+.wc-personnel-explorer-metrics span { display: block; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.wc-personnel-explorer-metrics strong { display: block; margin: 9px 0 3px; color: var(--navy); font-size: 1.5rem; font-weight: 800; }
+.wc-personnel-explorer-metrics small { color: var(--muted); font-size: .74rem; line-height: 1.4; }
 .wc-personnel-explorer-metrics article:nth-child(2) small { line-height: 1.45; }
 .wc-personnel-function-metric { display: flex; flex-direction: column; }
 .wc-personnel-function-metric > span { margin-bottom: 8px; }
@@ -1210,7 +1214,8 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 :root[data-theme="dark"] .wc-personnel-explorer-metrics article,
 :root[data-theme="dark"] .wc-personnel-dept-cards button,
 :root[data-theme="dark"] .wc-personnel-profile-card { background: #111a27; }
-:root[data-theme="dark"] .wc-personnel-explorer-total button + button { background: #172235; }
+:root[data-theme="dark"] .wc-personnel-explorer-total button + button,
+:root[data-theme="dark"] .wc-personnel-explorer-total button + .wc-personnel-explainer-link { background: #172235; }
 
 /* Department Budget Explorer */
 .wc-department-explorer{margin:20px 0 34px;padding:26px;border:1px solid rgba(0,63,40,.14);border-radius:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%);box-shadow:0 8px 26px rgba(0,63,40,.07)}
