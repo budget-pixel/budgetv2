@@ -13864,7 +13864,14 @@
           const shareOfPersonnel = totalCost2027 ? (cost2027 / totalCost2027 * 100) : 0;
           const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (costChangeAmt >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChangeAmt))) + '</strong><em>' + (costChangePctDept === null ? "No FY 2026 base" : (costChangePctDept >= 0 ? "+" : "") + costChangePctDept.toFixed(1) + "%") + '</em></div></div>';
           const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
-          const href = isAllOther ? "departments.html" : personnelDeptPageHref(item[0]);
+          // All the largest-staffing-department cards (including "All
+          // Other Departments") send the reader to the Personnel Ledger
+          // pre-filtered to that department, instead of off to the
+          // department's own budget page -- "All Other Departments" isn't
+          // a real filterable department, so it opens the Board
+          // Departments scope with no department filter, showing every
+          // Board department (the top 5 cards' departments included).
+          const href = isAllOther ? "personnel-ledger.html?scope=board" : "personnel-ledger.html?dept=" + encodeURIComponent(item[0]);
           return '<a href="' + escapeHtml(href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
         }).join("");
         explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>Walton County budgets ' + escapeHtml(formatNumber(totalFte2027)) + ' FTE for FY 2027 &mdash; ' + escapeHtml(formatNumber(boardFte2027)) + ' across Board departments and ' + escapeHtml(formatNumber(constitutionalFte2027)) + ' across Constitutional Officers &mdash; along with the salaries, retirement, health insurance, and other benefits that support them, the County&rsquo;s largest budgeted cost.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><a class="wc-personnel-ledger-trigger" href="personnel-ledger.html">View Personnel Ledger</a><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
@@ -15452,9 +15459,13 @@
           return;
         }
         renderPersonnelCostSummary(container);
-        const requestedDept = new URLSearchParams(window.location.search).get("dept");
+        const requestedParams = new URLSearchParams(window.location.search);
+        const requestedDept = requestedParams.get("dept");
+        const requestedScope = requestedParams.get("scope");
         if (requestedDept) {
           document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: requestedDept } }));
+        } else if (requestedScope) {
+          document.dispatchEvent(new CustomEvent("wc-personnel-select-scope", { detail: { scope: requestedScope } }));
         }
       })
       .catch((err) => {
