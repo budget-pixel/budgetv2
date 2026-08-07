@@ -19,11 +19,6 @@
 <div class="page-eyebrow wc-sr-only">Capital Budget</div>
 <h1 class="page-title wc-sr-only">Capital Budget</h1>
 
-<div class="wc-revenue-view-actions wc-capital-page-actions" data-wc-breadcrumb-action>
-  <a class="wc-revenue-ledger-trigger" href="capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a>
-  <a class="wc-revenue-ledger-trigger" href="search.html">Project Search</a>
-</div>
-
 <section id="capital-budget-explorer" aria-label="Capital Budget Explorer">
   <div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading capital budget"><span></span><span></span><span></span></span></div>
 </section>
@@ -386,7 +381,7 @@
       var machinerySharePct = combinedTotal ? ((machineryTotal || 0) / combinedTotal * 100) : 0;
       var compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(capitalShareOfBudgetPct) + '%</strong> of the total expenditure budget is capital funding.</p><div class="wc-revenue-support-split"><div><span>Capital Projects</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(formatMoneyShort(fy2027Total)) + '</b><small>' + fy2027SharePct.toFixed(1) + '% of capital budget</small></div></div><div><span>Machinery, Vehicles &amp; Equipment</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(formatMoneyShort(machineryTotal)) + '</b><small>' + machinerySharePct.toFixed(1) + '% of capital budget</small></div></div></div></div>';
       explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Start with the total capital budget below, or select a ledger card to review its projects, funding sources, and year-over-year change.</p></div>' +
-        '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '</div></aside></div>' +
+        '<aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatMoneyFull(combinedTotal)) + '</strong>' + changeHtml + '<div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a><a class="wc-revenue-ledger-trigger" href="search.html">Project Search</a></div></div></aside></div>' +
         compositionHtml +
         '<div class="wc-department-budget-cards">' + ledgerPages.map(function(page){ return ledgerCardHtml(page, combinedTotal); }).join("") + '</div></section>';
     }
