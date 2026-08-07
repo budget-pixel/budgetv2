@@ -1103,13 +1103,6 @@ function renderProjects(){
         align-items:start;
       }
 
-      .wc-cip-definition-tests{
-        padding:24px;
-        border:1px solid rgba(0,63,40,.12);
-        border-radius:20px;
-        background:#f7fbf7;
-      }
-
       .wc-cip-definition-tests h3{
         margin:0 0 16px;
         color:#003f28;
@@ -1119,6 +1112,8 @@ function renderProjects(){
 
       .wc-cip-test-list{
         counter-reset:wc-cip-test;
+        display:grid;
+        gap:12px;
         margin:0;
         padding:0;
         list-style:none;
@@ -1126,25 +1121,27 @@ function renderProjects(){
 
       .wc-cip-test-list li{
         position:relative;
-        margin:0 0 14px;
-        padding:0 0 0 40px;
+        margin:0;
+        padding:16px 16px 16px 54px;
+        border:1px solid var(--border);
+        border-radius:16px;
+        background:#fff;
+        box-shadow:0 8px 20px rgba(0,63,40,.05);
         color:#4a5a6a;
         font-size:13.5px;
         line-height:1.55;
       }
 
-      .wc-cip-test-list li:last-child{ margin-bottom:0; }
-
       .wc-cip-test-list li::before{
         counter-increment:wc-cip-test;
         content:counter(wc-cip-test);
         position:absolute;
-        top:0;
-        left:0;
+        top:16px;
+        left:16px;
         display:grid;
         width:26px;
         height:26px;
-        border-radius:999px;
+        border-radius:50%;
         background:var(--green);
         color:#fff;
         place-items:center;
@@ -1154,9 +1151,14 @@ function renderProjects(){
 
       .wc-cip-test-list strong{
         display:block;
-        margin:2px 0 3px;
-        color:#003f28;
+        margin:0 0 3px;
+        color:var(--navy);
         font-size:14px;
+      }
+
+      :root[data-theme="dark"] .wc-cip-test-list li{
+        background:rgba(14,28,22,.92);
+        border-color:var(--border);
       }
 
       .wc-cip-definition-contrast{
@@ -1166,9 +1168,10 @@ function renderProjects(){
 
       .wc-cip-definition-card{
         padding:20px;
-        border:1px solid rgba(0,63,40,.12);
+        border:1px solid var(--border);
         border-radius:18px;
         background:#fff;
+        box-shadow:0 8px 20px rgba(0,63,40,.05);
       }
 
       .wc-cip-definition-card > span{
