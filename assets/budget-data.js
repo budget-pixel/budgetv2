@@ -13857,7 +13857,7 @@
           const href = isAllOther ? "departments.html" : personnelDeptPageHref(item[0]);
           return '<a href="' + escapeHtml(href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
         }).join("");
-        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>See how Walton County budgets its full-time equivalent (FTE) positions and the salaries, retirement, health insurance, and other benefits that support them &mdash; the County&rsquo;s largest budgeted cost.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><button type="button" data-personnel-view="choose">View Personnel Ledger</button><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
+        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>See how Walton County budgets its full-time equivalent (FTE) positions and the salaries, retirement, health insurance, and other benefits that support them &mdash; the County&rsquo;s largest budgeted cost.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><a class="wc-personnel-ledger-trigger" href="personnel-ledger.html">View Personnel Ledger</a><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
           '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel funding.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
           '<div class="wc-revenue-snapshot">' + deptCards + '</div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
@@ -13866,35 +13866,6 @@
         if (personnelDescription) personnelDescription.textContent = 'FTE counts include full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is shown across Salaries & Wages (regular salaries and other salaries), Overtime & Weekend Pay, Retirement, Health Insurance, and Other Benefits & Taxes (FICA/Medicare, workers’ compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff’s Office.';
         const personnelChangeSummary = explorer.querySelector('.wc-personnel-explorer-total > small');
         if (personnelChangeSummary) personnelChangeSummary.classList.add(costChange > 0 ? 'is-increase' : costChange < 0 ? 'is-decrease' : 'is-neutral');
-        function showPersonnelLedger(view, shouldScroll) {
-          const ledger = document.getElementById("personnel-ledger");
-          if (!ledger) return;
-          const explorerSection = explorer.querySelector(".wc-personnel-explorer");
-          if (explorerSection) explorerSection.hidden = true;
-          ledger.hidden = false;
-          if (shouldScroll) ledger.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-        explorer.querySelectorAll("[data-personnel-view]").forEach((button) => button.addEventListener("click", () => {
-          showPersonnelLedger(button.dataset.personnelView, false);
-          if (button.dataset.personnelView === "board") {
-            document.dispatchEvent(new CustomEvent("wc-personnel-select-scope", { detail: { scope: "board" } }));
-          }
-        }));
-        explorer.querySelectorAll(".wc-personnel-function-list span").forEach((pill) => pill.addEventListener("click", () => {
-          showPersonnelLedger("cost", false);
-          document.dispatchEvent(new CustomEvent("wc-personnel-select-function", { detail: { functionName: pill.textContent.replace(/^\s*[0-9.]+\s*/, "").trim() } }));
-        }));
-        explorer.querySelectorAll("[data-personnel-explore-dept]").forEach((pill) => pill.addEventListener("click", () => {
-          showPersonnelLedger("cost", false);
-          document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: pill.dataset.personnelExploreDept } }));
-        }));
-        document.querySelectorAll("[data-personnel-close]").forEach((button) => button.addEventListener("click", () => {
-          const ledger = button.closest(".wc-personnel-ledger");
-          if (ledger) ledger.hidden = true;
-          const explorerSection = explorer.querySelector(".wc-personnel-explorer");
-          if (explorerSection) explorerSection.hidden = false;
-        }));
-        if (window.location.hash === "#personnel-ledger") showPersonnelLedger("choose", true);
       }
       if (explainedContainer) {
         const snapshotIntro = document.getElementById('pq-snapshot-intro');
@@ -13957,7 +13928,7 @@
           costMixHeading.appendChild(helpBadge);
         }
         explainedContainer.querySelectorAll('[data-personnel-explore-dept]').forEach((pill) => pill.addEventListener('click', () => {
-          window.location.href = 'summary-of-personnel.html#personnel-ledger';
+          window.location.href = 'personnel-ledger.html?dept=' + encodeURIComponent(pill.dataset.personnelExploreDept || '');
         }));
 
         // Live dollar amounts for the static "What drives personnel cost up
@@ -15320,6 +15291,10 @@
           return;
         }
         renderPersonnelCostSummary(container);
+        const requestedDept = new URLSearchParams(window.location.search).get("dept");
+        if (requestedDept) {
+          document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: requestedDept } }));
+        }
       })
       .catch((err) => {
         console.error("WCBudgetData: failed to load personnel cost summary", err);
@@ -15667,7 +15642,10 @@
 
   function initDepartmentBudgetPage() {
     const checklistContainer = document.getElementById("department-budget-questions");
-    const explorer = document.getElementById("department-budget-explorer");
+    const explorerEl = document.getElementById("department-budget-explorer");
+    const ledgerOnlyEl = document.getElementById("department-ledger-explorer");
+    const explorer = explorerEl || ledgerOnlyEl;
+    const isLedgerOnly = !explorerEl && !!ledgerOnlyEl;
     if (!checklistContainer && !explorer) return;
 
     const checklist = [
@@ -15978,12 +15956,17 @@
         detail.hidden = false;
         detail.querySelector("[data-department-detail-close]").addEventListener("click", () => {
           if (standalone) {
-            window.location.href = "department-budget.html";
+            window.location.href = isLedgerOnly ? "department-ledger.html" : "department-budget.html";
             return;
           }
           detail.hidden = true;
-          const cardsSection = explorer.querySelector(".wc-department-explorer");
-          if (cardsSection) cardsSection.hidden = false;
+          if (isLedgerOnly) {
+            const ledgerSection = explorer.querySelector("[data-department-ledger]");
+            if (ledgerSection) ledgerSection.hidden = false;
+          } else {
+            const cardsSection = explorer.querySelector(".wc-department-explorer");
+            if (cardsSection) cardsSection.hidden = false;
+          }
         });
         if (standalone) document.title = dept.name + " Budget Ledger — Walton County FY 2027 Budget";
       }
@@ -16092,7 +16075,7 @@
         return '<a href="department-budget.html?dept=' + encodeURIComponent(dept.key) + '" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
       }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><button type="button" class="wc-department-ledger-trigger" data-department-ledger-open>View Department Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button><h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>' + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
       if (window.WCDepartmentServices) {
         const badgeTooltip = document.createElement("div");
         badgeTooltip.className = "wc-department-badge-tooltip";
@@ -16135,7 +16118,7 @@
         });
       }
       const departmentTotalCallout = explorer.querySelector(".wc-department-explorer-total");
-      const departmentLedgerButton = explorer.querySelector("[data-department-ledger-open]");
+      const departmentLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const departmentTotalAmount = departmentTotalCallout && departmentTotalCallout.querySelector(":scope > strong");
       if (departmentTotalCallout) {
         const priorTotal = totalPriorExcludingCapital;
@@ -16153,17 +16136,20 @@
       }
       const ledger = explorer.querySelector("[data-department-ledger]");
       const explorerCards = explorer.querySelector(".wc-department-explorer");
-      explorer.querySelector("[data-department-ledger-open]").addEventListener("click", () => {
-        const detailSection = explorer.querySelector("[data-department-detail]");
-        if (detailSection) detailSection.hidden = true;
-        if (explorerCards) explorerCards.hidden = true;
-        ledger.hidden = false;
-      });
       explorer.querySelector("[data-department-ledger-close]").addEventListener("click", () => {
         ledger.hidden = true;
         if (explorerCards) explorerCards.hidden = false;
       });
       explorer.querySelectorAll("[data-department-ledger-key]").forEach((button) => button.addEventListener("click", () => renderDetail(groups.get(button.dataset.departmentLedgerKey))));
+      if (isLedgerOnly) {
+        if (explorerCards) explorerCards.hidden = true;
+        ledger.hidden = false;
+        const ledgerCloseButton = explorer.querySelector("[data-department-ledger-close]");
+        if (ledgerCloseButton) {
+          ledgerCloseButton.textContent = "Back to Department Budgets";
+          ledgerCloseButton.addEventListener("click", () => { window.location.href = "department-budget.html"; });
+        }
+      }
       const deptParam = new URLSearchParams(window.location.search).get("dept");
       if (deptParam && groups.has(deptParam)) {
         renderDetail(groups.get(deptParam), { standalone: true });
@@ -16181,7 +16167,10 @@
   }
 
   function initConstitutionalOfficersBudgetPage() {
-    const explorer = document.getElementById("constitutional-budget-explorer");
+    const explorerEl = document.getElementById("constitutional-budget-explorer");
+    const ledgerOnlyEl = document.getElementById("constitutional-ledger-explorer");
+    const explorer = explorerEl || ledgerOnlyEl;
+    const isLedgerOnly = !explorerEl && !!ledgerOnlyEl;
     if (!explorer) return;
     loadBudgetData().then((data) => {
       const allowed = new Set(["board of county commissioners", "clerk of court", "property appraiser", "supervisor of elections", "tax collector", "walton county sheriffs office"]);
@@ -16263,8 +16252,13 @@
         detail.hidden = false;
         detail.querySelector("[data-constitutional-detail-close]").addEventListener("click", () => {
           detail.hidden = true;
-          const cardsSection = explorer.querySelector(".wc-department-explorer");
-          if (cardsSection) cardsSection.hidden = false;
+          if (isLedgerOnly) {
+            const constitutionalLedgerSectionEl = explorer.querySelector("[data-constitutional-ledger]");
+            if (constitutionalLedgerSectionEl) constitutionalLedgerSectionEl.hidden = false;
+          } else {
+            const cardsSection = explorer.querySelector(".wc-department-explorer");
+            if (cardsSection) cardsSection.hidden = false;
+          }
         });
       }
       const ledgerRows = offices.map((office) => {
@@ -16300,9 +16294,9 @@
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
         return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total proposed budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><button type="button" class="wc-department-ledger-trigger" data-constitutional-ledger-open>View Officers Ledger</button></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger" href="constitutional-ledger.html">View Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button><h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>' + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
-      const constitutionalLedgerButton = explorer.querySelector("[data-constitutional-ledger-open]");
+      const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");
       if (constitutionalTotalCallout) {
         const priorTotal = offices.reduce((sum, office) => sum + office.prior, 0);
@@ -16321,16 +16315,19 @@
       explorer.querySelectorAll("[data-constitutional-key]").forEach((button) => button.addEventListener("click", () => renderOffice(groups.get(button.dataset.constitutionalKey))));
       const ledgerSection = explorer.querySelector("[data-constitutional-ledger]");
       const constitutionalCards = explorer.querySelector(".wc-department-explorer");
-      explorer.querySelector("[data-constitutional-ledger-open]").addEventListener("click", () => {
-        const detailSection = explorer.querySelector("[data-constitutional-detail]");
-        if (detailSection) detailSection.hidden = true;
-        if (constitutionalCards) constitutionalCards.hidden = true;
-        ledgerSection.hidden = false;
-      });
       explorer.querySelector("[data-constitutional-ledger-close]").addEventListener("click", () => {
         ledgerSection.hidden = true;
         if (constitutionalCards) constitutionalCards.hidden = false;
       });
+      if (isLedgerOnly) {
+        if (constitutionalCards) constitutionalCards.hidden = true;
+        ledgerSection.hidden = false;
+        const constitutionalLedgerCloseButton = explorer.querySelector("[data-constitutional-ledger-close]");
+        if (constitutionalLedgerCloseButton) {
+          constitutionalLedgerCloseButton.textContent = "Back to Officers & Agencies";
+          constitutionalLedgerCloseButton.addEventListener("click", () => { window.location.href = "constitutional-officers.html"; });
+        }
+      }
     }).catch((error) => {
       console.error("WCBudgetData: failed to load Constitutional Officers budget explorer", error);
       explorer.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + '</div>';
