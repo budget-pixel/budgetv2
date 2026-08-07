@@ -14005,51 +14005,47 @@
         if (snapshotIntro) {
           snapshotIntro.textContent = 'Walton County budgets ' + formatNumber(totalFte2027) + ' FTE for FY 2027 — ' + formatNumber(boardFte2027) + ' across Board departments and ' + formatNumber(constitutionalFte2027) + ' across Constitutional Officers. Below: staff by functional area, what’s driving cost this year, and how staffing is changing department by department.';
         }
-        explainedContainer.innerHTML = '<div class="wc-personnel-explorer-metrics"><article><span>Total Budgeted Workforce</span><strong>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</strong><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "No change from FY 2026" : "FY 2027 " + (fteChange > 0 ? "increase" : "decrease") + ": " + formatNumber(Math.abs(fteChange)) + " FTE") + '</small><div class="wc-workforce-type-split"><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + '</b> Full-time FTE</span><span><b>' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + '</b> Part-time FTE</span></div></article><article class="wc-personnel-function-metric"><span>Staff by Functional Area</span><div class="wc-personnel-function-list">' + functionRows.map((item) => '<span><b>' + escapeHtml(formatNumber(item[1])) + '</b>' + escapeHtml(item[0]) + '</span>').join("") + '</div></article><article></article><article></article></div>' +
-          '<div class="wc-personnel-profile-column"><section class="wc-personnel-profile-section"><h3>What drives Board department personnel cost?</h3><div class="wc-personnel-profile-card">' + costMix.map((item) => '<div class="wc-personnel-cost-mix"><div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(formatCurrency(item[1])) + '</strong></div><i><b style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></b></i></div>').join("") + '</div></section><section class="wc-personnel-profile-section"><h3>How is staff changing?</h3><div class="wc-personnel-profile-card"><p>' + (increases.length + decreases.length) + ' department' + ((increases.length + decreases.length) === 1 ? "" : "s") + ' changing &mdash; ' + increases.length + ' increasing, ' + decreases.length + ' reducing.</p>' + (deptChangePills ? '<div class="wc-personnel-net-change-pills">' + deptChangePills + '</div>' : '<p>No net change by department.</p>') + '</div></section></div>';
-        const metricCards = Array.from(explainedContainer.querySelectorAll('.wc-personnel-explorer-metrics article'));
-        if (metricCards[0]) {
-          const workforceSplit = document.createElement('div');
-          workforceSplit.className = 'wc-personnel-workforce-split';
-          workforceSplit.innerHTML = '<span><b>' + formatNumber(boardFte2027) + '</b> Board departments</span><span><b>' + formatNumber(constitutionalFte2027) + '</b> Constitutional officers</span>';
-          metricCards[0].appendChild(workforceSplit);
-        }
-        const costDriversCard = metricCards[2];
-        if (costDriversCard) {
-          const retirementChangeAmount = retirementTotal - retirementPriorTotal;
-          const formatDriverAmount = (value) => {
-            const abs = Math.abs(value);
-            return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
+        const maxFunctionFte = functionRows.reduce((max, item) => Math.max(max, item[1]), 0);
+        const functionBarsHtml = functionRows.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (maxFunctionFte ? (item[1] / maxFunctionFte * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
+        const costMixBarsHtml = costMix.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatCurrency(item[1])) + '</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
+        explainedContainer.innerHTML =
+          '<div class="pq-stat-row">' +
+            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + ' · ' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + ' full-time, ' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + ' part-time</small></article>' +
+            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(boardFte2027)) + ' FTE</b><span>Board Departments</span><small>Departments that report to the County Administrator.</small></article>' +
+            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(constitutionalFte2027)) + ' FTE</b><span>Constitutional Officers</span><small>Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff.</small></article>' +
+          '</div>' +
+          '<div class="pq-bar-card"><h3>Staff by Functional Area</h3><div class="pq-bar-list">' + functionBarsHtml + '</div></div>' +
+          '<div class="pq-bar-card"><h3 id="pq-cost-mix-heading">What drives Board department personnel cost?</h3><div class="pq-bar-list">' + costMixBarsHtml + '</div></div>' +
+          '<div class="pq-bar-card"><h3>Workforce Turnover &amp; Hiring Outlook</h3><div class="pq-driver-grid">' +
+            '<article class="pq-driver-card"><b>11.4%</b><strong>FY 2026 Turnover</strong><p>Board department voluntary turnover.</p></article>' +
+            '<article class="pq-driver-card"><b>8.2%</b><strong>State Benchmark</strong><p>State and local government voluntary turnover.</p></article>' +
+            '<article class="pq-driver-card"><b>125&ndash;130</b><strong>Projected Replacement Hires <span class="wc-personnel-info-badge" tabindex="0" aria-label="Hiring estimate methodology">i</span></strong><p>Estimated FY 2026 hiring need. Turnover is expected to remain near 11% into FY 2027.</p></article>' +
+          '</div></div>' +
+          '<div class="pq-change-card"><h3>How is staff changing?</h3><p>' + (increases.length + decreases.length) + ' department' + ((increases.length + decreases.length) === 1 ? "" : "s") + ' changing &mdash; ' + increases.length + ' increasing, ' + decreases.length + ' reducing.</p>' + (deptChangePills ? '<div class="pq-change-pills">' + deptChangePills + '</div>' : '<p>No net change by department.</p>') + '</div>';
+
+        const hiringBadge = explainedContainer.querySelector('.wc-personnel-info-badge');
+        if (hiringBadge) {
+          const floatingHelp = document.createElement('div');
+          floatingHelp.className = 'wc-personnel-floating-help';
+          floatingHelp.textContent = 'Based on 108 separations through August 3 and about 21 projected through September 30. Planning formula: projected separations + new positions − positions not backfilled.';
+          document.body.appendChild(floatingHelp);
+          const showFloatingHelp = () => {
+            const rect = hiringBadge.getBoundingClientRect();
+            floatingHelp.style.left = Math.min(rect.left, window.innerWidth - 290) + 'px';
+            floatingHelp.style.top = (rect.bottom + 8) + 'px';
+            floatingHelp.classList.add('is-visible');
           };
-          costDriversCard.innerHTML = '<span>Personnel Cost Drivers</span><div class="wc-personnel-driver-row"><strong>3% COLA</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(totalCola) + ' estimated salary and wage impact</small></div><div class="wc-personnel-driver-row"><strong>5% Health Insurance</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(healthInsuranceIncrease) + ' estimated health insurance impact</small></div><div class="wc-personnel-driver-row"><strong>' + Math.abs(retirementChangePct).toFixed(1) + '% FRS Retirement</strong><small class="wc-personnel-driver-amount">' + formatDriverAmount(Math.abs(retirementChangeAmount)) + ' estimated ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ' in retirement costs</small></div>';
+          const hideFloatingHelp = () => floatingHelp.classList.remove('is-visible');
+          hiringBadge.addEventListener('mouseenter', showFloatingHelp);
+          hiringBadge.addEventListener('mouseleave', hideFloatingHelp);
+          hiringBadge.addEventListener('focus', showFloatingHelp);
+          hiringBadge.addEventListener('blur', hideFloatingHelp);
         }
-        const turnoverCard = metricCards[3];
-        if (turnoverCard) {
-          turnoverCard.innerHTML = '<span>Workforce Turnover & Hiring Outlook</span><strong>11.4%</strong><small>FY 2026 board department turnover</small><div class="wc-personnel-driver-row"><strong>8.2% benchmark</strong><small>State and local government voluntary turnover</small></div><div class="wc-personnel-driver-row"><strong>125–130 projected replacement hires <span class="wc-personnel-info-badge" tabindex="0" aria-label="Hiring estimate methodology">i</span></strong><small>Estimated FY 2026 hiring need</small></div><div class="wc-personnel-driver-row"><strong>FY 2027 outlook</strong><small>Turnover expected to remain near 11%.</small></div>';
-          const hiringBadge = turnoverCard.querySelector('.wc-personnel-info-badge');
-          if (hiringBadge) {
-            const floatingHelp = document.createElement('div');
-            floatingHelp.className = 'wc-personnel-floating-help';
-            floatingHelp.textContent = 'Based on 108 separations through August 3 and about 21 projected through September 30. Planning formula: projected separations + new positions − positions not backfilled.';
-            document.body.appendChild(floatingHelp);
-            const showFloatingHelp = () => {
-              const rect = hiringBadge.getBoundingClientRect();
-              floatingHelp.style.left = Math.min(rect.left, window.innerWidth - 290) + 'px';
-              floatingHelp.style.top = (rect.bottom + 8) + 'px';
-              floatingHelp.classList.add('is-visible');
-            };
-            const hideFloatingHelp = () => floatingHelp.classList.remove('is-visible');
-            hiringBadge.addEventListener('mouseenter', showFloatingHelp);
-            hiringBadge.addEventListener('mouseleave', hideFloatingHelp);
-            hiringBadge.addEventListener('focus', showFloatingHelp);
-            hiringBadge.addEventListener('blur', hideFloatingHelp);
-          }
-        }
-        const personnelCostHeading = Array.from(explainedContainer.querySelectorAll('.wc-personnel-profile-section h3')).find((heading) => heading.textContent.trim() === 'What drives Board department personnel cost?');
-        if (personnelCostHeading) {
+        const costMixHeading = document.getElementById('pq-cost-mix-heading');
+        if (costMixHeading) {
           const personnelCostHelp = 'This breakdown represents Board of County Commissioners department personnel only. Contact the applicable constitutional office directly for information about its personnel costs and associated increases.';
-          personnelCostHeading.setAttribute('tabindex', '0');
-          personnelCostHeading.setAttribute('aria-label', personnelCostHeading.textContent + ' — Board department personnel only. Contact the applicable constitutional office directly for constitutional office personnel costs and associated increases.');
+          costMixHeading.setAttribute('tabindex', '0');
+          costMixHeading.setAttribute('aria-label', costMixHeading.textContent + ' — Board department personnel only. Contact the applicable constitutional office directly for constitutional office personnel costs and associated increases.');
           const helpBadge = document.createElement('span');
           helpBadge.className = 'wc-personnel-cost-help-badge';
           helpBadge.setAttribute('role', 'button');
@@ -14062,14 +14058,26 @@
           helpText.textContent = personnelCostHelp;
           helpText.hidden = false;
           helpBadge.appendChild(helpText);
-          personnelCostHeading.appendChild(helpBadge);
+          costMixHeading.appendChild(helpBadge);
         }
         explainedContainer.querySelectorAll('[data-personnel-explore-dept]').forEach((pill) => pill.addEventListener('click', () => {
           window.location.href = 'summary-of-personnel.html#personnel-ledger';
         }));
-        explainedContainer.querySelectorAll('.wc-personnel-function-list span').forEach((pill) => pill.addEventListener('click', () => {
-          window.location.href = 'summary-of-personnel.html#personnel-ledger';
-        }));
+
+        // Live dollar amounts for the static "What drives personnel cost up
+        // or down?" cards further down the page, so that section doesn't
+        // duplicate a separate live cost-drivers card up here.
+        const retirementChangeAmount = retirementTotal - retirementPriorTotal;
+        const formatDriverAmount = (value) => {
+          const abs = Math.abs(value);
+          return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
+        };
+        const colaAmount = document.getElementById('pq-driver-cola-amount');
+        if (colaAmount) { colaAmount.textContent = formatDriverAmount(totalCola) + ' estimated salary and wage impact this year.'; colaAmount.hidden = false; }
+        const healthAmount = document.getElementById('pq-driver-health-amount');
+        if (healthAmount) { healthAmount.textContent = formatDriverAmount(healthInsuranceIncrease) + ' estimated health insurance impact this year.'; healthAmount.hidden = false; }
+        const frsAmount = document.getElementById('pq-driver-frs-amount');
+        if (frsAmount) { frsAmount.textContent = Math.abs(retirementChangePct).toFixed(1) + '% (' + formatDriverAmount(Math.abs(retirementChangeAmount)) + ' estimated ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ') this year.'; frsAmount.hidden = false; }
       }
     }).catch(() => {
       if (container) container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";

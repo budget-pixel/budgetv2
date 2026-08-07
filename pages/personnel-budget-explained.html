@@ -48,6 +48,33 @@
   .pq-driver-card b{display:block;color:var(--green);font-size:1.6rem;font-weight:800}
   .pq-driver-card strong{display:block;margin:6px 0 8px;color:var(--navy);font-size:.9rem}
   .pq-driver-card p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.55}
+  .pq-driver-card .pq-driver-amount{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);color:var(--navy);font-weight:800}
+
+  .pq-stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+  .pq-stat-card{padding:22px;border:1px solid var(--border);border-radius:18px;background:#fff;box-shadow:0 8px 20px rgba(0,63,40,.05)}
+  .pq-stat-card b{display:block;color:var(--navy);font-size:1.8rem;font-weight:800}
+  .pq-stat-card span{display:block;margin-top:8px;color:var(--green);font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  .pq-stat-card small{display:block;margin-top:6px;color:var(--muted);font-size:.76rem;line-height:1.45}
+
+  .pq-bar-card{padding:22px;border:1px solid var(--border);border-radius:18px;background:#fff;box-shadow:0 8px 20px rgba(0,63,40,.05);margin-bottom:14px}
+  .pq-bar-card h3{display:flex;align-items:center;gap:8px;margin:0 0 16px;color:var(--navy);font-size:.95rem}
+  .pq-bar-list{display:grid;gap:2px}
+  .pq-bar-row{padding:10px 0;border-top:1px solid var(--border)}
+  .pq-bar-row:first-child{border-top:0;padding-top:0}
+  .pq-bar-row-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:.82rem}
+  .pq-bar-row-head span{color:var(--text)}
+  .pq-bar-row-head b{color:var(--navy);white-space:nowrap}
+  .pq-bar-track{height:6px;border-radius:999px;background:var(--light);overflow:hidden}
+  .pq-bar-fill{display:block;height:100%;border-radius:inherit;background:var(--green)}
+
+  .pq-change-card{padding:22px;border:1px solid var(--border);border-radius:18px;background:#fff;box-shadow:0 8px 20px rgba(0,63,40,.05)}
+  .pq-change-card h3{margin:0 0 8px;color:var(--navy);font-size:.95rem}
+  .pq-change-card>p{margin:0 0 14px;color:var(--muted);font-size:.82rem}
+  .pq-change-pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pq-change-pills span{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--light);color:var(--text);font-size:.74rem;font-weight:600}
+  .pq-change-pills span b{font-weight:800}
+  .pq-change-pills span.is-increase b{color:#087443}
+  .pq-change-pills span.is-decrease b{color:#b42318}
 
   .pq-faq{display:grid;gap:12px}
   .pq-faq-item{padding:20px 22px;border:1px solid var(--border);border-radius:16px;background:#fff}
@@ -67,13 +94,19 @@
   :root[data-theme="dark"] .pq-cost-card,
   :root[data-theme="dark"] .pq-driver-card,
   :root[data-theme="dark"] .pq-faq-item,
+  :root[data-theme="dark"] .pq-stat-card,
+  :root[data-theme="dark"] .pq-bar-card,
+  :root[data-theme="dark"] .pq-change-card,
   :root[data-theme="dark"] .pq-link{background:#172235}
   :root[data-theme="dark"] .pq-fte-example{background:#14251d}
+  :root[data-theme="dark"] .pq-bar-track{background:#0e1c16}
+  :root[data-theme="dark"] .pq-change-pills span{background:#0e1c16}
 
   @media(max-width:980px){
     .pq-test-grid{grid-template-columns:1fr}
     .pq-cost-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .pq-driver-grid{grid-template-columns:1fr}
+    .pq-stat-row{grid-template-columns:1fr}
   }
   @media(max-width:650px){
     .pq-cost-grid{grid-template-columns:1fr}
@@ -152,9 +185,9 @@
       <p>Even with no change in staffing, personnel cost moves every year because of countywide pay and benefit adjustments. These are the largest drivers behind this year's change.</p>
     </div>
     <div class="pq-driver-grid">
-      <article class="pq-driver-card"><b>3%</b><strong>Cost-of-Living Adjustment</strong><p>Board department salaries and wages are adjusted for this year's COLA, applied across every budgeted position.</p></article>
-      <article class="pq-driver-card"><b>5%</b><strong>Health Insurance Premium Increase</strong><p>The estimated increase in health plan premiums the County pays on top of the current Board department budget.</p></article>
-      <article class="pq-driver-card"><b>FRS</b><strong>Retirement Rate Changes</strong><p>The State sets FRS contribution rates each year, which can raise or lower the County's required retirement cost per position &mdash; independent of staffing changes.</p></article>
+      <article class="pq-driver-card"><b>3%</b><strong>Cost-of-Living Adjustment</strong><p>Board department salaries and wages are adjusted for this year's COLA, applied across every budgeted position.</p><p id="pq-driver-cola-amount" class="pq-driver-amount" hidden></p></article>
+      <article class="pq-driver-card"><b>5%</b><strong>Health Insurance Premium Increase</strong><p>The estimated increase in health plan premiums the County pays on top of the current Board department budget.</p><p id="pq-driver-health-amount" class="pq-driver-amount" hidden></p></article>
+      <article class="pq-driver-card"><b>FRS</b><strong>Retirement Rate Changes</strong><p>The State sets FRS contribution rates each year, which can raise or lower the County's required retirement cost per position &mdash; independent of staffing changes.</p><p id="pq-driver-frs-amount" class="pq-driver-amount" hidden></p></article>
     </div>
   </section>
 
