@@ -15,7 +15,7 @@ var wcCoreBudgetPages = [
   { title:"Overview of Walton County", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd2e29b2249e0a5b99" },
   { title:"Organizational Structure", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1af21806371d68e7" },
   { title:"Strategic Initiatives", section:"Our County", href:"program-budget.html" },
-  { title:"Financial Overview", section:"Financial Overview", href:"budget-overview.html" },
+  { title:"Budget Ledgers", section:"Financial Overview", href:"budget-overview.html" },
   { title:"Program Budget", section:"Financial Overview", href:"program-budget.html" },
   { title:"Constitutional Officers", section:"Constitutional Officers", href:"constitutional-officers.html" },
   { title:"Departments", section:"Departments", href:"departments.html" },
@@ -148,8 +148,8 @@ var wcHiddenBudgetPageTitles = new Set([
       "programs", "services", "service areas", "strategic plan", "goals", "priorities", "initiatives", "objectives", "county priorities", "strategic priorities", "performance", "vision", "mission", "core values", "program cost", "service level", "subsidy", "cost recovery"
     ],
 
-    "Financial Overview": [
-      "budget overview", "overview hub", "budget process", "calendar", "transmittal", "budget message", "county profile", "fund structure", "financial policies", "strategic initiatives"
+    "Budget Ledgers": [
+      "budget overview", "financial overview", "overview hub", "budget process", "calendar", "transmittal", "budget message", "county profile", "fund structure", "financial policies", "strategic initiatives"
     ],
 
     "Departments": [
@@ -488,7 +488,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Overview of Walton County": "overview-of-walton-county.html",
     "Organizational Structure": "organizational-structure.html",
     "Strategic Initiatives": "program-budget.html",
-    "Financial Overview": "budget-overview.html",
+    "Budget Ledgers": "budget-overview.html",
     "Program Budget": "program-budget.html",
     "Constitutional Officers": "constitutional-officers.html",
     "Departments": "departments.html",
