@@ -32,7 +32,7 @@ var wcCoreBudgetPages = [
   { title:"Interfund Transfer Ledger", section:"Financial Overview", href:"summary-of-interfund-transfers.html" },
   { title:"Personnel Budget", section:"Financial Overview", href:"summary-of-personnel.html" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
-  { title:"Property Tax Allocation", section:"Financial Overview", href:"summary-of-property-tax-allocations.html" },
+  { title:"Property Tax Allocation Ledger", section:"Financial Overview", href:"summary-of-property-tax-allocations.html" },
   { title:"Summary of Contractual Services", section:"Financial Summaries", href:"summary-of-contractual-services.html", darkModeOnly:true },
   { title:"Transaction Search", section:"Financial Summaries", href:"transaction-search.html", keywords:["forensic audit","vendor search","payments","vendor payments","spending search","every transaction","raw transactions","citizen audit"] },
   { title:"Financials", section:"Financial Overview", href:"budget-overview.html" },
@@ -56,8 +56,8 @@ var wcCoreBudgetPages = [
   { title:"Statutory & Other Agency Funding", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdd8b75e8172b9646a" },
   { title:"E911 Fund", section:"Autonomous Entities", href:"e911-fund.html" },
   { title:"Municipal Service Benefit Unit Fund", section:"Autonomous Entities", href:"municipal-service-benefit-unit-fund.html" },
-  { title:"Recreation Plat Fee Fund Ledger", section:"Capital Improvement Plan", href:"recreation-plat-fee-fund.html" },
-  { title:"Sidewalk Fund Ledger", section:"Capital Improvement Plan", href:"sidewalk-fund.html" },
+  { title:"Recreation Plat Fee Fund Capital Ledger", section:"Capital Improvement Plan", href:"recreation-plat-fee-fund.html" },
+  { title:"Sidewalk Fund Capital Ledger", section:"Capital Improvement Plan", href:"sidewalk-fund.html" },
   { title:"Walton County Health Department", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd55c6cf9367a9f70d" },
   { title:"Building Construction and Maintenance", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbe4a1b46dae2cd66cc" },
   { title:"Building Department", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd8e620c6522929798" },
@@ -91,9 +91,9 @@ var wcCoreBudgetPages = [
   { title:"Capital Budget", section:"Capital Budget", href:"capital-projects.html" },
   { title:"Capital Improvement Plan Overview", section:"Capital Improvement Plan", href:"capital-improvement-plan.html" },
   { title:"CIP Project Search", section:"Capital Improvement Plan", href:"search.html" },
-  { title:"Transportation and Infrastructure Ledger", section:"Capital Budget", href:"cip-capital-projects.html" },
-  { title:"Sheriff Project Ledger", section:"Capital Improvement Plan", href:"cip-sheriff.html" },
-  { title:"Tourist Development Fund Ledger", section:"Capital Improvement Plan", href:"cip-tourist-development.html" },
+  { title:"Transportation and Infrastructure Capital Ledger", section:"Capital Budget", href:"cip-capital-projects.html" },
+  { title:"Sheriff Capital Project Ledger", section:"Capital Improvement Plan", href:"cip-sheriff.html" },
+  { title:"Tourist Development Fund Capital Ledger", section:"Capital Improvement Plan", href:"cip-tourist-development.html" },
   { title:"Debt Ledger", section:"Financial Overview", href:"debt-overview.html" },
   { title:"Financial Forecast", section:"Debt and Financial Forecast", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd986e584c322f6216" },
   { title:"Glossary, Acronyms, and Frequently Asked Questions", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd48feef483c784fe0" },
@@ -172,7 +172,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "department fund", "which fund", "fund relationship", "department funding", "funded by", "department to fund", "general fund departments", "special revenue departments"
     ],
 
-    "Property Tax Allocation": [
+    "Property Tax Allocation Ledger": [
       "property tax", "property taxes", "ad valorem", "millage", "what does my property tax fund", "what does my property tax pay for", "tax allocation", "tax breakdown", "where do my taxes go"
     ],
 
@@ -307,11 +307,11 @@ var wcHiddenBudgetPageTitles = new Set([
       "municipal service benefit unit", "msbu", "assessment", "special assessment", "benefit unit", "non-major fund"
     ],
 
-    "Recreation Plat Fee Fund Ledger": [
+    "Recreation Plat Fee Fund Capital Ledger": [
       "recreation plat fee", "plat fee", "recreation fee", "parks", "recreation improvements", "non-major fund", "capital", "ledger"
     ],
 
-    "Sidewalk Fund Ledger": [
+    "Sidewalk Fund Capital Ledger": [
       "sidewalk", "pedestrian", "walkability", "connectivity", "transportation improvements", "non-major fund", "capital", "ledger"
     ],
 
@@ -448,15 +448,15 @@ var wcHiddenBudgetPageTitles = new Set([
       "project search", "cip search", "capital project search", "project lookup", "search projects", "capital projects"
     ],
 
-    "Transportation and Infrastructure Ledger": [
+    "Transportation and Infrastructure Capital Ledger": [
       "transportation fund", "capital projects fund", "infrastructure schedule", "infrastructure ledger", "capital schedule", "capital ledger", "road projects", "project appropriations", "in-house engineering", "grant funded", "grants", "grant schedule", "federal grants", "state grants", "grant projects"
     ],
 
-    "Sheriff Project Ledger": [
+    "Sheriff Capital Project Ledger": [
       "sheriff projects", "sheriff fund", "fine and forfeiture", "public safety capital", "law enforcement capital", "sheriff ledger"
     ],
 
-    "Tourist Development Fund Ledger": [
+    "Tourist Development Fund Capital Ledger": [
       "tourist development", "tdt", "tourism capital", "tourist development fund", "bed tax projects", "tourism ledger"
     ],
 
@@ -496,7 +496,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Budget Calendar": "budget-calendar.html",
     "Fund Descriptions and Structure": "fund-descriptions-and-structure.html",
     "Department to Fund Relationship": "department-to-fund-relationship.html",
-    "Property Tax Allocation": "summary-of-property-tax-allocations.html",
+    "Property Tax Allocation Ledger": "summary-of-property-tax-allocations.html",
     "Financial Policies": "financial-policies.html",
     "Consolidated Budget Ledger": "consolidated-financial-schedules.html",
     "TRIM Newspaper Advertisements": "trim-newspaper-advertisements.html",
@@ -526,8 +526,8 @@ var wcHiddenBudgetPageTitles = new Set([
     "Statutory & Other Agency Funding": "statutory-and-other-agency-funding.html",
     "E911 Fund": "e911-fund.html",
     "Municipal Service Benefit Unit Fund": "municipal-service-benefit-unit-fund.html",
-    "Recreation Plat Fee Fund Ledger": "recreation-plat-fee-fund.html",
-    "Sidewalk Fund Ledger": "sidewalk-fund.html",
+    "Recreation Plat Fee Fund Capital Ledger": "recreation-plat-fee-fund.html",
+    "Sidewalk Fund Capital Ledger": "sidewalk-fund.html",
     "Walton County Health Department": "walton-county-health-department.html",
     "Building Construction and Maintenance": "building-construction-and-maintenance.html",
     "Building Department": "building-department.html",
@@ -561,9 +561,9 @@ var wcHiddenBudgetPageTitles = new Set([
     "Capital Projects": "capital-projects.html",
     "Capital Improvement Plan Overview": "capital-improvement-plan.html",
     "CIP Project Search": "search.html",
-    "Transportation and Infrastructure Ledger": "cip-capital-projects.html",
-    "Sheriff Project Ledger": "cip-sheriff.html",
-    "Tourist Development Fund Ledger": "cip-tourist-development.html",
+    "Transportation and Infrastructure Capital Ledger": "cip-capital-projects.html",
+    "Sheriff Capital Project Ledger": "cip-sheriff.html",
+    "Tourist Development Fund Capital Ledger": "cip-tourist-development.html",
     "Debt Ledger": "debt-overview.html",
     "Financial Forecast": "financial-forecast.html",
     "Glossary, Acronyms, and Frequently Asked Questions": "glossary-acronyms-and-frequently-asked-questions.html",

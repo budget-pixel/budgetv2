@@ -673,7 +673,11 @@ function renderFundSchedule(config){
     // Projects funded elsewhere in the County budget. They belong on the
     // fund's ledger for completeness but would double-count if they sat in
     // its total, so they get their own sub-ledger the same way grant-funded
-    // work does. Configured per page as a list of title fragments.
+    // work does. Configured per page as a list of title fragments. This
+    // split only applies to FY2027 -- a project on this list is only
+    // "already funded elsewhere" against the FY2027 budget; if the same
+    // project carries new money in a later plan year (FY2028-2031), that's
+    // a real future request and belongs in the normal ledger for that year.
     const budgetedElsewhereTitles = (config.budgetedElsewhereTitles || []).map(title => String(title).toLowerCase());
     const isBudgetedElsewhere = project => budgetedElsewhereTitles.length > 0 &&
       budgetedElsewhereTitles.some(title => String(project && project.title || "").toLowerCase().includes(title));
@@ -709,11 +713,11 @@ function renderFundSchedule(config){
     }
 
     const yearData = years.reduce((data, year) => {
-      const yearProjects = getYearProjects(scheduleProjects, year);
+      const yearProjects = getYearProjects(year === "FY2027" ? scheduleProjects : nonGrantProjects, year);
       const yearInHouseProjects = getYearInHouseProjects(inHouseProjects, year);
       const yearGrantProjects = getYearProjects(grantProjects, year);
       const yearNoAmountProjects = getYearProjects(noAmountProjects, year);
-      const yearBudgetedElsewhereProjects = getYearProjects(budgetedElsewhereProjects, year);
+      const yearBudgetedElsewhereProjects = year === "FY2027" ? getYearProjects(budgetedElsewhereProjects, year) : [];
       const total = yearProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
       const inHouseTotal = yearInHouseProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
       const grantTotal = yearGrantProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
@@ -877,7 +881,10 @@ function renderFundSchedule(config){
           </div>
           <div class="wc-cip-year-body">
             ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This is historical capital project data from the County&rsquo;s 5-year work plans, shown for past-project tracking.</p>` : ""}
-            ${isHistoricalYear ? "" : `<div class="wc-cip-year-summary${data.inHouseTotal > 0 ? "" : " is-two-up"}" aria-label="${escapeHtml(yearLabel)} schedule summary">
+            ${isHistoricalYear ? "" : (() => {
+              const budgetedElsewhereTotal = data.budgetedElsewhereProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
+              const statCount = 2 + (data.inHouseTotal > 0 ? 1 : 0) + (budgetedElsewhereTotal > 0 ? 1 : 0);
+              return `<div class="wc-cip-year-summary${statCount === 2 ? " is-two-up" : ""}" style="grid-template-columns:repeat(${statCount}, minmax(0,1fr))" aria-label="${escapeHtml(yearLabel)} schedule summary">
               <div class="wc-cip-year-stat">
                 <strong>${money(data.total)}</strong>
                 <span>${escapeHtml(config.label)}</span>
@@ -890,7 +897,12 @@ function renderFundSchedule(config){
                 <strong>${money(data.inHouseTotal)}</strong>
                 <span>In-House Engineering</span>
               </div>` : ""}
-            </div>`}
+              ${budgetedElsewhereTotal > 0 ? `<div class="wc-cip-year-stat">
+                <strong>${money(budgetedElsewhereTotal)}</strong>
+                <span>${escapeHtml(data.budgetedElsewhereProjects.length)} Project${data.budgetedElsewhereProjects.length === 1 ? "" : "s"} Budgeted Elsewhere</span>
+              </div>` : ""}
+            </div>`;
+            })()}
             ${isHistoricalYear ? "" : renderRevenueSourceSummary(
               // Grant-funded work is paid for by the awarding agency rather
               // than a County revenue, and In-House Engineering is staff

@@ -21,7 +21,7 @@
 <p class="page-intro">Explore Walton County's financial resources, including the budget process, financial policies, debt, fund activity, property tax allocation, and financial reports.</p>
 
 <section aria-label="Budget overview directory">
-  <ul class="wc-directory-list" id="hubList"></ul>
+  <div id="hubList"></div>
 </section>
 
 </main>
@@ -29,184 +29,216 @@
 
 <script src="../assets/search-data.js"></script>
 <script src="../assets/budget-data.js?v=20260807-ledger-directory-entries"></script>
+<script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
 <script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
-    var pages = [
+    // Grouped so visually related ledgers (e.g. every Capital ledger) are
+    // consolidated under one heading instead of blending into one long
+    // flat list -- each item still renders as its own individual directory
+    // listing within its group.
+    var groups = [
       {
-        title:"Consolidated Budget Ledger",
-        href:"consolidated-financial-schedules.html",
-        label:"All Funds",
-        description:"Review combined County financial schedules across funds, revenues, expenses, transfers, and balances."
+        label:"Financial Overview",
+        items:[
+          {
+            title:"Consolidated Budget Ledger",
+            href:"consolidated-financial-schedules.html",
+            label:"All Funds",
+            description:"Review combined County financial schedules across funds, revenues, expenses, transfers, and balances."
+          },
+          {
+            title:"Budget Change Summary",
+            href:"summary-of-budget-changes-and-adjustments.html",
+            label:"Changes",
+            description:"Compare proposed expenditures to the prior budget by department, showing both increases and decreases."
+          },
+          {
+            title:"Revenue Ledger",
+            href:"revenue-ledger.html",
+            label:"Revenue",
+            metric:"revenue",
+            description:"The complete FY 2027 revenue classification schedule, by revenue category and source, with prior-year comparisons."
+          },
+          {
+            title:"Property Tax Allocation Ledger",
+            href:"summary-of-property-tax-allocations.html",
+            label:"Property Tax",
+            metric:"propertyTax",
+            description:"See the dollar amount each department receives from the countywide property tax."
+          },
+          {
+            title:"Personnel Ledger",
+            href:"personnel-ledger.html",
+            label:"Personnel",
+            metric:"personnel",
+            description:"Review FY 2027 personnel cost and staffing by Board department, Constitutional Officer, function, or fund."
+          },
+          {
+            title:"Department Ledger",
+            href:"department-ledger.html",
+            label:"Board Departments",
+            metric:"department",
+            description:"Compare proposed spending and major cost categories across Board departments."
+          },
+          {
+            title:"Constitutional Officers Ledger",
+            href:"constitutional-ledger.html",
+            label:"Constitutional Officers",
+            metric:"constitutionalOfficers",
+            description:"Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices."
+          },
+          {
+            title:"Independent Agencies Ledger",
+            href:"independent-agencies-ledger.html",
+            label:"Independent Agencies",
+            metric:"independentAgencies",
+            description:"Budget, staffing, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities."
+          }
+        ]
       },
       {
-        title:"Revenue Ledger",
-        href:"revenue-ledger.html",
-        label:"Revenue",
-        metric:"revenue",
-        description:"The complete FY 2027 revenue classification schedule, by revenue category and source, with prior-year comparisons."
-      },
-      {
-        title:"Personnel Ledger",
-        href:"personnel-ledger.html",
-        label:"Personnel",
-        metric:"personnel",
-        description:"Review FY 2027 personnel cost and staffing by Board department, Constitutional Officer, function, or fund."
-      },
-      {
-        title:"Department Ledger",
-        href:"department-ledger.html",
-        label:"Board Departments",
-        metric:"department",
-        description:"Compare proposed spending and major cost categories across Board departments."
-      },
-      {
-        title:"Constitutional Officers Ledger",
-        href:"constitutional-ledger.html",
-        label:"Constitutional Officers",
-        metric:"constitutionalOfficers",
-        description:"Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices."
-      },
-      {
-        title:"Independent Agencies Ledger",
-        href:"independent-agencies-ledger.html",
-        label:"Independent Agencies",
-        description:"Budget, staffing, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities."
-      },
-      {
-        title:"Machinery, Vehicles, & Equipment Ledger",
-        href:"summary-of-machinery-vehicles-and-equipment.html",
         label:"Capital",
-        metric:"capitalMachinery",
-        description:"Review budgeted machinery, vehicles, and equipment by department, fund, and equipment type."
+        items:[
+          {
+            title:"Machinery, Vehicles, & Equipment Ledger",
+            href:"summary-of-machinery-vehicles-and-equipment.html",
+            label:"Capital",
+            metric:"capitalMachinery",
+            description:"Review budgeted machinery, vehicles, and equipment by department, fund, and equipment type."
+          },
+          {
+            title:"Transportation and Infrastructure Capital Ledger",
+            href:"cip-capital-projects.html",
+            label:"Capital",
+            metric:"capitalTransportation",
+            description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project."
+          },
+          {
+            title:"Tourist Development Fund Capital Ledger",
+            href:"cip-tourist-development.html",
+            label:"Capital",
+            metric:"capitalTouristDevelopment",
+            description:"Explore tourism-related capital investments funded through tourist development resources."
+          },
+          {
+            title:"Sheriff Capital Project Ledger",
+            href:"cip-sheriff.html",
+            label:"Capital",
+            metric:"capitalSheriff",
+            description:"Review all capital projects associated with the Walton County Sheriff's Office."
+          },
+          {
+            title:"Recreation Plat Fee Fund Capital Ledger",
+            href:"recreation-plat-fee-fund.html",
+            label:"Capital",
+            metric:"capitalRecreationPlatFee",
+            description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
+          },
+          {
+            title:"Sidewalk Fund Capital Ledger",
+            href:"sidewalk-fund.html",
+            label:"Capital",
+            metric:"capitalSidewalk",
+            description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
+          }
+        ]
       },
       {
-        title:"Transportation and Infrastructure Ledger",
-        href:"cip-capital-projects.html",
-        label:"Capital",
-        metric:"capitalTransportation",
-        description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project."
+        label:"Debt & Fund Detail",
+        items:[
+          {
+            title:"Debt Ledger",
+            href:"debt-overview.html",
+            label:"Debt & Obligations",
+            metrics:[
+              { key:"debtPrincipal", label:"Principal" },
+              { key:"debtInterest", label:"Interest" }
+            ],
+            description:"Explore outstanding debt, annual debt service, borrowing strategy, and long-term obligations."
+          },
+          {
+            title:"Fund Financial Ledger",
+            href:"fund-financial-schedules.html",
+            label:"Fund Detail",
+            description:"Explore fund-level financial schedules for major operating, special revenue, and capital funds."
+          },
+          {
+            title:"Interfund Transfer Ledger",
+            href:"summary-of-interfund-transfers.html",
+            label:"Transfers Between Funds",
+            description:"Review planned transfers into and out of County funds and see how resources move between funds to support services, projects, and obligations."
+          }
+        ]
       },
       {
-        title:"Tourist Development Fund Ledger",
-        href:"cip-tourist-development.html",
-        label:"Capital",
-        metric:"capitalTouristDevelopment",
-        description:"Explore tourism-related capital investments funded through tourist development resources."
+        label:"Budget Process & Policy",
+        items:[
+          {
+            title:"GFOA Distinguished Budget Presentation Award",
+            href:"gfoa-distinguished-budget-presentation-award.html",
+            label:"Recognition",
+            description:"Review the award standards and presentation recognition for Walton County's budget document."
+          },
+          {
+            title:"Budget Process",
+            href:"budget-process.html",
+            label:"Process",
+            description:"Explore budget development, the calendar, budget changes, financial policies, fund structure, and department funding relationships."
+          },
+          {
+            title:"Program Budget",
+            href:"program-budget.html",
+            label:"Programs & Service Levels",
+            description:"Explore major services across departments, including cost, funding, service measures, community impact, and alignment with County priorities."
+          }
+        ]
       },
       {
-        title:"Sheriff Project Ledger",
-        href:"cip-sheriff.html",
-        label:"Capital",
-        metric:"capitalSheriff",
-        description:"Review all capital projects associated with the Walton County Sheriff's Office."
-      },
-      {
-        title:"Recreation Plat Fee Fund Ledger",
-        href:"recreation-plat-fee-fund.html",
-        label:"Capital",
-        metric:"capitalRecreationPlatFee",
-        description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
-      },
-      {
-        title:"Sidewalk Fund Ledger",
-        href:"sidewalk-fund.html",
-        label:"Capital",
-        metric:"capitalSidewalk",
-        description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
-      },
-      {
-        title:"Debt Ledger",
-        href:"debt-overview.html",
-        label:"Debt & Obligations",
-        metrics:[
-          { key:"debtPrincipal", label:"Principal" },
-          { key:"debtInterest", label:"Interest" }
-        ],
-        description:"Explore outstanding debt, annual debt service, borrowing strategy, and long-term obligations."
-      },
-      {
-        title:"Fund Financial Ledger",
-        href:"fund-financial-schedules.html",
-        label:"Fund Detail",
-        description:"Explore fund-level financial schedules for major operating, special revenue, and capital funds."
-      },
-      {
-        title:"Interfund Transfer Ledger",
-        href:"summary-of-interfund-transfers.html",
-        label:"Transfers Between Funds",
-        description:"Review planned transfers into and out of County funds and see how resources move between funds to support services, projects, and obligations."
-      },
-      {
-        title:"Table of Contents",
-        href:"table-of-contents.html",
-        description:"Browse every budget section, county directory, and supporting page."
-      },
-      {
-        title:"GFOA Distinguished Budget Presentation Award",
-        href:"gfoa-distinguished-budget-presentation-award.html",
-        label:"Recognition",
-        description:"Review the award standards and presentation recognition for Walton County's budget document."
-      },
-      {
-        title:"Budget Process",
-        href:"budget-process.html",
-        label:"Process",
-        description:"Explore budget development, the calendar, budget changes, financial policies, fund structure, and department funding relationships."
-      },
-      {
-        title:"Program Budget",
-        href:"program-budget.html",
-        label:"Programs & Service Levels",
-        description:"Explore major services across departments, including cost, funding, service measures, community impact, and alignment with County priorities."
-      },
-      {
-        title:"Property Tax Allocation",
-        href:"summary-of-property-tax-allocations.html",
-        label:"Property Tax",
-        description:"See the dollar amount each department receives from the countywide property tax."
-      },
-      {
-        title:"Summary of Expenses",
-        href:"summary-of-expenses.html",
-        label:"Expenses",
-        description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
-      },
-      {
-        title:"Budget Change Summary",
-        href:"summary-of-budget-changes-and-adjustments.html",
-        label:"Changes",
-        description:"Compare proposed expenditures to the prior budget by department, showing both increases and decreases."
-      },
-      {
-        title:"Summary of Contractual Services",
-        href:"summary-of-contractual-services.html",
-        label:"Contracts",
-        description:"Review budgeted contractual services and outside-vendor spending by department.",
-        darkModeOnly:true
-      },
-      {
-        title:"Financial Forecast",
-        href:"financial-forecast.html",
-        label:"Forecast",
-        description:"Review long-range financial assumptions, revenue outlook, expense projections, and planning considerations."
-      },
-      {
-        title:"Transaction Search",
-        href:"transaction-search.html",
-        label:"Raw Data",
-        description:"Search every public vendor payment and revenue receipt on file since FY 2020 by vendor, amount, date, or fund."
-      },
-      {
-        title:"Supporting Budget Documentation",
-        href:"supporting-budget-documentation.html",
-        label:"Documents",
-        description:"Open supporting budget requests, certifications, policies, ordinances, fee schedules, and reference workbooks."
+        label:"Reports & Documentation",
+        items:[
+          {
+            title:"Summary of Expenses",
+            href:"summary-of-expenses.html",
+            label:"Expenses",
+            description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
+          },
+          {
+            title:"Summary of Contractual Services",
+            href:"summary-of-contractual-services.html",
+            label:"Contracts",
+            description:"Review budgeted contractual services and outside-vendor spending by department.",
+            darkModeOnly:true
+          },
+          {
+            title:"Financial Forecast",
+            href:"financial-forecast.html",
+            label:"Forecast",
+            description:"Review long-range financial assumptions, revenue outlook, expense projections, and planning considerations."
+          },
+          {
+            title:"Transaction Search",
+            href:"transaction-search.html",
+            label:"Raw Data",
+            description:"Search every public vendor payment and revenue receipt on file since FY 2020 by vendor, amount, date, or fund."
+          },
+          {
+            title:"Supporting Budget Documentation",
+            href:"supporting-budget-documentation.html",
+            label:"Documents",
+            description:"Open supporting budget requests, certifications, policies, ordinances, fee schedules, and reference workbooks."
+          }
+        ]
       }
     ];
+
+    // Flattened view of every item, for code (renderBudgetTotals,
+    // renderCapitalLedgerFundTotals, etc.) that just needs to walk every
+    // page regardless of which group it's in.
+    var pages = groups.reduce(function(list, group){ return list.concat(group.items); }, []);
 
     function $(selector){
       return document.querySelector(selector);
@@ -234,17 +266,24 @@
       return "";
     }
 
+    function itemHtml(page){
+      var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
+      return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+        '<div class="wc-directory-item-main">' +
+          '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
+          '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +
+        '</div>' +
+        metaHtml(page) +
+        '<span class="wc-directory-item-arrow" aria-hidden="true">&rarr;</span>' +
+      '</a></li>';
+    }
+
     function renderHub(){
-      $("#hubList").innerHTML = pages.map(function(page){
-        var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
-        return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
-          '<div class="wc-directory-item-main">' +
-            '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
-            '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +
-          '</div>' +
-          metaHtml(page) +
-          '<span class="wc-directory-item-arrow" aria-hidden="true">&rarr;</span>' +
-        '</a></li>';
+      $("#hubList").innerHTML = groups.map(function(group){
+        return '<div class="wc-directory-group">' +
+          '<h2 class="wc-directory-group-heading">' + escapeHtml(group.label) + '</h2>' +
+          '<ul class="wc-directory-list">' + group.items.map(itemHtml).join("") + '</ul>' +
+        '</div>';
       }).join("");
     }
 
@@ -273,18 +312,46 @@
         var departmentTotal = window.WCBudgetData.getDepartmentBudgetTotal(data);
         var debtTotals = window.WCBudgetData.getDebtOverviewTotals();
 
-        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, debtPrincipal:debtTotals.principal, debtInterest:debtTotals.interest };
+        // Same countywide ad valorem total the Property Tax Allocation
+        // Ledger page itself computes (see that page's loadAdValoremRows):
+        // Revenue_Code 311000/311001, excluding North Walton Mosquito
+        // Control's separate millage (fund 105), which is reported on its
+        // own budget page instead.
+        var AD_VALOREM_REVENUE_CODES = ["311000", "311001"];
+        var MOSQUITO_CONTROL_FUND_CODE = "105";
+        var propertyTaxTotal = (data.revenues || []).reduce(function(sum, row){
+          if(AD_VALOREM_REVENUE_CODES.indexOf(String(row.Revenue_Code || "").trim()) === -1) return sum;
+          if(String(row.Dept_Code || "").trim().slice(0, 3) === MOSQUITO_CONTROL_FUND_CODE) return sum;
+          return sum + (Number(row.FY2027_Proposed) || 0);
+        }, 0);
+
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027 };
         document.querySelectorAll("[data-budget-overview-total]").forEach(function(element){
           var key = element.dataset.budgetOverviewTotal;
           if(!(key in totals)) return;
           var amount = totals[key] || 0;
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "debtPrincipal", "debtInterest"].indexOf(key) !== -1;
+          // FY 2027's own principal/interest (not the full remaining
+          // balance through final maturity) are small enough that rounding
+          // to millions would show "$0M" for interest -- shown as exact
+          // dollars instead, like every other non-millions stat here.
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax"].indexOf(key) !== -1;
           element.querySelector("strong").textContent = useRoundedMillions
             ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
             : window.WCBudgetData.formatCurrency(amount);
         });
       }).catch(function(){
         document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital']) strong").forEach(function(element){element.textContent = "Not available";});
+      });
+    }
+
+    function renderIndependentAgenciesTotal(){
+      var element = document.querySelector("[data-budget-overview-total='independentAgencies']");
+      if(!element || !window.WCIndependentAgencies) return;
+      window.WCIndependentAgencies.load().then(function(items){
+        var total = items.reduce(function(sum, item){ return sum + (item.budget || 0); }, 0);
+        element.querySelector("strong").textContent = "$" + Math.round(total / 1000000).toLocaleString("en-US") + "M";
+      }).catch(function(){
+        element.querySelector("strong").textContent = "Not available";
       });
     }
 
@@ -373,6 +440,7 @@
     document.addEventListener("DOMContentLoaded", function(){
       renderHub();
       renderBudgetTotals();
+      renderIndependentAgenciesTotal();
       renderCapitalTotal();
       renderCapitalLedgerFundTotals();
       renderCapitalLedgerProjectTotals();

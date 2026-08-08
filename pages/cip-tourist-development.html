@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tourist Development Fund Ledger — Walton County FY 2027 Budget</title>
+<title>Tourist Development Fund Capital Ledger — Walton County FY 2027 Budget</title>
 <link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
 </head>
 <body>
@@ -16,7 +16,7 @@
 <div id="layout">
 <main id="content">
 <div class="page-eyebrow">Capital Improvement Plan</div>
-<h1 class="page-title">Tourist Development Fund Ledger</h1>
+<h1 class="page-title">Tourist Development Fund Capital Ledger</h1>
 
 <section class="statement-of-function content-section">
   <p>The Tourist Development Fund is a critical component of Walton County’s Capital Improvement Plan (CIP), dedicated to enhancing tourism-related infrastructure, preserving natural resources, and improving visitor amenities. Funded by the local option tourist development tax collected from accommodations within designated tourist zones, the fund ensures that the county’s beaches, recreational areas, and tourism facilities remain world-class destinations.</p>
@@ -26,17 +26,32 @@
 <div id="touristTables"></div>
 
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
-<script src="../assets/cip-fund-schedule.js?v=20260802-ledger-rename"></script>
+<script src="../assets/cip-fund-schedule.js?v=20260808-budgeted-elsewhere-fy2027-only"></script>
 <script>
   renderFundSchedule({
     funding:"tourist development fund",
     mountId:"touristTables",
     label:"Tourist Development Fund",
     showFundingColumn:true,
-    // US 331 Bridge Lighting is already funded elsewhere in the County
-    // budget -- listed below in its own sub-ledger so it isn't counted
-    // twice in the Tourist Development Fund total.
-    budgetedElsewhereTitles:["US 331 Bridge Lighting"]
+    // Only the 30A Gateway Improvements project and the Beach Renourishment
+    // placeholder are new capital work funded with new Tourist Development
+    // Fund revenue for FY2027. US 331 Bridge Lighting was already funded
+    // elsewhere in the County budget, and the rest of the projects listed
+    // against this fund are existing/prior commitments, not new spending --
+    // all of them are broken out below in their own sub-ledger so they
+    // aren't counted twice in the Tourist Development Fund total.
+    budgetedElsewhereTitles:[
+      "US 331 Bridge Lighting",
+      "Boardwalk Dune Walkover Repair/Replacement",
+      "Deer Lake Path Realignment",
+      "Dune Allen Hardscaping Project",
+      "Miramar Beach Parking Facility",
+      "Multi-Use Path - 30A Rebuild 395 to Eastern Lake",
+      "Multi-use Path - 30A Rebuild 83 to 393",
+      "Santa Rosa Beach Performing Arts Park",
+      "Transit Program Gulfview & Blue Mountain",
+      "Walton Dunes Beach Access"
+    ]
   });
 </script>
 </main>
@@ -66,7 +81,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Summary of Interfund Transfers",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-interfund-transfers.html"},
   {title:"Summary of Personnel",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-personnel.html"},
   {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
-  {title:"Summary of Property Tax Allocations",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
+  {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
   {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
   {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
   {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},

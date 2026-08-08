@@ -3187,7 +3187,6 @@
 
   let budgetLinesDetailCounter = 0;
   let fundScheduleActivityCounter = 0;
-  let budgetChangeDeptCounter = 0;
 
   // Shared CSV download helper. Values are stringified and quoted only
   // when needed (comma/quote/newline present), with embedded quotes
@@ -4252,6 +4251,11 @@
 
   let activeBudgetDetailToggle = null;
   let budgetDetailScrollLock = null;
+  // Department Explorer: departments whose offices don't share a single
+  // page (e.g. County Administration Departments) get a card button
+  // instead of a direct link -- this holds each one's office name/href
+  // choices so the delegated click handler below can show a picker.
+  const departmentCardOfficeChoices = new Map();
 
   function lockBudgetDetailBackgroundScroll() {
     if (budgetDetailScrollLock) return;
@@ -4387,6 +4391,36 @@
     openBudgetDetailModal(toggle, detail);
   });
 
+  // Department Explorer: a card for a department whose offices live on
+  // different pages opens this picker instead of following a single link,
+  // so the user chooses which office's page they meant.
+  document.addEventListener("click", (event) => {
+    const card = event.target.closest(".wc-department-card-picker");
+    if (!card) return;
+    event.preventDefault();
+    const choices = departmentCardOfficeChoices.get(card.dataset.departmentKey);
+    if (!choices || !choices.length) return;
+    const modal = ensureBudgetDetailModal();
+    const title = modal.querySelector("#wc-budget-detail-title");
+    const kicker = modal.querySelector(".wc-budget-detail-kicker");
+    const body = modal.querySelector(".wc-budget-detail-body");
+    if (kicker) kicker.textContent = "Choose an office";
+    if (title) title.textContent = card.dataset.departmentName || "Department";
+    if (body) {
+      body.className = "wc-budget-detail-body wc-department-office-picker-body";
+      body.innerHTML = '<ul class="wc-department-office-picker-list">' +
+        choices.map((choice) => '<li><a href="' + escapeHtml(choice.href) + '">' + escapeHtml(choice.name) + '</a></li>').join("") +
+        '</ul>';
+    }
+    activeBudgetDetailToggle = card;
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add("is-open"));
+    document.body.classList.add("wc-budget-detail-open");
+    lockBudgetDetailBackgroundScroll();
+    const closeButton = modal.querySelector(".wc-budget-detail-close");
+    if (closeButton) closeButton.focus({ preventScroll: true });
+  });
+
   // Personnel Ledger: expands a rolled-up Board department row (see
   // boardDepartmentRollupName in renderPersonnelCostSummary) to reveal the
   // offices that were summed into it. Delegated to document since the
@@ -4395,6 +4429,20 @@
     const toggle = event.target.closest("[data-personnel-dept-expand]");
     if (!toggle) return;
     const row = document.getElementById(toggle.dataset.personnelDeptExpand);
+    if (!row) return;
+    const expanded = row.hidden;
+    row.hidden = !expanded;
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.closest("tr").classList.toggle("is-expanded", expanded);
+  });
+
+  // Department Ledger: expands a department row to reveal the offices
+  // rolled up into it. Same delegated pattern as the Personnel Ledger's
+  // department-expand toggle above.
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-department-ledger-expand]");
+    if (!toggle) return;
+    const row = document.getElementById(toggle.dataset.departmentLedgerExpand);
     if (!row) return;
     const expanded = row.hidden;
     row.hidden = !expanded;
@@ -7882,7 +7930,7 @@
     function groupHeaderHtml(label, groupKey) {
       return (
         '<tr class="wc-table-group-row wc-fund-activity-group-toggle" data-fund-activity-group="' + groupKey + '" tabindex="0" role="button" aria-expanded="false">' +
-        "<td>" + escapeHtml(label) + '<span class="wc-fund-activity-chevron" aria-hidden="true"></span></td>' +
+        "<td><span class=\"wc-fund-activity-chevron\" aria-hidden=\"true\"></span>" + escapeHtml(label) + "</td>" +
         FUND_SCHEDULE_YEAR_COLUMNS.map((c, i) => '<td class="' + fundScheduleColumnCellClass(i).trim() + '"></td>').join("") +
         "</tr>"
       );
@@ -7895,7 +7943,7 @@
       const toggleAttrs = detailHtml ? ' data-target="' + rowId + '" tabindex="0" role="button" aria-expanded="false"' : "";
       const row =
         '<tr class="wc-fund-activity-row' + toggleClass + '" data-fund-activity-group="' + groupKey + '"' + toggleAttrs + " hidden><td>" +
-        escapeHtml(label) + (detailHtml ? '<span class="wc-fund-activity-chevron" aria-hidden="true"></span>' : "") + "</td>" +
+        (detailHtml ? '<span class="wc-fund-activity-chevron" aria-hidden="true"></span>' : "") + escapeHtml(label) + "</td>" +
         values.map((v, i) => '<td class="wc-num' + fundScheduleColumnCellClass(i) + '">' + formatCurrency(v) + "</td>").join("") +
         "</tr>";
       const detailRow = detailHtml
@@ -8298,6 +8346,19 @@
       String(r.Revenue_Code || "").trim() === "381000" ||
       CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r));
 
+    // Shared by every column in every row (category, individual-revenue
+    // line, and total) so a line item's cells line up under the exact same
+    // highlighted/muted columns as the category row above it, instead of
+    // reading like a separate, unstyled table.
+    function columnCellClass(col) {
+      const extraYear = col.field !== "FY2026_Original_Budget" && col.field !== "FY2027_Proposed";
+      return (extraYear ? " wc-prior-year" : "") +
+        (col.field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") +
+        (col.field === "FY2028_Projected" ? " wc-fy-2028" : "") +
+        (col.field === "FY2029_Projected" ? " wc-fy-2029" : "") +
+        (col.projected ? " wc-revenue-projected" : "");
+    }
+
     const bodyRows = CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec, specIndex) => {
       // Revenue_Code 381000 (Interfund Group Transfer In) is reported on
       // the Summary of Interfund Transfers page instead, and the
@@ -8307,27 +8368,22 @@
       // Mosquito Control levies its own Ad Valorem millage on top of the
       // County's General Fund millage, but both land in this same
       // "General Government Taxes" row -- there's no separate Ad Valorem
-      // line on this table. Its rows are relabeled (only in the copy fed to
-      // the "View Budget Lines" detail below, not in the main row's own
-      // totals) so that detail's combineByName grouping breaks Mosquito
-      // Control's share out onto its own line instead of folding it into
-      // the single combined "Ad Valorem Taxes" line -- visible only when a
-      // reader opens Budget Lines, not on the main table.
-      let matchingForDetail = matching.map((r) => {
+      // line on this table. Relabeled here (on the real revenue row itself,
+      // which already carries a full, correctly-populated set of actuals/
+      // FY2026 Original Budget fields from the same pipeline every other
+      // row on this table uses) so it reads as its own "Ad Valorem Taxes
+      // (Mosquito Control Fund)" line instead of folding into the combined
+      // "Ad Valorem Taxes" line. This used to be swapped out for a second
+      // copy sourced from departmentFinancialDisplayRows("Mosquito
+      // Control") -- that department-page view fills prior years via a
+      // completely different (expense-based "plug") method that isn't
+      // compatible with dedupedRevenueSum's Revenue_Code-keyed Supabase
+      // lookups, which left every prior-year column on this line blank.
+      const matchingForDetail = matching.map((r) => {
         const isMosquitoAdValorem = spec.type === "General Government Taxes" &&
           normalizeDeptName(r.Revenue_Name) === "ad valorem taxes" && fundCodeForRow(r) === "105";
         return isMosquitoAdValorem ? { ...r, Revenue_Name: "Ad Valorem Taxes (Mosquito Control Fund)" } : r;
       });
-      if (spec.type === "General Government Taxes") {
-        const mosquitoAdValoremRows = departmentFinancialDisplayRows("Mosquito Control").revenueRows
-          .filter((r) => normalizeDeptName(r.Revenue_Name) === "ad valorem taxes")
-          .map((r) => ({ ...r, Revenue_Name: "Ad Valorem Taxes (Mosquito Control Fund)" }));
-        if (mosquitoAdValoremRows.length) {
-          matchingForDetail = matchingForDetail
-            .filter((r) => normalizeDeptName(r.Revenue_Name) !== "ad valorem taxes mosquito control fund")
-            .concat(mosquitoAdValoremRows);
-        }
-      }
       allMatchingRows.push(...matchingForDetail);
       const individualRevenueTotals = new Map();
       matchingForDetail.forEach((row) => {
@@ -8336,27 +8392,37 @@
         entry.rows.push(row);
         individualRevenueTotals.set(name, entry);
       });
-      const individualRevenueHtml = Array.from(individualRevenueTotals.entries())
+      // Same group-expand accordion as the Fund Financial Ledger's
+      // Revenues/Expenditures activity rows (see buildFundFinancialSchedule/
+      // groupHeaderHtml) -- every individual-revenue row shares this
+      // category's group key and is a plain sibling <tr> in the same
+      // table, with the same per-column classes as the category row above
+      // it, so it lines up under the exact same columns instead of reading
+      // like a separate table dropped in below.
+      const groupKey = "wc-revenue-classification-" + specIndex;
+      const individualRevenueRows = Array.from(individualRevenueTotals.entries())
         .sort((a, b) => dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed"))
-        .map(([name, values]) => '<tr><th scope="row">' + escapeHtml(name) + '</th>' + CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num">' + formatCurrency(dedupedRevenueSum(values.rows, col.field)) + '</td>').join("") + '</tr>')
-        .join("");
-      const individualRevenueTableHtml = individualRevenueHtml
-        ? '<div class="wc-revenue-classification-detail-scroll"><table><thead><tr><th>Revenue</th>' + CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<th class="wc-num">' + escapeHtml(col.label) + '</th>').join("") + '</tr></thead><tbody>' + individualRevenueHtml + '</tbody></table></div>'
-        : "";
-      const detailId = "wc-revenue-classification-" + specIndex;
-      const classificationLabelHtml = individualRevenueTableHtml
-        ? '<button type="button" class="wc-revenue-classification-toggle" data-revenue-classification-toggle="' + detailId + '" aria-controls="' + detailId + '" aria-expanded="false">' + escapeHtml(spec.label) + '</button>'
-        : escapeHtml(spec.label);
+        .map(([name, entry]) =>
+          '<tr class="wc-fund-activity-row" data-fund-activity-group="' + groupKey + '" hidden><td>' + escapeHtml(name) + '</td>' +
+          CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(dedupedRevenueSum(entry.rows, col.field)) + '</td>').join("") +
+          '</tr>'
+        );
+      const hasDetail = individualRevenueRows.length > 0;
+      // Deliberately NOT also wc-fund-activity-row -- that class is what the
+      // group-toggle click handler queries by data-fund-activity-group to
+      // show/hide, and this row must not match its own query (it would hide
+      // itself along with its children on collapse).
+      const toggleClass = hasDetail ? "wc-fund-activity-group-toggle" : "";
+      const toggleAttrs = hasDetail ? ' data-fund-activity-group="' + groupKey + '" tabindex="0" role="button" aria-expanded="false"' : "";
       return (
-        "<tr><td>" + classificationLabelHtml + "</td>" +
+        '<tr class="' + toggleClass + '"' + toggleAttrs + '><td>' + (hasDetail ? '<span class="wc-fund-activity-chevron" aria-hidden="true"></span>' : "") + escapeHtml(spec.label) + '</td>' +
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = dedupedRevenueSum(matching, col.field);
           totals[i] += sum;
-          const extraYear = col.field !== "FY2026_Original_Budget" && col.field !== "FY2027_Proposed";
-          return '<td class="wc-num' + (extraYear ? " wc-prior-year" : "") + (col.field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") + (col.field === "FY2028_Projected" ? " wc-fy-2028" : "") + (col.field === "FY2029_Projected" ? " wc-fy-2029" : "") + (col.projected ? " wc-revenue-projected" : "") + '">' + formatCurrency(sum) + "</td>";
+          return '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(sum) + "</td>";
         }).join("") +
         "</tr>" +
-        (individualRevenueTableHtml ? '<tr id="' + detailId + '" class="wc-revenue-classification-detail" hidden><td colspan="' + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.length + 1) + '"><div><strong>Individual revenues</strong>' + individualRevenueTableHtml + '</div></td></tr>' : "")
+        individualRevenueRows.join("")
       );
     });
     // Catch-all for any row whose Revenue_Type doesn't match a known
@@ -8409,24 +8475,14 @@
   }
 
   function initConsolidatedRevenueSummaryPage() {
-    const bindRevenueClassificationToggles = (container) => {
-      bindPriorYearsToggle(container);
-      container.querySelectorAll("[data-revenue-classification-toggle]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const detail = document.getElementById(button.dataset.revenueClassificationToggle);
-          if (!detail) return;
-          const expanded = detail.hidden;
-          detail.hidden = !expanded;
-          button.setAttribute("aria-expanded", String(expanded));
-          button.classList.toggle("is-expanded", expanded);
-        });
-      });
-    };
+    // Individual-revenue rows expand via the shared wc-fund-activity-toggle
+    // delegated click handler (see buildFundFinancialSchedule) -- only the
+    // prior-years toggle still needs binding here.
     initConsolidatedFundTableContainer(
       "consolidated-revenue-summary-table",
       renderConsolidatedRevenueSummaryTable,
       "consolidated revenue summary",
-      bindRevenueClassificationToggles
+      bindPriorYearsToggle
     );
   }
 
@@ -8583,6 +8639,58 @@
     function representativeName(r) {
       return collapsedDeptRowName(expenseDisplayDeptName(repByCodeAndName, r));
     }
+    // Board Department offices are rolled up to the same 15 canonical
+    // departments the Department Ledger uses (boardDepartmentRollupName),
+    // e.g. Human Resources/Extension Office/GIS all collapse into "County
+    // Administration Departments" -- so this table's Board Departments
+    // group reads the same way the Department Ledger does instead of
+    // listing every office separately. Constitutional Officers,
+    // Independent Agencies, and Capital rows aren't Board Departments, so
+    // boardDepartmentRollupName returns nothing for them and they keep
+    // their own representative name unchanged.
+    //
+    // A Board Department's own Capital-category spending (vehicles,
+    // equipment, infrastructure -- whether funded from the Transportation
+    // Fund, Tourist Development Fund, or the General Fund) is redirected
+    // into the Capital group instead of that department's own row, and
+    // split by the same named ledgers the Capital section of the Budget
+    // Ledgers directory already lists (Machinery/Transportation/Tourist
+    // Development), so each reads as its own line here too -- and can
+    // eventually link straight to that ledger page, the same way every
+    // other row here is meant to. Object_Code 564000 (Machinery &
+    // Equipment) wins over fund even on Transportation/Tourist Development
+    // Fund rows, matching the Machinery Ledger's own countywide, cross-fund
+    // scope. Everything else -- including General Fund-financed capital
+    // outlay -- falls under Transportation and Infrastructure Capital too;
+    // cip-capital-projects.html's own scope is already "Transportation
+    // Fund, Capital Projects Fund, and grant-funded infrastructure", i.e.
+    // the general infrastructure/capital catch-all, not just fund 101.
+    const CAPITAL_LINE_BY_FUND = { "111": "Tourist Development Fund Capital" };
+    function boardDepartmentCapitalLine(r) {
+      if (String(r.Object_Code || "").trim() === "564000") return "Machinery, Vehicles, & Equipment";
+      return CAPITAL_LINE_BY_FUND[fundCodeForRow(r)] || "Transportation and Infrastructure Capital";
+    }
+    // Recreation Plat Fee, Sidewalk, and the Capital Projects Fund are
+    // already their own whole pseudo-departments (fund-dedicated, no
+    // operating budget of their own -- see groupedDeptName below), so they
+    // just need renaming to match their ledger's title (dropping the word
+    // "Ledger", same as boardDepartmentCapitalLine's names above) instead
+    // of showing the sheet's own short Dept_Name. The Capital Projects Fund
+    // is folded into the same "Transportation and Infrastructure Capital"
+    // line as fund 101 -- cip-capital-projects.html's own ledger already
+    // covers both funds together.
+    const CAPITAL_FUND_DEPT_RENAMES = {
+      "recreation plat fee": "Recreation Plat Fee Fund Capital",
+      "sidewalk": "Sidewalk Fund Capital",
+      "capital projects": "Transportation and Infrastructure Capital"
+    };
+    function groupedDeptName(r) {
+      const rollup = boardDepartmentRollupName(r.Dept_Name);
+      if (rollup && categoryForRow(r) === "Capital") return boardDepartmentCapitalLine(r);
+      if (rollup) return rollup;
+      const rep = representativeName(r);
+      return CAPITAL_FUND_DEPT_RENAMES[normalizeDeptName(rep)] || rep;
+    }
     // Groups departments the same way the site's own directory does --
     // Constitutional Officers first, then Statutory & Other Agency Funding
     // (the "Autonomous Entities" section), then regular County Departments,
@@ -8591,8 +8699,27 @@
     // lookup departmentPageHref already relies on, instead of hardcoding a
     // second department list here.
     const DEPARTMENT_GROUP_ORDER = { "Constitutional Officers": 0, "Autonomous Entities": 1, "Departments": 2 };
+    // Group 3 is everything that isn't on the Constitutional Officers,
+    // Autonomous Entities (Independent Agencies), or Departments (Board
+    // Departments) directories -- in this countywide expenditures dataset
+    // that's realistically always a capital project/equipment fund
+    // (Transportation, Sheriff Capital, Tourist Development, Recreation
+    // Plat Fee, Sidewalk, Machinery/Vehicles/Equipment), so it's labeled
+    // "Capital" rather than a generic "Other".
+    const DEPARTMENT_GROUP_LABELS = ["Constitutional Officers", "Independent Agencies", "Board Department Operating and Personnel Budgets", "Capital"];
+    // The 15 canonical Board Department rollup names (see
+    // BOARD_DEPARTMENT_ROLLUP_NAMES/groupedDeptName above) -- a couple of
+    // them ("Parks & Recreation", "Beach Operations") aren't themselves a
+    // literal wcBudgetPages page title, so the lookup below would
+    // otherwise miss them and misfile them into the Capital catch-all.
+    // Checked first since a name reaching here already IS one of these 15
+    // whenever groupedDeptName produced it.
+    const BOARD_DEPARTMENT_CANONICAL_NAMES = new Set(
+      Array.from(BOARD_DEPARTMENT_ROLLUP_NAMES.values()).map((name) => normalizeDeptName(name))
+    );
     function departmentGroupOrder(deptName) {
       const norm = normalizeDeptName(deptName);
+      if (BOARD_DEPARTMENT_CANONICAL_NAMES.has(norm)) return DEPARTMENT_GROUP_ORDER.Departments;
       const pages = window.wcBudgetPages || [];
       const title = DEPARTMENT_PAGE_TITLE_ALIASES.get(norm) || deptName;
       const match =
@@ -8600,6 +8727,14 @@
         pages.find((p) => p.section === "Departments" && normalizeDeptName(p.title) === norm);
       const order = match && DEPARTMENT_GROUP_ORDER[match.section];
       return typeof order === "number" ? order : 3;
+    }
+    // Every % Change cell on this page (line-item, department, group
+    // subtotal, and grand total) -- green for an increase, red for a
+    // decrease, reusing the site's standard .wc-num.is-increase/is-decrease
+    // table-cell colors instead of leaving every row the same neutral color.
+    function pctChangeCellHtml(pctValue) {
+      const cls = pctValue > 0 ? " is-increase" : pctValue < 0 ? " is-decrease" : "";
+      return '<td class="wc-num' + cls + '">' + (pctValue >= 0 ? "+" : "") + (pctValue * 100).toFixed(1) + "%</td>";
     }
     // Object_Type values in the sheet aren't perfectly consistent (a few
     // synthesized rows say "Operating Expenditures" instead of "Operating
@@ -8618,7 +8753,7 @@
     }
     const CATEGORY_ORDER = { Personnel: 0, Operating: 1, Capital: 2, Other: 3 };
 
-    const departments = uniqueSorted(rows.map(representativeName));
+    const departments = uniqueSorted(rows.map(groupedDeptName));
     // Expenditure rows carry no Fund_Name field of their own (only some
     // synthesized/derived rows elsewhere do) -- fundNameForRow looks it up
     // from fundCodeForRow(r) against cache.funds instead, same as every
@@ -8654,7 +8789,7 @@
       const labelByKey = new Map();
       function keyFor(r) {
         const category = categoryForRow(r);
-        const dept = representativeName(r);
+        const dept = groupedDeptName(r);
         const key = normalizeDeptName(dept) + "|" + category;
         if (!labelByKey.has(key)) labelByKey.set(key, { dept, category });
         return key;
@@ -8704,7 +8839,7 @@
       const dedupedByDept = new Map();
       function addTo(map, source) {
         source.forEach((row) => {
-          const dept = representativeName(row);
+          const dept = groupedDeptName(row);
           if (!map.has(dept)) map.set(dept, []);
           map.get(dept).push(row);
         });
@@ -8765,12 +8900,12 @@
       const filteredRows = fundName
         ? rows.filter((r) => fundNameForRow(r) === fundName)
         : deptName
-        ? rows.filter((r) => representativeName(r) === deptName)
+        ? rows.filter((r) => groupedDeptName(r) === deptName)
         : rows;
       const filteredDedupedRows = fundName
         ? dedupedRows.filter((r) => fundNameForRow(r) === fundName)
         : deptName
-        ? dedupedRows.filter((r) => representativeName(r) === deptName)
+        ? dedupedRows.filter((r) => groupedDeptName(r) === deptName)
         : dedupedRows;
 
       const { entries, totalPrior, totalProposed } = buildEntries(filteredRows, filteredDedupedRows);
@@ -8795,7 +8930,7 @@
         const proposed = deptEntries.reduce((s, e) => s + e.proposed, 0);
         const change = proposed - prior;
         const pct = prior !== 0 ? change / prior : 0;
-        return { dept, deptEntries, prior, proposed, change, pct };
+        return { dept, prior, proposed, change, pct };
       });
       if (pctSortDirection === "desc") {
         deptSummaries.sort((a, b) => b.pct - a.pct);
@@ -8807,47 +8942,74 @@
         );
       }
 
-      const bodyRows = deptSummaries.map((summary) => {
-        const { dept, deptEntries, prior, proposed, change, pct } = summary;
-        const deptHref = departmentPageHref(dept);
-        const deptLabel = escapeHtml(dept);
-
-        budgetChangeDeptCounter += 1;
-        const detailId = "wc-budget-change-detail-" + budgetChangeDeptCounter;
-        const detailTable =
-          '<div class="wc-fund-activity-detail">' +
-          '<table class="wc-data-table wc-fund-activity-detail-table">' +
-          "<thead><tr><th>Category</th>" +
-          '<th class="wc-num">FY 2026 Budget</th>' +
-          '<th class="wc-num">FY 2027 Budget</th>' +
-          '<th class="wc-num">Change</th>' +
-          '<th class="wc-num">% Change</th>' +
-          "</tr></thead><tbody>" +
-          deptEntries.map((e) => {
-            const ePct = e.prior !== 0 ? e.change / e.prior : 0;
-            return (
-              "<tr><td>" + escapeHtml(e.category) + "</td>" +
-              '<td class="wc-num">' + formatCurrency(e.prior) + "</td>" +
-              '<td class="wc-num">' + formatCurrency(e.proposed) + "</td>" +
-              '<td class="wc-num">' + formatCurrency(e.change) + "</td>" +
-              '<td class="wc-num">' + (ePct >= 0 ? "+" : "") + (ePct * 100).toFixed(1) + "%</td>" +
-              "</tr>"
-            );
-          }).join("") +
-          "</tbody></table></div>";
-
+      // Capital group lines link straight to that named ledger (plain
+      // underline via the site's default link color, same wc-table-row-link
+      // class used elsewhere for a link that shouldn't carry the
+      // View-Budget-Lines arrow -- see wc-department-row-link::after).
+      const CAPITAL_LINE_HREFS = {
+        "machinery vehicles and equipment": "summary-of-machinery-vehicles-and-equipment.html",
+        "transportation and infrastructure capital": "cip-capital-projects.html",
+        "tourist development fund capital": "cip-tourist-development.html",
+        "recreation plat fee fund capital": "recreation-plat-fee-fund.html",
+        "sidewalk fund capital": "sidewalk-fund.html"
+      };
+      function summaryRowHtml(summary) {
+        const { dept, prior, proposed, change, pct } = summary;
+        const href = CAPITAL_LINE_HREFS[normalizeDeptName(dept)];
+        const deptLabel = href
+          ? '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(dept) + "</a>"
+          : escapeHtml(dept);
         return (
-          '<tr class="wc-fund-activity-row wc-fund-activity-toggle" data-target="' + detailId + '" tabindex="0" role="button" aria-expanded="false">' +
-          "<td>" + (deptHref ? '<a class="wc-department-row-link" href="' + escapeHtml(deptHref) + '">' + deptLabel + "</a>" : deptLabel) +
-          '<span class="wc-fund-activity-chevron" aria-hidden="true"></span></td>' +
+          "<tr><td>" + deptLabel + "</td>" +
           '<td class="wc-num">' + formatCurrency(prior) + "</td>" +
           '<td class="wc-num">' + formatCurrency(proposed) + "</td>" +
           '<td class="wc-num">' + formatCurrency(change) + "</td>" +
-          '<td class="wc-num">' + (pct >= 0 ? "+" : "") + (pct * 100).toFixed(1) + "%</td>" +
-          "</tr>" +
-          '<tr class="wc-fund-activity-detail-row" id="' + detailId + '" hidden><td colspan="5">' + detailTable + "</td></tr>"
+          pctChangeCellHtml(pct) +
+          "</tr>"
         );
-      });
+      }
+
+      // Subdivided into Constitutional Officers / Independent Agencies /
+      // Board Departments / Capital, each with its own group heading and
+      // subtotal -- same grouped-ledger pattern as the Property Tax
+      // Allocation Ledger. Only meaningful in the default department-group
+      // sort order; a % Change sort deliberately ranks across every group
+      // together, so groups are skipped there.
+      const bodyRows = [];
+      if (pctSortDirection) {
+        deptSummaries.forEach((summary) => { bodyRows.push(summaryRowHtml(summary)); });
+      } else {
+        let currentGroupOrder = null;
+        let groupPrior = 0;
+        let groupProposed = 0;
+        function flushGroup() {
+          if (currentGroupOrder === null) return;
+          const groupChange = groupProposed - groupPrior;
+          const groupPct = groupPrior !== 0 ? groupChange / groupPrior : 0;
+          bodyRows.push(
+            '<tr class="wc-table-subtotal-row"><td>Total ' + escapeHtml(DEPARTMENT_GROUP_LABELS[currentGroupOrder]) + '</td>' +
+            '<td class="wc-num">' + formatCurrency(groupPrior) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(groupProposed) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(groupChange) + "</td>" +
+            '<td class="wc-num">' + (groupPct >= 0 ? "+" : "") + (groupPct * 100).toFixed(1) + "%</td>" +
+            "</tr>"
+          );
+        }
+        deptSummaries.forEach((summary) => {
+          const order = departmentGroupOrder(summary.dept);
+          if (order !== currentGroupOrder) {
+            flushGroup();
+            currentGroupOrder = order;
+            groupPrior = 0;
+            groupProposed = 0;
+            bodyRows.push('<tr class="wc-table-group-row"><td colspan="5">' + escapeHtml(DEPARTMENT_GROUP_LABELS[order]) + "</td></tr>");
+          }
+          groupPrior += summary.prior;
+          groupProposed += summary.proposed;
+          bodyRows.push(summaryRowHtml(summary));
+        });
+        flushGroup();
+      }
 
       const totalChange = totalProposed - totalPrior;
       const totalPct = totalPrior !== 0 ? totalChange / totalPrior : 0;
@@ -10901,7 +11063,7 @@
       }, []);
   }
 
-  function renderStaffingGroup(rows, label, forcedOtherMaxFte, extraNotes) {
+  function renderStaffingGroup(rows, label, forcedOtherMaxFte, extraNotes, personnelLedgerDetail) {
     const showPrior = getShowPriorYears();
     const years = [2024, 2025, 2026, 2027];
     const priorYears = years.filter((y) => y < 2027);
@@ -10944,7 +11106,7 @@
         notes.map((n) => "<p>" + n + "</p>").join("") +
         "</div>"
       : "";
-    const detailId = "wc-staffing-lines-" + (++budgetLinesDetailCounter);
+    const detailId = personnelLedgerDetail ? personnelLedgerDetail.detailId : "wc-staffing-lines-" + (++budgetLinesDetailCounter);
     // Any position at or below a card-specific FTE threshold is folded
     // into "All Other" on this card's own breakdown regardless of how it'd
     // otherwise rank (e.g. Code Compliance Street folds every 0.5-FTE
@@ -10984,6 +11146,30 @@
           '</div>'
         );
       }).join("");
+    // When a real Personnel Ledger (position-level salary/benefit cost, not
+    // just FTE counts) is available for this department, the button opens
+    // that instead of this card's own plain FTE-by-year table -- see
+    // personnelCostDetailForRows/renderDepartmentPersonnelLedgerSection,
+    // which used to render this same content as a separate always-visible
+    // section further down the page.
+    const detailBlockHtml = personnelLedgerDetail
+      ? personnelLedgerDetail.detailHtml
+      : '<div class="wc-budget-lines-detail wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '" id="' + detailId + '" hidden>' +
+          priorYearsToggleHtml(showPrior, "wc-budget-lines-detail-header") +
+          '<div class="wc-data-table-scroll">' +
+          '<table class="wc-data-table wc-staffing-table">' +
+          "<thead><tr>" +
+          "<th>Position Name</th>" +
+          priorYears.map((y) => '<th class="wc-num wc-prior-year wc-fy-' + y + '">FY ' + y + "</th>").join("") +
+          '<th class="wc-num">FY 2027</th>' +
+          "</tr></thead>" +
+          "<tbody>" + bodyRows.join("") + "</tbody>" +
+          "</table>" +
+          "</div>" +
+        "</div>";
+    const toggleLabel = personnelLedgerDetail ? "View Personnel Ledger" : "View Position Detail";
+    const toggleOpenLabel = personnelLedgerDetail ? "Hide Personnel Ledger" : "Hide Position Detail";
+
     return (
       '<section class="wc-finance-card wc-staffing-card' + (showPrior ? " show-prior-years" : "") + '" data-print-title="' + escapeHtml(label) + '">' +
         '<div class="wc-finance-card-head">' +
@@ -10996,22 +11182,10 @@
         '<div class="wc-finance-card-breakdown">' + positionRows + '</div>' +
         '<div class="wc-finance-card-footer">' +
           lastUpdatedNoteHtml() +
-          '<button type="button" class="wc-view-budget-lines-toggle" data-target="' + detailId + '" data-closed-label="View Position Detail" data-open-label="Hide Position Detail" aria-expanded="false">View Position Detail</button>' +
+          '<button type="button" class="wc-view-budget-lines-toggle" data-target="' + detailId + '" data-closed-label="' + escapeHtml(toggleLabel) + '" data-open-label="' + escapeHtml(toggleOpenLabel) + '" aria-expanded="false">' + escapeHtml(toggleLabel) + '</button>' +
         '</div>' +
         notesHtml +
-        '<div class="wc-budget-lines-detail wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '" id="' + detailId + '" hidden>' +
-          priorYearsToggleHtml(showPrior, "wc-budget-lines-detail-header") +
-          '<div class="wc-data-table-scroll">' +
-          '<table class="wc-data-table wc-staffing-table">' +
-          "<thead><tr>" +
-          "<th>Position Name</th>" +
-          priorYears.map((y) => '<th class="wc-num wc-prior-year wc-fy-' + y + '">FY ' + y + "</th>").join("") +
-          '<th class="wc-num">FY 2027</th>' +
-          "</tr></thead>" +
-          "<tbody>" + bodyRows.join("") + "</tbody>" +
-          "</table>" +
-          "</div>" +
-        "</div>" +
+        detailBlockHtml +
       "</section>"
     );
   }
@@ -11057,18 +11231,31 @@
     return Array.from(merged.values());
   }
 
-  function renderStaffingTable(rows) {
+  // Gives a shared personnel-ledger detail block a fresh, unique id so it
+  // can be embedded in more than one staffing card (e.g. Code Compliance's
+  // Street/Beach split) without two elements on the page sharing one id.
+  function personnelLedgerDetailCopy(personnelLedgerDetail, suffix) {
+    if (!personnelLedgerDetail) return null;
+    const newId = personnelLedgerDetail.detailId + "-" + suffix;
+    return {
+      detailId: newId,
+      detailHtml: personnelLedgerDetail.detailHtml.replace('id="' + personnelLedgerDetail.detailId + '"', 'id="' + newId + '"')
+    };
+  }
+
+  function renderStaffingTable(rows, personnelLedgerDetail) {
     if (!rows.length) return "";
     const groupNames = uniqueSorted(rows.map((r) => r.Dept_Name || ""));
     if (groupNames.length <= 1) {
-      return renderStaffingGroup(rows, "Staffing / FTE", null, STAFFING_GROUP_NOTES[normalizeDeptName(rows[0].Dept_Name || "")]);
+      return renderStaffingGroup(rows, "Staffing / FTE", null, STAFFING_GROUP_NOTES[normalizeDeptName(rows[0].Dept_Name || "")], personnelLedgerDetail);
     }
     const screenCardsHtml = groupNames
-      .map((name) => renderStaffingGroup(
+      .map((name, index) => renderStaffingGroup(
         rows.filter((r) => (r.Dept_Name || "") === name),
         name,
         STAFFING_GROUP_FORCED_OTHER_MAX_FTE[normalizeDeptName(name)],
-        STAFFING_GROUP_NOTES[normalizeDeptName(name)]
+        STAFFING_GROUP_NOTES[normalizeDeptName(name)],
+        personnelLedgerDetailCopy(personnelLedgerDetail, index)
       ))
       .join("");
 
@@ -12191,9 +12378,23 @@
         bindTooltipAnchors(revenueEl);
         bindPriorYearsToggle(revenueEl);
 
-        mountOrHide(staffingEl, renderStaffingTable(getDepartmentStaffing(deptName, deptCode)));
+        // The staffing card's detail button now opens the real Personnel
+        // Ledger (position-level salary/benefit cost) instead of a plain
+        // FTE-by-year table, so that content no longer needs its own
+        // separate always-visible section further down the page.
+        const personnelLedgerRows = expenseRowsForRevenuePlug || getDepartmentExpenses(deptName, deptCode);
+        const { detailId: personnelLedgerDetailId, detailHtml: personnelLedgerDetailHtml } = personnelCostDetailForRows(deptName, personnelLedgerRows);
+        const personnelLedgerDetail = personnelLedgerDetailHtml.indexOf("No position-level cost data is available") === -1
+          ? { detailId: personnelLedgerDetailId, detailHtml: personnelLedgerDetailHtml }
+          : null;
+        const staffingTableHtml = renderStaffingTable(getDepartmentStaffing(deptName, deptCode), personnelLedgerDetail);
+        mountOrHide(staffingEl, staffingTableHtml);
         bindPriorYearsToggle(staffingEl);
-        mountOrHide(personnelLedgerEl, renderDepartmentPersonnelLedgerSection(deptName, expenseRowsForRevenuePlug || getDepartmentExpenses(deptName, deptCode)));
+        // No staffing/FTE card means the button that would normally open the
+        // Personnel Ledger never rendered -- fall back to the old
+        // always-visible section so departments with cost data but no FTE
+        // rows don't lose it entirely.
+        mountOrHide(personnelLedgerEl, staffingTableHtml ? "" : renderDepartmentPersonnelLedgerSection(deptName, personnelLedgerRows));
         mountOrHide(machineryEl, "");
         mountOrHide(
           stateAidEl,
@@ -14033,6 +14234,22 @@
     "walton county sheriffs office"
   ]);
 
+  // Where a Constitutional Officer / aggregate-only row's name on the
+  // Personnel Ledger links to -- keyed by normalizeDeptName of the raw
+  // expenditures-sheet Dept_Name (confirmed against the live sheet: "Clerk
+  // of Court", "Walton County Sheriff's Office", "Circuit Court", "County
+  // Court", not the staffing sheet's own spellings).
+  const CONSTITUTIONAL_PERSONNEL_PAGE_HREF = {
+    "board of county commissioners": "board-of-county-commissioners.html",
+    "clerk of court": "clerk-of-courts-and-county-comptroller.html",
+    "property appraiser": "property-appraiser.html",
+    "supervisor of elections": "supervisor-of-elections.html",
+    "tax collector": "tax-collector.html",
+    "walton county sheriffs office": "sheriffs-office.html",
+    "circuit court": "circuit-court.html",
+    "county court": "county-court.html"
+  };
+
   function isConstitutionalPersonnelDept(deptName) {
     const normalized = normalizeDeptName(deptName);
     return PERSONNEL_COST_CONSTITUTIONAL_DEPTS.has(normalized) ||
@@ -14054,6 +14271,13 @@
   function personnelCostDeptDisplayName(deptName) {
     const norm = normalizeDeptName(deptName);
     if (norm === "planning short term rental") return "Planning";
+    // personnelDeptDisplayName merges Tourism Beach Tram's staffing rows
+    // into "Tourism Beach Operations" for the all-departments FTE schedule,
+    // but this page (and the Personnel Ledger's Beach Operations office
+    // breakdown) keeps Beach Tram as its own office -- letting that merge
+    // through here collapsed Beach Tram's FTE into Beach Operations' entry
+    // and left Beach Tram showing none of its own.
+    if (norm === "tourism beach tram") return "Tourism Beach Tram";
     return personnelDeptDisplayName(deptName);
   }
 
@@ -14124,6 +14348,30 @@
       else entry.OtherBenefits += amount;
       entry.PriorTotal += priorAmount;
     });
+    // Tax Collector's FY2026 original budget for what functioned as its
+    // personnel cost wasn't itemized under Personnel Services object codes
+    // at all -- it was booked as a single Other Current Charges line
+    // (Object_Code 549000), which FY2027 breaks out into real salary/
+    // benefit lines for the first time. Folded into the same Salaries key
+    // the FY2027 salary row above already created (matching Fund_Name),
+    // as a prior-year-only addition, so the FY2026 -> FY2027 comparison
+    // reflects what that money actually was instead of reading as a
+    // ~$3,000 FY2026 personnel budget (Workers Compensation was the only
+    // line genuinely coded Personnel Services that year).
+    (cache.expenditures || []).forEach((row) => {
+      if (normalizeDeptName(row.Dept_Name) !== "tax collector") return;
+      if (String(row.Object_Code || "").trim() !== "549000") return;
+      const priorAmount = personnelCostPriorYearAmount(row);
+      if (!priorAmount) return;
+      const fundCode = fundCodeForRow(row);
+      const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === fundCode);
+      const fundName = (fund && fund.Fund_Name) || ("Fund " + fundCode);
+      const key = "Tax Collector|" + fundName;
+      if (!byKey.has(key)) {
+        byKey.set(key, { Dept_Name: "Tax Collector", Fund_Name: fundName, RawDeptName: row.Dept_Name, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, PriorTotal: 0 });
+      }
+      byKey.get(key).PriorTotal += priorAmount;
+    });
     return Array.from(byKey.values()).filter((r) => r.Salaries || r.Retirement || r.HealthInsurance || r.OtherBenefits || r.PriorTotal);
   }
 
@@ -14155,7 +14403,10 @@
     "beach tram": "tourism beach operations",
     "communications": "tourism communications",
     "marketing": "tourism marketing",
-    "sales and visitors center": "tourism sales and visitors center"
+    "sales and visitors center": "tourism sales and visitors center",
+    // Expenditures spells this office "Environmental Services"; the
+    // staffing sheet spells the same Dept_Code "Environmental Resources".
+    "environmental resources": "environmental services"
   };
   function personnelCostFteMatchKey(deptName) {
     const norm = normalizeDeptName(deptName);
@@ -15068,22 +15319,24 @@
       const officesByGroup = new Map();
       items.forEach((r) => {
         const groupKey = isBoardScope ? (boardDepartmentRollupName(r.RawDeptName) || r.Dept_Name) : r.Dept_Name;
-        if (!totals.has(groupKey)) totals.set(groupKey, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Funds: new Set() });
+        if (!totals.has(groupKey)) totals.set(groupKey, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, PriorTotal: 0, Funds: new Set() });
         const t = totals.get(groupKey);
         t.Salaries += r.Salaries;
         t.Retirement += r.Retirement;
         t.HealthInsurance += r.HealthInsurance;
         t.OtherBenefits += r.OtherBenefits;
+        t.PriorTotal += r.PriorTotal || 0;
         t.Funds.add(r.Fund_Name);
         if (isBoardScope) {
           if (!officesByGroup.has(groupKey)) officesByGroup.set(groupKey, new Map());
           const offices = officesByGroup.get(groupKey);
-          if (!offices.has(r.Dept_Name)) offices.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Funds: new Set() });
+          if (!offices.has(r.Dept_Name)) offices.set(r.Dept_Name, { Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, PriorTotal: 0, Funds: new Set() });
           const o = offices.get(r.Dept_Name);
           o.Salaries += r.Salaries;
           o.Retirement += r.Retirement;
           o.HealthInsurance += r.HealthInsurance;
           o.OtherBenefits += r.OtherBenefits;
+          o.PriorTotal += r.PriorTotal || 0;
           o.Funds.add(r.Fund_Name);
         }
       });
@@ -15095,7 +15348,16 @@
       // Salaries/COLA/Benefits/Health Insurance columns entirely instead of
       // rendering a row of em-dashes under headers that don't apply.
       const aggregateOnly = deptsInView.length > 0 && deptsInView.every(isAggregateOnlyPersonnelDept);
-      const grand = { Salaries: 0, Fte: 0, FteChange: 0, Cola: 0, Benefits: 0, HealthInsurance: 0, HealthInsuranceIncrease: 0 };
+      const grand = { Salaries: 0, Fte: 0, FteChange: 0, Cola: 0, Benefits: 0, HealthInsurance: 0, HealthInsuranceIncrease: 0, PriorTotal: 0 };
+      // FY 2026 -> FY 2027 total-personnel-cost change, shared by every
+      // row (aggregate-only or not) and the grand total -- signed the same
+      // way the FTE +/- column already is.
+      function totalChangeCellHtml(currentTotal, priorTotal) {
+        const change = currentTotal - priorTotal;
+        const cls = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
+        const sign = change > 0 ? "+" : change < 0 ? "−" : "";
+        return '<td class="wc-num' + cls + '">' + sign + formatCurrency(Math.abs(change)) + "</td>";
+      }
       // Each department name is a "View Budget Lines" toggle, opening the
       // same budget-detail modal used elsewhere on the site (see
       // openBudgetDetailModal) with that department's own Personnel
@@ -15119,6 +15381,15 @@
         if (names.length === 1) return escapeHtml(names[0]);
         return "Multiple Funds";
       }
+      // Constitutional Officer rows have no office-expand dropdown (see
+      // isAggregateOnlyPersonnelDept) -- their name is the row's only way to
+      // reach that office's own page, keyed by the raw expenditures-sheet
+      // Dept_Name (this scope's groupKey) rather than the staffing sheet's
+      // own spelling.
+      const constitutionalNameHtml = (name) => {
+        const href = CONSTITUTIONAL_PERSONNEL_PAGE_HREF[normalizeDeptName(name)];
+        return href ? '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(name) + '</a>' : escapeHtml(name);
+      };
       const bodyRows = deptsInView.map((d) => {
         const t = totals.get(d);
         const isAggregateOnly = isAggregateOnlyPersonnelDept(d);
@@ -15173,16 +15444,23 @@
         grand.HealthInsurance += activeHealthInsurance;
         grand.HealthInsuranceIncrease += healthInsuranceIncrease;
         const total = t.Salaries + benefits;
+        const priorTotal = t.PriorTotal;
+        grand.PriorTotal += priorTotal;
         if (isAggregateOnly) {
           return aggregateOnly
             ? (
-              '<tr class="wc-personnel-constitutional-row"><td>' + escapeHtml(d) + "</td>" +
+              '<tr class="wc-personnel-constitutional-row"><td>' + constitutionalNameHtml(d) + "</td>" +
+              '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
               '<td class="wc-num">' + formatNumber(fte) + "</td>" +
               '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
-              '<td class="wc-num"><strong>' + formatCurrency(total) + "</strong></td></tr>"
+              '<td class="wc-num">' + formatCurrency(priorTotal) + "</td>" +
+              '<td class="wc-num"><strong>' + formatCurrency(total) + "</strong></td>" +
+              totalChangeCellHtml(total, priorTotal) + "</tr>"
             )
             : (
-              '<tr class="wc-personnel-constitutional-row"><td>' + escapeHtml(d) + "</td>" +
+              '<tr class="wc-personnel-constitutional-row"><td>' + constitutionalNameHtml(d) + "</td>" +
+              "<td>" + fundCellHtml(t.Funds) + "</td>" +
+              '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
               '<td class="wc-num">' + formatNumber(fte) + "</td>" +
               '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
               '<td class="wc-num"><span class="wc-visually-muted">&mdash;</span></td>' +
@@ -15190,93 +15468,91 @@
               '<td class="wc-num"><span class="wc-visually-muted">&mdash;</span></td>' +
               '<td class="wc-num wc-personnel-cost-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' +
               '<td class="wc-num wc-personnel-cost-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' +
-              '<td class="wc-num"><strong>' + formatCurrency(total) + "</strong></td></tr>"
+              '<td class="wc-num">' + formatCurrency(priorTotal) + "</td>" +
+              '<td class="wc-num"><strong>' + formatCurrency(total) + "</strong></td>" +
+              totalChangeCellHtml(total, priorTotal) + "</tr>"
             );
         }
-        // A rolled-up Board department with more than one contributing
-        // office gets an expand toggle instead of its own "View Budget
-        // Lines" popup (there's no single merged position list for a
-        // department that's really several offices) -- expanding it
-        // reveals each office's own row, still individually clickable
-        // into its own position-level detail popup exactly as before.
-        if (officeMap && officeMap.size > 1) {
-          const expandId = "wc-personnel-board-group-" + slugifyId(d);
-          const officeBodyRows = uniqueSorted(officeNames).map((officeName) => {
-            const ot = officeMap.get(officeName);
-            const officeFteEntry = fteByDept.get(personnelCostFteMatchKey(officeName)) || { prior: 0, current: 0 };
-            const officeFte = officeFteEntry.current;
-            const officeFteChange = officeFteEntry.current - officeFteEntry.prior;
-            const officeFteChangeText = (officeFteChange > 0 ? "+" : officeFteChange < 0 ? "−" : "") + formatNumber(Math.abs(officeFteChange));
-            const officeFteChangeClass = officeFteChange > 0 ? " is-increase" : officeFteChange < 0 ? " is-decrease" : "";
-            const officeCola = ot.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
-            const officePositions = positionsByDept.get(officeName);
-            const officeRetireeSubsidy = (officePositions && officePositions.retireeHealthInsuranceSubsidy) || 0;
-            const officeBenefits = ot.Retirement + ot.HealthInsurance + ot.OtherBenefits;
-            const officeActiveHealthInsurance = ot.HealthInsurance - officeRetireeSubsidy;
-            const officeHealthInsuranceIncrease = (ot.HealthInsurance - officeRetireeSubsidy) * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
-            const officeTotal = ot.Salaries + officeBenefits;
-            const office = personnelCostDeptDetailHtml(officeName, officePositions, staffingPositionsByDept.get(personnelCostFteMatchKey(officeName)));
-            detailMarkup.push(office.detailHtml);
-            return (
-              "<tr><td>" +
-              '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + office.detailId + '" data-closed-label="' + escapeHtml(officeName) + '" aria-expanded="false">' +
-              escapeHtml(officeName) + "</button>" +
-              "</td>" +
-              "<td>" + fundCellHtml(ot.Funds) + "</td>" +
-              '<td class="wc-num">' + formatNumber(officeFteEntry.prior) + "</td>" +
-              '<td class="wc-num">' + formatNumber(officeFte) + "</td>" +
-              '<td class="wc-num' + officeFteChangeClass + '">' + officeFteChangeText + "</td>" +
-              '<td class="wc-num">' + formatCurrency(ot.Salaries) + "</td>" +
-              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeCola) + "</td>" +
-              '<td class="wc-num">' + formatCurrency(officeBenefits) + "</td>" +
-              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeActiveHealthInsurance) + "</td>" +
-              '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeHealthInsuranceIncrease) + "</td>" +
-              '<td class="wc-num">' + formatCurrency(officeTotal) + "</td></tr>"
-            );
-          });
-          const officeTable = renderTable({
-            caption: d + " Offices",
-            hideVisualCaption: true,
-            columns: [
-              { label: "Office" },
-              { label: "Fund" },
-              { label: "FY 2026 FTE", num: true },
-              { label: "FY 2027 FTE", num: true },
-              { label: "+/−", num: true },
-              { label: "Salaries & Wages", num: true },
-              { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
-              { label: combinedColumnLabel, num: true },
-              { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
-              { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"] },
-              { label: "Total", num: true }
-            ],
-            bodyRows: officeBodyRows
-          });
+        // Every department row is an expand toggle -- same dropdown design
+        // as the Department Ledger -- revealing each of its offices' own
+        // row (still individually clickable into its own position-level
+        // detail popup). A department with only one contributing office
+        // (or Constitutional/"all" scope, which has no office rollup at
+        // all) still expands into a single-row office table, so every
+        // department behaves the same way instead of some opening a popup
+        // directly off the department name.
+        const officeEntries = officeMap
+          ? uniqueSorted(officeNames).map((officeName) => [officeName, officeMap.get(officeName)])
+          : [[d, t]];
+        const expandId = "wc-personnel-board-group-" + slugifyId(d);
+        const officeBodyRows = officeEntries.map(([officeName, ot]) => {
+          const officeFteEntry = fteByDept.get(personnelCostFteMatchKey(officeName)) || { prior: 0, current: 0 };
+          const officeFte = officeFteEntry.current;
+          const officeFteChange = officeFteEntry.current - officeFteEntry.prior;
+          const officeFteChangeText = (officeFteChange > 0 ? "+" : officeFteChange < 0 ? "−" : "") + formatNumber(Math.abs(officeFteChange));
+          const officeFteChangeClass = officeFteChange > 0 ? " is-increase" : officeFteChange < 0 ? " is-decrease" : "";
+          const officeCola = ot.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
+          const officePositions = positionsByDept.get(officeName);
+          const officeRetireeSubsidy = (officePositions && officePositions.retireeHealthInsuranceSubsidy) || 0;
+          const officeBenefits = ot.Retirement + ot.HealthInsurance + ot.OtherBenefits;
+          const officeActiveHealthInsurance = ot.HealthInsurance - officeRetireeSubsidy;
+          const officeHealthInsuranceIncrease = (ot.HealthInsurance - officeRetireeSubsidy) * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
+          const officeTotal = ot.Salaries + officeBenefits;
+          const officePriorTotal = ot.PriorTotal || 0;
+          const office = personnelCostDeptDetailHtml(officeName, officePositions, staffingPositionsByDept.get(personnelCostFteMatchKey(officeName)));
+          detailMarkup.push(office.detailHtml);
           return (
-            '<tr class="wc-personnel-board-group-row"><td>' +
-            '<button type="button" class="wc-personnel-dept-expand-toggle" data-personnel-dept-expand="' + expandId + '" aria-controls="' + expandId + '" aria-expanded="false">' +
-            '<span class="wc-personnel-dept-expand-caret" aria-hidden="true"></span>' + escapeHtml(d) + "</button>" +
+            "<tr><td>" +
+            '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + office.detailId + '" data-closed-label="' + escapeHtml(officeName) + '" aria-expanded="false">' +
+            escapeHtml(officeName) + "</button>" +
             "</td>" +
-            "<td>" + fundCellHtml(t.Funds) + "</td>" +
-            '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
-            '<td class="wc-num">' + formatNumber(fte) + "</td>" +
-            '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
-            '<td class="wc-num">' + formatCurrency(t.Salaries) + "</td>" +
-            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(cola) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
-            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
-            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(total) + "</td></tr>" +
-            '<tr id="' + expandId + '" class="wc-personnel-dept-office-detail" hidden><td colspan="11"><div class="wc-personnel-office-detail-wrap"><p class="wc-personnel-office-detail-heading">Offices within ' + escapeHtml(d) + "</p>" + officeTable + "</div></td></tr>"
+            "<td>" + fundCellHtml(ot.Funds) + "</td>" +
+            '<td class="wc-num">' + formatNumber(officeFteEntry.prior) + "</td>" +
+            '<td class="wc-num">' + formatNumber(officeFte) + "</td>" +
+            '<td class="wc-num' + officeFteChangeClass + '">' + officeFteChangeText + "</td>" +
+            '<td class="wc-num">' + formatCurrency(ot.Salaries) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeCola) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(officeBenefits) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeActiveHealthInsurance) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(officeHealthInsuranceIncrease) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(officePriorTotal) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(officeTotal) + "</td>" +
+            totalChangeCellHtml(officeTotal, officePriorTotal) + "</tr>"
           );
-        }
-        const soleOfficeName = officeNames[0];
-        const { detailId, detailHtml } = personnelCostDeptDetailHtml(d, positionsByDept.get(soleOfficeName), staffingPositionsByDept.get(personnelCostFteMatchKey(soleOfficeName)));
-        detailMarkup.push(detailHtml);
+        });
+        const officeTable = renderTable({
+          caption: d + " Offices",
+          hideVisualCaption: true,
+          columns: [
+            { label: "Office" },
+            { label: "Fund" },
+            { label: "FY 2026 FTE", num: true },
+            { label: "FY 2027 FTE", num: true },
+            { label: "+/−", num: true },
+            { label: "Salaries & Wages", num: true },
+            { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
+            { label: combinedColumnLabel, num: true },
+            { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
+            { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"] },
+            { label: "FY 2026 Total Personnel Cost", num: true },
+            { label: "FY 2027 Total Personnel Cost", num: true },
+            { label: "$ +/−", num: true }
+          ],
+          bodyRows: officeBodyRows
+        });
+        // Every position's cost already bakes in a 3% COLA and a 5% health
+        // insurance increase (see PERSONNEL_COST_COLA_RATE/
+        // PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE) -- called out here
+        // alongside the FTE change so a flat headcount doesn't read as a
+        // flat budget.
+        const personnelChangeNote = fteChange
+          ? "Staffing is " + (fteChange > 0 ? "increasing" : "decreasing") + " by " + formatNumber(Math.abs(fteChange)) + " FTE. Budgeted personnel costs also include the 3% COLA and 5% health insurance increase applied to all positions."
+          : "No change in staffing. Budgeted personnel costs include the 3% COLA and 5% health insurance increase applied to all positions.";
+        const personnelChangeNoteHtml = '<p class="wc-department-detail-function">' + escapeHtml(personnelChangeNote) + '</p>';
         return (
-          "<tr><td>" +
-          '<button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d) + '" aria-expanded="false">' +
-          escapeHtml(d) + "</button>" +
+          '<tr class="wc-personnel-board-group-row"><td>' +
+          '<button type="button" class="wc-personnel-dept-expand-toggle" data-personnel-dept-expand="' + expandId + '" aria-controls="' + expandId + '" aria-expanded="false">' +
+          '<span class="wc-personnel-dept-expand-caret" aria-hidden="true"></span>' + escapeHtml(d) + "</button>" +
           "</td>" +
           "<td>" + fundCellHtml(t.Funds) + "</td>" +
           '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
@@ -15287,7 +15563,10 @@
           '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
-          '<td class="wc-num">' + formatCurrency(total) + "</td></tr>"
+          '<td class="wc-num">' + formatCurrency(priorTotal) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(total) + "</td>" +
+          totalChangeCellHtml(total, priorTotal) + "</tr>" +
+          '<tr id="' + expandId + '" class="wc-personnel-dept-office-detail" hidden><td colspan="13"><div class="wc-personnel-office-detail-wrap"><p class="wc-personnel-office-detail-heading">Offices within ' + escapeHtml(d) + "</p>" + personnelChangeNoteHtml + officeTable + "</div></td></tr>"
         );
       });
       const grandTotal = grand.Salaries + grand.Benefits;
@@ -15295,9 +15574,12 @@
         aggregateOnly
           ? (
             '<tr class="wc-table-total-row"><td>Total</td>' +
+            '<td class="wc-num">' + formatNumber(grand.Fte - grand.FteChange) + "</td>" +
             '<td class="wc-num">' + formatNumber(grand.Fte) + "</td>" +
             '<td class="wc-num">' + (grand.FteChange > 0 ? "+" : grand.FteChange < 0 ? "−" : "") + formatNumber(Math.abs(grand.FteChange)) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(grandTotal) + "</td></tr>"
+            '<td class="wc-num">' + formatCurrency(grand.PriorTotal) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(grandTotal) + "</td>" +
+            totalChangeCellHtml(grandTotal, grand.PriorTotal) + "</tr>"
           )
           : (
             '<tr class="wc-table-total-row"><td>Total</td>' +
@@ -15310,7 +15592,9 @@
             '<td class="wc-num">' + formatCurrency(grand.Benefits) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsurance) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsuranceIncrease) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(grandTotal) + "</td></tr>"
+            '<td class="wc-num">' + formatCurrency(grand.PriorTotal) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(grandTotal) + "</td>" +
+            totalChangeCellHtml(grandTotal, grand.PriorTotal) + "</tr>"
           )
       );
       if (selectedFunction) {
@@ -15331,9 +15615,12 @@
           caption: deptName || (selectedFunction ? selectedFunction + " — All Personnel" : selectedScope === "constitutional" ? "Constitutional Officers" : "Board Departments"),
           columns: aggregateOnly ? [
             { label: "Department" },
-            { label: "FTE", num: true },
+            { label: "FY 2026 FTE", num: true },
+            { label: "FY 2027 FTE", num: true },
             { label: "+/−", num: true },
-            { label: "Total", num: true }
+            { label: "FY 2026 Total Personnel Cost", num: true },
+            { label: "FY 2027 Total Personnel Cost", num: true },
+            { label: "$ +/−", num: true }
           ] : [
             { label: "Department" },
             { label: "Fund" },
@@ -15345,7 +15632,9 @@
             { label: combinedColumnLabel, num: true },
             { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
             { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"] },
-            { label: "Total", num: true }
+            { label: "FY 2026 Total Personnel Cost", num: true },
+            { label: "FY 2027 Total Personnel Cost", num: true },
+            { label: "$ +/−", num: true }
           ],
           bodyRows: bodyRows
         }) + constitutionalNote + bailiffNote + detailMarkup.join("")
@@ -15791,11 +16080,11 @@
     });
   }
 
-  // Statement of Function for each Board department shown on the Department
-  // Budget explorer. Departments that roll up a single office in the real
-  // Statement of Function sheet (see cache.departmentNarratives) pull that
-  // office's own narrative directly (see renderDetail's functionStatement
-  // lookup) -- these are only the departments that combine multiple offices
+  // Statement of Function for each Board department shown in the Department
+  // Ledger's office breakdown. Departments that roll up a single office in
+  // the real Statement of Function sheet (see cache.departmentNarratives)
+  // pull that office's own narrative directly instead -- these are only the
+  // departments that combine multiple offices
   // with no single narrative row of their own, written by hand to summarize
   // what the combined department actually does based on its member offices'
   // own narratives.
@@ -16072,13 +16361,11 @@
         if (popup.detail) popupDetailsArr.push(popup.detail);
         return '<td class="wc-num">' + popup.html + '</td>';
       }
-      function renderDetail(dept, options) {
-        const standalone = !!(options && options.standalone);
-        const ledgerSection = explorer.querySelector("[data-department-ledger]");
-        if (ledgerSection) ledgerSection.hidden = true;
-        const cardsSection = explorer.querySelector(".wc-department-explorer");
-        if (cardsSection) cardsSection.hidden = true;
-        const change = dept.current - dept.prior;
+      // Groups a department's raw expenditure rows into the individual
+      // offices rolled up into it (e.g. County Administration Departments ->
+      // Human Resources, Extension Office, GIS, ...), the same office split
+      // the Personnel Ledger and each department's own page use.
+      function officesForDept(dept) {
         const officesByKey = new Map();
         dept.rows.forEach((row) => {
           const rawOfficeKey = normalizeDeptName(row.Dept_Name || dept.name);
@@ -16108,64 +16395,49 @@
         });
         const offices = Array.from(officesByKey.values()).filter((office) => office.current || office.prior).sort((a, b) => b.current - a.current);
         if (dept.key === "code compliance" && offices.length === 1) offices[0].prior = dept.prior;
+        return offices;
+      }
 
-        const popupDetails = [];
-        function costCellHtml(rowsForKind, amount, label, isPersonnel) {
-          return buildCostCell(rowsForKind, amount, label, isPersonnel, popupDetails);
-        }
+      const ledgerPopupDetails = [];
+      const expandIdByDeptKey = new Map();
+      const ledgerBody = departments.map((dept) => {
+        const change = dept.current - dept.prior;
+        const deptOperatingTotal = dept.contracts + dept.internal + dept.operating;
+        const expandId = "wc-department-ledger-group-" + slugifyId(dept.key);
+        expandIdByDeptKey.set(dept.key, expandId);
 
+        const offices = officesForDept(dept);
         const officeRows = offices.map((office) => {
           const officeChange = office.current - office.prior;
           const currentFte = staffingByOffice.get(office.key) || 0;
           const priorFte = priorStaffingByOffice.get(office.key) || 0;
           const fteChange = currentFte - priorFte;
           return '<tr><td><a class="wc-table-row-link" href="' + officeHref(office.name) + '">' + escapeHtml(office.name) + '</a></td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num ' + (fteChange > 0 ? "is-increase" : fteChange < 0 ? "is-decrease" : "") + '">' + (fteChange > 0 ? "+" : fteChange < 0 ? "−" : "") + formatNumber(Math.abs(fteChange)) + '</td><td class="wc-num">' + formatCurrency(office.prior) + '</td><td class="wc-num">' + formatCurrency(office.current) + '</td><td class="wc-num ' + (officeChange > 0 ? "is-increase" : officeChange < 0 ? "is-decrease" : "") + '">' + (officeChange > 0 ? "+" : officeChange < 0 ? "−" : "") + formatCurrency(Math.abs(officeChange)) + '</td>' +
-            costCellHtml(office.rows, office.personnel, office.name, true) +
-            costCellHtml(operatingRowsFor(office.rows), office.operating, office.name + " Operating Accounts", false) +
-            costCellHtml(capitalRowsFor(office.rows), office.capital, office.name + " Capital Requests", false) +
+            buildCostCell(office.rows, office.personnel, office.name, true, ledgerPopupDetails) +
+            buildCostCell(operatingRowsFor(office.rows), office.operating, office.name + " Operating Accounts", false, ledgerPopupDetails) +
+            buildCostCell(capitalRowsFor(office.rows), office.capital, office.name + " Capital Requests", false, ledgerPopupDetails) +
             '</tr>';
         });
-        const currentDeptFte = staffingByDept.get(dept.key) || 0;
-        const priorDeptFte = priorStaffingByDept.get(dept.key) || 0;
-        const deptFteChange = currentDeptFte - priorDeptFte;
-        const operatingTotal = dept.contracts + dept.internal + dept.operating;
-        officeRows.push('<tr class="wc-table-total-row"><td>Total ' + escapeHtml(dept.name) + '</td><td class="wc-num">' + formatNumber(currentDeptFte) + '</td><td class="wc-num">' + (deptFteChange > 0 ? "+" : deptFteChange < 0 ? "−" : "") + formatNumber(Math.abs(deptFteChange)) + '</td><td class="wc-num">' + formatCurrency(dept.prior) + '</td><td class="wc-num">' + formatCurrency(dept.current) + '</td><td class="wc-num">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(dept.personnel) + '</td><td class="wc-num">' + formatCurrency(operatingTotal) + '</td><td class="wc-num">' + formatCurrency(dept.capital) + '</td></tr>');
-        const officeLedger = renderTable({ caption: dept.name + " Office Budget Ledger", columns: [{ label: "Office / Cost Component" }, { label: "FY 2027 FTE", num: true }, { label: "FTE +/−", num: true }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "Budget +/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: officeRows });
-
+        if (offices.length > 1) {
+          const currentDeptFte = staffingByDept.get(dept.key) || 0;
+          const priorDeptFte = priorStaffingByDept.get(dept.key) || 0;
+          const deptFteChange = currentDeptFte - priorDeptFte;
+          officeRows.push('<tr class="wc-table-total-row"><td>Total ' + escapeHtml(dept.name) + '</td><td class="wc-num">' + formatNumber(currentDeptFte) + '</td><td class="wc-num">' + (deptFteChange > 0 ? "+" : deptFteChange < 0 ? "−" : "") + formatNumber(Math.abs(deptFteChange)) + '</td><td class="wc-num">' + formatCurrency(dept.prior) + '</td><td class="wc-num">' + formatCurrency(dept.current) + '</td><td class="wc-num">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(dept.personnel) + '</td><td class="wc-num">' + formatCurrency(deptOperatingTotal) + '</td><td class="wc-num">' + formatCurrency(dept.capital) + '</td></tr>');
+        }
+        const officeLedger = renderTable({ caption: dept.name + " Offices", hideVisualCaption: true, columns: [{ label: "Office" }, { label: "FY 2027 FTE", num: true }, { label: "FTE +/−", num: true }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "Budget +/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: officeRows });
         const combinedStatement = DEPARTMENT_BUDGET_COMBINED_FUNCTION_STATEMENTS[dept.name];
         const ownNarrative = combinedStatement ? [] : getDepartmentNarrative((dept.rows[0] && dept.rows[0].Dept_Name) || dept.name);
         const functionStatement = combinedStatement || ownNarrative[0] || "";
         const functionStatementHtml = functionStatement ? '<p class="wc-department-detail-function">' + escapeHtml(functionStatement) + '</p>' : "";
 
-        const detail = explorer.querySelector("[data-department-detail]");
-        detail.innerHTML = '<button type="button" class="wc-department-detail-close" data-department-detail-close>' + (standalone ? "Back to Department Explorer" : "Close Department Ledger") + '</button><div class="wc-department-detail-head"><div><span>FY 2027 proposed department budget</span><h3>' + escapeHtml(dept.name) + '</h3>' + functionStatementHtml + '</div><div><strong>' + formatCurrency(dept.current) + '</strong><small>' + (change >= 0 ? "+" : "−") + formatCurrency(Math.abs(change)) + ' (' + (dept.prior ? ((change / dept.prior) * 100).toFixed(1) : "0.0") + '%) from FY 2026</small></div></div><div class="wc-department-office-ledger">' + officeLedger + '</div>' + popupDetails.join("");
-        detail.hidden = false;
-        detail.querySelector("[data-department-detail-close]").addEventListener("click", () => {
-          if (standalone) {
-            window.location.href = isLedgerOnly ? "department-ledger.html" : "department-budget.html";
-            return;
-          }
-          detail.hidden = true;
-          if (isLedgerOnly) {
-            const ledgerSection = explorer.querySelector("[data-department-ledger]");
-            if (ledgerSection) ledgerSection.hidden = false;
-          } else {
-            const cardsSection = explorer.querySelector(".wc-department-explorer");
-            if (cardsSection) cardsSection.hidden = false;
-          }
-        });
-        if (standalone) document.title = dept.name + " Budget Ledger — Walton County FY 2027 Budget";
-      }
-
-      const ledgerPopupDetails = [];
-      const ledgerBody = departments.map((dept) => {
-        const change = dept.current - dept.prior;
-        const deptOperatingTotal = dept.contracts + dept.internal + dept.operating;
-        return '<tr><td><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-department-ledger-key="' + escapeHtml(dept.key) + '">' + escapeHtml(dept.name) + '</button></td><td class="wc-num">' + formatCurrency(dept.prior) + '</td><td class="wc-num">' + formatCurrency(dept.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
+        return (
+          '<tr class="wc-department-ledger-group-row"><td><button type="button" class="wc-department-ledger-expand-toggle wc-table-row-link" data-department-ledger-expand="' + expandId + '" aria-controls="' + expandId + '" aria-expanded="false"><span class="wc-department-ledger-expand-caret" aria-hidden="true"></span>' + escapeHtml(dept.name) + '</button></td><td class="wc-num">' + formatCurrency(dept.prior) + '</td><td class="wc-num">' + formatCurrency(dept.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
           buildCostCell(dept.rows, dept.personnel, dept.name, true, ledgerPopupDetails) +
           buildCostCell(operatingRowsFor(dept.rows), deptOperatingTotal, dept.name + " Operating Accounts", false, ledgerPopupDetails) +
           buildCostCell(capitalRowsFor(dept.rows), dept.capital, dept.name + " Capital Requests", false, ledgerPopupDetails) +
-          '</tr>';
+          '</tr>' +
+          '<tr id="' + expandId + '" class="wc-department-ledger-office-detail" hidden><td colspan="7"><div class="wc-department-ledger-office-detail-wrap"><p class="wc-department-ledger-office-detail-heading">Offices within ' + escapeHtml(dept.name) + '</p>' + functionStatementHtml + officeLedger + '</div></td></tr>'
+        );
       });
       ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(total) + '</td><td class="wc-num">' + formatCurrency(total - departments.reduce((sum, dept) => sum + dept.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.capital, 0)) + '</td></tr>');
       const ledgerTable = renderTable({ caption: "Board Department Budget Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerBody });
@@ -16258,10 +16530,25 @@
           });
         }
         const badgesHtml = window.WCDepartmentServices ? '<div class="wc-department-card-badges"><span class="wc-department-info-badge" data-dept-badge="services" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' services">Services</span><span class="wc-department-info-badge" data-dept-badge="challenges" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' challenges">Challenges</span><span class="wc-department-info-badge" data-dept-badge="changing" tabindex="0" role="button" aria-label="What is changing at ' + escapeHtml(dept.name) + '">Changes</span></div>' : "";
-        return '<a href="department-budget.html?dept=' + encodeURIComponent(dept.key) + '" data-department-key="' + escapeHtml(dept.key) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
+        const cardBodyHtml = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div>';
+        // Most departments' offices all land on that department's own page
+        // (pageHref), so the card can link straight there. A few roll up
+        // offices that keep separate pages of their own (e.g. County
+        // Administration Departments -> Human Resources, GIS, ...) -- for
+        // those, clicking the card opens a picker instead of guessing which
+        // office the user meant.
+        const offices = officesForDept(dept);
+        const officeChoices = offices.map((office) => ({ name: office.name, href: officeHref(office.name) }));
+        const distinctHrefs = Array.from(new Set(officeChoices.map((choice) => choice.href)));
+        if (distinctHrefs.length > 1) {
+          departmentCardOfficeChoices.set(dept.key, officeChoices);
+          return '<button type="button" class="wc-department-card-picker" data-department-key="' + escapeHtml(dept.key) + '" data-department-name="' + escapeHtml(dept.name) + '">' + cardBodyHtml + '</button>';
+        }
+        const href = distinctHrefs[0] || pageHref(dept.name);
+        return '<a href="' + escapeHtml(href) + '" data-department-key="' + escapeHtml(dept.key) + '">' + cardBodyHtml + '</a>';
       }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden><button type="button" class="wc-department-detail-close" data-department-ledger-close>Close Department Ledger</button>' + (isLedgerOnly ? "" : '<h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name for its service and accountability profile.</p>') + ledgerTable + '</section><section class="wc-department-detail" data-department-detail hidden></section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? "" : '<h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name to see the offices within it.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
       if (window.WCDepartmentServices) {
         const badgeTooltip = document.createElement("div");
         badgeTooltip.className = "wc-department-badge-tooltip";
@@ -16322,29 +16609,27 @@
       }
       const ledger = explorer.querySelector("[data-department-ledger]");
       const explorerCards = explorer.querySelector(".wc-department-explorer");
-      explorer.querySelector("[data-department-ledger-close]").addEventListener("click", () => {
-        ledger.hidden = true;
-        if (explorerCards) explorerCards.hidden = false;
-      });
-      explorer.querySelectorAll("[data-department-ledger-key]").forEach((button) => button.addEventListener("click", () => renderDetail(groups.get(button.dataset.departmentLedgerKey))));
       if (isLedgerOnly) {
         if (explorerCards) explorerCards.hidden = true;
         ledger.hidden = false;
-        const ledgerCloseButton = explorer.querySelector("[data-department-ledger-close]");
-        if (ledgerCloseButton) {
-          ledgerCloseButton.textContent = "Back to Department Budgets";
-          ledgerCloseButton.addEventListener("click", () => { window.location.href = "department-budget.html"; });
-        }
       }
+      // Deep-link from a department card (department-ledger.html?dept=KEY) --
+      // expand that department's office row and scroll it into view instead
+      // of navigating anywhere else. A stale link to the explorer page
+      // itself (department-budget.html?dept=KEY, from before cards linked
+      // straight to the ledger) just forwards there instead, since the
+      // ledger table isn't shown on the explorer page.
       const deptParam = new URLSearchParams(window.location.search).get("dept");
-      if (deptParam && groups.has(deptParam)) {
-        renderDetail(groups.get(deptParam), { standalone: true });
-        const directoryToggle = document.getElementById("departmentListToggle");
-        const directoryHeading = document.getElementById("departmentListHeading");
-        const directorySection = document.getElementById("departmentListSection");
-        if (directoryToggle) directoryToggle.style.display = "none";
-        if (directoryHeading) directoryHeading.hidden = false;
-        if (directorySection) directorySection.hidden = false;
+      if (deptParam && expandIdByDeptKey.has(deptParam)) {
+        if (!isLedgerOnly) {
+          window.location.href = "department-ledger.html?dept=" + encodeURIComponent(deptParam);
+        } else {
+          const expandToggle = explorer.querySelector('[data-department-ledger-expand="' + expandIdByDeptKey.get(deptParam) + '"]');
+          if (expandToggle) {
+            expandToggle.click();
+            expandToggle.scrollIntoView({ block: "center" });
+          }
+        }
       }
     }).catch((error) => {
       console.error("WCBudgetData: failed to load department budget explorer", error);
@@ -16545,6 +16830,19 @@
     return Array.from(groups.values()).filter((amount) => amount > 0).reduce((sum, amount) => sum + amount, 0);
   }
 
+  // Countywide FY2027 proposed expenditures, same exclusions the
+  // Department/Personnel/Capital Explorers use for their own "X% of total
+  // expenditure budget" callouts: the Self-Insurance Fund (503) and
+  // interfund transfers/other financing sources are internal pass-
+  // throughs, not real county spending. Exposed so any page's own budget
+  // share callout (e.g. the Independent Agencies Explorer) reconciles with
+  // those same explorers instead of drifting with its own copy.
+  function totalCountywideExpenditureBudget(data) {
+    return (data.expenditures || [])
+      .filter((r) => !CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r)) && !isOtherFinancingExpenseRow(r))
+      .reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
+  }
+
   function getConstitutionalOfficersBudgetTotal(data) {
     // Matches initConstitutionalOfficersBudgetPage's own "allowed" set --
     // the Constitutional Officers Budget Explorer/Ledger group the Board
@@ -16590,6 +16888,12 @@
     principal: 10709747,
     interest: 975140,
     totalDebtService: 11684887,
+    // FY 2027's own debt service (see pages/debt-overview.html's own Debt
+    // Ledger -- Capital Project Fund table's 2027 row) -- the Budget
+    // Ledgers directory's Debt Ledger callout shows just this year, not the
+    // full remaining balance through final maturity above.
+    principalFY2027: 2245783,
+    interestFY2027: 268920,
     finalMaturityYear: 2030,
     creditRating: "Aa1",
     creditRatingAgency: "Moody's Investors Service"
@@ -16615,6 +16919,7 @@
 
   window.WCBudgetData = {
     getDepartmentBudgetTotal,
+    totalCountywideExpenditureBudget,
     isNonProgramExpenseRow,
     getDebtOverviewTotal,
     getDebtOverviewTotals,

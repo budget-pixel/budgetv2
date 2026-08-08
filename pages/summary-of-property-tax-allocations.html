@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Property Tax Allocation — Walton County FY 2027 Budget</title>
+<title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
 <link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
@@ -35,7 +35,7 @@
 <main id="content">
 
 <div class="page-eyebrow">Financial Overview</div>
-<h1 class="page-title">Property Tax Allocation</h1>
+<h1 class="page-title">Property Tax Allocation Ledger</h1>
 
 <style>
   body.property-tax-fund-page #content{
@@ -185,11 +185,6 @@
 
   .wc-ptax-flow{
     margin:0 0 34px;
-    padding:28px;
-    border:1px solid var(--border);
-    border-radius:28px;
-    background:#ffffff;
-    box-shadow:0 14px 34px rgba(23,32,51,.05);
   }
 
   .wc-ptax-flow-head{
@@ -198,11 +193,11 @@
   }
 
   .wc-ptax-flow-head h2{
-    margin:0 0 10px;
-    color:var(--text);
-    font-size:clamp(28px, 3.8vw, 44px);
-    line-height:1.08;
-    font-weight:500;
+    margin:0 0 6px;
+    color:var(--navy);
+    font-size:1.35rem;
+    line-height:1.2;
+    font-weight:800;
   }
 
   .wc-ptax-flow-head p{
@@ -210,77 +205,6 @@
     color:var(--muted);
     font-size:15px;
     line-height:1.65;
-  }
-
-  .wc-ptax-flow-list{
-    display:grid;
-    gap:10px;
-  }
-
-  .wc-ptax-flow-row{
-    padding:14px;
-    border:1px solid var(--border);
-    border-radius:18px;
-    background:var(--light);
-  }
-
-  .wc-ptax-flow-row-main{
-    display:grid;
-    grid-template-columns:minmax(220px,.36fr) minmax(0,1fr) minmax(140px,.16fr);
-    gap:14px;
-    align-items:center;
-  }
-
-  .wc-ptax-flow-name{
-    color:var(--text);
-    font-size:14px;
-    font-weight:800;
-    line-height:1.3;
-  }
-
-  .wc-ptax-flow-name a{
-    color:var(--text);
-    text-decoration:none;
-  }
-
-  .wc-ptax-flow-name a:hover,
-  .wc-ptax-flow-name a:focus-visible{
-    color:var(--green);
-    text-decoration:underline;
-  }
-
-  .wc-ptax-flow-track{
-    position:relative;
-    height:12px;
-    overflow:hidden;
-    border-radius:999px;
-    background:var(--border);
-  }
-
-  .wc-ptax-flow-bar{
-    position:absolute;
-    inset:0 auto 0 0;
-    width:var(--ptax-share, 0%);
-    min-width:6px;
-    border-radius:999px;
-    background:var(--green);
-  }
-
-  .wc-ptax-flow-amount{
-    color:var(--green);
-    font-size:20px;
-    font-weight:900;
-    text-align:right;
-    white-space:nowrap;
-  }
-
-  .wc-ptax-flow-amount span{
-    display:block;
-    margin-top:4px;
-    color:var(--muted);
-    font-size:11px;
-    font-weight:800;
-    text-align:right;
   }
 
   .wc-ptax-flow-loading,
@@ -298,21 +222,12 @@
       padding:34px 22px 64px;
     }
 
-    .wc-ptax-hero,
-    .wc-ptax-flow-row-main{
+    .wc-ptax-hero{
       grid-template-columns:1fr;
     }
 
     .wc-ptax-summary-grid{
       grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-
-    .wc-ptax-flow-amount{
-      text-align:left;
-    }
-
-    .wc-ptax-flow-amount span{
-      text-align:left;
     }
   }
 
@@ -335,8 +250,6 @@
 
   :root[data-theme="dark"] .wc-ptax-millage-card,
   :root[data-theme="dark"] .wc-ptax-summary-card,
-  :root[data-theme="dark"] .wc-ptax-flow,
-  :root[data-theme="dark"] .wc-ptax-flow-row,
   :root[data-theme="dark"] .wc-ptax-flow-loading,
   :root[data-theme="dark"] .wc-ptax-flow-error{
     background: rgba(14,28,22,.92);
@@ -752,7 +665,7 @@
 <section class="wc-ptax">
   <div class="wc-ptax-hero">
     <div class="wc-ptax-hero-copy">
-      <span class="wc-ptax-kicker">Property Tax Allocation</span>
+      <span class="wc-ptax-kicker">Property Tax Allocation Ledger</span>
       <h2>Every property tax dollar is levied for a specific County service.</h2>
       <p>Walton County's countywide ad valorem (property) tax is the largest funding source for core services that aren&rsquo;t paid for by their own dedicated fees &mdash; constitutional offices, public safety, courts, and general government. This page shows the proposed dollar amount each department receives from that tax.</p>
     </div>
@@ -905,7 +818,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Summary of Interfund Transfers",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-interfund-transfers.html"},
   {title:"Summary of Personnel",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-personnel.html"},
   {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
-  {title:"Summary of Property Tax Allocations",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
+  {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
   {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
   {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
   {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
@@ -1138,14 +1051,46 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     return adValoremRowsPromise;
   }
 
-  // Shown collapsed to this many rows by default -- the full list runs to
-  // ~25+ departments (every office/division that receives any countywide
-  // ad valorem revenue), which is a lot of scrolling before a reader ever
-  // reaches the personalized calculator below. Same "Explore All" pattern
-  // already used by the personalized breakdown table further down this
-  // page (see BREAKDOWN_PREVIEW_COUNT/toggleRowHtml in initTaxCalculator).
-  const FLOW_PREVIEW_COUNT = 6;
-  let flowShowAll = false;
+  // Independent/autonomous entities (see assets/independent-agencies-data.js's
+  // own fallback list) that can carry ad valorem revenue -- everything not
+  // matched here, in CAPITAL_PROJECT_NAMES, or in CONSTITUTIONAL_OFFICER_NAMES
+  // above falls into the Board Departments group by default. Keyed by
+  // normalizeMatchName's actual output (lowercased only -- "&" and "-" are
+  // NOT stripped), matching the raw revenue-sheet Dept_Name spellings.
+  const INDEPENDENT_AGENCY_NAMES = {
+    "circuit court": true,
+    "county court": true,
+    "court technology & innovations": true,
+    "guardian ad litem": true,
+    "medical examiner": true,
+    "non-profit funding program": true,
+    "public defender": true,
+    "south walton fire & state control": true,
+    "state attorney": true,
+    "statutory & other agency funding": true,
+    "e911 fund": true,
+    "municipal service benefit unit fund": true,
+    "walton county health department": true
+  };
+
+  // The ad valorem-funded interfund transfer to the Capital Projects Fund
+  // (see INTERFUND_TRANSFER_LABELS above) -- its own subtotal rather than
+  // folded into the Board Departments catch-all.
+  const CAPITAL_PROJECT_NAMES = {
+    "capital projects": true
+  };
+
+  // Grouped Constitutional Officers -> Independent Agencies -> Capital ->
+  // Board Departments, each its own subtotal, so the ledger reads the same
+  // way the site's other grouped schedules do (see
+  // buildFundFinancialSchedule). Board Departments is the catch-all and
+  // must stay last.
+  const ALLOCATION_GROUPS = [
+    { key: "constitutional", label: "Constitutional Officers", match: function(norm){ return !!CONSTITUTIONAL_OFFICER_NAMES[norm] || norm === "board of county commissioners"; } },
+    { key: "independent", label: "Independent Agencies", match: function(norm){ return !!INDEPENDENT_AGENCY_NAMES[norm]; } },
+    { key: "capital", label: "Capital", match: function(norm){ return !!CAPITAL_PROJECT_NAMES[norm]; } },
+    { key: "board", label: "Board Departments", match: function(){ return true; } }
+  ];
 
   function renderAllocation(departments){
     const flowMount = document.getElementById("wc-ptax-flow");
@@ -1163,60 +1108,70 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     }
 
     const total = departments.reduce(function(sum, d){ return sum + d.amount; }, 0);
-    const maxAmount = Math.max.apply(null, departments.map(function(d){ return d.amount; }));
 
     if (totalEl) totalEl.textContent = compactCurrency(total);
     if (mosquitoTotalEl) mosquitoTotalEl.textContent = compactCurrency(mosquitoAdValoremTotal);
     if (countEl) countEl.textContent = String(departments.length);
 
-    const visible = flowShowAll ? departments : departments.slice(0, FLOW_PREVIEW_COUNT);
-
-    const rows = visible.map(function(d){
-      const share = maxAmount ? Math.max(2, (d.amount / maxAmount) * 100) : 0;
+    function rowHtml(d){
       const norm = normalizeMatchName(d.name);
       const displayName = String(d.name).replace(/\s*\([^)]*\)\s*/g, "").trim();
       const href = getPageHref(norm);
       const nameHtml = href
-        ? '<a href="' + escapeHtml(href) + '">' + escapeHtml(displayName) + '</a>'
+        ? '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(displayName) + '</a>'
         : escapeHtml(displayName);
       const percent = total ? (d.amount / total) * 100 : 0;
-      return (
-        '<div class="wc-ptax-flow-row">' +
-          '<div class="wc-ptax-flow-row-main">' +
-            '<div class="wc-ptax-flow-name">' + nameHtml + '</div>' +
-            '<div class="wc-ptax-flow-track">' +
-              '<div class="wc-ptax-flow-bar" style="--ptax-share:' + share.toFixed(2) + '%"></div>' +
-            '</div>' +
-            '<div class="wc-ptax-flow-amount" title="$' + Math.round(d.amount).toLocaleString() + '">' +
-              compactCurrency(d.amount) +
-              '<span>' + percent.toFixed(1) + '% of total</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
-      );
-    }).join("");
+      const amountHtml = window.WCBudgetData ? window.WCBudgetData.formatCurrency(d.amount) : compactCurrency(d.amount);
+      return '<tr><td>' + nameHtml + '</td><td class="wc-num">' + escapeHtml(amountHtml) + '</td><td class="wc-num">' + percent.toFixed(1) + '%</td></tr>';
+    }
 
-    const toggleHtml = departments.length > FLOW_PREVIEW_COUNT
-      ? '<button type="button" id="ptaxFlowToggle" class="wc-millage-reset wc-breakdown-toggle">' +
-          (flowShowAll ? "Show Fewer" : "Show All " + departments.length + " Departments &rarr;") +
-        '</button>'
+    const remaining = departments.slice();
+    const bodyRows = [];
+    ALLOCATION_GROUPS.forEach(function(group){
+      const groupRows = [];
+      for (let i = remaining.length - 1; i >= 0; i -= 1) {
+        if (group.match(normalizeMatchName(remaining[i].name))) {
+          groupRows.unshift(remaining[i]);
+          remaining.splice(i, 1);
+        }
+      }
+      if (!groupRows.length) return;
+      groupRows.sort(function(a, b){ return b.amount - a.amount; });
+      const groupTotal = groupRows.reduce(function(sum, d){ return sum + d.amount; }, 0);
+      const groupPercent = total ? (groupTotal / total) * 100 : 0;
+      bodyRows.push('<tr class="wc-table-group-row"><td colspan="3">' + escapeHtml(group.label) + '</td></tr>');
+      groupRows.forEach(function(d){ bodyRows.push(rowHtml(d)); });
+      bodyRows.push(
+        '<tr class="wc-table-subtotal-row"><td>Total ' + escapeHtml(group.label) + '</td><td class="wc-num">' +
+        escapeHtml(window.WCBudgetData ? window.WCBudgetData.formatCurrency(groupTotal) : compactCurrency(groupTotal)) +
+        '</td><td class="wc-num">' + groupPercent.toFixed(1) + '%</td></tr>'
+      );
+    });
+    bodyRows.push(
+      '<tr class="wc-table-total-row"><td>Total Countywide Ad Valorem Revenue</td><td class="wc-num">' +
+      escapeHtml(window.WCBudgetData ? window.WCBudgetData.formatCurrency(total) : compactCurrency(total)) +
+      '</td><td class="wc-num">100.0%</td></tr>'
+    );
+
+    const tableHtml = window.WCBudgetData
+      ? window.WCBudgetData.renderTable({
+          caption: "Property Tax Allocation Ledger",
+          hideVisualCaption: true,
+          columns: [
+            { label: "Department" },
+            { label: "FY 2027 Ad Valorem Revenue", num: true },
+            { label: "% of Total", num: true }
+          ],
+          bodyRows: bodyRows
+        })
       : "";
 
     flowMount.innerHTML =
       '<div class="wc-ptax-flow-head">' +
-        '<h2>Property tax allocation by department.</h2>' +
-        '<p>Each row is the dollar amount of countywide ad valorem tax revenue that department receives, largest first.</p>' +
+        '<h2>Property tax allocation ledger</h2>' +
+        '<p>Grouped by Constitutional Officers, Independent Agencies, and Board Departments, each with its own subtotal -- largest first within each group.</p>' +
       '</div>' +
-      '<div class="wc-ptax-flow-list">' + rows + '</div>' +
-      toggleHtml;
-
-    const toggleButton = document.getElementById("ptaxFlowToggle");
-    if (toggleButton){
-      toggleButton.addEventListener("click", function(){
-        flowShowAll = !flowShowAll;
-        renderAllocation(departments);
-      });
-    }
+      tableHtml;
   }
 
   // Real, already-adopted FY2026 -> FY2027 dollar/percent increases for

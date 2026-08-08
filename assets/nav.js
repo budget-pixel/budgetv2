@@ -2057,6 +2057,7 @@
     { label:"Personnel Budget", href:"summary-of-personnel.html" },
     { label:"Department Budgets", href:"department-budget.html" },
     { label:"Constitutional Officers Budgets", href:"constitutional-officers.html" },
+    { label:"Independent Agencies Budgets", href:"independent-agencies-budget.html" },
     { label:"Capital Budget", href:"capital-projects.html" }
   ];
   function wcPageHref(href){
@@ -2287,7 +2288,7 @@
     var logoContainer = nav.querySelector(".logo-container");
     if(logoContainer && !logoContainer.querySelector(".wc-split-brand")){
       logoContainer.innerHTML = getWaltonSplitBrandHtml(
-        "../index.html",
+        "../home.html",
         "Walton County Board of County Commissioners Home"
       );
       if(window.WaltonSplitLogo && typeof window.WaltonSplitLogo.equalizeAll === "function"){
