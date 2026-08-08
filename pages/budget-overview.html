@@ -74,36 +74,42 @@
         title:"Machinery, Vehicles, & Equipment Ledger",
         href:"summary-of-machinery-vehicles-and-equipment.html",
         label:"Capital",
+        metric:"capitalMachinery",
         description:"Review budgeted machinery, vehicles, and equipment by department, fund, and equipment type."
       },
       {
         title:"Transportation and Infrastructure Ledger",
         href:"cip-capital-projects.html",
         label:"Capital",
+        metric:"capitalTransportation",
         description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project."
       },
       {
         title:"Tourist Development Fund Ledger",
         href:"cip-tourist-development.html",
         label:"Capital",
+        metric:"capitalTouristDevelopment",
         description:"Explore tourism-related capital investments funded through tourist development resources."
       },
       {
         title:"Sheriff Project Ledger",
         href:"cip-sheriff.html",
         label:"Capital",
+        metric:"capitalSheriff",
         description:"Review all capital projects associated with the Walton County Sheriff's Office."
       },
       {
         title:"Recreation Plat Fee Fund Ledger",
         href:"recreation-plat-fee-fund.html",
         label:"Capital",
+        metric:"capitalRecreationPlatFee",
         description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
       },
       {
         title:"Sidewalk Fund Ledger",
         href:"sidewalk-fund.html",
         label:"Capital",
+        metric:"capitalSidewalk",
         description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
       },
       {
@@ -262,9 +268,11 @@
         var debtTotals = window.WCBudgetData.getDebtOverviewTotals();
 
         var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, debtPrincipal:debtTotals.principal, debtInterest:debtTotals.interest };
-        document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital'])").forEach(function(element){
-          var amount = totals[element.dataset.budgetOverviewTotal] || 0;
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "debtPrincipal", "debtInterest"].indexOf(element.dataset.budgetOverviewTotal) !== -1;
+        document.querySelectorAll("[data-budget-overview-total]").forEach(function(element){
+          var key = element.dataset.budgetOverviewTotal;
+          if(!(key in totals)) return;
+          var amount = totals[key] || 0;
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "debtPrincipal", "debtInterest"].indexOf(key) !== -1;
           element.querySelector("strong").textContent = useRoundedMillions
             ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
             : window.WCBudgetData.formatCurrency(amount);
@@ -287,10 +295,81 @@
       });
     }
 
+    // Amount callouts for the six capital ledger cards added to this
+    // directory -- reuses the exact same funding-source matchers
+    // capital-projects.html's own ledger cards use (see that page's
+    // pageProjectMatches/ledgerCardStats), plus the same FY2027 capital
+    // outlay by fund code it derives from budget-data.js, so the numbers
+    // shown here always match what each ledger page itself reports.
+    var CAPITAL_LEDGER_PROJECT_MATCHERS = {
+      capitalTransportation: function(project){
+        if(String(project && project.department_filter || "").toLowerCase() === "sheriff") return false;
+        var funding = String(project && project.funding || "").toLowerCase();
+        return funding === "transportation fund" || funding === "capital projects fund" || funding === "general fund";
+      },
+      capitalTouristDevelopment: function(project){
+        return String(project && project.funding || "").toLowerCase() === "tourist development fund" &&
+          String(project && project.title || "").toLowerCase().indexOf("us 331 bridge lighting") === -1;
+      },
+      capitalSheriff: function(project){
+        return String(project && project.department_filter || "").toLowerCase() === "sheriff" &&
+          String(project && project.funding || "").toLowerCase() !== "grant funded";
+      }
+    };
+    var CAPITAL_LEDGER_FUND_CODES = { capitalRecreationPlatFee:"114", capitalSidewalk:"115" };
+
+    function setCapitalLedgerAmount(key, amount){
+      var element = document.querySelector("[data-budget-overview-total='" + key + "']");
+      if(!element) return;
+      element.querySelector("strong").textContent = (typeof formatMoneyShort === "function") ? formatMoneyShort(amount) : window.WCBudgetData.formatCurrency(amount);
+    }
+
+    function renderCapitalLedgerFundTotals(){
+      if(!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
+      window.WCBudgetData.loadBudgetData().then(function(data){
+        var machineryTotal = (data.machinery || []).reduce(function(sum, row){ return sum + (Number(row.Amount) || 0); }, 0);
+        setCapitalLedgerAmount("capitalMachinery", machineryTotal);
+
+        var capitalOutlayByFund = {};
+        (data.expenditures || []).forEach(function(row){
+          if(String(row.Object_Type || "").trim().toLowerCase() !== "capital outlay") return;
+          var amount = Number(row.FY2027_Proposed) || 0;
+          if(!amount) return;
+          var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
+          if(!fundCode) return;
+          capitalOutlayByFund[fundCode] = (capitalOutlayByFund[fundCode] || 0) + amount;
+        });
+        Object.keys(CAPITAL_LEDGER_FUND_CODES).forEach(function(key){
+          setCapitalLedgerAmount(key, capitalOutlayByFund[CAPITAL_LEDGER_FUND_CODES[key]] || 0);
+        });
+      }).catch(function(){
+        setCapitalLedgerAmount("capitalMachinery", 0);
+        Object.keys(CAPITAL_LEDGER_FUND_CODES).forEach(function(key){ setCapitalLedgerAmount(key, 0); });
+      });
+    }
+
+    function renderCapitalLedgerProjectTotals(){
+      var ready = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+      ready.then(function(){
+        var projects = (typeof getSearchableProjects === "function") ? getSearchableProjects() : (window.wcCipProjects || []);
+        Object.keys(CAPITAL_LEDGER_PROJECT_MATCHERS).forEach(function(key){
+          var matcher = CAPITAL_LEDGER_PROJECT_MATCHERS[key];
+          var amount = projects.filter(matcher).reduce(function(sum, project){
+            return sum + ((typeof projectYearValue === "function") ? projectYearValue(project, "FY2027") : 0);
+          }, 0);
+          setCapitalLedgerAmount(key, amount);
+        });
+      }).catch(function(){
+        Object.keys(CAPITAL_LEDGER_PROJECT_MATCHERS).forEach(function(key){ setCapitalLedgerAmount(key, 0); });
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", function(){
       renderHub();
       renderBudgetTotals();
       renderCapitalTotal();
+      renderCapitalLedgerFundTotals();
+      renderCapitalLedgerProjectTotals();
     });
   })();
 </script>
