@@ -2050,7 +2050,7 @@
     { label:"Our County", href:"our-county.html" }
   ];
   var WC_NAV_LINKS_AFTER_BUDGETS = [
-    { label:"Financial Overview", href:"budget-overview.html" }
+    { label:"Budget Ledgers", href:"budget-overview.html" }
   ];
   var WC_BUDGET_LINKS = [
     { label:"Revenue Budget", href:"summary-of-revenues.html" },
