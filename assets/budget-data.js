@@ -5180,7 +5180,7 @@
       .join("");
   }
 
-  // The "Consolidated Financial Schedules" revenue/expenditure-by-fund
+  // The "Consolidated Budget Ledger" revenue/expenditure-by-fund
   // tables: rows are budget categories, columns are major funds (plus a
   // Non-Major Funds rollup and a grand total), all derived live from the
   // revenues/expenditures + funds sheets rather than hand-entered.

@@ -2410,17 +2410,17 @@
     }else if(eyebrowText === "Constitutional Officers"){
       sectionCrumb = '<a href="constitutional-officers.html">Constitutional Officers</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Autonomous Entities"){
-      sectionCrumb = '<a href="constitutional-officers.html">Constitutional Officers</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="independent-agencies-ledger.html">Independent Agencies</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Financial Overview" || eyebrowText === "Introduction and Overview" || eyebrowText === "Financial Structure, Policies, and Process"){
-      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(currentPage === "debt-overview.html"){
       // Debt Ledger is listed in the Financial Overview directory, not the
       // Financials directory -- other "Debt and Financial Forecast"
       // eyebrow pages (e.g. Financial Forecast) still fall through to the
       // Financials branch below.
-      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Financials" || eyebrowText === "Financial Summaries" || eyebrowText === "Debt and Financial Forecast" || eyebrowText === "Glossary, Statistical, and Supplemental Information"){
-      sectionCrumb = '<a href="budget-overview.html">Financial Overview</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Supporting Budget Documentation"){
       sectionCrumb = '<a href="supporting-budget-documentation.html">Supporting Budget Documentation</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(currentPage === "cip-project.html" || eyebrowText === "Capital Projects" || eyebrowText === "Capital Budget" || eyebrowText === "Capital Improvement Plan"){

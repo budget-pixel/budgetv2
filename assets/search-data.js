@@ -24,7 +24,7 @@ var wcCoreBudgetPages = [
   { title:"Fund Descriptions and Structure", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd623edf6822e6e54d" },
   { title:"Department to Fund Relationship", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdcf5e99561d6ee920" },
   { title:"Financial Policies", section:"Financial Structure, Policies, and Process", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd42737a8f8389d90a" },
-  { title:"Consolidated Financial Ledger", section:"Financial Overview", href:"consolidated-financial-schedules.html" },
+  { title:"Consolidated Budget Ledger", section:"Financial Overview", href:"consolidated-financial-schedules.html" },
   { title:"Fund Financial Ledger", section:"Financial Overview", href:"fund-financial-schedules.html" },
   { title:"Revenue Budget", section:"Financial Overview", href:"summary-of-revenues.html" },
   { title:"Summary of Expenses", section:"Financial Summaries", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdf2d67fd0fb063ce6" },
@@ -184,7 +184,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "policies", "financial policy", "reserve policy", "fund balance", "debt policy", "investment policy", "budget policy", "accounting policy", "fiscal policy", "reserves"
     ],
 
-    "Consolidated Financial Ledger": [
+    "Consolidated Budget Ledger": [
       "consolidated schedule", "financial schedule", "financial ledger", "all funds", "total all funds", "total revenues", "total expenses", "revenues by fund", "expenses by fund", "fund totals", "combined schedule", "summary schedule"
     ],
 
@@ -498,7 +498,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Department to Fund Relationship": "department-to-fund-relationship.html",
     "Property Tax Allocation": "summary-of-property-tax-allocations.html",
     "Financial Policies": "financial-policies.html",
-    "Consolidated Financial Ledger": "consolidated-financial-schedules.html",
+    "Consolidated Budget Ledger": "consolidated-financial-schedules.html",
     "TRIM Newspaper Advertisements": "trim-newspaper-advertisements.html",
     "Fund Financial Ledger": "fund-financial-schedules.html",
     "Revenue Budget": "summary-of-revenues.html",
