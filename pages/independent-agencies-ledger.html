@@ -59,8 +59,6 @@
 
     function loadingRowHtml(item){
       return '<tr><td>' + escapeHtml(item.name) + '</td><td>' + escapeHtml(item.fund) + '</td>' +
-        '<td class="wc-num">' + LOADING_DOTS_HTML + '</td><td class="wc-num">' + LOADING_DOTS_HTML + '</td>' +
-        '<td class="wc-num">' + LOADING_DOTS_HTML + '</td><td class="wc-num">' + LOADING_DOTS_HTML + '</td>' +
         '<td class="wc-num">' + LOADING_DOTS_HTML + '</td></tr>';
     }
 
@@ -70,8 +68,6 @@
         moneyCellHtml(item.priorBudget) +
         moneyCellHtml(item.budget) +
         changeCellHtml(item.budget, item.priorBudget) +
-        moneyCellHtml(item.personnel) +
-        moneyCellHtml(item.operating) +
         '</tr>';
     }
 
@@ -79,16 +75,12 @@
       var totals = items.reduce(function(sum, item){
         sum.budget += item.budget || 0;
         sum.priorBudget += item.priorBudget || 0;
-        sum.personnel += item.personnel || 0;
-        sum.operating += item.operating || 0;
         return sum;
-      }, { budget:0, priorBudget:0, personnel:0, operating:0 });
+      }, { budget:0, priorBudget:0 });
       return '<tr class="wc-table-total-row"><td>Total Independent Agencies</td><td></td>' +
         moneyCellHtml(totals.priorBudget) +
         moneyCellHtml(totals.budget) +
         changeCellHtml(totals.budget, totals.priorBudget) +
-        moneyCellHtml(totals.personnel) +
-        moneyCellHtml(totals.operating) +
         '</tr>';
     }
 
@@ -99,9 +91,7 @@
       { label:"Fund" },
       { label:"FY 2026 Budget", num:true },
       { label:"FY 2027 Proposed", num:true },
-      { label:"+/−", num:true },
-      { label:"Personnel", num:true },
-      { label:"Operating", num:true }
+      { label:"+/−", num:true }
     ];
 
     function renderItems(items){

@@ -14291,10 +14291,24 @@
 
   function buildPersonnelCostRows() {
     const byKey = new Map();
+    // Historical expense values are sometimes repeated across display rows
+    // that share the same true accounting key (notably Code Compliance's
+    // Street/Beach split). Consume each deduplicated prior-year total once;
+    // FY 2027 proposed amounts remain itemized and are still summed from the
+    // current budget rows.
+    const priorPersonnelByAccountingKey = new Map();
+    (cache.dedupedExpenseRows || []).forEach((row) => {
+      priorPersonnelByAccountingKey.set(expenseAccountingKey(row), personnelCostPriorYearAmount(row));
+    });
+    const consumedPriorPersonnelKeys = new Set();
     (cache.expenditures || []).forEach((row) => {
       if (String(row.Object_Type || "").trim() !== "Personnel Services") return;
       const amount = row.FY2027_Proposed || 0;
-      const priorAmount = personnelCostPriorYearAmount(row);
+      const accountingKey = expenseAccountingKey(row);
+      const priorAmount = consumedPriorPersonnelKeys.has(accountingKey)
+        ? 0
+        : (priorPersonnelByAccountingKey.get(accountingKey) || personnelCostPriorYearAmount(row));
+      consumedPriorPersonnelKeys.add(accountingKey);
       if (!amount && !priorAmount) return;
       const code = String(row.Object_Code || "").trim();
       const isSalary = PERSONNEL_COST_SALARY_CODES.has(code);
