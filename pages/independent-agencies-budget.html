@@ -87,7 +87,7 @@
 
       var cardsHtml = items.map(function(item){ return cardHtml(item, totalBudget); }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer">' + headHtml +
+      explorer.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer">' + headHtml +
         '<div class="wc-department-budget-cards">' + cardsHtml + '</div></section>';
     }
 
