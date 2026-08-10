@@ -3,7 +3,7 @@
       ["Building Construction and Maintenance", "building-construction-and-maintenance.html"],
       ["Building Department", "building-department.html"],
       ["Code Compliance", "code-compliance.html"],
-      ["County Administration Departments", "county-administration.html"],
+      ["County Administration Offices", "county-administration.html"],
       ["Eagle Springs Golf and Recreation Center", "eagle-springs-golf-and-recreation-center.html"],
       ["Eagle Springs Grill", "eagle-springs-grill.html"],
       ["Emergency Management", "emergency-management.html"],
@@ -36,7 +36,7 @@
       "clerk of courts and county comptroller": ["clerk of court", "clerk of circuit court"],
       "engineering department": ["public works engineering services", "engineering services"],
       "environmental services": ["environmental resources"],
-      "county administration departments": ["county administration"],
+      "county administration offices": ["county administration"],
       "probation": ["probation services"],
       "purchasing": ["procurement"],
       "code compliance": ["code compliance beach", "code compliance street"],
@@ -476,7 +476,7 @@
     // read as the sum of its offices rather than a smaller, unrelated
     // number.
     var CHILD_DEPARTMENT_GROUPS = {
-      "county administration departments": ["human resources", "extension office", "geographic info systems", "housing and urban development", "libraries", "probation", "veteran services"],
+      "county administration offices": ["human resources", "extension office", "geographic info systems", "housing and urban development", "libraries", "probation", "veteran services"],
       "environmental services": ["solid waste", "mosquito control", "soil conservation"],
       "engineering department": ["mossy head wastewater treatment facility"],
       "recreation": ["eagle springs golf and recreation center", "eagle springs grill"]
@@ -487,7 +487,7 @@
     // raw account name "Environmental Resources" -- its office entry keeps
     // that original account name instead of repeating "Environmental
     // Services", which is already the section header above it.
-    var PARENT_SELF_OFFICE_LABEL_OVERRIDES = { "environmental services": "Environmental Resources", "county administration departments": "County Administration" };
+    var PARENT_SELF_OFFICE_LABEL_OVERRIDES = { "environmental services": "Environmental Resources", "county administration offices": "County Administration" };
 
     function applyChildDepartmentGroups(list, fundsByCode){
       var byKey = {};
@@ -739,7 +739,7 @@
     // its actual budget ranks).
     var PLACEHOLDER_BUDGET_RANK = [
       "tourism beach operations", "environmental services", "public works", "tourism administration",
-      "county administration departments", "building construction and maintenance", "tourism lifeguard services and beach safety",
+      "county administration offices", "building construction and maintenance", "tourism lifeguard services and beach safety",
       "planning", "code compliance", "building department", "recreation", "engineering department",
       "office of the county attorney", "purchasing", "office of management and budget", "emergency management"
     ].reduce(function(map, name, index, arr){ map[name] = arr.length - index; return map; }, {});

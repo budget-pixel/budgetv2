@@ -426,7 +426,6 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 /* ── table label (above walton-styled table) ── */
 .wc-table-wrap { margin: 28px 0; }
 .wc-table-wrap:has(+ .wc-table-footer-row) { margin-bottom: 8px; }
-.wc-data-updated-note { margin: 8px 0 0; font-size: .72rem; color: var(--muted); }
 
 #general-government-tax-topics,
 #intergovernmental-revenue-topics,
@@ -685,9 +684,6 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-personnel-ledger-tabs { display: inline-flex; gap: 4px; margin: 4px 0 20px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: #edf3ef; }
 .wc-personnel-ledger-tabs button { padding: 8px 13px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: .68rem; font-weight: 800; }
 .wc-personnel-ledger-tabs button.is-active { background: var(--green); color: #fff; }
-.wc-personnel-ledger-scope { display: inline-flex; gap: 4px; margin: 4px 0 20px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: #edf3ef; }
-.wc-personnel-ledger-scope button { padding: 9px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: .7rem; font-weight: 800; }
-.wc-personnel-ledger-scope button.is-active { background: var(--green); color: #fff; }
 .wc-personnel-ledger-panel-heading { margin: 0 0 14px; }
 .wc-personnel-ledger-panel-heading h3 { margin: 0 0 4px; color: var(--navy); }
 .wc-personnel-ledger-panel-heading p { margin: 0; color: var(--muted); font-size: .74rem; }
@@ -1253,7 +1249,7 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-department-ledger-trigger{margin:0 0 12px;padding:8px 12px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:.68rem;font-weight:800;text-decoration:none;display:inline-block}.wc-department-ledger{margin:30px 0;padding:24px;border:1px solid rgba(0,63,40,.15);border-radius:20px;background:#fff;scroll-margin-top:105px}.wc-department-ledger h2{margin:0 0 6px;color:var(--navy);font-size:1.35rem}.wc-department-ledger>p{margin:0 0 16px;color:var(--muted);font-size:.75rem}.wc-department-ledger.wc-ledger-page-flush{margin:0;padding:0;border:0;border-radius:0;background:transparent;scroll-margin-top:0}
 .wc-department-explorer-list-footer{display:flex;justify-content:flex-end;margin:14px 0 0}.wc-department-list-link{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 14px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:.72rem;font-weight:800;text-decoration:none}.wc-department-list-link:hover{background:var(--green2);border-color:var(--green2)}.wc-department-list-link .wc-department-list-link-icon{display:inline-block;transition:transform .15s ease}.wc-department-list-link[aria-expanded="true"] .wc-department-list-link-icon{transform:rotate(180deg)}
 .wc-department-explorer-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}.wc-department-explorer-metrics article{padding:14px;border:1px solid rgba(0,63,40,.11);border-radius:12px;background:#fff}.wc-department-explorer-metrics span{display:block;color:var(--muted);font-size:.7rem;font-weight:800;text-transform:uppercase}.wc-department-explorer-metrics strong{display:block;margin:5px 0 2px;color:var(--navy);font-size:1.12rem}.wc-department-explorer-metrics small{color:var(--muted);font-size:.74rem}.wc-department-explorer-metrics .wc-department-metric-change{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--green);font-size:.68rem;font-style:normal;font-weight:800}.wc-department-explorer-metrics .wc-department-metric-change.is-decrease{color:#b42318}
-.wc-debt-metrics article{background:#e8f5ec;border-color:rgba(0,98,49,.14)}
+.wc-debt-metrics article{background:#fff;border-color:rgba(0,98,49,.14)}
 :root[data-theme="dark"] .wc-debt-metrics article{background:rgba(123,211,159,.12);border-color:rgba(158,217,168,.22)}
 .wc-department-directory-heading{margin:34px 0 14px;color:var(--navy);font-size:1.3rem}.wc-department-explorer-subhead{margin:20px 0 10px;color:var(--navy);font-size:.9rem}.wc-department-explorer-subhead-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:20px 0 10px}.wc-department-explorer-subhead-row .wc-department-explorer-subhead{margin:0}.wc-department-directory-link{color:var(--green);font-size:.76rem;font-weight:800;text-decoration:none;white-space:nowrap}.wc-department-directory-link:hover{text-decoration:underline}.wc-department-budget-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.wc-department-budget-cards button,.wc-department-budget-cards a{position:relative;display:flex;min-height:142px;padding:15px;border:1px solid rgba(0,63,40,.13);border-radius:13px;background:#fff;text-align:left;cursor:pointer;flex-direction:column;text-decoration:none;color:inherit}.wc-department-budget-cards button:hover,.wc-department-budget-cards button:focus-visible,.wc-department-budget-cards a:hover,.wc-department-budget-cards a:focus-visible{border-color:var(--green);box-shadow:0 6px 16px rgba(0,63,40,.08);transform:translateY(-1px)}.wc-department-budget-cards span{color:var(--green);font-size:.68rem;font-weight:850;text-transform:uppercase}.wc-department-budget-cards strong{margin:6px 0 4px;padding-right:32px;color:var(--navy);font-size:.88rem}.wc-department-budget-cards b{color:var(--green);font-size:1.1rem}.wc-department-budget-cards small{color:var(--muted);font-size:.72rem}.wc-department-budget-cards em{margin-top:auto;color:var(--green);font-size:.74rem;font-style:normal;font-weight:800}.wc-department-budget-cards span.wc-department-card-rank{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;line-height:1;padding:0;border-radius:999px;background:var(--green);color:#fff;font-size:.72rem;font-weight:850;text-transform:none}
 .wc-department-card-change{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:10px 0;padding-top:9px;border-top:1px solid var(--border)}.wc-department-budget-cards .wc-department-card-change>span{grid-column:1/-1;color:var(--muted);font-size:.64rem}.wc-department-budget-cards .wc-department-card-change>strong{margin:0;color:var(--navy);font-size:.78rem}.wc-department-budget-cards .wc-department-card-change>small{align-self:center;color:var(--green);font-size:.74rem;font-weight:800}.wc-department-budget-cards .wc-department-card-change.is-decrease>strong,.wc-department-budget-cards .wc-department-card-change.is-decrease>small{color:#b42318}.wc-department-budget-cards .wc-department-card-change.is-increase>strong{color:var(--green)}
@@ -1261,6 +1257,11 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-department-budget-cards strong{font-size:.95rem}
 .wc-department-budget-cards b{font-size:1.6rem}
 .wc-independent-agencies-explorer .wc-department-budget-cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.wc-independent-agencies-total { flex-basis: 285px; min-width: 285px; gap: 0; }
+.wc-independent-agencies-total > span { line-height: 1.35; white-space: nowrap; }
+.wc-independent-agencies-total > strong { margin-top: 6px; }
+.wc-independent-agencies-total .wc-revenue-total-change { width: 100%; margin-top: 7px; text-align: right; }
+.wc-independent-agencies-total .wc-revenue-view-actions { margin-top: 12px; }
 /* Capital ledger cards reuse the Revenue/Personnel explorer card markup
    (wc-revenue-card-head/wc-revenue-comparison) inside a .wc-department-
    budget-cards container -- its own blanket span/strong/b/em rules above
@@ -1299,6 +1300,7 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 @media(max-width:1200px){.wc-independent-agencies-explorer .wc-department-budget-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:900px){.wc-independent-agencies-explorer .wc-department-budget-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.wc-independent-agencies-explorer .wc-department-budget-cards{grid-template-columns:1fr}}
+@media(max-width:900px){.wc-independent-agencies-total{width:100%;min-width:0;align-items:flex-start}.wc-independent-agencies-total .wc-revenue-total-change{text-align:left}.wc-independent-agencies-total .wc-revenue-view-actions{justify-content:flex-start}}
 @media(max-width:650px){.wc-department-explorer{padding:20px}.wc-department-explorer-head,.wc-department-detail-head{flex-direction:column}.wc-department-explorer-total{width:100%;min-width:0;flex-wrap:wrap;justify-content:flex-start;text-align:left}.wc-department-explorer-total .wc-department-explorer-badges{justify-content:flex-start}.wc-department-explorer-badges>div:first-child{padding-left:0}.wc-department-explorer-total-primary{width:100%;padding:14px 0 0;border-left:0;border-top:0;text-align:left}.wc-department-explorer-total .wc-department-ledger-trigger{margin-left:0}.wc-department-explorer-year-change{justify-content:flex-start}.wc-department-explorer-metrics,.wc-department-budget-cards,.wc-department-detail-grid{grid-template-columns:1fr}.wc-department-detail-head>div:last-child{text-align:left}}
 @media(max-width:650px){.wc-personnel-explorer,.wc-department-explorer,.wc-revenue-concentration{margin-top:20px}.wc-personnel-explorer-total > div:has(.wc-personnel-ledger-trigger),.wc-department-explorer-head .wc-department-ledger-trigger,.wc-revenue-concentration-head .wc-revenue-view-actions{position:static;margin-top:10px}.wc-personnel-explorer-total > div:has(.wc-personnel-ledger-trigger){justify-content:flex-start}.wc-revenue-view-actions{flex-wrap:wrap;justify-content:flex-start}.wc-revenue-total-budget{width:100%}}
 :root[data-theme="dark"] .wc-department-explorer{background:#14251d;border-color:rgba(158,217,168,.18)}:root[data-theme="dark"] .wc-department-explorer-metrics article,:root[data-theme="dark"] .wc-department-budget-cards button,:root[data-theme="dark"] .wc-department-budget-cards a,:root[data-theme="dark"] .wc-department-detail{background:#172235}:root[data-theme="dark"] .wc-department-detail-grid article{background:#111c2b}
@@ -2681,14 +2683,11 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-finance-card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 14px;
   margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid rgba(23,32,51,.08);
-}
-.wc-finance-card-footer .wc-data-updated-note {
-  margin: 0;
 }
 .wc-finance-card .wc-budget-lines-detail {
   margin-top: 18px;
@@ -3051,11 +3050,10 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-table-footer-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   margin-top: 2px;
 }
-.wc-table-footer-row .wc-data-updated-note { margin: 0; }
 .wc-view-budget-lines-toggle {
   display: inline-flex;
   align-items: center;
@@ -3294,30 +3292,22 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 }
 :root[data-theme="dark"] .wc-personnel-fund-stat { background: rgba(14,28,22,.92); }
 .wc-personnel-constitutional-row .wc-visually-muted { color: var(--muted); }
-.wc-personnel-dept-expand-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: none; color: var(--navy); cursor: pointer; font: inherit; font-weight: 800; text-align: left; }
-.wc-personnel-dept-expand-caret { display: inline-block; width: 0; height: 0; flex: 0 0 auto; border-left: 5px solid var(--green); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s ease; }
-tr.is-expanded .wc-personnel-dept-expand-caret { transform: rotate(90deg); }
-.wc-personnel-board-group-row td { font-weight: 700; }
-.wc-personnel-dept-office-detail > td { padding: 0 12px 20px; border-bottom: 1px solid var(--border); }
-.wc-personnel-office-detail-wrap { padding: 14px 16px; border-radius: 12px; background: rgba(0,63,40,.04); }
-.wc-personnel-office-detail-heading { margin: 0 0 10px; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-.wc-personnel-office-detail-wrap .wc-data-table thead th { background: #e8f3eb; color: var(--navy); box-shadow: none; }
-:root[data-theme="dark"] .wc-personnel-office-detail-wrap { background: rgba(255,255,255,.04); }
-:root[data-theme="dark"] .wc-personnel-office-detail-wrap .wc-data-table thead th { background: #1c2c22; color: #fff; }
-.wc-department-ledger-expand-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; background: none; color: var(--navy); cursor: pointer; font: inherit; font-weight: 800; text-align: left; }
-.wc-department-ledger-expand-caret { display: inline-block; width: 0; height: 0; flex: 0 0 auto; border-left: 5px solid var(--green); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s ease; }
-tr.is-expanded .wc-department-ledger-expand-caret { transform: rotate(90deg); }
-.wc-department-ledger-group-row td { font-weight: 700; }
-.wc-department-ledger-office-detail > td { padding: 0 12px 20px; border-bottom: 1px solid var(--border); }
-.wc-department-ledger-office-detail-wrap { padding: 14px 16px; border-radius: 12px; background: rgba(0,63,40,.04); }
-.wc-department-ledger-office-detail-heading { margin: 0 0 10px; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-.wc-department-ledger-office-detail-wrap .wc-department-detail-function,
-.wc-personnel-office-detail-wrap .wc-department-detail-function { margin: 0 0 14px; color: var(--text); font-size: .82rem; line-height: 1.6; }
-.wc-department-ledger-office-detail-wrap .wc-data-table thead th { background: #e8f3eb; color: var(--navy); box-shadow: none; }
-:root[data-theme="dark"] .wc-department-ledger-office-detail-wrap { background: rgba(255,255,255,.04); }
-:root[data-theme="dark"] .wc-department-ledger-office-detail-wrap .wc-data-table thead th { background: #1c2c22; color: #fff; }
+/* A Board department name that rolls up multiple offices on different
+   pages renders as a <button> (opens the "choose an office" popup)
+   instead of a plain <a> -- styled to look identical to a plain
+   wc-table-row-link anchor (same color var(--green), same underline)
+   so it doesn't stand out from the single-link department names or the
+   Constitutional Officers table above it. */
+.wc-data-table .wc-department-card-picker.wc-table-row-link {
+  display: inline; padding: 0; border: 0; background: none; font: inherit;
+  color: var(--green); text-decoration: underline; text-underline-offset: 3px;
+  cursor: pointer; text-align: left;
+}
+.wc-data-table .wc-department-card-picker.wc-table-row-link:hover {
+  color: var(--green); text-decoration: none;
+}
 .wc-personnel-constitutional-note {
-  margin: 14px 0 0;
+  margin: 14px 0;
   padding: 12px 14px;
   border-left: 4px solid var(--gold);
   border-radius: 0 8px 8px 0;
@@ -4543,7 +4533,6 @@ tr.is-expanded .wc-department-ledger-expand-caret { transform: rotate(90deg); }
 
 :root[data-theme="dark"] .page-intro,
 :root[data-theme="dark"] .wc-directory-item-desc,
-:root[data-theme="dark"] .wc-data-updated-note,
 :root[data-theme="dark"] .wc-finance-card-subtitle,
 :root[data-theme="dark"] .wc-finance-card-amount,
 :root[data-theme="dark"] .wc-performance-header p,

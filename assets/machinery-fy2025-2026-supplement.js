@@ -136,7 +136,7 @@ window.wcHistoricalMachinery = {
     { dept: "Engineering Services", item: "4x4 Crew Cab Truck", amount: 45000 },
     { dept: "Public Works", item: "6FT Bionic Blade", amount: 3800 },
     { dept: "Public Works", item: "6ft Tiller (Heavy Duty)", amount: 7600 },
-    { dept: "Public Works", item: "7' X 14' Dump Trailer", amount: 13600 },
+    { dept: "Public Works", item: "7' X 14' Dump Trailer", amount: 33378 },
     { dept: "Public Works", item: "21 yard Dump Truck", amount: 240000 },
     { dept: "Public Works", item: "21 Yard Dump Truck", amount: 240000 },
     { dept: "Public Works", item: "7' X 14' Dump Trailer", amount: 13600 },

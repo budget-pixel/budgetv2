@@ -9,7 +9,7 @@ window.wcProjectSearchBaseUrl = window.location.pathname.indexOf("/pages/") !== 
 var wcCoreBudgetPages = [
   { title:"Privacy Statement", section:"Website Information", href:"privacy.html", keywords:["privacy","cookies","analytics","public records","data"] },
   { title:"Table of Contents", section:"Introduction and Overview", href:"table-of-contents.html" },
-  { title:"GFOA Distinguished Budget Presentation Award", section:"Introduction and Overview", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd25815ed4e2fe49b4" },
+  { title:"GFOA Distinguished Budget Presentation Award", section:"Our County", href:"gfoa-distinguished-budget-presentation-award.html" },
   { title:"Transmittal Letter", section:"Introduction and Overview", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdc3a5aa570050fba9" },
   { title:"Our County", section:"Our County", href:"our-county.html" },
   { title:"Overview of Walton County", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd2e29b2249e0a5b99" },
@@ -62,7 +62,7 @@ var wcCoreBudgetPages = [
   { title:"Building Construction and Maintenance", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbe4a1b46dae2cd66cc" },
   { title:"Building Department", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd8e620c6522929798" },
   { title:"Code Compliance", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd5e724bfe505af7d1" },
-  { title:"County Administration Departments", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd15a00b5b02701878" },
+  { title:"County Administration Offices", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd15a00b5b02701878" },
   { title:"Eagle Springs Golf and Recreation Center", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd67c50a9caf8aa87f" },
   { title:"Eagle Springs Grill", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdfe52b05dd76fe3e9" },
   { title:"Emergency Management", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdfa0047aa8047423d" },
@@ -331,7 +331,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "code compliance", "code enforcement", "violations", "ordinance", "compliance", "citations", "nuisance", "property maintenance"
     ],
 
-    "County Administration Departments": [
+    "County Administration Offices": [
       "administration", "county administrator", "county manager", "executive", "leadership", "county operations", "management"
     ],
 
@@ -532,7 +532,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Building Construction and Maintenance": "building-construction-and-maintenance.html",
     "Building Department": "building-department.html",
     "Code Compliance": "code-compliance.html",
-    "County Administration Departments": "county-administration.html",
+    "County Administration Offices": "county-administration.html",
     "Eagle Springs Golf and Recreation Center": "eagle-springs-golf-and-recreation-center.html",
     "Eagle Springs Grill": "eagle-springs-grill.html",
     "Emergency Management": "emergency-management.html",

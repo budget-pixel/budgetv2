@@ -3,27 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore Walton County's FY 2027 budget, the challenges it addresses, the public services it funds, and the results residents can expect.">
 <title>Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="assets/style.css?v=20260802-metric-changes">
+<link rel="stylesheet" href="assets/style.css?v=20260810-home-landing">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260810-home-landing">
 </head>
-<body>
+<body class="wc-home-landing-page">
 
-<!-- nav#nav-menu.nav-menu is the hook nav.js uses for logo + search injection -->
-<nav id="nav-menu" class="nav-menu">
-  <div class="logo-container"></div>
-</nav>
+<nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
 
 <div id="layout">
-<main id="content">
+<main id="content" class="wc-landing-main">
+  <section class="wc-landing-hero" aria-labelledby="landing-title">
+    <div class="wc-landing-hero-copy">
+      <p class="wc-landing-kicker">Walton County, Florida · FY 2027 proposed budget</p>
+      <h1 id="landing-title">A budget for a growing county—and the people who call it home.</h1>
+      <p class="wc-landing-lead">This budget is a one-year spending plan shaped by longer-term needs: keeping services reliable as the community grows, maintaining infrastructure, preparing for emergencies, and protecting the County&rsquo;s financial stability.</p>
+      <div class="wc-landing-actions">
+        <a class="wc-landing-button is-primary" href="pages/budget-overview.html">Explore the budget</a>
+        <a class="wc-landing-button" href="#budget-story">See the budget story</a>
+      </div>
+    </div>
+    <aside class="wc-landing-budget-card" aria-label="FY 2027 budget at a glance">
+      <span>Total expenditure budget</span>
+      <strong data-home-total>Loading&hellip;</strong>
+      <small data-home-change>FY 2027 proposed budget</small>
+      <div class="wc-landing-budget-splits">
+        <div><span>Personnel</span><b data-home-personnel>&mdash;</b></div>
+        <div><span>Capital investment</span><b data-home-capital>&mdash;</b></div>
+      </div>
+      <p>Amounts describe the Countywide budget, not a household tax bill.</p>
+    </aside>
+  </section>
 
-<div class="page-eyebrow">Walton County</div>
-<h1 class="page-title">FY 2027 Budget</h1>
-<p class="page-intro">This directory page is under redesign. Use the menu or search above to explore the budget in the meantime.</p>
+  <nav class="wc-landing-jump" aria-label="Budget story sections">
+    <a href="#challenges"><span>01</span>Our challenges</a>
+    <a href="#response"><span>02</span>Budget response</a>
+    <a href="#results"><span>03</span>Expected results</a>
+    <a href="#public-value"><span>04</span>Public value</a>
+    <a href="#cost"><span>05</span>What it costs</a>
+  </nav>
 
+  <section class="wc-landing-intro" id="budget-story" aria-labelledby="story-title">
+    <div>
+      <p class="wc-landing-section-label">The budget story</p>
+      <h2 id="story-title">Start with the problem, then follow the public dollars.</h2>
+    </div>
+    <p>A useful budget should explain more than what will be spent. It should show why action is needed, who is affected, what government can realistically do, and how the public will know whether the plan worked. This page is your guide to those answers.</p>
+  </section>
+
+  <section class="wc-landing-section" id="challenges" aria-labelledby="challenges-title">
+    <div class="wc-landing-section-head">
+      <div>
+        <p class="wc-landing-section-label">Challenges facing the County and community</p>
+        <h2 id="challenges-title">Growth changes the scale of every service.</h2>
+      </div>
+      <p>These are not one-year issues. They are identified through population and development trends, service demand, asset condition, departmental operating data, emergency experience, public input, and the multi-year capital planning process.</p>
+    </div>
+    <div class="wc-challenge-grid">
+      <article>
+        <span class="wc-challenge-number">01</span>
+        <h3>Growth and service capacity</h3>
+        <p>More residents, visitors, homes, and businesses increase demand for roads, public safety, parks, permitting, emergency response, and everyday County operations.</p>
+        <dl><div><dt>Root issue</dt><dd>Demand can grow faster than facilities, staffing, and infrastructure capacity.</dd></div><div><dt>Time horizon</dt><dd>Annual service delivery with multi-year capital needs.</dd></div></dl>
+      </article>
+      <article>
+        <span class="wc-challenge-number">02</span>
+        <h3>Infrastructure and resilience</h3>
+        <p>Roads, drainage, public facilities, coastal assets, and utilities must be maintained while new capacity is added and the County remains prepared for severe weather.</p>
+        <dl><div><dt>Root issue</dt><dd>Age, use, growth, geography, and storm exposure create overlapping needs.</dd></div><div><dt>Time horizon</dt><dd>Projects often extend beyond a single budget year.</dd></div></dl>
+      </article>
+      <article>
+        <span class="wc-challenge-number">03</span>
+        <h3>Workforce and service continuity</h3>
+        <p>Reliable public service depends on recruiting, retaining, and equipping employees in a competitive labor market while managing salaries, benefits, and retirement costs.</p>
+        <dl><div><dt>Root issue</dt><dd>Turnover, specialized skills, workload, and compensation pressures affect capacity.</dd></div><div><dt>Time horizon</dt><dd>Immediate vacancies and long-term workforce planning.</dd></div></dl>
+      </article>
+      <article>
+        <span class="wc-challenge-number">04</span>
+        <h3>Uneven needs across the community</h3>
+        <p>Challenges are not uniform. Coastal visitation, rural distance, development patterns, transportation access, and service availability affect communities differently—and often involve state, municipal, and special-district partners.</p>
+        <dl><div><dt>Root issue</dt><dd>One County contains distinct places, populations, and demand patterns.</dd></div><div><dt>Time horizon</dt><dd>Near-term response informed by long-term geographic change.</dd></div></dl>
+      </article>
+    </div>
+    <p class="wc-landing-context-note"><strong>What is new?</strong> The underlying responsibilities are ongoing; their scale, location, cost, and urgency change over time. The budget therefore combines immediate operating decisions with longer-range capital and financial planning.</p>
+  </section>
+
+  <section class="wc-landing-section wc-response-section" id="response" aria-labelledby="response-title">
+    <div class="wc-landing-section-head">
+      <div>
+        <p class="wc-landing-section-label">How this budget responds</p>
+        <h2 id="response-title">Fund today&rsquo;s services. Build tomorrow&rsquo;s capacity.</h2>
+      </div>
+      <p>The budget cannot eliminate every challenge in one year. Its role is to maintain essential services, address the most actionable needs, reduce future risk, and sequence larger solutions at a scale the County can deliver and sustain.</p>
+    </div>
+    <div class="wc-response-list">
+      <a href="pages/program-budget.html">
+        <span>Services</span><div><h3>Connect spending to what departments deliver</h3><p>Review services, funding, expected activity, performance measures, and strategic priorities together.</p></div><b aria-hidden="true">&rarr;</b>
+      </a>
+      <a href="pages/capital-projects.html">
+        <span>Capacity</span><div><h3>Invest through a multi-year capital plan</h3><p>See projects that maintain assets, add capacity, improve transportation, and strengthen public facilities.</p></div><b aria-hidden="true">&rarr;</b>
+      </a>
+      <a href="pages/summary-of-personnel.html">
+        <span>Workforce</span><div><h3>Align people and personnel cost with service demand</h3><p>Explore staffing levels, personnel costs, turnover, and the factors shaping the workforce budget.</p></div><b aria-hidden="true">&rarr;</b>
+      </a>
+      <a href="pages/financial-forecast.html">
+        <span>Resilience</span><div><h3>Test affordability beyond FY 2027</h3><p>Use forecasts, reserves, debt, and financial policies to assess whether today&rsquo;s decisions remain sustainable.</p></div><b aria-hidden="true">&rarr;</b>
+      </a>
+    </div>
+  </section>
+
+  <section class="wc-landing-section" id="results" aria-labelledby="results-title">
+    <div class="wc-landing-section-head">
+      <div>
+        <p class="wc-landing-section-label">Are results expected to improve?</p>
+        <h2 id="results-title">Some results arrive this year. Others require sustained progress.</h2>
+      </div>
+      <p>Success is not measured by spending the appropriation. It is measured by whether services remain dependable, projects reach milestones, planned work is completed, and the public sees improved capacity or a slower rate of service degradation.</p>
+    </div>
+    <div class="wc-results-timeline">
+      <article><span>During FY 2027</span><h3>Track delivery</h3><p>Workload, response, participation, staffing, financial performance, and project milestones show whether implementation is on course.</p></article>
+      <article><span>At year-end</span><h3>Compare plan to result</h3><p>Actual spending, completed work, service measures, staffing changes, and capital progress can be compared with the adopted plan.</p></article>
+      <article><span>Across future budgets</span><h3>Judge sustained impact</h3><p>Long-term challenges require trend data. The County can adjust strategies as demand, cost, condition, and outcomes change.</p></article>
+    </div>
+    <div class="wc-results-links">
+      <a href="pages/program-budget.html">Explore program measures <span>&rarr;</span></a>
+      <a href="pages/capital-projects.html">Track capital projects <span>&rarr;</span></a>
+      <a href="pages/summary-of-budget-changes-and-adjustments.html">Review budget changes <span>&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="wc-landing-section wc-value-section" id="public-value" aria-labelledby="value-title">
+    <div class="wc-landing-section-head">
+      <div>
+        <p class="wc-landing-section-label">What the public gets</p>
+        <h2 id="value-title">Public value shows up in ordinary moments—and critical ones.</h2>
+      </div>
+      <p>Residents may never use every County service, but the combined system supports daily life, community safety, mobility, opportunity, and readiness.</p>
+    </div>
+    <div class="wc-value-grid">
+      <article><span>Every day</span><h3>Safe, functioning places</h3><p>Roads and drainage, parks and recreation, libraries, solid waste, planning, permitting, and code services.</p></article>
+      <article><span>When it matters most</span><h3>Response and protection</h3><p>Law enforcement, emergency management, fire and medical support, beach safety, and disaster readiness.</p></article>
+      <article><span>For the future</span><h3>Capacity and stewardship</h3><p>Capital improvements, asset maintenance, financial reserves, long-term planning, and transparent public reporting.</p></article>
+    </div>
+    <a class="wc-landing-text-link" href="pages/department-budget.html">Find a department or service <span>&rarr;</span></a>
+  </section>
+
+  <section class="wc-landing-section wc-cost-section" id="cost" aria-labelledby="cost-title">
+    <div class="wc-landing-section-head">
+      <div>
+        <p class="wc-landing-section-label">How much government costs</p>
+        <h2 id="cost-title">The budget is shared—but it is not one bill.</h2>
+      </div>
+      <p>County services are funded through a mix of property and sales taxes, state-shared and intergovernmental revenue, service charges, permits, restricted revenues, and available balances. Visitors and businesses contribute alongside residents.</p>
+    </div>
+    <div class="wc-cost-grid">
+      <article class="wc-cost-primary">
+        <span>Budget scale</span>
+        <strong data-home-per-resident>&mdash;</strong>
+        <h3>per 2020 Census resident</h3>
+        <p>This is a scale comparison—not an estimate of what one resident pays. The budget serves residents, visitors, businesses, and future capital needs, and many revenues are restricted to specific purposes.</p>
+      </article>
+      <article>
+        <span>How you contribute</span>
+        <h3>Different services use different funding</h3>
+        <p>Property taxes support broad governmental services. Sales and tourism-related taxes share cost with visitors. Fees connect some costs to a specific service or activity.</p>
+        <a href="pages/summary-of-revenues.html">Explore revenue sources &rarr;</a>
+      </article>
+      <article>
+        <span>How to understand cost</span>
+        <h3>Follow the service, funding, and result</h3>
+        <p>Use the program and department pages to see what a service costs, where its funding comes from, what activity is expected, and how success is measured.</p>
+        <a href="pages/program-budget.html">Explore services and results &rarr;</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="wc-landing-explore" aria-labelledby="explore-title">
+    <div><p class="wc-landing-section-label">Choose your path</p><h2 id="explore-title">Go from the big picture to the budget line.</h2></div>
+    <div class="wc-explore-grid">
+      <a href="pages/budget-overview.html"><span>Start here</span><strong>Budget Overview</strong><small>Process, structure, policies, and financial context</small></a>
+      <a href="pages/summary-of-revenues.html"><span>Money in</span><strong>Revenue Explorer</strong><small>Where funding comes from and how it may be used</small></a>
+      <a href="pages/summary-of-expenses.html"><span>Money out</span><strong>Expense Explorer</strong><small>How spending is organized across public purposes</small></a>
+      <a href="pages/department-budget.html"><span>Who delivers</span><strong>Department Budgets</strong><small>Budgets, staffing, services, and performance</small></a>
+      <a href="pages/capital-projects.html"><span>What is being built</span><strong>Capital Plan</strong><small>Projects, schedules, locations, and funding</small></a>
+      <a href="pages/budget-process.html"><span>How decisions happen</span><strong>Budget Process</strong><small>Four phases, one public spending plan</small></a>
+    </div>
+  </section>
+
+  <footer class="wc-landing-footer">
+    <div><strong>Walton County FY 2027 Proposed Budget</strong><p>Designed to make the public budget easier to understand, explore, and evaluate.</p></div>
+    <a href="pages/glossary-acronyms-and-frequently-asked-questions.html">Budget help and glossary</a>
+  </footer>
 </main>
 </div>
 
 <script src="assets/search-data.js"></script>
-<script src="assets/nav.js?v=20260804-financial-overview-rename"></script>
+<script src="assets/budget-data.js?v=20260810-home-landing"></script>
+<script src="assets/nav.js?v=20260810-home-landing"></script>
+<script>
+(function(){
+  function money(value){
+    return new Intl.NumberFormat("en-US", { style:"currency", currency:"USD", maximumFractionDigits:0 }).format(value || 0);
+  }
+  function compact(value){
+    var number = Number(value) || 0;
+    if(Math.abs(number) >= 1000000000) return "$" + (number / 1000000000).toFixed(2).replace(/0+$/, "").replace(/\.$/, "") + "B";
+    if(Math.abs(number) >= 1000000) return "$" + (number / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    return money(number);
+  }
+  function setText(selector, value){
+    var element = document.querySelector(selector);
+    if(element) element.textContent = value;
+  }
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!window.WCBudgetData || !window.WCBudgetData.loadBudgetData) return;
+    window.WCBudgetData.loadBudgetData().then(function(data){
+      var rows = (data.expenditures || []).filter(function(row){ return !window.WCBudgetData.isNonProgramExpenseRow(row); });
+      var total = window.WCBudgetData.totalCountywideExpenditureBudget(data);
+      var prior = rows.reduce(function(sum,row){ return sum + (Number(row.FY2026_Original_Budget) || 0); },0);
+      var personnel = rows.reduce(function(sum,row){ return /personnel/i.test(String(row.Object_Type || "")) ? sum + (Number(row.FY2027_Proposed) || 0) : sum; },0);
+      var capital = rows.reduce(function(sum,row){ return /capital/i.test(String(row.Object_Type || "")) ? sum + (Number(row.FY2027_Proposed) || 0) : sum; },0);
+      var change = total - prior;
+      var pct = prior ? change / Math.abs(prior) * 100 : null;
+      setText("[data-home-total]", money(total));
+      setText("[data-home-change]", (change >= 0 ? "+" : "−") + compact(Math.abs(change)) + (pct === null ? "" : " (" + (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + "%) compared with FY 2026"));
+      setText("[data-home-personnel]", compact(personnel));
+      setText("[data-home-capital]", compact(capital));
+      setText("[data-home-per-resident]", money(total / 75305));
+    }).catch(function(){
+      setText("[data-home-total]", "FY 2027 proposed budget");
+      setText("[data-home-change]", "Explore the financial schedules for complete detail");
+    });
+  });
+})();
+</script>
 </body>
 </html>

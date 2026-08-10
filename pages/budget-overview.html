@@ -18,7 +18,7 @@
 
 <div class="page-eyebrow">Budget Ledgers</div>
 <h1 class="page-title">Budget Ledgers</h1>
-<p class="page-intro">Explore Walton County's financial resources, including the budget process, financial policies, debt, fund activity, property tax allocation, and financial reports.</p>
+<p class="page-intro">Use these ledgers to see how Walton County plans to raise and spend public money. Start with the budget change summary to see what is increasing or decreasing, then explore revenues, property taxes, personnel, departments, debt, and capital projects to understand what the budget funds and how the pieces fit together.</p>
 
 <section aria-label="Budget overview directory">
   <div id="hubList"></div>
@@ -28,7 +28,7 @@
 </div>
 
 <script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260807-ledger-directory-entries"></script>
+<script src="../assets/budget-data.js?v=20260810-budget-change-callout-deduped"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
 <script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
@@ -54,6 +54,8 @@
             title:"Budget Change Summary",
             href:"summary-of-budget-changes-and-adjustments.html",
             label:"Changes",
+            metric:"budgetChange",
+            metricLabel:"FY 2027 Increase",
             description:"Compare proposed expenditures to the prior budget by department, showing both increases and decreases."
           },
           {
@@ -184,12 +186,6 @@
         label:"Budget Process & Policy",
         items:[
           {
-            title:"GFOA Distinguished Budget Presentation Award",
-            href:"gfoa-distinguished-budget-presentation-award.html",
-            label:"Recognition",
-            description:"Review the award standards and presentation recognition for Walton County's budget document."
-          },
-          {
             title:"Budget Process",
             href:"budget-process.html",
             label:"Process",
@@ -261,7 +257,7 @@
         return '<div class="wc-directory-item-meta">' + page.metrics.map(function(m){ return statHtml(m.key, m.label); }).join("") + '</div>';
       }
       if(page.metric){
-        return '<div class="wc-directory-item-meta">' + statHtml(page.metric, "FY 2027 Proposed") + '</div>';
+        return '<div class="wc-directory-item-meta">' + statHtml(page.metric, page.metricLabel || "FY 2027 Proposed") + '</div>';
       }
       return "";
     }
@@ -325,7 +321,9 @@
           return sum + (Number(row.FY2027_Proposed) || 0);
         }, 0);
 
-        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027 };
+        var changeTotals = window.WCBudgetData.getConsolidatedBudgetChangeTotals(data);
+        var budgetChangeTotal = changeTotals.change;
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, budgetChange:budgetChangeTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027 };
         document.querySelectorAll("[data-budget-overview-total]").forEach(function(element){
           var key = element.dataset.budgetOverviewTotal;
           if(!(key in totals)) return;
@@ -334,7 +332,7 @@
           // balance through final maturity) are small enough that rounding
           // to millions would show "$0M" for interest -- shown as exact
           // dollars instead, like every other non-millions stat here.
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax"].indexOf(key) !== -1;
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax", "budgetChange"].indexOf(key) !== -1;
           element.querySelector("strong").textContent = useRoundedMillions
             ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
             : window.WCBudgetData.formatCurrency(amount);
