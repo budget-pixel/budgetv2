@@ -1189,6 +1189,8 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 
 @media (max-width: 900px) {
   .wc-revenue-topic-row { grid-template-columns: 1fr; }
+  .wc-revenue-topic-row .wc-revenue-topic-narrative-card { order: 1; }
+  .wc-revenue-topic-row .wc-revenue-topic-chart-card { order: 2; }
   .wc-revenue-topic-chart-card, .wc-revenue-topic-narrative-card { padding: 20px; }
   .wc-revenue-topic-chart-wrap { height: 260px; }
   .wc-personnel-explorer-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
