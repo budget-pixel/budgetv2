@@ -7464,10 +7464,6 @@
   function renderForecastOverviewCards(model) {
     return (
       '<section class="wc-forecast-section wc-forecast-overview" aria-labelledby="forecast-overview-heading">' +
-        '<div class="wc-section-heading-row">' +
-          '<h2 id="forecast-overview-heading" class="wc-fund-section-heading">Forecast At A Glance</h2>' +
-          '<p>Each card answers the basic question: is this fund positioned to support planned services over the next five years? Select a card to view its detailed fund schedule.</p>' +
-        '</div>' +
         '<div class="wc-forecast-health-grid">' +
           model.funds.map((item) => {
             const health = forecastFundHealth(item);
@@ -7599,6 +7595,10 @@
   function renderFinancialForecast(cipProjectList) {
     const model = buildFinancialForecastModel(cipProjectList);
     return (
+      '<section class="wc-department-explorer wc-budget-forecast-explorer" aria-labelledby="budget-forecast-explorer-heading">' +
+      '<div class="wc-department-explorer-head wc-budget-forecast-head">' +
+        '<div><span>Long-range planning view</span><h2 id="budget-forecast-explorer-heading">Budget Forecast Explorer</h2><p>Explore projected revenues, expenditures, reserves, and the assumptions supporting each major fund through FY 2031.</p></div>' +
+      '</div>' +
       renderForecastOverviewCards(model) +
       renderForecastAssumptionSummary(model) +
       renderForecastFundDetailTemplates(model) +
@@ -7615,7 +7615,8 @@
           renderForecastAssumptionsDetailTable(model, "expense") +
         '</details>' +
       '</section>' +
-      lastUpdatedNoteHtml()
+      lastUpdatedNoteHtml() +
+      '</section>'
     );
   }
 

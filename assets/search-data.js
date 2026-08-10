@@ -468,7 +468,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "debt", "bonds", "loans", "debt service", "principal", "interest", "bond rating", "outstanding debt", "long term debt", "borrowing"
     ],
 
-    "Financial Forecast": [
+    "Budget Forecast Explorer": [
       "forecast", "financial forecast", "projection", "long range plan", "future years", "revenue forecast", "expense forecast", "financial outlook", "assumptions"
     ],
 
@@ -565,7 +565,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Sheriff Capital Project Ledger": "cip-sheriff.html",
     "Tourist Development Fund Capital Ledger": "cip-tourist-development.html",
     "Debt Ledger": "debt-overview.html",
-    "Financial Forecast": "financial-forecast.html",
+    "Budget Forecast Explorer": "financial-forecast.html",
     "Glossary, Acronyms, and Frequently Asked Questions": "glossary-acronyms-and-frequently-asked-questions.html",
     "Statistical & Supplemental Information": "statistical-and-supplemental-information.html"
   };
