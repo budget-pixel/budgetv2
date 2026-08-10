@@ -73,7 +73,6 @@
   }
   .wc-ptax-kpi-split-item strong{
     margin:0 0 4px !important;
-    font-size:1.5rem !important;
   }
   .wc-ptax-kpi-split-item small{
     display:flex;
@@ -82,6 +81,26 @@
   }
   .wc-budget-kpi .wc-info-button{
     margin-left:2px;
+  }
+  /* These KPI cards sit right at the top of the page, so an upward-
+     opening tooltip (the site default) has nowhere to go once the card
+     is scrolled under the sticky nav -- it renders off the top of the
+     viewport instead of over the card. Anchored to the card itself
+     (not the info button) and opened below the card's own bottom edge
+     instead, so it lands in the open space under the card rather than
+     overlapping the card's own value text. */
+  .wc-budget-kpi{
+    position:relative;
+  }
+  .wc-budget-kpi .wc-info-button{
+    position:static;
+  }
+  .wc-budget-kpi .wc-info-button::after{
+    bottom:auto;
+    top:calc(100% + 8px);
+    left:24px;
+    z-index:6;
+    box-shadow:0 10px 26px rgba(23,32,51,.28);
   }
 
   .wc-ptax-flow{
@@ -561,6 +580,21 @@
   :root[data-theme="dark"] .wc-tax-table th{
     border-color:var(--border);
   }
+
+  /* Printing this page (see assets/budget-pdf.js for the site-wide print
+     stylesheet) should output just the allocation ledger table -- not the
+     intro paragraph, millage KPI cards, "Largest property tax
+     allocations" bar chart, or the personalized "Your Property Tax"
+     calculator below it. */
+  @media print{
+    .wc-ptax-narrative,
+    #wc-ptax-summary,
+    #wc-ptax-flow .wc-ptax-largest,
+    .wc-ptax > .wc-ptax-flow-head,
+    .wc-tax-grid{
+      display:none !important;
+    }
+  }
 </style>
 
 <section class="page-text wc-ptax-narrative">
@@ -781,6 +815,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   // against real FY2027 budget increases) agrees on the same canonical
   // name.
   const NAME_ALIASES = {
+    "county administration": "county administration offices",
     "clerk of court": "clerk of courts & county comptroller",
     "environmental services": "environmental resources",
     "south walton fire": "south walton fire & state control",
@@ -1546,5 +1581,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 })();
 </script>
 <script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>
