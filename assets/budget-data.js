@@ -8996,9 +8996,15 @@
       } else if (pctSortDirection === "asc") {
         deptSummaries.sort((a, b) => a.pct - b.pct);
       } else {
-        deptSummaries.sort((a, b) =>
-          departmentGroupOrder(a.dept) - departmentGroupOrder(b.dept) || a.dept.localeCompare(b.dept)
-        );
+        deptSummaries.sort((a, b) => {
+          const orderA = departmentGroupOrder(a.dept);
+          const orderB = departmentGroupOrder(b.dept);
+          if (orderA !== orderB) return orderA - orderB;
+          // Board Departments read largest-proposed-budget first instead
+          // of alphabetically, same as every other group is left as-is.
+          if (orderA === DEPARTMENT_GROUP_ORDER.Departments) return b.proposed - a.proposed;
+          return a.dept.localeCompare(b.dept);
+        });
       }
 
       // Capital group lines link straight to that named ledger (plain
@@ -16473,7 +16479,7 @@
       const totalPersonnel = departments.reduce((sum, dept) => sum + dept.personnel, 0);
       const totalOperatingAll = departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0);
       function costCategoryPct(value) { return total ? (value / total * 100).toFixed(1) : "0.0"; }
-      const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div><div><span>Total Capital</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalCapital)) + '</b><small>' + costCategoryPct(totalCapital) + '%</small></div></div></div>';
+      const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div></div>';
       const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(boardShareOfBudgetPct) + '%</strong> of the total expenditure budget is board department funding.</p>' + costCategorySplitHtml + '</div>';
       // Department "Services / Changing / Challenges" badge content, sourced
       // from assets/department-services-data.js (keyed by normalized raw
@@ -16483,7 +16489,7 @@
       // pages, so the badge stays in sync with this year's actual numbers
       // instead of a static description.
       function buildChangingText(dept) {
-        const budgetChange = dept.current - dept.prior;
+        const budgetChange = (dept.current - dept.capital) - (dept.prior - dept.priorCapital);
         const changesByObject = new Map();
         dept.rows.forEach((row) => {
           const code = String(row.Object_Code || "").trim();
@@ -16514,9 +16520,15 @@
         const fte = staffingByDept.get(dept.key) || 0;
         const priorFte = priorStaffingByDept.get(dept.key) || 0;
         const fteDelta = fte - priorFte;
-        const change = dept.current - dept.prior;
-        const changePct = dept.prior ? (change / Math.abs(dept.prior) * 100) : null;
-        const shareOfBoard = totalExcludingCapital ? (dept.current / totalExcludingCapital * 100) : 0;
+        // Capital outlay has its own separate ledger (Capital Improvement
+        // Plan / Machinery pages) -- excluded here from both the card's
+        // total and its prior-year comparison so this explorer only
+        // reports each department's operating and personnel budget.
+        const currentExcludingCapital = dept.current - dept.capital;
+        const priorExcludingCapital = dept.prior - dept.priorCapital;
+        const change = currentExcludingCapital - priorExcludingCapital;
+        const changePct = priorExcludingCapital ? (change / Math.abs(priorExcludingCapital) * 100) : null;
+        const shareOfBoard = totalExcludingCapital ? (currentExcludingCapital / totalExcludingCapital * 100) : 0;
         const costChangeHtml = '<div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' + (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "") + changePct.toFixed(1) + "%") + '</em></div></div>';
         const fteChangeHtml = '<div class="wc-revenue-trend"><small>FTE Change</small><b>' + (fteDelta >= 0 ? "+" : "−") + formatNumber(Math.abs(fteDelta)) + ' FTE</b></div>';
         if (window.WCDepartmentServices) {
@@ -16542,7 +16554,7 @@
           });
         }
         const badgesHtml = window.WCDepartmentServices ? '<div class="wc-department-card-badges"><span class="wc-department-info-badge" data-dept-badge="services" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' services">Services</span><span class="wc-department-info-badge" data-dept-badge="challenges" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' challenges">Challenges</span><span class="wc-department-info-badge" data-dept-badge="changing" tabindex="0" role="button" aria-label="What is changing at ' + escapeHtml(dept.name) + '">Changes</span></div>' : "";
-        const cardBodyHtml = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(dept.current)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div>';
+        const cardBodyHtml = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(currentExcludingCapital)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div>';
         // Most departments' offices all land on that department's own page
         // (pageHref), so the card can link straight there. A few roll up
         // offices that keep separate pages of their own (e.g. County
@@ -16560,7 +16572,7 @@
         return '<a href="' + escapeHtml(href) + '" data-department-key="' + escapeHtml(dept.key) + '">' + cardBodyHtml + '</a>';
       }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? "" : '<h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name to view its own page.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? "" : '<h2>Board Department Budget Ledger</h2><p>Compare proposed spending and major cost categories across Board departments. Select a department name to view its own page.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
       if (window.WCDepartmentServices) {
         const badgeTooltip = document.createElement("div");
         badgeTooltip.className = "wc-department-badge-tooltip";

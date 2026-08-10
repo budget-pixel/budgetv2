@@ -199,10 +199,11 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const disableLinks = Boolean(options && options.disableLinks);
   const toggleHtml = (options && options.toggleHtml) || "";
   // FY2025/FY2026 are the historical/completed repository -- those ledgers
-  // show delivery Phase alongside Status instead of a dollar column (the
-  // supplement tracks phase/status, not reliable per-year spend).
+  // show delivery Phase and a Budget column alongside Status instead of
+  // the FY-labeled dollar column the FY2027-2031 ledgers use.
   const isHistoricalYear = year === "FY2025" || year === "FY2026";
   const showPhaseColumn = isHistoricalYear && showStatusColumn;
+  const showBudgetColumn = isHistoricalYear && showStatusColumn;
   const showAmountColumn = !isHistoricalYear;
   // Historical rows carry only a category-derived funding label, so the
   // revenue behind them isn't reliable -- shown for FY2027-2031 only, the
@@ -229,6 +230,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
       <tr class="wc-cip-district-subtotal-row">
         <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>${escapeHtml(currentDistrict)} Subtotal</td>
         ${showAmountColumn ? `<td class="wc-num">${money(districtSubtotal)}</td>` : ""}
+        ${showBudgetColumn ? `<td class="wc-num">${money(districtSubtotal)}</td>` : ""}
       </tr>
     `);
   }
@@ -252,6 +254,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
         ${showRevenueSourceColumn ? `<td>${renderRevenueSource(project)}</td>` : ""}
         ${showPhaseColumn ? `<td>${project.phase_text ? `<span class="wc-cip-status-badge ${escapeHtml(project.phase_class || "wc-status-planning")}">${escapeHtml(project.phase_text)}</span>` : "&mdash;"}</td>` : ""}
         ${showStatusColumn ? `<td><span class="wc-cip-status-badge ${escapeHtml(project.status_class || "wc-status-planning")}"${project.status_note ? ` title="${escapeHtml(project.status_note)}"` : ""}>${escapeHtml(project.status_text || "Not available")}</span></td>` : ""}
+        ${showBudgetColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">In-House</span>'}</td>` : ""}
         ${showAmountColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">No amount recorded</span>'}</td>` : ""}
       </tr>
     `);
@@ -277,12 +280,17 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               ${showRevenueSourceColumn ? "<th>Revenue Source</th>" : ""}
               ${showPhaseColumn ? "<th>Phase</th>" : ""}
               ${showStatusColumn ? "<th>Status</th>" : ""}
+              ${showBudgetColumn ? `<th class="wc-num">Budget</th>` : ""}
               ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
             </tr>
           </thead>
           <tbody>
             ${rowsHtml.join("")}
             ${showAmountColumn ? `<tr class="wc-table-total-row">
+              <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
+              <td class="wc-num">${money(total)}</td>
+            </tr>` : ""}
+            ${showBudgetColumn ? `<tr class="wc-table-total-row">
               <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
               <td class="wc-num">${money(total)}</td>
             </tr>` : ""}
