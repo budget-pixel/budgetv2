@@ -131,7 +131,8 @@ a:where(:visited) {
 .wc-department-explorer-head p,
 .wc-revenue-explorer-head p,
 .wc-explorer p {
-  color: var(--text);
+  color: #000;
+  font-size: .94rem;
   text-align: justify;
   text-justify: inter-word;
   line-height: 1.65;
@@ -141,6 +142,17 @@ a:where(:visited) {
 .wc-revenue-explorer-head p + p,
 .wc-explorer p + p {
   margin-top: 14px;
+}
+/* The shared #000 above (matching the Revenue Budget Explorer's intro
+   paragraph) is a light-mode-only color choice -- readable against dark
+   mode's dark background needs var(--text) instead, same as every other
+   dark-mode text override in this file. */
+:root[data-theme="dark"] .wc-personnel-explorer-head p,
+:root[data-theme="dark"] .wc-department-explorer-head p,
+:root[data-theme="dark"] .wc-revenue-explorer-head p,
+:root[data-theme="dark"] .wc-explorer p,
+:root[data-theme="dark"] .wc-revenue-concentration-head > div > p {
+  color: var(--text) !important;
 }
 .page-text p  { margin-bottom: 14px; font-size: .9rem; line-height: 1.75; }
 .page-text h2 {
@@ -595,7 +607,7 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-personnel-explorer-head > div:first-child > span { color: var(--green); font-size: .68rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
 .wc-personnel-explorer-head h2 { margin: 5px 0 7px; color: var(--navy); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; line-height: 1.12; }
 .wc-personnel-explorer-head > div:first-child { flex: 1 1 auto; min-width: 0; }
-.wc-personnel-explorer-head p { max-width: 1100px; margin: 0; color: var(--text); font-size: .82rem; text-align: justify; text-justify: inter-word; }
+.wc-personnel-explorer-head p { max-width: 1100px; margin: 0; color: #000; font-size: .94rem; text-align: justify; text-justify: inter-word; }
 .wc-personnel-total-budget { display: flex; flex: 0 0 auto; min-width: 220px; flex-direction: column; align-items: flex-end; gap: 14px; text-align: right; }
 .wc-personnel-total-budget .wc-personnel-explorer-total { order: 1; }
 .wc-personnel-total-budget .wc-personnel-budget-split { order: 2; }
@@ -1249,7 +1261,7 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-department-explorer{position:relative;margin-top:20px}
 .wc-department-explorer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}
 .wc-department-explorer-head>div:first-child>span,.wc-department-detail-head>div:first-child>span{color:var(--green);font-size:.68rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
-.wc-department-explorer-head h2{margin:5px 0 7px;color:var(--navy);font-size:clamp(2rem, 4vw, 2.75rem);font-weight:800;line-height:1.12}.wc-department-explorer-head>div:first-child{flex:1 1 auto;min-width:0}.wc-department-explorer-head p{max-width:900px;margin:0;color:var(--muted);font-size:.82rem}
+.wc-department-explorer-head h2{margin:5px 0 7px;color:var(--navy);font-size:clamp(2rem, 4vw, 2.75rem);font-weight:800;line-height:1.12}.wc-department-explorer-head>div:first-child{flex:1 1 auto;min-width:0}.wc-department-explorer-head p{max-width:900px;margin:0;color:#000;font-size:.94rem}
 .wc-department-explorer-badges{display:flex;align-items:flex-start;margin:0}.wc-department-explorer-badges>div{min-width:130px;padding:2px 18px;text-align:center}.wc-department-explorer-badges>div+div{border-left:1px solid #d5dfda}.wc-department-explorer-badges span{display:block;color:var(--muted);font-size:.65rem;font-weight:800;text-transform:uppercase;white-space:nowrap}.wc-department-explorer-badges b{display:block;margin-top:7px;color:var(--navy);font-size:1rem}
 .wc-department-explorer-total .wc-department-explorer-badges{display:flex;justify-content:flex-end;margin:0}
 .wc-department-explorer-total{min-width:275px;text-align:right}.wc-department-explorer-total>span,.wc-department-explorer-total label{display:block;color:var(--muted);font-size:.65rem;font-weight:800;text-transform:uppercase}.wc-department-explorer-total>strong{display:block;margin:3px 0 10px;color:var(--green);font-size:1.65rem}.wc-department-explorer-total select{width:100%;margin-top:5px;padding:8px 34px 8px 11px;border:1px solid var(--green);border-radius:999px;background:#fff;color:var(--navy);font:inherit;font-size:.72rem;font-weight:750}
