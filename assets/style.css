@@ -558,7 +558,7 @@ a.wc-directory-item-office-name:hover { color: var(--green); text-decoration: un
 .wc-revenue-total-change { display: block; color: var(--muted); font-size: 1rem; line-height: 1.35; white-space: nowrap; }
 .wc-revenue-total-change.is-increase { color: #087443; font-weight: 800; }
 .wc-revenue-total-change.is-decrease { color: #b42318; font-weight: 800; }
-.wc-revenue-ledger-trigger, .wc-revenue-ledger-close, .wc-revenue-peer-trigger, .wc-revenue-peer-close { border: 1px solid rgba(0,63,40,.2); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .68rem; font-weight: 850; }
+.wc-revenue-ledger-trigger, .wc-revenue-ledger-close, .wc-revenue-peer-trigger, .wc-revenue-peer-close { border: 1px solid #003f28; border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .68rem; font-weight: 850; }
 .wc-revenue-view-actions { display: flex; flex-wrap: nowrap; justify-content: flex-end; gap: 7px; margin-top: 8px; }
 .wc-revenue-concentration-head .wc-revenue-view-actions,
 .wc-department-explorer-head .wc-department-ledger-trigger,
@@ -574,7 +574,7 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-revenue-peer-trigger { background: #fff; color: var(--green); }
 .wc-revenue-peer-trigger:hover { background: #eef7f1; }
 .wc-revenue-ledger-close { margin: 18px 0 0; padding: 8px 12px; }
-.wc-revenue-ledger-trigger:hover, .wc-revenue-ledger-close:hover, .wc-revenue-peer-close:hover { background: #075d3d; }
+.wc-revenue-ledger-trigger:hover, .wc-revenue-ledger-close:hover, .wc-revenue-peer-close:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); }
 .wc-revenue-ledger-trigger:focus-visible, .wc-revenue-ledger-close:focus-visible, .wc-revenue-peer-trigger:focus-visible, .wc-revenue-peer-close:focus-visible { outline: 3px solid rgba(121,185,154,.5); outline-offset: 2px; }
 .wc-revenue-peer-section { max-width: 1180px; margin: 34px auto 42px; scroll-margin-top: 105px; }
 .wc-revenue-peer-close { margin-bottom: 16px; padding: 9px 14px; }
@@ -613,7 +613,8 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 .wc-personnel-explorer-total > small.is-increase { color: #087443; font-weight: 800; }
 .wc-personnel-explorer-total > small.is-decrease { color: #b42318; font-weight: 800; }
 .wc-personnel-explorer-total > div { display: flex; justify-content: flex-end; gap: 7px; margin-top: 9px; }
-.wc-personnel-explorer-total button, .wc-personnel-explorer-total .wc-personnel-ledger-trigger, .wc-personnel-explainer-link { padding: 7px 10px; border: 1px solid var(--green); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; text-decoration: none; white-space: nowrap; display: inline-block; }
+.wc-personnel-explorer-total button, .wc-personnel-explorer-total .wc-personnel-ledger-trigger, .wc-personnel-explainer-link { padding: 7px 10px; border: 1px solid #003f28; border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; text-decoration: none; white-space: nowrap; display: inline-block; }
+.wc-personnel-explorer-total button:hover, .wc-personnel-explorer-total .wc-personnel-ledger-trigger:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); }
 .wc-personnel-explorer-total .wc-personnel-ledger-trigger + .wc-personnel-explainer-link { background: #fff; color: var(--green); }
 .wc-personnel-explorer-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; margin-top: 26px; }
 .wc-personnel-explorer-metrics article { position: relative; padding: 20px 18px 18px; border: 1px solid var(--border); border-radius: 18px; background: #fff; box-shadow: 0 8px 20px rgba(0,63,40,.05); overflow: hidden; }
@@ -928,6 +929,11 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
 .wc-revenue-assumption p { margin: 7px 0 0; text-align: left; }
 .wc-revenue-topic-chart-card .wc-revenue-assumption { margin-top: 12px; }
 .wc-revenue-control-profile { margin: 18px 0; padding: 14px 16px; border: 1px solid rgba(0,63,40,.14); border-radius: 12px; background: #f7faf8; }
+/* Flex children don't margin-collapse, so two of these stacked back to
+   back (Projection Assumption -> County Ability to Increase Revenue, or
+   -> Current Policy Context) added both margins together for a much
+   bigger gap than either card was designed to leave on its own. */
+.wc-revenue-control-profile + .wc-revenue-control-profile { margin-top: 0; }
 .wc-revenue-control-profile > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
 .wc-revenue-control-profile strong { color: var(--green); font-size: .72rem; letter-spacing: .045em; text-transform: uppercase; }
 .wc-revenue-control-profile span { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 999px; font-size: .64rem; font-weight: 850; }
@@ -959,12 +965,12 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
 .wc-revenue-topic-row-list-only { display: block; }
 .wc-revenue-topic-row-list-only .wc-revenue-topic-narrative-card { max-width: 900px; margin: 0 auto; }
 .wc-revenue-detail-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px; margin: 0 0 16px; }
-.wc-revenue-back-to-other { display: none; padding: 7px 11px; border: 1px solid rgba(0,63,40,.18); border-radius: 999px; background: transparent; color: var(--green); cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
+.wc-revenue-back-to-other { display: none; padding: 7px 11px; border: 1px solid #003f28; border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
 .wc-revenue-close-detail { padding: 7px 11px; border: 1px solid rgba(0,63,40,.24); border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
 .wc-revenue-close-detail:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); }
 .wc-revenue-close-detail:focus-visible { outline: 3px solid rgba(121,185,154,.45); outline-offset: 2px; }
 body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-other-revenue):not([hidden]) .wc-revenue-back-to-other { display: inline-flex; }
-.wc-revenue-back-to-other:hover { background: rgba(0,63,40,.07); }
+.wc-revenue-back-to-other:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); }
 .wc-revenue-back-to-other:focus-visible { outline: 3px solid rgba(121,185,154,.45); outline-offset: 2px; }
 .wc-revenue-topic-block {
   max-width: 1180px;
@@ -1052,9 +1058,12 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
    closing paragraph with no bar in between, the default gap reads too
    tight now that the row itself lost its old <small> descriptor line. */
 .wc-property-tax-burden-row + p { margin-top: 18px; }
-.wc-property-tax-support-open { margin-top: 13px; padding: 8px 12px; border: 1px solid var(--green); border-radius: 999px; background: #fff; color: var(--green); cursor: pointer; font: inherit; font-size: .7rem; font-weight: 850; }
-.wc-revenue-topic-chart-card > .wc-property-tax-support-open { position: absolute; z-index: 2; top: 20px; right: 20px; margin: 0; }
-.wc-property-tax-support-open:hover { background: var(--green); color: #fff; }
+.wc-property-tax-support-open { display: inline-block; margin: 13px 0 16px; padding: 8px 12px; border: 1px solid #003f28; border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
+/* Sitting right under the "Property Taxes" title now (see budget-data.js),
+   the title's own 18px bottom margin plus this button's 13px top margin
+   stacked into a much bigger gap than either was designed for alone. */
+.wc-revenue-topic-title + .wc-property-tax-support-open { margin-top: 0; }
+.wc-property-tax-support-open:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); color: #fff; }
 .wc-property-tax-support-open:focus-visible, .wc-property-tax-support-close:focus-visible { outline: 3px solid rgba(121,185,154,.5); outline-offset: 2px; }
 .wc-property-tax-support-dialog { position: fixed; inset: 0; width: min(900px,calc(100vw - 28px)); max-width: none; height: min(590px,calc(100vh - 28px)); max-height: none; margin: auto; padding: 0; overflow: hidden; border: 0; border-radius: 18px; background: #fff; box-shadow: 0 24px 70px rgba(0,27,17,.28); }
 .wc-modal-open,
@@ -1079,8 +1088,6 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   background: #ffffff;
   border-radius: 12px;
 }
-.wc-revenue-chart-legend[hidden] { display: none; }
-@media(max-width:620px){.wc-revenue-topic-chart-card>.wc-property-tax-support-open{position:static;align-self:flex-start;margin:0 0 12px}}
 .wc-revenue-chart-legend[hidden] { display: none; }
 .wc-revenue-chart-legend-item {
   display: inline-flex;
@@ -1251,7 +1258,8 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-department-explorer-total-primary>small{display:block;margin:3px 0 10px;color:var(--muted);font-size:1rem;line-height:1.35;white-space:nowrap}.wc-department-explorer-total-primary>small.is-increase{color:#087443;font-weight:800}.wc-department-explorer-total-primary>small.is-decrease{color:#b42318;font-weight:800}
 .wc-department-explorer-year-change{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin:-2px 0 10px;color:var(--muted);font-size:.68rem}.wc-department-explorer-year-change>span{display:inline;color:var(--muted);font-size:.68rem;text-transform:none}.wc-department-explorer-year-change>strong,.wc-department-explorer-year-change>em{color:var(--muted);font-size:.68rem;font-style:normal;font-weight:800}.wc-department-explorer-year-change.is-increase>strong,.wc-department-explorer-year-change.is-increase>em{color:var(--green)}.wc-department-explorer-year-change.is-decrease>strong,.wc-department-explorer-year-change.is-decrease>em{color:#b42318}
 .wc-department-explorer-year-change>strong,.wc-department-explorer-year-change>em{font-size:1rem}.wc-department-metric-change{font-size:.86rem!important}.wc-department-metric-change.is-increase{color:var(--green)!important}.wc-department-metric-change.is-decrease{color:#b42318!important}
-.wc-department-ledger-trigger{margin:0 0 12px;padding:8px 12px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:.68rem;font-weight:800;text-decoration:none;display:inline-block}.wc-department-ledger{margin:30px 0;padding:24px;border:1px solid rgba(0,63,40,.15);border-radius:20px;background:#fff;scroll-margin-top:105px}.wc-department-ledger h2{margin:0 0 6px;color:var(--navy);font-size:1.35rem}.wc-department-ledger>p{margin:0 0 16px;color:var(--muted);font-size:.75rem}.wc-department-ledger.wc-ledger-page-flush{margin:0;padding:0;border:0;border-radius:0;background:transparent;scroll-margin-top:0}
+.wc-department-ledger-trigger{margin:0 0 12px;padding:8px 12px;border:1px solid #003f28;border-radius:999px;background:linear-gradient(135deg, #003f28 0%, #005236 100%);color:#fff;cursor:pointer;font:inherit;font-size:.68rem;font-weight:800;text-decoration:none;display:inline-block}
+.wc-department-ledger-trigger:hover{background:linear-gradient(135deg, #00341f 0%, #00432c 100%)}.wc-department-ledger{margin:30px 0;padding:24px;border:1px solid rgba(0,63,40,.15);border-radius:20px;background:#fff;scroll-margin-top:105px}.wc-department-ledger h2{margin:0 0 6px;color:var(--navy);font-size:1.35rem}.wc-department-ledger>p{margin:0 0 16px;color:var(--muted);font-size:.75rem}.wc-department-ledger.wc-ledger-page-flush{margin:0;padding:0;border:0;border-radius:0;background:transparent;scroll-margin-top:0}
 .wc-department-explorer-list-footer{display:flex;justify-content:flex-end;margin:14px 0 0}.wc-department-list-link{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 14px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:.72rem;font-weight:800;text-decoration:none}.wc-department-list-link:hover{background:var(--green2);border-color:var(--green2)}.wc-department-list-link .wc-department-list-link-icon{display:inline-block;transition:transform .15s ease}.wc-department-list-link[aria-expanded="true"] .wc-department-list-link-icon{transform:rotate(180deg)}
 .wc-department-explorer-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}.wc-department-explorer-metrics article{padding:14px;border:1px solid rgba(0,63,40,.11);border-radius:12px;background:#fff}.wc-department-explorer-metrics span{display:block;color:var(--muted);font-size:.7rem;font-weight:800;text-transform:uppercase}.wc-department-explorer-metrics strong{display:block;margin:5px 0 2px;color:var(--navy);font-size:1.12rem}.wc-department-explorer-metrics small{color:var(--muted);font-size:.74rem}.wc-department-explorer-metrics .wc-department-metric-change{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--green);font-size:.68rem;font-style:normal;font-weight:800}.wc-department-explorer-metrics .wc-department-metric-change.is-decrease{color:#b42318}
 .wc-debt-metrics article{background:#fff;border-color:rgba(0,98,49,.14)}
