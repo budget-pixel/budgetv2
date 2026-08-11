@@ -617,12 +617,12 @@
         </div>
         <div class="wc-ptax-kpi-split-item">
           <strong>3.4347</strong>
-          <small>Rolled-Back <button type="button" class="wc-info-button" aria-label="Rolled-Back Rate info" data-tip="The millage rate that would raise approximately the same countywide property tax revenue as last year, excluding new construction.">i</button></small>
+          <small>Rolled-Back <button type="button" class="wc-budget-line-tooltip-anchor" aria-label="Rolled-Back Rate info" data-wc-tooltip="The millage rate that would raise approximately the same countywide property tax revenue as last year, excluding new construction.">i</button></small>
         </div>
       </div>
     </article>
     <article class="wc-budget-kpi neutral">
-      <span>Two-Thirds Vote Maximum <button type="button" class="wc-info-button" aria-label="Two-Thirds Vote Maximum info" data-tip="Under Florida&#39;s TRIM law, this is the maximum millage rate the Board of County Commissioners may adopt with a two-thirds vote. Higher rates require a unanimous vote or voter approval.">i</button></span>
+      <span>Two-Thirds Vote Maximum <button type="button" class="wc-budget-line-tooltip-anchor" aria-label="Two-Thirds Vote Maximum info" data-wc-tooltip="Under Florida&#39;s TRIM law, this is the maximum millage rate the Board of County Commissioners may adopt with a two-thirds vote. Higher rates require a unanimous vote or voter approval.">i</button></span>
       <strong>3.7782</strong>
     </article>
     <article class="wc-budget-kpi neutral">
@@ -783,7 +783,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
+<script src="../assets/budget-data.js?v=20260810-tooltip-portal-fix"></script>
 <script>
 (function(){
   function $(selector){
@@ -882,7 +882,15 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     const parenMatch = String(rawName || "").match(/\(([^)]*)\)/);
     const tooltip = DEPARTMENT_TOOLTIPS[norm] || (parenMatch ? "Includes: " + parenMatch[1] + "." : "");
     const tagHtml = CONSTITUTIONAL_OFFICER_NAMES[norm] ? ' <span class="wc-tax-row-tag">&mdash; Elected Office</span>' : "";
-    const tipHtml = tooltip ? ' <button type="button" class="wc-info-button" aria-label="' + escapeHtml(displayName) + ' info" data-tip="' + escapeHtml(tooltip) + '">i</button>' : "";
+    // The Property Tax Allocation Ledger table scrolls horizontally
+    // (.wc-data-table-scroll), which clips vertical overflow too -- an
+    // absolutely-positioned ::after tooltip anchored inside that scroll
+    // box gets cut off no matter which direction it opens. This reuses
+    // the shared wc-budget-line-tooltip-anchor/bubble system instead
+    // (see bindTooltipAnchors in budget-data.js): the bubble is
+    // position:fixed and appended straight to <body>, so it floats free
+    // of the table's own clipping bounds entirely.
+    const tipHtml = tooltip ? ' <button type="button" class="wc-budget-line-tooltip-anchor" aria-label="' + escapeHtml(displayName) + ' information" data-wc-tooltip="' + escapeHtml(tooltip) + '">i</button>' : "";
     const href = getPageHref(norm);
     const nameHtml = href ? '<a href="' + escapeHtml(href) + '">' + escapeHtml(displayName) + '</a>' : escapeHtml(displayName);
     return nameHtml + tagHtml + tipHtml;
@@ -1081,6 +1089,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
         '<p>Grouped by Constitutional Officers, Independent Agencies, and Board Departments, each with its own subtotal -- largest first within each group.</p>' +
       '</div>' +
       tableHtml;
+    if (window.WCBudgetData && typeof window.WCBudgetData.bindTooltipAnchors === "function") {
+      window.WCBudgetData.bindTooltipAnchors(flowMount);
+    }
   }
 
   // Real, already-adopted FY2026 -> FY2027 dollar/percent increases for
@@ -1569,6 +1580,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   }
 
   document.addEventListener("DOMContentLoaded", function(){
+    if (window.WCBudgetData && typeof window.WCBudgetData.bindTooltipAnchors === "function") {
+      window.WCBudgetData.bindTooltipAnchors(document.getElementById("wc-ptax-summary"));
+    }
     loadAdValoremRows()
       .then(renderAllocation)
       .catch(function(error){

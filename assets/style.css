@@ -960,8 +960,8 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
 .wc-revenue-topic-row-list-only .wc-revenue-topic-narrative-card { max-width: 900px; margin: 0 auto; }
 .wc-revenue-detail-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px; margin: 0 0 16px; }
 .wc-revenue-back-to-other { display: none; padding: 7px 11px; border: 1px solid rgba(0,63,40,.18); border-radius: 999px; background: transparent; color: var(--green); cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
-.wc-revenue-close-detail { padding: 7px 11px; border: 1px solid rgba(0,63,40,.24); border-radius: 999px; background: var(--green); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
-.wc-revenue-close-detail:hover { background: #075d3d; }
+.wc-revenue-close-detail { padding: 7px 11px; border: 1px solid rgba(0,63,40,.24); border-radius: 999px; background: linear-gradient(135deg, #003f28 0%, #005236 100%); color: #fff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 800; }
+.wc-revenue-close-detail:hover { background: linear-gradient(135deg, #00341f 0%, #00432c 100%); }
 .wc-revenue-close-detail:focus-visible { outline: 3px solid rgba(121,185,154,.45); outline-offset: 2px; }
 body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-other-revenue):not([hidden]) .wc-revenue-back-to-other { display: inline-flex; }
 .wc-revenue-back-to-other:hover { background: rgba(0,63,40,.07); }
@@ -1001,9 +1001,10 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 }
 .wc-revenue-topic-chart-card {
   position: relative;
-  background: linear-gradient(135deg, #f4f8f5 0%, #eef7f1 100%);
+  background: linear-gradient(135deg, #003f28 0%, #005236 100%);
   border: 1px solid rgba(0,63,40,.14);
-  box-shadow: 0 6px 18px rgba(0,63,40,.06);
+  box-shadow: 0 6px 18px rgba(0,63,40,.18);
+  color: #fff;
 }
 .wc-revenue-topic-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 15px; }
 .wc-revenue-topic-badges .wc-revenue-snapshot-access { margin: 0; }
@@ -1047,6 +1048,10 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 .wc-property-tax-burden-bar-stacked .is-other { background: #9cb9c8; }
 .wc-tourist-tax-burden-bar i { background: #b42318; }
 .wc-property-tax-burden > p { margin: 12px 0 0; color: var(--muted); font-size: .65rem; line-height: 1.45; }
+/* When a burden row (e.g. "Local-supported") is followed straight by the
+   closing paragraph with no bar in between, the default gap reads too
+   tight now that the row itself lost its old <small> descriptor line. */
+.wc-property-tax-burden-row + p { margin-top: 18px; }
 .wc-property-tax-support-open { margin-top: 13px; padding: 8px 12px; border: 1px solid var(--green); border-radius: 999px; background: #fff; color: var(--green); cursor: pointer; font: inherit; font-size: .7rem; font-weight: 850; }
 .wc-revenue-topic-chart-card > .wc-property-tax-support-open { position: absolute; z-index: 2; top: 20px; right: 20px; margin: 0; }
 .wc-property-tax-support-open:hover { background: var(--green); color: #fff; }
@@ -2797,19 +2802,50 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   padding: 0;
   list-style: none;
 }
-.wc-department-office-picker-list a {
-  display: block;
+.wc-department-office-picker-list a,
+.wc-department-office-picker-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 10px;
+  background: none;
   color: var(--navy);
+  font: inherit;
   font-weight: 700;
   font-size: 0.9rem;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
+}
+/* When a choice carries an amount (Personnel Ledger picker), it renders as
+   <span>Name</span><strong>$Amount</strong> -- same name-left,
+   amount-right, bold-amount format as a single-office row's own Total
+   Personnel Cost cell. */
+.wc-department-office-picker-list button strong {
+  color: var(--green);
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 .wc-department-office-picker-list a:hover,
-.wc-department-office-picker-list a:focus-visible {
+.wc-department-office-picker-list a:focus-visible,
+.wc-department-office-picker-list button:hover,
+.wc-department-office-picker-list button:focus-visible {
   border-color: var(--green);
+  /* Explicit background here, not just color, because a picker choice
+     with an amount also carries .wc-view-budget-lines-toggle (so clicking
+     it opens that office's detail) -- that base class's own :hover rule
+     fills the whole button solid green, which otherwise wins the
+     background (nothing here was overriding it) while this rule's color
+     still won on specificity, leaving green text on a green fill. */
+  background: rgba(0,63,40,.06);
+  color: var(--green);
+}
+.wc-department-office-picker-list button:hover strong,
+.wc-department-office-picker-list button:focus-visible strong {
   color: var(--green);
 }
 .wc-budget-detail-body .wc-budget-lines-detail {
@@ -3297,13 +3333,17 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
    instead of a plain <a> -- styled to look identical to a plain
    wc-table-row-link anchor (same color var(--green), same underline)
    so it doesn't stand out from the single-link department names or the
-   Constitutional Officers table above it. */
-.wc-data-table .wc-department-card-picker.wc-table-row-link {
+   Constitutional Officers table above it. Excludes the Personnel Ledger's
+   Total Personnel Cost picker button, which also carries
+   wc-view-budget-lines-toggle specifically so it keeps that cell's own
+   dark-green/bold/arrow look instead (see below) -- it's a dollar amount,
+   not a name, and should read like every other Total Personnel Cost cell. */
+.wc-data-table .wc-department-card-picker.wc-table-row-link:not(.wc-view-budget-lines-toggle) {
   display: inline; padding: 0; border: 0; background: none; font: inherit;
   color: var(--green); text-decoration: underline; text-underline-offset: 3px;
   cursor: pointer; text-align: left;
 }
-.wc-data-table .wc-department-card-picker.wc-table-row-link:hover {
+.wc-data-table .wc-department-card-picker.wc-table-row-link:not(.wc-view-budget-lines-toggle):hover {
   color: var(--green); text-decoration: none;
 }
 .wc-personnel-constitutional-note {

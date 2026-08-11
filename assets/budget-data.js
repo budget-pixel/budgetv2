@@ -4424,8 +4424,23 @@
     if (title) title.textContent = card.dataset.departmentName || "Department";
     if (body) {
       body.className = "wc-budget-detail-body wc-department-office-picker-body";
+      // A choice either navigates to that office's own page (href) or, for
+      // the Personnel Ledger's picker, opens that office's own "Staffing
+      // and Cost by Position" detail in this same modal (detailId) -- the
+      // latter reuses the .wc-view-budget-lines-toggle delegated handler
+      // above, so clicking it just works without any extra wiring here.
+      // A choice carrying an amount (the Personnel Ledger's per-office
+      // total) renders it the same way a single-office row's own Total
+      // Personnel Cost amount does, so the picker reads like more rows of
+      // that same ledger rather than a plain list of names.
+      const choiceLabelHtml = (choice) => choice.amount == null
+        ? escapeHtml(choice.name)
+        : '<span>' + escapeHtml(choice.name) + '</span><strong>' + escapeHtml(formatCurrency(choice.amount)) + '</strong>';
       body.innerHTML = '<ul class="wc-department-office-picker-list">' +
-        choices.map((choice) => '<li><a href="' + escapeHtml(choice.href) + '">' + escapeHtml(choice.name) + '</a></li>').join("") +
+        choices.map((choice) => choice.detailId
+          ? '<li><button type="button" class="wc-view-budget-lines-toggle" data-target="' + escapeHtml(choice.detailId) + '" data-closed-label="' + escapeHtml(choice.name) + '">' + choiceLabelHtml(choice) + '</button></li>'
+          : '<li><a href="' + escapeHtml(choice.href) + '">' + choiceLabelHtml(choice) + '</a></li>'
+        ).join("") +
         '</ul>';
     }
     activeBudgetDetailToggle = card;
@@ -10438,9 +10453,9 @@
         : 0;
       const adValoremBurdenHtml = topic.title === "Property Taxes"
         ? '<div class="wc-property-tax-burden"><div class="wc-property-tax-burden-head"><strong>Who carries the property-tax base?</strong><span>Share of taxable value</span></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Homestead property</span><small>Owner-occupied resident property</small></div><strong>16.7%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.1667)) + '</em></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Commercial &amp; industrial</span><small>Improved and vacant business property</small></div><strong>5.3%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.053)) + '</em></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Other taxable property</span><small>Includes non-homestead homes, rentals, second homes, acreage, and other uses</small></div><strong>78.0%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.78)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Homestead property</span></div><strong>16.7%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.1667)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Commercial &amp; industrial</span></div><strong>5.3%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.053)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Other taxable property</span></div><strong>78.0%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.78)) + '</em></div>' +
           '<div class="wc-property-tax-burden-bar wc-property-tax-burden-bar-stacked" aria-label="Taxable value: 16.7 percent homestead, 5.3 percent commercial and industrial, and 78 percent other taxable property"><i class="is-homestead" style="width:16.7%"></i><i class="is-commercial" style="width:5.3%"></i><i class="is-other" style="width:78%"></i></div>' +
           '<p>Estimated FY 2027 levy shares apply the parcel roll and Florida Department of Revenue&rsquo;s 2025 property-use taxable values to proposed ad valorem revenue. This is a tax-base comparison, not a parcel-level billing calculation. <a href="https://floridarevenue.com/property/Pages/DataPortal_DataBook.aspx" target="_blank" rel="noopener noreferrer">Review the state property-tax data</a>.</p></div>'
         : '';
@@ -10449,7 +10464,7 @@
           '<dialog class="wc-property-tax-support-dialog" id="wc-property-tax-support-dialog" aria-labelledby="wc-property-tax-support-title"><div><header><div><span>Personalized property-tax estimate</span><h3 id="wc-property-tax-support-title">What does your property tax support?</h3></div><button type="button" class="wc-property-tax-support-close" aria-label="Close personalized property-tax estimate">&times;</button></header><iframe title="Walton County personalized property-tax support calculator" data-src="summary-of-property-tax-allocations.html?embed=calculator"></iframe></div></dialog>'
         : '';
       const homesteadForegoneHtml = topic.title === "Property Taxes"
-        ? '<div class="wc-revenue-control-profile wc-homestead-foregone" data-homestead-foregone aria-live="polite"><div><strong>Homestead-related revenue forgone</strong><span class="is-moderate"><span class="wc-loading-dots" aria-label="Calculating estimate"><span></span><span></span><span></span></span></span></div><p>Calculating from the County parcel roll and FY 2027 proposed millage rate.</p></div>'
+        ? '<div class="wc-revenue-control-profile wc-homestead-foregone" data-homestead-foregone aria-live="polite"><div><strong>Homestead-related revenue forgone</strong></div><p>Calculating from the County parcel roll and FY 2027 proposed millage rate.</p></div>'
         : '';
       const isSalesTaxBurdenTopic = topicRows.some((row) => ["312600", "335180"].includes(String(row.Revenue_Code || "").trim())) ||
         /(?:sales surtax|half.?cent sales tax|1\s*\/\s*2 cent sales tax)/i.test(topic.title);
@@ -10458,17 +10473,17 @@
         : 0;
       const salesTaxBurdenHtml = isSalesTaxBurdenTopic
         ? '<div class="wc-property-tax-burden wc-sales-tax-burden"><div class="wc-property-tax-burden-head"><strong>Who supports this sales-tax revenue?</strong><span>Estimated share</span></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span><small>Estimated from visitors&rsquo; share of retail spending</small></div><strong>80.2%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.802)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span></div><strong>80.2%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.802)) + '</em></div>' +
           '<div class="wc-property-tax-burden-bar"><i style="width:80.2%"></i></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span><small>Estimated resident and local-business activity</small></div><strong>19.8%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.198)) + '</em></div>' +
-          '<p>This planning estimate applies the County tourism report&rsquo;s visitor share of retail spending to FY 2027 proposed revenue; it is not an audited classification of individual tax payments.' + (topic.title === "Local Government Half-Cent Sales Tax" ? '' : ' <a href="https://www.waltoncountyfltourism.com/press/walton-county-tourism-department-releases-annual-update/" target="_blank" rel="noopener noreferrer">Review the tourism update</a>.') + '</p></div>'
+          '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span></div><strong>19.8%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.198)) + '</em></div>' +
+          '<p>This planning estimate applies the County tourism report&rsquo;s visitor share of retail spending to FY 2027 proposed revenue; it is not an audited classification of individual tax payments.</p></div>'
         : '';
       const touristTaxCurrentAmount = topic.title === "Tourist Development Taxes"
         ? topicRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0)
         : 0;
       const touristTaxBurdenHtml = topic.title === "Tourist Development Taxes"
         ? '<div class="wc-property-tax-burden wc-tourist-tax-burden"><div class="wc-property-tax-burden-head"><strong>Who supports this tax?</strong><span>Share of revenue</span></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Visitors</span><small>Paid on hotels, vacation rentals, and other short-term lodging</small></div><strong>100%</strong><em>' + escapeHtml(formatCurrency(touristTaxCurrentAmount)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Visitors</span></div><strong>100%</strong><em>' + escapeHtml(formatCurrency(touristTaxCurrentAmount)) + '</em></div>' +
           '<div class="wc-property-tax-burden-bar wc-tourist-tax-burden-bar"><i style="width:100%"></i></div>' +
           '<p>Tourist Development Tax is presented as entirely visitor-supported because it is collected on short-term lodging rather than residents&rsquo; regular property-tax bills.</p></div>'
         : '';
@@ -10523,14 +10538,29 @@
       const adValoremStatusHtml = topic.title === "Property Taxes"
         ? '<div class="wc-revenue-control-profile wc-revenue-policy-context"><div><strong>Current policy context</strong><span class="is-varied">Policy update</span></div><p>Walton County is utilizing the 3.4347 rolled-back countywide millage rate for the FY 2027 proposal. Florida voters are scheduled to consider a property-tax constitutional amendment in November 2026. If approved, it would increase the non-school homestead exemption to $150,000 in 2027 and $250,000 in 2028. Because voter approval and the local revenue effect remain uncertain, the two planning years are held flat. <a href="https://www.flsenate.gov/Session/Bill/2026F/2F/BillText/c1/HTML" target="_blank" rel="noopener noreferrer">Review the proposed amendment</a>.</p></div>'
         : "";
+      const assumptionBadgeLabel = projectionRate ? "Growing" : "Flat";
+      // Same wc-revenue-control-profile look as "County ability to increase
+      // revenue" and "Current policy context" below -- wc-revenue-assumption
+      // is kept alongside it only for the chart card's own margin-top:auto
+      // bottom-alignment rule (see style.css), not for its old distinct
+      // green-accent-bar appearance, which control-profile's own (later,
+      // equal-specificity) rules now override.
       const assumptionHtml = topic.isAllOtherRevenue ? "" :
-        '<div class="wc-revenue-assumption"><strong>Projection assumption</strong><p>' + escapeHtml(projectionNote + historicalNote + comparisonNote) + ' These estimates are for planning and will be updated as economic and state guidance changes.</p></div>';
+        '<div class="wc-revenue-assumption wc-revenue-control-profile">' +
+        '<div><strong>Projection assumption</strong><span class="' + (projectionRate ? "is-moderate" : "is-low") + '">' + escapeHtml(assumptionBadgeLabel) + '</span></div>' +
+        '<p>' + escapeHtml(projectionNote + historicalNote + comparisonNote) + ' These estimates are for planning and will be updated as economic and state guidance changes.</p></div>';
       const controlProfile = revenueControlProfile(topic, topicType);
       const controlProfileHtml =
         '<div class="wc-revenue-control-profile">' +
         '<div><strong>County ability to increase revenue</strong><span class="' + controlProfile.className + '">' + escapeHtml(controlProfile.level.replace(/ local control$/i, " control")) + '</span></div>' +
         '<p>' + escapeHtml(controlProfile.text) + '</p>' +
         '</div>';
+      // County ability to increase revenue and Homestead-related revenue
+      // forgone move into the chart card so the two columns carry a more
+      // even amount of content instead of stacking every secondary card
+      // under the narrative card alone. "All Other Revenue" has no chart
+      // card at all (see the isAllOtherRevenue branch below), so its
+      // control-profile card has to stay in the narrative card there.
       const chartCardHtml =
         '<div class="wc-revenue-topic-chart-card">' +
         topicBadgesHtml +
@@ -10538,9 +10568,8 @@
         '<div class="wc-revenue-topic-chart-wrap"><canvas id="' + idPrefix + "-" + topicIndex + '"></canvas></div>' +
         '<div class="wc-revenue-chart-legend" id="' + idPrefix + "-" + topicIndex + '-legend"></div>' +
         assumptionHtml +
-        adValoremBurdenHtml +
-        salesTaxBurdenHtml +
-        touristTaxBurdenHtml +
+        controlProfileHtml +
+        homesteadForegoneHtml +
         "</div>";
       const detailActionsHtml =
         '<div class="wc-revenue-detail-actions">' +
@@ -10551,9 +10580,11 @@
         '<div class="wc-revenue-topic-narrative-card">' +
         '<h2 class="wc-revenue-topic-title">' + escapeHtml(topic.title) + "</h2>" +
         narrativeHtml +
-        controlProfileHtml +
+        adValoremBurdenHtml +
+        salesTaxBurdenHtml +
+        touristTaxBurdenHtml +
+        (topic.isAllOtherRevenue ? controlProfileHtml : "") +
         adValoremStatusHtml +
-        homesteadForegoneHtml +
         "</div>";
       const isReversed = topicIndex % 2 === 1;
 
@@ -10587,11 +10618,11 @@
           }, 0);
           const proposedMillage = 3.4347;
           const foregoneLevy = exemptValue * proposedMillage / 1000;
-          homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong><span class="is-moderate">' + escapeHtml(formatCurrency(foregoneLevy)) + '</span></div>' +
+          homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong></div>' +
             '<p><b>' + escapeHtml(formatCurrency(exemptValue)) + '</b> of assessed value is removed from the taxable base across <b>' + escapeHtml(formatNumber(homesteadParcels.length)) + '</b> homestead-designated parcels, forgoing an estimated <b>' + escapeHtml(formatCurrency(foregoneLevy)) + '</b> in county levy. The estimate applies the FY 2027 proposed countywide rate of <b>3.4347 mills</b>. It reflects all exemptions recorded on homestead-designated parcels and is not a parcel-level tax calculation.</p>';
         })
         .catch(() => {
-          homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong><span class="is-low">Not available</span></div><p>The parcel-based estimate could not be calculated.</p>';
+          homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong></div><p>The parcel-based estimate could not be calculated.</p>';
         });
     }
 
@@ -15594,9 +15625,35 @@
               totalChangeCellHtml(total, priorTotal) + "</tr>"
             );
         }
-        const { detailId, detailHtml } = mergedPersonnelDetailFor(d, officeNames);
-        detailMarkup.push(detailHtml);
-        const totalCellHtml = '<td class="wc-num"><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d + " Staffing and Cost by Position") + '">' + formatCurrency(total) + "</button></td>";
+        // A department with more than one office rolled into it can't open
+        // one merged "Staffing and Cost by Position" popup and have it mean
+        // anything specific -- the Total Personnel Cost amount instead
+        // opens the same "choose an office" picker used for the department
+        // name link (see boardDeptNameHtml), and each choice opens that
+        // one office's own detail.
+        let totalCellHtml;
+        if (officeNames.length > 1) {
+          const pickerKey = "personnel-cost-" + slugifyId(d);
+          const officeChoices = officeNames.map((name) => {
+            const office = mergedPersonnelDetailFor(name, [name]);
+            detailMarkup.push(office.detailHtml);
+            const officeTotals = officeMap.get(name);
+            const officeAmount = officeTotals ? officeTotals.Salaries + officeTotals.Retirement + officeTotals.HealthInsurance + officeTotals.OtherBenefits : 0;
+            return { name, detailId: office.detailId, amount: officeAmount };
+          });
+          departmentCardOfficeChoices.set(pickerKey, officeChoices);
+          // wc-view-budget-lines-toggle has no data-target here, so that
+          // click handler no-ops on this button -- it's added purely so
+          // this picker trigger picks up the same bold/arrow styling as
+          // every other Total Personnel Cost cell (see
+          // .wc-view-budget-lines-toggle.wc-table-row-link in style.css),
+          // instead of looking like a plain underlined link.
+          totalCellHtml = '<td class="wc-num"><button type="button" class="wc-department-card-picker wc-view-budget-lines-toggle wc-table-row-link" data-department-key="' + escapeHtml(pickerKey) + '" data-department-name="' + escapeHtml(d) + '">' + formatCurrency(total) + "</button></td>";
+        } else {
+          const { detailId, detailHtml } = mergedPersonnelDetailFor(d, officeNames);
+          detailMarkup.push(detailHtml);
+          totalCellHtml = '<td class="wc-num"><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d + " Staffing and Cost by Position") + '">' + formatCurrency(total) + "</button></td>";
+        }
         return (
           '<tr class="wc-personnel-board-group-row"><td>' + boardDeptNameHtml(d, officeNames) +
           "</td>" +
@@ -16981,6 +17038,7 @@
     getDepartmentPerformanceMeasures,
     getDepartmentNarrative,
     renderTable,
+    bindTooltipAnchors,
     renderDepartmentNarrative,
     renderFinancialSummary,
     renderFilterControls,
