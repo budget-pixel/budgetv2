@@ -10649,10 +10649,10 @@
         : 0;
       const salesTaxBurdenHtml = isSalesTaxBurdenTopic
         ? '<div class="wc-property-tax-burden wc-sales-tax-burden"><div class="wc-property-tax-burden-head"><strong>Who supports this sales-tax revenue?</strong><span>Estimated share</span></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span></div><strong>80.2%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.802)) + '</em></div>' +
-          '<div class="wc-property-tax-burden-bar"><i style="width:80.2%"></i></div>' +
-          '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span></div><strong>19.8%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.198)) + '</em></div>' +
-          '<p>This planning estimate applies the County tourism report&rsquo;s visitor share of retail spending to FY 2027 proposed revenue; it is not an audited classification of individual tax payments.</p></div>'
+          '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span></div><strong>68%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.68)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-bar"><i style="width:68%"></i></div>' +
+          '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span></div><strong>32%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.32)) + '</em></div>' +
+          '<p>This planning estimate applies Walton County&rsquo;s visitor study finding that visitors account for 68% of retail spending to FY 2027 proposed revenue -- the same estimate used on each department&rsquo;s own Who Pays Ledger -- and is not an audited classification of individual tax payments.</p></div>'
         : '';
       const touristTaxCurrentAmount = topic.title === "Tourist Development Taxes"
         ? topicRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0)
