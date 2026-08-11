@@ -1676,8 +1676,7 @@
      level file avoided rewriting every relative asset/page link that a
      move into pages/ would have required. */
   .wc-start-page{position:relative;display:grid;min-height:100svh;overflow:hidden;background:#003f28;color:#fff;isolation:isolate}
-  .wc-start-video{position:absolute;z-index:-3;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;filter:brightness(.86) saturate(.92);pointer-events:none;transition:opacity 2s linear}
-  .wc-start-video.is-active{opacity:1}
+  .wc-start-video{position:absolute;z-index:-3;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.86) saturate(.92);pointer-events:none}
   .wc-start-page::before{content:"";position:absolute;z-index:-2;inset:0;background:linear-gradient(90deg,rgba(8,14,22,.62) 0%,rgba(8,14,22,.24) 46%,rgba(8,14,22,.04) 100%)}
   .wc-start-page::after{content:"";position:absolute;z-index:-1;inset:auto 0 0;height:150px;background:linear-gradient(180deg,transparent,rgba(7,12,18,.3))}
   .wc-start-header{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;align-items:center;padding:22px clamp(22px,4vw,64px) 14px}
@@ -1702,11 +1701,8 @@
 <body class="wc-story-landing">
 <a class="wc-skip-link" href="#main-content">Skip to main content</a>
 <main class="wc-start-page" id="main-content">
-  <video class="wc-start-video is-active" autoplay muted playsinline preload="auto" aria-hidden="true">
-    <source src="assets/images/page-images/grok-video-a964bba7-2bee-4db9-bce8-a66f5a09a306.mp4" type="video/mp4">
-  </video>
-  <video class="wc-start-video" muted playsinline preload="auto" aria-hidden="true">
-    <source src="assets/images/page-images/grok-video-a964bba7-2bee-4db9-bce8-a66f5a09a306.mp4" type="video/mp4">
+  <video class="wc-start-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4">
   </video>
   <header class="wc-story-nav wc-start-header" aria-label="Walton County">
     <div class="logo-container"></div>
@@ -1730,76 +1726,30 @@
         window.WaltonSplitLogo.equalizeAll();
       }
     }
-    // Two copies of the same clip, stacked on top of each other. Native
-    // <video loop> just jump-cuts back to frame 0, which reads as a visible
-    // stutter -- instead, shortly before the playing copy reaches its own
-    // end, the other copy (paused at frame 0) starts playing underneath and
-    // CSS cross-fades opacity between them, so the restart is never seen.
+    // grok-video-a964bba7-boomerang-loop.mp4 is a pre-built loop: the
+    // flattest-luma 1.50s-3.54s slice of the original clip (see git
+    // history for how that window was measured), played forward then
+    // immediately reversed back over itself (ffmpeg reverse+concat).
+    // Trimming for flat brightness alone still left a motion jump at the
+    // restart -- waves/clouds/pan don't land back at their starting
+    // position just because the brightness matches. Forward-then-reverse
+    // guarantees the very last frame IS the very first frame, so the
+    // native <video loop> restart has zero discontinuity to hide: nothing
+    // jumps, brightness or otherwise, because nothing actually changes
+    // across that seam.
     function initStartVideo(){
-      var videos = Array.prototype.slice.call(document.querySelectorAll(".wc-start-video"));
-      if(videos.length < 2) return;
+      var video = document.querySelector(".wc-start-video");
+      if(!video) return;
       if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-        videos.forEach(function(v){ v.pause(); });
+        video.pause();
         return;
       }
-      // This clip visibly brightens (a sun/glare moment) later in its own
-      // ~6s duration -- measured by sampling actual rendered frames, not
-      // guessed. Only ever showing this early segment of it, and never
-      // reaching that brighter stretch, keeps every crossfade within the
-      // flat part of the clip instead of blending across the swing.
-      var SEGMENT_MS = 6000;
-      var CROSSFADE_MS = 2000; // must match the CSS opacity transition duration
-      // A single serial timer chain -- not per-video listeners reacting to
-      // currentTime -- so there is only ever one crossfade in flight. The
-      // earlier version scheduled the next crossfade off elapsed video
-      // content-time, which could fire again before the previous crossfade's
-      // fade-out had actually finished, restarting an in-progress fade
-      // partway through and reading as an extra visible brightness pulse.
-      var activeIndex = 0;
-
-      function setCalmPlayback(video){
+      function setCalmPlayback(){
         video.defaultPlaybackRate = 0.25;
         video.playbackRate = 0.25;
       }
-      videos.forEach(function(v){
-        setCalmPlayback(v);
-        v.addEventListener("loadedmetadata", function(){ setCalmPlayback(v); }, { once:true });
-      });
-
-      function playSegment(){
-        var current = videos[activeIndex];
-        var next = videos[(activeIndex + 1) % videos.length];
-        // Start next's decode a moment before it's due on screen so the
-        // decoder's startup hitch has settled by the time it's visible.
-        window.setTimeout(function(){
-          next.currentTime = 0;
-          var playPromise = next.play();
-          if(playPromise && playPromise.catch) playPromise.catch(function(){});
-        }, Math.max(0, SEGMENT_MS - 1000));
-
-        window.setTimeout(function(){
-          // Stack next above current *before* fading it in, and leave
-          // current at full opacity for the whole crossfade instead of
-          // also fading it out -- fading both at once means there's a
-          // window where neither is fully opaque, letting the page's dark
-          // green background bleed through underneath. Keeping current
-          // solid and only fading next in on top of it means there's
-          // always one fully opaque frame covering the background.
-          next.style.zIndex = "1";
-          requestAnimationFrame(function(){
-            next.classList.add("is-active");
-          });
-          window.setTimeout(function(){
-            current.pause();
-            current.currentTime = 0;
-            current.classList.remove("is-active");
-            next.style.zIndex = "";
-            activeIndex = (activeIndex + 1) % videos.length;
-            playSegment();
-          }, CROSSFADE_MS);
-        }, SEGMENT_MS);
-      }
-      playSegment();
+      setCalmPlayback();
+      video.addEventListener("loadedmetadata", setCalmPlayback, { once:true });
     }
     function init(){
       initLogo();
