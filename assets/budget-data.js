@@ -4407,6 +4407,51 @@
     openBudgetDetailModal(toggle, detail);
   });
 
+  // Generic opener for the same modal shell, for callers (e.g.
+  // department-services.js's Department Snapshot popups) that build their
+  // own body HTML up front instead of copying it from an existing on-page
+  // <details> element the way openBudgetDetailModal does. Ported from the
+  // reference repo's identically-named function; adapted here to reuse
+  // this file's own prior-years state helpers (getShowPriorYears /
+  // bindRevenueYearPicker) instead of the reference's simpler
+  // applyPriorYearsState(false, body) call, so a panel opened this way
+  // respects whatever prior-years toggle state the rest of the site is
+  // already using.
+  function openBudgetDetailPanel(toggle, options) {
+    options = options || {};
+    const modal = ensureBudgetDetailModal();
+    const title = modal.querySelector("#wc-budget-detail-title");
+    const kicker = modal.querySelector(".wc-budget-detail-kicker");
+    const body = modal.querySelector(".wc-budget-detail-body");
+    if (title) title.textContent = options.title || "Detail";
+    if (kicker) kicker.textContent = options.kicker !== undefined ? options.kicker : "Budget Detail";
+    if (body) {
+      body.className = "wc-budget-detail-body" + (options.bodyClassName ? " " + options.bodyClassName : "");
+      body.innerHTML = options.html || "";
+      if (body.querySelector(".wc-fy-column-toggle-checkbox, .wc-fy-column-toggle-button")) {
+        body.classList.add("wc-budget-lines-card");
+      }
+      body.querySelectorAll(".wc-fy-column-toggle-checkbox").forEach((checkbox) => {
+        checkbox.removeAttribute("data-wc-prior-years-bound");
+      });
+      body.querySelectorAll(".wc-fy-column-toggle-button").forEach((button) => {
+        button.removeAttribute("data-wc-prior-years-bound");
+      });
+      bindPriorYearsToggle(body);
+      if (body.querySelector(".wc-revenue-year-picker")) bindRevenueYearPicker(body);
+      else applyPriorYearsState(getShowPriorYears("budget"), body);
+    }
+    activeBudgetDetailToggle = toggle || null;
+    if (toggle) toggle.setAttribute("aria-expanded", "true");
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add("is-open"));
+    document.body.classList.add("wc-budget-detail-open");
+    lockBudgetDetailBackgroundScroll();
+    const closeButton = modal.querySelector(".wc-budget-detail-close");
+    if (closeButton) closeButton.focus({ preventScroll: true });
+    return body;
+  }
+
   // "Show COLA, Health Insurance & Increase" toggle inside a "Staffing and Cost by
   // Position" popup (see personnelCostDeptDetailHtml) -- scoped to that
   // one table via a class on the table itself rather than a shared
@@ -15431,6 +15476,36 @@
     return { detailId, detailHtml };
   }
 
+  // Single-department slice of the Summary of Personnel Cost popup, for
+  // callers (department-services.js's "View Personnel Cost Sheet") that
+  // want just this one department's cost-by-position breakdown rather than
+  // the whole countywide table. Ported from the reference repo's
+  // identically-named function: reuses this file's own
+  // buildPersonnelPositionCostsByDept / buildStaffingPositionListByDept /
+  // personnelCostDeptDetailHtml, so the popup never disagrees with the
+  // Summary of Personnel Cost page itself. Matches by normalizeDeptName
+  // rather than an exact string, since the display names these Maps are
+  // keyed by (Code Compliance's Street/Beach merge, Tourism's fund-suffixed
+  // labels, etc.) don't always equal the plain department-page name passed
+  // in. Returns null when there's no Personnel Services cost row at all for
+  // this department (rather than an empty/placeholder sheet).
+  function getDepartmentPersonnelCostDetail(deptName) {
+    const norm = normalizeDeptName(deptName);
+    const costRow = buildPersonnelCostRows().find((r) => normalizeDeptName(r.Dept_Name) === norm);
+    if (!costRow) return null;
+    const targetName = costRow.Dept_Name;
+    const positionsByDept = buildPersonnelPositionCostsByDept();
+    let positions;
+    positionsByDept.forEach((value, key) => {
+      if (normalizeDeptName(key) === norm) positions = value;
+    });
+    const staffingPositions = buildStaffingPositionListByDept().get(personnelCostFteMatchKey(targetName));
+    const { detailHtml } = personnelCostDeptDetailHtml(targetName, positions, staffingPositions);
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = detailHtml;
+    return wrapper.firstElementChild ? wrapper.firstElementChild.innerHTML : "";
+  }
+
   function personnelCostDisplayNameForRow(row) {
     const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === String(row.Fund_Code || "").trim());
     const fundName = (fund && fund.Fund_Name) || ("Fund " + row.Fund_Code);
@@ -17238,6 +17313,8 @@
     getDepartmentMachinery,
     getDepartmentPerformanceMeasures,
     getDepartmentNarrative,
+    openBudgetDetailPanel,
+    getDepartmentPersonnelCostDetail,
     renderTable,
     bindTooltipAnchors,
     renderDepartmentNarrative,
