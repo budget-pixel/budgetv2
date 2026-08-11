@@ -708,12 +708,31 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
    both summary-of-personnel.html and personnel-ledger.html. */
 .wc-personnel-cost-optional-col { display: none; }
 body.wc-show-personnel-cost-optional-cols .wc-personnel-cost-optional-col { display: table-cell; }
-/* The per-department "View Budget Lines" popup reuses this same
-   .wc-personnel-cost-optional-col class on its own Cost by Position
-   table. Without this override, toggling the main table's columns on
-   would also reveal those columns inside the popup, which should always
-   stay hidden regardless of the main table's toggle state. */
+/* Belt-and-suspenders: keeps the main table's own optional columns out of
+   the "Staffing and Cost by Position" popup even if a future change makes
+   it reuse this class again. The popup's own COLA/Health Insurance
+   breakout uses a separate class + toggle -- see
+   .wc-personnel-position-optional-col below. */
 body.wc-show-personnel-cost-optional-cols .wc-budget-detail-modal .wc-personnel-cost-optional-col { display: none; }
+/* The "Show COLA, Health Insurance & Increase" toggle inside a "Staffing
+   and Cost by Position" popup (see personnelCostDeptDetailHtml/the
+   delegated click handler for .wc-personnel-position-optional-cols-toggle
+   in budget-data.js). Deliberately a separate class from
+   .wc-personnel-cost-optional-col above -- this one is scoped per-popup via
+   an is-showing-optional-cols class on that popup's own table, since
+   several of these popups can exist in the DOM at once, each needing
+   independent state. */
+.wc-personnel-position-optional-col { display: none; }
+table.wc-personnel-position-detail.is-showing-optional-cols .wc-personnel-position-optional-col { display: table-cell; }
+/* Same idea, independent toggle: FY 2024/FY 2025 FTE columns (see the
+   .wc-personnel-position-fte-history-toggle click handler in
+   budget-data.js) -- a separate class/state from the COLA & Health
+   Insurance toggle above so either can be shown without the other. */
+.wc-personnel-position-fte-optional-col { display: none; }
+table.wc-personnel-position-detail.is-showing-fte-history .wc-personnel-position-fte-optional-col { display: table-cell; }
+.wc-staffing-notes-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.wc-staffing-notes-title-row .wc-staffing-notes-title { margin: 0; }
+.wc-staffing-notes-title-row-toggles { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-top: -3px; }
 #wcPersonnelCostExportAllButton { display: none; }
 :root[data-theme="dark"] #wcPersonnelCostExportAllButton { display: inline-block; }
 .wc-revenue-support-split { order: 2; display: grid; grid-template-columns: 1fr; gap: 9px; width: 100%; padding-top: 2px; }

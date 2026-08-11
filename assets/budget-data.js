@@ -4407,6 +4407,43 @@
     openBudgetDetailModal(toggle, detail);
   });
 
+  // "Show COLA, Health Insurance & Increase" toggle inside a "Staffing and Cost by
+  // Position" popup (see personnelCostDeptDetailHtml) -- scoped to that
+  // one table via a class on the table itself rather than a shared
+  // body-level class, since any number of these popups can exist in the
+  // DOM at once (one per department/office), each needing its own
+  // independent shown/hidden state. Walks from the toggle's own title-row
+  // to its sibling table-scroll wrapper rather than closest(".wc-budget-
+  // lines-detail") -- openBudgetDetailModal copies detail.innerHTML (not
+  // the outer element) into the modal body, so that wrapper class isn't
+  // present once this toggle is actually showing inside the popup.
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest(".wc-personnel-position-optional-cols-toggle");
+    if (!toggle) return;
+    const titleRow = toggle.closest(".wc-staffing-notes-title-row");
+    const tableScroll = titleRow && titleRow.nextElementSibling;
+    const table = tableScroll && tableScroll.querySelector(".wc-personnel-position-detail");
+    if (!table) return;
+    const showing = table.classList.toggle("is-showing-optional-cols");
+    toggle.setAttribute("aria-pressed", showing ? "true" : "false");
+    toggle.textContent = showing ? "Hide COLA, Health Insurance & Increase" : "Show COLA, Health Insurance & Increase";
+  });
+
+  // "Show FY 2024 & FY 2025 FTE" toggle in that same popup -- independent
+  // state from the toggle above (see .wc-personnel-position-fte-optional-col
+  // in style.css), same per-popup scoping approach.
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest(".wc-personnel-position-fte-history-toggle");
+    if (!toggle) return;
+    const titleRow = toggle.closest(".wc-staffing-notes-title-row");
+    const tableScroll = titleRow && titleRow.nextElementSibling;
+    const table = tableScroll && tableScroll.querySelector(".wc-personnel-position-detail");
+    if (!table) return;
+    const showing = table.classList.toggle("is-showing-fte-history");
+    toggle.setAttribute("aria-pressed", showing ? "true" : "false");
+    toggle.textContent = showing ? "Hide FY 2024 & FY 2025 FTE" : "Show FY 2024 & FY 2025 FTE";
+  });
+
   // Department Explorer: a card for a department whose offices live on
   // different pages opens this picker instead of following a single link,
   // so the user chooses which office's page they meant.
@@ -14649,6 +14686,8 @@
       if (!byDept.has(key)) byDept.set(key, []);
       byDept.get(key).push({
         Position_Name: row.Position_Name,
+        Fte2024: row[2024] || 0,
+        Fte2025: row[2025] || 0,
         PriorFte: row[2026] || 0,
         CurrentFte: row[2027] || 0,
         Fte: row[2027] || 0
@@ -15195,8 +15234,10 @@
     (staffingPositions || []).forEach((position) => {
       const title = position.Position_Name || "Unclassified Position";
       const key = normalizeDeptName(title);
-      if (!staffingByTitle.has(key)) staffingByTitle.set(key, { title, prior: 0, current: 0 });
+      if (!staffingByTitle.has(key)) staffingByTitle.set(key, { title, fte2024: 0, fte2025: 0, prior: 0, current: 0 });
       const entry = staffingByTitle.get(key);
+      entry.fte2024 += position.Fte2024 || 0;
+      entry.fte2025 += position.Fte2025 || 0;
       entry.prior += position.PriorFte || 0;
       entry.current += position.CurrentFte || 0;
     });
@@ -15206,24 +15247,32 @@
       // Standardize repeated positions into one title-level row. This keeps
       // departments with many identical jobs (for example Beach Maintenance
       // Specialists) compact while preserving their combined FTE and cost.
+      // Salaries & Wages already has the 3% COLA baked in -- backed out here
+      // the same way the department-level table does (see the "cola" calc
+      // in renderScope) so the popup's own COLA column matches it, just at
+      // the individual-position level.
       const combinedByTitle = new Map();
       (positions || []).forEach((position) => {
         const title = position.Position_Name || "Unclassified Position";
         const key = normalizeDeptName(title);
         if (!combinedByTitle.has(key)) {
-          combinedByTitle.set(key, { title, costFte: 0, Salaries: 0, Benefits: 0, Total: 0 });
+          combinedByTitle.set(key, { title, costFte: 0, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
         }
         const entry = combinedByTitle.get(key);
         if (!position.hideFte) entry.costFte += position.Fte || 0;
         entry.Salaries += position.Cost.Salaries || 0;
-        entry.Benefits += (position.Cost.Retirement || 0) + (position.Cost.HealthInsurance || 0) + (position.Cost.OtherBenefits || 0);
+        entry.Retirement += position.Cost.Retirement || 0;
+        entry.HealthInsurance += position.Cost.HealthInsurance || 0;
+        entry.OtherBenefits += position.Cost.OtherBenefits || 0;
         entry.Total += position.Cost.Total || 0;
       });
       staffingByTitle.forEach((staffing, key) => {
-        if (!combinedByTitle.has(key)) combinedByTitle.set(key, { title: staffing.title, costFte: staffing.current, Salaries: 0, Benefits: 0, Total: 0 });
+        if (!combinedByTitle.has(key)) combinedByTitle.set(key, { title: staffing.title, costFte: staffing.current, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
       });
 
-      const positionsGrand = { PriorFte: 0, CurrentFte: 0, Salaries: 0, Benefits: 0, Total: 0 };
+      const positionsGrand = { Fte2024: 0, Fte2025: 0, PriorFte: 0, CurrentFte: 0, Salaries: 0, Cola: 0, Retirement: 0, HealthInsurance: 0, HealthInsuranceIncrease: 0, OtherBenefits: 0, Total: 0 };
+      const eliminatedCellHtml = '<td class="wc-num"><span class="wc-visually-muted">&mdash;</span></td>';
+      const fteHistoryDashHtml = '<td class="wc-num wc-personnel-position-fte-optional-col"><span class="wc-visually-muted">&mdash;</span></td>';
       const positionRows = Array.from(combinedByTitle.entries())
         .sort((a, b) => a[1].title.localeCompare(b[1].title))
         .map(([key, position]) => {
@@ -15233,64 +15282,118 @@
           const change = currentFte - priorFte;
           const sign = change > 0 ? "+" : change < 0 ? "−" : "";
           const tone = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
+          const cola = position.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
+          const benefits = position.Retirement + position.HealthInsurance + position.OtherBenefits;
+          const healthInsuranceIncrease = position.HealthInsurance * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
+          positionsGrand.Fte2024 += staffing ? staffing.fte2024 : 0;
+          positionsGrand.Fte2025 += staffing ? staffing.fte2025 : 0;
           positionsGrand.PriorFte += priorFte;
           positionsGrand.CurrentFte += currentFte;
           positionsGrand.Salaries += position.Salaries;
-          positionsGrand.Benefits += position.Benefits;
+          positionsGrand.Cola += cola;
+          positionsGrand.Retirement += position.Retirement;
+          positionsGrand.HealthInsurance += position.HealthInsurance;
+          positionsGrand.HealthInsuranceIncrease += healthInsuranceIncrease;
+          positionsGrand.OtherBenefits += position.OtherBenefits;
           positionsGrand.Total += position.Total;
-          return '<tr><td>' + escapeHtml(position.title) + '</td><td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(position.Salaries) + '</td><td class="wc-num">' + formatCurrency(position.Benefits) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td></tr>';
+          // FY 2024/FY 2025 FTE -- straight from the staffing sheet, same as
+          // Prior/Current FTE above, just two years further back. Only
+          // known when this title has a staffing-sheet row at all (a
+          // cost-only title with no staffing match has no historical FTE to
+          // show, same reasoning as the priorFte/currentFte fallback above).
+          const fteHistoryHtml = staffing
+            ? '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2024) + '</td><td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2025) + '</td>'
+            : fteHistoryDashHtml + fteHistoryDashHtml;
+          // A position with 0 FY2027 FTE has no current-year cost row to
+          // report (the position-cost sheet is a current-roster snapshot --
+          // there's no FY2026 dollar figure anywhere to show as "savings"
+          // from eliminating it, see buildPersonnelPositionCostsByDept).
+          // Showing literal $0.00 here would read as "this position costs
+          // nothing" rather than "this position is gone" -- a muted dash
+          // plus an "Eliminated" note is honest about what we don't know.
+          const totalCellHtml = currentFte === 0 && priorFte > 0
+            ? '<td class="wc-num"><span class="wc-visually-muted">Eliminated for FY2027</span></td>'
+            : eliminatedCellHtml;
+          const dollarCellsHtml = currentFte > 0
+            ? '<td class="wc-num">' + formatCurrency(position.Salaries) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + formatCurrency(benefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
+            : eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + totalCellHtml;
+          return '<tr><td>' + escapeHtml(position.title) + '</td>' + fteHistoryHtml + '<td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td>' + dollarCellsHtml + '</tr>';
         });
       if (positions && positions.seasonalPositions) {
         const sp = positions.seasonalPositions;
         positionsGrand.Salaries += sp.Salaries;
-        positionsGrand.Benefits += sp.OtherBenefits;
+        positionsGrand.OtherBenefits += sp.OtherBenefits;
         positionsGrand.Total += sp.Total;
         positionRows.push(
           "<tr><td>Seasonal/Temporary Positions</td>" +
+          '<td class="wc-num wc-personnel-position-fte-optional-col"></td><td class="wc-num wc-personnel-position-fte-optional-col"></td>' +
           '<td class="wc-num"></td><td class="wc-num"></td><td class="wc-num"></td>' +
           '<td class="wc-num">' + formatCurrency(sp.Salaries) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(sp.OtherBenefits) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(sp.Total) + "</td></tr>"
         );
       }
       if (positions && positions.retireeHealthInsuranceSubsidy) {
         const healthInsurancePortion = positions.retireeHealthInsuranceSubsidy;
-        positionsGrand.Benefits += healthInsurancePortion;
+        positionsGrand.OtherBenefits += healthInsurancePortion;
         positionsGrand.Total += healthInsurancePortion;
         positionRows.push(
           "<tr><td>Retiree Health Insurance Subsidies</td>" +
+          '<td class="wc-num wc-personnel-position-fte-optional-col"></td><td class="wc-num wc-personnel-position-fte-optional-col"></td>' +
           '<td class="wc-num"></td><td class="wc-num"></td><td class="wc-num"></td>' +
           '<td class="wc-num"></td>' +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(healthInsurancePortion) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(healthInsurancePortion) + "</td></tr>"
         );
       }
       if (positions && positions.unemploymentTotal) {
-        positionsGrand.Benefits += positions.unemploymentTotal;
+        positionsGrand.OtherBenefits += positions.unemploymentTotal;
         positionsGrand.Total += positions.unemploymentTotal;
         positionRows.push(
           "<tr><td>Unemployment</td>" +
+          '<td class="wc-num wc-personnel-position-fte-optional-col"></td><td class="wc-num wc-personnel-position-fte-optional-col"></td>' +
           '<td class="wc-num"></td><td class="wc-num"></td><td class="wc-num"></td>' +
           '<td class="wc-num"></td>' +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(positions.unemploymentTotal) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
+          '<td class="wc-num wc-personnel-position-optional-col"></td>' +
           '<td class="wc-num">' + formatCurrency(positions.unemploymentTotal) + "</td></tr>"
         );
       }
       const totalFteChange = positionsGrand.CurrentFte - positionsGrand.PriorFte;
+      const totalBenefits = positionsGrand.Retirement + positionsGrand.HealthInsurance + positionsGrand.OtherBenefits;
       positionRows.push(
         '<tr class="wc-table-total-row"><td>Total</td>' +
+        '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(positionsGrand.Fte2024) + "</td>" +
+        '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(positionsGrand.Fte2025) + "</td>" +
         '<td class="wc-num">' + formatNumber(positionsGrand.PriorFte) + "</td>" +
         '<td class="wc-num">' + formatNumber(positionsGrand.CurrentFte) + "</td>" +
         '<td class="wc-num">' + (totalFteChange > 0 ? "+" : totalFteChange < 0 ? "−" : "") + formatNumber(Math.abs(totalFteChange)) + "</td>" +
         '<td class="wc-num">' + formatCurrency(positionsGrand.Salaries) + "</td>" +
-        '<td class="wc-num">' + formatCurrency(positionsGrand.Benefits) + "</td>" +
+        '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.Cola) + "</td>" +
+        '<td class="wc-num">' + formatCurrency(totalBenefits) + "</td>" +
+        '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsurance) + "</td>" +
+        '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsuranceIncrease) + "</td>" +
         '<td class="wc-num">' + formatCurrency(positionsGrand.Total) + "</td></tr>"
       );
       positionsHtml =
+        '<div class="wc-staffing-notes-title-row">' +
         '<p class="wc-staffing-notes-title">Staffing and Cost by Position</p>' +
+        '<div class="wc-staffing-notes-title-row-toggles">' +
+        '<button type="button" class="wc-view-budget-lines-toggle wc-personnel-position-fte-history-toggle" aria-pressed="false">Show FY 2024 &amp; FY 2025 FTE</button>' +
+        '<button type="button" class="wc-view-budget-lines-toggle wc-personnel-position-optional-cols-toggle" aria-pressed="false">Show COLA, Health Insurance &amp; Increase</button>' +
+        "</div>" +
+        "</div>" +
         '<div class="wc-data-table-scroll">' +
-        '<table class="wc-data-table wc-staffing-table">' +
-        "<thead><tr><th>Position</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num\">Retirement, Health Insurance &amp; Other Benefits</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
+        '<table class="wc-data-table wc-staffing-table wc-personnel-position-detail">' +
+        "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\">Retirement, Health Insurance &amp; Other Benefits</th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance Increase</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
         "<tbody>" + positionRows.join("") + "</tbody></table></div>";
     } else {
       positionsHtml = '<div class="wc-data-empty">No position-level cost data is available yet for this department.</div>';
@@ -17064,11 +17167,13 @@
   // (see pages/debt-overview.html's own Debt Schedule table) rather than
   // sourced from a live CSV -- kept here as the single source of truth so
   // the Budget Overview directory callout and the Debt Overview page's own
-  // stat cards can never drift apart.
+  // stat cards can never drift apart. FY2026 is treated as already paid
+  // and dropped from the schedule/totals below, so "remaining" reflects
+  // the balance outstanding as of the start of FY2027.
   const DEBT_OVERVIEW_TOTALS = {
-    principal: 10709747,
-    interest: 975140,
-    totalDebtService: 11684887,
+    principal: 8466013,
+    interest: 636877,
+    totalDebtService: 9102890,
     // FY 2027's own debt service (see pages/debt-overview.html's own Debt
     // Ledger -- Capital Project Fund table's 2027 row) -- the Budget
     // Ledgers directory's Debt Ledger callout shows just this year, not the
