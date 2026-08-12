@@ -48,6 +48,8 @@
             title:"Consolidated Budget Ledger",
             href:"consolidated-financial-schedules.html",
             label:"All Funds",
+            metric:"totalBudget",
+            metricLabel:"Total Budget",
             description:"Review combined County financial schedules across funds, revenues, expenses, transfers, and balances."
           },
           {
@@ -323,7 +325,8 @@
 
         var changeTotals = window.WCBudgetData.getConsolidatedBudgetChangeTotals(data);
         var budgetChangeTotal = changeTotals.change;
-        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, budgetChange:budgetChangeTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027 };
+        var totalBudget = window.WCBudgetData.totalCountywideExpenditureBudget(data);
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, budgetChange:budgetChangeTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027, totalBudget:totalBudget };
         document.querySelectorAll("[data-budget-overview-total]").forEach(function(element){
           var key = element.dataset.budgetOverviewTotal;
           if(!(key in totals)) return;
@@ -332,7 +335,7 @@
           // balance through final maturity) are small enough that rounding
           // to millions would show "$0M" for interest -- shown as exact
           // dollars instead, like every other non-millions stat here.
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax", "budgetChange"].indexOf(key) !== -1;
+          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax", "budgetChange", "totalBudget"].indexOf(key) !== -1;
           element.querySelector("strong").textContent = useRoundedMillions
             ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
             : window.WCBudgetData.formatCurrency(amount);
@@ -384,7 +387,7 @@
       },
       capitalSheriff: function(project){
         return String(project && project.department_filter || "").toLowerCase() === "sheriff" &&
-          String(project && project.funding || "").toLowerCase() !== "grant funded";
+          String(project && project.funding || "").toLowerCase() === "capital projects fund";
       }
     };
     var CAPITAL_LEDGER_FUND_CODES = { capitalRecreationPlatFee:"114", capitalSidewalk:"115" };

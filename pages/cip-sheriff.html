@@ -32,10 +32,16 @@
     mountId:"sheriffTables",
     label:"Sheriff Projects",
     showFundingColumn:true,
-    // Grant-funded Sheriff work is paid for by the awarding agency, so it
-    // gets its own sub-ledger and total below rather than sitting in the
-    // County-funded headline total.
+    // The main ledger above is scoped to Capital Projects Fund work only --
+    // Sheriff Fund rows join Grant Funded ones in the secondary ledger
+    // below (both paid for outside the Capital Projects Fund headline
+    // total) instead of sitting in the main one.
     splitGrantFunded:true,
+    grantLedgerFilter:function(project){
+      var funding = String(project && project.funding || "").toLowerCase();
+      return funding === "grant funded" || funding === "sheriff fund";
+    },
+    grantLedgerLabel:"Sheriff and Grant Funded Ledger",
     projectFilter:function(project){
       return String(project && project.department_filter || "").toLowerCase() === "sheriff";
     }

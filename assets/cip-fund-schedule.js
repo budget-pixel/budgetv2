@@ -663,7 +663,15 @@ function renderFundSchedule(config){
       .filter(projectFilter);
 
     const splitGrantFunded = Boolean(config.splitGrantFunded);
-    const isGrantFunded = project => String(project && project.funding || "").toLowerCase() === "grant funded";
+    // Opt-in override (see cip-sheriff.html) -- the Sheriff ledger's main
+    // table is scoped to Capital Projects Fund work only, with Sheriff
+    // Fund rows joining Grant Funded ones in the secondary ledger below
+    // instead of the main one. Left undefined everywhere else, so every
+    // other splitGrantFunded page (e.g. Transportation and Infrastructure)
+    // keeps its original "funding === grant funded" split untouched.
+    const isGrantFunded = typeof config.grantLedgerFilter === "function"
+      ? config.grantLedgerFilter
+      : project => String(project && project.funding || "").toLowerCase() === "grant funded";
 
     // Engineering-notes projects (eng_color "red") with no real dollar
     // figure in any year -- see noBudgetYears in
@@ -761,6 +769,9 @@ function renderFundSchedule(config){
       ? requestedYear
       : availableYears[0];
     let sortByDistrict = false;
+    let selectedFund = "";
+    let selectedRevenueSource = "";
+    let filterComboDocumentHandlers = [];
     // FY2025/FY2026 only: "" (project name), "phase", or "status".
     let historicalSort = "";
 
@@ -780,7 +791,10 @@ function renderFundSchedule(config){
     }
 
     function sortProjects(list){
-      const sorted = list.slice();
+      const sorted = list.filter(project =>
+        (!selectedFund || String(project.funding || "") === selectedFund) &&
+        (!selectedRevenueSource || String(project.revenue_source || "") === selectedRevenueSource)
+      ).slice();
 
       if(historicalSort === "phase"){
         sorted.sort((a, b) =>
@@ -806,7 +820,53 @@ function renderFundSchedule(config){
       return sorted;
     }
 
+    function filterComboFieldHtml(idPrefix, label, allLabel){
+      const labelAll = allLabel || "All";
+      return '<div class="wc-filter-combo">' +
+        '<label class="wc-filter-field"><span>' + escapeHtml(label) + '</span>' +
+        '<input type="text" class="wc-filter-combo-input" id="' + idPrefix + 'Input" autocomplete="off" placeholder="' + escapeHtml(labelAll) + '" value="' + escapeHtml(labelAll) + '">' +
+        '</label><div class="wc-filter-combo-results" id="' + idPrefix + 'Results" hidden></div></div>';
+    }
+
+    function setupFilterCombo(input, results, options, allLabel, getCurrentValue, onSelect){
+      if(!input || !results) return;
+      function displayLabel(value){ return value || allLabel; }
+      function renderResults(query){
+        const normalizedQuery = String(query || "").trim().toLowerCase();
+        const matches = normalizedQuery ? options.filter(option => option.toLowerCase().includes(normalizedQuery)) : options;
+        results.innerHTML = '<button type="button" class="wc-filter-combo-option" data-value="">' + escapeHtml(allLabel) + '</button>' +
+          matches.map(option => '<button type="button" class="wc-filter-combo-option" data-value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</button>').join("");
+        results.hidden = false;
+      }
+      input.value = displayLabel(getCurrentValue());
+      input.addEventListener("focus", function(){ input.select(); renderResults(""); });
+      input.addEventListener("input", function(){ renderResults(input.value); });
+      input.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          results.hidden = true;
+          input.blur();
+        }
+      });
+      results.addEventListener("click", function(event){
+        const button = event.target.closest(".wc-filter-combo-option");
+        if(!button) return;
+        const value = button.dataset.value || "";
+        input.value = displayLabel(value);
+        results.hidden = true;
+        onSelect(value);
+      });
+      const documentHandler = function(event){
+        if(input.contains(event.target) || results.contains(event.target)) return;
+        results.hidden = true;
+        input.value = displayLabel(getCurrentValue());
+      };
+      document.addEventListener("click", documentHandler);
+      filterComboDocumentHandlers.push(documentHandler);
+    }
+
     function renderActiveYear(){
+      filterComboDocumentHandlers.forEach(handler => document.removeEventListener("click", handler));
+      filterComboDocumentHandlers = [];
       const data = yearData[activeYear] || yearData.FY2027;
       const yearLabel = displayYear(activeYear);
       // Status only reflects the FY2025/FY2026 historical research pass (see
@@ -846,6 +906,14 @@ function renderFundSchedule(config){
           </select>
         </label>
       `;
+      const filterProjects = data.projects.concat(data.grantProjects, data.budgetedElsewhereProjects, data.inHouseProjects);
+      const fundOptions = [...new Set(filterProjects.map(project => String(project.funding || "").trim()).filter(Boolean))].sort();
+      const revenueOptions = [...new Set(filterProjects.map(project => String(project.revenue_source || "").trim()).filter(Boolean))].sort();
+      const fundRevenueFiltersHtml = config.showFundRevenueFilters && !isHistoricalYear ? `
+        <div class="wc-filter-bar wc-machinery-picker" aria-label="Filter capital projects">
+          ${filterComboFieldHtml("wcCipFundFilter", "Fund", "All Funds")}
+          ${filterComboFieldHtml("wcCipRevenueFilter", "Revenue Source", "All Revenue Sources")}
+        </div>` : "";
       // FY2025/FY2026 show no dollar column, so the grant/no-amount/in-house
       // splits (which exist to keep differently-priced work out of one
       // total) have nothing left to separate -- everything folds into the
@@ -859,10 +927,11 @@ function renderFundSchedule(config){
             Object.assign({}, tableOptions, { toggleHtml: historicalSortHtml })
           )
         : [
+            fundRevenueFiltersHtml,
             renderYearScheduleTable(activeYear, config.label + " Ledger", sortProjects(data.projects), config.label, Object.assign({}, tableOptions, { toggleHtml: districtToggleHtml })),
             renderYearScheduleTable(activeYear, "Ledger", sortProjects(data.noAmountProjects), "Ledger", tableOptions),
-            renderYearScheduleTable(activeYear, "Grant Funded Ledger", sortProjects(data.grantProjects), "Grant Funded", tableOptions),
-            renderYearScheduleTable(activeYear, "Budgeted Elsewhere Ledger", sortProjects(data.budgetedElsewhereProjects), "Budgeted Elsewhere", tableOptions),
+            renderYearScheduleTable(activeYear, config.grantLedgerLabel || "Grant Funded Ledger", sortProjects(data.grantProjects), config.grantLedgerLabel || "Grant Funded", tableOptions),
+            renderYearScheduleTable(activeYear, config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere Ledger", sortProjects(data.budgetedElsewhereProjects), config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere", tableOptions),
             renderYearScheduleTable(activeYear, "In-House Engineering Ledger", sortProjects(data.inHouseProjects), "In-House Engineering", Object.assign({}, tableOptions, { hideFundColumns: true }))
           ].join("");
 
@@ -954,6 +1023,23 @@ function renderFundSchedule(config){
           renderActiveYear();
         });
       }
+
+      setupFilterCombo(
+        mount.querySelector("#wcCipFundFilterInput"),
+        mount.querySelector("#wcCipFundFilterResults"),
+        fundOptions,
+        "All Funds",
+        () => selectedFund,
+        value => { selectedFund = value; renderActiveYear(); }
+      );
+      setupFilterCombo(
+        mount.querySelector("#wcCipRevenueFilterInput"),
+        mount.querySelector("#wcCipRevenueFilterResults"),
+        revenueOptions,
+        "All Revenue Sources",
+        () => selectedRevenueSource,
+        value => { selectedRevenueSource = value; renderActiveYear(); }
+      );
     }
 
     renderActiveYear();

@@ -61,6 +61,7 @@
       },
       {
         title:"Transportation and Infrastructure Capital Ledger",
+        budgetFunds:["101","300","001"],
         priorFunds:["101","300","001"],
         href:"cip-capital-projects.html",
         description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project.",
@@ -79,6 +80,7 @@
       },
       {
         title:"Tourist Development Fund Capital Ledger",
+        budgetFunds:["111"],
         priorFunds:["111"],
         href:"cip-tourist-development.html",
         description:"Explore tourism-related capital investments funded through tourist development resources.",
@@ -94,11 +96,13 @@
         priorFunds:["107"],
         href:"cip-sheriff.html",
         description:"Review all capital projects associated with the Walton County Sheriff's Office.",
-        // Matches the ledger's headline total, which lists grant-funded work
-        // in its own sub-ledger rather than the County-funded total.
+        // Matches the ledger's own main-table headline total -- Sheriff Fund
+        // and Grant Funded work both sit in that page's secondary "Sheriff
+        // and Grant Funded Ledger" instead of the main Capital Projects
+        // Fund total.
         match:function(project){
           return String(project && project.department_filter || "").toLowerCase() === "sheriff" &&
-            String(project && project.funding || "").toLowerCase() !== "grant funded";
+            String(project && project.funding || "").toLowerCase() === "capital projects fund";
         }
       },
       {
@@ -234,6 +238,15 @@
       return EXCLUDED_CAPITAL_OBJECT_CODES.indexOf(String(row.Object_Code || "").trim()) === -1;
     }
 
+    // The Sheriff's capital is reported in the separately managed Sheriff
+    // Fund budget, so it should not be included in this countywide Capital
+    // Budget Explorer total. Sheriff projects that are budgeted in the
+    // Capital Projects Fund (300) remain included here because that funding
+    // is part of the County capital plan rather than Fund 107.
+    function isIncludedInCapitalExplorerTotal(row){
+      return String(row.Dept_Code || "").trim().slice(0, 3) !== "107";
+    }
+
     function statHtml(modifierClass, value, label){
       return '<div class="wc-directory-item-stat ' + modifierClass + '"><strong>' + value + '</strong><span>' + escapeHtml(label) + '</span></div>';
     }
@@ -317,10 +330,18 @@
       // than a placeholder project row -- no project/vehicle count exists
       // to badge.
       if(page.budgetFunds && capitalOutlayByFund){
+        var budget = page.budgetFunds.reduce(function(sum, fundCode){
+          return sum + (capitalOutlayByFund[fundCode] || 0);
+        }, 0);
+        if(page.title === "Transportation and Infrastructure Capital Ledger"){
+          var sheriff300 = currentProjects.filter(function(project){
+            return String(project && project.department_filter || "").toLowerCase() === "sheriff" &&
+              String(project && project.funding || "").toLowerCase() === "capital projects fund";
+          }).reduce(function(sum, project){ return sum + getFy2027Amount(project); }, 0);
+          budget -= sheriff300;
+        }
         return {
-          budget: page.budgetFunds.reduce(function(sum, fundCode){
-            return sum + (capitalOutlayByFund[fundCode] || 0);
-          }, 0)
+          budget: budget
         };
       }
       var matching = currentProjects.filter(function(p){ return pageProjectMatches(page, p); });
@@ -423,13 +444,13 @@
           machineryVehicleCount = machineryRows.filter(function(row){ return /^vehicles?$/i.test(String(row.ME_Type || "").trim()); }).length;
           machineryEquipmentCount = machineryItemCount - machineryVehicleCount;
           capitalOutlayTotal = (data.expenditures || []).reduce(function(sum, row){
-            return isCapitalOutlayRow(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
+            return isCapitalOutlayRow(row) && isIncludedInCapitalExplorerTotal(row) ? sum + (Number(row.FY2027_Proposed) || 0) : sum;
           }, 0);
           totalCountywideBudget2027 = (data.expenditures || []).reduce(function(sum, row){
             return isExcludedFromCountywideTotal(row, data.activities) ? sum : sum + (Number(row.FY2027_Proposed) || 0);
           }, 0);
           capitalOutlayPrior = (data.expenditures || []).reduce(function(sum, row){
-            return isCapitalOutlayRow(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;
+            return isCapitalOutlayRow(row) && isIncludedInCapitalExplorerTotal(row) ? sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0) : sum;
           }, 0);
           capitalOutlayByFund = {};
           capitalOutlayPriorByFund = {};
@@ -450,6 +471,7 @@
             if(!isCapitalOutlayRow(row)) return;
             var amount = Number(row.FY2027_Proposed) || 0;
             if(!amount) return;
+            if(String(row.Object_Code || "").trim() === MACHINERY_OBJECT_CODE) return;
             var fundCode = String(row.Dept_Code || "").trim().slice(0, 3);
             if(!fundCode) return;
             capitalOutlayByFund[fundCode] = (capitalOutlayByFund[fundCode] || 0) + amount;

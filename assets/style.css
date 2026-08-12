@@ -932,16 +932,16 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
 .wc-revenue-ledger-note { display: none; margin: 12px 0 0; color: var(--muted); font-size: .78rem; }
 .wc-budget-lines-card.show-prior-years > .wc-revenue-ledger-note { display: block; }
 .wc-revenue-budget-year { background: #9ed9a8 !important; color: #14253b !important; }
-#consolidated-revenue-summary-table th.wc-revenue-budget-year { background: var(--green) !important; color: #fff !important; }
+#consolidated-revenue-summary-table th.wc-revenue-budget-year { background: linear-gradient(135deg, #003f28 0%, #005236 100%) !important; color: #fff !important; }
 .wc-revenue-projected.wc-fy-2028 { background: #79b99a !important; color: #14253b !important; }
 .wc-revenue-projected.wc-fy-2029 { background: #4f9675 !important; color: #14253b !important; }
-#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-budget-year { background: #cdb765 !important; color: #14253b !important; }
-#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-projected { background: #e2d18c !important; color: #14253b !important; }
+#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-budget-year { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%) !important; color: var(--navy) !important; }
+#consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-projected { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%) !important; color: var(--navy) !important; }
 .wc-budget-detail-body th.wc-revenue-budget-year,
 .wc-budget-detail-body th.wc-revenue-projected.wc-fy-2028,
-.wc-budget-detail-body th.wc-revenue-projected.wc-fy-2029 { background: var(--green) !important; color: #fff !important; }
-.wc-budget-detail-body tr.wc-table-total-row td.wc-revenue-budget-year { background: #cdb765 !important; color: #14253b !important; }
-.wc-budget-detail-body tr.wc-table-total-row td.wc-revenue-projected { background: #e2d18c !important; color: #14253b !important; }
+.wc-budget-detail-body th.wc-revenue-projected.wc-fy-2029 { background: linear-gradient(135deg, #003f28 0%, #005236 100%) !important; color: #fff !important; }
+.wc-budget-detail-body tr.wc-table-total-row td.wc-revenue-budget-year,
+.wc-budget-detail-body tr.wc-table-total-row td.wc-revenue-projected { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%) !important; color: var(--navy) !important; }
 .wc-budget-detail-body td.wc-revenue-budget-year,
 .wc-budget-detail-body td.wc-revenue-projected { background: transparent !important; color: inherit !important; }
 /* Revenue Ledger: FY2027-2029 shouldn't stand out from the other fiscal
@@ -1821,6 +1821,22 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   .engineering-page-header {
     grid-template-columns: 1fr;
   }
+}
+
+/* department-services.js's render() moves these into the
+   .wc-dept-supporting-media rail beside the Statement of Function once its
+   (async, Google-Sheets-dependent) data finishes loading -- until then they
+   sit in their original, un-styled-for-that-slot position as a direct
+   child of main#content, which is what was visibly flashing full-width in
+   the page center before jumping into the narrower rail. Hidden here only
+   in that original position (this selector no longer matches once JS
+   re-parents the element into the rail, so it reappears there
+   automatically -- no JS class toggle needed). */
+main#content > a.environmental-iframe-link,
+main#content > a.public-works-iframe-link,
+main#content > a.lifeguard-iframe-link,
+main#content > .recreation-parks-section {
+  display: none;
 }
 
 .recreation-parks-section {

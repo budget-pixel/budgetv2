@@ -3632,6 +3632,16 @@
     // revenueSourceText, duplicated here since that one is scoped inside
     // the machinery-ledger renderer.
     const showRevenueSource = isExpense && !!(renderOptions && renderOptions.showRevenueSource);
+    // Opt-in (see buildCostCell's Operating Accounts popup on the Board
+    // Department Operating Ledger) -- groups this table's own rows by
+    // office instead of leaving the department's several offices (e.g.
+    // Tourism Administration's Administration/Marketing/Sales/
+    // Communications/North Walton divisions) merged into one flat list, by
+    // reusing the exact same subtotal-row mechanism budgetLineRowsHtml
+    // already uses for Object_Type categories, just keyed by Dept_Name
+    // instead. Left off everywhere else on the site (default false) since
+    // most budget-lines popups are already scoped to a single office.
+    const subtotalByOffice = isExpense && !!(renderOptions && renderOptions.subtotalByOffice);
     function revenueSourceCellValue(r) {
       const source = largestRevenueSourceForDepartment(r.Dept_Name, r.Dept_Code);
       if (source) return source;
@@ -4078,8 +4088,47 @@
       return html;
     }
 
+    // Same row/subtotal-row building blocks as budgetLineRowsHtml above,
+    // grouped by office (Dept_Name) instead of category -- see
+    // subtotalByOffice's own comment for when this applies. Falls back to
+    // the plain flat list when every row actually shares one office (the
+    // ordinary case), so a single-office department's popup is unaffected.
+    function budgetLineRowsHtmlGroupedByOffice(rowsToRender, rowClass, suppressDescription) {
+      const sorted = rowsToRender
+        .slice()
+        .sort((a, b) => String(a[codeField] || "").localeCompare(String(b[codeField] || "")));
+
+      const officeOrder = [];
+      const rowsByOffice = new Map();
+      sorted.forEach((r) => {
+        const office = departmentDisplayName(r.Dept_Name) || "Other";
+        if (!rowsByOffice.has(office)) {
+          officeOrder.push(office);
+          rowsByOffice.set(office, []);
+        }
+        rowsByOffice.get(office).push(r);
+      });
+
+      if (officeOrder.length <= 1) {
+        return sorted.map((r) => budgetLineRowHtml(r, rowClass, suppressDescription));
+      }
+
+      const sortedOffices = officeOrder.slice().sort((a, b) => {
+        const totalA = rowsByOffice.get(a).reduce((sum, r) => sum + (r.FY2027_Proposed || 0), 0);
+        const totalB = rowsByOffice.get(b).reduce((sum, r) => sum + (r.FY2027_Proposed || 0), 0);
+        return totalB - totalA;
+      });
+      const html = [];
+      sortedOffices.forEach((office) => {
+        const officeRows = rowsByOffice.get(office);
+        officeRows.forEach((r) => html.push(budgetLineRowHtml(r, rowClass, suppressDescription)));
+        html.push(budgetLineSubtotalRowHtml(office, officeRows, rowClass));
+      });
+      return html;
+    }
+
     const summaryRows = groupedPriorYearRows();
-    const bodyRows = budgetLineRowsHtml(mergedRows, "wc-budget-line-detail-row", false)
+    const bodyRows = (subtotalByOffice ? budgetLineRowsHtmlGroupedByOffice : budgetLineRowsHtml)(mergedRows, "wc-budget-line-detail-row", false)
       .concat(budgetLineRowsHtml(summaryRows, "wc-budget-line-summary-row", true));
     function visiblePriorYearTotal(rowsToTotal, column) {
       return (rowsToTotal || []).reduce((sum, row) => sum + (budgetLineVisibleColumnAmount(row, column) || 0), 0);
@@ -14735,7 +14784,11 @@
         Fte2025: row[2025] || 0,
         PriorFte: row[2026] || 0,
         CurrentFte: row[2027] || 0,
-        Fte: row[2027] || 0
+        Fte: row[2027] || 0,
+        // Same pre-merge office label as buildPersonnelPositionCostsByDept's
+        // own Office field, so a combined multi-office page's popup can
+        // subtotal FTE-only positions (no cost-roster match) by office too.
+        Office: personnelCostDeptDisplayName(row.Dept_Name)
       });
     });
     return byDept;
@@ -14990,8 +15043,19 @@
       if (!rawDeptName) return;
       const cost = computePersonnelPositionCost(row);
       if (!cost.Total) return;
-      const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === row.Fund_Code);
-      const fundName = (fund && fund.Fund_Name) || ("Fund " + row.Fund_Code);
+      // Resolved the same way fundNameForRow/fundNameForStaffingRow derive
+      // fund for every other sheet (first 3 digits of the real Dept_Code,
+      // e.g. "11141005" -> Fund 111) instead of trusting this sheet's own
+      // free-text "Fund"/"Funds" column (row.Fund_Code, set in
+      // normalizePersonnelPositionCostRow) -- that column doesn't reliably
+      // match cache.funds' Fund_Code formatting, and a mismatch here (this
+      // was previously keyed off it directly) silently zeroed out every
+      // position's cost for any department whose display key depends on
+      // fund (tourismDeptLabel's "Tourism - X" relabeling, the only case
+      // that reads fundName at all) -- e.g. every division rolled into the
+      // Tourism Administration page.
+      const fund = (cache.funds || []).find((f) => f.Fund_Code === fundCodeForRow(row));
+      const fundName = (fund && fund.Fund_Name) || "Constitutional Offices";
       // Same Code Compliance Beach/Street merge as the department rows
       // above, so a position's popup lands under the same merged "Code
       // Compliance" key its department row uses.
@@ -15035,7 +15099,13 @@
       // sheet's row order (not re-numbered per department), so it can be
       // pasted straight back into the sheet as a lookup key when
       // reloading reconciled dollar amounts.
-      byDept.get(deptName).push({ PositionId: index + 1, Position_Name: row.Position_Name, Fte: fte, Cost: cost, SourceRow: row, excludeFromReconciliation: excludeFromReconciliation, hideFte: hideFte });
+      // Office label kept at its pre-merge granularity (e.g. "Communications"
+      // rather than the fund-relabeled "Tourism - Communications" bucket key
+      // above) so a page combining several offices under one deptName (see
+      // personnelCostDetailForRows) can still subtotal by the office each
+      // position actually belongs to.
+      const office = personnelCostDeptDisplayName(rawDeptName);
+      byDept.get(deptName).push({ PositionId: index + 1, Position_Name: row.Position_Name, Fte: fte, Cost: cost, SourceRow: row, Office: office, excludeFromReconciliation: excludeFromReconciliation, hideFte: hideFte });
     });
 
     // The "Custodian - Building" position is costed under Building
@@ -15279,7 +15349,7 @@
     (staffingPositions || []).forEach((position) => {
       const title = position.Position_Name || "Unclassified Position";
       const key = normalizeDeptName(title);
-      if (!staffingByTitle.has(key)) staffingByTitle.set(key, { title, fte2024: 0, fte2025: 0, prior: 0, current: 0 });
+      if (!staffingByTitle.has(key)) staffingByTitle.set(key, { title, office: position.Office, fte2024: 0, fte2025: 0, prior: 0, current: 0 });
       const entry = staffingByTitle.get(key);
       entry.fte2024 += position.Fte2024 || 0;
       entry.fte2025 += position.Fte2025 || 0;
@@ -15301,7 +15371,7 @@
         const title = position.Position_Name || "Unclassified Position";
         const key = normalizeDeptName(title);
         if (!combinedByTitle.has(key)) {
-          combinedByTitle.set(key, { title, costFte: 0, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
+          combinedByTitle.set(key, { title, office: position.Office, costFte: 0, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
         }
         const entry = combinedByTitle.get(key);
         if (!position.hideFte) entry.costFte += position.Fte || 0;
@@ -15312,58 +15382,114 @@
         entry.Total += position.Cost.Total || 0;
       });
       staffingByTitle.forEach((staffing, key) => {
-        if (!combinedByTitle.has(key)) combinedByTitle.set(key, { title: staffing.title, costFte: staffing.current, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
+        if (!combinedByTitle.has(key)) combinedByTitle.set(key, { title: staffing.title, office: staffing.office, costFte: staffing.current, Salaries: 0, Retirement: 0, HealthInsurance: 0, OtherBenefits: 0, Total: 0 });
       });
 
       const positionsGrand = { Fte2024: 0, Fte2025: 0, PriorFte: 0, CurrentFte: 0, Salaries: 0, Cola: 0, Retirement: 0, HealthInsurance: 0, HealthInsuranceIncrease: 0, OtherBenefits: 0, Total: 0 };
       const eliminatedCellHtml = '<td class="wc-num"><span class="wc-visually-muted">&mdash;</span></td>';
       const fteHistoryDashHtml = '<td class="wc-num wc-personnel-position-fte-optional-col"><span class="wc-visually-muted">&mdash;</span></td>';
-      const positionRows = Array.from(combinedByTitle.entries())
-        .sort((a, b) => a[1].title.localeCompare(b[1].title))
-        .map(([key, position]) => {
-          const staffing = staffingByTitle.get(key);
-          const priorFte = staffing ? staffing.prior : position.costFte;
-          const currentFte = staffing ? staffing.current : position.costFte;
-          const change = currentFte - priorFte;
-          const sign = change > 0 ? "+" : change < 0 ? "−" : "";
-          const tone = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
-          const cola = position.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
-          const benefits = position.Retirement + position.HealthInsurance + position.OtherBenefits;
-          const healthInsuranceIncrease = position.HealthInsurance * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
-          positionsGrand.Fte2024 += staffing ? staffing.fte2024 : 0;
-          positionsGrand.Fte2025 += staffing ? staffing.fte2025 : 0;
-          positionsGrand.PriorFte += priorFte;
-          positionsGrand.CurrentFte += currentFte;
-          positionsGrand.Salaries += position.Salaries;
-          positionsGrand.Cola += cola;
-          positionsGrand.Retirement += position.Retirement;
-          positionsGrand.HealthInsurance += position.HealthInsurance;
-          positionsGrand.HealthInsuranceIncrease += healthInsuranceIncrease;
-          positionsGrand.OtherBenefits += position.OtherBenefits;
-          positionsGrand.Total += position.Total;
-          // FY 2024/FY 2025 FTE -- straight from the staffing sheet, same as
-          // Prior/Current FTE above, just two years further back. Only
-          // known when this title has a staffing-sheet row at all (a
-          // cost-only title with no staffing match has no historical FTE to
-          // show, same reasoning as the priorFte/currentFte fallback above).
-          const fteHistoryHtml = staffing
-            ? '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2024) + '</td><td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2025) + '</td>'
-            : fteHistoryDashHtml + fteHistoryDashHtml;
-          // A position with 0 FY2027 FTE has no current-year cost row to
-          // report (the position-cost sheet is a current-roster snapshot --
-          // there's no FY2026 dollar figure anywhere to show as "savings"
-          // from eliminating it, see buildPersonnelPositionCostsByDept).
-          // Showing literal $0.00 here would read as "this position costs
-          // nothing" rather than "this position is gone" -- a muted dash
-          // plus an "Eliminated" note is honest about what we don't know.
-          const totalCellHtml = currentFte === 0 && priorFte > 0
-            ? '<td class="wc-num"><span class="wc-visually-muted">Eliminated for FY2027</span></td>'
-            : eliminatedCellHtml;
-          const dollarCellsHtml = currentFte > 0
-            ? '<td class="wc-num">' + formatCurrency(position.Salaries) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + formatCurrency(benefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
-            : eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + totalCellHtml;
-          return '<tr><td>' + escapeHtml(position.title) + '</td>' + fteHistoryHtml + '<td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td>' + dollarCellsHtml + '</tr>';
+      function subtotalRowHtml(label, subtotal) {
+        const totalFteChange = subtotal.CurrentFte - subtotal.PriorFte;
+        const benefits = subtotal.Retirement + subtotal.HealthInsurance + subtotal.OtherBenefits;
+        return (
+          '<tr class="wc-table-subtotal-row"><td>' + escapeHtml(label) + " subtotal</td>" +
+          '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(subtotal.Fte2024) + "</td>" +
+          '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(subtotal.Fte2025) + "</td>" +
+          '<td class="wc-num">' + formatNumber(subtotal.PriorFte) + "</td>" +
+          '<td class="wc-num">' + formatNumber(subtotal.CurrentFte) + "</td>" +
+          '<td class="wc-num">' + (totalFteChange > 0 ? "+" : totalFteChange < 0 ? "−" : "") + formatNumber(Math.abs(totalFteChange)) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(subtotal.Salaries) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.Cola) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsurance) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsuranceIncrease) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(subtotal.Total) + "</td></tr>"
+        );
+      }
+      function emptySubtotal() {
+        return { Fte2024: 0, Fte2025: 0, PriorFte: 0, CurrentFte: 0, Salaries: 0, Cola: 0, Retirement: 0, HealthInsurance: 0, HealthInsuranceIncrease: 0, OtherBenefits: 0, Total: 0 };
+      }
+      function positionRowHtml(position, staffing) {
+        const priorFte = staffing ? staffing.prior : position.costFte;
+        const currentFte = staffing ? staffing.current : position.costFte;
+        const change = currentFte - priorFte;
+        const sign = change > 0 ? "+" : change < 0 ? "−" : "";
+        const tone = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
+        const cola = position.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE));
+        const benefits = position.Retirement + position.HealthInsurance + position.OtherBenefits;
+        const healthInsuranceIncrease = position.HealthInsurance * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
+        // FY 2024/FY 2025 FTE -- straight from the staffing sheet, same as
+        // Prior/Current FTE above, just two years further back. Only
+        // known when this title has a staffing-sheet row at all (a
+        // cost-only title with no staffing match has no historical FTE to
+        // show, same reasoning as the priorFte/currentFte fallback above).
+        const fteHistoryHtml = staffing
+          ? '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2024) + '</td><td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(staffing.fte2025) + '</td>'
+          : fteHistoryDashHtml + fteHistoryDashHtml;
+        // A position with 0 FY2027 FTE has no current-year cost row to
+        // report (the position-cost sheet is a current-roster snapshot --
+        // there's no FY2026 dollar figure anywhere to show as "savings"
+        // from eliminating it, see buildPersonnelPositionCostsByDept).
+        // Showing literal $0.00 here would read as "this position costs
+        // nothing" rather than "this position is gone" -- a muted dash
+        // plus an "Eliminated" note is honest about what we don't know.
+        const totalCellHtml = currentFte === 0 && priorFte > 0
+          ? '<td class="wc-num"><span class="wc-visually-muted">Eliminated for FY2027</span></td>'
+          : eliminatedCellHtml;
+        const dollarCellsHtml = currentFte > 0
+          ? '<td class="wc-num">' + formatCurrency(position.Salaries) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + formatCurrency(benefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
+          : eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + totalCellHtml;
+        return {
+          html: '<tr><td>' + escapeHtml(position.title) + '</td>' + fteHistoryHtml + '<td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td>' + dollarCellsHtml + '</tr>',
+          totals: { Fte2024: staffing ? staffing.fte2024 : 0, Fte2025: staffing ? staffing.fte2025 : 0, PriorFte: priorFte, CurrentFte: currentFte, Salaries: position.Salaries, Cola: cola, Retirement: position.Retirement, HealthInsurance: position.HealthInsurance, HealthInsuranceIncrease: healthInsuranceIncrease, OtherBenefits: position.OtherBenefits, Total: position.Total }
+        };
+      }
+      function addToSubtotal(subtotal, totals) {
+        Object.keys(subtotal).forEach((field) => { subtotal[field] += totals[field] || 0; });
+      }
+      // A department page combining several offices into one popup (e.g.
+      // Tourism Administration's Administration/Marketing/Sales/
+      // Communications/North Walton divisions, or Code Compliance's
+      // Street/Beach split) reads as one undifferentiated list without
+      // this -- positions are grouped by the office each one actually
+      // belongs to (see buildPersonnelPositionCostsByDept/
+      // buildStaffingPositionListByDept's own Office field), each group
+      // gets its own subtotal row, and single-office departments (the
+      // common case) keep the flat, ungrouped list they've always had.
+      const entries = Array.from(combinedByTitle.entries());
+      const officeNames = uniqueSorted(entries.map(([, position]) => position.office || "Other"));
+      let positionRows;
+      if (officeNames.length > 1) {
+        const officeGroups = new Map(officeNames.map((office) => [office, []]));
+        entries.forEach(([key, position]) => { officeGroups.get(position.office || "Other").push([key, position]); });
+        const officeOrder = officeNames
+          .map((office) => ({ office, total: officeGroups.get(office).reduce((sum, [, position]) => sum + position.Total, 0) }))
+          .sort((a, b) => b.total - a.total)
+          .map((entry) => entry.office);
+        positionRows = [];
+        officeOrder.forEach((office) => {
+          const officeSubtotal = emptySubtotal();
+          officeGroups.get(office)
+            .sort((a, b) => a[1].title.localeCompare(b[1].title))
+            .forEach(([key, position]) => {
+              const staffing = staffingByTitle.get(key);
+              const row = positionRowHtml(position, staffing);
+              positionRows.push(row.html);
+              addToSubtotal(officeSubtotal, row.totals);
+              addToSubtotal(positionsGrand, row.totals);
+            });
+          positionRows.push(subtotalRowHtml(office, officeSubtotal));
         });
+      } else {
+        positionRows = entries
+          .sort((a, b) => a[1].title.localeCompare(b[1].title))
+          .map(([key, position]) => {
+            const staffing = staffingByTitle.get(key);
+            const row = positionRowHtml(position, staffing);
+            addToSubtotal(positionsGrand, row.totals);
+            return row.html;
+          });
+      }
       if (positions && positions.seasonalPositions) {
         const sp = positions.seasonalPositions;
         positionsGrand.Salaries += sp.Salaries;
@@ -15506,9 +15632,20 @@
     return wrapper.firstElementChild ? wrapper.firstElementChild.innerHTML : "";
   }
 
+  // row here is an expenditure row (normalizeExpenditureRow) -- unlike
+  // revenue/staffing rows, those carry no Fund_Code field at all (the
+  // expenditure sheet doesn't have a Fund column; see fundCodeForRow's own
+  // comment), so row.Fund_Code was always undefined here and this always
+  // fell through to the "Fund undefined" placeholder -- silently skipping
+  // tourismDeptLabel's "Tourism - X" relabeling for every expense row, so
+  // this could never match positionsByDept's own "Tourism - X" keys (see
+  // buildPersonnelPositionCostsByDept) and the multi-office popup (Tourism
+  // Administration's five divisions, etc.) always showed $0. Derived the
+  // same fundCodeForRow way fundNameForRow/fundNameForStaffingRow already
+  // do for every other sheet.
   function personnelCostDisplayNameForRow(row) {
-    const fund = (cache.funds || []).find((f) => String(f.Fund_Code || "").trim() === String(row.Fund_Code || "").trim());
-    const fundName = (fund && fund.Fund_Name) || ("Fund " + row.Fund_Code);
+    const fund = (cache.funds || []).find((f) => f.Fund_Code === fundCodeForRow(row));
+    const fundName = (fund && fund.Fund_Name) || "Constitutional Offices";
     return tourismDeptLabel(personnelCostDeptDisplayName(row.Dept_Name), fundName);
   }
 
@@ -15572,7 +15709,7 @@
   function budgetLinesDollarButton(rowsForKind, amountText, popupLabel, options) {
     const opts = options || {};
     const linkClass = opts.linkClass || "wc-department-cost-amount";
-    const toggle = renderBudgetLinesToggle(rowsForKind, "Note", "expense", false, false, false, { showRevenueSource: opts.showRevenueSource });
+    const toggle = renderBudgetLinesToggle(rowsForKind, "Note", "expense", false, false, false, { showRevenueSource: opts.showRevenueSource, subtotalByOffice: opts.subtotalByOffice });
     if (!toggle.button) return { html: opts.plain ? amountText : "<b>" + amountText + "</b>", detail: "" };
     const match = /data-target="([^"]+)"/.exec(toggle.button);
     const targetId = match ? match[1] : "";
@@ -16701,11 +16838,11 @@
           return t.indexOf("personnel") < 0 && t.indexOf("capital") < 0;
         });
       }
-      function buildCostCell(rowsForKind, amount, label, isPersonnel, popupDetailsArr, isCapital) {
+      function buildCostCell(rowsForKind, amount, label, isPersonnel, popupDetailsArr, isCapital, subtotalByOffice) {
         if (!amount) return '<td class="wc-num">' + formatCurrency(amount) + '</td>';
         const popup = isPersonnel
           ? personnelDollarButton(rowsForKind, label, formatCurrency(amount), costCellLinkOptions)
-          : budgetLinesDollarButton(rowsForKind, formatCurrency(amount), label, Object.assign({}, costCellLinkOptions, { showRevenueSource: !!isCapital }));
+          : budgetLinesDollarButton(rowsForKind, formatCurrency(amount), label, Object.assign({}, costCellLinkOptions, { showRevenueSource: !!isCapital, subtotalByOffice: !!subtotalByOffice }));
         if (popup.detail) popupDetailsArr.push(popup.detail);
         return '<td class="wc-num">' + popup.html + '</td>';
       }
@@ -16782,7 +16919,7 @@
         return (
           '<tr id="' + rowId + '" class="wc-department-ledger-group-row"><td>' + deptNameHtml + '</td><td class="wc-num">' + formatCurrency(deptPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(deptCurrentExcludingCapital) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
           buildCostCell(dept.rows, dept.personnel, dept.name, true, ledgerPopupDetails) +
-          buildCostCell(operatingRowsFor(dept.rows), deptOperatingTotal, dept.name + " Operating Accounts", false, ledgerPopupDetails) +
+          buildCostCell(operatingRowsFor(dept.rows), deptOperatingTotal, dept.name + " Operating Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
           '</tr>'
         );
       });
