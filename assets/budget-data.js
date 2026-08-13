@@ -3342,11 +3342,22 @@
   }
 
   function revenueBudgetUniqueKey(row) {
+    // The Board's dedicated Beach Vending allocation is Project 10647,
+    // but the published revenue sheet currently carries 10647 in its
+    // Project_Name column rather than Project_Code. Treat it as the real
+    // project dimension here so it does not collide with Code Compliance's
+    // separate blank-project $320,000 budget under the same 001329/329004
+    // ledger account. Without this distinction, the countywide MAX-based
+    // dedupe keeps the Board's $1.53M allocation and silently drops the
+    // legitimate $320,000 operating revenue.
+    const projectKey = isBccBeachVendingRevenueRow(row)
+      ? BCC_BEACH_VENDING_PROJECT_CODE
+      : String((row && row.Project_Code) || "").trim();
     return [
       fundCodeForRow(row),
       String((row && row.Dept_Code) || "").trim(),
       String((row && row.Revenue_Code) || "").trim(),
-      String((row && row.Project_Code) || "").trim()
+      projectKey
     ].join("|");
   }
 
@@ -4928,10 +4939,27 @@
   }
 
   function renderFinancialDashboardCard(options) {
-    const rows = options.rows || [];
+    const allRows = options.rows || [];
     const caption = options.caption || "Financial Summary";
     const kind = options.kind || "expense";
-    const total = options.total || 0;
+    // Capital Outlay is pulled out of the main breakdown list into its own
+    // callout beside the headline number (see capitalCalloutHtml below),
+    // instead of being just another row competing for one of the top-3
+    // slots -- the headline itself becomes "budget without capital" so the
+    // number people see first is recurring operating/personnel cost, not
+    // inflated (or deflated) by a one-time capital purchase. Revenue cards
+    // have no Capital Outlay category at all, and an expense card with none
+    // this year behaves exactly as before.
+    const rawCapitalRow = kind === "expense" ? allRows.find((row) => normalizeObjectTypeForYoy(row.label) === "capital outlay") : null;
+    // A $0-this-year, $0-last-year Capital Outlay row (never actually
+    // active for this department) is left in place rather than pulled into
+    // an empty "$0 Capital Outlay" callout -- same "either year nonzero"
+    // relevance test rowRelevance uses below for the breakdown list itself.
+    const capitalRow = rawCapitalRow && (Math.abs(rawCapitalRow.amount || 0) !== 0 || Math.abs(rawCapitalRow.priorAmount || 0) !== 0)
+      ? rawCapitalRow
+      : null;
+    const rows = capitalRow ? allRows.filter((row) => row !== capitalRow) : allRows;
+    const total = (options.total || 0) - (capitalRow ? (capitalRow.amount || 0) : 0);
     const showPrior = !!options.showPrior;
     const detail = options.detail || { button: "", detail: "" };
     const zeroClass = total === 0 ? " is-zero" : "";
@@ -5008,6 +5036,24 @@
       );
     }).join("");
 
+    // Beside the headline: Capital Outlay's own current amount plus its
+    // YoY change, same change-badge styling as every other category row
+    // (see changeHtml above), just placed here instead of inside the
+    // breakdown list.
+    const capitalCalloutHtml = capitalRow ? (() => {
+      const capitalAmount = capitalRow.amount || 0;
+      const capitalChangeAmount = capitalRow.changeAmount !== undefined ? capitalRow.changeAmount : capitalAmount;
+      const capitalChangePriorAmount = capitalRow.changePriorAmount !== undefined ? capitalRow.changePriorAmount : (capitalRow.priorAmount || 0);
+      const capitalChangeHtml = showChange ? renderFinanceCardRowChange(capitalChangeAmount, capitalChangePriorAmount, "Non-Recurring YoY Change") : "";
+      return (
+        '<div class="wc-finance-card-capital-callout">' +
+          '<span class="wc-finance-card-capital-callout-label">Capital Outlay</span>' +
+          '<strong class="wc-finance-card-capital-callout-amount">' + escapeHtml(formatCompactCurrency(capitalAmount)) + '</strong>' +
+          capitalChangeHtml +
+        '</div>'
+      );
+    })() : "";
+
     return (
       '<section class="wc-finance-card wc-budget-lines-card wc-print-kind-' + escapeHtml(kind) + rowCountClass + zeroClass + (showPrior ? " show-prior-years" : "") + '" data-print-title="' + escapeHtml(caption) + '">' +
         '<div class="wc-finance-card-head">' +
@@ -5016,6 +5062,7 @@
             '<strong class="wc-finance-card-total">' + escapeHtml(formatCompactCurrency(total)) + '</strong>' +
             '<span class="wc-finance-card-subtitle">' + escapeHtml(currentLabel) + '</span>' +
           '</div>' +
+          capitalCalloutHtml +
         '</div>' +
         '<div class="wc-finance-card-breakdown">' + itemHtml + '</div>' +
         '<div class="wc-finance-card-footer">' +
@@ -8384,8 +8431,8 @@
     }, 0);
   }
 
-  function renderConsolidatedRevenueSummaryTable() {
-    const rows = cache.revenues || [];
+  function renderConsolidatedRevenueSummaryTable(rowsOverride) {
+    const rows = rowsOverride || cache.revenues || [];
     if (!rows.length) return "";
 
     const totals = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map(() => 0);
@@ -8399,6 +8446,17 @@
       }
 
       const year = Number(yearMatch[1]);
+      // A department-filtered Revenue Ledger must use the same org-scoped
+      // actual lookup as that department's own Revenue Lines table. Revenue
+      // codes such as Ad Valorem Taxes are reused across many departments;
+      // the countywide code-level lookup below would otherwise pull every
+      // department's actuals into the one selected department. This shared
+      // helper honors Dept_Code, historical org aliases, project scoping,
+      // backfilled rows, and only falls back when no scoped actual exists.
+      const departmentNames = new Set(rowsToSum.map((row) => normalizeDeptName(row && row.Dept_Name)).filter(Boolean));
+      if (departmentNames.size === 1) {
+        return budgetLineColumnTotal(rowsToSum, { field, year, actual: true }, false);
+      }
       const codes = new Set(rowsToSum.map((r) => String((r && r.Revenue_Code) || "").trim()).filter(Boolean));
       const fundCodes = new Set(rowsToSum.map((r) => fundCodeForRow(r)).filter(Boolean));
       if (!codes.size) return 0;
@@ -8474,12 +8532,23 @@
     // highlighted/muted columns as the category row above it, instead of
     // reading like a separate, unstyled table.
     function columnCellClass(col) {
-      const extraYear = col.field !== "FY2026_Original_Budget" && col.field !== "FY2027_Proposed";
-      return (extraYear ? " wc-prior-year" : "") +
+      const historical = /^FY202[0-5]_Actual$/.test(col.field);
+      const future = Boolean(col.projected);
+      return (historical ? " wc-revenue-history-year" : "") +
+        (future ? " wc-revenue-future-year" : "") +
         (col.field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") +
         (col.field === "FY2028_Projected" ? " wc-fy-2028" : "") +
         (col.field === "FY2029_Projected" ? " wc-fy-2029" : "") +
         (col.projected ? " wc-revenue-projected" : "");
+    }
+
+    function revenueChangeCellHtml(rowsForChange) {
+      const prior = dedupedRevenueSum(rowsForChange, "FY2026_Original_Budget");
+      const current = dedupedRevenueSum(rowsForChange, "FY2027_Proposed");
+      const change = current - prior;
+      const tone = change > 0 ? " is-increase" : change < 0 ? " is-decrease" : "";
+      const sign = change > 0 ? "+" : change < 0 ? "−" : "";
+      return '<td class="wc-num' + tone + '">' + sign + formatCurrency(Math.abs(change)) + "</td>";
     }
 
     const bodyRows = CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec, specIndex) => {
@@ -8488,6 +8557,7 @@
       // Self-Insurance Fund (503) is an Internal Service fund rather than
       // a governmental one, so both are excluded here.
       const matching = rows.filter((r) => r.Revenue_Type === spec.type && !isReportedElsewhere(r));
+      if (!matching.length) return "";
       // Mosquito Control levies its own Ad Valorem millage on top of the
       // County's General Fund millage, but both land in this same
       // "General Government Taxes" row -- there's no separate Ad Valorem
@@ -8523,11 +8593,41 @@
       // it, so it lines up under the exact same columns instead of reading
       // like a separate table dropped in below.
       const groupKey = "wc-revenue-classification-" + specIndex;
+      function revenueLedgerDetailTarget(name) {
+        const normalized = normalizeDeptName(name);
+        if (/^ad valorem taxes/.test(normalized)) return "property-taxes";
+        if (/^interest/.test(normalized)) return "interest-and-investment-earnings";
+        if (normalized === "tourist development tax other") return "tourist-development-tax-other";
+        if (/^tourist development tax/.test(normalized)) return "tourist-development-taxes";
+        return revenueTopicSlug(name);
+      }
       const individualRevenueRows = Array.from(individualRevenueTotals.entries())
-        .sort((a, b) => dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed"))
+        // Keep zero-only source rows in the underlying totals, but omit them
+        // from the expanded Revenue Ledger display. These are source-data
+        // placeholders such as "Tourist Development Tax (Other)" and add
+        // no useful information when every year is $0.
+        .filter(([, entry]) => CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.some((col) =>
+          dedupedRevenueSum(entry.rows, col.field) !== 0
+        ))
+        .sort((a, b) => {
+          // Keep the two property-tax detail lines together at the top of
+          // General Government Taxes: countywide Ad Valorem first, followed
+          // immediately by the Mosquito Control levy.
+          if (spec.type === "General Government Taxes") {
+            const detailPriority = (name) => {
+              const normalized = normalizeDeptName(name);
+              if (normalized === "ad valorem taxes") return 0;
+              if (normalized === "ad valorem taxes mosquito control fund") return 1;
+              return 2;
+            };
+            const priorityDifference = detailPriority(a[0]) - detailPriority(b[0]);
+            if (priorityDifference !== 0) return priorityDifference;
+          }
+          return dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed");
+        })
         .map(([name, entry]) =>
-          '<tr class="wc-fund-activity-row" data-fund-activity-group="' + groupKey + '" hidden><td>' + escapeHtml(name) + '</td>' +
-          CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(dedupedRevenueSum(entry.rows, col.field)) + '</td>').join("") +
+          '<tr class="wc-fund-activity-row" data-fund-activity-group="' + groupKey + '" hidden><td><button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button></td>' +
+          CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(dedupedRevenueSum(entry.rows, col.field)) + '</td>' + (col.field === "FY2027_Proposed" ? revenueChangeCellHtml(entry.rows) : "")).join("") +
           '</tr>'
         );
       const hasDetail = individualRevenueRows.length > 0;
@@ -8542,7 +8642,7 @@
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = dedupedRevenueSum(matching, col.field);
           totals[i] += sum;
-          return '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(sum) + "</td>";
+          return '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(sum) + "</td>" + (col.field === "FY2027_Proposed" ? revenueChangeCellHtml(matching) : "");
         }).join("") +
         "</tr>" +
         individualRevenueRows.join("")
@@ -8568,24 +8668,23 @@
     if (unclassifiedRevenueValues.some((v) => v !== 0)) {
       bodyRows.push(
         '<tr class="wc-table-unclassified-row"><td>Unclassified</td>' +
-        unclassifiedRevenueValues.map((v, i) => '<td class="wc-num' + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field !== "FY2026_Original_Budget" && CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field !== "FY2027_Proposed" ? " wc-prior-year" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2028_Projected" ? " wc-fy-2028" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2029_Projected" ? " wc-fy-2029" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].projected ? " wc-revenue-projected" : "") + '">' + formatCurrency(v) + "</td>").join("") +
+        unclassifiedRevenueValues.map((v, i) => '<td class="wc-num' + columnCellClass(CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i]) + '">' + formatCurrency(v) + "</td>" + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? revenueChangeCellHtml(unclassifiedRevenueRows) : "")).join("") +
         "</tr>"
       );
     }
     bodyRows.push(
       '<tr class="wc-table-total-row"><td>Total</td>' +
-      totals.map((t, i) => '<td class="wc-num' + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field !== "FY2026_Original_Budget" && CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field !== "FY2027_Proposed" ? " wc-prior-year" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2028_Projected" ? " wc-fy-2028" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2029_Projected" ? " wc-fy-2029" : "") + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].projected ? " wc-revenue-projected" : "") + '">' + formatCurrency(t) + "</td>").join("") +
+      totals.map((t, i) => '<td class="wc-num' + columnCellClass(CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i]) + '">' + formatCurrency(t) + "</td>" + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? revenueChangeCellHtml(rows.filter((row) => !isReportedElsewhere(row))) : "")).join("") +
       "</tr>"
     );
 
-    const showPrior = true;
     return (
-      '<div class="wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '">' +
+      '<div class="wc-budget-lines-card">' +
       '<div class="wc-table-wrap">' +
       '<div class="wc-data-table-scroll">' +
       '<table class="wc-data-table">' +
       "<thead><tr><th></th>" +
-      CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c) => '<th class="wc-num' + (c.field !== "FY2026_Original_Budget" && c.field !== "FY2027_Proposed" ? " wc-prior-year" : "") + (c.field === "FY2027_Proposed" ? " wc-revenue-budget-year" : "") + (c.field === "FY2028_Projected" ? " wc-fy-2028" : "") + (c.field === "FY2029_Projected" ? " wc-fy-2029" : "") + (c.projected ? " wc-revenue-projected" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
+      CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c) => '<th class="wc-num' + columnCellClass(c) + '">' + escapeHtml(c.label) + "</th>" + (c.field === "FY2027_Proposed" ? '<th class="wc-num">+/−</th>' : "")).join("") +
       "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
       "</table>" +
@@ -8598,15 +8697,137 @@
   }
 
   function initConsolidatedRevenueSummaryPage() {
-    // Individual-revenue rows expand via the shared wc-fund-activity-toggle
-    // delegated click handler (see buildFundFinancialSchedule) -- only the
-    // prior-years toggle still needs binding here.
-    initConsolidatedFundTableContainer(
-      "consolidated-revenue-summary-table",
-      renderConsolidatedRevenueSummaryTable,
-      "consolidated revenue summary",
-      bindPriorYearsToggle
-    );
+    const container = document.getElementById("consolidated-revenue-summary-table");
+    if (!container) return;
+    container.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>";
+    loadBudgetData().then((data) => {
+      if (Object.keys(data.errors || {}).length >= data.datasetCount) {
+        container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+        return;
+      }
+      const sourceRows = cache.revenues || [];
+      const funds = uniqueSorted(sourceRows.map(fundNameForRow));
+      const departments = uniqueSorted(sourceRows.map((row) => row.Dept_Name));
+      let selectedFund = "";
+      let selectedDepartment = "";
+      let showHistoricalYears = false;
+      let showFutureYears = false;
+      container.innerHTML =
+        '<div class="wc-filter-bar wc-machinery-picker">' +
+        filterComboFieldHtml({ idPrefix: "wcRevenueLedgerFund", label: "Fund", options: funds }) +
+        filterComboFieldHtml({ idPrefix: "wcRevenueLedgerDepartment", label: "Department", options: departments }) +
+        '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerHistoryToggle" aria-pressed="false">View Prior Years</button>' +
+        '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerFutureToggle" aria-pressed="false">View Projected Future Years</button>' +
+        "</div>" +
+        '<div class="wc-revenue-ledger-filtered-table"></div>';
+      const tableContainer = container.querySelector(".wc-revenue-ledger-filtered-table");
+      container.insertAdjacentHTML("beforeend",
+        '<dialog class="wc-revenue-source-dialog" data-revenue-source-dialog aria-labelledby="wcRevenueSourceDialogTitle">' +
+        '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueSourceDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-source-dialog-close aria-label="Close">&times;</button></div>' +
+        '<div class="wc-revenue-source-dialog-body" data-revenue-source-dialog-body></div></div>' +
+        '</dialog>'
+      );
+      const revenueSourceDialog = container.querySelector("[data-revenue-source-dialog]");
+      const revenueSourceDialogBody = container.querySelector("[data-revenue-source-dialog-body]");
+      const revenueSourceDialogTitle = container.querySelector("#wcRevenueSourceDialogTitle");
+      function ledgerExplorerSourceName(row) {
+        let name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
+        if (/interest/i.test(name)) name = "Interest and Investment Earnings";
+        if (/^ad valorem taxes$/i.test(name)) name = "Property Taxes";
+        if (String(row.Revenue_Code || "").trim() === "312140" || normalizeDeptName(name) === "tourist development tax other") {
+          name = "Tourist Development Tax Other";
+        } else if (/^tourist development tax/i.test(name)) {
+          name = "Tourist Development Taxes";
+        }
+        return name;
+      }
+      tableContainer.addEventListener("click", (event) => {
+        const sourceButton = event.target.closest("[data-revenue-ledger-source]");
+        if (!sourceButton) return;
+        const target = sourceButton.dataset.revenueLedgerSource || "";
+        if (!target || !revenueSourceDialog || !revenueSourceDialogBody) return;
+        const matchingRows = sourceRows.filter((row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target);
+        const sourceTitle = matchingRows.length ? ledgerExplorerSourceName(matchingRows[0]) : sourceButton.textContent.trim();
+        const topic = {
+          title: sourceTitle,
+          narrativeKey: sourceTitle,
+          useLedgerNotes: true,
+          accessLabel: /^Tourist Development Taxes$/i.test(sourceTitle) ? "State Restricted" : revenueRestrictionLabel(sourceTitle),
+          recurrenceLabel: /^Interest and Investment Earnings$/i.test(sourceTitle) ? "Non-recurring" : "Recurring",
+          matches: (row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target
+        };
+        if (revenueSourceDialogTitle) revenueSourceDialogTitle.textContent = sourceTitle;
+        revenueSourceDialogBody.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + '</div>';
+        document.documentElement.classList.add("wc-modal-open");
+        revenueSourceDialog.showModal();
+        renderRevenueTopicCards(revenueSourceDialogBody, [topic], "wc-chart-revenue-ledger-popup");
+        bindTooltipAnchors(revenueSourceDialogBody);
+      });
+      const closeRevenueSourceDialog = () => {
+        if (revenueSourceDialog) revenueSourceDialog.close();
+        document.documentElement.classList.remove("wc-modal-open");
+        if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
+      };
+      container.querySelector("[data-revenue-source-dialog-close]").addEventListener("click", closeRevenueSourceDialog);
+      revenueSourceDialog.addEventListener("click", (event) => {
+        if (event.target === revenueSourceDialog) closeRevenueSourceDialog();
+      });
+      revenueSourceDialog.addEventListener("close", () => {
+        document.documentElement.classList.remove("wc-modal-open");
+        if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
+      });
+      function renderFilteredLedger() {
+        // Department pages first suppress shared/countywide actuals and
+        // backfill their General Fund support from that department's own
+        // historical expenditures. Use those exact prepared rows whenever
+        // the Department filter is active; filtering raw cache.revenues
+        // would leave shared FY2020-FY2026 account totals in place.
+        const rowsForDepartment = selectedDepartment
+          ? departmentFinancialDisplayRows(selectedDepartment).revenueRows
+          : sourceRows;
+        const filteredRows = rowsForDepartment.filter((row) =>
+          (!selectedFund || fundNameForRow(row) === selectedFund)
+        );
+        tableContainer.innerHTML = filteredRows.length
+          ? renderConsolidatedRevenueSummaryTable(filteredRows)
+          : '<div class="wc-data-empty">No revenue rows match the current filters.</div>';
+        tableContainer.classList.toggle("show-revenue-history", showHistoricalYears);
+        tableContainer.classList.toggle("show-revenue-future", showFutureYears);
+        bindPriorYearsToggle(tableContainer);
+      }
+      setupFilterCombo({
+        input: container.querySelector("#wcRevenueLedgerFundInput"),
+        results: container.querySelector("#wcRevenueLedgerFundResults"),
+        options: funds,
+        getCurrentValue: () => selectedFund,
+        onSelect: (value) => { selectedFund = value; renderFilteredLedger(); }
+      });
+      setupFilterCombo({
+        input: container.querySelector("#wcRevenueLedgerDepartmentInput"),
+        results: container.querySelector("#wcRevenueLedgerDepartmentResults"),
+        options: departments,
+        getCurrentValue: () => selectedDepartment,
+        onSelect: (value) => { selectedDepartment = value; renderFilteredLedger(); }
+      });
+      const historyToggle = container.querySelector("#wcRevenueLedgerHistoryToggle");
+      historyToggle.addEventListener("click", () => {
+        showHistoricalYears = !showHistoricalYears;
+        historyToggle.setAttribute("aria-pressed", String(showHistoricalYears));
+        historyToggle.textContent = showHistoricalYears ? "Hide Prior Years" : "View Prior Years";
+        tableContainer.classList.toggle("show-revenue-history", showHistoricalYears);
+      });
+      const futureToggle = container.querySelector("#wcRevenueLedgerFutureToggle");
+      futureToggle.addEventListener("click", () => {
+        showFutureYears = !showFutureYears;
+        futureToggle.setAttribute("aria-pressed", String(showFutureYears));
+        futureToggle.textContent = showFutureYears ? "Hide Projected Future Years" : "View Projected Future Years";
+        tableContainer.classList.toggle("show-revenue-future", showFutureYears);
+      });
+      renderFilteredLedger();
+    }).catch((err) => {
+      console.error("WCBudgetData: failed to load consolidated revenue summary", err);
+      container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+    });
   }
 
   // "Summary of Expenses" page: a Consolidated Expense Summary showing just
@@ -10887,9 +11108,6 @@
       const datasets = Array.from(byName.entries()).map(([name, rowsForName], i) => ({
         label: name,
         data: REVENUE_TOPIC_CHART_YEARS.map((y) => {
-          if (topic.title === "Property Taxes" && y.field === "FY2026_Original_Budget") {
-            return sumRevenueRowsForField(rowsForName, "FY2027_Proposed", topic);
-          }
           return y.projectedYear
             ? projectedRevenueAmount(sumRevenueRowsForField(rowsForName, "FY2027_Proposed", topic), rowsForName[0] && rowsForName[0].Revenue_Type, y.projectedYear, topic)
             : sumRevenueRowsForField(rowsForName, y.field, topic);
@@ -11231,9 +11449,10 @@
         const percent = priorAmount ? change / Math.abs(priorAmount) * 100 : null;
         const amountText = (change >= 0 ? "+" : "−") + compactRevenueCurrency(Math.abs(change));
         const percentText = percent === null ? "No prior-year base" : ((percent >= 0 ? "+" : "") + percent.toFixed(1) + "%");
-        const isFlatProjection = /^(?:Tourist Development Taxes|Discretionary Sales Surtax)$/i.test(String(sourceName || ""));
+        const isFlatProjection = /^(?:Property Taxes|Tourist Development Taxes|Discretionary Sales Surtax|Local Government (?:1\/2|Half)[ -]?Cent Sales Tax)$/i.test(String(sourceName || ""));
+        const isLocalGovernmentHalfCent = /^Local Government (?:1\/2|Half)[ -]?Cent Sales Tax$/i.test(String(sourceName || ""));
         const trendText = isFlatProjection ? "Relatively flat" : (percent === null ? "Trend unavailable" : (Math.abs(percent) < 0.5 ? "Relatively flat" : (percent > 0 ? "Trending up" : "Trending down")));
-        return '<div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '"><div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + escapeHtml(amountText) + '</strong><em>' + escapeHtml(percentText) + '</em></div></div><div class="wc-revenue-trend"><small>Expected Revenue Trend</small><b>' + escapeHtml(trendText) + '</b></div></div>';
+        return '<div class="wc-revenue-snapshot-change' + (change < 0 && !isLocalGovernmentHalfCent ? " is-down" : "") + (isLocalGovernmentHalfCent ? " is-local-government-half-cent" : "") + '"><div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' + escapeHtml(amountText) + '</strong><em>' + escapeHtml(percentText) + '</em></div></div><div class="wc-revenue-trend"><small>Expected Revenue Trend</small><b>' + escapeHtml(trendText) + '</b></div></div>';
       }
       function compactRevenueCurrency(value) {
         const amount = Math.abs(value || 0);
@@ -11259,9 +11478,10 @@
         const sourceAccessBadgeHtml = /interest and investment earnings/i.test(source.name) && sourceRestrictionLabels.size > 1
           ? '<div class="wc-revenue-access-pair"><div class="wc-revenue-snapshot-access is-restricted" data-revenue-tooltip="Restricted funds may be used only for the legally or locally designated purpose.">Restricted</div><span class="wc-revenue-badge-separator">&amp;</span><div class="wc-revenue-snapshot-access is-unrestricted" data-revenue-tooltip="Unrestricted revenue may support general County priorities through the adopted budget.">Unrestricted</div></div>'
           : '<div class="wc-revenue-snapshot-access ' + (cardIsRestricted ? "is-restricted" : "is-unrestricted") + '" data-revenue-tooltip="' + (cardIsRestricted ? "Restricted funds may be used only for the legally or locally designated purpose." : "Unrestricted revenue may support general County priorities through the adopted budget.") + '">' + (isRestrictedTourism ? "State Restricted" : cardIsRestricted ? "Restricted" : "Unrestricted") + '</div>';
-        const priorAmount = /^(?:ad valorem|property) taxes$/i.test(source.name)
-          ? source.amount
-          : sumRevenueRowsForField(sourceRows, "FY2026_Original_Budget");
+        // Use the actual FY2026 budget for every source, including Property
+        // Taxes. The rolled-back-rate policy informs FY2027, but it must not
+        // replace the prior-year ledger value in this comparison.
+        const priorAmount = sumRevenueRowsForField(sourceRows, "FY2026_Original_Budget");
         const tag = target ? "button" : "article";
         return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(source.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(source.amount)) + '</b><small class="wc-revenue-card-share">' + Math.round(source.share * 100) + '% of total budget</small></div><div class="wc-revenue-card-badge-stack"><div class="wc-revenue-card-badges">' + sourceAccessBadgeHtml + '<div class="wc-revenue-recurrence-badge ' + (recurrenceLabel === "Non-recurring" ? "is-nonrecurring" : "is-recurring") + '" data-revenue-tooltip="' + (recurrenceLabel === "Non-recurring" ? "Non-recurring revenue is expected as a one-time or irregular source rather than a dependable annual stream." : "Recurring revenue is expected to continue as an annual source, subject to changes in collections and policy.") + '">' + recurrenceLabel + '</div><div class="wc-revenue-control-badge ' + escapeHtml(control.className) + '" data-revenue-tooltip="' + escapeHtml(control.text) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</div></div></div></div>' + revenueChangeHtml(source.amount, priorAmount, source.name) + '</' + tag + '>';
       }).join("");
@@ -15457,11 +15677,24 @@
       // gets its own subtotal row, and single-office departments (the
       // common case) keep the flat, ungrouped list they've always had.
       const entries = Array.from(combinedByTitle.entries());
-      const officeNames = uniqueSorted(entries.map(([, position]) => position.office || "Other"));
+      const isEngineeringDepartment = ["engineering department", "engineering services"]
+        .includes(normalizeDeptName(deptName));
+      // Engineering Services and Engineering Department are two source
+      // labels for the same core engineering workforce. Merge only those
+      // labels; preserve Wastewater Treatment Plant as its own office so it
+      // receives a separate subtotal in the combined department ledger.
+      function personnelOfficeName(position) {
+        const office = position.office || "Other";
+        if (isEngineeringDepartment && ["engineering services", "engineering department"].includes(normalizeDeptName(office))) {
+          return "Engineering Department";
+        }
+        return office;
+      }
+      const officeNames = uniqueSorted(entries.map(([, position]) => personnelOfficeName(position)));
       let positionRows;
       if (officeNames.length > 1) {
         const officeGroups = new Map(officeNames.map((office) => [office, []]));
-        entries.forEach(([key, position]) => { officeGroups.get(position.office || "Other").push([key, position]); });
+        entries.forEach(([key, position]) => { officeGroups.get(personnelOfficeName(position)).push([key, position]); });
         const officeOrder = officeNames
           .map((office) => ({ office, total: officeGroups.get(office).reduce((sum, [, position]) => sum + position.Total, 0) }))
           .sort((a, b) => b.total - a.total)
@@ -15756,8 +15989,8 @@
     container.innerHTML =
       '<div class="wc-financial-summary-table" id="wc-personnel-constitutional-table"></div>' +
       '<div class="wc-filter-bar wc-machinery-picker" data-personnel-board-filters>' +
-      filterComboFieldHtml({ idPrefix: "wcPersonnelCostDept", label: "Department", options: departments }) +
       filterComboFieldHtml({ idPrefix: "wcPersonnelCostFund", label: "Fund", options: funds }) +
+      filterComboFieldHtml({ idPrefix: "wcPersonnelCostDept", label: "Department", options: departments }) +
       '<button type="button" class="wc-view-budget-lines-toggle" id="wcPersonnelCostIncreasesToggle" aria-pressed="false">Show COLA, Health Insurance &amp; Increase</button>' +
       '<button type="button" class="wc-view-budget-lines-toggle" id="wcPersonnelCostExportAllButton">Export All Positions (CSV)</button>' +
       "</div>" +
@@ -16034,35 +16267,14 @@
               totalChangeCellHtml(total, priorTotal) + "</tr>"
             );
         }
-        // A department with more than one office rolled into it can't open
-        // one merged "Staffing and Cost by Position" popup and have it mean
-        // anything specific -- the Total Personnel Cost amount instead
-        // opens the same "choose an office" picker used for the department
-        // name link (see boardDeptNameHtml), and each choice opens that
-        // one office's own detail.
-        let totalCellHtml;
-        if (officeNames.length > 1) {
-          const pickerKey = "personnel-cost-" + slugifyId(d);
-          const officeChoices = officeNames.map((name) => {
-            const office = mergedPersonnelDetailFor(name, [name]);
-            detailMarkup.push(office.detailHtml);
-            const officeTotals = officeMap.get(name);
-            const officeAmount = officeTotals ? officeTotals.Salaries + officeTotals.Retirement + officeTotals.HealthInsurance + officeTotals.OtherBenefits : 0;
-            return { name, detailId: office.detailId, amount: officeAmount };
-          });
-          departmentCardOfficeChoices.set(pickerKey, officeChoices);
-          // wc-view-budget-lines-toggle has no data-target here, so that
-          // click handler no-ops on this button -- it's added purely so
-          // this picker trigger picks up the same bold/arrow styling as
-          // every other Total Personnel Cost cell (see
-          // .wc-view-budget-lines-toggle.wc-table-row-link in style.css),
-          // instead of looking like a plain underlined link.
-          totalCellHtml = '<td class="wc-num"><button type="button" class="wc-department-card-picker wc-view-budget-lines-toggle wc-table-row-link" data-department-key="' + escapeHtml(pickerKey) + '" data-department-name="' + escapeHtml(d) + '">' + formatCurrency(total) + "</button></td>";
-        } else {
-          const { detailId, detailHtml } = mergedPersonnelDetailFor(d, officeNames);
-          detailMarkup.push(detailHtml);
-          totalCellHtml = '<td class="wc-num"><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d + " Staffing and Cost by Position") + '">' + formatCurrency(total) + "</button></td>";
-        }
+        // Open one department-wide position ledger even when several
+        // offices feed this rolled-up department. The shared detail builder
+        // keeps each position's office assignment and inserts office
+        // subtotals, matching the Department Ledger instead of interrupting
+        // the user with a separate office chooser.
+        const { detailId, detailHtml } = mergedPersonnelDetailFor(d, officeNames);
+        detailMarkup.push(detailHtml);
+        const totalCellHtml = '<td class="wc-num"><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-target="' + detailId + '" data-closed-label="' + escapeHtml(d + " Staffing and Cost by Position") + '">' + formatCurrency(total) + "</button></td>";
         return (
           '<tr class="wc-personnel-board-group-row"><td>' + boardDeptNameHtml(d, officeNames) +
           "</td>" +
@@ -16677,6 +16889,9 @@
     return BOARD_DEPARTMENT_ROLLUP_NAMES.get(boardDepartmentRollupKey(name));
   }
 
+  let departmentLedgerSelectedFund = "";
+  let departmentLedgerSelectedDepartment = "";
+
   function initDepartmentBudgetPage() {
     const checklistContainer = document.getElementById("department-budget-questions");
     const explorerEl = document.getElementById("department-budget-explorer");
@@ -16736,8 +16951,23 @@
     loadBudgetData().then((data) => {
       const boardDepartmentNames = BOARD_DEPARTMENT_ROLLUP_NAMES;
       const rollupSourceKey = boardDepartmentRollupKey;
+      const departmentLedgerSourceRows = (data.expenditures || []).filter((row) =>
+        Boolean(boardDepartmentNames.get(rollupSourceKey(row.Dept_Name)))
+      );
+      const departmentLedgerOperatingRows = departmentLedgerSourceRows.filter((row) =>
+        String(row.Object_Type || "").toLowerCase().indexOf("capital") < 0
+      );
+      const departmentLedgerFunds = uniqueSorted(departmentLedgerOperatingRows.map(fundNameForRow));
+      const departmentLedgerDepartments = uniqueSorted(departmentLedgerOperatingRows.map((row) =>
+        boardDepartmentNames.get(rollupSourceKey(row.Dept_Name))
+      ));
       const groups = new Map();
-      (data.expenditures || []).forEach((row) => {
+      departmentLedgerSourceRows.filter((row) =>
+        !isLedgerOnly || (
+          (!departmentLedgerSelectedFund || fundNameForRow(row) === departmentLedgerSelectedFund) &&
+          (!departmentLedgerSelectedDepartment || boardDepartmentNames.get(rollupSourceKey(row.Dept_Name)) === departmentLedgerSelectedDepartment)
+        )
+      ).forEach((row) => {
         const sourceKey = rollupSourceKey(row.Dept_Name);
         const rawName = boardDepartmentNames.get(sourceKey);
         if (!rawName) return;
@@ -17040,8 +17270,31 @@
         return '<a href="' + escapeHtml(href) + '" data-department-key="' + escapeHtml(dept.key) + '">' + cardBodyHtml + '</a>';
       }).join("");
 
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Operating Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? "" : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="capital-projects.html">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      const departmentLedgerFiltersHtml = isLedgerOnly
+        ? '<div class="wc-filter-bar wc-machinery-picker">' +
+          filterComboFieldHtml({ idPrefix: "wcDepartmentLedgerFund", label: "Fund", options: departmentLedgerFunds, initialLabel: departmentLedgerSelectedFund || "All" }) +
+          filterComboFieldHtml({ idPrefix: "wcDepartmentLedgerDepartment", label: "Department", options: departmentLedgerDepartments, initialLabel: departmentLedgerSelectedDepartment || "All" }) +
+          '</div>'
+        : "";
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Operating Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="capital-projects.html">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      if (isLedgerOnly) {
+        setupFilterCombo({
+          input: explorer.querySelector("#wcDepartmentLedgerFundInput"),
+          results: explorer.querySelector("#wcDepartmentLedgerFundResults"),
+          options: departmentLedgerFunds,
+          getCurrentValue: () => departmentLedgerSelectedFund,
+          onSelect: (value) => { departmentLedgerSelectedFund = value; initDepartmentBudgetPage(); }
+        });
+        setupFilterCombo({
+          input: explorer.querySelector("#wcDepartmentLedgerDepartmentInput"),
+          results: explorer.querySelector("#wcDepartmentLedgerDepartmentResults"),
+          options: departmentLedgerDepartments,
+          getCurrentValue: () => departmentLedgerSelectedDepartment,
+          onSelect: (value) => { departmentLedgerSelectedDepartment = value; initDepartmentBudgetPage(); }
+        });
+      }
       if (window.WCDepartmentServices) {
+        document.querySelectorAll(".wc-department-badge-tooltip").forEach((tooltip) => tooltip.remove());
         const badgeTooltip = document.createElement("div");
         badgeTooltip.className = "wc-department-badge-tooltip";
         document.body.appendChild(badgeTooltip);

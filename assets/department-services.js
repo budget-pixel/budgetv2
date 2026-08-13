@@ -698,6 +698,24 @@
     var sublinesHtml=sublines&&sublines.length?'<div class="wc-finance-card-sublines">'+sublines.map(function(item){return '<div class="wc-finance-card-subline"><span>'+escapeHtml(item.label)+'</span><strong>'+compactMoney(item.amount)+'</strong></div>';}).join('')+'</div>':'';
     return '<div class="wc-profile-snapshot-row"><div class="wc-profile-snapshot-row-main"><span class="wc-budget-line-tooltip-label wc-profile-snapshot-row-name">'+escapeHtml(label)+snapshotTooltip(label)+'</span><i class="wc-profile-snapshot-row-track'+(isOneTime?' is-one-time':'')+'" aria-hidden="true"><b style="width:'+Math.min(100,share).toFixed(1)+'%"></b></i>'+sublinesHtml+'</div><strong class="wc-profile-snapshot-row-amount">'+compactMoney(amount)+'</strong>'+pill+'</div>';
   }
+  // Capital Outlay is pulled out of the Expenditures Summary card's
+  // headline number and its breakdown-rows list entirely (see both
+  // snapshotExpenseGroups call sites below) into this compact callout
+  // beside the headline instead -- so the big number reads as the
+  // recurring operating/personnel budget, with the one-time capital add-on
+  // called out separately with its own amount and YoY change. Returns ''
+  // when there's no Capital Outlay group at all (nothing to call out).
+  function snapshotCapitalCalloutHtml(capitalGroup){
+    if(!capitalGroup) return '';
+    var amount=capitalGroup.amount||0;
+    var prior=capitalGroup.prior||0;
+    var delta=capitalGroup.renderedChange?snapshotDeltaFromRenderedChange(capitalGroup.renderedChange):(prior?amount-prior:null);
+    var changeHtml='';
+    if(delta!==null){
+      changeHtml='<small class="'+(delta>0?'is-up':delta<0?'is-down':'')+'">'+(delta===0?'Unchanged':(delta>0?'+':'−')+compactMoney(Math.abs(delta))+(prior?' ('+Math.abs(delta/prior*100).toFixed(1)+'%)':''))+'</small>';
+    }
+    return '<div class="wc-profile-snapshot-capital-callout"><span class="wc-profile-snapshot-capital-callout-label">Capital Outlay</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(amount)+'</strong>'+changeHtml+'</div></div>';
+  }
   function departmentFundingBuckets(rows){
     var buckets={};
     function add(label,amount,explanation){
@@ -974,6 +992,8 @@
       if(originalChange)item.renderedChange={text:originalChange.textContent.trim()};
     });
     if(!snapshotExpenseGroups.length) snapshotExpenseGroups=rowsFromCard(expenseMount).slice(0,4);
+    var capitalGroup=snapshotExpenseGroups.find(function(item){return item.label==='Capital Outlay';})||null;
+    if(capitalGroup) snapshotExpenseGroups=snapshotExpenseGroups.filter(function(item){return item!==capitalGroup;});
     var budget=snapshotExpenseGroups.reduce(function(total,item){return total+item.amount;},0);
     var priorBudget=snapshotExpenseGroups.reduce(function(total,item){return total+(item.prior||0);},0);
     var budgetChange=budget-priorBudget;
@@ -993,7 +1013,7 @@
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile wc-independent-office-snapshot';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
-      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,item.label==='Capital Outlay',null,item.renderedChange);}).join('')+'</div>'+(snapshotExpenseGroups.some(function(item){return item.label==='Capital Outlay';})?'<div class="wc-profile-snapshot-legend"><span><i></i>Recurring</span><span><i class="is-one-time"></i>One-time</span></div>':'')+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-contracts-trigger>View Contractual Services</button></div></article>'+
+      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,item.renderedChange);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-contracts-trigger>View Contractual Services</button></div></article>'+
       '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal,null,false,null,item.renderedChange);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-who-pays>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
       '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div></article></div>';
 
@@ -1104,7 +1124,7 @@
     if(mediaWrapper){
       Array.prototype.forEach.call(mediaWrapper.children,function(child){
         if(child===narrative) return false;
-        if(child.matches&&child.matches('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,.libraries-video-frame,.wc-omb-award-top,.wc-plaque-card,figure,a[class*="iframe-link"]')) supportingMedia.push(child);
+        if(child.matches&&child.matches('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,.libraries-video-frame,.wc-omb-award-top,.wc-plaque-card,.wc-savings-card,figure,a[class*="iframe-link"]')) supportingMedia.push(child);
       });
     }
     document.querySelectorAll('main#content > a.environmental-iframe-link,main#content > a.public-works-iframe-link,main#content > a.lifeguard-iframe-link,main#content > .recreation-parks-section').forEach(function(item){
@@ -1187,6 +1207,13 @@
       var originalChange=originalRow&&originalRow.querySelector('.wc-finance-card-change');
       if(originalChange)item.renderedChange={text:originalChange.textContent.trim(),className:originalChange.classList.contains('wc-finance-card-change-up')?'is-up':originalChange.classList.contains('wc-finance-card-change-down')?'is-down':'is-flat'};
     });
+    // Read here (before the Code Compliance override below can touch
+    // sublines) but not removed from snapshotExpenseGroups until right
+    // before the Expenditures Summary card is built -- everything between
+    // here and there (Code Compliance's own budgetChange override, the
+    // "primary change" narrative copy) still needs Capital Outlay counted
+    // in the full snapshotExpenseGroups/budget it already reads.
+    var capitalGroup=snapshotExpenseGroups.find(function(item){return item.label==='Capital Outlay';})||null;
     if(key==='code compliance'){
       var codePersonnel=snapshotExpenseGroups.find(function(item){return item.label==='Personnel Services';});
       if(codePersonnel){var codeSides={};expenses.filter(function(row){return row.Object_Type==='Personnel Services';}).forEach(function(row){var deptName=normalize(row.Dept_Name);var side=deptName==='code compliance beach'?'Beach':'Street';codeSides[side]=(codeSides[side]||0)+(Number(row.FY2027_Proposed)||0);});codePersonnel.sublines=Object.keys(codeSides).map(function(side){return {label:side,amount:codeSides[side]};}).filter(function(item){return item.amount!==0;});}
@@ -1248,10 +1275,19 @@
     // instead of just the net change.
     var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
     var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
+    // Capital Outlay is excluded here (and only here) -- everything above
+    // (Code Compliance's own budgetChange override, the "Changing" card's
+    // narrative copy) still reads the full snapshotExpenseGroups/budget
+    // including it, so only the Expenditures Summary card itself becomes
+    // "budget without capital" plus a separate capital callout.
+    var cardExpenseGroups=capitalGroup?snapshotExpenseGroups.filter(function(item){return item!==capitalGroup;}):snapshotExpenseGroups;
+    var cardBudget=budget-(capitalGroup?capitalGroup.amount:0);
+    var cardPriorBudget=priorBudget-(capitalGroup?(capitalGroup.prior||0):0);
+    var cardBudgetChange=cardBudget-cardPriorBudget;
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
-      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,item.label==='Capital Outlay',item.sublines,null);}).join('')+'</div>'+(snapshotExpenseGroups.some(function(item){return item.label==='Capital Outlay';})?'<div class="wc-profile-snapshot-legend"><span><i></i>Recurring</span><span><i class="is-one-time"></i>One-time</span></div>':'')+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-contracts-trigger>View Contractual Services</button></div></article>'+
+      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'">'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,null,false,item.sublines,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-contracts-trigger>View Contractual Services</button></div></article>'+
       '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
       '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>'+
       '</div>';

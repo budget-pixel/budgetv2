@@ -840,6 +840,7 @@ table.wc-personnel-position-detail.is-showing-fte-history .wc-personnel-position
 .wc-revenue-trend { min-width: 120px; text-align: right; }
 .wc-revenue-trend b { display: block; margin: 3px 0 0; color: var(--green); font-size: .78rem; font-weight: 850; letter-spacing: .02em; text-transform: uppercase; }
 .wc-revenue-snapshot-change.is-down .wc-revenue-comparison strong,.wc-revenue-snapshot-change.is-down .wc-revenue-comparison em,.wc-revenue-snapshot-change.is-down .wc-revenue-trend b { color: #b42318; }
+.wc-revenue-snapshot-change.is-local-government-half-cent .wc-revenue-comparison strong,.wc-revenue-snapshot-change.is-local-government-half-cent .wc-revenue-comparison em,.wc-revenue-snapshot-change.is-local-government-half-cent .wc-revenue-trend b { color: var(--green); }
 .wc-revenue-takeaway { position: relative; margin-top: 20px; padding: 20px 22px 20px 26px; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 8px 22px rgba(0,63,40,.08); }
 .wc-revenue-takeaway::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: linear-gradient(#003f28,#79b99a); }
 .wc-revenue-takeaway > span { color: var(--green); font-size: .7rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
@@ -950,10 +951,36 @@ button.wc-revenue-profile-card:focus-visible { outline: 3px solid rgba(121,185,1
    without touching the same classes used on other pages' tables. */
 #consolidated-revenue-summary-table td.wc-revenue-budget-year,
 #consolidated-revenue-summary-table td.wc-revenue-projected { background: transparent !important; color: inherit !important; }
+/* The neutral year-column override above must yield to row-level states.
+   Otherwise FY 2027 Proposed and the projected columns visually punch
+   holes through subtotal shading and the full-row hover highlight. */
+#consolidated-revenue-summary-table tbody tr:hover td.wc-revenue-budget-year,
+#consolidated-revenue-summary-table tbody tr:hover td.wc-revenue-projected,
+.wc-budget-detail-body tbody tr:hover td.wc-revenue-budget-year,
+.wc-budget-detail-body tbody tr:hover td.wc-revenue-projected {
+  background: rgba(0,63,40,.05) !important;
+}
+#consolidated-revenue-summary-table tr.wc-table-subtotal-row td.wc-revenue-budget-year,
+#consolidated-revenue-summary-table tr.wc-table-subtotal-row td.wc-revenue-projected,
+.wc-budget-detail-body tr.wc-table-subtotal-row td.wc-revenue-budget-year,
+.wc-budget-detail-body tr.wc-table-subtotal-row td.wc-revenue-projected {
+  background: rgba(209,190,120,.18) !important;
+}
 #consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-budget-year,
 #consolidated-revenue-summary-table tr.wc-table-total-row td.wc-revenue-projected { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%) !important; color: var(--navy) !important; }
 #consolidated-revenue-summary-table th.wc-revenue-budget-year,
 #consolidated-revenue-summary-table th.wc-revenue-projected { background: linear-gradient(135deg, #003f28 0%, #005236 100%) !important; color: #fff !important; }
+/* Revenue Ledger defaults to the two budget columns plus change. Historical
+   actuals and future projections are independently revealed by the two
+   controls above the table. */
+#consolidated-revenue-summary-table .wc-revenue-history-year,
+#consolidated-revenue-summary-table .wc-revenue-future-year {
+  display: none;
+}
+#consolidated-revenue-summary-table .show-revenue-history .wc-revenue-history-year,
+#consolidated-revenue-summary-table .show-revenue-future .wc-revenue-future-year {
+  display: table-cell;
+}
 .wc-revenue-assumption {
   margin-top: auto;
   padding: 16px 18px;
@@ -1770,12 +1797,15 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   display: block;
 }
 
-.engineering-page-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-  gap: 24px;
-  align-items: start;
-  margin-bottom: 16px;
+/* department-services.js's render() moves this into the
+   .wc-dept-supporting-media rail beside the Statement of Function once its
+   (async, Google-Sheets-dependent) data finishes loading -- same
+   original-position flash this hides for the Recreation parks section
+   above. Only hidden while still a direct child of its original wrapper;
+   the selector no longer matches once JS re-parents it into the rail, so
+   it reappears there automatically. */
+.engineering-statement-media > .wc-savings-card {
+  display: none;
 }
 
 .wc-savings-card {
@@ -1815,12 +1845,6 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   font-weight: 700;
   line-height: 1.4;
   text-align: justify;
-}
-
-@media (max-width: 640px) {
-  .engineering-page-header {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* department-services.js's render() moves these into the
@@ -2577,6 +2601,35 @@ main#content > .recreation-parks-section {
 .wc-finance-card-head > div:first-child {
   min-width: 0;
 }
+/* Capital Outlay's own current amount + YoY change, pulled out of the
+   headline total and the top-3 breakdown list (see renderFinancialDashboardCard
+   in budget-data.js) so it reads as "here's the recurring budget, and here's
+   the one-time capital add-on" rather than one blended number. */
+.wc-finance-card-capital-callout {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--light);
+  text-align: right;
+}
+.wc-finance-card-capital-callout-label {
+  color: #607184;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.wc-finance-card-capital-callout-amount {
+  color: #172033;
+  font-size: 1.4rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
 .wc-finance-card-kicker {
   margin: 0 0 10px;
   color: #003f28;
@@ -3028,6 +3081,21 @@ main#content > .recreation-parks-section {
   transform: rotate(180deg);
 }
 .wc-fund-activity-detail-row > td { padding: 0 !important; border-bottom: 0 !important; }
+.wc-data-table tr.wc-fund-activity-row > td:first-child { padding-left: 42px; }
+.wc-revenue-ledger-source-link { padding: 0; border: 0; background: transparent; color: var(--green); font: inherit; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.wc-revenue-ledger-source-link:hover { color: var(--navy); }
+.wc-revenue-source-dialog { position: fixed; inset: 0; width: min(1120px, calc(100vw - 32px)); max-width: none; height: min(850px, calc(100vh - 32px)); max-height: none; margin: auto; padding: 0; overflow: hidden; border: 0; border-radius: 18px; background: var(--light); color: var(--text); box-shadow: 0 24px 70px rgba(0,27,17,.3); }
+.wc-revenue-source-dialog::backdrop { background: rgba(7,20,16,.66); backdrop-filter: blur(3px); }
+.wc-revenue-source-dialog-shell { display: grid; grid-template-rows: auto minmax(0,1fr); height: 100%; }
+.wc-revenue-source-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 18px; border-bottom: 1px solid var(--border); background: #fff; }
+.wc-revenue-source-dialog-head span { display: block; color: var(--green); font-size: .65rem; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+.wc-revenue-source-dialog-head h2 { margin: 3px 0 0; color: var(--navy); font-size: 1.2rem; }
+.wc-revenue-source-dialog-close { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: var(--light); color: var(--text); font-size: 1.45rem; line-height: 1; cursor: pointer; }
+.wc-revenue-source-dialog-close:hover { border-color: var(--green); color: var(--green); }
+.wc-revenue-source-dialog-body { min-height: 0; padding: 20px; overflow: auto; }
+.wc-revenue-source-dialog-body .wc-revenue-detail-actions { display: none; }
+.wc-revenue-source-dialog-body .wc-revenue-topic-block { margin: 0; }
+:root[data-theme="dark"] .wc-revenue-source-dialog,:root[data-theme="dark"] .wc-revenue-source-dialog-head { background: #102119; }
 .wc-fund-activity-detail {
   margin: 4px 14px 14px 28px;
   padding: 10px 14px;
@@ -4516,6 +4584,11 @@ main#content > .recreation-parks-section {
   .wc-finance-card-head {
     display: block;
   }
+  .wc-finance-card-capital-callout {
+    align-items: flex-start;
+    text-align: left;
+    margin-top: 14px;
+  }
   .wc-department-financial-grid #department-staffing-table .wc-finance-card-breakdown {
     grid-template-columns: 1fr;
   }
@@ -4626,6 +4699,7 @@ main#content > .recreation-parks-section {
 :root[data-theme="dark"] .wc-census-narrative-card h2,
 :root[data-theme="dark"] .wc-fund-section-heading,
 :root[data-theme="dark"] .wc-finance-card-total,
+:root[data-theme="dark"] .wc-finance-card-capital-callout-amount,
 :root[data-theme="dark"] .wc-finance-card-row-head strong,
 :root[data-theme="dark"] .wc-budget-detail-header h2,
 :root[data-theme="dark"] .wc-performance-header h1,
@@ -4651,6 +4725,7 @@ main#content > .recreation-parks-section {
 
 :root[data-theme="dark"] .page-eyebrow,
 :root[data-theme="dark"] .wc-finance-card-kicker,
+:root[data-theme="dark"] .wc-finance-card-capital-callout-label,
 :root[data-theme="dark"] .wc-finance-card-row-head span,
 :root[data-theme="dark"] .wc-directory-item-stat strong,
 :root[data-theme="dark"] .wc-directory-item-arrow,
@@ -5234,6 +5309,16 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin-bottom:17px}
 .wc-profile-snapshot-total>strong{color:var(--navy,var(--text));font-size:clamp(34px,3.2vw,48px);font-weight:900;letter-spacing:-.035em;line-height:1}
 .wc-profile-snapshot-total>small{color:var(--muted);font-size:16px;font-weight:800}.wc-profile-snapshot-total>small.is-up{color:var(--green)}.wc-profile-snapshot-total>small.is-down{color:var(--flag)}
+/* Wraps the kicker+headline block beside the Capital Outlay callout (see
+   snapshotCapitalCalloutHtml in department-services.js) -- only present on
+   Expenditures Summary cards that have a Capital Outlay group to call out;
+   every other snapshot card's kicker+total render exactly as before. */
+.wc-profile-snapshot-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:14px}
+.wc-profile-snapshot-head>div:first-child{min-width:0}
+.wc-profile-snapshot-capital-callout{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:right}
+.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total{margin-bottom:0;gap:4px 10px}
+.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>strong{font-size:22px;letter-spacing:0}
+.wc-profile-snapshot-capital-callout-label{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .wc-profile-snapshot-table{display:flex;flex-direction:column;margin-bottom:6px;border-top:1px solid var(--border)}
 .wc-profile-snapshot-table>p{margin:11px 0;color:var(--muted);font-size:13px;border-bottom:1px solid var(--border)}
 .wc-profile-snapshot-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -5250,6 +5335,7 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-delta.is-flat{color:var(--muted);background:var(--border)}
 :root[data-theme="dark"] .wc-profile-snapshot-delta.is-up{background:rgba(123,211,159,.16)}
 :root[data-theme="dark"] .wc-profile-snapshot-delta.is-down{background:rgba(255,138,128,.16)}
+:root[data-theme="dark"] .wc-profile-snapshot-capital-callout{background:rgba(0,0,0,.18)}
 .wc-profile-snapshot-row .wc-finance-card-sublines{margin-top:7px}.wc-profile-snapshot-row .wc-finance-card-subline span,.wc-profile-snapshot-row .wc-finance-card-subline strong{font-size:10px}
 .wc-profile-snapshot-legend{display:flex;gap:14px;margin:12px 0 14px}
 .wc-profile-snapshot-legend span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10.5px;font-weight:700}
@@ -5297,5 +5383,5 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-staffing>dl dt,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dt{margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
 .wc-profile-snapshot-staffing>dl dd,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dd{margin:0;color:var(--text);font-size:12px;font-weight:800;line-height:1.4}
 @media(max-width:1000px){.wc-profile-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wc-profile-snapshot-staffing{grid-column:1/-1;min-height:0}}
-@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}}
+@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}.wc-profile-snapshot-capital-callout{align-items:flex-start;text-align:left}}
 @media(max-width:640px){.wc-workforce-bars li{grid-template-columns:1fr auto;gap:6px}.wc-workforce-bar{grid-column:1/-1}}
