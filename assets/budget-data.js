@@ -11566,7 +11566,53 @@
         '</div>' +
         '</section>';
       const concentrationContainer = document.getElementById("revenue-source-concentration");
-      if (concentrationContainer) concentrationContainer.innerHTML = concentrationHtml;
+      if (concentrationContainer) {
+        concentrationContainer.innerHTML = concentrationHtml +
+          '<dialog class="wc-revenue-source-dialog" data-revenue-explorer-dialog aria-labelledby="wcRevenueExplorerDialogTitle">' +
+          '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueExplorerDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-explorer-dialog-close aria-label="Close">&times;</button></div>' +
+          '<div class="wc-revenue-source-dialog-body" data-revenue-explorer-dialog-body></div></div></dialog>';
+        const explorerDialog = concentrationContainer.querySelector("[data-revenue-explorer-dialog]");
+        const explorerDialogBody = concentrationContainer.querySelector("[data-revenue-explorer-dialog-body]");
+        const explorerDialogTitle = concentrationContainer.querySelector("#wcRevenueExplorerDialogTitle");
+        const closeExplorerDialog = () => {
+          if (explorerDialog && explorerDialog.open) explorerDialog.close();
+          document.documentElement.classList.remove("wc-modal-open");
+          if (explorerDialogBody) explorerDialogBody.innerHTML = "";
+        };
+        concentrationContainer.addEventListener("click", (event) => {
+          const sourceCard = event.target.closest(".wc-revenue-snapshot [data-revenue-explorer-target]");
+          if (!sourceCard || !explorerDialog || !explorerDialogBody) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const target = sourceCard.dataset.revenueExplorerTarget || "";
+          const source = rankedSources.find((entry) => revenueTopicSlug(entry.name) === target);
+          if (!source) return;
+          const sourceRows = revenueRowsBySource.get(source.name) || [];
+          const topic = {
+            title: source.name,
+            narrativeKey: source.name,
+            useLedgerNotes: true,
+            accessLabel: /^Tourist Development Taxes$/i.test(source.name) ? "State Restricted" : revenueRestrictionLabel(source.name),
+            recurrenceLabel: /^Interest and Investment Earnings$/i.test(source.name) ? "Non-recurring" : "Recurring",
+            matches: (row) => sourceRows.includes(row)
+          };
+          if (explorerDialogTitle) explorerDialogTitle.textContent = source.name;
+          document.documentElement.classList.add("wc-modal-open");
+          explorerDialog.showModal();
+          renderRevenueTopicCards(explorerDialogBody, [topic], "wc-chart-revenue-explorer-popup");
+          explorerDialogBody.querySelectorAll(".wc-revenue-topic-block").forEach((block) => { block.hidden = false; });
+          bindTooltipAnchors(explorerDialogBody);
+          window.setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
+        });
+        concentrationContainer.querySelector("[data-revenue-explorer-dialog-close]").addEventListener("click", closeExplorerDialog);
+        explorerDialog.addEventListener("click", (event) => {
+          if (event.target === explorerDialog) closeExplorerDialog();
+        });
+        explorerDialog.addEventListener("close", () => {
+          document.documentElement.classList.remove("wc-modal-open");
+          if (explorerDialogBody) explorerDialogBody.innerHTML = "";
+        });
+      }
       const peerSection = document.getElementById("revenue-peer-comparison");
       const peerTrigger = concentrationContainer ? concentrationContainer.querySelector(".wc-revenue-peer-trigger") : null;
       const peerClose = peerSection ? peerSection.querySelector(".wc-revenue-peer-close") : null;
