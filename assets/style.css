@@ -1821,9 +1821,15 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
   box-shadow: 0 14px 34px rgba(0,63,40,.22), 0 5px 12px rgba(36,52,77,.10);
 }
 
+/* !important on these three: once the card is moved inside
+   .statement-of-function (see department-services.js's supportingMedia
+   float-wrap), the higher-specificity ".statement-of-function p" rule
+   (color: var(--text), a plain dark color meant for narrative paragraphs)
+   would otherwise win over these plain class selectors and make the
+   card's white text unreadable against its dark green background. */
 .wc-savings-card-kicker {
   margin: 0 0 10px;
-  color: #fff;
+  color: #fff !important;
   font-size: .76rem;
   font-weight: 800;
   letter-spacing: .08em;
@@ -1832,7 +1838,7 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 
 .wc-savings-card-value {
   margin: 0;
-  color: #fff;
+  color: #fff !important;
   font-size: 1.9rem;
   font-weight: 800;
   line-height: 1.1;
@@ -1840,7 +1846,7 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 
 .wc-savings-card-label {
   margin: 8px 0 0;
-  color: rgba(255,255,255,.76);
+  color: rgba(255,255,255,.76) !important;
   font-size: .72rem;
   font-weight: 700;
   line-height: 1.4;
@@ -5122,6 +5128,7 @@ main#content > .recreation-parks-section {
 .wc-dept-services-list li:last-child{margin-bottom:0}
 .wc-dept-services-list strong{color:var(--navy,var(--text))}
 .wc-profile-snapshot{display:block;margin:0;padding:0;border:0;border-radius:0;background:transparent}
+.wc-profile-snapshot[hidden]{display:none!important}
 .wc-profile-snapshot-label{display:block}
 .wc-profile-snapshot-label>.wc-profile-question-icon{flex:0 0 64px;width:64px;height:64px;aspect-ratio:1;border-radius:50%;background:var(--green);color:#fff}
 .wc-profile-snapshot-label h2{margin:26px 0 18px}

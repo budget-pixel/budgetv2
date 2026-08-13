@@ -8708,14 +8708,50 @@
       const sourceRows = cache.revenues || [];
       const funds = uniqueSorted(sourceRows.map(fundNameForRow));
       const departments = uniqueSorted(sourceRows.map((row) => row.Dept_Name));
+      const revenueLedgerSourceName = (row) => {
+        let name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
+        if (/interest/i.test(name)) name = "Interest and Investment Earnings";
+        if (/^ad valorem taxes$/i.test(name)) name = "Property Taxes";
+        if (String(row.Revenue_Code || "").trim() === "312140" || normalizeDeptName(name) === "tourist development tax other") return "Tourist Development Tax Other";
+        if (/^tourist development tax/i.test(name)) return "Tourist Development Taxes";
+        return name;
+      };
+      const revenueLedgerSourceTotals = new Map();
+      const revenueLedgerClassificationRows = sourceRows.filter((row) =>
+        String(row.Revenue_Code || "").trim() !== "381000" &&
+        !NON_SOURCE_REVENUE_NAME_PATTERN.test(String(row.Revenue_Name || "")) &&
+        !CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(row))
+      );
+      revenueLedgerClassificationRows.forEach((row) => {
+        const name = revenueLedgerSourceName(row);
+        revenueLedgerSourceTotals.set(name, (revenueLedgerSourceTotals.get(name) || 0) + (row.FY2027_Proposed || 0));
+      });
+      const revenueLedgerClassificationTotal = Array.from(revenueLedgerSourceTotals.values()).reduce((sum, amount) => sum + amount, 0);
+      function revenueSourceSize(name) {
+        const share = revenueLedgerClassificationTotal
+          ? (revenueLedgerSourceTotals.get(name) || 0) / revenueLedgerClassificationTotal
+          : 0;
+        if (share >= 0.02) return "Major (2% or more)";
+        return "Minor (under 2%)";
+      }
+      const revenueLedgerSizeOptions = ["Major (2% or more)", "Minor (under 2%)"];
+      const revenueLedgerRecurrenceOptions = ["Recurring", "Non-recurring"];
+      const revenueLedgerControlOptions = ["Low control", "Limited control", "Moderate control"];
+      const hiddenRevenueLedgerSources = new Set(["human services fees", "general government fees", "physical environment fees"]);
       let selectedFund = "";
       let selectedDepartment = "";
+      let selectedRevenueSize = "";
+      let selectedRevenueRecurrence = "";
+      let selectedRevenueControl = "";
       let showHistoricalYears = false;
       let showFutureYears = false;
       container.innerHTML =
         '<div class="wc-filter-bar wc-machinery-picker">' +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerFund", label: "Fund", options: funds }) +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerDepartment", label: "Department", options: departments }) +
+        filterComboFieldHtml({ idPrefix: "wcRevenueLedgerSize", label: "Source size", options: revenueLedgerSizeOptions }) +
+        filterComboFieldHtml({ idPrefix: "wcRevenueLedgerRecurrence", label: "Recurrence", options: revenueLedgerRecurrenceOptions }) +
+        filterComboFieldHtml({ idPrefix: "wcRevenueLedgerControl", label: "Control", options: revenueLedgerControlOptions }) +
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerHistoryToggle" aria-pressed="false">View Prior Years</button>' +
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerFutureToggle" aria-pressed="false">View Projected Future Years</button>' +
         "</div>" +
@@ -8785,9 +8821,18 @@
         const rowsForDepartment = selectedDepartment
           ? departmentFinancialDisplayRows(selectedDepartment).revenueRows
           : sourceRows;
-        const filteredRows = rowsForDepartment.filter((row) =>
-          (!selectedFund || fundNameForRow(row) === selectedFund)
-        );
+        const filteredRows = rowsForDepartment.filter((row) => {
+          const sourceName = revenueLedgerSourceName(row);
+          if (hiddenRevenueLedgerSources.has(normalizeDeptName(sourceName))) return false;
+          const sourceSize = revenueSourceSize(sourceName);
+          const isClassifiableRevenueSource = !NON_SOURCE_REVENUE_NAME_PATTERN.test(String(row.Revenue_Name || ""));
+          const recurrence = sourceName === "Interest and Investment Earnings" ? "Non-recurring" : "Recurring";
+          const control = revenueControlProfile({ title: sourceName }, row.Revenue_Type).level.replace(/ local control$/i, " control");
+          return (!selectedFund || fundNameForRow(row) === selectedFund) &&
+            (!selectedRevenueSize || (isClassifiableRevenueSource && selectedRevenueSize === sourceSize)) &&
+            (!selectedRevenueRecurrence || selectedRevenueRecurrence === recurrence) &&
+            (!selectedRevenueControl || selectedRevenueControl === control);
+        });
         tableContainer.innerHTML = filteredRows.length
           ? renderConsolidatedRevenueSummaryTable(filteredRows)
           : '<div class="wc-data-empty">No revenue rows match the current filters.</div>';
@@ -8808,6 +8853,27 @@
         options: departments,
         getCurrentValue: () => selectedDepartment,
         onSelect: (value) => { selectedDepartment = value; renderFilteredLedger(); }
+      });
+      setupFilterCombo({
+        input: container.querySelector("#wcRevenueLedgerSizeInput"),
+        results: container.querySelector("#wcRevenueLedgerSizeResults"),
+        options: revenueLedgerSizeOptions,
+        getCurrentValue: () => selectedRevenueSize,
+        onSelect: (value) => { selectedRevenueSize = value; renderFilteredLedger(); }
+      });
+      setupFilterCombo({
+        input: container.querySelector("#wcRevenueLedgerRecurrenceInput"),
+        results: container.querySelector("#wcRevenueLedgerRecurrenceResults"),
+        options: revenueLedgerRecurrenceOptions,
+        getCurrentValue: () => selectedRevenueRecurrence,
+        onSelect: (value) => { selectedRevenueRecurrence = value; renderFilteredLedger(); }
+      });
+      setupFilterCombo({
+        input: container.querySelector("#wcRevenueLedgerControlInput"),
+        results: container.querySelector("#wcRevenueLedgerControlResults"),
+        options: revenueLedgerControlOptions,
+        getCurrentValue: () => selectedRevenueControl,
+        onSelect: (value) => { selectedRevenueControl = value; renderFilteredLedger(); }
       });
       const historyToggle = container.querySelector("#wcRevenueLedgerHistoryToggle");
       historyToggle.addEventListener("click", () => {
@@ -10505,6 +10571,11 @@
 
   function revenueControlProfile(topic, topicType) {
     const title = String((topic && topic.title) || "");
+    if (/coastal armoring fees/i.test(title)) return {
+      level: "Low local control",
+      className: "is-low",
+      text: "These fees are established through legal agreements governing coastal armoring projects, so the County does not have ordinary discretionary control over the rate. Collections depend on qualifying projects and the terms of those agreements."
+    };
     if (/indirect administrative fee/i.test(title)) return {
       level: "Low local control",
       className: "is-low",
@@ -10866,7 +10937,9 @@
       if (/indirect administrative fee/i.test(topic.title)) {
         narrativeHtml = '<p>Indirect Administrative Fees reimburse the General Fund for centralized services provided to special revenue funds. The allocation is based on a formal cost-allocation plan prepared by an independent third party.</p>';
       } else if (/local government\s+(?:half|1\s*\/\s*2)[ -]?cent sales tax/i.test(topic.title)) {
-        narrativeHtml = '<p>Florida&rsquo;s Local Government Half-cent Sales Tax Program provides counties and municipalities with a share of state sales-tax proceeds. Under <a href="https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&amp;URL=0200-0299/0218/Sections/0218.61.html" target="_blank" rel="noopener noreferrer">section 218.61, Florida Statutes</a>, receipts are placed in the state clearing trust fund and distributed monthly to participating local governments.</p><p>This revenue has generally grown with sales-tax activity, with stronger summer collections reflecting Walton County&rsquo;s seasonal economy. It supports general County services and facilities, but Walton County does not establish the tax rate or distribution formula.</p>';
+        narrativeHtml = '<p>Florida&rsquo;s Local Government Half-cent Sales Tax Program provides counties and municipalities with a share of state sales-tax proceeds. The state places earmarked revenue in the clearing trust fund and distributes it monthly to participating local governments; despite the program&rsquo;s name, the local payment is not calculated by simply applying 0.5% to taxable sales.</p>' +
+          '<p><a href="https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&amp;URL=0200-0299/0218/Sections/0218.62.html" target="_blank" rel="noopener noreferrer">Section 218.62, Florida Statutes</a>, divides the amount earmarked for a county primarily by population. The county government&rsquo;s share is <strong>(U + ⅔I) &divide; (T + ⅔I)</strong>, where <strong>U</strong> is the unincorporated population, <strong>I</strong> is the population within municipalities, and <strong>T</strong> is the total county population. Each municipality&rsquo;s share is <strong>M &divide; (T + ⅔I)</strong>, where <strong>M</strong> is that municipality&rsquo;s population. Each percentage is multiplied by the half-cent funds available for distribution within the county.</p>' +
+          '<p>This revenue generally moves with statewide sales-tax activity and the statutory population allocation. It supports general County services and facilities, but Walton County does not establish the tax rate or distribution formula.</p>';
       } else if (/housing prisoners revenue/i.test(topic.title)) {
         narrativeHtml = '<p>Housing Prisoners Revenue is collected by the Walton County Sheriff\'s Office for prisoner-housing activity under the applicable reimbursement arrangements.</p>';
       } else if (/ambulance/i.test(topic.title)) {
@@ -10920,8 +10993,8 @@
       const salesTaxBurdenHtml = isSalesTaxBurdenTopic
         ? '<div class="wc-property-tax-burden wc-sales-tax-burden"><div class="wc-property-tax-burden-head"><strong>Who supports this sales-tax revenue?</strong><span>Estimated share</span></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span></div><strong>68%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.68)) + '</em></div>' +
-          '<div class="wc-property-tax-burden-bar"><i style="width:68%"></i></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span></div><strong>32%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.32)) + '</em></div>' +
+          '<div class="wc-property-tax-burden-bar"><i style="width:68%"></i></div>' +
           '<p>This planning estimate applies Walton County&rsquo;s visitor study finding that visitors account for 68% of retail spending to FY 2027 proposed revenue -- the same estimate used on each department&rsquo;s own Who Pays Ledger -- and is not an audited classification of individual tax payments.</p></div>'
         : '';
       const touristTaxCurrentAmount = topic.title === "Tourist Development Taxes"
@@ -12198,6 +12271,37 @@
         "</section>"
       );
     }).filter(Boolean).join("");
+  }
+
+  // Tourism Administration and Tourism Beach Operations each combine
+  // several separately budgeted offices/divisions onto one page (see
+  // TOURISM_ADMIN_SECTIONS/TOURISM_BEACH_SECTIONS and their renderers
+  // above) -- department-services.js's Department Snapshot needs each
+  // office's own expense/revenue/staffing rows (not the whole page's
+  // combined total) to give each office its own snapshot card instead of
+  // one page-wide one. Exposed here (rather than duplicating the section
+  // specs in department-services.js) so both files stay driven by the same
+  // one list of offices per combined page, with the same "id" every office
+  // section above is already rendered under (slugifyId(spec.label)), so
+  // the snapshot can be inserted straight into that office's own section.
+  // Returns null for any page that isn't one of these two combined
+  // departments.
+  const COMBINED_DEPARTMENT_OFFICE_SECTIONS = {
+    "tourism administration": TOURISM_ADMIN_SECTIONS,
+    "tourism beach operations": TOURISM_BEACH_SECTIONS
+  };
+  function getCombinedDepartmentOffices(deptName) {
+    const specs = COMBINED_DEPARTMENT_OFFICE_SECTIONS[normalizeDeptName(deptName)];
+    if (!specs) return null;
+    return specs
+      .map((spec) => ({
+        label: spec.label,
+        id: slugifyId(spec.label),
+        expenses: rowsForExactNames(cache.expenditures, spec.expenseNames),
+        revenues: rowsForExactNames(cache.revenues, spec.revenueNames),
+        staffing: rowsForExactNames(cache.staffing, spec.staffingNames)
+      }))
+      .filter((office) => office.expenses.length || office.revenues.length || office.staffing.length);
   }
 
   // Tourism Lifeguard Services and Beach Safety's page combines two
@@ -17700,6 +17804,7 @@
     getDepartmentExpenses,
     getDepartmentRevenues,
     getDepartmentStaffing,
+    getCombinedDepartmentOffices,
     getDepartmentMachinery,
     getDepartmentPerformanceMeasures,
     getDepartmentNarrative,

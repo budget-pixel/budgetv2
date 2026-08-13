@@ -1058,6 +1058,122 @@
     if(whoPaysButton) bindSnapshotWhoPaysSheet(whoPaysButton,whoPaysSheetHtml,title.textContent.trim());
     var revenueSheetButton=snapshot.querySelector('[data-independent-revenue-sheet-trigger]');
     if(revenueSheetButton) bindSnapshotRevenueSheet(revenueSheetButton,revenueMount,title.textContent.trim());
+  // Builds one Department Snapshot card per office for a combined
+  // multi-office department page (Tourism Administration, Tourism Beach
+  // Operations -- see window.WCBudgetData.getCombinedDepartmentOffices),
+  // instead of render()'s usual one whole-page snapshot (kept in the DOM
+  // but hidden for these pages -- see its own insertion point in render()).
+  // Inserted right after each office's own <h2 class="tourism-admin-
+  // section-title"> heading (already rendered by budget-data.js's
+  // renderTourismAdministrationSections/renderTourismBeachOperationsSections
+  // before render() ever reaches this point), mirroring where the
+  // whole-page snapshot sits relative to the Statement of Function heading.
+  function renderCombinedOfficeSnapshots(offices,deptLabel){
+    offices.forEach(function(office){
+      var officeSection=document.getElementById(office.id);
+      if(!officeSection) return;
+      var heading=officeSection.querySelector('.tourism-admin-section-title');
+      var officeKey=normalize(office.label);
+      var expenses=office.expenses||[];
+      var revenues=office.revenues||[];
+      var staffing=office.staffing||[];
+      var isInternalServiceChargeRow=function(row){return String(row.Object_Code||'').trim()==='549006';};
+      var isContractualServiceRow=function(row){return row.Object_Type==='Operating Expenditures'&&String(row.Contract_Status||'').trim()!==''&&!isInternalServiceChargeRow(row);};
+      var isPlainOperatingRow=function(row){return row.Object_Type==='Operating Expenditures'&&!isContractualServiceRow(row)&&!isInternalServiceChargeRow(row);};
+      var expenseGroups=[
+        {label:'Personnel Services',amount:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2026_Original_Budget')},
+        {label:'Operating Expenditures',amount:sum(expenses.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(expenses.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
+        {label:'Contractual Services',amount:sum(expenses.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(expenses.filter(isContractualServiceRow),'FY2026_Original_Budget')},
+        {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
+        {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
+      ].filter(function(item){return item.amount!==0||item.prior!==0;});
+      var capitalGroup=expenseGroups.find(function(item){return item.label==='Capital Outlay';})||null;
+      var cardExpenseGroups=capitalGroup?expenseGroups.filter(function(item){return item!==capitalGroup;}):expenseGroups;
+      var budget=expenseGroups.reduce(function(total,item){return total+item.amount;},0);
+      var priorBudget=expenseGroups.reduce(function(total,item){return total+(item.prior||0);},0);
+      var cardBudget=budget-(capitalGroup?capitalGroup.amount:0);
+      var cardPriorBudget=priorBudget-(capitalGroup?(capitalGroup.prior||0):0);
+      var cardBudgetChange=cardBudget-cardPriorBudget;
+
+      var revenueGroups=[];
+      revenues.forEach(function(row){var label=row.Revenue_Type||row.Revenue_Name||'Other Revenue';var item=revenueGroups.find(function(entry){return entry.label===label;});if(!item){item={label:label,amount:0};revenueGroups.push(item);}item.amount+=Math.abs(Number(row.FY2027_Proposed)||0);});
+      revenueGroups=revenueGroups.filter(function(item){return item.amount>0;}).sort(function(a,b){return b.amount-a.amount;}).slice(0,3);
+      var revenueTotal=revenues.reduce(function(total,row){return total+Math.abs(Number(row.FY2027_Proposed)||0);},0);
+      var whoPaysSheetHtml=fundingPayerSummary(revenues,officeKey);
+
+      var fte=sum(staffing,'2027');
+      var priorFte=sum(staffing,'2026');
+      var fteChange=fte-priorFte;
+      var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
+      var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
+
+      var snapshot=document.createElement('section');
+      snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
+      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+escapeHtml(office.label)+' Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
+        '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'">'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
+        '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-office-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
+        '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>'+
+        '</div>';
+
+      if(heading) heading.insertAdjacentElement('afterend',snapshot); else officeSection.insertAdjacentElement('afterbegin',snapshot);
+
+      bindSnapshotTooltips(snapshot);
+      var graphButton=snapshot.querySelector('[data-office-graph-trigger]');
+      if(graphButton) bindSnapshotBudgetGraph(graphButton,expenses,staffing,officeKey,office.label);
+      var whoPaysButton=snapshot.querySelector('[data-office-who-pays-trigger]');
+      if(whoPaysButton) bindSnapshotWhoPaysSheet(whoPaysButton,whoPaysSheetHtml,office.label);
+
+      // "View Operating Ledger"/"View Revenue Budget Ledger"/"View
+      // Personnel Ledger" point at this office's own already-rendered
+      // Expenditure/Revenue Summary cards and staffing card (one per office
+      // -- see renderTourismAdministrationSections/
+      // renderTourismBeachOperationsSections in budget-data.js), scoped by
+      // their wc-print-kind-expense/-revenue marker classes, instead of the
+      // page-level #department-expense-table/-revenue-table/-staffing-table
+      // mounts the whole-page snapshot's own buttons use, which are empty
+      // on these combined pages (initDepartmentPage clears them in favor of
+      // the per-office cards).
+      var expenseCard=officeSection.querySelector('.wc-print-kind-expense');
+      var operatingButton=snapshot.querySelector('[data-office-operating-budget-sheet-trigger]');
+      if(operatingButton) bindSnapshotOperatingBudgetSheet(operatingButton,expenseCard,office.label,expenses);
+      var revenueCard=officeSection.querySelector('.wc-print-kind-revenue');
+      var revenueSheetButton=snapshot.querySelector('[data-office-revenue-sheet-trigger]');
+      if(revenueSheetButton) bindSnapshotRevenueSheet(revenueSheetButton,revenueCard,office.label);
+      var personnelLedgerButton=snapshot.querySelector('[data-office-personnel-ledger-trigger]');
+      if(personnelLedgerButton) personnelLedgerButton.addEventListener('click',function(){
+        var staffingToggle=officeSection.querySelector('.wc-staffing-card .wc-view-budget-lines-toggle[data-target]');
+        if(staffingToggle){staffingToggle.click();return;}
+        var staffingCard=officeSection.querySelector('.wc-staffing-card');
+        if(staffingCard) staffingCard.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+
+      var capitalRows=expenses.filter(function(row){return row.Object_Type==='Capital Outlay'&&(Number(row.FY2027_Proposed)||0)!==0;});
+      var capitalTotal=sum(capitalRows,'FY2027_Proposed');
+      var capitalItems=capitalRows.length?'<div class="wc-data-table-scroll wc-profile-capital-items"><table class="wc-data-table wc-profile-capital-table"><thead><tr><th>Category</th><th>Item</th><th>Reference</th><th class="wc-num">Proposed</th></tr></thead><tbody>'+capitalRows.map(function(row){
+        var description=row.Note||row.Project_Name||row.Object_Name||'Capital investment';
+        var category=row.ME_Type||row.Object_Name||'Capital outlay';
+        var details=[];
+        if(row.Project_Name&&row.Project_Name!==description) details.push(row.Project_Name);
+        if(row.Project_Code) details.push('Project '+row.Project_Code);
+        if(row.BCC_Replacement) details.push('Replaces asset '+row.BCC_Replacement);
+        return '<tr><td>'+escapeHtml(category)+'</td><td>'+escapeHtml(description)+'</td><td>'+(details.length?details.map(escapeHtml).join(' &middot; '):'&mdash;')+'</td><td class="wc-num">'+money(row.FY2027_Proposed)+'</td></tr>';
+      }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capitalTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is proposed for this office.</p>';
+      var capitalButton=snapshot.querySelector('[data-office-capital-trigger]');
+      if(capitalButton) bindSnapshotInformationSheet(capitalButton,'Capital Investments',capitalItems,office.label,'wc-capital-sheet-body');
+
+      var contracts=expenses.filter(function(row){return String(row.Contract_Status||'').trim()&&(Number(row.FY2027_Proposed)||0)!==0;});
+      var contractTotal=sum(contracts,'FY2027_Proposed');
+      var contractSheetHtml=contracts.length?'<div class="wc-data-table-scroll wc-profile-contract-sheet"><table class="wc-data-table"><thead><tr><th>Service</th><th>Provider</th><th>Contract / Agreement</th><th>Status</th><th class="wc-num">Proposed</th></tr></thead><tbody>'+contracts.map(function(row){
+        var description=row.Note||row.Project_Name||row.Object_Name||'Contractual service';
+        var contractLabel=row.Contract_No||'Agreement';
+        var contractCell=row.Contract_Link?'<a href="'+escapeHtml(row.Contract_Link)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(contractLabel)+' <span aria-hidden="true">&rarr;</span></a>':escapeHtml(row.Contract_No||'Not provided');
+        return '<tr><td>'+escapeHtml(description)+'</td><td>'+escapeHtml(row.Vendor||'Not listed')+'</td><td>'+contractCell+'</td><td>'+escapeHtml(row.Contract_Status||'Not listed')+'</td><td class="wc-num">'+money(row.FY2027_Proposed)+'</td></tr>';
+      }).join('')+'<tr class="wc-table-total-row"><td colspan="4">Total</td><td class="wc-num">'+money(contractTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No contractual services are identified for this office.</p>';
+      var contractsButton=snapshot.querySelector('[data-office-contracts-trigger]');
+      if(contractsButton) bindSnapshotInformationSheet(contractsButton,'Contractual Services',contractSheetHtml,office.label,'wc-contract-sheet-body');
+    });
+  }
+
     var personnelLedgerButton=snapshot.querySelector('[data-independent-personnel-ledger-trigger]');
     if(personnelLedgerButton) bindSnapshotPersonnelLedgerTrigger(personnelLedgerButton);
   }
@@ -1090,6 +1206,17 @@
     if(!services) return;
     ensureDepartmentQuestionDisclosures();
     var challenge=challengeFor(key);
+    // Tourism Administration and Tourism Beach Operations each combine
+    // several separately budgeted offices onto one page (see
+    // window.WCBudgetData.getCombinedDepartmentOffices) -- everything below
+    // still builds its usual single Department Snapshot from this page's
+    // combined totals (kept, just hidden -- see its own insertion point --
+    // so the "Citizen questions"/cost-context content further down, which
+    // is unaffected by this change, still has it to anchor its DOM
+    // position off of), but a separate snapshot per office is inserted
+    // into each office's own section afterward instead (see
+    // renderCombinedOfficeSnapshots at the bottom of render()).
+    var combinedOffices=window.WCBudgetData.getCombinedDepartmentOffices?window.WCBudgetData.getCombinedDepartmentOffices(title.textContent.trim()):null;
     if(document.querySelector('.wc-board-department-profile')){
       document.body.classList.remove('wc-board-department-loading');
       var existingMain=document.querySelector('main#content');
@@ -1292,6 +1419,12 @@
       '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>'+
       '</div>';
     var mainContent=document.querySelector('main#content');
+    // Combined pages (Tourism Administration, Tourism Beach Operations) get
+    // a snapshot per office instead (see renderCombinedOfficeSnapshots
+    // below) -- this combined-totals one stays in the DOM (so everything
+    // below that positions itself relative to it still works unchanged)
+    // but hidden, rather than shown as a redundant whole-page duplicate.
+    if(combinedOffices){snapshot.hidden=true;}
     functionSection.insertAdjacentElement('afterend',snapshot);
     bindSnapshotTooltips(snapshot);
     var graphButton=snapshot.querySelector('[data-profile-graph-trigger]');
@@ -1416,6 +1549,7 @@
       var libraryWebsite=document.querySelector('main#content > a.libraries-iframe-link');
       if(libraryWebsite) document.querySelector('main#content').appendChild(libraryWebsite);
     }
+    if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
     document.body.classList.remove('wc-board-department-loading');
     var profileMain=document.querySelector('main#content');
     if(profileMain) profileMain.removeAttribute('aria-busy');
