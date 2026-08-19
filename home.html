@@ -3,113 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A clear, citizen-friendly guide to Walton County's proposed budget and interactive budget explorers.">
-<title>Walton County Budget</title>
-<link rel="stylesheet" href="assets/style.css?v=20260811-home-minimal">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260811-home-minimal">
+<meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
+<title>Budget Explorer — Walton County FY 2027</title>
+<link rel="stylesheet" href="assets/style.css?v=20260817-home-explorer">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260817-home-explorer">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
 
 <div id="layout">
-<main id="content" class="wc-landing-main">
-  <section class="wc-landing-hero" aria-labelledby="landing-title">
-    <div class="wc-landing-hero-copy">
-      <p class="wc-landing-kicker">Walton County, Florida</p>
-      <h1 id="landing-title">Your County budget, made easier to understand.</h1>
-      <p class="wc-landing-lead">See where public money comes from, what it supports, and how the County&rsquo;s spending plan changes from year to year.</p>
-      <div class="wc-landing-actions">
-        <a class="wc-landing-button is-primary" href="pages/budget-overview.html">Explore the budget</a>
-        <a class="wc-landing-button" href="#how-to-explore">How to use this site</a>
-      </div>
+<main id="content" class="wc-explorer-home">
+  <section class="wc-explorer-intro" aria-labelledby="explore-title">
+    <div>
+      <p class="wc-explorer-section-label">Start exploring</p>
+      <h2 id="explore-title">Explore the FY 2027 Budget</h2>
+      <p>Choose an explorer to see totals, trends, and the detailed ledgers behind Walton County&rsquo;s proposed budget. Amounts below update from the same data used throughout this site.</p>
     </div>
-    <aside class="wc-landing-budget-card" aria-label="Budget at a glance">
-      <span>Total proposed budget</span>
-      <strong data-home-total>Loading&hellip;</strong>
-      <small data-home-change>Compared with the prior year</small>
-      <p>This is the Countywide spending plan—not the amount paid by one resident or household.</p>
+    <aside class="wc-explorer-intro-facts" aria-label="Budget facts">
+      <div><span aria-hidden="true">◎</span><strong data-home-fte>—</strong><small>Budgeted FTE</small></div>
+      <div><span aria-hidden="true">▤</span><strong data-home-funds>—</strong><small>Funds managed</small></div>
     </aside>
   </section>
 
-  <section class="wc-landing-simple-overview" aria-labelledby="overview-title">
-    <div class="wc-landing-overview-copy">
-      <p class="wc-landing-section-label">A simple overview</p>
-      <h2 id="overview-title">A budget is a plan for public money.</h2>
-      <p>Each year, Walton County estimates the revenue it expects to receive and decides how those resources will support services, employees, facilities, infrastructure, and other community needs.</p>
-      <p>The budget must balance: planned spending cannot exceed the resources available. Some money may be used broadly, while restricted revenue must support a specific purpose.</p>
-    </div>
-    <div class="wc-budget-flow" aria-label="How the budget works">
-      <article><span>01</span><div><strong>Money comes in</strong><p>Taxes, fees, grants, shared revenues, and available balances fund the budget.</p></div></article>
-      <article><span>02</span><div><strong>Priorities shape the plan</strong><p>Community needs, service demand, legal requirements, and long-term plans guide decisions.</p></div></article>
-      <article><span>03</span><div><strong>Public services are funded</strong><p>Departments and partner agencies use the adopted budget to serve the community.</p></div></article>
-    </div>
-  </section>
-
-  <section class="wc-explorer-guide" id="how-to-explore" aria-labelledby="explorer-guide-title">
-    <div class="wc-explorer-guide-head">
-      <div>
-        <p class="wc-landing-section-label">How the explorers work</p>
-        <h2 id="explorer-guide-title">Start broad. Select what interests you. Open the ledger for detail.</h2>
+  <section class="wc-explorer-card-grid" aria-label="Budget explorers">
+    <a class="wc-explorer-card wc-card-revenue" href="pages/summary-of-revenues.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 26V14h5v12M13.5 26V8h5v18M22 26V4h5v22M3 27.5h26"/></svg>
+        </span>
+        <div><h3>Revenue Explorer</h3><p>See where Walton County&rsquo;s funding comes from.</p></div>
       </div>
-      <p>You do not need to understand government accounting to use this site. The explorers begin with the biggest ideas and let you move into more detail only when you want it.</p>
-    </div>
-    <ol class="wc-explorer-steps">
-      <li><span>1</span><div><strong>Begin with the summary</strong><p>Use the large totals and short explanations to understand what the page is showing.</p></div></li>
-      <li><span>2</span><div><strong>Select a card or filter</strong><p>Choose a revenue, department, function, or project to focus the information.</p></div></li>
-      <li><span>3</span><div><strong>Open the ledger</strong><p>Review the complete table when you need exact amounts, prior-year comparisons, or budget-line detail.</p></div></li>
-    </ol>
-    <p class="wc-explorer-tip"><strong>Helpful tip:</strong> Hover over badges and question marks for plain-language definitions. Selecting and closing details will keep your place on the page.</p>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
+        <div class="wc-mini-donut" data-revenue-donut role="img" aria-label="Revenue source composition"><span></span></div>
+      </div>
+      <div class="wc-explorer-breakdown" data-revenue-breakdown aria-label="Largest revenue sources"></div>
+      <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-personnel" href="pages/summary-of-personnel.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><circle cx="11" cy="10" r="4"/><circle cx="22" cy="11" r="3.5"/><path d="M3.5 27v-3.5c0-4.2 3.3-7.5 7.5-7.5s7.5 3.3 7.5 7.5V27M18 18c1.1-.8 2.4-1.2 3.9-1.2 3.7 0 6.6 2.9 6.6 6.6V27"/></svg>
+        </span>
+        <div><h3>Personnel Explorer</h3><p>Explore personnel costs, staffing, and benefits.</p></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-change>FY 2027 proposed</small></div>
+        <div class="wc-people-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <div class="wc-explorer-stat-pair">
+        <div><span>Total FTE</span><strong data-card-fte>—</strong></div>
+        <div><span>Avg. cost per FTE</span><strong data-card-cost-per-fte>—</strong></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-departments" href="pages/department-budget.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M4 12h24L16 4 4 12Zm2 15h20M8 13v11m5-11v11m6-11v11m5-11v11"/></svg>
+        </span>
+        <div><h3>Department Budget Explorer</h3><p>Compare department budgets, services, and performance.</p></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><span>Board Department Budget</span><small>Operating and personnel spending</small></div>
+        <div class="wc-mini-donut is-department" data-department-donut role="img" aria-label="Department budget composition"><span></span></div>
+      </div>
+      <div class="wc-explorer-breakdown" data-department-breakdown aria-label="Largest department budgets"></div>
+      <span class="wc-explorer-card-action">Explore Departments <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-capital" href="pages/capital-projects.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 27V16h5v11m6 0V8h5v19m6 0V3M3 27h26"/></svg>
+        </span>
+        <div><h3>Capital Explorer</h3><p>View projects and infrastructure investments.</p></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-capital-total>—</strong><span>Total Capital Budget</span><small data-card-capital-share>Share of total expenditures</small></div>
+        <div class="wc-mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="wc-explorer-stat-pair">
+        <div><span>Active projects</span><strong data-card-active-projects>—</strong></div>
+        <div><span>Capital items</span><strong data-card-capital-items>—</strong></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Capital <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-constitutional" href="pages/constitutional-officers.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M4 12h24L16 4 4 12Zm2 15h20M8 13v11m5-11v11m6-11v11m5-11v11"/></svg>
+        </span>
+        <div><h3>Constitutional Officers Explorer</h3><p>Compare the Board and Walton County&rsquo;s independently elected offices.</p></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-constitutional-total>—</strong><span>Total Officers Budget</span><small data-card-constitutional-share>Share of total expenditures</small></div>
+        <div class="wc-people-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <div class="wc-explorer-stat-pair">
+        <div><span>Offices included</span><strong>6</strong></div>
+        <div><span>Budget view</span><strong>Office comparison</strong></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Constitutional Officers <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-independent" href="pages/independent-agencies-budget.html">
+      <div class="wc-explorer-card-heading">
+        <span class="wc-explorer-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M5 27V11l11-6 11 6v16M10 27V16h4v11m4 0V16h4v11M3 27h26"/></svg>
+        </span>
+        <div><h3>Independent Agencies Explorer</h3><p>Review autonomous entities funded through the County budget.</p></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-independent-total>—</strong><span>Total Agencies Budget</span><small data-card-independent-change>FY 2027 proposed</small></div>
+        <div class="wc-mini-donut is-independent" role="img" aria-label="Independent agencies budget"><span></span></div>
+      </div>
+      <div class="wc-explorer-stat-pair">
+        <div><span>Entities included</span><strong data-card-independent-count>—</strong></div>
+        <div><span>Budgeted FTE</span><strong data-card-independent-fte>—</strong></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Independent Agencies <b aria-hidden="true">→</b></span>
+    </a>
+
   </section>
 
-  <section class="wc-landing-paths" aria-labelledby="paths-title">
-    <div class="wc-landing-paths-head">
-      <div><p class="wc-landing-section-label">Choose a starting point</p><h2 id="paths-title">What would you like to understand?</h2></div>
-      <a href="pages/budget-overview.html">View every budget ledger <span>&rarr;</span></a>
-    </div>
-    <div class="wc-path-grid">
-      <a href="pages/summary-of-revenues.html"><span>Money in</span><strong>Where does the money come from?</strong><p>Explore major revenue sources, restrictions, and year-over-year trends.</p><b>Revenue Explorer &rarr;</b></a>
-      <a href="pages/summary-of-expenses.html"><span>Money out</span><strong>Where does the money go?</strong><p>See how spending supports public purposes, services, and activities.</p><b>Expense Explorer &rarr;</b></a>
-      <a href="pages/summary-of-budget-changes-and-adjustments.html"><span>What changed</span><strong>How is this budget different?</strong><p>Compare the proposed plan with the prior-year budget by department and cost type.</p><b>Budget Change Summary &rarr;</b></a>
-      <a href="pages/summary-of-personnel.html"><span>People</span><strong>How does the County fund its workforce?</strong><p>Review staffing, personnel costs, turnover, and major cost drivers.</p><b>Personnel Explorer &rarr;</b></a>
-      <a href="pages/department-budget.html"><span>Services</span><strong>What does each department do?</strong><p>Connect department budgets with staffing, services, and performance.</p><b>Department Budgets &rarr;</b></a>
-      <a href="pages/capital-projects.html"><span>Investment</span><strong>What is the County building?</strong><p>Explore infrastructure, facilities, project schedules, and funding.</p><b>Capital Projects &rarr;</b></a>
-    </div>
-  </section>
-
-  <section class="wc-landing-close" aria-labelledby="close-title">
-    <div><p class="wc-landing-section-label">One plan, many public services</p><h2 id="close-title">Follow the dollars. See the services. Understand the choices.</h2></div>
-    <div><p>Every explorer is another view of the same County budget. Together, they show how resources connect to the people, programs, and projects serving Walton County.</p><a class="wc-landing-button is-primary" href="pages/budget-overview.html">Open the Budget Ledgers</a></div>
-  </section>
-
-  <footer class="wc-landing-footer">
-    <div><strong>Walton County Proposed Budget</strong><p>Clear information for residents, businesses, and visitors.</p></div>
-    <a href="pages/glossary-acronyms-and-frequently-asked-questions.html">Budget help and glossary</a>
-  </footer>
 </main>
 </div>
 
 <script src="assets/search-data.js"></script>
-<script src="assets/budget-data.js?v=20260811-home-minimal"></script>
-<script src="assets/nav.js?v=20260811-home-minimal"></script>
+<script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
+<script src="assets/budget-data.js?v=20260817-home-explorer"></script>
+<script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
+<script src="assets/nav.js?v=20260817-home-explorer"></script>
 <script>
 (function(){
-  function money(value){ return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(value||0); }
+  "use strict";
+
+  var COLORS = ["#087443", "#4da985", "#78bed0", "#d1be78", "#6987ae", "#b9c8bd"];
+
+  function number(value){ return Number(value) || 0; }
   function compact(value){
-    var number=Number(value)||0;
-    if(Math.abs(number)>=1000000000)return "$"+(number/1000000000).toFixed(2).replace(/0+$/,"" ).replace(/\.$/,"")+"B";
-    if(Math.abs(number)>=1000000)return "$"+(number/1000000).toFixed(1).replace(/\.0$/,"" )+"M";
-    return money(number);
+    var amount = Math.abs(number(value));
+    var sign = number(value) < 0 ? "−" : "";
+    if(amount >= 1000000000) return sign + "$" + (amount / 1000000000).toFixed(1).replace(/\.0$/, "") + "B";
+    if(amount >= 1000000) return sign + "$" + (amount / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if(amount >= 1000) return sign + "$" + Math.round(amount / 1000).toLocaleString("en-US") + "K";
+    return sign + "$" + Math.round(amount).toLocaleString("en-US");
   }
-  function setText(selector,value){var element=document.querySelector(selector);if(element)element.textContent=value;}
-  document.addEventListener("DOMContentLoaded",function(){
-    if(!window.WCBudgetData||!window.WCBudgetData.loadBudgetData)return;
-    window.WCBudgetData.loadBudgetData().then(function(data){
-      var total=window.WCBudgetData.totalCountywideExpenditureBudget(data);
-      var totals=window.WCBudgetData.getConsolidatedBudgetChangeTotals(data);
-      var pct=totals.prior?totals.change/Math.abs(totals.prior)*100:null;
-      setText("[data-home-total]",money(total));
-      setText("[data-home-change]",(totals.change>=0?"+":"−")+compact(Math.abs(totals.change))+(pct===null?"":" ("+(pct>=0?"+":"−")+Math.abs(pct).toFixed(1)+"%) compared with the prior year"));
-    }).catch(function(){setText("[data-home-total]","Explore the budget");setText("[data-home-change]","Review County revenues, spending, and services");});
+  function whole(value){ return Math.round(number(value)).toLocaleString("en-US"); }
+  function percent(value){ return (number(value) >= 0 ? "+" : "−") + Math.abs(number(value)).toFixed(1) + "%"; }
+  function setText(selector, value){ var element = document.querySelector(selector); if(element) element.textContent = value; }
+  function fundCode(row){ return String(row && row.Dept_Code || "").trim().slice(0, 3); }
+  function isIncluded(row){ return window.WCBudgetData && !window.WCBudgetData.isNonProgramExpenseRow(row); }
+  function sum(rows, field){ return (rows || []).reduce(function(total, row){ return total + number(row[field]); }, 0); }
+  function group(rows, labelFor, amountFor){
+    var totals = new Map();
+    (rows || []).forEach(function(row){
+      var label = labelFor(row) || "Other";
+      totals.set(label, (totals.get(label) || 0) + amountFor(row));
+    });
+    return Array.from(totals.entries()).map(function(entry){ return { label:entry[0], amount:entry[1] }; }).filter(function(entry){ return entry.amount > 0; }).sort(function(a,b){ return b.amount-a.amount; });
+  }
+  function breakdown(containerSelector, entries, total){
+    var container = document.querySelector(containerSelector);
+    if(!container) return;
+    container.innerHTML = entries.slice(0,3).map(function(entry, index){
+      var share = total ? entry.amount / total * 100 : 0;
+      return '<div><i style="background:' + COLORS[index] + '"></i><span>' + escapeHtml(entry.label) + '</span><strong>' + compact(entry.amount) + '</strong><small>' + Math.round(share) + '%</small></div>';
+    }).join("");
+  }
+  function donut(selector, entries, total){
+    var element = document.querySelector(selector);
+    if(!element || !total) return;
+    var cursor = 0;
+    var segments = entries.slice(0,4).map(function(entry, index){
+      var start = cursor;
+      cursor += entry.amount / total * 100;
+      return COLORS[index] + " " + start.toFixed(2) + "% " + Math.min(cursor,100).toFixed(2) + "%";
+    });
+    if(cursor < 100) segments.push(COLORS[5] + " " + cursor.toFixed(2) + "% 100%");
+    element.style.background = "conic-gradient(" + segments.join(",") + ")";
+  }
+  function escapeHtml(value){
+    return String(value == null ? "" : value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
+  }
+  function signedChange(current, prior){
+    var change = current-prior;
+    var pct = prior ? change/Math.abs(prior)*100 : 0;
+    return (change >= 0 ? "+" : "−") + compact(Math.abs(change)) + (prior ? " (" + percent(pct) + ")" : "");
+  }
+
+  function render(data){
+    var expenditures = (data.expenditures || []).filter(isIncluded);
+    var totalBudget = window.WCBudgetData.totalCountywideExpenditureBudget(data);
+
+    var revenueRows = (data.revenues || []).filter(function(row){ return String(row.Revenue_Code || "").trim() !== "381000" && fundCode(row) !== "503"; });
+    var revenueTotals = window.WCBudgetData.getConsolidatedRevenueTotals(data);
+    var totalRevenue = revenueTotals.proposed;
+    var priorRevenue = revenueTotals.prior;
+
+    var personnelRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "personnel services"; });
+    var totalPersonnel = sum(personnelRows, "FY2027_Proposed");
+    var priorPersonnel = sum(personnelRows, "FY2026_Original_Budget") || sum(personnelRows, "FY2026_Budget");
+    var staffing = data.staffing || [];
+    var totalFte = staffing.reduce(function(total,row){ return total + number(row[2027]); },0);
+
+    var capitalRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) !== "107"; });
+    var totalCapital = sum(capitalRows, "FY2027_Proposed");
+    var departmentTotal = window.WCBudgetData.getDepartmentBudgetTotal(data);
+    var departmentGroups = window.WCBudgetData.getDepartmentBudgetBreakdown(data);
+    var constitutionalTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);
+
+    var revenueGroups = group(revenueRows, function(row){
+      var name = String(row.Revenue_Name || "Other Revenue").trim();
+      if(/^ad valorem taxes$/i.test(name)) return "Property Taxes";
+      if(/^tourist development tax/i.test(name)) return "Tourist Development Taxes";
+      return name;
+    }, function(row){ return number(row.FY2027_Proposed); });
+    var fundNames = new Map((data.funds || []).map(function(fund){ return [String(fund.Fund_Code || "").trim(), String(fund.Fund_Name || "Fund " + fund.Fund_Code).trim()]; }));
+    var fundGroups = group(expenditures, function(row){ var code=fundCode(row); return fundNames.get(code) || (code ? "Fund " + code : "Other Funds"); }, function(row){ return number(row.FY2027_Proposed); });
+
+    setText("[data-home-fte]", whole(totalFte));
+    setText("[data-home-funds]", whole(fundGroups.length));
+
+    setText("[data-card-revenue-total]", compact(totalRevenue));
+    setText("[data-card-revenue-change]", signedChange(totalRevenue, priorRevenue));
+    breakdown("[data-revenue-breakdown]", revenueGroups, totalRevenue);
+    donut("[data-revenue-donut]", revenueGroups, totalRevenue);
+
+    setText("[data-card-personnel-total]", compact(totalPersonnel));
+    setText("[data-card-personnel-change]", signedChange(totalPersonnel, priorPersonnel));
+    setText("[data-card-fte]", whole(totalFte));
+    setText("[data-card-cost-per-fte]", totalFte ? compact(totalPersonnel/totalFte) : "—");
+
+    setText("[data-card-department-total]", compact(departmentTotal));
+    breakdown("[data-department-breakdown]", departmentGroups, departmentTotal || totalBudget);
+    donut("[data-department-donut]", departmentGroups, departmentTotal || totalBudget);
+
+    setText("[data-card-capital-total]", compact(totalCapital));
+    setText("[data-card-capital-share]", (totalBudget ? (totalCapital/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
+    setText("[data-card-capital-items]", whole(capitalRows.filter(function(row){ return number(row.FY2027_Proposed) > 0; }).length));
+
+    setText("[data-card-constitutional-total]", compact(constitutionalTotal));
+    setText("[data-card-constitutional-share]", (totalBudget ? (constitutionalTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
+  }
+
+  function renderProjectCount(projects){
+    var active = (Array.isArray(projects) ? projects : []).filter(function(project){
+      if(project && project.is_legacy_in_house_engineering_row) return false;
+      return (project && Array.isArray(project.funding_by_year) ? project.funding_by_year : []).some(function(year){ return year.year === "FY2027" && number(year.amount_value) > 0; });
+    });
+    setText("[data-card-active-projects]", whole(active.length));
+  }
+
+  function renderIndependentAgencies(items){
+    var agencies = Array.isArray(items) ? items : [];
+    var total = agencies.reduce(function(value,item){ return value + number(item.budget); },0);
+    var prior = agencies.reduce(function(value,item){ return value + number(item.priorBudget); },0);
+    var fte = agencies.reduce(function(value,item){ return value + number(item.fte); },0);
+    setText("[data-card-independent-total]", compact(total));
+    setText("[data-card-independent-change]", signedChange(total,prior));
+    setText("[data-card-independent-count]", whole(agencies.length));
+    setText("[data-card-independent-fte]", whole(fte));
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    if(window.WCBudgetData && window.WCBudgetData.loadBudgetData){
+      window.WCBudgetData.loadBudgetData().then(render).catch(function(){
+        document.querySelectorAll("[data-card-revenue-total],[data-card-personnel-total],[data-card-department-total],[data-card-capital-total],[data-card-constitutional-total]").forEach(function(element){ element.textContent="View explorer"; });
+      });
+    }
+    var projectReady = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+    projectReady.then(renderProjectCount).catch(function(){ renderProjectCount(window.wcCipProjects || []); });
+    if(window.WCIndependentAgencies && window.WCIndependentAgencies.load){
+      window.WCIndependentAgencies.load().then(renderIndependentAgencies);
+    }
   });
 })();
 </script>

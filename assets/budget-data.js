@@ -17710,6 +17710,10 @@
   // directory callouts can show the same figures as those pages' own totals
   // without loading their full explorer UI.
   function getDepartmentBudgetTotal(data) {
+    return getDepartmentBudgetBreakdown(data).reduce((sum, entry) => sum + entry.amount, 0);
+  }
+
+  function getDepartmentBudgetBreakdown(data) {
     const boardDepartmentNames = BOARD_DEPARTMENT_ROLLUP_NAMES;
     const rollupSourceKey = boardDepartmentRollupKey;
     const groups = new Map();
@@ -17724,9 +17728,10 @@
       const rawName = boardDepartmentNames.get(sourceKey);
       if (!rawName) return;
       const key = normalizeDeptName(rawName);
-      groups.set(key, (groups.get(key) || 0) + (Number(row.FY2027_Proposed) || 0));
+      if (!groups.has(key)) groups.set(key, { label: rawName, amount: 0 });
+      groups.get(key).amount += Number(row.FY2027_Proposed) || 0;
     });
-    return Array.from(groups.values()).filter((amount) => amount > 0).reduce((sum, amount) => sum + amount, 0);
+    return Array.from(groups.values()).filter((entry) => entry.amount > 0).sort((a, b) => b.amount - a.amount);
   }
 
   // Countywide FY2027 proposed expenditures, same exclusions the
@@ -17833,13 +17838,26 @@
     return { proposed, prior, change: proposed - prior };
   }
 
+  function getConsolidatedRevenueTotals(data) {
+    const source = data || cache || {};
+    const rows = (source.revenues || []).filter((row) =>
+      String(row.Revenue_Code || "").trim() !== "381000" &&
+      !CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(row))
+    );
+    const proposed = rows.reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0);
+    const prior = sumRevenueRowsForField(rows, "FY2026_Original_Budget");
+    return { proposed, prior, change: proposed - prior };
+  }
+
   window.WCBudgetData = {
     getDepartmentBudgetTotal,
+    getDepartmentBudgetBreakdown,
     totalCountywideExpenditureBudget,
     isNonProgramExpenseRow,
     getDebtOverviewTotal,
     getDebtOverviewTotals,
     getConsolidatedBudgetChangeTotals,
+    getConsolidatedRevenueTotals,
     getConstitutionalOfficersBudgetTotal,
     DATA_SOURCES,
     loadBudgetData,
