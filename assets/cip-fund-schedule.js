@@ -152,6 +152,10 @@ function renderRevenueSourceSummary(projects, yearLabel){
 }
 
 function displayYear(year){
+  if(year === "PAST_CIP"){
+    return "Past CIP";
+  }
+
   return String(year || "").replace(/^FY(\d{4})$/, "FY $1");
 }
 
@@ -179,12 +183,16 @@ function renderProjectTitle(project, year, disableLink){
   // County Engineering project notes (and drives the no-amount split in
   // renderFundSchedule), but it no longer tints the title -- every project
   // title renders in the default dark green.
+  // flagged: true renders the title in red instead -- used for rows found
+  // on a general-ledger project list (Org/Object/Project) that weren't
+  // already on this historical repository, so they stand out for review.
+  const flaggedClass = project && project.flagged ? " wc-cip-project-flagged" : "";
 
   if(!url){
-    return `<span class="wc-cip-project-title">${title}</span>`;
+    return `<span class="wc-cip-project-title${flaggedClass}">${title}</span>`;
   }
 
-  return `<a class="wc-cip-project-link" href="${escapeHtml(url)}">${title}</a>`;
+  return `<a class="wc-cip-project-link${flaggedClass}" href="${escapeHtml(url)}">${title}</a>`;
 }
 
 function renderYearScheduleTable(year, label, projects, totalLabel, options){
@@ -198,13 +206,20 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const showStatusColumn = Boolean(options && options.showStatusColumn);
   const disableLinks = Boolean(options && options.disableLinks);
   const toggleHtml = (options && options.toggleHtml) || "";
-  // FY2025/FY2026 are the historical/completed repository -- those ledgers
-  // show delivery Phase and a Budget column alongside Status instead of
-  // the FY-labeled dollar column the FY2027-2031 ledgers use.
-  const isHistoricalYear = year === "FY2025" || year === "FY2026";
+  // FY2022-FY2026 are consolidated into one Past CIP project list. That
+  // ledger shows original CIP year(s), delivery Phase, Status, and the
+  // combined historical Budget instead of a future-year amount column.
+  const isHistoricalYear = year === "PAST_CIP";
   const showPhaseColumn = isHistoricalYear && showStatusColumn;
   const showBudgetColumn = isHistoricalYear && showStatusColumn;
   const showAmountColumn = !isHistoricalYear;
+  const showProjectNumberColumn = isHistoricalYear && projects.some(project => String(project.project_code || "").trim());
+  const showPastCipYearsColumn = isHistoricalYear;
+  // Completed date (when status is Complete) or estimated start date
+  // (otherwise) -- sits right after Status. Per-project, from the
+  // supplement's optional completedDate/estimatedStartDate fields (see
+  // cip-projects-data.js); "—" when neither is known for that project.
+  const showDateColumn = isHistoricalYear && showStatusColumn;
   // Historical rows carry only a category-derived funding label, so the
   // revenue behind them isn't reliable -- shown for FY2027-2031 only, the
   // same way the Fund column is.
@@ -215,7 +230,36 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   }
 
   const yearLabel = displayYear(year);
-  const leadColumns = 1 + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0);
+  const leadColumns = 1 + (showProjectNumberColumn ? 1 : 0) + (showPastCipYearsColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0) + (showDateColumn ? 1 : 0);
+
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  // Dates are stored as MM/DD/YYYY or MM/YYYY (see cip-fy2025-2026-
+  // supplement.js completedDate/estimatedStartDate) but shown as "Month
+  // YYYY" -- e.g. "Completed September 2022" -- rather than a full date.
+  function formatMonthYear(value){
+    const text = String(value || "").trim();
+    const match = text.match(/^(\d{1,2})\/(?:\d{1,2}\/)?(\d{4})$/);
+    if(!match){
+      return text;
+    }
+    const monthIndex = parseInt(match[1], 10) - 1;
+    const monthName = MONTH_NAMES[monthIndex];
+    return monthName ? monthName + " " + match[2] : text;
+  }
+
+  function projectDateCell(project){
+    if(String(project.status_text || "").trim() === "Complete"){
+      return project.estimated_completion_date ? "Completed " + formatMonthYear(project.estimated_completion_date) : "—";
+    }
+    if(project.est_completion_date){
+      return "Est. Complete " + formatMonthYear(project.est_completion_date);
+    }
+    if(!project.start_date){
+      return "—";
+    }
+    return (project.start_date_confirmed ? "Started " : "Est. Start ") + formatMonthYear(project.start_date);
+  }
 
   const rowsHtml = [];
   let currentDistrict = null;
@@ -249,11 +293,14 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
     rowsHtml.push(`
       <tr>
         <td>${renderProjectTitle(project, year, disableLinks)}</td>
+        ${showProjectNumberColumn ? `<td>${escapeHtml(project.project_code || "—")}</td>` : ""}
+        ${showPastCipYearsColumn ? `<td>${escapeHtml((project.past_cip_years || []).map(displayYear).join(", ") || "—")}</td>` : ""}
         ${showDistrictColumn ? `<td>${escapeHtml(project.district || "Not specified")}</td>` : ""}
         ${showFundingColumn ? `<td>${escapeHtml(project.funding || "Not listed")}</td>` : ""}
         ${showRevenueSourceColumn ? `<td>${renderRevenueSource(project)}</td>` : ""}
         ${showPhaseColumn ? `<td>${project.phase_text ? `<span class="wc-cip-status-badge ${escapeHtml(project.phase_class || "wc-status-planning")}">${escapeHtml(project.phase_text)}</span>` : "&mdash;"}</td>` : ""}
         ${showStatusColumn ? `<td><span class="wc-cip-status-badge ${escapeHtml(project.status_class || "wc-status-planning")}"${project.status_note ? ` title="${escapeHtml(project.status_note)}"` : ""}>${escapeHtml(project.status_text || "Not available")}</span></td>` : ""}
+        ${showDateColumn ? `<td>${escapeHtml(projectDateCell(project))}</td>` : ""}
         ${showBudgetColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">In-House</span>'}</td>` : ""}
         ${showAmountColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">No amount recorded</span>'}</td>` : ""}
       </tr>
@@ -275,11 +322,14 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
           <thead>
             <tr>
               <th>Project</th>
+              ${showProjectNumberColumn ? "<th>Project #</th>" : ""}
+              ${showPastCipYearsColumn ? "<th>CIP Year(s)</th>" : ""}
               ${showDistrictColumn ? "<th>Commissioner District</th>" : ""}
               ${showFundingColumn ? "<th>Fund</th>" : ""}
               ${showRevenueSourceColumn ? "<th>Revenue Source</th>" : ""}
               ${showPhaseColumn ? "<th>Phase</th>" : ""}
               ${showStatusColumn ? "<th>Status</th>" : ""}
+              ${showDateColumn ? "<th>Completed / Est. Start</th>" : ""}
               ${showBudgetColumn ? `<th class="wc-num">Budget</th>` : ""}
               ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
             </tr>
@@ -290,7 +340,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
               <td class="wc-num">${money(total)}</td>
             </tr>` : ""}
-            ${showBudgetColumn ? `<tr class="wc-table-total-row">
+            ${showBudgetColumn && year !== "PAST_CIP" ? `<tr class="wc-table-total-row">
               <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
               <td class="wc-num">${money(total)}</td>
             </tr>` : ""}
@@ -302,12 +352,11 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
 }
 
 function renderFundSchedule(config){
-  // FY2025/FY2026 only ever have data on pages that also load
-  // cip-fy2025-2026-supplement.js and whose projectFilter admits historical
-  // rows (see cip-capital-projects.html) -- availableYears below drops any
-  // year with no projects, so pages without historical data merged in never
-  // show these tabs and are unaffected.
-  const years = ["FY2025", "FY2026", "FY2027", "FY2028", "FY2029", "FY2030", "FY2031"];
+  // FY2022-FY2026 historical records are presented through one Past CIP
+  // tab. Pages that do not load the historical supplement simply have no
+  // Past CIP records, so availableYears removes that tab automatically.
+  const pastCipYears = ["FY2022", "FY2023", "FY2024", "FY2025", "FY2026"];
+  const years = ["PAST_CIP", "FY2027", "FY2028", "FY2029", "FY2030", "FY2031"];
   const mount = document.getElementById(config.mountId);
   const projectFilter = typeof config.projectFilter === "function"
     ? config.projectFilter
@@ -608,6 +657,14 @@ function renderFundSchedule(config){
         font-weight:800;
       }
 
+      /* Rows found on a general-ledger project list (Org/Object/Project)
+         that weren't already on this historical repository -- flagged for
+         review by rendering the title in red instead of the usual green. */
+      .wc-cip-project-link.wc-cip-project-flagged,
+      .wc-cip-project-title.wc-cip-project-flagged{
+        color:#c0392b;
+      }
+
       .wc-cip-no-amount{
         color:#8a94a3;
         font-size:12px;
@@ -718,6 +775,21 @@ function renderFundSchedule(config){
         .sort((a, b) => b.year_amount_value - a.year_amount_value || a.title.localeCompare(b.title));
     }
 
+    function getPastCipProjects(projectSource){
+      return projectSource
+        .map(project => {
+          const pastEntries = (project.funding_by_year || []).filter(item => pastCipYears.includes(item.year));
+          return {
+            ...project,
+            year_amount_value: pastEntries.reduce((sum, item) => sum + Number(item.amount_value || 0), 0),
+            year_has_entry: pastEntries.length > 0,
+            past_cip_years: pastEntries.map(item => item.year)
+          };
+        })
+        .filter(project => project.year_amount_value > 0 || project.year_has_entry)
+        .sort((a, b) => a.title.localeCompare(b.title));
+    }
+
     function getYearInHouseProjects(projectSource, year){
       return projectSource
         .map(project => ({
@@ -729,10 +801,13 @@ function renderFundSchedule(config){
     }
 
     const yearData = years.reduce((data, year) => {
-      const yearProjects = getYearProjects(year === "FY2027" ? scheduleProjects : nonGrantProjects, year);
-      const yearInHouseProjects = getYearInHouseProjects(inHouseProjects, year);
-      const yearGrantProjects = getYearProjects(grantProjects, year);
-      const yearNoAmountProjects = getYearProjects(noAmountProjects, year);
+      const isPastCip = year === "PAST_CIP";
+      const yearProjects = isPastCip
+        ? getPastCipProjects(nonGrantProjects)
+        : getYearProjects(year === "FY2027" ? scheduleProjects : nonGrantProjects, year);
+      const yearInHouseProjects = isPastCip ? getPastCipProjects(inHouseProjects) : getYearInHouseProjects(inHouseProjects, year);
+      const yearGrantProjects = isPastCip ? getPastCipProjects(grantProjects) : getYearProjects(grantProjects, year);
+      const yearNoAmountProjects = isPastCip ? getPastCipProjects(noAmountProjects) : getYearProjects(noAmountProjects, year);
       const yearBudgetedElsewhereProjects = year === "FY2027" ? getYearProjects(budgetedElsewhereProjects, year) : [];
       const total = yearProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
       const inHouseTotal = yearInHouseProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
@@ -772,8 +847,9 @@ function renderFundSchedule(config){
     let selectedFund = "";
     let selectedRevenueSource = "";
     let filterComboDocumentHandlers = [];
-    // FY2025/FY2026 only: "" (project name), "phase", or "status".
-    let historicalSort = "";
+    // Past CIP only: "year" (default), "" (project name), "phase", or
+    // "status".
+    let historicalSort = "year";
 
     function districtSortRank(district){
       return String(district || "").trim().toLowerCase() === "countywide" ? 0 : 1;
@@ -790,13 +866,28 @@ function renderFundSchedule(config){
       return index === -1 ? list.length : index;
     }
 
+    // Earliest CIP year a project's dollars were budgeted under, so a Year
+    // sort reads FY2022 first through FY2026 last. Projects with no
+    // past_cip_years (shouldn't happen on this ledger) sort last.
+    function earliestPastCipYear(project){
+      const years = (project.past_cip_years || [])
+        .map(year => parseInt(String(year || "").replace(/^FY/, ""), 10))
+        .filter(year => !Number.isNaN(year));
+      return years.length ? Math.min(...years) : 9999;
+    }
+
     function sortProjects(list){
       const sorted = list.filter(project =>
         (!selectedFund || String(project.funding || "") === selectedFund) &&
         (!selectedRevenueSource || String(project.revenue_source || "") === selectedRevenueSource)
       ).slice();
 
-      if(historicalSort === "phase"){
+      if(historicalSort === "year"){
+        sorted.sort((a, b) =>
+          earliestPastCipYear(a) - earliestPastCipYear(b) ||
+          a.title.localeCompare(b.title)
+        );
+      } else if(historicalSort === "phase"){
         sorted.sort((a, b) =>
           rankIn(PHASE_ORDER, a.phase_text) - rankIn(PHASE_ORDER, b.phase_text) ||
           a.title.localeCompare(b.title)
@@ -806,6 +897,8 @@ function renderFundSchedule(config){
           rankIn(STATUS_ORDER, a.status_text) - rankIn(STATUS_ORDER, b.status_text) ||
           a.title.localeCompare(b.title)
         );
+      } else if(activeYear === "PAST_CIP"){
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
       } else if(sortByDistrict){
         sorted.sort((a, b) =>
           districtSortRank(a.district) - districtSortRank(b.district) ||
@@ -869,14 +962,12 @@ function renderFundSchedule(config){
       filterComboDocumentHandlers = [];
       const data = yearData[activeYear] || yearData.FY2027;
       const yearLabel = displayYear(activeYear);
-      // Status only reflects the FY2025/FY2026 historical research pass (see
+      // Status reflects the FY2022-FY2026 historical research records (see
       // cip-fy2025-2026-supplement.js) -- showing it on FY2027-2031 tables
-      // would surface a stale/meaningless badge for the live proposed CIP.
-      // Fund is the inverse: historical rows only carry a category-derived
-      // funding label (Transportation & Public Works/Grant Funded), so it's
-      // redundant once those rows get their own Grant Funded sub-table --
-      // shown only for the live FY2027-2031 years instead.
-      const isHistoricalYear = activeYear === "FY2025" || activeYear === "FY2026";
+      // would surface stale or phase-only labels for the live proposed CIP.
+      // Historical rows carry only category-derived funding labels, so Fund
+      // remains a future-ledger column.
+      const isHistoricalYear = activeYear === "PAST_CIP";
       const tableOptions = Object.assign({}, config, {
         // District sorting/subtotals are amount-driven, so they're offered
         // only on the priced FY2027-2031 ledgers.
@@ -885,8 +976,9 @@ function renderFundSchedule(config){
         showFundingColumn: Boolean(config.showFundingColumn) && !isHistoricalYear,
         // Ledgers whose rows are a single budgeted fund amount rather than
         // named projects (Sidewalk, Recreation Plat Fee) opt out of the
-        // project detail link entirely via config.disableLinks.
-        disableLinks: isHistoricalYear || Boolean(config.disableLinks)
+        // project detail link entirely via config.disableLinks. Historical
+        // and future phases with matching names now share one project page.
+        disableLinks: Boolean(config.disableLinks)
       });
       const districtToggleHtml = isHistoricalYear ? "" : `
         <button type="button" class="wc-cip-district-toggle${sortByDistrict ? " is-active" : ""}" id="wcCipDistrictToggle" aria-pressed="${sortByDistrict ? "true" : "false"}">
@@ -895,11 +987,14 @@ function renderFundSchedule(config){
         </button>
       `;
       // Historical years have no dollar column to sort on, so they get a
-      // Phase/Status sort instead of the district toggle.
+      // Year/Phase/Status sort instead of the district toggle. Year is the
+      // default -- it orders by the earliest CIP year each project's
+      // dollars were budgeted under (see earliestPastCipYear).
       const historicalSortHtml = !isHistoricalYear ? "" : `
         <label class="wc-cip-sort-field">
           <span>Sort by</span>
           <select id="wcCipHistoricalSort">
+            <option value="year"${historicalSort === "year" ? " selected" : ""}>Year</option>
             <option value=""${historicalSort === "" ? " selected" : ""}>Project Name</option>
             <option value="phase"${historicalSort === "phase" ? " selected" : ""}>Phase</option>
             <option value="status"${historicalSort === "status" ? " selected" : ""}>Status</option>
@@ -914,16 +1009,17 @@ function renderFundSchedule(config){
           ${filterComboFieldHtml("wcCipFundFilter", "Fund", "All Funds")}
           ${filterComboFieldHtml("wcCipRevenueFilter", "Revenue Source", "All Revenue Sources")}
         </div>` : "";
-      // FY2025/FY2026 show no dollar column, so the grant/no-amount/in-house
-      // splits (which exist to keep differently-priced work out of one
-      // total) have nothing left to separate -- everything folds into the
-      // single top ledger instead.
       const tables = isHistoricalYear
         ? renderYearScheduleTable(
             activeYear,
-            config.label + " Ledger",
-            sortProjects(data.projects.concat(data.noAmountProjects, data.grantProjects, data.inHouseProjects, data.budgetedElsewhereProjects)),
-            config.label,
+            "Project List",
+            sortProjects(data.projects.concat(
+              data.grantProjects,
+              data.noAmountProjects,
+              data.inHouseProjects,
+              data.budgetedElsewhereProjects
+            )),
+            "Projects",
             Object.assign({}, tableOptions, { toggleHtml: historicalSortHtml })
           )
         : [
@@ -940,7 +1036,7 @@ function renderFundSchedule(config){
           <div class="wc-cip-schedule-controls">
             <div class="wc-cip-schedule-control-top">
               <div>
-                <h2>${escapeHtml(yearLabel)} Ledger${isHistoricalYear ? ' <span class="wc-cip-historical-tag">Past CIP</span>' : ""}</h2>
+                <h2>${isHistoricalYear ? "Past CIP Project List" : escapeHtml(yearLabel) + " Ledger"}</h2>
                 ${isHistoricalYear ? "" : "<p>Use the year controls to review planned future-year capital projects.</p>"}
               </div>
               ${isHistoricalYear ? "" : `<div class="wc-cip-active-total">
@@ -951,13 +1047,13 @@ function renderFundSchedule(config){
             <div class="wc-cip-year-picker" role="tablist" aria-label="Select capital schedule year">
               ${availableYears.map(year => `
                 <button class="wc-cip-year-button${year === activeYear ? " is-active" : ""}" type="button" data-cip-year="${escapeHtml(year)}" role="tab" aria-selected="${year === activeYear ? "true" : "false"}">
-                  ${escapeHtml(displayYear(year))}${(year === "FY2025" || year === "FY2026") ? '<i class="wc-cip-year-button-tag">Past CIP</i>' : ""}
+                  ${escapeHtml(displayYear(year))}
                 </button>
               `).join("")}
             </div>
           </div>
           <div class="wc-cip-year-body">
-            ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This is historical capital project data from the County&rsquo;s 5-year work plans, shown for past-project tracking.</p>` : ""}
+            ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This combined list includes projects from the County&rsquo;s FY 2022 through FY 2026 capital work plans. The CIP Year(s) column identifies when each amount was budgeted.</p>` : ""}
             ${isHistoricalYear ? "" : (() => {
               const budgetedElsewhereTotal = data.budgetedElsewhereProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
               const statCount = 2 + (data.inHouseTotal > 0 ? 1 : 0) + (budgetedElsewhereTotal > 0 ? 1 : 0);
@@ -997,10 +1093,10 @@ function renderFundSchedule(config){
       mount.querySelectorAll("[data-cip-year]").forEach(button => {
         button.addEventListener("click", () => {
           activeYear = button.getAttribute("data-cip-year") || "FY2027";
-          // Phase/Status sorting only exists on the historical years, so
-          // it resets when moving to a year that can't offer it (and the
-          // control it belongs to is no longer on screen).
-          historicalSort = "";
+          // Year/Phase/Status sorting only exists on the Past CIP tab, so
+          // it resets to the Year default whenever that tab is (re-)entered
+          // (and is simply unused/off-screen on the priced FY-year tabs).
+          historicalSort = "year";
           if(window.history && window.history.replaceState){
             window.history.replaceState(null, "", `#${activeYear}`);
           }

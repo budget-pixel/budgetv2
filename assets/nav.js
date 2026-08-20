@@ -148,7 +148,7 @@
   function loadWaltonBudgetSearchModules(onReady){
     loadWcScriptOnce(
       "wc-budget-search-data-script",
-      wcBudgetAssetBaseUrl + "search-data.js?v=20260711-dark-mode-only-pages",
+      wcBudgetAssetBaseUrl + "search-data.js?v=20260819-contractual-services-ledger",
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
@@ -948,10 +948,8 @@
     outline:0 !important;
     transition:color .2s ease, border-color .2s ease !important;
   }
-  /* Summary of Contractual Services is temporarily unpublished -- its
-     search result row only shows up when the site is in dark mode (see
-     search.js's darkModeOnly handling and financials.html's own
-     dark-mode-only cards). */
+  /* Pages explicitly marked darkModeOnly in search-data.js remain hidden
+     from light-mode search results. */
   nav#nav-menu .wc-nav-search-result.wc-dark-mode-only-result{
     display:none !important;
   }

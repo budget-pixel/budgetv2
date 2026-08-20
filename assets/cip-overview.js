@@ -30,6 +30,8 @@ const filters = {
   search: incomingSearch
 };
 
+const PAST_CIP_FILTER_YEARS = ["fy2022", "fy2023", "fy2024", "fy2025", "fy2026"];
+
 function normalizeFilterValue(value){
   return String(value || "").trim().toLowerCase();
 }
@@ -83,10 +85,14 @@ function projectYearValue(project, year){
 }
 
 // Planned capital by fiscal year, used by the "is capital spending going up
-// or down" section. FY2025/FY2026 come from the historical work-plan
-// supplement rather than the adopted five-year plan, so they're flagged and
-// labelled separately instead of being presented as the same series.
+// or down" section. FY2022/FY2023/FY2024/FY2025/FY2026 come from the
+// historical work-plan supplement rather than the adopted five-year plan,
+// so they're flagged and labelled separately instead of being presented as
+// the same series.
 const CIP_TREND_YEARS = [
+  { year: "FY2022", label: "FY 2022", historical: true },
+  { year: "FY2023", label: "FY 2023", historical: true },
+  { year: "FY2024", label: "FY 2024", historical: true },
   { year: "FY2025", label: "FY 2025", historical: true },
   { year: "FY2026", label: "FY 2026", historical: true },
   { year: "FY2027", label: "FY 2027", historical: false },
@@ -122,6 +128,7 @@ function describeCipTrend(yearTotals){
 
   const priorPeak = history.length ? Math.max(...history.map(entry => entry.total)) : 0;
   const risenInto = priorPeak && first.total > priorPeak;
+  const priorPlansLabel = history.length === 1 ? "prior work plan" : "prior work plans";
 
   return {
     headline: risenInto
@@ -129,7 +136,7 @@ function describeCipTrend(yearTotals){
       : "Planned capital spending " + planDirection + " across the five-year plan.",
     detail: (risenInto
       ? first.label + " is the largest year in the plan at " + formatMoneyShort(first.total) +
-        ", above the " + formatMoneyShort(priorPeak) + " high of the two prior work plans. "
+        ", above the " + formatMoneyShort(priorPeak) + " high of the " + priorPlansLabel + ". "
       : "") +
       "From " + first.label + " to " + last.label + " the adopted plan " + planDirection + " by " +
       formatMoneyShort(Math.abs(planChange)) + " (" + planPercent.toFixed(0) + "%), from " +
@@ -259,6 +266,7 @@ function getFilteredProjects(){
       project.department_filter,
       project.category,
       project.category_label,
+      project.project_code,
       project.budget,
       project.funding,
       project.revenue_source,
@@ -277,10 +285,10 @@ function getFilteredProjects(){
       department.includes(filters.department) ||
       departmentLabel.includes(filters.department);
 
-    const matchesYear =
-      filters.year === "all" ||
-      target.includes(filters.year) ||
-      targetYears.includes(filters.year);
+    const matchesYear = filters.year === "all" ||
+      (filters.year === "past-cip"
+        ? PAST_CIP_FILTER_YEARS.some(year => target.includes(year) || targetYears.includes(year))
+        : target.includes(filters.year) || targetYears.includes(filters.year));
 
     const matchesFund =
       filters.fund === "all" ||
@@ -319,13 +327,10 @@ function renderProjectCard(project){
     project.in_house_engineering_value_formatted ||
     project.in_house_engineering_value ||
     "";
-  // FY2025/FY2026 rows come from the historical work-plan supplement and
-  // have no project detail page -- their cards stay unclickable rather than
-  // sending people to an empty page. Budgeted-fund rows with no identified
-  // project (e.g. Beach Renourishment) carry no slug and are handled the
-  // same way.
-  const isHistorical = String(project.slug || "").indexOf("historical-") === 0;
-  const hasProjectPage = !isHistorical && Boolean(String(project.slug || "").trim());
+  // Named historical and future phases now share title-based project pages.
+  // Budgeted-fund rows with no identified project still carry no slug and
+  // remain non-clickable.
+  const hasProjectPage = Boolean(String(project.slug || "").trim());
 
   return `
     <article class="wc-project-card${hasProjectPage ? "" : " is-historical"}" data-department="${escapeHtml(departmentLabel)}" data-target="${escapeHtml(String(project.target || "").toLowerCase())}"${hasProjectPage ? ` data-project-url="${escapeHtml(buildProjectUrl(project))}" tabindex="0" role="link" aria-label="View details for ${escapeHtml(project.title)}"` : ""}>
@@ -342,6 +347,11 @@ function renderProjectCard(project){
       ${description.length > 180 ? `<button class="wc-project-read-more" type="button">Read More</button>` : ""}
 
       <div class="wc-project-metrics">
+
+        ${project.project_code ? `<div class="wc-project-metric">
+          <span>Project Number</span>
+          <strong>${escapeHtml(project.project_code)}</strong>
+        </div>` : ""}
 
         <div class="wc-project-metric">
           <span>Project Budget</span>
@@ -385,7 +395,7 @@ function renderProjectCard(project){
 
       ${hasProjectPage
         ? `<div class="wc-project-card-action">View Project</div>`
-        : `<div class="wc-project-card-action is-static">${isHistorical ? "Past CIP &mdash; no project page" : "No project page"}</div>`}
+        : '<div class="wc-project-card-action is-static">No project page</div>'}
 
     </article>
   `;
@@ -3087,8 +3097,7 @@ function renderProjects(){
             <div class="wc-project-filter-set" data-filter-type="year">
               <span class="wc-project-filter-label">Year</span>
               <button class="wc-project-filter ${filters.year === "all" ? "active" : ""}" data-filter-type="year" data-filter="all">All</button>
-              <button class="wc-project-filter ${filters.year === "fy2025" ? "active" : ""}" data-filter-type="year" data-filter="fy2025">FY2025</button>
-              <button class="wc-project-filter ${filters.year === "fy2026" ? "active" : ""}" data-filter-type="year" data-filter="fy2026">FY2026</button>
+              <button class="wc-project-filter ${filters.year === "past-cip" ? "active" : ""}" data-filter-type="year" data-filter="past-cip">Past CIP</button>
               <button class="wc-project-filter ${filters.year === "fy2027" ? "active" : ""}" data-filter-type="year" data-filter="fy2027">FY2027</button>
               <button class="wc-project-filter ${filters.year === "fy2028" ? "active" : ""}" data-filter-type="year" data-filter="fy2028">FY2028</button>
               <button class="wc-project-filter ${filters.year === "fy2029" ? "active" : ""}" data-filter-type="year" data-filter="fy2029">FY2029</button>

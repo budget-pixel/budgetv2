@@ -33,7 +33,7 @@ var wcCoreBudgetPages = [
   { title:"Personnel Budget", section:"Financial Overview", href:"summary-of-personnel.html" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
   { title:"Property Tax Allocation Ledger", section:"Financial Overview", href:"summary-of-property-tax-allocations.html" },
-  { title:"Summary of Contractual Services", section:"Financial Summaries", href:"summary-of-contractual-services.html", darkModeOnly:true },
+  { title:"Contractual Services Ledger", section:"Financial Overview", href:"summary-of-contractual-services.html" },
   { title:"Transaction Search", section:"Financial Summaries", href:"transaction-search.html", keywords:["forensic audit","vendor search","payments","vendor payments","spending search","every transaction","raw transactions","citizen audit"] },
   { title:"Financials", section:"Financial Overview", href:"budget-overview.html" },
   { title:"Supporting Budget Documentation", section:"Financial Overview", href:"supporting-budget-documentation.html" },
@@ -176,8 +176,8 @@ var wcHiddenBudgetPageTitles = new Set([
       "property tax", "property taxes", "ad valorem", "millage", "what does my property tax fund", "what does my property tax pay for", "tax allocation", "tax breakdown", "where do my taxes go"
     ],
 
-    "Summary of Contractual Services": [
-      "contractual services", "contracts", "professional services", "other services", "outside vendor", "vendor spending", "contract spending"
+    "Contractual Services Ledger": [
+      "contractual services", "summary of contractual services", "contracts", "professional services", "other services", "outside vendor", "vendor spending", "contract spending"
     ],
 
     "Financial Policies": [

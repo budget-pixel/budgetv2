@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transportation and Infrastructure Capital Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
 </head>
 <body>
 
@@ -25,9 +25,9 @@
 
 <div id="infrastructureTables"></div>
 
-<script src="../assets/cip-fy2025-2026-supplement.js?v=20260806-fy2025-phase-fix"></script>
-<script src="../assets/cip-projects-data.js?v=20260806-fy2025-phase-fix"></script>
-<script src="../assets/cip-fund-schedule.js?v=20260812-machinery-style-filters"></script>
+<script src="../assets/cip-fy2025-2026-supplement.js?v=20260820-13th-street-complete"></script>
+<script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
+<script src="../assets/cip-fund-schedule.js?v=20260820-recon29"></script>
 <script>
   renderFundSchedule({
     mountId:"infrastructureTables",
@@ -35,6 +35,12 @@
     showFundingColumn:true,
     showStatusColumn:true,
     splitGrantFunded:true,
+    grantLedgerLabel:"Grant Ledger",
+    grantLedgerFilter:function(project){
+      var funding = String(project && project.funding || "").toLowerCase();
+      var title = String(project && project.title || "").toLowerCase();
+      return funding === "grant funded" || /nellie drive|rock hill|allen loop|bear creek/.test(title);
+    },
     splitRedNoAmount:true,
     showFundRevenueFilters:true,
     projectFilter:function(project){

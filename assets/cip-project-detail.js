@@ -176,6 +176,52 @@ function projectMatchesRequestedSlug(project, requestedSlug){
   return false;
 }
 
+function mergeSameProjectRecords(primaryProject, projects){
+  const titleKey = normalizeProjectSlug(primaryProject && primaryProject.title);
+  const matches = (projects || []).filter(project =>
+    titleKey && normalizeProjectSlug(project && project.title) === titleKey
+  );
+
+  if(matches.length < 2){
+    return primaryProject;
+  }
+
+  const fundingByYear = new Map();
+  matches.forEach(project => {
+    (project.funding_by_year || []).forEach(item => {
+      const year = String(item.year || "").trim();
+      const amountValue = Number(item.amount_value || parseBudgetAmount(item.amount) || 0);
+      const existing = fundingByYear.get(year);
+
+      if(year && (!existing || amountValue > existing.amount_value)){
+        fundingByYear.set(year, {
+          year,
+          amount_value: amountValue,
+          amount: "$" + Math.round(amountValue).toLocaleString("en-US")
+        });
+      }
+    });
+  });
+
+  const combinedFunding = Array.from(fundingByYear.values()).sort((a, b) =>
+    String(a.year).localeCompare(String(b.year), undefined, { numeric:true })
+  );
+  const combinedBudget = combinedFunding.reduce((sum, item) => sum + item.amount_value, 0);
+  const projectCode = matches
+    .map(project => String(project.project_code || "").trim())
+    .filter(Boolean)
+    .pop() || primaryProject.project_code || "";
+
+  return Object.assign({}, primaryProject, {
+    project_code: projectCode,
+    funding_by_year: combinedFunding,
+    budget_value: combinedBudget,
+    budget: "$" + Math.round(combinedBudget).toLocaleString("en-US"),
+    target_years: combinedFunding.map(item => item.year),
+    target: combinedFunding.map(item => item.year).join(", ")
+  });
+}
+
 function renderListItem(label, value){
   if(!hasDisplayValue(value)){
     return "";
@@ -449,7 +495,8 @@ function renderOverviewBadges(project){
 function renderProjectPage(){
   const slug = getRequestedProjectSlug();
   const projects = Array.isArray(window.wcCipProjects) ? window.wcCipProjects : [];
-  const project = projects.find(p => projectMatchesRequestedSlug(p, slug));
+  const matchedProject = projects.find(p => projectMatchesRequestedSlug(p, slug));
+  const project = matchedProject ? mergeSameProjectRecords(matchedProject, projects) : null;
   const backHref = buildBackHref();
   const backLabel = buildBackLabel(backHref);
 
@@ -529,6 +576,7 @@ function renderProjectPage(){
           <section class="wc-project-panel">
             <h2>Project Details</h2>
             <div class="wc-project-list">
+              ${renderListItem("Project Number", project.project_code)}
               ${renderListItem("Department", department)}
               ${renderListItem("Project Manager", project.project_manager)}
               ${renderListItem("District", district)}

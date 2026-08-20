@@ -2484,7 +2484,8 @@
           Vendor: row.Vendor || "",
           Contract_No: row.Contract_No || "",
           Contract_Link: row.Contract_Link || "",
-          Contract_Status: row.Contract_Status || ""
+          Contract_Status: row.Contract_Status || "",
+          Is_Cip: false
         };
       })
       // Only rows with a real FY2027 line belong on this page -- FY2026-only
@@ -13763,41 +13764,38 @@
   // Summary of Contractual Services: same department-picker pattern as the
   // machinery summary above, just backed by cache.contractualServices
   // (Object_Code 531000 Professional Services + 534000 Other Services).
-  function renderContractualServicesSummary(container) {
-    if (!container) return;
-    const rows = cache.contractualServices || [];
+  // One ledger (filter + table) for a given row set -- used twice below to
+  // give Department Services and Capital Improvement Projects their own
+  // independent department filter/table instead of one combined ledger
+  // sorted by fund. Defaults straight to "All Departments" (no "select a
+  // department first" gate) since that's the view most people want first.
+  function renderContractualServicesLedger(rows, mount, idPrefix, emptyMessage) {
     if (!rows.length) {
-      container.innerHTML = '<div class="wc-data-empty">No contractual services data is available.</div>';
+      mount.innerHTML = '<div class="wc-data-empty">' + escapeHtml(emptyMessage) + "</div>";
       return;
     }
 
     const departments = uniqueSorted(rows.map((r) => r.Dept_Name));
     const ALL_DEPARTMENTS_VALUE = "__ALL__";
 
-    container.innerHTML =
+    mount.innerHTML =
       '<div class="wc-filter-bar wc-machinery-picker">' +
       filterComboFieldHtml({
-        idPrefix: "wcContractualServicesDept",
+        idPrefix: idPrefix,
         label: "Department",
         options: departments,
         allValue: ALL_DEPARTMENTS_VALUE,
         allLabel: "All Departments",
-        initialLabel: "Select a department…"
+        initialLabel: "All Departments"
       }) +
       "</div>" +
       '<div class="wc-financial-summary-table"></div>';
 
-    const tableEl = container.querySelector(".wc-financial-summary-table");
-    let selectedDept = "";
+    const tableEl = mount.querySelector(".wc-financial-summary-table");
+    let selectedDept = ALL_DEPARTMENTS_VALUE;
 
     function showFiltered() {
-      const selected = selectedDept;
-      if (!selected) {
-        tableEl.hidden = false;
-        tableEl.innerHTML = '<div class="wc-data-empty">Select a department above to view the schedule.</div>';
-        return;
-      }
-      const deptName = selected === ALL_DEPARTMENTS_VALUE ? "" : selected;
+      const deptName = selectedDept === ALL_DEPARTMENTS_VALUE ? "" : selectedDept;
       const items = rows.filter((r) => !deptName || r.Dept_Name === deptName);
       const showDeptColumn = !deptName;
       // Department?, Service -- then the FY 2027 numeric column, then
@@ -13806,9 +13804,9 @@
       const trailingCols = 4;
       const colCount = leadingCols + 1 + trailingCols;
 
-      // Capital Projects Fund is where CIP procurement rows land -- push it
-      // to the end so the fund groups people expect to reconcile against
-      // (department operating funds) come first.
+      // Capital Projects Fund, when it shows up here, is pushed to the end
+      // so the fund groups people expect to reconcile against (department
+      // operating funds) come first.
       const funds = uniqueSorted(items.map((r) => r.Fund_Name)).sort((a, b) => {
         const aCap = a === "Capital Projects Fund";
         const bCap = b === "Capital Projects Fund";
@@ -13872,19 +13870,56 @@
     }
 
     setupFilterCombo({
-      input: container.querySelector("#wcContractualServicesDeptInput"),
-      results: container.querySelector("#wcContractualServicesDeptResults"),
+      input: mount.querySelector("#" + idPrefix + "Input"),
+      results: mount.querySelector("#" + idPrefix + "Results"),
       options: departments,
       allValue: ALL_DEPARTMENTS_VALUE,
       allLabel: "All Departments",
-      labelForValue: (v) => (v === ALL_DEPARTMENTS_VALUE ? "All Departments" : v || "Select a department…"),
+      labelForValue: (v) => (v === ALL_DEPARTMENTS_VALUE ? "All Departments" : v || "All Departments"),
       getCurrentValue: () => selectedDept,
       onSelect: (value) => {
-        selectedDept = value;
+        selectedDept = value || ALL_DEPARTMENTS_VALUE;
         showFiltered();
       }
     });
     showFiltered();
+  }
+
+  function renderContractualServicesSummary(container) {
+    if (!container) return;
+    const rows = cache.contractualServices || [];
+    if (!rows.length) {
+      container.innerHTML = '<div class="wc-data-empty">No contractual services data is available.</div>';
+      return;
+    }
+
+    const departmentServiceRows = rows.filter((r) => !r.Is_Cip);
+    const cipRows = rows.filter((r) => r.Is_Cip);
+
+    container.innerHTML =
+      '<section class="wc-contract-ledger-section">' +
+      "<h2>Department Services</h2>" +
+      '<p class="wc-contract-ledger-section-note">Contracted operating services procured by Board departments -- professional services, maintenance, technology, and similar agreements.</p>' +
+      '<div id="wcContractualServicesDeptLedger"></div>' +
+      "</section>" +
+      '<section class="wc-contract-ledger-section">' +
+      "<h2>Capital Improvement Projects</h2>" +
+      '<p class="wc-contract-ledger-section-note">Anticipated procurements for FY 2027-funded Capital Improvement Plan projects -- engineering, design, construction engineering and inspection (CEI), and construction. See the <a href="capital-improvement-plan.html">Capital Improvement Plan</a> for full project detail.</p>' +
+      '<div id="wcContractualServicesCipLedger"></div>' +
+      "</section>";
+
+    renderContractualServicesLedger(
+      departmentServiceRows,
+      container.querySelector("#wcContractualServicesDeptLedger"),
+      "wcContractualServicesDept",
+      "No department services data is available."
+    );
+    renderContractualServicesLedger(
+      cipRows,
+      container.querySelector("#wcContractualServicesCipLedger"),
+      "wcContractualServicesCip",
+      "No Capital Improvement Plan procurement data is available."
+    );
   }
 
   // Capital Improvement Plan projects are folded into the same schedule as
@@ -13951,7 +13986,8 @@
         Contract_No: "N/A",
         Budget2026: 0,
         Amount: amount,
-        Contract_Status: "New Procurement"
+        Contract_Status: "New Procurement",
+        Is_Cip: true
       }));
   }
 
@@ -14906,6 +14942,22 @@
   // current Health Insurance figure, so it's not counted in Total.
   const PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE = 0.05;
 
+  // Salaries & Wages and the combined Retirement/Health Insurance/Other
+  // Benefits column each carry a component (COLA, Health Insurance) that
+  // also gets its own breakout column once "Show COLA, Health Insurance &
+  // Increase" is on. Rendering both the full (breakout hidden) and base
+  // (breakout visible) figures as two spans -- toggled by the same CSS
+  // class/body-class the breakout columns themselves use -- keeps the
+  // cell's own value correct in both states without a JS re-render: with
+  // the breakout column hidden, the full figure is the honest one to show;
+  // with it visible, showing the same money twice (once baked into this
+  // cell, once again in its own column) reads as more than the position
+  // actually costs, so the base figure belongs here instead.
+  function personnelSplitAmountHtml(fullAmount, baseAmount) {
+    return '<span class="wc-personnel-full-amt">' + formatCurrency(fullAmount) + "</span>" +
+      '<span class="wc-personnel-base-amt">' + formatCurrency(baseAmount) + "</span>";
+  }
+
   // These offices are included in the Countywide personnel total, but their
   // ledger rows stay at the office-total level rather than a Board
   // department breakdown -- the five independently elected offices manage
@@ -15578,17 +15630,20 @@
       // for visibility, so they should stay at exactly $0.
       const reconcilablePositions = positions.filter((p) => !p.excludeFromReconciliation);
       const reconcilableCount = reconcilablePositions.length || 1;
-      // BOCC's own unexplained Salaries gap doesn't inflate its
-      // Aides/Commissioners' Salaries figures -- instead it's spread across
-      // their Retirement/Health Insurance/Other Benefits & Taxes columns
-      // (folded into perPositionOtherBenefits below) right alongside every
-      // other department's usual per-category gaps, rather than bumping up
-      // individual salaries or piling into the Retiree Health Insurance
-      // Subsidies line.
+      // BOCC's own unexplained Salaries/Retirement/Other Benefits & Taxes
+      // gaps don't get spread across its Aides/Commissioners at all -- doing
+      // that added the exact same flat dollar amount to every one of them
+      // regardless of who they were, which read as a real (and identical)
+      // benefits difference between otherwise-similar positions. Folded into
+      // positions.otherReconciliationAdjustment instead, shown as its own
+      // pooled line alongside the Retiree Health Insurance Subsidy in
+      // personnelCostDeptDetailHtml (both are the same kind of thing: a real,
+      // known dollar gap between the formula estimate and the department's
+      // actual budgeted total that isn't tied to any individual roster row).
       const perPositionSalaries = isBocc ? (overtimeTotal / reconcilableCount) : (salariesGap + overtimeTotal) / reconcilableCount;
-      const perPositionRetirement = retirementGap / reconcilableCount;
+      const perPositionRetirement = isBocc ? 0 : retirementGap / reconcilableCount;
       const perPositionHealthInsurance = isBocc ? 0 : healthInsuranceGap / reconcilableCount;
-      const perPositionOtherBenefits = isBocc ? (otherBenefitsGap + salariesGap) / reconcilableCount : otherBenefitsGap / reconcilableCount;
+      const perPositionOtherBenefits = isBocc ? 0 : otherBenefitsGap / reconcilableCount;
       reconcilablePositions.forEach((p) => {
         p.Cost.Salaries += perPositionSalaries;
         p.Cost.Retirement += perPositionRetirement;
@@ -15598,18 +15653,19 @@
       });
       if (isBocc) {
         positions.retireeHealthInsuranceSubsidy = healthInsuranceGap;
+        positions.otherReconciliationAdjustment = retirementGap + otherBenefitsGap + salariesGap;
         if (unemploymentTotal) positions.unemploymentTotal = unemploymentTotal;
       }
 
       // Overtime, seasonal/temp pay, and (for BOCC) the Retiree Health
-      // Insurance Subsidy and Unemployment are real, already-explained
-      // dollars that just aren't tied to any individual roster row --
-      // folded into the audit's own "Position_Total" here too, so its
-      // Difference column reflects only genuinely unexplained gaps (e.g.
-      // missing positions) instead of re-flagging known, already-handled
-      // amounts every time.
+      // Insurance Subsidy, the other reconciliation adjustment, and
+      // Unemployment are real, already-explained dollars that just aren't
+      // tied to any individual roster row -- folded into the audit's own
+      // "Position_Total" here too, so its Difference column reflects only
+      // genuinely unexplained gaps (e.g. missing positions) instead of
+      // re-flagging known, already-handled amounts every time.
       const explainedTotal = overtimeTotal + seasonalTotal + seasonalTaxes +
-        (isBocc ? healthInsuranceGap + unemploymentTotal : 0);
+        (isBocc ? healthInsuranceGap + retirementGap + otherBenefitsGap + salariesGap + unemploymentTotal : 0);
       positions.reconciliationDifference =
         (deptTotal.Salaries + deptTotal.Retirement + deptTotal.HealthInsurance + deptTotal.OtherBenefits) -
         (raw.Salaries + raw.Retirement + raw.HealthInsurance + raw.OtherBenefits) - explainedTotal;
@@ -15761,6 +15817,8 @@
       function subtotalRowHtml(label, subtotal) {
         const totalFteChange = subtotal.CurrentFte - subtotal.PriorFte;
         const benefits = subtotal.Retirement + subtotal.HealthInsurance + subtotal.OtherBenefits;
+        const baseSalaries = subtotal.Salaries - subtotal.Cola;
+        const baseBenefits = subtotal.Retirement + subtotal.OtherBenefits;
         return (
           '<tr class="wc-table-subtotal-row"><td>' + escapeHtml(label) + " subtotal</td>" +
           '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(subtotal.Fte2024) + "</td>" +
@@ -15768,9 +15826,9 @@
           '<td class="wc-num">' + formatNumber(subtotal.PriorFte) + "</td>" +
           '<td class="wc-num">' + formatNumber(subtotal.CurrentFte) + "</td>" +
           '<td class="wc-num">' + (totalFteChange > 0 ? "+" : totalFteChange < 0 ? "−" : "") + formatNumber(Math.abs(totalFteChange)) + "</td>" +
-          '<td class="wc-num">' + formatCurrency(subtotal.Salaries) + "</td>" +
+          '<td class="wc-num">' + personnelSplitAmountHtml(subtotal.Salaries, baseSalaries) + "</td>" +
           '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.Cola) + "</td>" +
-          '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
+          '<td class="wc-num">' + personnelSplitAmountHtml(benefits, baseBenefits) + "</td>" +
           '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsurance) + "</td>" +
           '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsuranceIncrease) + "</td>" +
           '<td class="wc-num">' + formatCurrency(subtotal.Total) + "</td></tr>"
@@ -15807,7 +15865,7 @@
           ? '<td class="wc-num"><span class="wc-visually-muted">Eliminated for FY2027</span></td>'
           : eliminatedCellHtml;
         const dollarCellsHtml = currentFte > 0
-          ? '<td class="wc-num">' + formatCurrency(position.Salaries) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + formatCurrency(benefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
+          ? '<td class="wc-num">' + personnelSplitAmountHtml(position.Salaries, position.Salaries - cola) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + personnelSplitAmountHtml(benefits, position.Retirement + position.OtherBenefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
           : eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + totalCellHtml;
         return {
           html: '<tr><td>' + escapeHtml(position.title) + '</td>' + fteHistoryHtml + '<td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td>' + dollarCellsHtml + '</tr>',
@@ -15890,8 +15948,13 @@
           '<td class="wc-num">' + formatCurrency(sp.Total) + "</td></tr>"
         );
       }
-      if (positions && positions.retireeHealthInsuranceSubsidy) {
-        const healthInsurancePortion = positions.retireeHealthInsuranceSubsidy;
+      if (positions && (positions.retireeHealthInsuranceSubsidy || positions.otherReconciliationAdjustment)) {
+        // Both are the same kind of thing -- a real, known dollar gap
+        // between the formula estimate and BOCC's actual budgeted total
+        // that isn't tied to any individual Aide/Commissioner -- combined
+        // into one pooled line rather than inflating everyone's own row by
+        // an identical flat amount. See buildPersonnelPositionCostsByDept.
+        const healthInsurancePortion = (positions.retireeHealthInsuranceSubsidy || 0) + (positions.otherReconciliationAdjustment || 0);
         positionsGrand.OtherBenefits += healthInsurancePortion;
         positionsGrand.Total += healthInsurancePortion;
         positionRows.push(
@@ -15923,6 +15986,8 @@
       }
       const totalFteChange = positionsGrand.CurrentFte - positionsGrand.PriorFte;
       const totalBenefits = positionsGrand.Retirement + positionsGrand.HealthInsurance + positionsGrand.OtherBenefits;
+      const totalBaseSalaries = positionsGrand.Salaries - positionsGrand.Cola;
+      const totalBaseBenefits = positionsGrand.Retirement + positionsGrand.OtherBenefits;
       positionRows.push(
         '<tr class="wc-table-total-row"><td>Total</td>' +
         '<td class="wc-num wc-personnel-position-fte-optional-col">' + formatNumber(positionsGrand.Fte2024) + "</td>" +
@@ -15930,9 +15995,9 @@
         '<td class="wc-num">' + formatNumber(positionsGrand.PriorFte) + "</td>" +
         '<td class="wc-num">' + formatNumber(positionsGrand.CurrentFte) + "</td>" +
         '<td class="wc-num">' + (totalFteChange > 0 ? "+" : totalFteChange < 0 ? "−" : "") + formatNumber(Math.abs(totalFteChange)) + "</td>" +
-        '<td class="wc-num">' + formatCurrency(positionsGrand.Salaries) + "</td>" +
+        '<td class="wc-num">' + personnelSplitAmountHtml(positionsGrand.Salaries, totalBaseSalaries) + "</td>" +
         '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.Cola) + "</td>" +
-        '<td class="wc-num">' + formatCurrency(totalBenefits) + "</td>" +
+        '<td class="wc-num">' + personnelSplitAmountHtml(totalBenefits, totalBaseBenefits) + "</td>" +
         '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsurance) + "</td>" +
         '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsuranceIncrease) + "</td>" +
         '<td class="wc-num">' + formatCurrency(positionsGrand.Total) + "</td></tr>"
@@ -15947,7 +16012,7 @@
         "</div>" +
         '<div class="wc-data-table-scroll">' +
         '<table class="wc-data-table wc-staffing-table wc-personnel-position-detail">' +
-        "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\">Retirement, Health Insurance &amp; Other Benefits</th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance Increase</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
+        "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\"><span class=\"wc-personnel-full-amt\">Retirement, Health Insurance &amp; Other Benefits</span><span class=\"wc-personnel-base-amt\">Retirement &amp; Other Benefits</span></th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\" title=\"A hypothetical 5% active-employee premium increase, shown for reference only -- not part of Total Personnel Cost.\">Health Insurance Increase (not in Total)</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
         "<tbody>" + positionRows.join("") + "</tbody></table></div>";
     } else {
       positionsHtml = '<div class="wc-data-empty">No position-level cost data is available yet for this department.</div>';
@@ -16046,6 +16111,7 @@
     const mergedPositions = [];
     let mergedSeasonal = null;
     let retireeHealthInsuranceSubsidy = 0;
+    let otherReconciliationAdjustment = 0;
     let unemploymentTotal = 0;
     let mergedStaffing = [];
     displayNames.forEach((displayName) => {
@@ -16053,6 +16119,7 @@
       if (positions && positions.length) {
         mergedPositions.push.apply(mergedPositions, positions);
         retireeHealthInsuranceSubsidy += positions.retireeHealthInsuranceSubsidy || 0;
+        otherReconciliationAdjustment += positions.otherReconciliationAdjustment || 0;
         unemploymentTotal += positions.unemploymentTotal || 0;
         if (positions.seasonalPositions) {
           if (!mergedSeasonal) mergedSeasonal = { Salaries: 0, OtherBenefits: 0, Total: 0 };
@@ -16065,6 +16132,7 @@
       if (staffing && staffing.length) mergedStaffing = mergedStaffing.concat(staffing);
     });
     mergedPositions.retireeHealthInsuranceSubsidy = retireeHealthInsuranceSubsidy;
+    mergedPositions.otherReconciliationAdjustment = otherReconciliationAdjustment;
     mergedPositions.unemploymentTotal = unemploymentTotal;
     mergedPositions.seasonalPositions = mergedSeasonal;
     return personnelCostDeptDetailHtml(label, mergedPositions, mergedStaffing);
@@ -16311,6 +16379,7 @@
         const mergedPositions = [];
         let mergedSeasonal = null;
         let retireeHealthInsuranceSubsidy = 0;
+        let otherReconciliationAdjustment = 0;
         let unemploymentTotal = 0;
         let mergedStaffing = [];
         names.forEach((name) => {
@@ -16318,6 +16387,7 @@
           if (positions && positions.length) {
             mergedPositions.push.apply(mergedPositions, positions);
             retireeHealthInsuranceSubsidy += positions.retireeHealthInsuranceSubsidy || 0;
+            otherReconciliationAdjustment += positions.otherReconciliationAdjustment || 0;
             unemploymentTotal += positions.unemploymentTotal || 0;
             if (positions.seasonalPositions) {
               if (!mergedSeasonal) mergedSeasonal = { Salaries: 0, OtherBenefits: 0, Total: 0 };
@@ -16330,6 +16400,7 @@
           if (staffing && staffing.length) mergedStaffing = mergedStaffing.concat(staffing);
         });
         mergedPositions.retireeHealthInsuranceSubsidy = retireeHealthInsuranceSubsidy;
+        mergedPositions.otherReconciliationAdjustment = otherReconciliationAdjustment;
         mergedPositions.unemploymentTotal = unemploymentTotal;
         mergedPositions.seasonalPositions = mergedSeasonal;
         return personnelCostDeptDetailHtml(label, mergedPositions, mergedStaffing);
@@ -16380,6 +16451,13 @@
         // it, so the row's Total still reconciles.
         const benefits = t.Retirement + t.HealthInsurance + t.OtherBenefits;
         const activeHealthInsurance = t.HealthInsurance - retireeHealthInsuranceSubsidy;
+        // Displayed Salaries/combined-benefits values, so a reader adding up
+        // every visible column gets the row's real Total rather than double-
+        // counting COLA/Health Insurance once here and again in their own
+        // breakout columns (see combinedColumnLabel above and
+        // personnelSplitAmountHtml's per-position equivalent).
+        const salariesDisplay = showingOptionalCols ? t.Salaries - cola : t.Salaries;
+        const benefitsDisplay = showingOptionalCols ? benefits - activeHealthInsurance : benefits;
         grand.Salaries += t.Salaries;
         grand.Fte += fte;
         grand.FteChange += fteChange;
@@ -16432,9 +16510,9 @@
           '<td class="wc-num">' + formatNumber(fteEntry.prior) + "</td>" +
           '<td class="wc-num">' + formatNumber(fte) + "</td>" +
           '<td class="wc-num' + fteChangeClass + '">' + fteChangeText + "</td>" +
-          '<td class="wc-num">' + formatCurrency(t.Salaries) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(salariesDisplay) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(cola) + "</td>" +
-          '<td class="wc-num">' + formatCurrency(benefits) + "</td>" +
+          '<td class="wc-num">' + formatCurrency(benefitsDisplay) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
           '<td class="wc-num">' + formatCurrency(priorTotal) + "</td>" +
@@ -16443,6 +16521,11 @@
         );
       });
       const grandTotal = grand.Salaries + grand.Benefits;
+      // grand.HealthInsurance only ever accumulates activeHealthInsurance
+      // (see above), so it's exactly the amount to back out of grand.Benefits
+      // here, same as each row's own benefitsDisplay.
+      const grandSalariesDisplay = showingOptionalCols ? grand.Salaries - grand.Cola : grand.Salaries;
+      const grandBenefitsDisplay = showingOptionalCols ? grand.Benefits - grand.HealthInsurance : grand.Benefits;
       bodyRows.push(
         aggregateOnly
           ? (
@@ -16460,9 +16543,9 @@
             '<td class="wc-num">' + formatNumber(grand.Fte - grand.FteChange) + "</td>" +
             '<td class="wc-num">' + formatNumber(grand.Fte) + "</td>" +
             '<td class="wc-num">' + (grand.FteChange > 0 ? "+" : grand.FteChange < 0 ? "−" : "") + formatNumber(Math.abs(grand.FteChange)) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(grand.Salaries) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(grandSalariesDisplay) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.Cola) + "</td>" +
-            '<td class="wc-num">' + formatCurrency(grand.Benefits) + "</td>" +
+            '<td class="wc-num">' + formatCurrency(grandBenefitsDisplay) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsurance) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsuranceIncrease) + "</td>" +
             '<td class="wc-num">' + formatCurrency(grand.PriorTotal) + "</td>" +
@@ -16504,7 +16587,7 @@
             { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
             { label: combinedColumnLabel, num: true },
             { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
-            { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"] },
+            { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"], tooltip: "A hypothetical 5% active-employee premium increase, shown for reference only -- not part of Total Personnel Cost." },
             { label: "FY 2026 Total Personnel Cost", num: true },
             { label: "FY 2027 Total Personnel Cost", num: true },
             { label: "+/−", num: true }
@@ -17325,9 +17408,13 @@
         .reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
       const boardShareOfBudgetPct = totalCountywideBudget2027 ? (totalExcludingCapital / totalCountywideBudget2027 * 100) : 0;
       const totalPersonnel = departments.reduce((sum, dept) => sum + dept.personnel, 0);
-      const totalOperatingAll = departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0);
+      const totalContracts = departments.reduce((sum, dept) => sum + dept.contracts, 0);
+      // "Operating" now excludes Contractual Services (dept.contracts),
+      // which gets its own stat below -- previously folded into this total
+      // alongside internal-service allocations and everything else.
+      const totalOperatingAll = departments.reduce((sum, dept) => sum + dept.internal + dept.operating, 0);
       function costCategoryPct(value) { return total ? (value / total * 100).toFixed(1) : "0.0"; }
-      const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div></div>';
+      const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Contractual Services</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalContracts)) + '</b><small>' + costCategoryPct(totalContracts) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div></div>';
       const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(boardShareOfBudgetPct) + '%</strong> of the total expenditure budget is board department funding.</p>' + costCategorySplitHtml + '</div>';
       // Department "Services / Changing / Challenges" badge content, sourced
       // from assets/department-services-data.js (keyed by normalized raw
@@ -17426,7 +17513,7 @@
           filterComboFieldHtml({ idPrefix: "wcDepartmentLedgerDepartment", label: "Department", options: departmentLedgerDepartments, initialLabel: departmentLedgerSelectedDepartment || "All" }) +
           '</div>'
         : "";
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Operating Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="capital-projects.html">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><div class="wc-department-ledger-actions"><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Operating Ledger</a><a class="wc-department-ledger-trigger" href="summary-of-contractual-services.html">View Contractual Services Ledger</a></div></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="capital-projects.html">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
       if (isLedgerOnly) {
         setupFilterCombo({
           input: explorer.querySelector("#wcDepartmentLedgerFundInput"),
@@ -17486,6 +17573,7 @@
         });
       }
       const departmentTotalCallout = explorer.querySelector(".wc-department-explorer-total");
+      const departmentLedgerActions = explorer.querySelector(".wc-department-ledger-actions");
       const departmentLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const departmentTotalAmount = departmentTotalCallout && departmentTotalCallout.querySelector(":scope > strong");
       if (departmentTotalCallout) {
@@ -17495,11 +17583,14 @@
         const changeLine = document.createElement("small");
         changeLine.className = change < 0 ? "is-decrease" : change > 0 ? "is-increase" : "";
         changeLine.innerHTML = (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (changePercent === null ? "No FY 2026 base" : (changePercent >= 0 ? "+" : "−") + Math.abs(changePercent).toFixed(1) + "%") + ')';
-        departmentTotalCallout.insertBefore(changeLine, departmentLedgerButton || null);
+        // .wc-department-ledger-actions now wraps both ledger buttons (see
+        // above) -- insert before that wrapper, not the individual button,
+        // which is no longer departmentTotalCallout's direct child.
+        departmentTotalCallout.insertBefore(changeLine, departmentLedgerActions || departmentLedgerButton || null);
         const primary = document.createElement("div");
         primary.className = "wc-department-explorer-total-primary";
         const totalLabel = departmentTotalCallout.querySelector(":scope > span");
-        [totalLabel, departmentTotalAmount, changeLine, departmentLedgerButton].forEach((element) => { if (element) primary.appendChild(element); });
+        [totalLabel, departmentTotalAmount, changeLine, departmentLedgerActions || departmentLedgerButton].forEach((element) => { if (element) primary.appendChild(element); });
         departmentTotalCallout.appendChild(primary);
       }
       const ledger = explorer.querySelector("[data-department-ledger]");

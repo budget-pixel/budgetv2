@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Ledgers — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
 </head>
 <body>
 
@@ -27,12 +27,12 @@
 </main>
 </div>
 
-<script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260810-budget-change-callout-deduped"></script>
+<script src="../assets/search-data.js?v=20260819-contractual-services-ledger"></script>
+<script src="../assets/budget-data.js?v=20260820-contract-ledger-split"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
-<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
-<script src="../assets/cip-overview.js?v=20260802-capital-callout"></script>
-<script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
+<script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
+<script src="../assets/cip-overview.js?v=20260819-fy2022-past-cip"></script>
+<script src="../assets/nav.js?v=20260819-contractual-services-ledger"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
@@ -87,6 +87,12 @@
             label:"Board Departments",
             metric:"department",
             description:"Compare proposed operating and personnel spending across Board departments."
+          },
+          {
+            title:"Contractual Services Ledger",
+            href:"summary-of-contractual-services.html",
+            label:"Board Contracted Services",
+            description:"Review FY 2027 contractual services and outside-vendor spending by Board department."
           },
           {
             title:"Constitutional Officers Ledger",
@@ -209,13 +215,6 @@
             href:"summary-of-expenses.html",
             label:"Expenses",
             description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
-          },
-          {
-            title:"Summary of Contractual Services",
-            href:"summary-of-contractual-services.html",
-            label:"Contracts",
-            description:"Review budgeted contractual services and outside-vendor spending by department.",
-            darkModeOnly:true
           },
           {
             title:"Transaction Search",

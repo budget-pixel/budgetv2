@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Board of County Commissioners — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260806-personnel-ledger">
+<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
 </head>
 <body>
 
@@ -21,61 +21,115 @@
 
 <div id="department-narrative"></div>
 <style>
-  .wc-image-card{
-    max-width:1200px;
-    margin:0 auto;
-    padding:12px;
-    background:#ffffff;
-    border:3px solid #d1be78;
-    border-radius:28px;
-    box-shadow:
-      0 12px 40px rgba(0,0,0,0.10),
-      0 4px 12px rgba(0,0,0,0.06),
-      0 0 0 1px rgba(209,190,120,0.35);
-    box-sizing:border-box;
+  /* Compact commissioner cards -- same rounded-card, hover-lift visual
+     language as .wc-department-budget-cards on the Board Department
+     Operating Budget Explorer (see style.css), applied here to a static
+     photo/name/district grid instead of a clickable budget-figure card. */
+  .wc-commissioner-cards{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0, 1fr));
+    gap:10px;
+    margin:0 0 28px;
   }
 
-  .wc-image-card img{
+  .wc-commissioner-card{
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    border:1px solid rgba(0,63,40,.13);
+    border-radius:13px;
+    background:#fff;
+    transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+
+  .wc-commissioner-card:hover{
+    border-color:var(--green);
+    box-shadow:0 6px 16px rgba(0,63,40,.08);
+    transform:translateY(-1px);
+  }
+
+  .wc-commissioner-card img{
     display:block;
     width:100%;
-    height:auto;
-    border-radius:18px;
+    aspect-ratio:1 / 1;
+    object-fit:cover;
+    background:#eef1ec;
   }
 
-  .wc-image-caption{
-    margin:16px 8px 4px 8px;
-    text-align:center;
-    color:#5b6472;
-    font-size:14px;
-    line-height:1.6;
+  .wc-commissioner-card-body{
+    padding:10px 12px 12px;
   }
 
-  .wc-image-caption em{
-    font-style:italic;
+  .wc-commissioner-card-district{
+    display:block;
+    color:var(--green);
+    font-size:.68rem;
+    font-weight:850;
+    text-transform:uppercase;
   }
 
-  @media (max-width: 768px){
-    .wc-image-card{
-      max-width:100%;
-      padding:8px;
-      border-width:2px;
-      border-radius:20px;
-      margin:0 12px;
-    }
-
-    .wc-image-card img{
-      border-radius:12px;
-    }
-
-    .wc-image-caption{
-      font-size:13px;
-      line-height:1.5;
-      margin:12px 4px 2px 4px;
-    }
+  .wc-commissioner-card-name{
+    display:block;
+    margin-top:4px;
+    color:var(--navy);
+    font-size:.88rem;
+    font-weight:800;
+    line-height:1.3;
   }
-</style><div class="wc-image-card">
-  <img alt="Budget image" src="../assets/images/page-images/board-budget-image.png">
-  <p class="wc-image-caption"><em>Pictured (from left to right): Commissioner Brad Drake (District 3), Commissioner Dan Curry (District 1), Commissioner Donna Johns (District 4), Commissioner Danny Glidewell (District 2), Commissioner Tony Anderson (District 5)</em></p>
+
+  :root[data-theme="dark"] .wc-commissioner-card{
+    border-color:rgba(158,217,168,.2);
+    background:#172235;
+  }
+
+  :root[data-theme="dark"] .wc-commissioner-card-name{
+    color:#e6edf5;
+  }
+
+  @media (max-width: 900px){
+    .wc-commissioner-cards{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 560px){
+    .wc-commissioner-cards{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+<div class="wc-commissioner-cards">
+  <div class="wc-commissioner-card">
+    <img alt="Commissioner Dan Curry" src="../assets/images/page-images/commissioner-dan-curry.jpeg">
+    <div class="wc-commissioner-card-body">
+      <span class="wc-commissioner-card-district">District 1</span>
+      <span class="wc-commissioner-card-name">Dan Curry</span>
+    </div>
+  </div>
+  <div class="wc-commissioner-card">
+    <img alt="Commissioner Danny Glidewell" src="../assets/images/page-images/commissioner-danny-glidewell.jpeg">
+    <div class="wc-commissioner-card-body">
+      <span class="wc-commissioner-card-district">District 2</span>
+      <span class="wc-commissioner-card-name">Danny Glidewell</span>
+    </div>
+  </div>
+  <div class="wc-commissioner-card">
+    <img alt="Commissioner Brad Drake" src="../assets/images/page-images/commissioner-brad-drake.jpeg">
+    <div class="wc-commissioner-card-body">
+      <span class="wc-commissioner-card-district">District 3</span>
+      <span class="wc-commissioner-card-name">Brad Drake</span>
+    </div>
+  </div>
+  <div class="wc-commissioner-card">
+    <img alt="Commissioner Donna Johns" src="../assets/images/page-images/commissioner-donna-johns.jpeg">
+    <div class="wc-commissioner-card-body">
+      <span class="wc-commissioner-card-district">District 4</span>
+      <span class="wc-commissioner-card-name">Donna Johns</span>
+    </div>
+  </div>
+  <div class="wc-commissioner-card">
+    <img alt="Commissioner Tony Anderson" src="../assets/images/page-images/commissioner-tony-anderson.jpeg">
+    <div class="wc-commissioner-card-body">
+      <span class="wc-commissioner-card-district">District 5</span>
+      <span class="wc-commissioner-card-name">Tony Anderson</span>
+    </div>
+  </div>
 </div>
 <div id="department-performance-table"></div>
 <div id="department-expense-table"></div>
@@ -171,7 +225,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260808-position-detail-is-ledger"></script>
+<script src="../assets/budget-data.js?v=20260820-contract-ledger-split"></script>
 <script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
 </body>
 </html>

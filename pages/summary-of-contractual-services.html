@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Summary of Contractual Services — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260711-dark-mode-only-pages">
+<title>Contractual Services Ledger — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
 </head>
 <body>
 
@@ -16,65 +16,30 @@
 <div id="layout">
 <main id="content">
 
-<div class="page-eyebrow">Financial Summaries</div>
-<h1 class="page-title">Summary of Contractual Services</h1>
+<div class="page-eyebrow">Budget Ledgers</div>
+<h1 class="page-title">Contractual Services Ledger</h1>
 
 <section class="page-text wc-equipment-narrative">
-  <h2>About This Summary</h2>
-  <p>This page summarizes budgeted Contractual Services included in the adopted budget for departments managed by the Board of County Commissioners. Contractual Services include work performed by outside vendors and contractors to support County operations, such as professional services, maintenance, technology, engineering, and construction. The information is provided to increase transparency into planned contracted services at the time the budget was adopted.</p>
-  <p>This summary is a snapshot of the adopted budget and is not intended to serve as a current listing of active County contracts.</p>
+  <h2>About This Ledger</h2>
+  <p>This ledger summarizes budgeted Contractual Services included in the adopted budget for departments managed by the Board of County Commissioners. Contractual Services include work performed by outside vendors and contractors to support County operations, such as professional services, maintenance, technology, engineering, and construction. The information is provided to increase transparency into planned contracted services at the time the budget was adopted.</p>
+  <p>This ledger is a snapshot of the adopted budget and is not intended to serve as a current listing of active County contracts.</p>
 
   <h2>What&rsquo;s Included</h2>
-  <p>This summary includes operating services and Capital Improvement Plan (CIP) projects funded in the adopted budget. CIP projects are shown as anticipated procurements rather than awarded contracts and may include engineering, design, construction engineering and inspection (CEI), and construction services. For complete information on capital projects, refer to the <a href="capital-improvement-plan.html">Capital Improvement Plan</a>.</p>
-  <p>This summary does not include contractual services managed by the Constitutional Officers (Sheriff, Clerk of Courts, Property Appraiser, Tax Collector, and Supervisor of Elections), the Medical Examiner, the Health Department, or other agencies funded by the County but not directly managed by the Board of County Commissioners.</p>
+  <p>This ledger includes operating services and Capital Improvement Plan (CIP) projects funded in the adopted budget. CIP projects are shown as anticipated procurements rather than awarded contracts and may include engineering, design, construction engineering and inspection (CEI), and construction services. For complete information on capital projects, refer to the <a href="capital-improvement-plan.html">Capital Improvement Plan</a>.</p>
+  <p>This ledger does not include contractual services managed by the Constitutional Officers (Sheriff, Clerk of Courts, Property Appraiser, Tax Collector, and Supervisor of Elections), the Medical Examiner, the Health Department, or other agencies funded by the County but not directly managed by the Board of County Commissioners.</p>
 
   <h2>Understanding the Information</h2>
-  <p>The County budgets for services&mdash;not specific vendors. Vendor names, where shown, identify the current service provider under an existing agreement approved by the Board of County Commissioners and are provided for informational purposes only. Inclusion of a vendor does not constitute approval of funding for or the award, renewal, or extension of a contract to that vendor. Because contracts may be competitively procured, amended, renewed, or terminated throughout the fiscal year, the information on this page may not reflect current contractual arrangements. Where no service provider is listed, the service is anticipated to be procured in the future or does not have an assigned vendor at the time the budget was adopted.</p>
+  <p>The County budgets for services&mdash;not specific vendors. Vendor names, where shown, identify the current service provider under an existing agreement approved by the Board of County Commissioners and are provided for informational purposes only. Inclusion of a vendor does not constitute approval of funding for or the award, renewal, or extension of a contract to that vendor. Because contracts may be competitively procured, amended, renewed, or terminated throughout the fiscal year by the Board of County Commissioners, the information on this page may not reflect current contractual arrangements. Where no service provider is listed, the service is anticipated to be procured in the future or does not have an assigned vendor at the time the budget was adopted.</p>
   <p>Budgeted amounts represent planned funding for the fiscal year and are estimates based on the best information available when the budget was developed. They do not necessarily represent the total value of a contract or the amount ultimately spent. Actual expenditures may vary based on procurement results, contract amendments, project scope, and operational needs.</p>
-  <p>All contracts are procured in accordance with County procurement policies and are approved by the Board of County Commissioners.</p>
+  <p>All contracts are procured in accordance with County procurement policies and are approved solely by the Board of County Commissioners.</p>
 </section><style>
   .wc-equipment-narrative p{
     font-family:Arial, Helvetica, sans-serif;
     text-align:justify;
   }
-  .wc-contract-summary-gate{
-    margin:1.5rem 0;
-    text-align:center;
-  }
-  .wc-contract-summary-gate button{
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:14px;
-    font-weight:700;
-    min-height:46px;
-    padding:0 22px;
-    border:none;
-    border-radius:999px;
-    background:#003f28;
-    color:#ffffff;
-    cursor:pointer;
-  }
-  .wc-contract-summary-gate button:hover{
-    background:#005236;
-  }
 </style>
 
-<div class="wc-contract-summary-gate" id="contractualServicesGate">
-  <button type="button" id="contractualServicesGateButton">I&rsquo;ve Read the Notes Above &mdash; Show Summary</button>
-</div>
-<div id="contractual-services-summary" hidden></div>
-<script>
-  (function(){
-    var gate = document.getElementById("contractualServicesGate");
-    var button = document.getElementById("contractualServicesGateButton");
-    var summary = document.getElementById("contractual-services-summary");
-    if(!gate || !button || !summary) return;
-    button.addEventListener("click", function(){
-      summary.hidden = false;
-      gate.hidden = true;
-      summary.scrollIntoView({behavior:"smooth", block:"start"});
-    });
-  })();
-</script>
+<div id="contractual-services-summary"></div>
 </main>
 </div>
 
@@ -163,8 +128,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/cip-projects-data.js?v=20260802-fund-placeholders"></script>
-<script src="../assets/budget-data.js?v=20260723-prior-years-opt-in"></script>
-<script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
+<script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
+<script src="../assets/budget-data.js?v=20260820-contract-ledger-split"></script>
+<script src="../assets/nav.js?v=20260819-contractual-services-ledger"></script>
 </body>
 </html>

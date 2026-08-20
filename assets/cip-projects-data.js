@@ -345,7 +345,7 @@
     ];
   }
 
-  // Historical/completed capital projects (FY2025-FY2026), kept out of the
+  // Historical/completed capital projects (FY2022-FY2026), kept out of the
   // live FY2027-2031 project list entirely -- see
   // assets/cip-fy2025-2026-supplement.js for the source data and why. Only
   // loaded on pages that also load that supplement script (window.
@@ -361,11 +361,17 @@
       // vanishing, without fabricating a budget number.
       const noBudgetYears = new Set(entry.noBudgetYears || []);
       const fundingByYear = [];
+      if (entry.fy2022) fundingByYear.push({ year: "FY2022", amount_value: entry.fy2022, amount: formatMoney(entry.fy2022) });
+      else if (noBudgetYears.has("FY2022")) fundingByYear.push({ year: "FY2022", amount_value: 0, amount: "No amount recorded" });
+      if (entry.fy2023) fundingByYear.push({ year: "FY2023", amount_value: entry.fy2023, amount: formatMoney(entry.fy2023) });
+      else if (noBudgetYears.has("FY2023")) fundingByYear.push({ year: "FY2023", amount_value: 0, amount: "No amount recorded" });
+      if (entry.fy2024) fundingByYear.push({ year: "FY2024", amount_value: entry.fy2024, amount: formatMoney(entry.fy2024) });
+      else if (noBudgetYears.has("FY2024")) fundingByYear.push({ year: "FY2024", amount_value: 0, amount: "No amount recorded" });
       if (entry.fy2025) fundingByYear.push({ year: "FY2025", amount_value: entry.fy2025, amount: formatMoney(entry.fy2025) });
       else if (noBudgetYears.has("FY2025")) fundingByYear.push({ year: "FY2025", amount_value: 0, amount: "No amount recorded" });
       if (entry.fy2026) fundingByYear.push({ year: "FY2026", amount_value: entry.fy2026, amount: formatMoney(entry.fy2026) });
       else if (noBudgetYears.has("FY2026")) fundingByYear.push({ year: "FY2026", amount_value: 0, amount: "No amount recorded" });
-      const total = (entry.fy2025 || 0) + (entry.fy2026 || 0);
+      const total = (entry.fy2022 || 0) + (entry.fy2023 || 0) + (entry.fy2024 || 0) + (entry.fy2025 || 0) + (entry.fy2026 || 0);
       const isSheriff = /sheriff/i.test(entry.category || "");
       // The supplement's "Transportation & Public Works" category is a work-
       // plan heading, not a department -- these rows belong to the same
@@ -383,15 +389,29 @@
       // Sheriff's Office rows carry neither and default to Complete.
       const phaseText = entry.phase || "";
       const statusText = entry.status || "Complete";
-      const baseDescription = "Historical capital project from the County's FY2025-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.";
+      const baseDescription = "Historical capital project from the County's FY2022-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.";
       return {
         title: entry.name,
-        slug: "historical-" + slugify(entry.name || "project-" + index),
+        // Use the same title-based slug as a current/future record so a
+        // project's historical design and later construction phases can
+        // share one detail page.
+        slug: slugify(entry.name || "project-" + index),
         proposal_name: entry.name,
         dept: historicalDepartment, department: historicalDepartment,
         department_filter: departmentFilterValue(historicalDepartment),
-        project_code: "", project_manager: "",
-        estimated_completion_date: "", start_date: "",
+        project_code: entry.projectNumber || "", project_manager: "",
+        // completedDate/estimatedCompletionDate/startDate/estimatedStartDate
+        // are optional per-entry fields on the supplement -- shown as the
+        // Past CIP ledger's date column, in priority order: completedDate
+        // when status is Complete ("Completed ..."); otherwise
+        // estimatedCompletionDate if known ("Est. Complete ..."); otherwise
+        // startDate, a confirmed start ("Started ..."); otherwise
+        // estimatedStartDate ("Est. Start ..."). Left blank ("—") when none
+        // are known.
+        estimated_completion_date: entry.completedDate || "",
+        est_completion_date: entry.estimatedCompletionDate || "",
+        start_date: entry.startDate || entry.estimatedStartDate || "",
+        start_date_confirmed: Boolean(entry.startDate),
         priority: "None",
         strategic_goals: "", operational_impact: "", pertinent_information: "", location_name: "", location: "",
         category: entry.category || "Capital Project", category_label: entry.category || "Capital Project",
@@ -410,7 +430,12 @@
         phase_text: phaseText, phase_class: getStatusClass(phaseText),
         status_note: entry.statusNote || "",
         eng_color: entry.eng_color || "",
-        budget_org_code: "", budget_account_code: "", budget_account_name: "",
+        // flagged: true renders the project title in red on the Past CIP
+        // ledger -- set for rows sourced from a general-ledger project list
+        // (Org/Object/Project) that weren't already on this historical
+        // repository when found, so they stand out for review.
+        flagged: Boolean(entry.flagged),
+        budget_org_code: entry.orgCode || "", budget_account_code: "", budget_account_name: "",
         is_legacy_in_house_engineering_row: false,
         has_in_house_engineering: false,
         in_house_engineering_value: 0,
