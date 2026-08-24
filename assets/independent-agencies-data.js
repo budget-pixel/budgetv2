@@ -87,6 +87,31 @@
       .join(", ");
   }
 
+  function fundNameForCode(code, fundsByCode){
+    var fund = fundsByCode[code];
+    return fund && fund.Fund_Name ? fund.Fund_Name : code;
+  }
+
+  function fundBreakdownsForItem(currentRows, priorRows, fundsByCode){
+    var breakdowns = {};
+    function ensure(code){
+      var name = fundNameForCode(code, fundsByCode);
+      if(!breakdowns[name]) breakdowns[name] = { budget:0, priorBudget:0 };
+      return breakdowns[name];
+    }
+    currentRows.forEach(function(row){
+      var code = fundCodeForRow(row);
+      var amount = Number(row.FY2027_Proposed) || 0;
+      if(code && amount) ensure(code).budget += amount;
+    });
+    priorRows.forEach(function(row){
+      var code = fundCodeForRow(row);
+      var amount = Number(row.FY2026_Original_Budget) || 0;
+      if(code && amount) ensure(code).priorBudget += amount;
+    });
+    return breakdowns;
+  }
+
   function expenditureRowsForItem(rows, item){
     if(normalize(item.name) === "statutory and other agency funding"){
       return rows.filter(function(row){
@@ -177,7 +202,8 @@
     return baseItems.map(function(item){
       var budgetRows = expenditureRowsForItem(expenditures, item);
       var breakdown = costBreakdownForRows(budgetRows);
-      var priorBudget = priorBudgetRowsForItem(dedupedExpenditures, expenditures, item).reduce(function(sum, row){
+      var priorRows = priorBudgetRowsForItem(dedupedExpenditures, expenditures, item);
+      var priorBudget = priorRows.reduce(function(sum, row){
         return sum + (Number(row.FY2026_Original_Budget) || 0);
       }, 0);
       var fte = staffing.reduce(function(sum, row){
@@ -187,6 +213,7 @@
         return rowMatches(row, item.name) ? sum + (Number(row["2026"]) || 0) : sum;
       }, 0);
       var fundCodes = fundCodesForItem(budgetRows);
+      var fundBreakdowns = fundBreakdownsForItem(budgetRows, priorRows, fundsByCode);
 
       return {
         status:"ready",
@@ -200,7 +227,8 @@
         fte:fte,
         priorFte:priorFte,
         fund:fundLabelForItem(fundCodes, fundsByCode),
-        fundCodes:fundCodes
+        fundCodes:fundCodes,
+        fundBreakdowns:fundBreakdowns
       };
     });
   }
@@ -218,7 +246,8 @@
         capital:0,
         fte:0,
         priorFte:0,
-        fund:"Loading"
+        fund:"Loading",
+        fundBreakdowns:{}
       };
     });
   }
@@ -236,7 +265,8 @@
         capital:0,
         fte:0,
         priorFte:0,
-        fund:"Not listed"
+        fund:"Not listed",
+        fundBreakdowns:{}
       };
     });
   }

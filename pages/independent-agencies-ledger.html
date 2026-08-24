@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Independent Agencies Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
+<link rel="stylesheet" href="../assets/style.css?v=20260824-public-transactions">
 </head>
 <body>
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -14,13 +14,14 @@
 <p class="page-intro">Compare budget, fund, personnel, operating, and capital cost across the Courts, Health Department, and other independent and autonomous entities not part of a County department or Constitutional Officer.</p>
 
 <section aria-label="Independent Agencies Budget Ledger">
+  <div id="independentAgenciesFilters" hidden></div>
   <div class="wc-department-ledger wc-ledger-page-flush" id="independentAgenciesLedger"></div>
 </section>
 
 </main></div>
 <script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260820-contract-ledger-split"></script>
-<script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
+<script src="../assets/budget-data.js?v=20260824-hide-zero-revenue-rows"></script>
+<script src="../assets/independent-agencies-data.js?v=20260824-independent-agency-filters"></script>
 <script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
 <script>
   (function(){
@@ -35,6 +36,10 @@
     // Bouncing-dots markup shown in place of the literal "Loading" text
     // while loadBudgetData() is in flight (see style.css's .wc-loading-dots).
     var LOADING_DOTS_HTML = '<span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+    var selectedFund = "";
+    var selectedDepartment = "";
+    var readyItems = [];
+    var filtersInitialized = false;
 
     function formatCurrency(value){
       var n = Number(value) || 0;
@@ -58,13 +63,11 @@
     }
 
     function loadingRowHtml(item){
-      return '<tr><td>' + escapeHtml(item.name) + '</td><td>' + escapeHtml(item.fund) + '</td>' +
-        '<td class="wc-num">' + LOADING_DOTS_HTML + '</td></tr>';
+      return '<tr><td>' + escapeHtml(item.name) + '</td><td class="wc-num" colspan="3">' + LOADING_DOTS_HTML + '</td></tr>';
     }
 
     function readyRowHtml(item){
       return '<tr><td><a class="wc-table-row-link" href="' + escapeHtml(item.href) + '">' + escapeHtml(item.name) + '</a></td>' +
-        '<td>' + escapeHtml(item.fund && item.fund !== "Not listed" ? item.fund : "—") + '</td>' +
         moneyCellHtml(item.priorBudget) +
         moneyCellHtml(item.budget) +
         changeCellHtml(item.budget, item.priorBudget) +
@@ -77,7 +80,7 @@
         sum.priorBudget += item.priorBudget || 0;
         return sum;
       }, { budget:0, priorBudget:0 });
-      return '<tr class="wc-table-total-row"><td>Total Independent Agencies</td><td></td>' +
+      return '<tr class="wc-table-total-row"><td>Total Independent Agencies</td>' +
         moneyCellHtml(totals.priorBudget) +
         moneyCellHtml(totals.budget) +
         changeCellHtml(totals.budget, totals.priorBudget) +
@@ -88,21 +91,91 @@
     // dropped rather than showing a column of all-zero amounts.
     var LEDGER_COLUMNS = [
       { label:"Entity" },
-      { label:"Fund" },
       { label:"FY 2026 Budget", num:true },
       { label:"FY 2027 Proposed", num:true },
       { label:"+/−", num:true }
     ];
 
-    function renderItems(items){
+    function uniqueSorted(values){
+      return values.filter(function(value, index, all){
+        return value && all.indexOf(value) === index;
+      }).sort();
+    }
+
+    function filteredReadyItems(){
+      return readyItems.map(function(item){
+        if(selectedDepartment && item.name !== selectedDepartment) return null;
+        if(!selectedFund) return item;
+        var fundBudget = item.fundBreakdowns && item.fundBreakdowns[selectedFund];
+        if(!fundBudget) return null;
+        return Object.assign({}, item, {
+          budget:Number(fundBudget.budget) || 0,
+          priorBudget:Number(fundBudget.priorBudget) || 0
+        });
+      }).filter(Boolean);
+    }
+
+    function renderLedger(items, isLoading){
       var host = document.getElementById("independentAgenciesLedger");
       if(!host) return;
-      var isLoading = items.some(function(item){ return item.status === "loading"; });
       var bodyRows = items.map(isLoading ? loadingRowHtml : readyRowHtml);
-      if(!isLoading) bodyRows.push(totalRowHtml(items));
+      if(!isLoading && items.length) bodyRows.push(totalRowHtml(items));
+      if(!isLoading && !items.length){
+        bodyRows.push('<tr><td colspan="4" class="wc-data-empty">No independent agencies match the selected filters.</td></tr>');
+      }
       host.innerHTML = window.WCBudgetData
         ? window.WCBudgetData.renderTable({ caption:"Independent Agencies Budget Ledger", hideVisualCaption:true, columns:LEDGER_COLUMNS, bodyRows:bodyRows })
         : "";
+    }
+
+    function initFilters(items){
+      if(filtersInitialized || !window.WCBudgetData) return;
+      var filterHost = document.getElementById("independentAgenciesFilters");
+      if(!filterHost) return;
+      var funds = uniqueSorted(items.reduce(function(all, item){
+        Object.keys(item.fundBreakdowns || {}).forEach(function(name){
+          if(Number(item.fundBreakdowns[name].budget) || 0) all.push(name);
+        });
+        return all;
+      }, []));
+      var departments = uniqueSorted(items.map(function(item){ return item.name; }));
+      filterHost.className = "wc-filter-bar wc-machinery-picker";
+      filterHost.innerHTML =
+        window.WCBudgetData.filterComboFieldHtml({ idPrefix:"wcIndependentAgencyFund", label:"Fund", options:funds, initialLabel:"All" }) +
+        window.WCBudgetData.filterComboFieldHtml({ idPrefix:"wcIndependentAgencyDepartment", label:"Department", options:departments, initialLabel:"All" });
+      filterHost.hidden = false;
+      window.WCBudgetData.setupFilterCombo({
+        input:filterHost.querySelector("#wcIndependentAgencyFundInput"),
+        results:filterHost.querySelector("#wcIndependentAgencyFundResults"),
+        options:funds,
+        getCurrentValue:function(){ return selectedFund; },
+        onSelect:function(value){
+          selectedFund = value;
+          renderLedger(filteredReadyItems(), false);
+        }
+      });
+      window.WCBudgetData.setupFilterCombo({
+        input:filterHost.querySelector("#wcIndependentAgencyDepartmentInput"),
+        results:filterHost.querySelector("#wcIndependentAgencyDepartmentResults"),
+        options:departments,
+        getCurrentValue:function(){ return selectedDepartment; },
+        onSelect:function(value){
+          selectedDepartment = value;
+          renderLedger(filteredReadyItems(), false);
+        }
+      });
+      filtersInitialized = true;
+    }
+
+    function renderItems(items){
+      var isLoading = items.some(function(item){ return item.status === "loading"; });
+      if(isLoading){
+        renderLedger(items, true);
+        return;
+      }
+      readyItems = items;
+      initFilters(items);
+      renderLedger(filteredReadyItems(), false);
     }
 
     document.addEventListener("DOMContentLoaded", function(){

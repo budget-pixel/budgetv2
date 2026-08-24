@@ -772,9 +772,9 @@ table.wc-personnel-position-detail.is-showing-fte-history .wc-personnel-position
 .wc-revenue-card-summary-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 14px 0 18px; }
 .wc-revenue-card-summary-row .wc-revenue-concentration-summary { flex: 1 1 auto; margin: 0 !important; }
 .wc-revenue-card-summary-row .wc-revenue-support-split { display: flex; flex: 0 0 auto; gap: 28px; width: auto; padding: 0; }
-.wc-revenue-card-summary-row .wc-revenue-support-split > div { min-width: 170px; padding: 0; border: 0; text-align: right; }
+.wc-revenue-card-summary-row .wc-revenue-support-split > div { min-width: 170px; padding: 0; border: 0; text-align: left; }
 .wc-revenue-card-summary-row .wc-revenue-support-split small { display: block; margin-top: 2px; color: var(--muted); font-size: .68rem; }
-.wc-revenue-card-summary-row .wc-revenue-support-split .wc-revenue-support-amount-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; }
+.wc-revenue-card-summary-row .wc-revenue-support-split .wc-revenue-support-amount-row { display: flex; align-items: baseline; justify-content: flex-start; gap: 8px; }
 .wc-revenue-card-summary-row .wc-revenue-support-split .wc-revenue-support-amount-row small { margin-top: 0; }
 .wc-revenue-card-summary-row + .wc-revenue-snapshot { margin-top: 0; }
 .wc-revenue-snapshot { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 20px; }
@@ -1394,6 +1394,46 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 @media(max-width:900px){.wc-independent-agencies-total{width:100%;min-width:0;align-items:flex-start}.wc-independent-agencies-total .wc-revenue-total-change{text-align:left}.wc-independent-agencies-total .wc-revenue-view-actions{justify-content:flex-start}}
 @media(max-width:650px){.wc-department-explorer{padding:20px}.wc-department-explorer-head,.wc-department-detail-head{flex-direction:column}.wc-department-explorer-total{width:100%;min-width:0;flex-wrap:wrap;justify-content:flex-start;text-align:left}.wc-department-explorer-total .wc-department-explorer-badges{justify-content:flex-start}.wc-department-explorer-badges>div:first-child{padding-left:0}.wc-department-explorer-total-primary{width:100%;padding:14px 0 0;border-left:0;border-top:0;text-align:left}.wc-department-explorer-total .wc-department-ledger-trigger{margin-left:0}.wc-department-ledger-actions{justify-content:flex-start;margin-left:0}.wc-department-explorer-year-change{justify-content:flex-start}.wc-department-explorer-metrics,.wc-department-budget-cards,.wc-department-detail-grid{grid-template-columns:1fr}.wc-department-detail-head>div:last-child{text-align:left}}
 @media(max-width:650px){.wc-personnel-explorer,.wc-department-explorer,.wc-revenue-concentration{margin-top:20px}.wc-personnel-explorer-total > div:has(.wc-personnel-ledger-trigger),.wc-department-explorer-head .wc-department-ledger-trigger,.wc-revenue-concentration-head .wc-revenue-view-actions{position:static;margin-top:10px}.wc-personnel-explorer-total > div:has(.wc-personnel-ledger-trigger){justify-content:flex-start}.wc-revenue-view-actions{flex-wrap:wrap;justify-content:flex-start}.wc-revenue-total-budget{width:100%}}
+
+/* Keep every explorer's headline budget callout typographically identical.
+   Revenue, capital, personnel, department, Constitutional Officer, and
+   independent-agency explorers use different layout wrappers, but the label,
+   amount, and year-over-year change should read as one shared component. */
+.wc-revenue-total-primary > span,
+.wc-personnel-explorer-total > span,
+.wc-department-explorer-total-primary > span {
+  display:block;
+  color:var(--muted);
+  font:800 .72rem/1.3 Arial, Helvetica, sans-serif;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.wc-revenue-total-primary > strong,
+.wc-personnel-explorer-total > strong,
+.wc-department-explorer-total-primary > strong {
+  display:block;
+  margin:3px 0 0;
+  color:var(--navy);
+  font:800 1.65rem/1.15 Arial, Helvetica, sans-serif;
+  letter-spacing:0;
+}
+.wc-revenue-total-primary > small,
+.wc-personnel-explorer-total > small,
+.wc-department-explorer-total-primary > small {
+  display:block;
+  margin:3px 0 0;
+  font:400 1rem/1.35 Arial, Helvetica, sans-serif;
+  letter-spacing:0;
+  white-space:nowrap;
+}
+.wc-revenue-total-primary > small.is-increase,
+.wc-revenue-total-primary > small.is-decrease,
+.wc-personnel-explorer-total > small.is-increase,
+.wc-personnel-explorer-total > small.is-decrease,
+.wc-department-explorer-total-primary > small.is-increase,
+.wc-department-explorer-total-primary > small.is-decrease {
+  font-weight:800;
+}
 :root[data-theme="dark"] .wc-department-explorer{background:#14251d;border-color:rgba(158,217,168,.18)}:root[data-theme="dark"] .wc-department-explorer-metrics article,:root[data-theme="dark"] .wc-department-budget-cards button,:root[data-theme="dark"] .wc-department-budget-cards a,:root[data-theme="dark"] .wc-department-detail{background:#172235}:root[data-theme="dark"] .wc-department-detail-grid article{background:#111c2b}
 :root[data-theme="dark"] .wc-department-ledger{background:#172235}
 :root[data-theme="dark"] .wc-department-ledger.wc-ledger-page-flush{background:transparent}
@@ -3379,16 +3419,18 @@ main#content > .recreation-parks-section {
   text-align: right;
 }
 .wc-actual-drilldown-link {
-  color: inherit;
-  font-weight: inherit;
-  text-decoration: none;
+  color: var(--green);
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-style: dotted;
   text-underline-offset: 3px;
-  cursor: default;
-  pointer-events: none;
+  cursor: pointer;
+  pointer-events: auto;
 }
 .wc-actual-drilldown-link:hover,
 .wc-actual-drilldown-link:focus {
-  text-decoration: none;
+  color: var(--green2);
+  text-decoration-style: solid;
 }
 .wc-transaction-page {
   max-width: 1320px;

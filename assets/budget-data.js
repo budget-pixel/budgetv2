@@ -3520,11 +3520,10 @@
       .replace(/^-+|-+$/g, "");
   }
 
-  // Transaction links from budget/revenue line tables are always rendered
-  // in the markup, but are only visible/clickable in dark mode -- see the
-  // `:root[data-theme="dark"] .wc-actual-drilldown-link` override in
-  // style.css, which is what actually gates them (this flag stays true so
-  // the underlying <a> exists for CSS to turn on).
+  // Public transaction drilldown is enabled for historical actual amounts.
+  // Rows still must pass transactionDrilldownEnabledForRow so links are only
+  // created when the public transaction query has a usable department and
+  // single account code. Budget and proposed amounts never drill through.
   const TRANSACTION_DRILLDOWN_ENABLED = true;
 
   function transactionDrilldownEnabledForRow(row, fields) {
@@ -8511,10 +8510,22 @@
       }
 
       if (field === "FY2026_Original_Budget") {
+        // Same per-row contribution formula renderTypeSummaryGroup uses for
+        // the department page's own Revenue Summary card (departmentRevenue
+        // Fy2026PlugOverrideForRow first, then the _suppressRevenueBudget
+        // Fallback/_originalBudgetDeduped override, then the normal merge
+        // contribution) -- without these same overrides here, a department-
+        // filtered Revenue Budget Ledger could show a different FY2026
+        // figure than that same department's own page for the same
+        // category (e.g. a gap-filled Ad Valorem row landing under
+        // "General Government Taxes" differently in each place).
         const bestByKey = new Map();
         rowsToSum.forEach((r) => {
           const key = revenueBudgetUniqueKey(r);
-          const val = revenueBudgetMergeContribution(r);
+          const val = departmentRevenueFy2026PlugOverrideForRow(r) ||
+            ((r._suppressRevenueBudgetFallback || r._originalBudgetDeduped)
+              ? revenueDisplayAmount(r.FY2026_Original_Budget || 0)
+              : revenueBudgetMergeContribution(r));
           if (!bestByKey.has(key) || val > bestByKey.get(key)) bestByKey.set(key, val);
         });
         return Array.from(bestByKey.values()).reduce((sum, val) => sum + val, 0);
@@ -8552,127 +8563,76 @@
       return '<td class="wc-num' + tone + '">' + sign + formatCurrency(Math.abs(change)) + "</td>";
     }
 
-    const bodyRows = CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec, specIndex) => {
+    // Flat list of every individual revenue source -- no Revenue_Type
+    // category rollup/accordion above them, just one row per named revenue
+    // line so the ledger reads as a plain list of every revenue instead of
+    // grouped-and-collapsed categories (General Government Taxes, Permits &
+    // Fees, etc.).
+    function revenueLedgerDetailTarget(name) {
+      const normalized = normalizeDeptName(name);
+      if (/^ad valorem taxes/.test(normalized)) return "property-taxes";
+      if (/^interest/.test(normalized)) return "interest-and-investment-earnings";
+      if (normalized === "tourist development tax other") return "tourist-development-tax-other";
+      if (/^tourist development tax/.test(normalized)) return "tourist-development-taxes";
+      return revenueTopicSlug(name);
+    }
+    const individualRevenueTotals = new Map();
+    function collectIndividualRevenueRow(row) {
+      allMatchingRows.push(row);
+      const name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
+      const entry = individualRevenueTotals.get(name) || { rows: [] };
+      entry.rows.push(row);
+      individualRevenueTotals.set(name, entry);
+    }
+    CONSOLIDATED_REVENUE_SUMMARY_ROWS.forEach((spec) => {
       // Revenue_Code 381000 (Interfund Group Transfer In) is reported on
       // the Summary of Interfund Transfers page instead, and the
       // Self-Insurance Fund (503) is an Internal Service fund rather than
       // a governmental one, so both are excluded here.
       const matching = rows.filter((r) => r.Revenue_Type === spec.type && !isReportedElsewhere(r));
-      if (!matching.length) return "";
       // Mosquito Control levies its own Ad Valorem millage on top of the
-      // County's General Fund millage, but both land in this same
-      // "General Government Taxes" row -- there's no separate Ad Valorem
-      // line on this table. Relabeled here (on the real revenue row itself,
-      // which already carries a full, correctly-populated set of actuals/
-      // FY2026 Original Budget fields from the same pipeline every other
-      // row on this table uses) so it reads as its own "Ad Valorem Taxes
+      // County's General Fund millage, but both land under the same
+      // "Ad Valorem Taxes" revenue name -- there's no separate line for it
+      // otherwise. Relabeled here (on the real revenue row itself, which
+      // already carries a full, correctly-populated set of actuals/FY2026
+      // Original Budget fields from the same pipeline every other row on
+      // this table uses) so it reads as its own "Ad Valorem Taxes
       // (Mosquito Control Fund)" line instead of folding into the combined
-      // "Ad Valorem Taxes" line. This used to be swapped out for a second
-      // copy sourced from departmentFinancialDisplayRows("Mosquito
-      // Control") -- that department-page view fills prior years via a
-      // completely different (expense-based "plug") method that isn't
-      // compatible with dedupedRevenueSum's Revenue_Code-keyed Supabase
-      // lookups, which left every prior-year column on this line blank.
-      const matchingForDetail = matching.map((r) => {
+      // "Ad Valorem Taxes" line.
+      matching.forEach((r) => {
         const isMosquitoAdValorem = spec.type === "General Government Taxes" &&
           normalizeDeptName(r.Revenue_Name) === "ad valorem taxes" && fundCodeForRow(r) === "105";
-        return isMosquitoAdValorem ? { ...r, Revenue_Name: "Ad Valorem Taxes (Mosquito Control Fund)" } : r;
+        collectIndividualRevenueRow(isMosquitoAdValorem ? { ...r, Revenue_Name: "Ad Valorem Taxes (Mosquito Control Fund)" } : r);
       });
-      allMatchingRows.push(...matchingForDetail);
-      const individualRevenueTotals = new Map();
-      matchingForDetail.forEach((row) => {
-        const name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
-        const entry = individualRevenueTotals.get(name) || { rows: [] };
-        entry.rows.push(row);
-        individualRevenueTotals.set(name, entry);
-      });
-      // Same group-expand accordion as the Fund Financial Ledger's
-      // Revenues/Expenditures activity rows (see buildFundFinancialSchedule/
-      // groupHeaderHtml) -- every individual-revenue row shares this
-      // category's group key and is a plain sibling <tr> in the same
-      // table, with the same per-column classes as the category row above
-      // it, so it lines up under the exact same columns instead of reading
-      // like a separate table dropped in below.
-      const groupKey = "wc-revenue-classification-" + specIndex;
-      function revenueLedgerDetailTarget(name) {
-        const normalized = normalizeDeptName(name);
-        if (/^ad valorem taxes/.test(normalized)) return "property-taxes";
-        if (/^interest/.test(normalized)) return "interest-and-investment-earnings";
-        if (normalized === "tourist development tax other") return "tourist-development-tax-other";
-        if (/^tourist development tax/.test(normalized)) return "tourist-development-taxes";
-        return revenueTopicSlug(name);
-      }
-      const individualRevenueRows = Array.from(individualRevenueTotals.entries())
-        // Keep zero-only source rows in the underlying totals, but omit them
-        // from the expanded Revenue Ledger display. These are source-data
-        // placeholders such as "Tourist Development Tax (Other)" and add
-        // no useful information when every year is $0.
-        .filter(([, entry]) => CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.some((col) =>
-          dedupedRevenueSum(entry.rows, col.field) !== 0
-        ))
-        .sort((a, b) => {
-          // Keep the two property-tax detail lines together at the top of
-          // General Government Taxes: countywide Ad Valorem first, followed
-          // immediately by the Mosquito Control levy.
-          if (spec.type === "General Government Taxes") {
-            const detailPriority = (name) => {
-              const normalized = normalizeDeptName(name);
-              if (normalized === "ad valorem taxes") return 0;
-              if (normalized === "ad valorem taxes mosquito control fund") return 1;
-              return 2;
-            };
-            const priorityDifference = detailPriority(a[0]) - detailPriority(b[0]);
-            if (priorityDifference !== 0) return priorityDifference;
-          }
-          return dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed");
-        })
-        .map(([name, entry]) =>
-          '<tr class="wc-fund-activity-row" data-fund-activity-group="' + groupKey + '" hidden><td><button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button></td>' +
-          CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col) => '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(dedupedRevenueSum(entry.rows, col.field)) + '</td>' + (col.field === "FY2027_Proposed" ? revenueChangeCellHtml(entry.rows) : "")).join("") +
-          '</tr>'
-        );
-      const hasDetail = individualRevenueRows.length > 0;
-      // Deliberately NOT also wc-fund-activity-row -- that class is what the
-      // group-toggle click handler queries by data-fund-activity-group to
-      // show/hide, and this row must not match its own query (it would hide
-      // itself along with its children on collapse).
-      const toggleClass = hasDetail ? "wc-fund-activity-group-toggle" : "";
-      const toggleAttrs = hasDetail ? ' data-fund-activity-group="' + groupKey + '" tabindex="0" role="button" aria-expanded="false"' : "";
-      return (
-        '<tr class="' + toggleClass + '"' + toggleAttrs + '><td>' + (hasDetail ? '<span class="wc-fund-activity-chevron" aria-hidden="true"></span>' : "") + escapeHtml(spec.label) + '</td>' +
-        CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
-          const sum = dedupedRevenueSum(matching, col.field);
-          totals[i] += sum;
-          return '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(sum) + "</td>" + (col.field === "FY2027_Proposed" ? revenueChangeCellHtml(matching) : "");
-        }).join("") +
-        "</tr>" +
-        individualRevenueRows.join("")
-      );
     });
     // Catch-all for any row whose Revenue_Type doesn't match a known
     // category above -- e.g. a row synthesized from a Supabase-only
     // account with no COA classification (see synthesizeMissingRevenueRows).
     // Without this, an unrecognized type would be silently excluded from
-    // every category row *and* from Total, which defeats the entire point
-    // of never dropping a Supabase dollar.
+    // the list *and* from Total, which defeats the entire point of never
+    // dropping a Supabase dollar.
     const knownRevenueTypes = new Set(CONSOLIDATED_REVENUE_SUMMARY_ROWS.map((spec) => spec.type));
-    const unclassifiedRevenueRows = rows.filter((r) => !knownRevenueTypes.has(r.Revenue_Type) && !isReportedElsewhere(r));
-    allMatchingRows.push(...unclassifiedRevenueRows);
-    const unclassifiedRevenueValues = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
-      const sum = dedupedRevenueSum(unclassifiedRevenueRows, col.field);
-      totals[i] += sum;
-      return sum;
-    });
-    // Hidden when every column is exactly $0 -- still folded into totals
-    // above either way, but an always-zero row is just visual noise on a
-    // table that has nothing unclassified.
-    if (unclassifiedRevenueValues.some((v) => v !== 0)) {
-      bodyRows.push(
-        '<tr class="wc-table-unclassified-row"><td>Unclassified</td>' +
-        unclassifiedRevenueValues.map((v, i) => '<td class="wc-num' + columnCellClass(CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i]) + '">' + formatCurrency(v) + "</td>" + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? revenueChangeCellHtml(unclassifiedRevenueRows) : "")).join("") +
+    rows.filter((r) => !knownRevenueTypes.has(r.Revenue_Type) && !isReportedElsewhere(r)).forEach(collectIndividualRevenueRow);
+
+    const bodyRows = Array.from(individualRevenueTotals.entries())
+      // Keep zero-only source rows in the underlying totals, but omit them
+      // from the list. These are source-data placeholders such as "Tourist
+      // Development Tax (Other)" and add no useful information when every
+      // year is $0.
+      .filter(([, entry]) =>
+        dedupedRevenueSum(entry.rows, "FY2026_Original_Budget") !== 0 ||
+        dedupedRevenueSum(entry.rows, "FY2027_Proposed") !== 0
+      )
+      .sort((a, b) => dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed"))
+      .map(([name, entry]) =>
+        '<tr><td><button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button></td>' +
+        CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
+          const sum = dedupedRevenueSum(entry.rows, col.field);
+          totals[i] += sum;
+          return '<td class="wc-num' + columnCellClass(col) + '">' + formatCurrency(sum) + "</td>" + (col.field === "FY2027_Proposed" ? revenueChangeCellHtml(entry.rows) : "");
+        }).join("") +
         "</tr>"
       );
-    }
     bodyRows.push(
       '<tr class="wc-table-total-row"><td>Total</td>' +
       totals.map((t, i) => '<td class="wc-num' + columnCellClass(CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i]) + '">' + formatCurrency(t) + "</td>" + (CONSOLIDATED_REVENUE_SUMMARY_COLUMNS[i].field === "FY2027_Proposed" ? revenueChangeCellHtml(rows.filter((row) => !isReportedElsewhere(row))) : "")).join("") +
@@ -13845,6 +13805,18 @@
         );
       });
 
+      // Grand total across every fund shown -- skipped when there's only
+      // one fund group, since its own subtotal row above already is the
+      // total in that case.
+      if (funds.length > 1) {
+        const grandAmount = items.reduce((sum, r) => sum + (r.Amount || 0), 0);
+        bodyRows.push(
+          '<tr class="wc-table-total-row"><td colspan="' + leadingCols + '">Total' +
+          '</td><td class="wc-num">' + formatCurrency(grandAmount) +
+          '</td><td colspan="' + trailingCols + '"></td></tr>'
+        );
+      }
+
       const columns = (showDeptColumn ? [{ label: "Department" }] : [])
         .concat([
           { label: "Service" },
@@ -17295,10 +17267,37 @@
         return combined[key] || pageHref(name);
       }
       const costCellLinkOptions = { plain: true, linkClass: "wc-table-row-link" };
+      // Mirrors the group.contracts/group.internal classification above
+      // (same precedence: personnel/capital excluded first, then internal-
+      // service rows, then contract rows) so each row lands in exactly one
+      // of Personnel / Contractual Services / Operating -- matching the
+      // per-department contracts/internal/operating totals already
+      // computed into that department's own group.
+      function isInternalServiceRow(row) {
+        const sourceKey = rollupSourceKey(row.Dept_Name);
+        const type = String(row.Object_Type || "").toLowerCase();
+        const objectText = (String(row.Object_Name || "") + " " + String(row.Note || "")).toLowerCase();
+        return sourceKey === "tourism public safety" || /internal service|indirect|fleet|insurance allocation/.test(type + " " + objectText);
+      }
+      function isContractRow(row) {
+        const sourceKey = rollupSourceKey(row.Dept_Name);
+        const objectText = (String(row.Object_Name || "") + " " + String(row.Note || "")).toLowerCase();
+        return sourceKey === "south walton fire lifeguard services" || String(row.Contract_Status || "").trim() !== "" || /contract|professional service/.test(objectText);
+      }
+      function contractRowsFor(rows) {
+        return rows.filter((row) => {
+          const t = String(row.Object_Type || "").toLowerCase();
+          if (t.indexOf("personnel") >= 0 || t.indexOf("capital") >= 0) return false;
+          if (isInternalServiceRow(row)) return false;
+          return isContractRow(row);
+        });
+      }
       function operatingRowsFor(rows) {
         return rows.filter((row) => {
           const t = String(row.Object_Type || "").toLowerCase();
-          return t.indexOf("personnel") < 0 && t.indexOf("capital") < 0;
+          if (t.indexOf("personnel") >= 0 || t.indexOf("capital") >= 0) return false;
+          if (isInternalServiceRow(row)) return true;
+          return !isContractRow(row);
         });
       }
       function buildCostCell(rowsForKind, amount, label, isPersonnel, popupDetailsArr, isCapital, subtotalByOffice) {
@@ -17356,7 +17355,7 @@
         const deptPriorExcludingCapital = dept.prior - dept.priorCapital;
         const deptCurrentExcludingCapital = dept.current - dept.capital;
         const change = deptCurrentExcludingCapital - deptPriorExcludingCapital;
-        const deptOperatingTotal = dept.contracts + dept.internal + dept.operating;
+        const deptOperatingTotal = dept.internal + dept.operating;
         const rowId = "wc-department-ledger-row-" + slugifyId(dept.key);
         deptRowIdByKey.set(dept.key, rowId);
 
@@ -17382,14 +17381,15 @@
         return (
           '<tr id="' + rowId + '" class="wc-department-ledger-group-row"><td>' + deptNameHtml + '</td><td class="wc-num">' + formatCurrency(deptPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(deptCurrentExcludingCapital) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
           buildCostCell(dept.rows, dept.personnel, dept.name, true, ledgerPopupDetails) +
+          buildCostCell(contractRowsFor(dept.rows), dept.contracts, dept.name + " Contractual Services Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
           buildCostCell(operatingRowsFor(dept.rows), deptOperatingTotal, dept.name + " Operating Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
           '</tr>'
         );
       });
       const ledgerPriorExcludingCapital = departments.reduce((sum, dept) => sum + (dept.prior - dept.priorCapital), 0);
       const ledgerCurrentExcludingCapital = departments.reduce((sum, dept) => sum + (dept.current - dept.capital), 0);
-      ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital - ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts + dept.internal + dept.operating, 0)) + '</td></tr>');
-      const ledgerTable = renderTable({ caption: "Board Department Operating Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }], bodyRows: ledgerBody });
+      ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital - ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.internal + dept.operating, 0)) + '</td></tr>');
+      const ledgerTable = renderTable({ caption: "Board Department Operating Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Contractual Services", num: true }, { label: "Operating", num: true }], bodyRows: ledgerBody });
 
       const totalCapital = departments.reduce((sum, dept) => sum + dept.capital, 0);
       const totalPriorCapital = departments.reduce((sum, dept) => sum + dept.priorCapital, 0);
@@ -17966,6 +17966,8 @@
     openBudgetDetailPanel,
     getDepartmentPersonnelCostDetail,
     renderTable,
+    filterComboFieldHtml,
+    setupFilterCombo,
     bindTooltipAnchors,
     renderDepartmentNarrative,
     renderFinancialSummary,

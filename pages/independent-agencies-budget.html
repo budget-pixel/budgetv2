@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Independent Agencies Budget Explorer — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260820-contract-ledger-split">
+<link rel="stylesheet" href="../assets/style.css?v=20260824-explorer-callouts-public-transactions">
 </head>
 <body>
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -16,9 +16,9 @@
   </section>
 </main></div>
 <script src="../assets/search-data.js"></script>
-<script src="../assets/budget-data.js?v=20260820-contract-ledger-split"></script>
+<script src="../assets/budget-data.js?v=20260824-hide-zero-revenue-rows"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
-<script src="../assets/nav.js?v=20260807-breadcrumb-ledgers"></script>
+<script src="../assets/nav.js?v=20260824-explorer-breadcrumbs"></script>
 <script>
   (function(){
     function escapeHtml(value){
@@ -78,12 +78,12 @@
         ' independent and autonomous entities not part of a County department or Constitutional Officer' +
         (totalFte ? ', employing ' + escapeHtml(formatNumber(totalFte)) + ' FTE' : '') +
         '. Select any entity below to review its budget, staffing, and service information.</p>' + compositionHtml + '</div>' +
-        '<aside class="wc-revenue-total-budget wc-independent-agencies-total"><span>Total Independent Agencies Budget</span><strong>' +
+        '<aside class="wc-revenue-total-budget wc-independent-agencies-total"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' +
         escapeHtml(window.WCBudgetData ? window.WCBudgetData.formatCurrency(totalBudget) : compactCurrency(totalBudget)) + '</strong>' +
         '<small class="wc-revenue-total-change' + (change < 0 ? " is-decrease" : change > 0 ? " is-increase" : "") + '">' +
         (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' +
         (changePct === null ? "No FY 2026 base" : (changePct >= 0 ? "+" : "−") + Math.abs(changePct).toFixed(1) + "%") + ')</small>' +
-        '<div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="independent-agencies-ledger.html">View Independent Agencies Ledger</a></div></aside></div>';
+        '<div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="independent-agencies-ledger.html">View Independent Agencies Ledger</a></div></div></aside></div>';
 
       var cardsHtml = items.map(function(item){ return cardHtml(item, totalBudget); }).join("");
 

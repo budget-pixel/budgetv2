@@ -2399,8 +2399,18 @@
     var eyebrowText = eyebrow.textContent.trim();
     var titleText = title.textContent.trim();
     var currentPage = (window.location.pathname.split("/").pop() || "").toLowerCase();
+    var explorerPages = new Set([
+      "summary-of-revenues.html",
+      "summary-of-personnel.html",
+      "department-budget.html",
+      "capital-projects.html",
+      "constitutional-officers.html",
+      "independent-agencies-budget.html"
+    ]);
     var sectionCrumb = "";
-    if(eyebrowText === titleText){
+    if(explorerPages.has(currentPage)){
+      sectionCrumb = '<a href="../home.html">Budget Explorer</a><span class="wc-breadcrumb-sep">/</span>';
+    }else if(eyebrowText === titleText){
       sectionCrumb = "";
     }else if(titleText === "Overview of Walton County" || titleText === "Organizational Structure" || titleText === "Statistical & Supplemental Information" || titleText === "Glossary, Acronyms, and Frequently Asked Questions" || titleText === "Strategic Initiatives"){
       sectionCrumb = '<a href="our-county.html">Our County</a><span class="wc-breadcrumb-sep">/</span>';
