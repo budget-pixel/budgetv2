@@ -1,0 +1,246 @@
+(function () {
+  "use strict";
+
+  var EXPLORERS = {
+    revenue: { title: "Revenue Explorer", href: "pages/summary-of-revenues.html" },
+    personnel: { title: "Personnel Explorer", href: "pages/summary-of-personnel.html" },
+    departments: { title: "Department Budget Explorer", href: "pages/department-budget.html" },
+    capital: { title: "Capital Explorer", href: "pages/capital-projects.html" },
+    constitutional: { title: "Constitutional Officers Explorer", href: "pages/constitutional-officers.html" },
+    independent: { title: "Independent Agencies Explorer", href: "pages/independent-agencies-budget.html" }
+  };
+
+  var activeCard = null;
+  var modal = null;
+  var modalBody = null;
+  var modalTitle = null;
+  var pageLink = null;
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function compactCurrency(value) {
+    var amount = Number(value) || 0;
+    var absolute = Math.abs(amount);
+    var sign = amount < 0 ? "−" : "";
+    if (absolute >= 1000000000) return sign + "$" + (absolute / 1000000000).toFixed(1).replace(/\.0$/, "") + "B";
+    if (absolute >= 1000000) return sign + "$" + (absolute / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (absolute >= 1000) return sign + "$" + Math.round(absolute / 1000).toLocaleString("en-US") + "K";
+    return sign + "$" + Math.round(absolute).toLocaleString("en-US");
+  }
+
+  function formatCurrency(value) {
+    if (window.WCBudgetData && window.WCBudgetData.formatCurrency) return window.WCBudgetData.formatCurrency(value);
+    return "$" + Math.round(Number(value) || 0).toLocaleString("en-US");
+  }
+
+  function changeHtml(current, prior) {
+    var change = current - prior;
+    var percent = prior ? change / Math.abs(prior) * 100 : null;
+    return '<div class="wc-revenue-snapshot-change' + (change < 0 ? ' is-down' : '') + '"><div class="wc-revenue-comparison"><span>Compared to Prior Year</span><div><strong>' +
+      (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + '</strong><em>' +
+      (percent === null ? "No FY 2026 base" : (percent >= 0 ? "+" : "−") + Math.abs(percent).toFixed(1) + "%") +
+      '</em></div></div></div>';
+  }
+
+  function loading() {
+    modalBody.innerHTML = '<div class="wc-data-loading"><span class="wc-loading-dots" aria-label="Loading explorer"><span></span><span></span><span></span></span></div>';
+  }
+
+  function prefixPageLinks(root) {
+    root.querySelectorAll("a[href]").forEach(function (link) {
+      var href = link.getAttribute("href") || "";
+      if (!href || /^(?:[a-z]+:|#|\/|pages\/)/i.test(href)) return;
+      link.setAttribute("href", "pages/" + href.replace(/^\.\//, ""));
+    });
+  }
+
+  function pageHref(href) {
+    var value = String(href || "");
+    if (!value || /^(?:[a-z]+:|#|\/|pages\/)/i.test(value)) return value;
+    return "pages/" + value.replace(/^(?:\.\/|\.\.\/pages\/)/, "");
+  }
+
+  function fundCode(row) {
+    return String(row && row.Dept_Code || "").trim().slice(0, 3);
+  }
+
+  function renderCapitalExplorer() {
+    loading();
+    var budgetReady = window.WCBudgetData && window.WCBudgetData.loadBudgetData
+      ? window.WCBudgetData.loadBudgetData()
+      : Promise.reject(new Error("Budget data unavailable"));
+    var projectsReady = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
+    Promise.all([budgetReady, projectsReady]).then(function (results) {
+      var data = results[0];
+      var projects = Array.isArray(results[1]) ? results[1] : [];
+      var capitalRows = (data.expenditures || []).filter(function (row) {
+        return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) !== "107";
+      });
+      var total = capitalRows.reduce(function (sum, row) { return sum + (Number(row.FY2027_Proposed) || 0); }, 0);
+      var prior = capitalRows.reduce(function (sum, row) { return sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0); }, 0);
+      var byFund = {};
+      capitalRows.forEach(function (row) {
+        var code = fundCode(row);
+        byFund[code] = (byFund[code] || 0) + (Number(row.FY2027_Proposed) || 0);
+      });
+      var machineryRows = data.machinery || [];
+      var machinery = machineryRows.reduce(function (sum, row) { return sum + (Number(row.Amount) || 0); }, 0);
+      var activeProjects = projects.filter(function (project) {
+        if (!project || project.is_legacy_in_house_engineering_row) return false;
+        var funding = String(project.funding || "").trim().toLowerCase();
+        if (["transportation fund", "capital projects fund", "general fund"].indexOf(funding) === -1) return false;
+        if (String(project.department_filter || "").trim().toLowerCase() === "sheriff") return false;
+        return (project.funding_by_year || []).some(function (year) {
+          return year.year === "FY2027" && (Number(year.amount_value) || 0) > 0;
+        });
+      }).length;
+      var cards = [
+        { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: (byFund["101"] || 0) + (byFund["300"] || 0) + (byFund["001"] || 0), badge: activeProjects + " active projects" },
+        { title: "Tourist Development Fund Capital Ledger", href: "pages/cip-tourist-development.html", amount: byFund["111"] || 0 },
+        { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: (data.expenditures || []).filter(function (row) { return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) === "107"; }).reduce(function (sum, row) { return sum + (Number(row.FY2027_Proposed) || 0); }, 0) },
+        { title: "Machinery, Vehicles, & Equipment Ledger", href: "pages/summary-of-machinery-vehicles-and-equipment.html", amount: machinery, badge: machineryRows.length + " items" },
+        { title: "Recreation Plat Fee Fund Capital Ledger", href: "pages/recreation-plat-fee-fund.html", amount: byFund["114"] || 0 },
+        { title: "Sidewalk Fund Capital Ledger", href: "pages/sidewalk-fund.html", amount: byFund["115"] || 0 }
+      ];
+      var cardHtml = cards.map(function (card) {
+        var share = total ? card.amount / total * 100 : 0;
+        return '<a href="' + escapeHtml(card.href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + share.toFixed(1) + '% of capital budget</small></div>' +
+          (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
+          '</div></a>';
+      }).join("");
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a><a class="wc-revenue-ledger-trigger" href="pages/search.html">Project Search</a></div></div></aside></div><div class="wc-department-budget-cards">' + cardHtml + '</div></section>';
+    }).catch(function () {
+      modalBody.innerHTML = '<div class="wc-data-error">Capital explorer data could not be loaded.</div>';
+    });
+  }
+
+  function renderIndependentExplorer() {
+    loading();
+    if (!(window.WCIndependentAgencies && window.WCIndependentAgencies.load)) {
+      modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
+      return;
+    }
+    Promise.all([
+      window.WCIndependentAgencies.load(),
+      window.WCBudgetData.loadBudgetData().then(window.WCBudgetData.totalCountywideExpenditureBudget)
+    ]).then(function (results) {
+      var items = results[0] || [];
+      var countywide = results[1] || 0;
+      var total = items.reduce(function (sum, item) { return sum + (item.budget || 0); }, 0);
+      var prior = items.reduce(function (sum, item) { return sum + (item.priorBudget || 0); }, 0);
+      var totalFte = items.reduce(function (sum, item) { return sum + (item.fte || 0); }, 0);
+      var cards = items.map(function (item) {
+        return '<a href="' + escapeHtml(pageHref(item.href)) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(item.budget)) + '</b><small class="wc-revenue-card-share">' + escapeHtml(item.fund || "") + '</small></div>' +
+          (item.fte ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(item.fte) + ' FTE</span></div>' : '') +
+          '</div>' + changeHtml(item.budget || 0, item.priorBudget || 0) + '</a>';
+      }).join("");
+      var change = total - prior;
+      var pct = prior ? change / Math.abs(prior) * 100 : null;
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget Explorer</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+    }).catch(function () {
+      modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
+    });
+  }
+
+  function renderExplorer(type) {
+    loading();
+    if (!window.WCBudgetData) return;
+    if (type === "revenue") {
+      modalBody.innerHTML = '<section id="revenue-source-concentration" aria-label="Revenue Budget Explorer"></section><section id="revenue-peer-comparison" class="wc-revenue-peer-section" hidden aria-labelledby="revenue-peer-title"><button type="button" class="wc-revenue-peer-close">Close Revenue Comparison</button><div class="wc-revenue-peer-card"><div class="wc-revenue-peer-head"><div><span>Florida peer benchmark</span><h2 id="revenue-peer-title">How does Walton County compare?</h2><p>FY 2024 actual county-government revenue per resident provides a consistent comparison across regional and tourism-oriented peers.</p></div><label>Compare by<select id="revenue-peer-metric"></select></label></div><div class="wc-revenue-peer-chart-wrap"><canvas id="revenue-peer-chart"></canvas></div><div id="revenue-peer-insight" class="wc-revenue-peer-insight" aria-live="polite"></div><p class="wc-revenue-peer-source">Source: Florida Office of Economic and Demographic Research, FY 2024 county Annual Financial Report data.</p></div></section><section id="revenue-budget-questions" hidden></section>';
+      window.WCBudgetData.renderRevenueBudgetQuestions();
+    } else if (type === "personnel") {
+      modalBody.innerHTML = '<section id="personnel-explorer" aria-label="Personnel Budget Explorer"></section><section id="personnel-budget-questions" hidden></section>';
+      window.WCBudgetData.renderPersonnelBudgetQuestions();
+    } else if (type === "departments") {
+      modalBody.innerHTML = '<section id="department-budget-explorer" aria-label="Department Operating Budget Explorer"></section>';
+      window.WCBudgetData.initDepartmentBudgetPage();
+    } else if (type === "constitutional") {
+      modalBody.innerHTML = '<section id="constitutional-budget-explorer" aria-label="Constitutional Officers Budget Explorer"></section>';
+      window.WCBudgetData.initConstitutionalOfficersBudgetPage();
+    } else if (type === "capital") {
+      renderCapitalExplorer();
+    } else if (type === "independent") {
+      renderIndependentExplorer();
+    }
+  }
+
+  function closeModal() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    modalBody.innerHTML = "";
+    document.body.classList.remove("wc-home-explorer-open");
+    if (activeCard) activeCard.focus();
+    activeCard = null;
+  }
+
+  function openModal(type, card) {
+    var config = EXPLORERS[type];
+    if (!config) return;
+    activeCard = card;
+    modalTitle.textContent = config.title;
+    pageLink.href = config.href;
+    pageLink.textContent = "Open full explorer";
+    modal.hidden = false;
+    document.body.classList.add("wc-home-explorer-open");
+    modalBody.scrollTop = 0;
+    modal.querySelector(".wc-home-explorer-modal-close").focus();
+    renderExplorer(type);
+  }
+
+  function init() {
+    modal = document.createElement("div");
+    modal.className = "wc-home-explorer-modal";
+    modal.hidden = true;
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
+    modal.innerHTML = '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><span>Explore the FY 2027 Budget</span><h2 id="wcHomeExplorerModalTitle"></h2></div><div class="wc-home-explorer-modal-actions"><a class="wc-home-explorer-modal-page-link" href="#">Open full explorer</a><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></div></header><div class="wc-home-explorer-modal-body"></div></div>';
+    document.body.appendChild(modal);
+    modalBody = modal.querySelector(".wc-home-explorer-modal-body");
+    modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
+    pageLink = modal.querySelector(".wc-home-explorer-modal-page-link");
+
+    new MutationObserver(function () { prefixPageLinks(modalBody); }).observe(modalBody, { childList: true, subtree: true });
+    modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", closeModal);
+    modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
+    document.addEventListener("keydown", function (event) {
+      if (modal.hidden) return;
+      var nestedDialog = modal.querySelector("dialog[open]");
+      if (event.key === "Escape") {
+        if (nestedDialog) return;
+        closeModal();
+        return;
+      }
+      if (nestedDialog) return;
+      if (event.key !== "Tab") return;
+      var focusable = Array.prototype.slice.call(modal.querySelectorAll('a[href],button:not([disabled]),select,input,[tabindex]:not([tabindex="-1"])'))
+        .filter(function (element) { return !element.hidden && element.offsetParent !== null; });
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+    document.querySelectorAll("[data-home-explorer]").forEach(function (card) {
+      card.addEventListener("click", function (event) {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        openModal(card.dataset.homeExplorer, card);
+      });
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();

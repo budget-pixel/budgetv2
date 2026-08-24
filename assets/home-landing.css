@@ -69,6 +69,29 @@
 @media(max-width:430px){.wc-explorer-intro-facts{grid-template-columns:1fr}.wc-explorer-card{min-height:0;padding:19px 17px 16px}.wc-explorer-card-body{grid-template-columns:1fr 90px;gap:10px}.wc-mini-donut{width:82px;height:82px}.wc-mini-donut:after{inset:19px}.wc-mini-donut span{inset:29px}}
 @media(prefers-reduced-motion:reduce){.wc-explorer-card,.wc-explorer-card-action{transition:none}}
 
+body.wc-home-explorer-open{overflow:hidden}
+.wc-home-explorer-modal{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:16px;background:rgba(7,28,20,.72);backdrop-filter:blur(4px)}
+.wc-home-explorer-modal[hidden]{display:none}
+.wc-home-explorer-modal-panel{display:grid;grid-template-rows:auto minmax(0,1fr);width:min(1440px,100%);height:min(920px,calc(100vh - 32px));overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34)}
+.wc-home-explorer-modal-head{display:flex;align-items:center;gap:16px;padding:15px 18px;border-bottom:1px solid var(--border);background:var(--card)}
+.wc-home-explorer-modal-heading{min-width:0}
+.wc-home-explorer-modal-heading span{display:block;color:var(--green);font-size:.65rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.wc-home-explorer-modal-heading h2{margin:3px 0 0;color:var(--navy);font-size:1.25rem;line-height:1.2}
+.wc-home-explorer-modal-actions{display:flex;align-items:center;gap:9px;margin-left:auto}
+.wc-home-explorer-modal-page-link{display:inline-flex;align-items:center;min-height:36px;padding:7px 13px;border:1px solid #8cbda2;border-radius:999px;color:var(--green);font-size:.72rem;font-weight:850;text-decoration:none}
+.wc-home-explorer-modal-page-link:hover{background:#eef7f1}
+.wc-home-explorer-modal-close{display:grid;width:38px;height:38px;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
+.wc-home-explorer-modal-close:hover{background:#eaf3ed}
+.wc-home-explorer-modal-close:focus-visible,.wc-home-explorer-modal-page-link:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
+.wc-home-explorer-modal-body{min-width:0;overflow:auto;padding:22px;background:var(--light);overscroll-behavior:contain}
+.wc-home-explorer-modal-body>.wc-data-loading{min-height:280px}
+.wc-home-explorer-modal-body .wc-department-explorer,.wc-home-explorer-modal-body .wc-personnel-explorer,.wc-home-explorer-modal-body .wc-revenue-concentration{margin-top:0}
+.wc-home-explorer-modal-body .wc-revenue-source-dialog{z-index:21000}
+.wc-home-capital-summary{margin-bottom:18px}
+.wc-home-capital-summary p{max-width:850px}
+@media(max-width:700px){.wc-home-explorer-modal{padding:0}.wc-home-explorer-modal-panel{width:100%;height:100%;border:0;border-radius:0}.wc-home-explorer-modal-head{padding:11px 12px}.wc-home-explorer-modal-body{padding:14px}.wc-home-explorer-modal-page-link{display:none}.wc-home-explorer-modal-heading h2{font-size:1.05rem}}
+@media print{.wc-home-explorer-modal{display:none!important}}
+
 :root[data-theme="dark"]{
   --home-navy:#edf5f0;
   --home-ink:#e5eee8;
