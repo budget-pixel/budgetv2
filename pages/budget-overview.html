@@ -28,7 +28,7 @@
 </div>
 
 <script src="../assets/search-data.js?v=20260819-contractual-services-ledger"></script>
-<script src="../assets/budget-data.js?v=20260824-hide-zero-revenue-rows"></script>
+<script src="../assets/budget-data.js?v=20260824-contractual-services-total"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
 <script src="../assets/cip-overview.js?v=20260819-fy2022-past-cip"></script>
@@ -92,6 +92,7 @@
             title:"Contractual Services Ledger",
             href:"summary-of-contractual-services.html",
             label:"Board Contracted Services",
+            metric:"contractualServices",
             description:"Review FY 2027 contractual services and outside-vendor spending by Board department."
           },
           {
@@ -355,6 +356,19 @@
       });
     }
 
+    function renderContractualServicesTotal(){
+      var element = document.querySelector("[data-budget-overview-total='contractualServices']");
+      if(!element || !window.WCBudgetData) return;
+      Promise.all([window.WCBudgetData.loadBudgetData(), window.wcCipProjectsReady || Promise.resolve([])])
+        .then(function(results){
+          var data = results[0];
+          var total = window.WCBudgetData.getContractualServicesBudgetTotal(data);
+          element.querySelector("strong").textContent = "$" + Math.round(total / 1000000).toLocaleString("en-US") + "M";
+        }).catch(function(){
+          element.querySelector("strong").textContent = "Not available";
+        });
+    }
+
     function renderCapitalTotal(){
       var element = document.querySelector("[data-budget-overview-total='capital']");
       if(!element) return;
@@ -441,6 +455,7 @@
       renderHub();
       renderBudgetTotals();
       renderIndependentAgenciesTotal();
+      renderContractualServicesTotal();
       renderCapitalTotal();
       renderCapitalLedgerFundTotals();
       renderCapitalLedgerProjectTotals();

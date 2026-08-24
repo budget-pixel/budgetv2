@@ -543,7 +543,7 @@
     }
     loadWcScriptOnce(
       "wc-budget-pdf-script",
-      wcBudgetAssetBaseUrl + "budget-pdf.js?v=20260723-asset-path-cleanup"
+      wcBudgetAssetBaseUrl + "budget-pdf.js?v=20260824-revenue-ledger-print"
     );
   }
   var css = `

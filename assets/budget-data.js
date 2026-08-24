@@ -8644,7 +8644,7 @@
       '<div class="wc-table-wrap">' +
       '<div class="wc-data-table-scroll">' +
       '<table class="wc-data-table">' +
-      "<thead><tr><th></th>" +
+      "<thead><tr><th>Revenue Sources</th>" +
       CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c) => '<th class="wc-num' + columnCellClass(c) + '">' + escapeHtml(c.label) + "</th>" + (c.field === "FY2027_Proposed" ? '<th class="wc-num">+/−</th>' : "")).join("") +
       "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
@@ -10897,6 +10897,8 @@
       }
       if (/indirect administrative fee/i.test(topic.title)) {
         narrativeHtml = '<p>Indirect Administrative Fees reimburse the General Fund for centralized services provided to special revenue funds. The allocation is based on a formal cost-allocation plan prepared by an independent third party.</p>';
+      } else if (/^morrison springs entry fee$/i.test(topic.title)) {
+        narrativeHtml = '<p>Revenue derived from the $4 per-vehicle admission fee at Morrison Springs County Park, providing a dedicated revenue source to help offset costs associated with park operations, maintenance, and visitor services.</p>';
       } else if (/local government\s+(?:half|1\s*\/\s*2)[ -]?cent sales tax/i.test(topic.title)) {
         narrativeHtml = '<p>Florida&rsquo;s Local Government Half-cent Sales Tax Program provides counties and municipalities with a share of state sales-tax proceeds. The state places earmarked revenue in the clearing trust fund and distributes it monthly to participating local governments; despite the program&rsquo;s name, the local payment is not calculated by simply applying 0.5% to taxable sales.</p>' +
           '<p><a href="https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&amp;URL=0200-0299/0218/Sections/0218.62.html" target="_blank" rel="noopener noreferrer">Section 218.62, Florida Statutes</a>, divides the amount earmarked for a county primarily by population. The county government&rsquo;s share is <strong>(U + ⅔I) &divide; (T + ⅔I)</strong>, where <strong>U</strong> is the unincorporated population, <strong>I</strong> is the population within municipalities, and <strong>T</strong> is the total county population. Each municipality&rsquo;s share is <strong>M &divide; (T + ⅔I)</strong>, where <strong>M</strong> is that municipality&rsquo;s population. Each percentage is multiplied by the half-cent funds available for distribution within the county.</p>' +
@@ -17940,8 +17942,19 @@
     return { proposed, prior, change: proposed - prior };
   }
 
+  // Combined FY2027 total for the Contractual Services Ledger's two
+  // sections (Department Services + Capital Improvement Projects) --
+  // reuses the exact same row builders that ledger page itself renders
+  // from, so this callout always reconciles with what that page shows.
+  function getContractualServicesBudgetTotal(data) {
+    const deptRows = buildContractualServicesRowsFromExpenditures((data && data.expenditures) || []);
+    const cipRows = buildCipContractualServiceRows();
+    return deptRows.concat(cipRows).reduce((sum, r) => sum + (r.Amount || 0), 0);
+  }
+
   window.WCBudgetData = {
     getDepartmentBudgetTotal,
+    getContractualServicesBudgetTotal,
     getDepartmentBudgetBreakdown,
     totalCountywideExpenditureBudget,
     isNonProgramExpenseRow,

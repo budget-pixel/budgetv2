@@ -80,6 +80,31 @@ var PRINT_CSS = `
     visibility:visible !important;
   }
 
+  /* Revenue Ledger: its source names are interactive buttons on screen.
+     Keep the names as plain text in print even though controls are hidden
+     globally above. The intro, back link, and filter controls are useful
+     only in the live explorer and are omitted from the printed ledger. */
+  body.wc-revenue-ledger-page .page-intro,
+  body.wc-revenue-ledger-page .wc-asset-back,
+  body.wc-revenue-ledger-page #consolidated-revenue-summary-table > .wc-filter-bar{
+    display:none !important;
+    visibility:hidden !important;
+  }
+
+  body.wc-revenue-ledger-page .wc-revenue-ledger-source-link{
+    display:inline !important;
+    visibility:visible !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    color:#172033 !important;
+    font:inherit !important;
+    text-align:left !important;
+    text-decoration:none !important;
+    pointer-events:none !important;
+    cursor:default !important;
+  }
+
   details{
     display:block !important;
   }
