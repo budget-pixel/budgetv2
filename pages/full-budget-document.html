@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full Budget Document — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260824-public-transactions">
+<style>
+  .wc-full-budget-toc{margin:18px 0 34px;padding:18px 22px;border:1px solid var(--home-line,#d7e2dc);border-radius:14px;background:rgba(0,98,49,.04)}
+  .wc-full-budget-toc h2{margin:0 0 10px;font-size:1rem}
+  .wc-full-budget-toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px}
+  .wc-full-budget-toc li{margin:0 0 6px;break-inside:avoid}
+  .wc-full-budget-toc a{text-decoration:none}
+  .wc-full-budget-toc a:hover{text-decoration:underline}
+  .wc-full-budget-print-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:6px 0 0}
+  .wc-full-budget-print-button{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:0;border-radius:999px;background:#003f28;color:#fff;font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.04em;cursor:pointer}
+  .wc-full-budget-print-button:hover{background:#002f1f}
+  .wc-full-budget-section{margin:0 0 46px}
+  .wc-full-budget-section-eyebrow{margin:0 0 6px;color:var(--home-green,#006231);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+  .wc-full-budget-linkout{margin-top:10px;font-size:.85rem}
+  @media print{
+    .wc-full-budget-toc{display:none}
+    .wc-full-budget-print-bar{display:none}
+    .wc-full-budget-section{page-break-before:always}
+    .wc-full-budget-section:first-of-type{page-break-before:auto}
+  }
+</style>
+</head>
+<body>
+<nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
+<div id="layout"><main id="content">
+
+<div class="page-eyebrow">Financial Overview</div>
+<h1 class="page-title">Full Budget Document</h1>
+<p class="page-intro">This is the complete Walton County FY 2027 budget publication in one place &mdash; every consolidated ledger, department and officer summary, capital fund schedule, and debt schedule on this site, combined into a single document. Use your browser&rsquo;s print dialog and choose &ldquo;Save as PDF&rdquo; to download it.</p>
+
+<div class="wc-full-budget-print-bar">
+  <button class="wc-full-budget-print-button" type="button" onclick="window.print()">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V4h12v5M6 18h12v-6H6v6Zm0-3H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2"></path></svg>
+    Print / Save as PDF
+  </button>
+</div>
+
+<div class="wc-full-budget-toc" aria-label="Table of contents">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#fbd-consolidated">Consolidated Budget Ledger</a></li>
+    <li><a href="#fbd-budget-changes">Budget Change Summary</a></li>
+    <li><a href="#fbd-revenue">Revenue Ledger</a></li>
+    <li><a href="#fbd-expenses">Summary of Expenses</a></li>
+    <li><a href="#fbd-personnel">Personnel Ledger</a></li>
+    <li><a href="#fbd-departments">Department Operating Ledger</a></li>
+    <li><a href="#fbd-constitutional">Constitutional Officers Ledger</a></li>
+    <li><a href="#fbd-independent">Independent Agencies Ledger</a></li>
+    <li><a href="#fbd-contractual">Contractual Services Ledger</a></li>
+    <li><a href="#fbd-machinery">Machinery, Vehicles, &amp; Equipment Ledger</a></li>
+    <li><a href="#fbd-cip-transportation">Transportation and Infrastructure Capital Ledger</a></li>
+    <li><a href="#fbd-cip-tourism">Tourist Development Fund Capital Ledger</a></li>
+    <li><a href="#fbd-cip-sheriff">Sheriff Capital Project Ledger</a></li>
+    <li><a href="#fbd-cip-recreation">Recreation Plat Fee Fund Capital Ledger</a></li>
+    <li><a href="#fbd-cip-sidewalk">Sidewalk Fund Capital Ledger</a></li>
+    <li><a href="#fbd-fund-schedules">Fund Financial Ledger</a></li>
+    <li><a href="#fbd-interfund">Interfund Transfer Ledger</a></li>
+    <li><a href="#fbd-debt">Debt Ledger</a></li>
+    <li><a href="#fbd-more">More in This Publication</a></li>
+  </ol>
+</div>
+
+<section class="wc-full-budget-section" id="fbd-consolidated">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Consolidated Budget Ledger</h2>
+  <div id="consolidated-revenue-budget-table"></div>
+  <div id="consolidated-expenditure-budget-table"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-budget-changes">
+  <div class="wc-full-budget-section-eyebrow">Financial Summaries</div>
+  <h2>Budget Change Summary</h2>
+  <div id="consolidated-budget-changes-table"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-revenue">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Revenue Ledger</h2>
+  <p>Explore where Walton County&rsquo;s revenue comes from and how each source supports public services.</p>
+  <div id="consolidated-revenue-summary-table"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-expenses">
+  <div class="wc-full-budget-section-eyebrow">Financial Summaries</div>
+  <h2>Summary of Expenses</h2>
+  <p>Walton County&rsquo;s expenditures are organized into functional classifications that reflect the full range of services provided to residents and visitors, including general government operations, public safety, infrastructure, and community programs.</p>
+  <div id="consolidated-expense-summary-table"></div>
+  <h3>General Government</h3>
+  <div id="expense-activity-general-government"></div>
+  <h3>Public Safety</h3>
+  <div id="expense-activity-public-safety"></div>
+  <h3>Physical Environment</h3>
+  <div id="expense-activity-physical-environment"></div>
+  <h3>Transportation</h3>
+  <div id="expense-activity-transportation"></div>
+  <h3>Economic Environment</h3>
+  <div id="expense-activity-economic-environment"></div>
+  <h3>Human Services</h3>
+  <div id="expense-activity-human-services"></div>
+  <h3>Culture and Recreation</h3>
+  <div id="expense-activity-culture-and-recreation"></div>
+  <h3>Court-Related Cost</h3>
+  <div id="expense-activity-court-related-cost"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-personnel">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Personnel Ledger</h2>
+  <p>FY 2027 personnel cost and staffing by department, function, or fund.</p>
+  <div id="personnel-cost-summary"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-departments">
+  <div class="wc-full-budget-section-eyebrow">Departments</div>
+  <h2>Department Operating Ledger</h2>
+  <p>Proposed operating and personnel spending across Board departments.</p>
+  <section id="department-ledger-explorer" aria-label="Department Budget Ledger"></section>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-constitutional">
+  <div class="wc-full-budget-section-eyebrow">Constitutional Officers</div>
+  <h2>Constitutional Officers Ledger</h2>
+  <p>Staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>
+  <section id="constitutional-ledger-explorer" aria-label="Constitutional Officers Budget Ledger"></section>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-independent">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Independent Agencies Ledger</h2>
+  <p>Budget, staffing, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities.</p>
+  <div id="independentAgenciesFilters" hidden></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-contractual">
+  <div class="wc-full-budget-section-eyebrow">Budget Ledgers</div>
+  <h2>Contractual Services Ledger</h2>
+  <p>Budgeted Contractual Services included in the adopted budget for departments managed by the Board of County Commissioners, plus anticipated procurements for FY 2027-funded Capital Improvement Plan projects.</p>
+  <div id="contractual-services-summary"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-machinery">
+  <div class="wc-full-budget-section-eyebrow">Capital Budget</div>
+  <h2>Machinery, Vehicles, &amp; Equipment Ledger</h2>
+  <p>Budgeted Machinery, Vehicles, &amp; Equipment by department.</p>
+  <div id="machinery-summary"></div>
+  <div id="machinery-historical-body" hidden></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-cip-transportation">
+  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
+  <h2>Transportation and Infrastructure Capital Ledger</h2>
+  <p>This combined schedule brings together infrastructure funded through the Transportation Fund, Capital Projects Fund, and applicable state or federal grants.</p>
+  <div id="infrastructureTables"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-cip-tourism">
+  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
+  <h2>Tourist Development Fund Capital Ledger</h2>
+  <p>Tourism-related infrastructure funded by the local option tourist development tax collected from accommodations within designated tourist zones.</p>
+  <div id="touristTables"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-cip-sheriff">
+  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
+  <h2>Sheriff Capital Project Ledger</h2>
+  <p>Infrastructure and facility improvements related to public safety and law enforcement, financed through fines, forfeitures, and property taxes.</p>
+  <div id="sheriffTables"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-cip-recreation">
+  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
+  <h2>Recreation Plat Fee Fund Capital Ledger</h2>
+  <p>Supported by developer assessments collected in lieu of dedicating on-site recreational space as part of new residential development.</p>
+  <div id="recreationPlatFeeTables"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-cip-sidewalk">
+  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
+  <h2>Sidewalk Fund Capital Ledger</h2>
+  <p>Supported by assessments paid in lieu of constructing required sidewalks as part of new development.</p>
+  <div id="sidewalkTables"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-fund-schedules">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Fund Financial Ledger</h2>
+  <p>Summary schedules outlining revenues, expenses, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments.</p>
+  <div id="consolidated-fund-financial-schedule"></div>
+  <h3>Major Funds</h3>
+  <div id="major-fund-financial-schedules"></div>
+  <h3>Non-Major Funds</h3>
+  <div id="non-major-fund-financial-schedules"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-interfund">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>Interfund Transfer Ledger</h2>
+  <p>Both sides of each planned budget transfer between County funds &mdash; which fund provides the resources and which fund receives them.</p>
+  <div id="interfund-transfers-out-table"></div>
+  <div id="interfund-transfers-in-table"></div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-debt">
+  <div class="wc-full-budget-section-eyebrow">Debt and Financial Forecast</div>
+  <h2>Debt Ledger</h2>
+  <p>Walton County&rsquo;s only outstanding long-term debt is a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020, both used to fund public improvements &mdash; most notably the Broadband project. Both notes are repaid exclusively from the County&rsquo;s half-cent sales tax, not property taxes, and are scheduled to be fully repaid by FY 2030.</p>
+  <div class="wc-table-wrap">
+    <p class="wc-table-label">Debt Ledger — Capital Project Fund</p>
+    <div class="wc-data-table-scroll">
+      <table class="wc-data-table">
+        <thead><tr><th>Year Ending September 30,</th><th class="wc-num">Principal</th><th class="wc-num">Interest</th><th class="wc-num">Total</th></tr></thead>
+        <tbody>
+          <tr><td>2027</td><td class="wc-num">$2,245,783</td><td class="wc-num">$268,920</td><td class="wc-num">$2,514,703</td></tr>
+          <tr><td>2028</td><td class="wc-num">$2,310,881</td><td class="wc-num">$196,943</td><td class="wc-num">$2,507,824</td></tr>
+          <tr><td>2029</td><td class="wc-num">$2,399,115</td><td class="wc-num">$123,671</td><td class="wc-num">$2,522,786</td></tr>
+          <tr><td>2030</td><td class="wc-num">$1,571,648</td><td class="wc-num">$47,343</td><td class="wc-num">$1,618,991</td></tr>
+          <tr class="wc-table-total-row"><td>Total</td><td class="wc-num">$8,466,013</td><td class="wc-num">$636,877</td><td class="wc-num">$9,102,890</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="wc-full-budget-section" id="fbd-more">
+  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
+  <h2>More in This Publication</h2>
+  <p>A few sections rely on interactive tools (address lookup, adjustable growth assumptions) that don&rsquo;t translate well to a printed document, so they&rsquo;re published as their own pages instead of being repeated here:</p>
+  <p class="wc-full-budget-linkout"><a href="summary-of-property-tax-allocations.html">Property Tax Allocation Ledger</a> &mdash; see the dollar amount each department receives from the countywide property tax, including an address lookup tool.</p>
+  <p class="wc-full-budget-linkout"><a href="financial-forecast.html">Budget Forecast Explorer</a> &mdash; projected revenues, expenditures, reserves, and the assumptions supporting each major fund through FY 2031.</p>
+  <p class="wc-full-budget-linkout"><a href="budget-overview.html">Budget Ledgers</a> &mdash; the full directory of every ledger on this site, including each of the sections above as its own interactive page.</p>
+</section>
+
+</main></div>
+<script src="../assets/search-data.js?v=20260825-full-budget-document"></script>
+<script src="../assets/department-services-data.js?v=20260807-department-ledger-page"></script>
+<script src="../assets/machinery-fy2025-2026-supplement.js?v=20260806-fund-overrides"></script>
+<script src="../assets/cip-fy2025-2026-supplement.js?v=20260820-13th-street-complete"></script>
+<script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
+<script src="../assets/cip-fund-schedule.js?v=20260820-recon29"></script>
+<script src="../assets/independent-agencies-data.js?v=20260824-independent-agency-filters"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="../assets/budget-data.js?v=20260825-home-explorer-popups"></script>
+<script>
+  renderFundSchedule({
+    mountId:"infrastructureTables",
+    label:"Transportation and Infrastructure",
+    showFundingColumn:true,
+    showStatusColumn:true,
+    splitGrantFunded:true,
+    grantLedgerLabel:"Grant Ledger",
+    grantLedgerFilter:function(project){
+      var funding = String(project && project.funding || "").toLowerCase();
+      var title = String(project && project.title || "").toLowerCase();
+      return funding === "grant funded" || /nellie drive|rock hill|allen loop|bear creek/.test(title);
+    },
+    splitRedNoAmount:true,
+    showFundRevenueFilters:true,
+    projectFilter:function(project){
+      var funding = String(project && project.funding || "").toLowerCase();
+      if(String(project && project.department_filter || "").toLowerCase() === "sheriff"){
+        return false;
+      }
+      return funding === "transportation fund" || funding === "capital projects fund" ||
+        funding === "general fund" ||
+        funding === "transportation & public works" ||
+        funding === "grant funded";
+    }
+  });
+  renderFundSchedule({
+    funding:"tourist development fund",
+    mountId:"touristTables",
+    label:"Tourist Development Fund",
+    showFundingColumn:true,
+    budgetedElsewhereTitles:[
+      "US 331 Bridge Lighting",
+      "Boardwalk Dune Walkover Repair/Replacement",
+      "Deer Lake Path Realignment",
+      "Dune Allen Hardscaping Project",
+      "Miramar Beach Parking Facility",
+      "Multi-Use Path - 30A Rebuild 395 to Eastern Lake",
+      "Multi-use Path - 30A Rebuild 83 to 393",
+      "Santa Rosa Beach Performing Arts Park",
+      "Transit Program Gulfview & Blue Mountain",
+      "Walton Dunes Beach Access"
+    ],
+    budgetedElsewhereLedgerLabel:"Tourist Development Fund Ledger"
+  });
+  renderFundSchedule({
+    mountId:"sheriffTables",
+    label:"Sheriff Projects",
+    showFundingColumn:true,
+    splitGrantFunded:true,
+    grantLedgerFilter:function(project){
+      var funding = String(project && project.funding || "").toLowerCase();
+      return funding === "grant funded" || funding === "sheriff fund";
+    },
+    grantLedgerLabel:"Sheriff and Grant Funded Ledger",
+    projectFilter:function(project){
+      return String(project && project.department_filter || "").toLowerCase() === "sheriff";
+    }
+  });
+  renderFundSchedule({funding:"recreation plat fee fund", mountId:"recreationPlatFeeTables", label:"Recreation Plat Fee Fund", showFundingColumn:true, disableLinks:true});
+  renderFundSchedule({funding:"sidewalk fund", mountId:"sidewalkTables", label:"Sidewalk Fund", showFundingColumn:true, disableLinks:true});
+</script>
+<script src="../assets/nav.js?v=20260825-footer-icon-vcenter"></script>
+<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+</body>
+</html>

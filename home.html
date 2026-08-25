@@ -6,7 +6,7 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <link rel="stylesheet" href="assets/style.css?v=20260824-home-explorer-modals">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260825-scrolling-modal-header">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260825-full-budget-doc-link">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -30,13 +30,18 @@
       <h2 id="wcHomeSearchTitle">Search the Budget</h2>
       <p>Find departments, personnel, funds, ledgers, capital projects, and budget information.</p>
     </div>
-    <form class="wc-home-search-form" role="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
-      <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
-      <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off">
-      <button type="submit">Search</button>
-    </form>
+    <div class="wc-home-search-input-wrap">
+      <form class="wc-home-search-form" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
+        <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
+        <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcHomeSearchDropdown" aria-autocomplete="list">
+        <button type="submit">Search</button>
+      </form>
+      <div id="wcHomeSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
+    </div>
   </section>
+
+  <p class="wc-home-full-doc-link"><a href="pages/full-budget-document.html">View the Full Budget Document</a> &mdash; every ledger and fund schedule in one printable publication.</p>
 
   <section class="wc-explorer-card-grid" aria-label="Budget explorers">
     <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
@@ -146,12 +151,12 @@
 </main>
 </div>
 
-<script src="assets/search-data.js?v=20260825-home-explorer-popups"></script>
+<script src="assets/search-data.js?v=20260825-full-budget-document"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="assets/budget-data.js?v=20260825-home-explorer-popups"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260825-home-search"></script>
+<script src="assets/nav.js?v=20260825-footer-icon-vcenter"></script>
 <script>
 (function(){
   "use strict";
@@ -286,13 +291,141 @@
 
   document.addEventListener("DOMContentLoaded", function(){
     var homeSearch = document.querySelector(".wc-home-search-form");
-    if(homeSearch){
+    var homeSearchInput = homeSearch ? homeSearch.querySelector("input[type='search']") : null;
+    var homeSearchDropdown = document.getElementById("wcHomeSearchDropdown");
+    var homeSearchActiveIndex = -1;
+
+    function homeSearchResultHref(page){
+      var href = String((page && page.href) || "").trim();
+      if(!href || /^(https?:|mailto:|tel:|#|\/|\.\.?\/|pages\/)/.test(href)){
+        return href;
+      }
+      return "pages/" + href;
+    }
+
+    function homeSearchNormalize(value){
+      return String(value === undefined || value === null ? "" : value).toLowerCase().trim();
+    }
+
+    function homeSearchGetResultLinks(){
+      return homeSearchDropdown ? Array.prototype.slice.call(homeSearchDropdown.querySelectorAll(".wc-home-search-result")) : [];
+    }
+
+    function homeSearchSetActive(index){
+      var resultLinks = homeSearchGetResultLinks();
+      homeSearchActiveIndex = resultLinks.length ? (index + resultLinks.length) % resultLinks.length : -1;
+      resultLinks.forEach(function(link, i){
+        var active = i === homeSearchActiveIndex;
+        link.classList.toggle("is-active", active);
+        link.setAttribute("aria-selected", active ? "true" : "false");
+        if(active){ link.scrollIntoView({ block:"nearest" }); }
+      });
+    }
+
+    function homeSearchHideDropdown(){
+      if(!homeSearchDropdown) return;
+      homeSearchDropdown.hidden = true;
+      homeSearchDropdown.innerHTML = "";
+      homeSearchActiveIndex = -1;
+      if(homeSearchInput){ homeSearchInput.setAttribute("aria-expanded", "false"); }
+    }
+
+    function homeSearchRenderDropdown(query){
+      if(!homeSearchDropdown) return;
+      var pages = window.wcBudgetPages || [];
+      var normalizedQuery = homeSearchNormalize(query);
+      if(!normalizedQuery || !pages.length){
+        homeSearchHideDropdown();
+        return;
+      }
+
+      var matches = pages.map(function(page, index){
+        var title = homeSearchNormalize(page.title);
+        var haystack = [page.title, page.section, page.description, page.summary].filter(Boolean).join(" ");
+        haystack = homeSearchNormalize(haystack);
+        var keywordHit = Array.isArray(page.keywords) && page.keywords.some(function(term){
+          return homeSearchNormalize(term).indexOf(normalizedQuery) !== -1;
+        });
+        if(haystack.indexOf(normalizedQuery) === -1 && !keywordHit){
+          return null;
+        }
+        var rank;
+        if(title === normalizedQuery){ rank = 0; }
+        else if(title.indexOf(normalizedQuery) === 0){ rank = 1; }
+        else if(title.indexOf(normalizedQuery) !== -1){ rank = 2; }
+        else{ rank = 3; }
+        return { page:page, rank:rank, index:index };
+      }).filter(Boolean).sort(function(a, b){
+        return a.rank - b.rank || a.index - b.index;
+      }).slice(0, 8).map(function(entry){ return entry.page; });
+
+      homeSearchActiveIndex = -1;
+      if(!matches.length){
+        homeSearchDropdown.innerHTML = '<div class="wc-home-search-empty">No matching pages found.</div>';
+        homeSearchDropdown.hidden = false;
+        if(homeSearchInput){ homeSearchInput.setAttribute("aria-expanded", "true"); }
+        return;
+      }
+
+      homeSearchDropdown.innerHTML = matches.map(function(page){
+        var title = String(page.title || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var section = String(page.section || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return '<a class="wc-home-search-result" role="option" aria-selected="false" href="' + homeSearchResultHref(page) + '">' +
+          "<strong>" + title + "</strong>" +
+          (section ? "<span>" + section + "</span>" : "") +
+          "</a>";
+      }).join("");
+      homeSearchDropdown.hidden = false;
+      if(homeSearchInput){ homeSearchInput.setAttribute("aria-expanded", "true"); }
+    }
+
+    if(homeSearch && homeSearchInput){
+      homeSearchInput.addEventListener("input", function(){
+        homeSearchRenderDropdown(homeSearchInput.value);
+      });
+      homeSearchInput.addEventListener("focus", function(){
+        homeSearchRenderDropdown(homeSearchInput.value);
+      });
+      homeSearchInput.addEventListener("keydown", function(event){
+        var resultLinks = homeSearchGetResultLinks();
+        if(event.key === "Escape"){
+          homeSearchHideDropdown();
+          return;
+        }
+        if(event.key === "ArrowDown" && resultLinks.length){
+          event.preventDefault();
+          homeSearchSetActive(homeSearchActiveIndex + 1);
+          return;
+        }
+        if(event.key === "ArrowUp" && resultLinks.length){
+          event.preventDefault();
+          homeSearchSetActive(homeSearchActiveIndex - 1);
+          return;
+        }
+        if(event.key === "Enter" && homeSearchActiveIndex >= 0 && resultLinks[homeSearchActiveIndex]){
+          event.preventDefault();
+          window.location.href = resultLinks[homeSearchActiveIndex].getAttribute("href");
+        }
+      });
+      document.addEventListener("click", function(event){
+        if(!homeSearch.contains(event.target) && (!homeSearchDropdown || !homeSearchDropdown.contains(event.target))){
+          homeSearchHideDropdown();
+        }
+      });
       homeSearch.addEventListener("submit", function(event){
         event.preventDefault();
-        var input = homeSearch.querySelector("input[type='search']");
-        var query = input ? input.value.trim() : "";
+        var query = homeSearchInput.value.trim();
         if(!query){
-          if(input){ input.focus(); }
+          homeSearchInput.focus();
+          return;
+        }
+        var resultLinks = homeSearchGetResultLinks();
+        if(homeSearchActiveIndex >= 0 && resultLinks[homeSearchActiveIndex]){
+          window.location.href = resultLinks[homeSearchActiveIndex].getAttribute("href");
+          return;
+        }
+        if(resultLinks.length){
+          window.location.href = resultLinks[0].getAttribute("href");
           return;
         }
         if(typeof window.openWaltonBudgetSearch === "function"){

@@ -1755,78 +1755,86 @@
     overflow:visible !important;
   }
   footer[role="contentinfo"].wc-search-footer .footer-container{
-    width:min(1120px, 100%) !important;
+    width:100% !important;
     max-width:100% !important;
     min-height:0 !important;
-    margin:0 auto !important;
-    padding:42px clamp(22px, 4vw, 44px) 36px !important;
+    margin:0 !important;
+    padding:18px clamp(22px, 4vw, 64px) 16px !important;
     background:transparent !important;
     overflow:visible !important;
+    box-sizing:border-box !important;
   }
   .wc-search-footer .wc-budget-footer-inner{
-    display:grid !important;
-    grid-template-columns:minmax(0, 1fr) auto !important;
-    align-items:end !important;
-    gap:24px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    flex-wrap:wrap !important;
+    gap:18px !important;
     margin:0 !important;
     padding:0 !important;
     background:transparent !important;
   }
   .wc-footer-search-copy{
-    max-width:680px !important;
+    display:flex !important;
+    align-items:center !important;
+    flex-wrap:wrap !important;
+    column-gap:10px !important;
+    row-gap:2px !important;
+    max-width:none !important;
+    flex:1 1 260px !important;
+    min-width:0 !important;
   }
-  .wc-footer-search-copy h2{
-    margin:0 !important;
-    color:#172033 !important;
-    font-family:Georgia, "Times New Roman", serif !important;
-    font-size:clamp(28px, 3.2vw, 42px) !important;
-    line-height:1.05 !important;
-    font-weight:500 !important;
-    letter-spacing:0 !important;
-  }
-  .wc-footer-search-copy p{
-    max-width:560px !important;
-    margin:10px 0 0 !important;
-    color:rgba(36,52,77,.72) !important;
-    font-size:15px !important;
-    line-height:1.55 !important;
-    font-weight:500 !important;
-  }
-  .wc-footer-search-button{
+  .wc-footer-search-icon-button{
     display:inline-flex !important;
     align-items:center !important;
     justify-content:center !important;
-    gap:8px !important;
-    min-height:42px !important;
-    padding:0 18px !important;
+    flex:0 0 auto !important;
+    width:26px !important;
+    height:26px !important;
+    padding:0 !important;
     border:1px solid rgba(0,63,40,.18) !important;
     border-radius:999px !important;
     background:#003f28 !important;
     color:#ffffff !important;
-    font:800 12px/1 Arial, Helvetica, sans-serif !important;
-    letter-spacing:.04em !important;
-    text-transform:none !important;
     cursor:pointer !important;
-    box-shadow:0 10px 24px rgba(0,63,40,.14) !important;
-    transition:transform .2s ease, background .2s ease, box-shadow .2s ease !important;
+    transition:background .2s ease, transform .2s ease !important;
+    align-self:center !important;
+  }
+  .wc-footer-search-icon-button:hover{
+    background:#002f1f !important;
+    transform:translateY(-1px) !important;
+  }
+  .wc-footer-search-icon-button svg{
+    width:13px !important;
+    height:13px !important;
+  }
+  .wc-footer-search-copy h2{
+    margin:0 !important;
+    color:#172033 !important;
+    font-family:inherit !important;
+    font-size:14px !important;
+    line-height:1.3 !important;
+    font-weight:800 !important;
+    letter-spacing:0 !important;
     white-space:nowrap !important;
   }
-  .wc-footer-search-button:hover{
-    transform:translateY(-1px) !important;
-    background:#002f1f !important;
-    box-shadow:0 12px 28px rgba(0,63,40,.18) !important;
-  }
-  .wc-footer-search-button svg{
-    width:15px !important;
-    height:15px !important;
+  .wc-footer-search-copy p{
+    max-width:none !important;
+    margin:0 !important;
+    color:rgba(36,52,77,.62) !important;
+    font-size:12px !important;
+    line-height:1.4 !important;
+    font-weight:500 !important;
   }
   .wc-search-footer .wc-budget-footer-links{
     display:flex !important;
-    justify-content:flex-start !important;
-    gap:20px !important;
-    margin-top:28px !important;
-    padding-top:18px !important;
-    border-top:1px solid rgba(36,52,77,.10) !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    flex:0 0 auto !important;
+    gap:18px !important;
+    margin:0 !important;
+    padding:0 !important;
+    border-top:0 !important;
   }
   .wc-search-footer .wc-budget-footer-links a,
   .wc-search-footer .wc-footer-contact-button{
@@ -2538,19 +2546,18 @@
         <div class="wc-footer-search-copy">
           <h2>Still looking for something?</h2>
           <p>Search departments, budgets, personnel, funds, publications, and county information.</p>
+          <button class="wc-footer-search-icon-button" type="button" aria-label="Search the Budget">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
+            </svg>
+          </button>
         </div>
-        <button class="wc-footer-search-button" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
-          </svg>
-          Search the Budget
-        </button>
+        <nav class="wc-budget-footer-links" aria-label="Footer utility links">
+          <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
+          <a href="${accessibilityHref}">Accessibility</a>
+          <a href="${privacyHref}">Privacy</a>
+        </nav>
       </div>
-      <nav class="wc-budget-footer-links" aria-label="Footer utility links">
-        <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
-        <a href="${accessibilityHref}">Accessibility</a>
-        <a href="${privacyHref}">Privacy</a>
-      </nav>
       <dialog class="wc-footer-contact-dialog" aria-labelledby="wcFooterContactTitle" aria-describedby="wcFooterContactNotice">
         <div class="wc-footer-contact-dialog-inner">
           <h2 id="wcFooterContactTitle">Contact Budget Office</h2>
@@ -2569,7 +2576,7 @@
     footer.querySelectorAll('.wc-budget-footer-bottom').forEach(function(footerBottom){
       footerBottom.remove();
     });
-    footer.querySelectorAll('.wc-footer-search-button').forEach(function(button){
+    footer.querySelectorAll('.wc-footer-search-icon-button').forEach(function(button){
       if(button.getAttribute("data-wc-search-bound") === "true"){
         return;
       }
