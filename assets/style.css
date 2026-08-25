@@ -710,7 +710,7 @@ a.wc-revenue-ledger-trigger { display: inline-block; text-decoration: none; text
 /* The "Show COLA, Health Insurance & Increase" toggle (see
    renderPersonnelCostSummary in budget-data.js) sets this body-level
    class -- shared globally since the personnel cost table renders on
-   both summary-of-personnel.html and personnel-ledger.html. */
+   both the homepage Personnel Explorer popup and personnel-ledger.html. */
 .wc-personnel-cost-optional-col { display: none; }
 body.wc-show-personnel-cost-optional-cols .wc-personnel-cost-optional-col { display: table-cell; }
 /* Belt-and-suspenders: keeps the main table's own optional columns out of
@@ -3997,7 +3997,7 @@ main#content > .recreation-parks-section {
 }
 .wc-dept-fund-summary {
   /* auto-fit (rather than a fixed column count) so a page with only a
-     few cards (e.g. constitutional-officers.html's 3) stretches them to
+     few cards (e.g. the Constitutional Officers popup's 3) stretches them to
      fill the row instead of cramming them into a handful of a 7-column
      grid's tracks and leaving the rest of the row empty. */
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4129,7 +4129,7 @@ main#content > .recreation-parks-section {
 }
 
 /* Fund cards double as filters (see initFundCardFilter in departments.html
-   and constitutional-officers.html) -- clicking one narrows the directory
+   and the homepage Constitutional Officers popup) -- clicking one narrows the directory
    list(s) below to just that fund; clicking it again clears the filter. */
 .wc-dept-fund-card--clickable {
   cursor: pointer; text-align: left; width: 100%; font: inherit;

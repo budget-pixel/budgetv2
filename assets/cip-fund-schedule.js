@@ -170,7 +170,7 @@ function buildProjectUrl(project, year){
     return "";
   }
 
-  const returnPath = window.location.pathname.split("/").pop() || "capital-projects.html";
+  const returnPath = window.location.pathname.split("/").pop() || "../home.html?explorer=capital";
   const returnTarget = year ? `${returnPath}#${encodeURIComponent(year)}` : returnPath;
 
   return `cip-project.html?project=${encodeURIComponent(project.slug)}&return=${encodeURIComponent(returnTarget)}`;

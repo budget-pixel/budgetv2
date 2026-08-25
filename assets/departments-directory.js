@@ -168,7 +168,7 @@
 
       // General Fund (and, in principle, any fund) is also used by
       // constitutional officers and other agencies that have their own
-      // separate directory (constitutional-officers.html) -- those aren't
+      // separate homepage Constitutional Officers explorer -- those aren't
       // "Board Departments" and have no page listed below, so a row only
       // counts toward a fund callout here when it also matches one of the
       // departments actually listed on this page.

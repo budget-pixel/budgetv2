@@ -46,5 +46,5 @@ This site's Summary of Personnel page shows aggregate personnel figures (positio
 
 ## Cross-Links
 
-- [Summary of Personnel (live page)](/pages/summary-of-personnel.html)
+- [Summary of Personnel (live page)](/home.html?explorer=personnel)
 - [Human Resources (live page)](/pages/human-resources.html)

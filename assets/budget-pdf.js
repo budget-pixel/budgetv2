@@ -13,9 +13,7 @@
     "our-county.html": true,
     "budget-overview.html": true,
     "departments.html": true,
-    "capital-projects.html": true,
     "financials.html": true,
-    "constitutional-officers.html": true,
     "autonomous-entities.html": true,
     "search.html": true
   };

@@ -6,7 +6,7 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <link rel="stylesheet" href="assets/style.css?v=20260824-home-explorer-modals">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260824-home-explorer-modals">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260825-fixed-background-lock">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -26,7 +26,7 @@
   </section>
 
   <section class="wc-explorer-card-grid" aria-label="Budget explorers">
-    <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="pages/summary-of-revenues.html">
+    <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M5 26V14h5v12M13.5 26V8h5v18M22 26V4h5v22M3 27.5h26"/></svg>
@@ -41,7 +41,7 @@
       <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="pages/summary-of-personnel.html">
+    <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="?explorer=personnel">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><circle cx="11" cy="10" r="4"/><circle cx="22" cy="11" r="3.5"/><path d="M3.5 27v-3.5c0-4.2 3.3-7.5 7.5-7.5s7.5 3.3 7.5 7.5V27M18 18c1.1-.8 2.4-1.2 3.9-1.2 3.7 0 6.6 2.9 6.6 6.6V27"/></svg>
@@ -59,7 +59,7 @@
       <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-departments" data-home-explorer="departments" href="pages/department-budget.html">
+    <a class="wc-explorer-card wc-card-departments" data-home-explorer="departments" href="?explorer=departments">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M4 12h24L16 4 4 12Zm2 15h20M8 13v11m5-11v11m6-11v11m5-11v11"/></svg>
@@ -74,7 +74,7 @@
       <span class="wc-explorer-card-action">Explore Departments <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-capital" data-home-explorer="capital" href="pages/capital-projects.html">
+    <a class="wc-explorer-card wc-card-capital" data-home-explorer="capital" href="?explorer=capital">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M5 27V16h5v11m6 0V8h5v19m6 0V3M3 27h26"/></svg>
@@ -92,7 +92,7 @@
       <span class="wc-explorer-card-action">Explore Capital <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-constitutional" data-home-explorer="constitutional" href="pages/constitutional-officers.html">
+    <a class="wc-explorer-card wc-card-constitutional" data-home-explorer="constitutional" href="?explorer=constitutional">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M4 12h24L16 4 4 12Zm2 15h20M8 13v11m5-11v11m6-11v11m5-11v11"/></svg>
@@ -110,7 +110,7 @@
       <span class="wc-explorer-card-action">Explore Constitutional Officers <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-independent" data-home-explorer="independent" href="pages/independent-agencies-budget.html">
+    <a class="wc-explorer-card wc-card-independent" data-home-explorer="independent" href="?explorer=independent">
       <div class="wc-explorer-card-heading">
         <span class="wc-explorer-card-icon" aria-hidden="true">
           <svg viewBox="0 0 32 32"><path d="M5 27V11l11-6 11 6v16M10 27V16h4v11m4 0V16h4v11M3 27h26"/></svg>
@@ -133,12 +133,12 @@
 </main>
 </div>
 
-<script src="assets/search-data.js"></script>
+<script src="assets/search-data.js?v=20260825-home-explorer-popups"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260824-home-explorer-modals"></script>
+<script src="assets/budget-data.js?v=20260825-home-explorer-popups"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260817-home-explorer"></script>
+<script src="assets/nav.js?v=20260825-home-explorer-popups"></script>
 <script>
 (function(){
   "use strict";
@@ -285,6 +285,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260824-home-explorer-modals"></script>
+<script src="assets/home-explorer-modal.js?v=20260825-home-explorer-popups"></script>
 </body>
 </html>

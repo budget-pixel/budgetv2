@@ -101,5 +101,5 @@ Unspent, unencumbered operating appropriations generally lapse at fiscal year-en
 
 - [Summary of Expenses (live page)](/pages/summary-of-expenses.html)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)
-- [Summary of Personnel (live page)](/pages/summary-of-personnel.html)
+- [Summary of Personnel (live page)](/home.html?explorer=personnel)
 - [Summary of Machinery, Vehicles & Equipment (live page)](/pages/summary-of-machinery-vehicles-and-equipment.html)

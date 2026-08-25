@@ -40,4 +40,4 @@ This site publishes **aggregate** personnel and compensation data — total Pers
 
 ## Cross-Links
 
-- [Summary of Personnel (live page)](/pages/summary-of-personnel.html)
+- [Summary of Personnel (live page)](/home.html?explorer=personnel)

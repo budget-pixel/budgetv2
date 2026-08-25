@@ -524,9 +524,7 @@
     "our-county.html": true,
     "budget-overview.html": true,
     "departments.html": true,
-    "capital-projects.html": true,
     "financials.html": true,
-    "constitutional-officers.html": true,
     "autonomous-entities.html": true,
     "search.html": true
   };
@@ -2051,12 +2049,12 @@
     { label:"Budget Ledgers", href:"budget-overview.html" }
   ];
   var WC_BUDGET_LINKS = [
-    { label:"Revenue Budget", href:"summary-of-revenues.html" },
-    { label:"Personnel Budget", href:"summary-of-personnel.html" },
-    { label:"Department Budgets", href:"department-budget.html" },
-    { label:"Constitutional Officers Budgets", href:"constitutional-officers.html" },
-    { label:"Independent Agencies Budgets", href:"independent-agencies-budget.html" },
-    { label:"Capital Budget", href:"capital-projects.html" }
+    { label:"Revenue Budget", href:"../home.html?explorer=revenue" },
+    { label:"Personnel Budget", href:"../home.html?explorer=personnel" },
+    { label:"Department Budgets", href:"../home.html?explorer=departments" },
+    { label:"Constitutional Officers Budgets", href:"../home.html?explorer=constitutional" },
+    { label:"Independent Agencies Budgets", href:"../home.html?explorer=independent" },
+    { label:"Capital Budget", href:"../home.html?explorer=capital" }
   ];
   function wcPageHref(href){
     return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
@@ -2399,14 +2397,7 @@
     var eyebrowText = eyebrow.textContent.trim();
     var titleText = title.textContent.trim();
     var currentPage = (window.location.pathname.split("/").pop() || "").toLowerCase();
-    var explorerPages = new Set([
-      "summary-of-revenues.html",
-      "summary-of-personnel.html",
-      "department-budget.html",
-      "capital-projects.html",
-      "constitutional-officers.html",
-      "independent-agencies-budget.html"
-    ]);
+    var explorerPages = new Set();
     var sectionCrumb = "";
     if(explorerPages.has(currentPage)){
       sectionCrumb = '<a href="../home.html">Budget Explorer</a><span class="wc-breadcrumb-sep">/</span>';
@@ -2415,9 +2406,9 @@
     }else if(titleText === "Overview of Walton County" || titleText === "Organizational Structure" || titleText === "Statistical & Supplemental Information" || titleText === "Glossary, Acronyms, and Frequently Asked Questions" || titleText === "Strategic Initiatives"){
       sectionCrumb = '<a href="our-county.html">Our County</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Departments"){
-      sectionCrumb = '<a href="department-budget.html">Department Budgets</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="../home.html?explorer=departments">Department Budgets</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Constitutional Officers"){
-      sectionCrumb = '<a href="constitutional-officers.html">Constitutional Officers</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="../home.html?explorer=constitutional">Constitutional Officers</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Autonomous Entities"){
       sectionCrumb = '<a href="independent-agencies-ledger.html">Independent Agencies</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Financial Overview" || eyebrowText === "Introduction and Overview" || eyebrowText === "Financial Structure, Policies, and Process"){
@@ -2433,7 +2424,7 @@
     }else if(eyebrowText === "Supporting Budget Documentation"){
       sectionCrumb = '<a href="supporting-budget-documentation.html">Supporting Budget Documentation</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(currentPage === "cip-project.html" || eyebrowText === "Capital Projects" || eyebrowText === "Capital Budget" || eyebrowText === "Capital Improvement Plan"){
-      sectionCrumb = '<a href="capital-projects.html">Capital Budget</a><span class="wc-breadcrumb-sep">/</span>';
+      sectionCrumb = '<a href="../home.html?explorer=capital">Capital Budget</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText){
       sectionCrumb = '<span>' + eyebrowText + '</span><span class="wc-breadcrumb-sep">/</span>';
     }

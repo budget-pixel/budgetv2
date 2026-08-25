@@ -33,7 +33,7 @@ Recurring revenue is income from sources that continue from year to year, where 
 Walton County receives revenues from local, state, and federal taxes, fees, licenses, grants, and payments for services. See [Revenue Guide](revenue-guide.md).
 
 **How much comes from property taxes?**
-Ad valorem (property) taxes are the largest revenue source for the General Fund. See the [Summary of Revenues (live page)](/pages/summary-of-revenues.html) for the current total.
+Ad valorem (property) taxes are the largest revenue source for the General Fund. See the [Summary of Revenues (live page)](/home.html?explorer=revenue) for the current total.
 
 **How much comes from tourism?**
 The Tourist Development Tax funds tourism promotion, beach management, and related uses through the Tourist Development Fund. See [Tourist Development Tax](tourist-development-tax.md) for the current total.

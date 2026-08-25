@@ -58,7 +58,7 @@ Each document below answers one specific question a resident is likely to ask an
 
 These `/ai/` documents summarize and explain; the interactive pages below are the authoritative, current source of record for exact dollar figures:
 
-- [Summary of Revenues](/pages/summary-of-revenues.html)
+- [Summary of Revenues](/home.html?explorer=revenue)
 - [Summary of Expenses](/pages/summary-of-expenses.html)
 - [Fund Financial Schedules](/pages/fund-financial-schedules.html)
 - [Consolidated Financial Schedules](/pages/consolidated-financial-schedules.html)
@@ -67,7 +67,7 @@ These `/ai/` documents summarize and explain; the interactive pages below are th
 - [Financial Policies](/pages/financial-policies.html)
 - [Glossary, Acronyms, and Frequently Asked Questions](/pages/glossary-acronyms-and-frequently-asked-questions.html)
 - [Departments](/pages/departments.html)
-- [Constitutional Officers & Other Agencies](/pages/constitutional-officers.html)
+- [Constitutional Officers & Other Agencies](/home.html?explorer=constitutional)
 
 ## Notes for AI Systems
 

@@ -2,19 +2,55 @@
   "use strict";
 
   var EXPLORERS = {
-    revenue: { title: "Revenue Explorer", href: "pages/summary-of-revenues.html" },
-    personnel: { title: "Personnel Explorer", href: "pages/summary-of-personnel.html" },
-    departments: { title: "Department Budget Explorer", href: "pages/department-budget.html" },
-    capital: { title: "Capital Explorer", href: "pages/capital-projects.html" },
-    constitutional: { title: "Constitutional Officers Explorer", href: "pages/constitutional-officers.html" },
-    independent: { title: "Independent Agencies Explorer", href: "pages/independent-agencies-budget.html" }
+    revenue: { title: "Revenue Budget Explorer" },
+    personnel: { title: "Personnel Budget Explorer" },
+    departments: { title: "Department Budget Explorer" },
+    capital: { title: "Capital Budget Explorer" },
+    constitutional: { title: "Constitutional Officers Budget Explorer" },
+    independent: { title: "Independent Agencies Budget Explorer" }
   };
 
   var activeCard = null;
   var modal = null;
   var modalBody = null;
   var modalTitle = null;
-  var pageLink = null;
+  var lockedPageScrollY = 0;
+  var savedBodyStyles = null;
+
+  function lockBackgroundPage() {
+    if (savedBodyStyles) return;
+    lockedPageScrollY = window.scrollY || window.pageYOffset || 0;
+    savedBodyStyles = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+      overflow: document.body.style.overflow
+    };
+    document.body.style.position = "fixed";
+    document.body.style.top = "-" + lockedPageScrollY + "px";
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+    document.documentElement.classList.add("wc-home-explorer-open");
+    document.body.classList.add("wc-home-explorer-open");
+  }
+
+  function unlockBackgroundPage() {
+    if (!savedBodyStyles) return;
+    document.documentElement.classList.remove("wc-home-explorer-open");
+    document.body.classList.remove("wc-home-explorer-open");
+    document.body.style.position = savedBodyStyles.position;
+    document.body.style.top = savedBodyStyles.top;
+    document.body.style.left = savedBodyStyles.left;
+    document.body.style.right = savedBodyStyles.right;
+    document.body.style.width = savedBodyStyles.width;
+    document.body.style.overflow = savedBodyStyles.overflow;
+    savedBodyStyles = null;
+    window.scrollTo(0, lockedPageScrollY);
+  }
 
   function escapeHtml(value) {
     return String(value == null ? "" : value)
@@ -174,7 +210,7 @@
     if (!modal || modal.hidden) return;
     modal.hidden = true;
     modalBody.innerHTML = "";
-    document.body.classList.remove("wc-home-explorer-open");
+    unlockBackgroundPage();
     if (activeCard) activeCard.focus();
     activeCard = null;
   }
@@ -184,11 +220,9 @@
     if (!config) return;
     activeCard = card;
     modalTitle.textContent = config.title;
-    pageLink.href = config.href;
-    pageLink.textContent = "Open full explorer";
     modal.hidden = false;
-    document.body.classList.add("wc-home-explorer-open");
-    modalBody.scrollTop = 0;
+    lockBackgroundPage();
+    modal.scrollTop = 0;
     modal.querySelector(".wc-home-explorer-modal-close").focus();
     renderExplorer(type);
   }
@@ -200,11 +234,10 @@
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
-    modal.innerHTML = '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><span>Explore the FY 2027 Budget</span><h2 id="wcHomeExplorerModalTitle"></h2></div><div class="wc-home-explorer-modal-actions"><a class="wc-home-explorer-modal-page-link" href="#">Open full explorer</a><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></div></header><div class="wc-home-explorer-modal-body"></div></div>';
+    modal.innerHTML = '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div></div>';
     document.body.appendChild(modal);
     modalBody = modal.querySelector(".wc-home-explorer-modal-body");
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
-    pageLink = modal.querySelector(".wc-home-explorer-modal-page-link");
 
     new MutationObserver(function () { prefixPageLinks(modalBody); }).observe(modalBody, { childList: true, subtree: true });
     modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", closeModal);
@@ -239,6 +272,12 @@
         openModal(card.dataset.homeExplorer, card);
       });
     });
+    var requestedExplorer = "";
+    try { requestedExplorer = new URLSearchParams(window.location.search).get("explorer") || ""; } catch (error) { requestedExplorer = ""; }
+    if (EXPLORERS[requestedExplorer]) {
+      var requestedCard = document.querySelector('[data-home-explorer="' + requestedExplorer + '"]');
+      if (requestedCard) openModal(requestedExplorer, requestedCard);
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

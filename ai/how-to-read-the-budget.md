@@ -80,6 +80,6 @@ See [Budget Terminology](budget-terminology.md) for the full glossary-linked lis
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Summary of Expenses (live page)](/pages/summary-of-expenses.html)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)

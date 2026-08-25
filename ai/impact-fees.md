@@ -47,5 +47,5 @@ An impact fee is a one-time charge tied to new development's own infrastructure 
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)

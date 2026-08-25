@@ -70,7 +70,7 @@ Transfers in, debt proceeds, and other non-recurring funding sources — for exa
 ## Frequently Asked Questions
 
 **Where does Walton County get most of its money?**
-Ad valorem (property) taxes are the largest source of General Fund revenue; the Tourist Development Tax is a major source of tourism-restricted revenue. See the [Summary of Revenues (live page)](/pages/summary-of-revenues.html) for current-year totals by category.
+Ad valorem (property) taxes are the largest source of General Fund revenue; the Tourist Development Tax is a major source of tourism-restricted revenue. See the [Summary of Revenues (live page)](/home.html?explorer=revenue) for current-year totals by category.
 
 **How much comes from tourism?**
 Tourist Development Tax collections fund tourism promotion, beach management, and related uses through the Tourist Development Fund — see [Tourist Development Tax](tourist-development-tax.md) for the current total.
@@ -101,5 +101,5 @@ Recurring revenue sources like property taxes are stable year to year; sources l
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)

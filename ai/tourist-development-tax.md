@@ -49,6 +49,6 @@ Because the tax is legally restricted to tourism-related purposes under Section 
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)
 - [Tourism Administration (live page)](/pages/tourism-administration.html)

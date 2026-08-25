@@ -406,7 +406,7 @@ See [Budget Terminology](budget-terminology.md) for the full glossary-linked lis
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Summary of Expenses (live page)](/pages/summary-of-expenses.html)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)
 
@@ -762,7 +762,7 @@ Transfers in, debt proceeds, and other non-recurring funding sources — for exa
 ## Frequently Asked Questions
 
 **Where does Walton County get most of its money?**
-Ad valorem (property) taxes are the largest source of General Fund revenue; the Tourist Development Tax is a major source of tourism-restricted revenue. See the [Summary of Revenues (live page)](/pages/summary-of-revenues.html) for current-year totals by category.
+Ad valorem (property) taxes are the largest source of General Fund revenue; the Tourist Development Tax is a major source of tourism-restricted revenue. See the [Summary of Revenues (live page)](/home.html?explorer=revenue) for current-year totals by category.
 
 **How much comes from tourism?**
 Tourist Development Tax collections fund tourism promotion, beach management, and related uses through the Tourist Development Fund — see [Tourist Development Tax](tourist-development-tax.md) for the current total.
@@ -793,7 +793,7 @@ Recurring revenue sources like property taxes are stable year to year; sources l
 
 ## Cross-Links
 
-- [Summary of Revenues (live page)](/pages/summary-of-revenues.html)
+- [Summary of Revenues (live page)](/home.html?explorer=revenue)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)
 
 ---
@@ -901,7 +901,7 @@ Unspent, unencumbered operating appropriations generally lapse at fiscal year-en
 
 - [Summary of Expenses (live page)](/pages/summary-of-expenses.html)
 - [Fund Financial Schedules (live page)](/pages/fund-financial-schedules.html)
-- [Summary of Personnel (live page)](/pages/summary-of-personnel.html)
+- [Summary of Personnel (live page)](/home.html?explorer=personnel)
 - [Summary of Machinery, Vehicles & Equipment (live page)](/pages/summary-of-machinery-vehicles-and-equipment.html)
 
 ---
@@ -1018,7 +1018,7 @@ Section 27.54, Florida Statutes requires counties to provide office space, utili
 ## Cross-Links
 
 - [Departments (live page)](/pages/departments.html)
-- [Constitutional Officers & Other Agencies (live page)](/pages/constitutional-officers.html)
+- [Constitutional Officers & Other Agencies (live page)](/home.html?explorer=constitutional)
 - [Department to Fund Relationship (live page)](/pages/department-to-fund-relationship.html)
 
 ---
@@ -1091,7 +1091,7 @@ The Board approves the total appropriation for each Constitutional Officer durin
 
 ## Cross-Links
 
-- [Constitutional Officers & Other Agencies (live page)](/pages/constitutional-officers.html)
+- [Constitutional Officers & Other Agencies (live page)](/home.html?explorer=constitutional)
 - [Board of County Commissioners (live page)](/pages/board-of-county-commissioners.html)
 - [Clerk of Courts & County Comptroller (live page)](/pages/clerk-of-courts-and-county-comptroller.html)
 - [Property Appraiser (live page)](/pages/property-appraiser.html)
@@ -1386,7 +1386,7 @@ Recurring revenue is income from sources that continue from year to year, where 
 Walton County receives revenues from local, state, and federal taxes, fees, licenses, grants, and payments for services. See [Revenue Guide](revenue-guide.md).
 
 **How much comes from property taxes?**
-Ad valorem (property) taxes are the largest revenue source for the General Fund. See the [Summary of Revenues (live page)](/pages/summary-of-revenues.html) for the current total.
+Ad valorem (property) taxes are the largest revenue source for the General Fund. See the [Summary of Revenues (live page)](/home.html?explorer=revenue) for the current total.
 
 **How much comes from tourism?**
 The Tourist Development Tax funds tourism promotion, beach management, and related uses through the Tourist Development Fund. See [Tourist Development Tax](tourist-development-tax.md) for the current total.
