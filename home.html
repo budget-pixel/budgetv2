@@ -6,7 +6,7 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <link rel="stylesheet" href="assets/style.css?v=20260824-home-explorer-modals">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260825-fixed-background-lock">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260825-scrolling-modal-header">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -23,6 +23,19 @@
       <div><span aria-hidden="true">◎</span><strong data-home-fte>—</strong><small>Budgeted FTE</small></div>
       <div><span aria-hidden="true">▤</span><strong data-home-funds>—</strong><small>Funds managed</small></div>
     </aside>
+  </section>
+
+  <section class="wc-home-search" aria-labelledby="wcHomeSearchTitle">
+    <div>
+      <h2 id="wcHomeSearchTitle">Search the Budget</h2>
+      <p>Find departments, personnel, funds, ledgers, capital projects, and budget information.</p>
+    </div>
+    <form class="wc-home-search-form" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
+      <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
+      <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
   </section>
 
   <section class="wc-explorer-card-grid" aria-label="Budget explorers">
@@ -138,7 +151,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="assets/budget-data.js?v=20260825-home-explorer-popups"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260825-home-explorer-popups"></script>
+<script src="assets/nav.js?v=20260825-home-search"></script>
 <script>
 (function(){
   "use strict";
@@ -272,6 +285,21 @@
   }
 
   document.addEventListener("DOMContentLoaded", function(){
+    var homeSearch = document.querySelector(".wc-home-search-form");
+    if(homeSearch){
+      homeSearch.addEventListener("submit", function(event){
+        event.preventDefault();
+        var input = homeSearch.querySelector("input[type='search']");
+        var query = input ? input.value.trim() : "";
+        if(!query){
+          if(input){ input.focus(); }
+          return;
+        }
+        if(typeof window.openWaltonBudgetSearch === "function"){
+          window.openWaltonBudgetSearch(query);
+        }
+      });
+    }
     if(window.WCBudgetData && window.WCBudgetData.loadBudgetData){
       window.WCBudgetData.loadBudgetData().then(render).catch(function(){
         document.querySelectorAll("[data-card-revenue-total],[data-card-personnel-total],[data-card-department-total],[data-card-capital-total],[data-card-constitutional-total]").forEach(function(element){ element.textContent="View explorer"; });

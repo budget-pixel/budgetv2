@@ -2042,19 +2042,9 @@
   }
   style.textContent = css;
   loadWaltonMobileStylesheet();
-  var WC_NAV_LINKS_BEFORE_BUDGETS = [
-    { label:"Our County", href:"our-county.html" }
-  ];
-  var WC_NAV_LINKS_AFTER_BUDGETS = [
+  var WC_NAV_LINKS = [
+    { label:"Our County", href:"our-county.html" },
     { label:"Budget Ledgers", href:"budget-overview.html" }
-  ];
-  var WC_BUDGET_LINKS = [
-    { label:"Revenue Budget", href:"../home.html?explorer=revenue" },
-    { label:"Personnel Budget", href:"../home.html?explorer=personnel" },
-    { label:"Department Budgets", href:"../home.html?explorer=departments" },
-    { label:"Constitutional Officers Budgets", href:"../home.html?explorer=constitutional" },
-    { label:"Independent Agencies Budgets", href:"../home.html?explorer=independent" },
-    { label:"Capital Budget", href:"../home.html?explorer=capital" }
   ];
   function wcPageHref(href){
     return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
@@ -2090,36 +2080,10 @@
           '</svg>' +
           '<span>Search</span>' +
         '</button>' +
-        WC_NAV_LINKS_BEFORE_BUDGETS.map(function(link){
-          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
-        }).join("") +
-        '<details class="wc-nav-budget-dropdown"><summary>Budgets</summary><div class="wc-nav-budget-menu">' + WC_BUDGET_LINKS.map(function(link){
-          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
-        }).join("") + '</div></details>' +
-        WC_NAV_LINKS_AFTER_BUDGETS.map(function(link){
+        WC_NAV_LINKS.map(function(link){
           return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
         }).join("");
       nav.appendChild(linksWrap);
-      // <details> stays open until its own summary is clicked again --
-      // close it when the click (or Escape) lands anywhere else.
-      if(!document.documentElement.hasAttribute("data-wc-nav-dropdown-dismiss")){
-        document.documentElement.setAttribute("data-wc-nav-dropdown-dismiss", "true");
-        document.addEventListener("click", function(event){
-          Array.prototype.forEach.call(document.querySelectorAll(".wc-nav-budget-dropdown[open]"), function(dropdown){
-            if(!dropdown.contains(event.target)){
-              dropdown.removeAttribute("open");
-            }
-          });
-        });
-        document.addEventListener("keydown", function(event){
-          if(event.key !== "Escape"){
-            return;
-          }
-          Array.prototype.forEach.call(document.querySelectorAll(".wc-nav-budget-dropdown[open]"), function(dropdown){
-            dropdown.removeAttribute("open");
-          });
-        });
-      }
     }
     if(!nav.querySelector(".wc-nav-actions")){
       var actions = document.createElement("div");
@@ -2516,6 +2480,26 @@
       openCurrentSearch();
     });
   }
+  window.openWaltonBudgetSearch = function(query){
+    openWaltonBudgetFooterSearch();
+    var value = String(query || "").trim();
+    if(!value){
+      return;
+    }
+    var attempts = 0;
+    var populateSearch = window.setInterval(function(){
+      attempts += 1;
+      var input = document.querySelector("nav#nav-menu #wcTocSearch");
+      if(input && !input.disabled){
+        window.clearInterval(populateSearch);
+        input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles:true }));
+        input.focus();
+      }else if(attempts >= 30){
+        window.clearInterval(populateSearch);
+      }
+    }, 75);
+  };
   function renderWaltonBudgetFooter(){
     if(!document.body){
       return;
