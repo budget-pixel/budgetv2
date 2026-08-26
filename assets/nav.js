@@ -2052,7 +2052,8 @@
   loadWaltonMobileStylesheet();
   var WC_NAV_LINKS = [
     { label:"Our County", href:"our-county.html" },
-    { label:"Budget Ledgers", href:"budget-overview.html" }
+    { label:"Budget Ledgers", href:"budget-overview.html" },
+    { label:"Full Budget Document", href:"full-budget-document.html" }
   ];
   function wcPageHref(href){
     return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;

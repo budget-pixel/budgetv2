@@ -658,11 +658,12 @@ function renderFundSchedule(config){
       }
 
       /* Rows found on a general-ledger project list (Org/Object/Project)
-         that weren't already on this historical repository -- flagged for
-         review by rendering the title in red instead of the usual green. */
+         that weren't already on this historical repository -- previously
+         flagged for review by rendering the title in red; now matches the
+         standard green project title color. */
       .wc-cip-project-link.wc-cip-project-flagged,
       .wc-cip-project-title.wc-cip-project-flagged{
-        color:#c0392b;
+        color:#003f28;
       }
 
       .wc-cip-no-amount{
