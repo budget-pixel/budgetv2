@@ -214,7 +214,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const showBudgetColumn = isHistoricalYear && showStatusColumn;
   const showAmountColumn = !isHistoricalYear;
   const showProjectNumberColumn = isHistoricalYear && projects.some(project => String(project.project_code || "").trim());
-  const showPastCipYearsColumn = isHistoricalYear;
+  const showPastCipYearsColumn = false;
   // Completed date (when status is Complete) or estimated start date
   // (otherwise) -- sits right after Status. Per-project, from the
   // supplement's optional completedDate/estimatedStartDate fields (see
@@ -848,9 +848,8 @@ function renderFundSchedule(config){
     let selectedFund = "";
     let selectedRevenueSource = "";
     let filterComboDocumentHandlers = [];
-    // Past CIP only: "year" (default), "" (project name), "phase", or
-    // "status".
-    let historicalSort = "year";
+    // Past CIP only: "status" (default), "" (project name), or "phase".
+    let historicalSort = "status";
 
     function districtSortRank(district){
       return String(district || "").trim().toLowerCase() === "countywide" ? 0 : 1;
@@ -860,7 +859,7 @@ function renderFundSchedule(config){
     // Construction rather than alphabetically, and Complete leads a Status
     // sort. Anything unrecognized sorts last.
     const PHASE_ORDER = ["Programmed", "Report/Study", "Preliminary Engineering", "Design", "Design & Permitting", "Permitting", "Construction", "Design & Construction"];
-    const STATUS_ORDER = ["Complete", "In Progress", "Programmed"];
+    const STATUS_ORDER = ["In Progress", "Programmed", "Complete"];
 
     function rankIn(list, value){
       const index = list.indexOf(String(value || "").trim());
@@ -988,17 +987,15 @@ function renderFundSchedule(config){
         </button>
       `;
       // Historical years have no dollar column to sort on, so they get a
-      // Year/Phase/Status sort instead of the district toggle. Year is the
-      // default -- it orders by the earliest CIP year each project's
-      // dollars were budgeted under (see earliestPastCipYear).
+      // Phase/Status sort instead of the district toggle. Status is the
+      // default -- In Progress leads, then Programmed, then Complete.
       const historicalSortHtml = !isHistoricalYear ? "" : `
         <label class="wc-cip-sort-field">
           <span>Sort by</span>
           <select id="wcCipHistoricalSort">
-            <option value="year"${historicalSort === "year" ? " selected" : ""}>Year</option>
+            <option value="status"${historicalSort === "status" ? " selected" : ""}>Status</option>
             <option value=""${historicalSort === "" ? " selected" : ""}>Project Name</option>
             <option value="phase"${historicalSort === "phase" ? " selected" : ""}>Phase</option>
-            <option value="status"${historicalSort === "status" ? " selected" : ""}>Status</option>
           </select>
         </label>
       `;
@@ -1094,10 +1091,10 @@ function renderFundSchedule(config){
       mount.querySelectorAll("[data-cip-year]").forEach(button => {
         button.addEventListener("click", () => {
           activeYear = button.getAttribute("data-cip-year") || "FY2027";
-          // Year/Phase/Status sorting only exists on the Past CIP tab, so
-          // it resets to the Year default whenever that tab is (re-)entered
+          // Phase/Status sorting only exists on the Past CIP tab, so it
+          // resets to the Status default whenever that tab is (re-)entered
           // (and is simply unused/off-screen on the priced FY-year tabs).
-          historicalSort = "year";
+          historicalSort = "status";
           if(window.history && window.history.replaceState){
             window.history.replaceState(null, "", `#${activeYear}`);
           }
