@@ -211,6 +211,8 @@ function mergeSameProjectRecords(primaryProject, projects){
     .map(project => String(project.project_code || "").trim())
     .filter(Boolean)
     .pop() || primaryProject.project_code || "";
+  const contracts = matches.flatMap(project => Array.isArray(project.contracts) ? project.contracts : []);
+  const timeline = matches.flatMap(project => Array.isArray(project.timeline) ? project.timeline : []);
 
   return Object.assign({}, primaryProject, {
     project_code: projectCode,
@@ -218,7 +220,9 @@ function mergeSameProjectRecords(primaryProject, projects){
     budget_value: combinedBudget,
     budget: "$" + Math.round(combinedBudget).toLocaleString("en-US"),
     target_years: combinedFunding.map(item => item.year),
-    target: combinedFunding.map(item => item.year).join(", ")
+    target: combinedFunding.map(item => item.year).join(", "),
+    contracts,
+    timeline
   });
 }
 
@@ -233,6 +237,49 @@ function renderListItem(label, value){
       <strong>${displayValue(value)}</strong>
     </div>
   `;
+}
+
+function renderUnifiedProjectTimeline(project){
+  const timeline = Array.isArray(project.timeline) ? project.timeline : [];
+  const contracts = Array.isArray(project.contracts) ? project.contracts : [];
+  const items = timeline.length
+    ? timeline.filter(item => hasDisplayValue(item.date) && hasDisplayValue(item.text))
+        .map(item => ({ label:item.date, text:item.text }))
+    : contracts.map(contract => {
+        const contractType = hasDisplayValue(contract.label)
+          ? contract.label
+          : hasDisplayValue(contract.phase) ? contract.phase + " Contract" : "Contract Award";
+        const parts = [contractType];
+        if(hasDisplayValue(contract.contractor)) parts.push(contract.contractor);
+        if(hasDisplayValue(contract.amount)) parts.push(contract.amount);
+        if(hasDisplayValue(contract.contractNumber)) parts.push(contract.contractNumber);
+        if(hasDisplayValue(contract.note)) parts.push(contract.note);
+        return {
+          label:hasDisplayValue(contract.date) ? contract.date : "Award date not listed",
+          text:parts.join(" — ")
+        };
+      }).filter(item => hasDisplayValue(item.text));
+
+  if(hasDisplayValue(project.estimated_completion_date)){
+    const isComplete = String(project.status_text || "").trim().toLowerCase() === "complete";
+    items.push({
+      label:isComplete ? "Completed" : "Estimated Completion",
+      text:project.estimated_completion_date
+    });
+  }
+
+  if(!items.length){
+    return '<p class="wc-project-timeline-empty">No dated project milestones are currently listed.</p>';
+  }
+
+  return items.map(item => {
+    return `
+      <div class="wc-project-timeline-item">
+        <span>${displayValue(item.label)}</span>
+        <strong>${displayValue(item.text)}</strong>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderTimelineItem(label, value){
@@ -517,7 +564,7 @@ function renderProjectPage(){
   const title = getProjectValue(project,["title"],"Untitled Project");
   const description = getProjectValue(project,["description","overview","summary"],"No project description is currently available.");
   const statusText = getProjectValue(project,["status_text","status"],"Status not specified");
-  const statusClass = displayValue(project.status_class,"wc-status-planning");
+  const statusClass = escapeHtml(project.status_class || "wc-status-planning");
   const budget = getProjectValue(project,["budget","project_budget","total_budget","cost"]);
   const funding = getProjectValue(project,["funding","funding_source","source"]);
   const district = getProjectValue(project,["district","commission_district"]);
@@ -585,12 +632,12 @@ function renderProjectPage(){
           </section>
 
           <section class="wc-project-panel">
-            <h2>Status & Timeline</h2>
+            <div class="wc-project-panel-heading">
+              <h2>Status & Timeline</h2>
+              <span class="wc-project-panel-status ${statusClass}">${displayValue(statusText)}</span>
+            </div>
             <div class="wc-project-timeline">
-              ${renderTimelineItem("Status", statusText)}
-              ${renderTimelineItem("Start Date", project.start_date)}
-              ${renderTimelineItem("Estimated Completion", project.estimated_completion_date)}
-              ${renderTimelineItem("Target Year", target)}
+              ${renderUnifiedProjectTimeline(project)}
             </div>
           </section>
 

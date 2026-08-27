@@ -84,6 +84,15 @@ function projectYearValue(project, year){
     .reduce((sum, item) => sum + Number(item.amount_value || 0), 0);
 }
 
+function isGrantFundedProject(project){
+  return normalizeFilterValue(project && (project.funding || project.category)) === "grant funded";
+}
+
+function projectHistoricalTotal(project){
+  return ((project && project.funding_by_year) || [])
+    .reduce((sum, item) => sum + (Number(item.amount_value) || 0), 0);
+}
+
 // Planned capital by fiscal year, used by the "is capital spending going up
 // or down" section. FY2022/FY2023/FY2024/FY2025/FY2026 come from the
 // historical work-plan supplement rather than the adopted five-year plan,
@@ -440,7 +449,18 @@ function renderProjects(){
     .sort((a, b) => projectYearValue(b, majorProjectYear) - projectYearValue(a, majorProjectYear))
     .slice(0, 8);
   const filtered = getFilteredProjects();
-  const visibleProjects = filtered.slice(0, visibleLimit);
+  // Keep Past CIP grant projects together so the historical grant activity
+  // reads as one group instead of being scattered through the work-plan list.
+  const pastCipGrantProjects = filters.year === "past-cip"
+    ? filtered.filter(isGrantFundedProject)
+    : [];
+  const orderedFiltered = filters.year === "past-cip"
+    ? pastCipGrantProjects.concat(filtered.filter(project => !isGrantFundedProject(project)))
+    : filtered;
+  const visibleProjects = orderedFiltered.slice(0, visibleLimit);
+  const pastCipGrantSubtotal = pastCipGrantProjects.reduce(
+    (sum, project) => sum + projectHistoricalTotal(project), 0
+  );
   const departmentOptions = getFilterOptions(allProjects, "dept", [
     "Public Works/Engineering",
     "Beach Operations",
@@ -2037,6 +2057,33 @@ function renderProjects(){
         box-sizing:border-box !important;
       }
 
+      .wc-past-cip-grant-subtotal{
+        grid-column:1 / -1;
+        display:flex;
+        align-items:baseline;
+        justify-content:space-between;
+        gap:16px;
+        margin:4px 0 14px;
+        padding:14px 18px;
+        border:1px solid rgba(0,98,49,.22);
+        border-left:4px solid #006231;
+        border-radius:10px;
+        background:#f1f7f2;
+      }
+
+      .wc-past-cip-grant-subtotal span{
+        color:#315043;
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+      }
+
+      .wc-past-cip-grant-subtotal strong{
+        color:#006231;
+        font-size:20px;
+      }
+
       .wc-project-row{
         display:flex !important;
         flex-direction:row !important;
@@ -3115,6 +3162,7 @@ function renderProjects(){
         </div>
 
         <div class="wc-project-grid">
+          ${filters.year === "past-cip" && pastCipGrantProjects.length ? `<div class="wc-past-cip-grant-subtotal"><span>Grant projects subtotal (${pastCipGrantProjects.length})</span><strong>${escapeHtml(formatMoneyShort(pastCipGrantSubtotal))}</strong></div>` : ""}
           ${rows.map(row => `<div class="wc-project-row">${row.map(renderProjectCard).join("")}</div>`).join("")}
         </div>
 

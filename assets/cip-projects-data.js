@@ -435,6 +435,8 @@
         // (Org/Object/Project) that weren't already on this historical
         // repository when found, so they stand out for review.
         flagged: Boolean(entry.flagged),
+        contracts: Array.isArray(entry.contracts) ? entry.contracts : [],
+        timeline: Array.isArray(entry.timeline) ? entry.timeline : [],
         budget_org_code: entry.orgCode || "", budget_account_code: "", budget_account_name: "",
         is_legacy_in_house_engineering_row: false,
         has_in_house_engineering: false,

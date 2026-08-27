@@ -279,6 +279,33 @@
     color:var(--text);
   }
 
+  .wc-project-panel-heading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:16px;
+  }
+
+  .wc-project-panel-heading h2{
+    margin:0;
+  }
+
+  .wc-project-panel-status{
+    flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:7px 11px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.06em;
+    line-height:1.2;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
   .wc-project-panel p{
     margin:0;
   }
@@ -581,6 +608,21 @@
     line-height:1.45;
   }
 
+  .wc-project-timeline-empty{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5;
+  }
+
+  .wc-project-timeline:has(.wc-project-timeline-empty){
+    padding-left:0;
+  }
+
+  .wc-project-timeline:has(.wc-project-timeline-empty)::before{
+    display:none;
+  }
+
   @media(max-width:900px){
 
     .wc-project-grid{
@@ -703,9 +745,9 @@
 
 </style>
 <div id="app"></div>
-<script src="../assets/cip-fy2025-2026-supplement.js?v=20260820-13th-street-complete"></script>
-<script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
-<script src="../assets/cip-project-detail.js?v=20260819-shared-project-pages"></script>
+<script src="../assets/cip-fy2025-2026-supplement.js?v=20260826-cr280-grant-agreement"></script>
+<script src="../assets/cip-projects-data.js?v=20260826-project-timeline"></script>
+<script src="../assets/cip-project-detail.js?v=20260826-unified-status-timeline"></script>
   </main>
 </div>
 

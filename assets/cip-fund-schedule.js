@@ -206,6 +206,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const showStatusColumn = Boolean(options && options.showStatusColumn);
   const disableLinks = Boolean(options && options.disableLinks);
   const toggleHtml = (options && options.toggleHtml) || "";
+  const grantSubtotal = options && options.grantSubtotal;
   // FY2022-FY2026 are consolidated into one Past CIP project list. That
   // ledger shows original CIP year(s), delivery Phase, Status, and the
   // combined historical Budget instead of a future-year amount column.
@@ -279,7 +280,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
     `);
   }
 
-  projects.forEach(project => {
+  projects.forEach((project, projectIndex) => {
     if(showDistrictColumn){
       const district = project.district || "Not specified";
       if(district !== currentDistrict){
@@ -305,6 +306,15 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
         ${showAmountColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">No amount recorded</span>'}</td>` : ""}
       </tr>
     `);
+
+    if(grantSubtotal && grantSubtotal.count && projectIndex === grantSubtotal.count - 1){
+      rowsHtml.push(`
+        <tr class="wc-cip-grant-subtotal-row">
+          <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Grant Projects Subtotal (${grantSubtotal.count})</td>
+          <td class="wc-num">${money(grantSubtotal.amount)}</td>
+        </tr>
+      `);
+    }
   });
 
   if(showDistrictColumn){
@@ -595,6 +605,12 @@ function renderFundSchedule(config){
       .wc-cip-district-subtotal-row td{
         background:rgba(0,63,40,.06);
         font-weight:800;
+      }
+
+      .wc-cip-grant-subtotal-row td{
+        background:rgba(0,98,49,.12);
+        color:#006231;
+        font-weight:900;
       }
 
       .wc-cip-year-body{
@@ -1007,18 +1023,30 @@ function renderFundSchedule(config){
           ${filterComboFieldHtml("wcCipFundFilter", "Fund", "All Funds")}
           ${filterComboFieldHtml("wcCipRevenueFilter", "Revenue Source", "All Revenue Sources")}
         </div>` : "";
+      const inProgressGrantProjects = isHistoricalYear
+        ? data.grantProjects.filter(project => String(project.status_text || "").trim().toLowerCase() === "in progress")
+        : [];
+      const otherGrantProjects = isHistoricalYear
+        ? data.grantProjects.filter(project => String(project.status_text || "").trim().toLowerCase() !== "in progress")
+        : [];
+      const inProgressGrantTotal = inProgressGrantProjects.reduce(
+        (sum, project) => sum + Number(project.year_amount_value || 0), 0
+      );
       const tables = isHistoricalYear
         ? renderYearScheduleTable(
             activeYear,
             "Project List",
-            sortProjects(data.projects.concat(
-              data.grantProjects,
+            sortProjects(inProgressGrantProjects).concat(sortProjects(data.projects.concat(
+              otherGrantProjects,
               data.noAmountProjects,
               data.inHouseProjects,
               data.budgetedElsewhereProjects
-            )),
+            ))),
             "Projects",
-            Object.assign({}, tableOptions, { toggleHtml: historicalSortHtml })
+            Object.assign({}, tableOptions, {
+              toggleHtml: historicalSortHtml,
+              grantSubtotal: { count: inProgressGrantProjects.length, amount: inProgressGrantTotal }
+            })
           )
         : [
             fundRevenueFiltersHtml,

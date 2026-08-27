@@ -240,7 +240,7 @@
 <script src="../assets/search-data.js?v=20260825-full-budget-document"></script>
 <script src="../assets/department-services-data.js?v=20260807-department-ledger-page"></script>
 <script src="../assets/machinery-fy2025-2026-supplement.js?v=20260806-fund-overrides"></script>
-<script src="../assets/cip-fy2025-2026-supplement.js?v=20260820-13th-street-complete"></script>
+<script src="../assets/cip-fy2025-2026-supplement.js?v=20260826-cr280-grant-agreement"></script>
 <script src="../assets/cip-projects-data.js?v=20260820-recon29"></script>
 <script src="../assets/cip-fund-schedule.js?v=20260826-sort-by-status"></script>
 <script src="../assets/independent-agencies-data.js?v=20260824-independent-agency-filters"></script>
@@ -257,7 +257,7 @@
     grantLedgerFilter:function(project){
       var funding = String(project && project.funding || "").toLowerCase();
       var title = String(project && project.title || "").toLowerCase();
-      return funding === "grant funded" || /nellie drive|rock hill|allen loop|bear creek/.test(title);
+      return funding === "grant funded" || /^grant\b/.test(title) || /nellie drive|rock hill|allen loop|bear creek/.test(title);
     },
     splitRedNoAmount:true,
     showFundRevenueFilters:true,
