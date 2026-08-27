@@ -731,7 +731,16 @@
         .filter((item) => item.amount_value !== 0);
       const combinedFunding = historicalFunding.concat(yearlyFunding);
       const totalValue = parseMoney(get(row, "Total FY2027-FY2031"));
-      const fund = get(row, "Budget Fund(s)");
+      // Completed FY2022-FY2026 projects don't carry a Budget Fund(s) value
+      // in the sheet (that column was never tracked for closed-out work) --
+      // default those Public Works rows to "Transportation & Public Works"
+      // so they still pass the ledger pages' fund-name filters, matching
+      // the label the old cip-fy2025-2026-supplement.js used for the same
+      // projects before this data moved into the live sheet.
+      const fund = get(row, "Budget Fund(s)") ||
+        (historicalFunding.length && !yearlyFunding.length && /public works|engineering/i.test(get(row, "Dept"))
+          ? "Transportation & Public Works"
+          : "");
       const phase = get(row, "Project Phase") || "Identification";
       // The sheet's own Status column (In Progress/Complete/Programmed/...)
       // is a different axis than Project Phase (Design/Construction/...) --

@@ -27,6 +27,8 @@
   const ERROR_MESSAGE = "Budget data could not be loaded. Please try again later.";
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const SUPABASE_CLIENT_SCRIPT = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  const BUDGET_FETCH_TIMEOUT_MS = 20000;
+  const SUPABASE_LOAD_TIMEOUT_MS = 15000;
 
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
@@ -376,6 +378,16 @@
   };
   let loadPromise = null;
 
+  function rejectAfter(ms, message) {
+    return new Promise((resolve, reject) => {
+      window.setTimeout(() => reject(new Error(message)), ms);
+    });
+  }
+
+  function withTimeout(promise, ms, message) {
+    return Promise.race([promise, rejectAfter(ms, message)]);
+  }
+
   function loadScriptOnce(id, src) {
     return new Promise((resolve, reject) => {
       const existing = document.getElementById(id);
@@ -419,7 +431,7 @@
   }
 
   function loadSupabaseActualLookups() {
-    return ensureSupabaseDataLayer().then((supabaseData) => {
+    const request = ensureSupabaseDataLayer().then((supabaseData) => {
       if (!supabaseData) return null;
 
       return Promise.all([
@@ -432,7 +444,13 @@
         revenueRows,
         originalBudgetRows
       }));
-    }).catch((err) => {
+    });
+
+    return withTimeout(
+      request,
+      SUPABASE_LOAD_TIMEOUT_MS,
+      "Supabase actuals timed out after " + SUPABASE_LOAD_TIMEOUT_MS + "ms"
+    ).catch((err) => {
       console.error("WCBudgetData: Supabase actuals could not be loaded; using Google Sheets fallbacks.", err);
       return null;
     });
@@ -2801,13 +2819,26 @@
     return names.size > 1;
   }
 
-  function fetchCSV(url) {
-    return fetch(url, { cache: "no-store" })
+  function fetchText(url) {
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const options = { cache: "no-store" };
+    if (controller) options.signal = controller.signal;
+    const timer = controller
+      ? window.setTimeout(() => controller.abort(), BUDGET_FETCH_TIMEOUT_MS)
+      : null;
+
+    return fetch(url, options)
       .then((res) => {
         if (!res.ok) throw new Error("Request failed with status " + res.status);
         return res.text();
       })
-      .then(parseCSV);
+      .finally(() => {
+        if (timer !== null) window.clearTimeout(timer);
+      });
+  }
+
+  function fetchCSV(url) {
+    return fetchText(url).then(parseCSV);
   }
 
   // Dev-only sanity check, never shown in the UI -- logs to the browser
@@ -15299,11 +15330,7 @@
   }
 
   function fetchPersonnelCostFormulaInputs() {
-    return fetch(DATA_SOURCES.personnelCostFormulaInputs, { cache: "no-store" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Request failed with status " + res.status);
-        return res.text();
-      })
+    return fetchText(DATA_SOURCES.personnelCostFormulaInputs)
       .then((text) => parsePersonnelCostFormulaInputs(parseCSVRows(text)))
       .catch((err) => {
         console.error("WCBudgetData: failed to load personnel cost formula inputs, using defaults", err);
