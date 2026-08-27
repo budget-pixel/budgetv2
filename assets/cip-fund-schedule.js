@@ -310,8 +310,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
     if(grantSubtotal && grantSubtotal.count && projectIndex === grantSubtotal.count - 1){
       rowsHtml.push(`
         <tr class="wc-cip-grant-subtotal-row">
-          <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Grant Projects Subtotal (${grantSubtotal.count})</td>
-          <td class="wc-num">${money(grantSubtotal.amount)}</td>
+          <td colspan="${leadColumns + 1}"></td>
         </tr>
       `);
     }

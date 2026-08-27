@@ -4,6 +4,12 @@
   const CAPITAL_PROJECTS_CSV_URL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1388930304&single=true&output=csv";
   const FISCAL_YEARS = ["FY2027", "FY2028", "FY2029", "FY2030", "FY2031"];
+  // Completed/historical years the sheet also carries dollar columns for
+  // (see the "Capital Improvement Plan" tab's FY2022-FY2026 Proposed
+  // columns) -- these feed the Past CIP ledger the same generic way
+  // FISCAL_YEARS feeds the FY2027-2031 ledgers (see getPastCipProjects in
+  // cip-fund-schedule.js, which buckets by year present in funding_by_year).
+  const HISTORICAL_FISCAL_YEARS = ["FY2022", "FY2023", "FY2024", "FY2025", "FY2026"];
   const PROJECT_IMAGE_FILES = [
     "abt-martin-dirt-to-pave-project.jpg",
     "amaryllis-lane-dirt-to-pave-project.jpg",
@@ -517,6 +523,15 @@
     return cleanText(row && row[key]);
   }
 
+  // The sheet's year columns aren't spaced consistently (e.g. "FY 2022
+  // Proposed" has a space after "FY" while "FY2023 Proposed" doesn't) --
+  // tries both so a stray space typed into a header cell doesn't silently
+  // drop a whole year's dollars.
+  function getYearProposed(row, year) {
+    const spaced = year.replace(/^FY/, "FY ");
+    return get(row, year + " Proposed") || get(row, spaced + " Proposed");
+  }
+
   function parseMoney(value) {
     const text = cleanText(value).replace(/\$/g, "").replace(/,/g, "");
     if (!text || /^-+$/.test(text)) return 0;
@@ -697,13 +712,35 @@
       const yearlyFunding = FISCAL_YEARS
         .map((year) => ({
           year,
-          amount_value: parseMoney(get(row, year + " Proposed")),
-          amount: formatMoney(parseMoney(get(row, year + " Proposed")))
+          amount_value: parseMoney(getYearProposed(row, year)),
+          amount: formatMoney(parseMoney(getYearProposed(row, year)))
         }))
         .filter((item) => item.amount_value !== 0);
+      // Completed/historical years (FY2022-FY2026) -- same shape as
+      // yearlyFunding, merged into one funding_by_year array below so a
+      // single sheet row can carry both its past construction history and
+      // any new future-year money, and the Past CIP ledger (which just
+      // filters funding_by_year for these year labels) picks it up for
+      // free. See HISTORICAL_FISCAL_YEARS above.
+      const historicalFunding = HISTORICAL_FISCAL_YEARS
+        .map((year) => ({
+          year,
+          amount_value: parseMoney(getYearProposed(row, year)),
+          amount: formatMoney(parseMoney(getYearProposed(row, year)))
+        }))
+        .filter((item) => item.amount_value !== 0);
+      const combinedFunding = historicalFunding.concat(yearlyFunding);
       const totalValue = parseMoney(get(row, "Total FY2027-FY2031"));
       const fund = get(row, "Budget Fund(s)");
       const phase = get(row, "Project Phase") || "Identification";
+      // The sheet's own Status column (In Progress/Complete/Programmed/...)
+      // is a different axis than Project Phase (Design/Construction/...) --
+      // falls back to phase when Status is blank, which is the common case
+      // for most FY2027-2031 proposals that haven't been given a lifecycle
+      // status yet, so their existing Phase-as-status badge is unaffected.
+      const sheetStatus = get(row, "Status");
+      const status = sheetStatus || phase;
+      const statusNote = get(row, "Status Notes");
       const projectManager = get(row, "Project Manager");
       const department = normalizeDepartment(row, title, fund, projectManager);
       let baseSlug = slugify(title);
@@ -713,12 +750,19 @@
       const currentCount = slugCounts[baseSlug] || 0;
       slugCounts[baseSlug] = currentCount + 1;
       const slug = currentCount ? baseSlug + "-" + (currentCount + 1) : baseSlug;
-      const targetYears = yearlyFunding.map((item) => item.year);
+      const targetYears = combinedFunding.map((item) => item.year);
       const fundingSource = get(row, "Funding Source");
+      // Project Narrative first, then Pertinent Information (where the
+      // County's engineers have been recording the detailed project
+      // history/status writeups), and only then the bare fund name --
+      // Funding Source used to come before Pertinent Information here and
+      // would silently swallow a real narrative with just a fund label.
       const narrative = compactNarrative(
-        get(row, "Project Narrative"),
-        fundingSource || get(row, "Pertinent Information")
+        get(row, "Project Narrative") || get(row, "Pertinent Information"),
+        fundingSource
       );
+      const estimatedCompletionDate = get(row, "Estimated Completion Date");
+      const startDate = get(row, "Start Date");
       const accountName = get(row, "Budget Account Name(s)");
       const accountCode = get(row, "Budget Account Code(s)");
       const inHouseEngineeringValue = parseMoney(get(row, "In-House Engineering"));
@@ -737,8 +781,20 @@
         department_filter: departmentFilterValue(department),
         project_code: code,
         project_manager: projectManager,
-        estimated_completion_date: get(row, "Estimated Completion Date"),
-        start_date: get(row, "Start Date"),
+        // estimated_completion_date doubles as the Past CIP ledger's
+        // "Completed <date>" value when status is Complete, and
+        // est_completion_date as its "Est. Complete <date>" value
+        // otherwise -- both read from the same sheet column since
+        // projectDateCell (cip-fund-schedule.js) only ever uses one of the
+        // two per row, branching on status.
+        estimated_completion_date: estimatedCompletionDate,
+        est_completion_date: estimatedCompletionDate,
+        start_date: startDate,
+        // No separate "confirmed vs. estimated" column in the sheet -- a
+        // Start Date value of "TBD" (or text saying "Est./Estimated") is
+        // treated as not yet confirmed, same as this ledger's own past
+        // convention; anything else is treated as a real, confirmed start.
+        start_date_confirmed: Boolean(startDate) && !/\bTBD\b|\best\.?\b|\bestimated\b/i.test(startDate),
         priority: get(row, "Project Priority") || "None",
         strategic_goals: get(row, "Strategic Goals"),
         operational_impact: get(row, "Operational Impact"),
@@ -750,16 +806,22 @@
         description: narrative,
         budget: formatMoney(totalValue),
         budget_value: totalValue,
-        funding_by_year: yearlyFunding,
+        funding_by_year: combinedFunding,
         funding: fund,
         funding_source: fundingSource,
         revenue_source: revenueSourceForFund(fund, departmentFilterValue(department)),
         image_url: imageUrl,
         district: get(row, "Commissioner District") || "Not specified",
-        target: targetYears.join(", ") || getPrimaryYear(yearlyFunding),
+        target: targetYears.join(", ") || getPrimaryYear(combinedFunding),
         target_years: targetYears,
-        status_text: phase,
-        status_class: getStatusClass(phase),
+        status_text: status,
+        status_class: getStatusClass(status),
+        status_note: statusNote,
+        phase_text: phase,
+        phase_class: getStatusClass(phase),
+        flagged: false,
+        contracts: [],
+        timeline: [],
         budget_org_code: get(row, "Budget Org Code(s)"),
         budget_account_code: accountCode,
         budget_account_name: accountName,
