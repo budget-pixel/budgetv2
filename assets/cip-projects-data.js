@@ -729,6 +729,22 @@
           amount: formatMoney(parseMoney(getYearProposed(row, year)))
         }))
         .filter((item) => item.amount_value !== 0);
+      // The management sheet also tracks completed and active historical
+      // Public Works projects whose old budget/actual was never entered in
+      // an FY2022-FY2026 cell. Keep those projects on the consolidated Past
+      // CIP ledger with an explicit zero-value entry instead of silently
+      // dropping the entire management record.
+      if(!historicalFunding.length && !yearlyFunding.length &&
+        /public works|engineering/i.test(get(row, "Dept")) &&
+        (get(row, "Status") || get(row, "Start Date") || get(row, "Estimated Completion Date"))){
+        const managementDate = get(row, "Estimated Completion Date") || get(row, "Start Date");
+        const historicalYearMatch = managementDate.match(/\b(202[2-6])\b/);
+        historicalFunding.push({
+          year: historicalYearMatch ? "FY" + historicalYearMatch[1] : "FY2026",
+          amount_value: 0,
+          amount: "No amount recorded"
+        });
+      }
       const combinedFunding = historicalFunding.concat(yearlyFunding);
       const totalValue = parseMoney(get(row, "Total FY2027-FY2031"));
       // Completed FY2022-FY2026 projects don't carry a Budget Fund(s) value
@@ -802,8 +818,13 @@
         // No separate "confirmed vs. estimated" column in the sheet -- a
         // Start Date value of "TBD" (or text saying "Est./Estimated") is
         // treated as not yet confirmed, same as this ledger's own past
-        // convention; anything else is treated as a real, confirmed start.
-        start_date_confirmed: Boolean(startDate) && !/\bTBD\b|\best\.?\b|\bestimated\b/i.test(startDate),
+        // convention. A bare year is also estimated; a more specific date is
+        // treated as a real, confirmed start.
+        // A bare year is only an estimate: it must not be presented as a
+        // confirmed January start (or as a confirmed start at all).
+        start_date_confirmed: Boolean(startDate) &&
+          !/^\d{4}$/.test(String(startDate).trim()) &&
+          !/\bTBD\b|\best\.?\b|\bestimated\b/i.test(startDate),
         priority: get(row, "Project Priority") || "None",
         strategic_goals: get(row, "Strategic Goals"),
         operational_impact: get(row, "Operational Impact"),
