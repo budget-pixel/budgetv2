@@ -207,6 +207,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const disableLinks = Boolean(options && options.disableLinks);
   const toggleHtml = (options && options.toggleHtml) || "";
   const grantSubtotal = options && options.grantSubtotal;
+  const divideBeforeCompleted = Boolean(options && options.divideBeforeCompleted);
   // FY2022-FY2026 are consolidated into one Past CIP project list. That
   // ledger shows original CIP year(s), delivery Phase, Status, and the
   // combined historical Budget instead of a future-year amount column.
@@ -214,7 +215,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const showPhaseColumn = isHistoricalYear && showStatusColumn;
   const showBudgetColumn = isHistoricalYear && showStatusColumn;
   const showAmountColumn = !isHistoricalYear;
-  const showProjectNumberColumn = isHistoricalYear && projects.some(project => String(project.project_code || "").trim());
+  const showProjectNumberColumn = false;
   const showPastCipYearsColumn = false;
   // Completed date (when status is Complete) or estimated start date
   // (otherwise) -- sits right after Status. Per-project, from the
@@ -267,6 +268,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const rowsHtml = [];
   let currentDistrict = null;
   let districtSubtotal = 0;
+  let completedDividerInserted = false;
 
   function flushDistrictSubtotal(){
     if(currentDistrict === null){
@@ -291,6 +293,16 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
         districtSubtotal = 0;
       }
       districtSubtotal += project.year_amount_value;
+    }
+
+    if(divideBeforeCompleted && !completedDividerInserted &&
+      String(project.status_text || "").trim().toLowerCase() === "complete"){
+      rowsHtml.push(`
+        <tr class="wc-cip-grant-subtotal-row wc-cip-completed-divider-row" aria-hidden="true">
+          <td colspan="${leadColumns + 1}"></td>
+        </tr>
+      `);
+      completedDividerInserted = true;
     }
 
     rowsHtml.push(`
@@ -1046,7 +1058,8 @@ function renderFundSchedule(config){
             "Projects",
             Object.assign({}, tableOptions, {
               toggleHtml: historicalSortHtml,
-              grantSubtotal: { count: inProgressGrantProjects.length, amount: inProgressGrantTotal }
+              grantSubtotal: { count: inProgressGrantProjects.length, amount: inProgressGrantTotal },
+              divideBeforeCompleted: true
             })
           )
         : [
