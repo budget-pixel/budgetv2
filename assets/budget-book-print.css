@@ -1,0 +1,75 @@
+@media print{
+  @page{size:letter portrait;margin:.44in .48in .46in}
+  @page:left{margin-left:.72in;margin-right:.60in}
+  @page:right{margin-left:.60in;margin-right:.72in}
+  html,body{background:#fff!important;color:#1b2823!important}
+  main#content{zoom:.8!important;padding:0!important;overflow:visible!important}
+  .wc-print-document-header{margin:0 0 .2in!important;padding:0 0 .08in!important;border-bottom:1px solid #7d8c84!important}
+  .page-eyebrow{font-size:7.5pt!important;letter-spacing:.14em!important;color:#46574f!important}
+  .page-title{margin:.08in 0 .2in!important;color:#003f28!important;font-family:Georgia,"Times New Roman",serif!important;font-size:27pt!important;line-height:1.02!important;letter-spacing:-.025em!important}
+  .statement-of-function,.statement-of-function *,.content-section,.content-section *,.wc-dept-function-services,.wc-dept-function-services *{display:revert!important;visibility:visible!important;opacity:1!important}
+  .statement-of-function{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;columns:auto!important;margin:.08in 0 .24in!important;padding:.18in 0 .2in!important;border:0!important;border-top:5px solid #006231!important;border-bottom:1px solid #9eaaa4!important;background:#fff!important}
+  .statement-of-function h2{display:block!important;margin:0 0 .14in!important;padding:0!important;color:#003f28!important;font-family:Georgia,"Times New Roman",serif!important;font-size:17pt!important;line-height:1.1!important}
+  .wc-book-narrative-columns{display:block!important;visibility:visible!important;columns:2!important;column-gap:.32in!important;column-rule:1px solid #c9d3ce!important}
+  .wc-book-narrative-columns>*{visibility:visible!important;opacity:1!important;break-inside:avoid-column}
+  .statement-of-function p,.statement-of-function li{font-family:Georgia,"Times New Roman",serif!important;font-size:10.5pt!important;line-height:1.44!important;text-align:left!important;orphans:3;widows:3}
+  .statement-of-function p{margin:0 0 9pt!important}.statement-of-function ul{margin:0 0 10pt!important;padding-left:16pt!important}.statement-of-function li{margin:0 0 5pt!important}
+  .wc-profile-section-title,.wc-dept-services-label{display:block!important;margin:10pt 0 5pt!important;color:#006231!important;font-family:Arial,sans-serif!important;font-size:8pt!important;font-weight:900!important;letter-spacing:.11em!important;text-transform:uppercase!important}
+  .wc-profile-service-note{padding-top:8pt!important;border-top:1px solid #d4ddd8!important;color:#4e5c55!important;font-size:9pt!important}
+  .wc-board-department-profile{display:block!important;visibility:visible!important;break-before:page!important;margin-top:0!important;padding-top:.08in!important;border-top:1px solid #7d8c84!important;background:#fff!important}
+  .wc-board-department-profile *,.wc-department-questions,.wc-department-questions *,.wc-department-question,.wc-department-question *{visibility:visible!important;opacity:1!important}
+  .wc-department-question{display:block!important;margin:.18in 0 0!important;padding:.14in 0 0!important;border:0!important;border-top:1px solid #b8c4be!important;border-radius:0!important;background:#fff!important;break-inside:auto!important}
+  .wc-department-question summary{display:none!important}.wc-department-question>div,.wc-department-question>section{display:block!important}
+  .wc-department-snapshot,.wc-profile-card,.wc-finance-card{box-shadow:none!important;border:1px solid #c7d1cc!important;border-radius:0!important;background:#fff!important}
+  .wc-profile-section-title+*{break-before:avoid!important}
+  h2{color:#003f28!important;font-family:Georgia,"Times New Roman",serif!important;font-size:17pt!important;line-height:1.12!important}h3{font-size:11pt!important}
+  table{font-size:7.1pt!important;border-collapse:collapse!important}th{background:#003f28!important;color:#fff!important;font-size:6.7pt!important;letter-spacing:.02em!important}th,td{padding:4px 5px!important;border-color:#d3dcd7!important}
+  tr:nth-child(even) td{background:#f5f7f6!important}
+  .wc-data-table{width:100%!important;table-layout:auto!important}
+  .wc-data-table-scroll{overflow:visible!important}
+  .wc-data-table thead{display:table-header-group!important}
+  .wc-data-table tfoot{display:table-footer-group!important}
+  .wc-data-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  .wc-table-total-row td{background:#e7d893!important;color:#17251f!important;font-weight:800!important}
+  .wc-table-subtotal-row td{background:#edf2ef!important;font-weight:800!important}
+  .wc-financial-section-divider{display:flex!important;height:12.7in!important;flex-direction:column;justify-content:flex-end;padding:.75in!important;background:#003f28!important;color:#fff!important;page-break-after:always!important}
+  .wc-financial-section-divider small{color:#d9bc50!important;font:800 9pt/1 Arial,sans-serif!important;letter-spacing:.15em!important;text-transform:uppercase!important}
+  .wc-financial-section-divider h1{margin:.2in 0 .18in!important;color:#fff!important;font:800 38pt/.98 Georgia,serif!important;letter-spacing:-.03em!important}
+  .wc-financial-section-divider p{max-width:5.7in;margin:0!important;color:#dce9e3!important;font:12pt/1.5 Georgia,serif!important}
+  .wc-video-frame,iframe,button,.wc-profile-question-toggle,.wc-dept-supporting-media{display:none!important}
+  .wc-book-use-source-tables .wc-board-department-profile{display:none!important}
+  .wc-book-department-tables{display:block!important;visibility:visible!important;margin-top:.12in!important}
+  .wc-book-department-table{display:block!important;visibility:visible!important;margin:0 0 .28in!important;break-before:page!important}
+  .wc-book-department-table>h2{margin:0 0 .1in!important;padding-bottom:.08in!important;border-bottom:2px solid #006231!important}
+  .wc-book-department-table .wc-finance-card{display:block!important;visibility:visible!important;border:0!important}
+  .wc-book-department-table .wc-finance-card-head,.wc-book-department-table .wc-finance-card-breakdown,.wc-book-department-table .wc-finance-card-footer,.wc-book-department-table .wc-budget-lines-tools,.wc-book-department-table .wc-print-budget-table-wrap{display:none!important}
+  .wc-book-department-table .wc-budget-lines-detail,.wc-book-department-table .wc-budget-lines-detail[hidden],.wc-book-department-table .wc-data-table-wrap,.wc-book-department-table .wc-data-table-scroll{display:block!important;visibility:visible!important;height:auto!important;max-height:none!important;overflow:visible!important}
+  .wc-book-department-table .wc-budget-lines-detail *,.wc-book-department-table .wc-print-budget-table-wrap *{visibility:visible!important;opacity:1!important}
+  .wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(1),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(1),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(2),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(2),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(5),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(5),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(6),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(6),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(7),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(7),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(8),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(8),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(9),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(9){display:none!important}
+  .wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(3),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(3){width:24%!important}
+  .wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(4),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(4){width:34%!important}
+  .wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table th:nth-child(n+10),.wc-book-department-table .wc-budget-lines-detail>.wc-data-table-wrap table td:nth-child(n+10){width:14%!important;text-align:right!important}
+  .wc-book-department-table table{font-size:8pt!important;line-height:1.25!important;table-layout:fixed!important}
+  .wc-book-clean-table{display:table!important;width:100%!important;border-collapse:collapse!important;color:#1b2823!important}
+  .wc-book-clean-table thead{display:table-header-group!important}
+  .wc-book-clean-table tbody{display:table-row-group!important}
+  .wc-book-clean-table tr{display:table-row!important;break-inside:avoid!important}
+  .wc-book-clean-table th,.wc-book-clean-table td{display:table-cell!important;vertical-align:top!important}
+  .wc-book-clean-table th:nth-child(1),.wc-book-clean-table td:nth-child(1){width:23%!important}
+  .wc-book-clean-table th:nth-child(2),.wc-book-clean-table td:nth-child(2){width:35%!important}
+  .wc-book-clean-table th:nth-child(n+3),.wc-book-clean-table td:nth-child(n+3){width:14%!important;text-align:right!important;font-variant-numeric:tabular-nums}
+  .wc-book-clean-table td:nth-child(2){font-family:Georgia,"Times New Roman",serif!important;font-size:7.8pt!important;line-height:1.3!important}
+  .wc-book-staffing-table .wc-book-clean-table th,.wc-book-staffing-table .wc-book-clean-table td{width:auto!important;text-align:right!important}
+  .wc-book-staffing-table .wc-book-clean-table th:first-child,.wc-book-staffing-table .wc-book-clean-table td:first-child{width:31%!important;text-align:left!important;font-family:Georgia,"Times New Roman",serif!important}
+
+  /* Publication portraits: consistent crops, quiet typography, and no web-card chrome. */
+  .wc-overview-commissioners,.wc-overview-officers-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:.28in .22in!important;overflow:visible!important;border:0!important;border-radius:0!important;background:#fff!important}
+  .wc-overview-person-card,.wc-overview-officer-row{display:block!important;min-width:0!important;padding:0 0 .12in!important;border:0!important;border-bottom:1px solid #aab7b0!important;border-radius:0!important;background:#fff!important;color:#17251f!important;text-decoration:none!important;break-inside:avoid!important}
+  .wc-overview-person-card img,.wc-overview-officer-row img{display:block!important;width:100%!important;height:2.42in!important;aspect-ratio:auto!important;margin:0 0 .11in!important;border:0!important;border-radius:0!important;background:#edf2ef!important;object-fit:cover!important;object-position:50% 18%!important;filter:none!important}
+  .wc-overview-person-card h3,.wc-overview-officer-row strong{display:block!important;margin:0 0 3pt!important;color:#003f28!important;font:700 12pt/1.15 Georgia,"Times New Roman",serif!important}
+  .wc-overview-person-card p,.wc-overview-officer-row small{display:block!important;margin:0!important;color:#526159!important;font:800 7.3pt/1.25 Arial,sans-serif!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+  .wc-overview-officers-section{padding:0!important;border:0!important;border-radius:0!important;background:#fff!important;break-before:page!important}
+  .wc-overview-officers-section .wc-overview-section-header{padding:.2in 0 .16in!important;border-top:5px solid #006231!important}
+  .wc-overview-officers-section .wc-overview-section-header>p:last-child{max-width:6.4in!important;font:10.3pt/1.45 Georgia,"Times New Roman",serif!important}
+  .wc-book-staffing-table .wc-print-budget-table-wrap,.wc-book-staffing-table .wc-print-budget-table-wrap .wc-data-table-wrap,.wc-book-staffing-table .wc-print-budget-table-wrap .wc-data-table-scroll{display:block!important;visibility:visible!important}
+}

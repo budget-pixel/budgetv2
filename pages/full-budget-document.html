@@ -18,7 +18,16 @@
   .wc-full-budget-section{margin:0 0 46px}
   .wc-full-budget-section-eyebrow{margin:0 0 6px;color:var(--home-green,#006231);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
   .wc-full-budget-linkout{margin-top:10px;font-size:.85rem}
+  .wc-budget-book-cover{display:none}
   @media print{
+    .wc-budget-book-cover{display:flex!important;height:13in!important;min-height:0!important;box-sizing:border-box;flex-direction:column;justify-content:space-between;padding:.75in!important;background:linear-gradient(145deg,#003f28 0%,#006231 58%,#0b2d23 100%)!important;color:#fff!important;page-break-after:always;overflow:hidden;position:relative}
+    .wc-budget-book-cover::after{content:"";position:absolute;width:5.4in;height:5.4in;border:1px solid rgba(255,255,255,.18);border-radius:50%;right:-2in;bottom:-1.8in;box-shadow:0 0 0 .42in rgba(255,255,255,.04),0 0 0 .84in rgba(255,255,255,.035)}
+    .wc-budget-book-cover-kicker{font:800 10pt/1.2 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#e7c95f}
+    .wc-budget-book-cover h1{max-width:7in;margin:auto 0 0;font:800 43pt/.96 Georgia,serif;letter-spacing:-.035em;color:#fff!important}
+    .wc-budget-book-cover-year{margin:12pt 0 0;font:700 20pt/1.2 Arial,sans-serif;color:#fff!important}
+    .wc-budget-book-cover-rule{width:.85in;height:5px;margin:18pt 0;background:#e7c95f!important}
+    .wc-budget-book-cover p{max-width:6.2in;margin:0;font:12pt/1.45 Arial,sans-serif;color:#e8f0ed!important}
+    .wc-budget-book-cover-footer{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;font:700 9pt/1.3 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff!important}
     .wc-full-budget-toc{display:none}
     .wc-full-budget-print-bar{display:none}
     .wc-full-budget-section{page-break-before:always}
@@ -26,9 +35,20 @@
   }
 </style>
 </head>
-<body>
+<body class="wc-full-budget-document">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
 <div id="layout"><main id="content">
+
+<section class="wc-budget-book-cover" aria-hidden="true">
+  <div class="wc-budget-book-cover-kicker">Walton County, Florida</div>
+  <div>
+    <h1>Annual<br>Budget Book</h1>
+    <div class="wc-budget-book-cover-year">Fiscal Year 2027</div>
+    <div class="wc-budget-book-cover-rule"></div>
+    <p>A transparent financial plan for public services, infrastructure, and the future of Walton County.</p>
+  </div>
+  <div class="wc-budget-book-cover-footer"><span>Board of County Commissioners</span><span>October 1, 2026 - September 30, 2027</span></div>
+</section>
 
 <div class="page-eyebrow">Financial Overview</div>
 <h1 class="page-title">Full Budget Document</h1>
@@ -309,5 +329,12 @@
 </script>
 <script src="../assets/nav.js?v=20260826-full-budget-doc-menu"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script>
+  window.addEventListener("load", function(){
+    var portraitPrint = document.createElement("style");
+    portraitPrint.textContent = "@media print{@page{size:letter portrait;margin:.35in}.wc-full-budget-document main#content{zoom:.72!important;padding-right:.08in!important}.wc-full-budget-document .wc-print-document-header{margin-bottom:.12in!important}.wc-full-budget-document table{font-size:5.5pt!important}.wc-full-budget-document th,.wc-full-budget-document td{padding:3px 4px!important}}";
+    document.head.appendChild(portraitPrint);
+  });
+</script>
 </body>
 </html>

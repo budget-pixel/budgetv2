@@ -16,7 +16,7 @@ var wcCoreBudgetPages = [
   { title:"Organizational Structure", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1af21806371d68e7" },
   { title:"Strategic Initiatives", section:"Our County", href:"program-budget.html" },
   { title:"Budget Ledgers", section:"Financial Overview", href:"budget-overview.html" },
-  { title:"Full Budget Document", section:"Financial Overview", href:"full-budget-document.html", keywords:["pdf","full budget","print budget","download budget","whole budget","budget publication","budget book"] },
+  { title:"Full Budget Document", section:"Financial Overview", href:"budget-book.html", keywords:["pdf","full budget","print budget","download budget","whole budget","budget publication","budget book","offline","page flip"] },
   { title:"Program Budget", section:"Financial Overview", href:"program-budget.html" },
   { title:"Constitutional Officers", section:"Constitutional Officers", href:"../home.html?explorer=constitutional" },
   { title:"Departments", section:"Departments", href:"departments.html" },
