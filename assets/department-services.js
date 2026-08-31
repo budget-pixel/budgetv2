@@ -464,7 +464,15 @@
         var operatingDetail=detail.cloneNode(true);
         var includeCapital=/sheriff|clerk of court|property appraiser|supervisor of elections/i.test(String(departmentLabel||''));
         var includeAllExpenditures=/clerk of court|property appraiser|supervisor of elections/i.test(String(departmentLabel||''));
-        retainBudgetRows(operatingDetail,function(category){return includeAllExpenditures||category==='personnel services'||category==='operating expenditures'||(includeCapital&&category==='capital outlay');});
+        // Object_Type isn't limited to Personnel Services / Operating
+        // Expenditures -- funds like Statutory & Other Agency Funding are
+        // mostly Grants and Aid, and a few departments carry Other Uses or
+        // Debt Service rows. Excluding those made the ledger look
+        // incomplete for exactly the departments where they matter most,
+        // so every non-capital category is included by default; only
+        // Capital Outlay stays opt-in (it has its own "View Capital
+        // Investments" button elsewhere).
+        retainBudgetRows(operatingDetail,function(category){return includeAllExpenditures||category!=='capital outlay'||(includeCapital&&category==='capital outlay');});
         addBudgetTotals(operatingDetail);
         html=officeSubtotalsHtml(expenses)+operatingDetail.innerHTML;
       }
