@@ -178,7 +178,8 @@ function buildProjectUrl(project, year){
 
 function renderProjectTitle(project, year, disableLink){
   const title = escapeHtml(project && project.title ? project.title : "Capital Project");
-  const url = disableLink ? "" : buildProjectUrl(project, year);
+  const isComplete = String(project && project.status_text || "").trim().toLowerCase() === "complete";
+  const url = disableLink || isComplete ? "" : buildProjectUrl(project, year);
   // eng_color still records how each FY25/FY26 row reconciled against the
   // County Engineering project notes (and drives the no-amount split in
   // renderFundSchedule), but it no longer tints the title -- every project

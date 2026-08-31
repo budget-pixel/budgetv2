@@ -340,9 +340,11 @@ function renderProjectCard(project){
   // Budgeted-fund rows with no identified project still carry no slug and
   // remain non-clickable.
   const hasProjectPage = Boolean(String(project.slug || "").trim());
+  const isComplete = String(project.status_text || "").trim().toLowerCase() === "complete";
+  const isClickable = hasProjectPage && !isComplete;
 
   return `
-    <article class="wc-project-card${hasProjectPage ? "" : " is-historical"}" data-department="${escapeHtml(departmentLabel)}" data-target="${escapeHtml(String(project.target || "").toLowerCase())}"${hasProjectPage ? ` data-project-url="${escapeHtml(buildProjectUrl(project))}" tabindex="0" role="link" aria-label="View details for ${escapeHtml(project.title)}"` : ""}>
+    <article class="wc-project-card${isClickable ? "" : " is-historical"}" data-department="${escapeHtml(departmentLabel)}" data-target="${escapeHtml(String(project.target || "").toLowerCase())}"${isClickable ? ` data-project-url="${escapeHtml(buildProjectUrl(project))}" tabindex="0" role="link" aria-label="View details for ${escapeHtml(project.title)}"` : ""}>
 
       <div class="wc-project-card-top">
         <h3>${escapeHtml(project.title)}</h3>
@@ -402,9 +404,9 @@ function renderProjectCard(project){
 
       </div>
 
-      ${hasProjectPage
+      ${isClickable
         ? `<div class="wc-project-card-action">View Project</div>`
-        : '<div class="wc-project-card-action is-static">No project page</div>'}
+        : `<div class="wc-project-card-action is-static">${isComplete ? "Project complete" : "No project page"}</div>`}
 
     </article>
   `;
