@@ -1320,6 +1320,20 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 :root[data-theme="dark"] .wc-personnel-explorer-total button + .wc-personnel-explainer-link { background: #172235; }
 
 /* Department Budget Explorer */
+html.wc-embedded-department nav#nav-menu,
+html.wc-embedded-department footer[role="contentinfo"],
+html.wc-embedded-department .wc-breadcrumb{display:none!important}
+html.wc-embedded-department #layout{display:block;min-height:100vh}
+html.wc-embedded-department #content{width:min(1380px,100%);max-width:none;margin:0 auto;padding:44px 28px 28px}
+html.wc-embedded-department #content>.page-eyebrow,
+html.wc-embedded-department #content>.page-title{display:none}
+html.wc-embedded-department .wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}
+.wc-officer-statement-with-portrait{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:start}
+.wc-constitutional-officer-copy{min-width:0}
+.wc-constitutional-officer-portrait{width:100%;margin:0;padding:9px;border:3px solid var(--gold);border-radius:22px;background:#fff;box-shadow:0 12px 34px rgba(0,35,22,.13);box-sizing:border-box}
+.wc-constitutional-officer-portrait img{display:block;width:100%;height:320px;border-radius:14px;object-fit:cover;object-position:center top}
+.wc-constitutional-officer-portrait figcaption{padding:10px 8px 4px;color:var(--navy);font-size:.82rem;font-weight:800;text-align:center}
+@media(max-width:800px){.wc-officer-statement-with-portrait{grid-template-columns:1fr}.wc-constitutional-officer-portrait{width:min(260px,100%);margin:4px auto 8px}.wc-constitutional-officer-portrait img{height:280px}}
 .wc-department-explorer{margin:20px 0 34px;padding:26px;border:1px solid rgba(0,63,40,.14);border-radius:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%);box-shadow:0 8px 26px rgba(0,63,40,.07)}
 .wc-department-explorer{position:relative;margin-top:20px}
 .wc-department-explorer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}
@@ -3145,9 +3159,11 @@ main#content > .recreation-parks-section {
 .wc-data-table tr.wc-fund-activity-row > td:first-child { padding-left: 42px; }
 .wc-revenue-ledger-source-link { padding: 0; border: 0; background: transparent; color: var(--green); font: inherit; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 .wc-revenue-ledger-source-link:hover { color: var(--navy); }
-.wc-revenue-source-dialog { position: fixed; inset: 0; width: min(1120px, calc(100vw - 32px)); max-width: none; height: min(850px, calc(100vh - 32px)); max-height: none; margin: auto; padding: 0; overflow: hidden; border: 0; border-radius: 18px; background: var(--light); color: var(--text); box-shadow: 0 24px 70px rgba(0,27,17,.3); }
-.wc-revenue-source-dialog::backdrop { background: rgba(7,20,16,.66); backdrop-filter: blur(3px); }
-.wc-revenue-source-dialog-shell { display: grid; grid-template-rows: auto minmax(0,1fr); height: 100%; }
+.wc-revenue-source-dialog { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; margin: 0; padding: 18px; overflow: hidden; border: 0; background: #0b2a20; color: var(--text); box-sizing: border-box; }
+.wc-revenue-source-dialog::backdrop { background: #0b2a20; }
+.wc-revenue-source-dialog-wave { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: brightness(.72) saturate(.9); pointer-events: none; }
+.wc-revenue-source-dialog-shade { position: absolute; z-index: 1; inset: 0; background: rgba(3,38,28,.22); pointer-events: none; }
+.wc-revenue-source-dialog-shell { position: relative; z-index: 2; display: grid; grid-template-rows: auto minmax(0,1fr); width: min(1240px,100%); height: 100%; margin: 0 auto; overflow: hidden; border: 1px solid rgba(0,63,40,.18); border-radius: 20px; background: var(--light); box-shadow: 0 28px 80px rgba(0,27,17,.4); }
 .wc-revenue-source-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 18px; border-bottom: 1px solid var(--border); background: #fff; }
 .wc-revenue-source-dialog-head span { display: block; color: var(--green); font-size: .65rem; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
 .wc-revenue-source-dialog-head h2 { margin: 3px 0 0; color: var(--navy); font-size: 1.2rem; }
@@ -3156,7 +3172,9 @@ main#content > .recreation-parks-section {
 .wc-revenue-source-dialog-body { min-height: 0; padding: 20px; overflow: auto; }
 .wc-revenue-source-dialog-body .wc-revenue-detail-actions { display: none; }
 .wc-revenue-source-dialog-body .wc-revenue-topic-block { margin: 0; }
-:root[data-theme="dark"] .wc-revenue-source-dialog,:root[data-theme="dark"] .wc-revenue-source-dialog-head { background: #102119; }
+@media(max-width:700px){.wc-revenue-source-dialog{padding:0}.wc-revenue-source-dialog-shell{border:0;border-radius:0}}
+@media(prefers-reduced-motion:reduce){.wc-revenue-source-dialog-wave{display:none}}
+:root[data-theme="dark"] .wc-revenue-source-dialog-shell,:root[data-theme="dark"] .wc-revenue-source-dialog-head { background: #102119; }
 .wc-fund-activity-detail {
   margin: 4px 14px 14px 28px;
   padding: 10px 14px;

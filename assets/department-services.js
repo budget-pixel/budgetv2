@@ -372,10 +372,12 @@
   function bindSnapshotBudgetGraph(button,expenses,staffing,deptKey,deptLabel){
     button.addEventListener('click',function(){
       if(!window.WCBudgetData||typeof window.WCBudgetData.openBudgetDetailPanel!=='function') return;
+      var suppressFteMarkers=deptKey==='sheriff'||deptKey==='sheriff s office'||deptKey==='board of county commissioners';
+      var suppressFteNote=suppressFteMarkers||/tax collector|property appraiser|clerk of court|supervisor of elections/i.test(String(deptLabel||''));
       var canvasId='wc-snapshot-chart-'+Math.random().toString(36).slice(2);
       var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
         '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend"></div>'+
-        '<p class="wc-snapshot-chart-fte-note"><span class="wc-snapshot-chart-fte-marker"></span> A triangle on Personnel Services marks a year where authorized FTE grew &mdash; that year&rsquo;s cost increase includes added positions, not just pay or benefit changes. FTE-by-year detail is available for FY 2025&ndash;FY 2027 only.</p>'+
+        (suppressFteNote?'':'<p class="wc-snapshot-chart-fte-note"><span class="wc-snapshot-chart-fte-marker"></span> A triangle on Personnel Services marks a year where authorized FTE grew &mdash; that year&rsquo;s cost increase includes added positions, not just pay or benefit changes. FTE-by-year detail is available for FY 2025&ndash;FY 2027 only.</p>')+
         '<p class="wc-snapshot-chart-note">Personnel, operating, and capital spending by fiscal year. Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the tentative budget.</p>';
       var careerStat=SNAPSHOT_CAREER_STATS[deptKey];
       var careerHtml=careerStat?(
@@ -387,7 +389,7 @@
       var html=careerHtml?'<div class="wc-snapshot-chart-layout"><div class="wc-snapshot-chart-main">'+chartHtml+'</div>'+careerHtml+'</div>':chartHtml;
       var body=window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Graph',kicker:deptLabel,bodyClassName:'wc-snapshot-chart-body',html:html});
       ensureChartJs().then(function(){
-        renderSnapshotChart(document.getElementById(canvasId),document.getElementById(canvasId+'-legend'),expenses,staffing);
+        renderSnapshotChart(document.getElementById(canvasId),document.getElementById(canvasId+'-legend'),expenses,staffing,!suppressFteMarkers);
       }).catch(function(){
         if(body) body.insertAdjacentHTML('beforeend','<p class="wc-data-error">Unable to load the chart.</p>');
       });
@@ -460,7 +462,9 @@
       var html='<div class="wc-data-empty">No operating budget detail is available for this department.</div>';
       if(detail){
         var operatingDetail=detail.cloneNode(true);
-        retainBudgetRows(operatingDetail,function(category){return category==='personnel services'||category==='operating expenditures';});
+        var includeCapital=/sheriff|clerk of court|property appraiser|supervisor of elections/i.test(String(departmentLabel||''));
+        var includeAllExpenditures=/clerk of court|property appraiser|supervisor of elections/i.test(String(departmentLabel||''));
+        retainBudgetRows(operatingDetail,function(category){return includeAllExpenditures||category==='personnel services'||category==='operating expenditures'||(includeCapital&&category==='capital outlay');});
         addBudgetTotals(operatingDetail);
         html=officeSubtotalsHtml(expenses)+operatingDetail.innerHTML;
       }
@@ -486,7 +490,7 @@
     });
     return map;
   }
-  function renderSnapshotChart(canvas,legendEl,expenses,staffing){
+  function renderSnapshotChart(canvas,legendEl,expenses,staffing,showFteMarkers){
     if(!canvas||typeof window.Chart==='undefined') return;
     var existingChart=window.Chart.getChart(canvas);
     if(existingChart) existingChart.destroy();
@@ -515,7 +519,7 @@
         pointHoverRadius:5,
         borderWidth:2.5
       };
-      if(cat.type==='Personnel Services'){
+      if(cat.type==='Personnel Services'&&showFteMarkers!==false){
         var fteState=trimmedYears.map(function(y){
           var year=Number(y.label);
           var current=fteByYear[year];
@@ -963,7 +967,15 @@
     if((!expenseMount||!expenseMount.querySelector('.wc-finance-card'))&&attempt<60){window.setTimeout(function(){renderIndependentOfficeSnapshot(title,attempt+1);},80);return;}
 
     var key=canonicalDepartmentKey(normalize(title.textContent));
+    var isSheriffOffice=key==='sheriff'||key==='sheriff s office';
+    var isBoardCommissioners=normalize(title.textContent)==='board of county commissioners';
+    var isCapitalCombinedOfficer=/clerk of court|property appraiser|supervisor of elections/i.test(title.textContent);
+    var isTaxCollector=/tax collector/i.test(title.textContent);
+    var keepCapitalInSummary=isSheriffOffice||isBoardCommissioners||isCapitalCombinedOfficer;
     var expenses=window.WCBudgetData.getDepartmentExpenses(title.textContent.trim())||[];
+    if(isBoardCommissioners&&typeof window.WCBudgetData.getBccOtherUsesContingencyExpenses==='function'){
+      expenses=expenses.concat(window.WCBudgetData.getBccOtherUsesContingencyExpenses()||[]);
+    }
     var revenues=window.WCBudgetData.getDepartmentRevenues(title.textContent.trim())||[];
     var staffing=window.WCBudgetData.getDepartmentStaffing(title.textContent.trim())||[];
     function amountFromText(value){var text=String(value||'').replace(/[^0-9.\-]/g,'');return Number(text)||0;}
@@ -985,6 +997,20 @@
       {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
       {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
+    if(isCapitalCombinedOfficer||isBoardCommissioners){
+      var additionalExpenseGroups={};
+      expenses.filter(function(row){return !/^(personnel services|operating expenditures|capital outlay)$/i.test(String(row.Object_Type||''));}).forEach(function(row){
+        var rawLabel=String(row.Object_Type||row.Object_Name||'Other Expenditures').trim()||'Other Expenditures';
+        var groupLabel=/supervisor of elections/i.test(title.textContent)&&/other uses|contingenc/i.test(rawLabel+' '+String(row.Object_Name||''))?'Other Uses / Contingency':rawLabel;
+        if(!additionalExpenseGroups[groupLabel]) additionalExpenseGroups[groupLabel]={label:groupLabel,amount:0,prior:0};
+        additionalExpenseGroups[groupLabel].amount+=Number(row.FY2027_Proposed)||0;
+        additionalExpenseGroups[groupLabel].prior+=Number(row.FY2026_Original_Budget)||0;
+      });
+      Object.keys(additionalExpenseGroups).forEach(function(groupLabel){
+        var group=additionalExpenseGroups[groupLabel];
+        if(group.amount!==0||group.prior!==0) snapshotExpenseGroups.push(group);
+      });
+    }
     var originalExpenseRows=document.querySelectorAll('#department-expense-table .wc-finance-card-row');
     snapshotExpenseGroups.forEach(function(item){
       var originalRow=Array.prototype.find.call(originalExpenseRows,function(row){var labelNode=row.querySelector('.wc-budget-line-tooltip-label');var labelText=labelNode&&labelNode.childNodes.length?labelNode.childNodes[0].textContent:labelNode&&labelNode.textContent;return normalize(labelText)===normalize(item.label);});
@@ -992,8 +1018,16 @@
       if(originalChange)item.renderedChange={text:originalChange.textContent.trim()};
     });
     if(!snapshotExpenseGroups.length) snapshotExpenseGroups=rowsFromCard(expenseMount).slice(0,4);
-    var capitalGroup=snapshotExpenseGroups.find(function(item){return item.label==='Capital Outlay';})||null;
-    if(capitalGroup) snapshotExpenseGroups=snapshotExpenseGroups.filter(function(item){return item!==capitalGroup;});
+    var capitalGroup=snapshotExpenseGroups.find(function(item){return /capital outlay/i.test(item.label);})||null;
+    if(isCapitalCombinedOfficer&&!capitalGroup){
+      var renderedCapitalGroup=rowsFromCard(expenseMount).find(function(item){return /capital outlay/i.test(item.label);})||null;
+      if(renderedCapitalGroup){
+        snapshotExpenseGroups.push(renderedCapitalGroup);
+        capitalGroup=renderedCapitalGroup;
+      }
+    }
+    if(capitalGroup&&!keepCapitalInSummary) snapshotExpenseGroups=snapshotExpenseGroups.filter(function(item){return item!==capitalGroup;});
+    if(keepCapitalInSummary) capitalGroup=null;
     var budget=snapshotExpenseGroups.reduce(function(total,item){return total+item.amount;},0);
     var priorBudget=snapshotExpenseGroups.reduce(function(total,item){return total+(item.prior||0);},0);
     var budgetChange=budget-priorBudget;
@@ -1009,16 +1043,40 @@
     if(!staffing.length&&staffingMount){var staffingTotal=staffingMount.querySelector('.wc-finance-card-total');fte=amountFromText(staffingTotal&&staffingTotal.textContent);priorFte=fte;fteChange=0;}
     var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
     var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
+    var capitalAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer)?'':'<button type="button" class="wc-profile-snapshot-sheet" data-independent-capital-trigger>View Capital Investments</button>';
+    var contractsAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer)?'':'<button type="button" class="wc-profile-snapshot-sheet" data-independent-contracts-trigger>View Contractual Services</button>';
+    var expenseActions=capitalAction+contractsAction;
+    var personnelLedgerAction=(isSheriffOffice||isCapitalCombinedOfficer)?'':'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div>';
 
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile wc-independent-office-snapshot';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
-      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,item.renderedChange);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-contracts-trigger>View Contractual Services</button></div></article>'+
+      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,item.renderedChange);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button>'+expenseActions+'</div></article>'+
       '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal,null,false,null,item.renderedChange);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-who-pays>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
-      '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div></article></div>';
+      '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+personnelLedgerAction+'</article></div>';
 
     var narrative=document.getElementById('department-narrative');
     if(narrative) narrative.insertAdjacentElement('afterend',snapshot);else title.insertAdjacentElement('afterend',snapshot);
+    if(isSheriffOffice&&narrative){
+      var sheriffSlideshow=document.querySelector('#content > .wc-image-card');
+      if(sheriffSlideshow) narrative.insertAdjacentElement('afterend',sheriffSlideshow);
+    }
+    if(isBoardCommissioners&&narrative){
+      var commissionerPictures=document.querySelector('#content > .wc-commissioner-cards');
+      if(commissionerPictures) narrative.insertAdjacentElement('afterend',commissionerPictures);
+    }
+    if(narrative){
+      var officerPortrait=document.querySelector('#content > .wc-constitutional-officer-portrait');
+      var officerStatement=narrative.querySelector('.statement-of-function');
+      if(officerPortrait&&officerStatement){
+        var officerCopy=document.createElement('div');
+        officerCopy.className='wc-constitutional-officer-copy';
+        while(officerStatement.firstChild) officerCopy.appendChild(officerStatement.firstChild);
+        officerStatement.classList.add('wc-officer-statement-with-portrait');
+        officerStatement.appendChild(officerCopy);
+        officerStatement.appendChild(officerPortrait);
+      }
+    }
     var oldGrid=document.querySelector('.wc-department-financial-grid');if(oldGrid) oldGrid.classList.add('wc-independent-source-grid');
     [expenseMount,revenueMount,staffingMount].forEach(function(mount){if(mount){mount.classList.add('wc-profile-snapshot-personnel-source');snapshot.appendChild(mount);}});
 

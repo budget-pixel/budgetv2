@@ -14,6 +14,9 @@
   var modal = null;
   var modalBody = null;
   var modalTitle = null;
+  var departmentModal = null;
+  var departmentFrame = null;
+  var departmentTrigger = null;
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
 
@@ -206,8 +209,96 @@
     }
   }
 
+  function ensureDepartmentModal() {
+    if (departmentModal) return departmentModal;
+    departmentModal = document.createElement("div");
+    departmentModal.className = "wc-home-department-modal";
+    departmentModal.hidden = true;
+    departmentModal.setAttribute("role", "dialog");
+    departmentModal.setAttribute("aria-modal", "true");
+    departmentModal.setAttribute("aria-labelledby", "wcHomeDepartmentModalTitle");
+    departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
+      '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
+      '<section class="wc-home-department-modal-panel">' +
+        '<header class="wc-home-department-modal-head"><h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
+        '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
+        '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page"></iframe>' +
+      '</section>';
+    document.body.appendChild(departmentModal);
+    departmentFrame = departmentModal.querySelector("iframe");
+    departmentFrame.addEventListener("load", function () {
+      try {
+        var embeddedDocument = departmentFrame.contentDocument;
+        embeddedDocument.documentElement.classList.add("wc-embedded-department");
+        var embeddedStyle = embeddedDocument.createElement("style");
+        embeddedStyle.textContent = 'nav#nav-menu,footer[role="contentinfo"],.wc-breadcrumb{display:none!important}' +
+          '#layout{display:block!important;min-height:100vh!important}' +
+          '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
+          '#content>.page-eyebrow,#content>.page-title{display:none!important}' +
+          '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}';
+        embeddedDocument.head.appendChild(embeddedStyle);
+      } catch (error) {
+        // The query-string class in the embedded page remains the fallback.
+      }
+      if (!departmentModal.hidden) {
+        window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
+      }
+    });
+    departmentModal.addEventListener("click", function (event) {
+      if (event.target.closest("[data-department-popup-close]")) closeDepartmentModal();
+    });
+    return departmentModal;
+  }
+
+  function openDepartmentModal(href, title, trigger) {
+    ensureDepartmentModal();
+    departmentTrigger = trigger;
+    var openedWithoutExplorer = modal.hidden;
+    var url = new URL(href, window.location.href);
+    var departmentTitle = /\/environmental-resources\.html$/i.test(url.pathname) || String(title).toLowerCase() === "environmental services"
+      ? "Environmental Resources"
+      : title || "Department";
+    var waveVideo = departmentModal.querySelector(".wc-home-department-modal-wave");
+    url.searchParams.set("embed", "department-popup");
+    if (waveVideo) {
+      waveVideo.defaultPlaybackRate = 0.25;
+      waveVideo.playbackRate = 0.25;
+      var playPromise = waveVideo.play();
+      if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
+    }
+    departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = departmentTitle;
+    departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + departmentTitle);
+    departmentFrame.title = departmentTitle + " budget page";
+    departmentModal.dataset.standalone = openedWithoutExplorer ? "true" : "false";
+    if (openedWithoutExplorer) lockBackgroundPage();
+    departmentModal.classList.add("is-loading");
+    departmentFrame.src = url.href;
+    departmentModal.hidden = false;
+    modal.classList.add("is-department-popup-open");
+    departmentModal.querySelector(".wc-home-department-modal-close").focus();
+  }
+
+  function closeDepartmentModal() {
+    if (!departmentModal || departmentModal.hidden) return;
+    var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
+    departmentModal.hidden = true;
+    departmentModal.classList.remove("is-loading");
+    var waveVideo = departmentModal.querySelector(".wc-home-department-modal-wave");
+    if (waveVideo) {
+      waveVideo.pause();
+      waveVideo.currentTime = 0;
+    }
+    departmentFrame.src = "about:blank";
+    modal.classList.remove("is-department-popup-open");
+    departmentModal.removeAttribute("data-standalone");
+    if (openedWithoutExplorer) unlockBackgroundPage();
+    if (departmentTrigger && document.contains(departmentTrigger)) departmentTrigger.focus();
+    departmentTrigger = null;
+  }
+
   function closeModal() {
     if (!modal || modal.hidden) return;
+    closeDepartmentModal();
     modal.hidden = true;
     modalBody.innerHTML = "";
     unlockBackgroundPage();
@@ -240,14 +331,71 @@
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
 
     new MutationObserver(function () { prefixPageLinks(modalBody); }).observe(modalBody, { childList: true, subtree: true });
+    document.addEventListener("click", function (event) {
+      var link = event.target.closest('a[href]');
+      if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var inDepartmentExplorer = modalBody.contains(link) && link.closest(".wc-department-budget-cards");
+      var inOfficePicker = link.closest(".wc-budget-detail-modal .wc-department-office-picker-list");
+      var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result");
+      if (!inDepartmentExplorer && !inOfficePicker && !inSearchResults) return;
+      var url = new URL(link.href, window.location.href);
+      var filename = url.pathname.split("/").pop();
+      var resultTitleElement = inSearchResults ? link.querySelector("strong") : null;
+      var resultTitle = resultTitleElement ? resultTitleElement.textContent.trim().toLowerCase() : "";
+      var popupPages = (window.wcBudgetPages || []).filter(function (item) {
+        var isDepartmentPage = item.section === "Departments" && item.title !== "Departments";
+        var isConstitutionalPage = item.section === "Constitutional Officers" && item.title !== "Constitutional Officers";
+        var isIndependentAgencyPage = item.section === "Autonomous Entities";
+        return isDepartmentPage || isConstitutionalPage || isIndependentAgencyPage;
+      });
+      var page = popupPages.find(function (item) {
+        try { return new URL(item.href, window.location.href).pathname.split("/").pop() === filename; }
+        catch (error) { return false; }
+      }) || popupPages.find(function (item) {
+        return resultTitle && String(item.title || "").trim().toLowerCase() === resultTitle;
+      });
+      if (!page) return;
+      event.preventDefault();
+      // Search results can retain a legacy/external URL even though their
+      // catalog entry has a canonical local page. Prefer that catalog URL
+      // once the result has been identified by its displayed title.
+      try {
+        var canonicalFilename = new URL(page.href, window.location.href).pathname.split("/").pop();
+        if (/\.html$/i.test(canonicalFilename)) filename = canonicalFilename;
+      } catch (error) {}
+      // Explorer cards and office-picker choices can be emitted as bare
+      // filenames. Resolve every popup page through /pages/ consistently.
+      var departmentHref = new URL("pages/" + filename, window.location.href);
+      departmentHref.search = url.search;
+      departmentHref.hash = url.hash;
+      var departmentTitle = filename === "environmental-resources.html" ? "Environmental Resources" : page.title;
+      openDepartmentModal(departmentHref.href, departmentTitle, link);
+    }, true);
     modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", closeModal);
     modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
     document.addEventListener("keydown", function (event) {
-      if (modal.hidden) return;
+      if (modal.hidden && (!departmentModal || departmentModal.hidden)) return;
       var nestedDialog = modal.querySelector("dialog[open]");
       if (event.key === "Escape") {
+        if (departmentModal && !departmentModal.hidden) {
+          closeDepartmentModal();
+          return;
+        }
         if (nestedDialog) return;
         closeModal();
+        return;
+      }
+      if (departmentModal && !departmentModal.hidden && event.key === "Tab") {
+        var popupFocusable = Array.prototype.slice.call(departmentModal.querySelectorAll('button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])'));
+        var popupFirst = popupFocusable[0];
+        var popupLast = popupFocusable[popupFocusable.length - 1];
+        if (event.shiftKey && document.activeElement === popupFirst) {
+          event.preventDefault();
+          popupLast.focus();
+        } else if (!event.shiftKey && document.activeElement === popupLast) {
+          event.preventDefault();
+          popupFirst.focus();
+        }
         return;
       }
       if (nestedDialog) return;

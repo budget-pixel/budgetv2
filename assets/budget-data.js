@@ -4707,12 +4707,18 @@
       // total) renders it the same way a single-office row's own Total
       // Personnel Cost amount does, so the picker reads like more rows of
       // that same ledger rather than a plain list of names.
+      const choiceDisplayName = (choice) => {
+        const href = String(choice.href || "").toLowerCase();
+        return href.indexOf("environmental-resources.html") !== -1 || normalizeDeptName(choice.name) === "environmental services"
+          ? "Environmental Resources"
+          : choice.name;
+      };
       const choiceLabelHtml = (choice) => choice.amount == null
-        ? escapeHtml(choice.name)
-        : '<span>' + escapeHtml(choice.name) + '</span><strong>' + escapeHtml(formatCurrency(choice.amount)) + '</strong>';
+        ? escapeHtml(choiceDisplayName(choice))
+        : '<span>' + escapeHtml(choiceDisplayName(choice)) + '</span><strong>' + escapeHtml(formatCurrency(choice.amount)) + '</strong>';
       body.innerHTML = '<ul class="wc-department-office-picker-list">' +
         choices.map((choice) => choice.detailId
-          ? '<li><button type="button" class="wc-view-budget-lines-toggle" data-target="' + escapeHtml(choice.detailId) + '" data-closed-label="' + escapeHtml(choice.name) + '">' + choiceLabelHtml(choice) + '</button></li>'
+          ? '<li><button type="button" class="wc-view-budget-lines-toggle" data-target="' + escapeHtml(choice.detailId) + '" data-closed-label="' + escapeHtml(choiceDisplayName(choice)) + '">' + choiceLabelHtml(choice) + '</button></li>'
           : '<li><a href="' + escapeHtml(choice.href) + '">' + choiceLabelHtml(choice) + '</a></li>'
         ).join("") +
         '</ul>';
@@ -5646,6 +5652,10 @@
       String((r && r.Dept_Code) || "").trim() === "00101001" &&
       String((r && r.Object_Code) || "").trim() === "599000"
     );
+  }
+
+  function getBccOtherUsesContingencyExpenses() {
+    return (cache.expenditures || []).filter(isBccOtherUsesContingencyRow);
   }
 
   function expenseActivityForRow(r) {
@@ -8850,13 +8860,18 @@
         "</div>" +
         '<div class="wc-revenue-ledger-filtered-table"></div>';
       const tableContainer = container.querySelector(".wc-revenue-ledger-filtered-table");
+      const revenueDialogWaveSrc = window.location.pathname.includes("/pages/")
+        ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4"
+        : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
       container.insertAdjacentHTML("beforeend",
         '<dialog class="wc-revenue-source-dialog" data-revenue-source-dialog aria-labelledby="wcRevenueSourceDialogTitle">' +
+        '<video class="wc-revenue-source-dialog-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="' + revenueDialogWaveSrc + '" type="video/mp4"></video><div class="wc-revenue-source-dialog-shade" aria-hidden="true"></div>' +
         '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueSourceDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-source-dialog-close aria-label="Close">&times;</button></div>' +
         '<div class="wc-revenue-source-dialog-body" data-revenue-source-dialog-body></div></div>' +
         '</dialog>'
       );
       const revenueSourceDialog = container.querySelector("[data-revenue-source-dialog]");
+      const revenueSourceDialogWave = container.querySelector(".wc-revenue-source-dialog-wave");
       const revenueSourceDialogBody = container.querySelector("[data-revenue-source-dialog-body]");
       const revenueSourceDialogTitle = container.querySelector("#wcRevenueSourceDialogTitle");
       function ledgerExplorerSourceName(row) {
@@ -8889,10 +8904,20 @@
         revenueSourceDialogBody.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + '</div>';
         document.documentElement.classList.add("wc-modal-open");
         revenueSourceDialog.showModal();
+        if (revenueSourceDialogWave) {
+          revenueSourceDialogWave.defaultPlaybackRate = 0.25;
+          revenueSourceDialogWave.playbackRate = 0.25;
+          const playPromise = revenueSourceDialogWave.play();
+          if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+        }
         renderRevenueTopicCards(revenueSourceDialogBody, [topic], "wc-chart-revenue-ledger-popup");
         bindTooltipAnchors(revenueSourceDialogBody);
       });
       const closeRevenueSourceDialog = () => {
+        if (revenueSourceDialogWave) {
+          revenueSourceDialogWave.pause();
+          revenueSourceDialogWave.currentTime = 0;
+        }
         if (revenueSourceDialog) revenueSourceDialog.close();
         document.documentElement.classList.remove("wc-modal-open");
         if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
@@ -8902,6 +8927,10 @@
         if (event.target === revenueSourceDialog) closeRevenueSourceDialog();
       });
       revenueSourceDialog.addEventListener("close", () => {
+        if (revenueSourceDialogWave) {
+          revenueSourceDialogWave.pause();
+          revenueSourceDialogWave.currentTime = 0;
+        }
         document.documentElement.classList.remove("wc-modal-open");
         if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
       });
@@ -17396,6 +17425,9 @@
         };
         return combined[key] || pageHref(name);
       }
+      function officeDisplayName(name) {
+        return normalizeDeptName(name) === "environmental services" ? "Environmental Resources" : name;
+      }
       const costCellLinkOptions = { plain: true, linkClass: "wc-table-row-link" };
       // Mirrors the group.contracts/group.internal classification above
       // (same precedence: personnel/capital excluded first, then internal-
@@ -17497,7 +17529,7 @@
         // Department Explorer cards above use, instead of an inline
         // expand-to-see-offices dropdown.
         const offices = officesForDept(dept);
-        const officeChoices = offices.map((office) => ({ name: office.name, href: officeHref(office.name) }));
+        const officeChoices = offices.map((office) => ({ name: officeDisplayName(office.name), href: officeHref(office.name) }));
         const distinctHrefs = Array.from(new Set(officeChoices.map((choice) => choice.href)));
         let deptNameHtml;
         if (distinctHrefs.length > 1) {
@@ -17627,7 +17659,7 @@
         // those, clicking the card opens a picker instead of guessing which
         // office the user meant.
         const offices = officesForDept(dept);
-        const officeChoices = offices.map((office) => ({ name: office.name, href: officeHref(office.name) }));
+        const officeChoices = offices.map((office) => ({ name: officeDisplayName(office.name), href: officeHref(office.name) }));
         const distinctHrefs = Array.from(new Set(officeChoices.map((choice) => choice.href)));
         if (distinctHrefs.length > 1) {
           departmentCardOfficeChoices.set(dept.key, officeChoices);
@@ -17762,9 +17794,12 @@
       const allowed = new Set(["board of county commissioners", "clerk of court", "property appraiser", "supervisor of elections", "tax collector", "walton county sheriffs office"]);
       const groups = new Map();
       (data.expenditures || []).forEach((row) => {
-        const key = normalizeDeptName(row.Dept_Name);
+        const rowKey = normalizeDeptName(row.Dept_Name);
+        const key = isBccOtherUsesContingencyRow(row) || rowKey === "bcc other uses contingency"
+          ? "board of county commissioners"
+          : rowKey;
         if (!allowed.has(key)) return;
-        if (!groups.has(key)) groups.set(key, { key, name: row.Dept_Name, prior: 0, current: 0, personnel: 0, operating: 0, capital: 0, other: 0, priorPersonnel: 0, priorOperating: 0, priorCapital: 0, priorOther: 0, rows: [] });
+        if (!groups.has(key)) groups.set(key, { key, name: key === "board of county commissioners" ? "Board of County Commissioners" : row.Dept_Name, prior: 0, current: 0, personnel: 0, operating: 0, capital: 0, other: 0, priorPersonnel: 0, priorOperating: 0, priorCapital: 0, priorOther: 0, rows: [] });
         const office = groups.get(key);
         const current = Number(row.FY2027_Proposed) || 0;
         const priorAmount = Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0;
@@ -17976,7 +18011,11 @@
     // those pages' own headline.
     const allowed = new Set(["board of county commissioners", "clerk of court", "property appraiser", "supervisor of elections", "tax collector", "walton county sheriffs office"]);
     return (data.expenditures || []).reduce((sum, row) => {
-      if (!allowed.has(normalizeDeptName(row.Dept_Name))) return sum;
+      const rowKey = normalizeDeptName(row.Dept_Name);
+      const key = isBccOtherUsesContingencyRow(row) || rowKey === "bcc other uses contingency"
+        ? "board of county commissioners"
+        : rowKey;
+      if (!allowed.has(key)) return sum;
       return sum + (Number(row.FY2027_Proposed) || 0);
     }, 0);
   }
@@ -18098,6 +18137,7 @@
     formatNumber,
     getDepartmentNameFromPage,
     getDepartmentExpenses,
+    getBccOtherUsesContingencyExpenses,
     getDepartmentRevenues,
     getDepartmentStaffing,
     getCombinedDepartmentOffices,
