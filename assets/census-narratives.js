@@ -137,13 +137,56 @@
       });
   }
 
+  // Response cache + one retry + stale-cache fallback -- CENSUS_DATA_JSON_URL
+  // above is a same-origin static file (fast, reliably cached by the
+  // browser already) but this CSV comes from a published Google Sheet,
+  // which is slow enough and unreliable enough on its own to need this.
+  const CENSUS_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function censusFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readCensusFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(censusFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeCensusFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(censusFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, quota) -- caching is optional.
+    }
+  }
+
   function fetchCSV(url) {
-    return fetch(url, { cache: "no-store" })
-      .then((res) => {
+    const cached = readCensusFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < CENSUS_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(parseCSV(cached.text));
+    }
+    function fetchOnce() {
+      return fetch(url, { cache: "no-store" }).then((res) => {
         if (!res.ok) throw new Error("Request failed with status " + res.status);
         return res.text();
+      });
+    }
+    function attempt(retriesLeft) {
+      return fetchOnce().catch((err) => (retriesLeft > 0 ? attempt(retriesLeft - 1) : Promise.reject(err)));
+    }
+    return attempt(1)
+      .then((text) => {
+        writeCensusFetchCache(url, text);
+        return parseCSV(text);
       })
-      .then(parseCSV);
+      .catch((err) => {
+        if (cached) return parseCSV(cached.text);
+        throw err;
+      });
   }
 
   function fetchJSON(url) {

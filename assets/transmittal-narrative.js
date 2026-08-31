@@ -99,13 +99,57 @@
       });
   }
 
+  // Response cache + one retry + stale-cache fallback around the published
+  // Google Sheet fetch -- see budget-data.js's fetchText for the full
+  // rationale (this page's sheet was previously re-fetched from scratch on
+  // every view with no retry, and a failed/timed-out fetch fell straight
+  // through to an empty page with no visible sign anything went wrong).
+  const TRANSMITTAL_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function transmittalFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readTransmittalFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(transmittalFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeTransmittalFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(transmittalFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, quota) -- caching is optional.
+    }
+  }
+
   function fetchCSV(url) {
-    return fetch(url, { cache: "no-store" })
-      .then((res) => {
+    const cached = readTransmittalFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < TRANSMITTAL_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(parseCSV(cached.text));
+    }
+    function fetchOnce() {
+      return fetch(url, { cache: "no-store" }).then((res) => {
         if (!res.ok) throw new Error("Request failed with status " + res.status);
         return res.text();
+      });
+    }
+    function attempt(retriesLeft) {
+      return fetchOnce().catch((err) => (retriesLeft > 0 ? attempt(retriesLeft - 1) : Promise.reject(err)));
+    }
+    return attempt(1)
+      .then((text) => {
+        writeTransmittalFetchCache(url, text);
+        return parseCSV(text);
       })
-      .then(parseCSV);
+      .catch((err) => {
+        if (cached) return parseCSV(cached.text);
+        throw err;
+      });
   }
 
   function isActiveRow(row) {

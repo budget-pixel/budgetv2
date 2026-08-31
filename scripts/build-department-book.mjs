@@ -20,29 +20,37 @@ for (const [index, department] of departments.entries()) {
     const container = document.createElement("section");
     container.className = "wc-book-department-tables";
     const sources = [
-      ["department-expense-table", "Detailed Expenditure Ledger", "", ["object name", "itemized description", "fy 2025 actual", "fy 2026 budget", "fy 2027 proposed"]],
-      ["department-revenue-table", "Detailed Revenue Ledger", "", ["object name", "itemized description", "fy 2025 actual", "fy 2026 budget", "fy 2027 proposed"]],
+      ["department-expense-table", "Expenditures by Object Code", "", ["name", "fy 2025 actual", "fy 2026 budget", "fy 2027 proposed"], "category"],
+      ["department-revenue-table", "Revenues by Object Code", "", ["name", "fy 2025 actual", "fy 2026 budget", "fy 2027 proposed"], "category"],
       ["department-staffing-table", "Staffing and Personnel Table", "wc-book-staffing-table", ["position", "fy 2026 fte", "fy 2027 fte", "+/−", "salaries & wages", "total personnel cost"]]
     ];
     const normalize = (value) => value.replace(/\s+/g, " ").trim().toLowerCase();
-    const cleanTable = (source, wantedHeaders) => {
+    // Subtotal/total rows carry their label ("Personnel Services Subtotal",
+    // "Total") in the Category column, not the Object/Revenue Name column
+    // -- fallbackHeader lets those rows fall back to that label instead of
+    // rendering blank once the Category column itself is dropped.
+    const cleanTable = (source, wantedHeaders, fallbackHeader) => {
       const table = document.createElement("table");
       table.className = "wc-book-clean-table";
       const sourceRows = [...source.rows];
       const headers = [...(sourceRows[0]?.cells || [])].map((cell) => normalize(cell.innerText));
       const indexes = wantedHeaders.map((wanted) => headers.findIndex((header) => header === wanted || header.includes(wanted))).filter((index) => index >= 0);
+      const fallbackIndex = fallbackHeader ? headers.findIndex((header) => header === fallbackHeader) : -1;
       const seen = new Set();
       for (const [rowIndex, sourceRow] of sourceRows.entries()) {
         const row = document.createElement("tr");
         const cells = [...sourceRow.cells];
-        for (const index of indexes) {
+        indexes.forEach((index, position) => {
           const sourceCell = cells[index];
-          if (!sourceCell) continue;
+          if (!sourceCell) return;
           const cell = document.createElement(rowIndex === 0 || sourceCell.tagName === "TH" ? "th" : "td");
-          cell.textContent = sourceCell.innerText.replace(/\s+/g, " ").trim() || "—";
-          if (sourceCell.colSpan > 1 && !keepColumns) cell.colSpan = sourceCell.colSpan;
+          let text = sourceCell.innerText.replace(/\s+/g, " ").trim();
+          if (!text && position === 0 && fallbackIndex >= 0 && rowIndex > 0) {
+            text = (cells[fallbackIndex]?.innerText || "").replace(/\s+/g, " ").trim();
+          }
+          cell.textContent = text || "—";
           row.appendChild(cell);
-        }
+        });
         const signature = [...row.cells].map((cell) => normalize(cell.textContent)).join("|");
         if (!row.cells.length || (rowIndex > 0 && seen.has(signature))) continue;
         if (rowIndex > 0) seen.add(signature);
@@ -50,7 +58,7 @@ for (const [index, department] of departments.entries()) {
       }
       return table;
     };
-    for (const [id, title, extraClass, wantedHeaders] of sources) {
+    for (const [id, title, extraClass, wantedHeaders, fallbackHeader] of sources) {
       const mount = document.getElementById(id);
       if (!mount || !mount.querySelector("table")) continue;
       const candidates = [...mount.querySelectorAll("table")];
@@ -59,7 +67,7 @@ for (const [index, department] of departments.entries()) {
       const section = document.createElement("section");
       section.className = `wc-book-department-table ${extraClass}`.trim();
       section.innerHTML = `<h2>${title}</h2>`;
-      const table = cleanTable(source, wantedHeaders);
+      const table = cleanTable(source, wantedHeaders, fallbackHeader);
       if (!table.tHead?.rows[0]?.cells.length || !table.tBodies[0]?.rows.length) continue;
       section.appendChild(table);
       container.appendChild(section);

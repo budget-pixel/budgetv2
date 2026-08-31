@@ -107,6 +107,59 @@
         "</div></section>";
   }
 
+  // Response cache + one retry + stale-cache fallback around the published
+  // Google Sheet fetch -- see budget-data.js's fetchText for the full
+  // rationale (this page's sheet was previously re-fetched from scratch on
+  // every view with no retry, and a single failed/timed-out fetch fell
+  // straight through to the error state below).
+  const ASSET_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function assetFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readAssetFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(assetFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeAssetFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(assetFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, quota) -- caching is optional.
+    }
+  }
+
+  function fetchAssetSheetText(url) {
+    const cached = readAssetFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < ASSET_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(cached.text);
+    }
+    function fetchOnce() {
+      return fetch(url).then((response) => {
+        if (!response.ok) throw new Error("Equipment sheet request failed");
+        return response.text();
+      });
+    }
+    function attempt(retriesLeft) {
+      return fetchOnce().catch((err) => (retriesLeft > 0 ? attempt(retriesLeft - 1) : Promise.reject(err)));
+    }
+    return attempt(1)
+      .then((text) => {
+        writeAssetFetchCache(url, text);
+        return text;
+      })
+      .catch((err) => {
+        if (cached) return cached.text;
+        throw err;
+      });
+  }
+
   function loadAssetRecord() {
     const requestedAsset = new URLSearchParams(window.location.search).get("asset");
     if (!requestedAsset) {
@@ -114,8 +167,7 @@
       return;
     }
 
-    fetch(DATA_URL)
-      .then((response) => { if (!response.ok) throw new Error("Equipment sheet request failed"); return response.text(); })
+    fetchAssetSheetText(DATA_URL)
       .then(parseCSV)
       .then((records) => {
         const record = records.find((item) => String(item["Equip Code"] || "").trim() === String(requestedAsset).trim());

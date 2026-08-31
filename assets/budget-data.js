@@ -29,6 +29,7 @@
   const SUPABASE_CLIENT_SCRIPT = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
   const BUDGET_FETCH_TIMEOUT_MS = 20000;
   const SUPABASE_LOAD_TIMEOUT_MS = 15000;
+  const BUDGET_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
 
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
@@ -2819,7 +2820,38 @@
     return names.size > 1;
   }
 
-  function fetchText(url) {
+  // Every sheet tab used to be re-fetched from scratch on every page view
+  // (no caching at all) with no retry, so on a slow connection the tab most
+  // likely to time out failed first -- and a failed fetch was silently
+  // swallowed into an empty array downstream (see loadBudgetData), with only
+  // a console.error to show for it. dataFetchDegraded flags whenever a
+  // retry or a stale-cache fallback fires, so loadBudgetData can surface
+  // that to the reader instead of rendering as if nothing went wrong.
+  let dataFetchDegraded = false;
+
+  function budgetFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readBudgetFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(budgetFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeBudgetFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(budgetFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, storage quota) --
+      // caching is a nice-to-have, not required for the fetch to succeed.
+    }
+  }
+
+  function fetchTextOnce(url) {
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     const options = { cache: "no-store" };
     if (controller) options.signal = controller.signal;
@@ -2837,8 +2869,74 @@
       });
   }
 
+  function fetchText(url) {
+    const cached = readBudgetFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < BUDGET_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(cached.text);
+    }
+
+    function attempt(retriesLeft) {
+      return fetchTextOnce(url).catch((err) => {
+        if (retriesLeft > 0) {
+          dataFetchDegraded = true;
+          return attempt(retriesLeft - 1);
+        }
+        throw err;
+      });
+    }
+
+    return attempt(1)
+      .then((text) => {
+        writeBudgetFetchCache(url, text);
+        return text;
+      })
+      .catch((err) => {
+        if (cached) {
+          dataFetchDegraded = true;
+          return cached.text;
+        }
+        throw err;
+      });
+  }
+
   function fetchCSV(url) {
     return fetchText(url).then(parseCSV);
+  }
+
+  // Turns an invisible partial failure (a source that timed out and quietly
+  // became an empty array, or one that only recovered via a stale cached
+  // copy) into something the reader can actually see, with a way to try
+  // again -- shown once per load, dismissible, and safe to call before
+  // document.body exists yet.
+  function showDataDegradedBanner() {
+    if (document.querySelector(".wc-data-degraded-banner")) return;
+    if (!document.body) {
+      document.addEventListener("DOMContentLoaded", showDataDegradedBanner, { once: true });
+      return;
+    }
+    const banner = document.createElement("div");
+    banner.className = "wc-data-degraded-banner";
+    banner.setAttribute("role", "status");
+    banner.style.cssText =
+      "position:sticky;top:0;z-index:9997;display:flex;align-items:center;justify-content:center;" +
+      "gap:16px;padding:10px 16px;background:#7a5b12;color:#fff;font:600 13px/1.4 Arial,sans-serif;text-align:center";
+    const message = document.createElement("span");
+    message.textContent = "Some figures may be out of date or incomplete because a data source was slow to respond.";
+    const refresh = document.createElement("button");
+    refresh.type = "button";
+    refresh.textContent = "Refresh";
+    refresh.style.cssText = "border:1px solid rgba(255,255,255,.6);border-radius:999px;background:transparent;color:#fff;padding:4px 12px;font:700 12px/1 Arial,sans-serif;cursor:pointer";
+    refresh.addEventListener("click", () => window.location.reload());
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.setAttribute("aria-label", "Dismiss");
+    dismiss.textContent = "×";
+    dismiss.style.cssText = "border:0;background:transparent;color:#fff;font:700 18px/1 Arial,sans-serif;cursor:pointer;padding:0 4px";
+    dismiss.addEventListener("click", () => banner.remove());
+    banner.appendChild(message);
+    banner.appendChild(refresh);
+    banner.appendChild(dismiss);
+    document.body.insertBefore(banner, document.body.firstChild);
   }
 
   // Dev-only sanity check, never shown in the UI -- logs to the browser
@@ -3128,9 +3226,12 @@
         } else {
           cache[key] = [];
           cache.errors[key] = result.reason;
+          dataFetchDegraded = true;
           console.error("WCBudgetData: failed to load " + key, result.reason);
         }
       });
+
+      if (dataFetchDegraded) showDataDegradedBanner();
 
       cache.expenditures = applyStatutoryExpenseOverrides(cache.expenditures);
       cache.revenues = applyRevenueNameOverrides(cache.revenues);

@@ -872,14 +872,64 @@
     });
   }
 
-  function fetchCapitalProjects() {
-    return fetch(CAPITAL_PROJECTS_CSV_URL, { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Capital projects sheet request failed with status " + response.status);
-        }
-        return response.text();
+  // Response cache + one retry + stale-cache fallback around the sheet
+  // fetch -- without this, every page view re-fetched the sheet from
+  // scratch with no retry, and a slow/failed request fell straight through
+  // to the placeholder project list below with no way to recover once the
+  // network hiccup passed.
+  const CIP_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function cipFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readCipFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(cipFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeCipFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(cipFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, quota) -- caching is optional.
+    }
+  }
+
+  function fetchTextOnce(url) {
+    return fetch(url, { cache: "no-store" }).then((response) => {
+      if (!response.ok) {
+        throw new Error("Capital projects sheet request failed with status " + response.status);
+      }
+      return response.text();
+    });
+  }
+
+  function fetchCapitalProjectsText(url) {
+    const cached = readCipFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < CIP_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(cached.text);
+    }
+    function attempt(retriesLeft) {
+      return fetchTextOnce(url).catch((err) => (retriesLeft > 0 ? attempt(retriesLeft - 1) : Promise.reject(err)));
+    }
+    return attempt(1)
+      .then((text) => {
+        writeCipFetchCache(url, text);
+        return text;
       })
+      .catch((err) => {
+        if (cached) return cached.text;
+        throw err;
+      });
+  }
+
+  function fetchCapitalProjects() {
+    return fetchCapitalProjectsText(CAPITAL_PROJECTS_CSV_URL)
       .then(parseCSV)
       .then(normalizeCapitalProjects)
       .then((projects) => {

@@ -74,13 +74,57 @@
     return value.toFixed(2) + "%";
   }
 
+  // Response cache + one retry + stale-cache fallback around the published
+  // Google Sheet fetch -- see budget-data.js's fetchText for the full
+  // rationale (this page's sheet was previously re-fetched from scratch on
+  // every view with no retry, and a failed/timed-out fetch fell straight
+  // through to an empty table with no visible sign anything went wrong).
+  const TAXPAYERS_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+
+  function taxpayersFetchCacheKey(url) {
+    return "wcFetchCache:" + url;
+  }
+
+  function readTaxpayersFetchCache(url) {
+    try {
+      const raw = sessionStorage.getItem(taxpayersFetchCacheKey(url));
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function writeTaxpayersFetchCache(url, text) {
+    try {
+      sessionStorage.setItem(taxpayersFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
+    } catch (err) {
+      // sessionStorage can throw (private browsing, quota) -- caching is optional.
+    }
+  }
+
   function fetchCSV(url) {
-    return fetch(url, { cache: "no-store" })
-      .then((res) => {
+    const cached = readTaxpayersFetchCache(url);
+    if (cached && Date.now() - cached.savedAt < TAXPAYERS_FETCH_CACHE_TTL_MS) {
+      return Promise.resolve(parseCSVRows(cached.text));
+    }
+    function fetchOnce() {
+      return fetch(url, { cache: "no-store" }).then((res) => {
         if (!res.ok) throw new Error("Request failed with status " + res.status);
         return res.text();
+      });
+    }
+    function attempt(retriesLeft) {
+      return fetchOnce().catch((err) => (retriesLeft > 0 ? attempt(retriesLeft - 1) : Promise.reject(err)));
+    }
+    return attempt(1)
+      .then((text) => {
+        writeTaxpayersFetchCache(url, text);
+        return parseCSVRows(text);
       })
-      .then(parseCSVRows);
+      .catch((err) => {
+        if (cached) return parseCSVRows(cached.text);
+        throw err;
+      });
   }
 
   function renderTaxpayersTable(container, rows) {
