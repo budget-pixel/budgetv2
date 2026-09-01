@@ -19,6 +19,7 @@
   var departmentTrigger = null;
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
+  var capitalSearchOutsideClickHandler = null;
 
   function lockBackgroundPage() {
     if (savedBodyStyles) return;
@@ -153,7 +154,209 @@
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
-      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a><a class="wc-revenue-ledger-trigger" href="pages/search.html">Project Search</a></div></div></aside></div><div class="wc-department-budget-cards">' + cardHtml + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a></div></div></aside></div>' +
+        '<section class="wc-home-search wc-capital-project-search" aria-labelledby="wcCapitalSearchTitle">' +
+          '<div><h2 id="wcCapitalSearchTitle">Search Capital Projects</h2><p>Find a specific capital project by name, department, or fund.</p></div>' +
+          '<div class="wc-home-search-input-wrap">' +
+            '<form class="wc-home-search-form" data-capital-project-search-form role="search">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>' +
+              '<label class="wc-sr-only" for="wcCapitalProjectSearchInput">Search capital projects</label>' +
+              '<input id="wcCapitalProjectSearchInput" name="q" type="search" placeholder="What project are you looking for?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcCapitalSearchDropdown" aria-autocomplete="list">' +
+              '<button type="submit">Search</button>' +
+            '</form>' +
+            '<div id="wcCapitalSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Matching capital projects" hidden></div>' +
+          '</div>' +
+        '</section>' +
+        '<div class="wc-department-budget-cards">' + cardHtml + '</div>' +
+        '<section class="wc-capital-search-results" data-capital-search-results hidden>' +
+          '<div class="wc-capital-search-results-head"><h3 data-capital-search-results-title>Search results</h3><button type="button" class="wc-capital-search-clear" data-capital-search-clear>Clear search</button></div>' +
+          '<div class="wc-department-budget-cards" data-capital-search-results-list></div>' +
+        '</section></section>';
+      var capitalSearchForm = modalBody.querySelector('[data-capital-project-search-form]');
+      var capitalSearchInput = capitalSearchForm ? capitalSearchForm.querySelector('input[name="q"]') : null;
+      var capitalSearchDropdown = modalBody.querySelector('#wcCapitalSearchDropdown');
+      var capitalSearchResultsSection = modalBody.querySelector('[data-capital-search-results]');
+      var capitalSearchResultsTitle = modalBody.querySelector('[data-capital-search-results-title]');
+      var capitalSearchResultsList = modalBody.querySelector('[data-capital-search-results-list]');
+      var capitalSearchActiveIndex = -1;
+
+      // Synthesized placeholder rows (a whole fund's single-line capital
+      // outlay with no individual project of its own -- see
+      // placeholderFundProjects in cip-projects-data.js) have no slug and
+      // so no project page to open; shown as plain, non-clickable entries
+      // instead of a link that goes nowhere useful.
+      function capitalSearchResultCardHtml(project) {
+        var subtitle = project.department || project.dept || project.funding || '';
+        var budget = project.budget || (project.budget_value ? formatCurrency(project.budget_value) : '');
+        var inner = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(project.title) + '</strong>' +
+          (budget ? '<b class="wc-revenue-card-amount">' + escapeHtml(budget) + '</b>' : '') +
+          (subtitle ? '<small class="wc-revenue-card-share">' + escapeHtml(subtitle) + '</small>' : '') +
+          '</div></div>';
+        return project.slug
+          ? '<a href="#" data-capital-search-result-open>' + inner + '</a>'
+          : '<div class="wc-capital-search-result-static">' + inner + '</div>';
+      }
+
+      function capitalSearchOpenProject(project) {
+        if (!project.slug) return;
+        var url = new URL('pages/cip-project.html', window.location.href);
+        url.searchParams.set('project', project.slug);
+        openDepartmentModal(url.href, project.title || 'Capital Project', capitalSearchForm);
+      }
+
+      function capitalSearchMatchesFor(query) {
+        var normalizedQuery = String(query || '').trim().toLowerCase();
+        if (!normalizedQuery) return [];
+        return projects.map(function (project, index) {
+          if (!project || !project.title) return null;
+          var title = String(project.title).toLowerCase();
+          var haystack = [project.title, project.department, project.dept, project.funding, project.category].filter(Boolean).join(' ').toLowerCase();
+          if (haystack.indexOf(normalizedQuery) === -1) return null;
+          var rank = title === normalizedQuery ? 0 : title.indexOf(normalizedQuery) === 0 ? 1 : title.indexOf(normalizedQuery) !== -1 ? 2 : 3;
+          return { project: project, rank: rank, index: index };
+        }).filter(Boolean).sort(function (a, b) {
+          return a.rank - b.rank || a.index - b.index;
+        }).map(function (entry) { return entry.project; });
+      }
+
+      // The dropdown is a quick top-8 jump list while typing; submitting
+      // shows the full matching set inline, right under the ledger cards,
+      // instead of sending anyone to a separate full-page search.
+      function capitalSearchSubmitQuery() {
+        var query = String((capitalSearchInput && capitalSearchInput.value) || '').trim();
+        if (!capitalSearchResultsSection || !capitalSearchResultsList) return;
+        if (!query) {
+          capitalSearchResultsSection.hidden = true;
+          capitalSearchResultsList.innerHTML = '';
+          return;
+        }
+        var matches = capitalSearchMatchesFor(query);
+        if (capitalSearchResultsTitle) {
+          capitalSearchResultsTitle.textContent = matches.length
+            ? matches.length + ' project' + (matches.length === 1 ? '' : 's') + ' matching “' + query + '”'
+            : 'No projects matching “' + query + '”';
+        }
+        capitalSearchResultsList.innerHTML = matches.length
+          ? matches.map(capitalSearchResultCardHtml).join('')
+          : '<p class="wc-data-empty">Try a different project name, department, or fund.</p>';
+        capitalSearchResultsList.querySelectorAll('[data-capital-search-result-open]').forEach(function (link, i) {
+          link.addEventListener('click', function (event) {
+            event.preventDefault();
+            capitalSearchOpenProject(matches[i]);
+          });
+        });
+        capitalSearchResultsSection.hidden = false;
+        capitalSearchResultsSection.scrollIntoView({ block: 'start' });
+      }
+
+      var capitalSearchClearButton = modalBody.querySelector('[data-capital-search-clear]');
+      if (capitalSearchClearButton) {
+        capitalSearchClearButton.addEventListener('click', function () {
+          if (capitalSearchInput) capitalSearchInput.value = '';
+          if (capitalSearchResultsSection) capitalSearchResultsSection.hidden = true;
+          if (capitalSearchResultsList) capitalSearchResultsList.innerHTML = '';
+          if (capitalSearchInput) capitalSearchInput.focus();
+        });
+      }
+
+      function capitalSearchResultLinks() {
+        return capitalSearchDropdown ? Array.prototype.slice.call(capitalSearchDropdown.querySelectorAll('.wc-home-search-result')) : [];
+      }
+
+      function capitalSearchHideDropdown() {
+        if (!capitalSearchDropdown) return;
+        capitalSearchDropdown.hidden = true;
+        capitalSearchDropdown.innerHTML = '';
+        capitalSearchActiveIndex = -1;
+        if (capitalSearchInput) capitalSearchInput.setAttribute('aria-expanded', 'false');
+      }
+
+      function capitalSearchSetActive(index) {
+        var links = capitalSearchResultLinks();
+        capitalSearchActiveIndex = links.length ? (index + links.length) % links.length : -1;
+        links.forEach(function (link, i) {
+          var active = i === capitalSearchActiveIndex;
+          link.classList.toggle('is-active', active);
+          link.setAttribute('aria-selected', active ? 'true' : 'false');
+          if (active) link.scrollIntoView({ block: 'nearest' });
+        });
+      }
+
+      function capitalSearchRenderDropdown(query) {
+        if (!capitalSearchDropdown) return;
+        if (!String(query || '').trim()) {
+          capitalSearchHideDropdown();
+          return;
+        }
+        // Only projects with their own page make sense as a quick jump --
+        // placeholder fund rows with no page still show up once the user
+        // submits, in the full inline results list below.
+        var matches = capitalSearchMatchesFor(query).filter(function (project) { return project.slug; }).slice(0, 8);
+
+        capitalSearchActiveIndex = -1;
+        if (!matches.length) {
+          capitalSearchDropdown.innerHTML = '<div class="wc-home-search-empty">No matching projects found.</div>';
+          capitalSearchDropdown.hidden = false;
+          if (capitalSearchInput) capitalSearchInput.setAttribute('aria-expanded', 'true');
+          return;
+        }
+        capitalSearchDropdown.innerHTML = matches.map(function (project, i) {
+          var subtitle = project.department || project.dept || project.funding || '';
+          return '<a class="wc-home-search-result" role="option" aria-selected="false" href="#" data-capital-search-index="' + i + '">' +
+            '<strong>' + escapeHtml(project.title) + '</strong>' +
+            (subtitle ? '<span>' + escapeHtml(subtitle) + '</span>' : '') +
+            '</a>';
+        }).join('');
+        capitalSearchDropdown.hidden = false;
+        if (capitalSearchInput) capitalSearchInput.setAttribute('aria-expanded', 'true');
+        capitalSearchDropdown.querySelectorAll('.wc-home-search-result').forEach(function (link, i) {
+          link.addEventListener('click', function (event) {
+            event.preventDefault();
+            capitalSearchOpenProject(matches[i]);
+            capitalSearchHideDropdown();
+          });
+        });
+      }
+
+      if (capitalSearchForm && capitalSearchInput) {
+        capitalSearchInput.addEventListener('input', function () {
+          capitalSearchRenderDropdown(capitalSearchInput.value);
+        });
+        capitalSearchInput.addEventListener('focus', function () {
+          capitalSearchRenderDropdown(capitalSearchInput.value);
+        });
+        capitalSearchInput.addEventListener('keydown', function (event) {
+          var links = capitalSearchResultLinks();
+          if (event.key === 'Escape') {
+            capitalSearchHideDropdown();
+            return;
+          }
+          if (event.key === 'ArrowDown') {
+            if (!links.length) return;
+            event.preventDefault();
+            capitalSearchSetActive(capitalSearchActiveIndex + 1);
+          } else if (event.key === 'ArrowUp') {
+            if (!links.length) return;
+            event.preventDefault();
+            capitalSearchSetActive(capitalSearchActiveIndex - 1);
+          } else if (event.key === 'Enter' && capitalSearchActiveIndex !== -1 && links[capitalSearchActiveIndex]) {
+            event.preventDefault();
+            links[capitalSearchActiveIndex].click();
+          }
+        });
+        if (capitalSearchOutsideClickHandler) document.removeEventListener('click', capitalSearchOutsideClickHandler);
+        capitalSearchOutsideClickHandler = function (event) {
+          if (!capitalSearchForm.contains(event.target) && (!capitalSearchDropdown || !capitalSearchDropdown.contains(event.target))) {
+            capitalSearchHideDropdown();
+          }
+        };
+        document.addEventListener('click', capitalSearchOutsideClickHandler);
+        capitalSearchForm.addEventListener('submit', function (event) {
+          event.preventDefault();
+          capitalSearchHideDropdown();
+          capitalSearchSubmitQuery();
+        });
+      }
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Capital explorer data could not be loaded.</div>';
     });
@@ -231,13 +434,36 @@
         var embeddedDocument = departmentFrame.contentDocument;
         embeddedDocument.documentElement.classList.add("wc-embedded-department");
         var embeddedStyle = embeddedDocument.createElement("style");
-        embeddedStyle.textContent = 'nav#nav-menu,footer[role="contentinfo"],.wc-breadcrumb{display:none!important}' +
-          '#layout{display:block!important;min-height:100vh!important}' +
+        embeddedStyle.textContent = 'nav#nav-menu,.wc-breadcrumb{display:none!important}' +
+          'footer[role="contentinfo"]{display:block!important}' +
+          '#layout{display:block!important;min-height:0!important}' +
           '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
           '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
           '[data-constitutional-ledger-close]{display:none!important}' +
           '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}';
         embeddedDocument.head.appendChild(embeddedStyle);
+        // Any link inside this popup that points back at home.html (the
+        // CIP hero's "Back to Capital Projects"/"Search Projects", a
+        // project's "Back to Project Search"/"Back to Capital Explorer",
+        // etc.) would otherwise navigate this iframe TO home.html -- which
+        // boots up a whole second copy of the site's own popup system
+        // nested inside this one, stacking shell inside shell every time
+        // (see screenshot). None of these links need a real navigation:
+        // the explorer they're pointing back at is already open one level
+        // up, so just close this popup to reveal it instead.
+        embeddedDocument.addEventListener("click", function (event) {
+          var link = event.target.closest("a[href]");
+          if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          var resolvedUrl;
+          try {
+            resolvedUrl = new URL(link.href, embeddedDocument.location.href);
+          } catch (urlError) {
+            return;
+          }
+          if (!/\/(search|home)\.html$/i.test(resolvedUrl.pathname)) return;
+          event.preventDefault();
+          closeDepartmentModal();
+        }, true);
       } catch (error) {
         // The query-string class in the embedded page remains the fallback.
       }
@@ -301,6 +527,11 @@
     if (!modal || modal.hidden) return;
     closeDepartmentModal();
     modal.hidden = true;
+    var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
+    if (explorerWave) {
+      explorerWave.pause();
+      explorerWave.currentTime = 0;
+    }
     modalBody.innerHTML = "";
     unlockBackgroundPage();
     if (activeCard) activeCard.focus();
@@ -315,6 +546,13 @@
     modal.hidden = false;
     lockBackgroundPage();
     modal.scrollTop = 0;
+    var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
+    if (explorerWave) {
+      explorerWave.defaultPlaybackRate = 0.25;
+      explorerWave.playbackRate = 0.25;
+      var playPromise = explorerWave.play();
+      if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
+    }
     modal.querySelector(".wc-home-explorer-modal-close").focus();
     renderExplorer(type);
   }
@@ -326,7 +564,10 @@
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
-    modal.innerHTML = '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div></div>';
+    modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
+      '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
+      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
+      '<footer class="wc-home-explorer-modal-footer"><div><strong>Still looking for something?</strong><span>Search departments, budgets, personnel, funds, publications, and county information.</span><button type="button" data-explorer-footer-action="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg></button></div><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="contact">Contact Budget Office</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
     document.body.appendChild(modal);
     modalBody = modal.querySelector(".wc-home-explorer-modal-body");
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
@@ -380,6 +621,18 @@
       openDepartmentModal(departmentHref.href, departmentTitle, link);
     }, true);
     modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", closeModal);
+    modal.querySelector(".wc-home-explorer-modal-footer").addEventListener("click", function (event) {
+      var actionButton = event.target.closest("[data-explorer-footer-action]");
+      if (!actionButton) return;
+      var action = actionButton.dataset.explorerFooterAction;
+      var sourceFooter = document.querySelector('body > footer[role="contentinfo"]');
+      if (!sourceFooter) return;
+      var sourceControl = action === "search" ? sourceFooter.querySelector(".wc-footer-search-icon-button")
+        : action === "contact" ? sourceFooter.querySelector(".wc-footer-contact-button")
+        : action === "transactions" ? sourceFooter.querySelector('[data-wc-utility-popup="Transaction Search"]')
+        : sourceFooter.querySelector('[data-wc-utility-popup="' + (action === "privacy" ? "Privacy Statement" : "Accessibility Statement") + '"]');
+      if (sourceControl) sourceControl.click();
+    });
     modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
     document.addEventListener("keydown", function (event) {
       if (modal.hidden && (!departmentModal || departmentModal.hidden)) return;

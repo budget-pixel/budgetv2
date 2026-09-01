@@ -99,7 +99,7 @@
 
     var links = [];
     var seenHrefs = {};
-    var wcProjectSearchBaseUrl = window.wcProjectSearchBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "search.html?q=" : "pages/search.html?q=");
+    var wcProjectSearchBaseUrl = window.wcProjectSearchBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "../home.html?explorer=capital" : "home.html?explorer=capital");
     var wcCipAssetBaseUrl = window.wcBudgetAssetBaseUrl || window.wcCipAssetBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "../assets/" : "assets/");
 
     function getLocalProjectHref(projectSlug){
@@ -400,7 +400,7 @@
         }
 
         if(!projectHref){
-          projectHref = wcProjectSearchBaseUrl + encodeURIComponent(projectTitle);
+          projectHref = wcProjectSearchBaseUrl;
         }
 
         addSearchLink(

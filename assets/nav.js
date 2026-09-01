@@ -38,7 +38,7 @@
   });
   var mobileStylesheetId = "wc-budget-mobile-styles";
   var splitLogoScriptId = "wc-split-logo-script";
-  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260723-asset-path-cleanup";
+  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260901-shared-publication-variant";
   var wcThemeStorageKey = "waltonBudgetTheme";
   function applyHiddenAdminThemeParam(){
     try{
@@ -152,7 +152,7 @@
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
-          wcBudgetAssetBaseUrl + "search.js?v=20260711-dark-mode-only-pages",
+          wcBudgetAssetBaseUrl + "search.js?v=20260901-remove-project-search-page",
           function(){
             var fallbackSlot = document.querySelector(".wc-nav-search-slot-fallback");
             if(fallbackSlot && fallbackSlot.parentNode){
@@ -2542,6 +2542,7 @@
     footer.classList.add("wc-search-footer");
     var accessibilityHref = /\/pages\//.test(window.location.pathname) ? "accessibility.html" : "pages/accessibility.html";
     var privacyHref = /\/pages\//.test(window.location.pathname) ? "privacy.html" : "pages/privacy.html";
+    var transactionSearchHref = /\/pages\//.test(window.location.pathname) ? "transaction-search.html" : "pages/transaction-search.html";
     var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
     var desiredFooterHtml = `
       <div class="wc-budget-footer-inner">
@@ -2555,6 +2556,7 @@
           </button>
         </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
+          <a href="${transactionSearchHref}" data-wc-utility-popup="Transaction Search">Transaction Search</a>
           <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
           <a href="${accessibilityHref}" data-wc-utility-popup="Accessibility Statement">Accessibility</a>
           <a href="${privacyHref}" data-wc-utility-popup="Privacy Statement">Privacy</a>

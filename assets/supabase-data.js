@@ -297,7 +297,12 @@
     let query = client
       .from("public_transactions")
       .select(SEARCH_TRANSACTION_FIELDS, keyword ? {} : { count: "estimated" })
-      .eq("is_public", true);
+      .eq("is_public", true)
+      // Original-budget load rows are accounting setup entries rather than
+      // vendor payments or receipts. They are consistently labeled
+      // "Original Budget <year>" in the cleaned public description and do
+      // not belong in the citizen-facing transaction search.
+      .not("description_public", "ilike", "Original Budget%");
 
     if (keyword) {
       // Deliberately only 2 columns, not also object_name/document_number:
@@ -328,8 +333,9 @@
     }
     if (options.dateFrom) query = query.gte("transaction_date", options.dateFrom);
     if (options.dateTo) query = query.lte("transaction_date", options.dateTo);
-    if (options.departmentCode) query = query.eq("department_code", options.departmentCode);
-    if (options.fundCode) query = query.eq("fund_code", options.fundCode);
+    if (Array.isArray(options.departmentCodes) && options.departmentCodes.length) {
+      query = query.in("department_code", options.departmentCodes);
+    }
 
     // Sorting by amount is deliberately not offered: verified directly
     // against the live table that filtering by amount *and* sorting by

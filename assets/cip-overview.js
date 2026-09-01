@@ -2817,7 +2817,7 @@ function renderProjects(){
       <p>Capital projects turn revenue into roads, buildings, parks, and utility systems that serve the public for years. This page walks through what counts as a capital project, what goes into one, and why new projects are necessary.</p>
       <div class="wc-cip-hero-actions">
         <a class="wc-cip-hero-button wc-cip-hero-button-primary" href="../home.html?explorer=capital">Back to Capital Projects</a>
-        <a class="wc-cip-hero-button" href="search.html">Search Projects</a>
+        <a class="wc-cip-hero-button" href="../home.html?explorer=capital">Search Projects</a>
       </div>
     </section>
     ` : ""}
@@ -3110,7 +3110,7 @@ function renderProjects(){
 
         ${!isFullView ? `
           <div class="wc-project-full-search-row">
-            <a class="wc-project-full-search-link" href="search.html">Open Full Project Search</a>
+            <a class="wc-project-full-search-link" href="../home.html?explorer=capital">Open Full Project Search</a>
           </div>
         ` : ""}
 

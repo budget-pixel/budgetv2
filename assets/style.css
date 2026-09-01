@@ -1321,9 +1321,8 @@ body[data-revenue-explorer-from-other="true"] .wc-revenue-topic-block:not(#all-o
 
 /* Department Budget Explorer */
 html.wc-embedded-department nav#nav-menu,
-html.wc-embedded-department footer[role="contentinfo"],
 html.wc-embedded-department .wc-breadcrumb{display:none!important}
-html.wc-embedded-department #layout{display:block;min-height:100vh}
+html.wc-embedded-department #layout{display:block;min-height:0}
 html.wc-embedded-department #content{width:min(1380px,100%);max-width:none;margin:0 auto;padding:44px 28px 28px}
 html.wc-embedded-department #content>.page-eyebrow,
 html.wc-embedded-department #content>.page-title{display:none}
@@ -1398,6 +1397,14 @@ html.wc-embedded-utility #content{width:min(1180px,100%);max-width:none;margin:0
 .wc-department-budget-cards .wc-revenue-trend b{font-size:.78rem}
 .wc-department-budget-cards .wc-personnel-dept-fte-badge{color:var(--navy);font-size:.72rem;font-weight:800;text-transform:none}
 :root[data-theme="dark"] .wc-department-budget-cards .wc-personnel-dept-fte-badge{color:#e6edf5}
+.wc-capital-search-results{margin-top:26px;padding-top:22px;border-top:1px solid var(--border)}
+.wc-capital-search-results-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.wc-capital-search-results-head h3{margin:0;color:var(--navy);font-size:1rem}
+.wc-capital-search-clear{padding:8px 15px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--green);font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
+.wc-capital-search-clear:hover{border-color:var(--green)}
+.wc-department-budget-cards .wc-capital-search-result-static{display:flex;min-height:142px;padding:18px;border:1px solid var(--border);border-radius:14px;background:#fff;flex-direction:column;opacity:.72;cursor:default}
+:root[data-theme="dark"] .wc-department-budget-cards .wc-capital-search-result-static{background:#172235}
+:root[data-theme="dark"] .wc-capital-search-clear{background:#16241d;color:var(--text)}
 .wc-department-card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .wc-department-info-badge{display:inline-flex;align-items:center;padding:4px 10px;border:1px solid rgba(0,63,40,.22);border-radius:999px;background:#eef1f4;color:var(--navy);font-size:.68rem;font-weight:800;white-space:nowrap;cursor:pointer;font-style:normal}
 .wc-department-info-badge:hover,.wc-department-info-badge:focus{border-color:var(--green);background:#e8f3eb;color:var(--green);outline:none}

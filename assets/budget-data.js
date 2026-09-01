@@ -14929,7 +14929,10 @@
         const area = expenseActivityForRow(row) || "General Government";
         fteByFunction.set(area, (fteByFunction.get(area) || 0) + fte);
       });
-      const largestDepartments = Array.from(fteByDept.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      // Show eleven named departments plus the combined remainder. At the
+      // explorer's three-column desktop layout this produces four rows,
+      // giving readers two more rows of department detail than before.
+      const largestDepartments = Array.from(fteByDept.entries()).sort((a, b) => b[1] - a[1]).slice(0, 11);
       const largestDeptNames = new Set(largestDepartments.map((item) => item[0]));
       const allOtherFte = Array.from(fteByDept.entries()).filter((item) => !largestDeptNames.has(item[0])).reduce((sum, item) => sum + item[1], 0);
       const functionRows = Array.from(fteByFunction.entries()).sort((a, b) => b[1] - a[1]);
@@ -14999,8 +15002,9 @@
           // a real filterable department, so it opens the Board
           // Departments scope with no department filter, showing every
           // Board department (the top 5 cards' departments included).
-          const href = isAllOther ? "personnel-ledger.html?scope=board" : "personnel-ledger.html?dept=" + encodeURIComponent(item[0]);
-          return '<a href="' + escapeHtml(href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
+          const href = isAllOther ? "personnel-ledger.html?scope=board" : "personnel-ledger.html?dept=" + encodeURIComponent(item[0]) + "&positions=1";
+          const popupTitle = isAllOther ? "Personnel Ledger" : item[0] + " Staffing and Cost by Position";
+          return '<a href="' + escapeHtml(href) + '" data-explorer-popup-trigger="' + escapeHtml(popupTitle) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
         }).join("");
         explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>Walton County budgets ' + escapeHtml(formatNumber(totalFte2027)) + ' FTE for FY 2027 &mdash; ' + escapeHtml(formatNumber(boardFte2027)) + ' across Board departments and ' + escapeHtml(formatNumber(constitutionalFte2027)) + ' across Constitutional Officers &mdash; along with the salaries, retirement, health insurance, and other benefits that support them.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><a class="wc-personnel-ledger-trigger" href="personnel-ledger.html" data-explorer-popup-trigger="Personnel Ledger">View Personnel Ledger</a><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
           '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel funding.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
@@ -16865,6 +16869,17 @@
         const requestedScope = requestedParams.get("scope");
         if (requestedDept) {
           document.dispatchEvent(new CustomEvent("wc-personnel-explore-dept", { detail: { department: requestedDept } }));
+          if (requestedParams.get("positions") === "1") {
+            requestAnimationFrame(() => {
+              const requestedKey = personnelCostFteMatchKey(requestedDept);
+              const matchingRow = Array.from(container.querySelectorAll("tbody tr")).find((row) => {
+                const nameCell = row.querySelector("td:first-child");
+                return nameCell && personnelCostFteMatchKey(nameCell.textContent) === requestedKey;
+              });
+              const positionToggle = matchingRow && matchingRow.querySelector(".wc-view-budget-lines-toggle[data-target]");
+              if (positionToggle) positionToggle.click();
+            });
+          }
         } else if (requestedScope) {
           document.dispatchEvent(new CustomEvent("wc-personnel-select-scope", { detail: { scope: requestedScope } }));
         }

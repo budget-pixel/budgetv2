@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Search — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-popup-align-start">
+<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
 <style>
   .wc-txn-page{max-width:1280px;margin:0 auto}
   .wc-txn-intro{max-width:900px;margin:0 0 8px;color:var(--muted);font-size:1.05rem;line-height:1.65}
@@ -57,8 +57,8 @@
 
 <div class="page-eyebrow">Financial Summaries</div>
 <h1 class="page-title">Transaction Search</h1>
-<p class="wc-txn-intro">Search every public transaction Walton County has recorded since FY 2020 &mdash; vendor payments, fee receipts, and everything in between. Filter by vendor, description, amount, date, or fund and fund your own review of where the money actually went.</p>
-<p class="wc-txn-caveat"><strong>Reading this data:</strong> Department and fund show as their internal codes, not names, in this table &mdash; that crosswalk hasn&rsquo;t been built yet. Amounts are recorded as positive for expenses and negative for revenue receipts (e.g. a permit fee), which is why the Type filter reads that way. This is transaction-level actuals, separate from the FY 2027 tentative budget figures shown elsewhere on this site.</p>
+<p class="wc-txn-intro">Search every public transaction Walton County has recorded since FY 2020 &mdash; vendor payments, fee receipts, and everything in between. Filter by vendor, description, amount, date, or department and conduct your own review of where the money actually went.</p>
+<p class="wc-txn-caveat"><strong>Reading this data:</strong> Choose a department by name below; the search automatically matches its underlying transaction codes. Fund continues to display as its internal code in the results. Amounts are recorded as positive for expenses and negative for revenue receipts (e.g. a permit fee), which is why the Type filter reads that way. This is transaction-level actuals, separate from the FY 2027 tentative budget figures shown elsewhere on this site.</p>
 
 <form class="wc-txn-filters" id="txnFilters">
   <div class="wc-txn-field wc-txn-keyword">
@@ -101,12 +101,10 @@
       <input type="number" id="txnAmountMax" name="amountMax" min="0" step="0.01" placeholder="No limit" disabled>
     </div>
     <div class="wc-txn-field">
-      <label for="txnDept">Department code</label>
-      <input type="text" id="txnDept" name="departmentCode" placeholder="e.g. 103322">
-    </div>
-    <div class="wc-txn-field">
-      <label for="txnFund">Fund code</label>
-      <input type="text" id="txnFund" name="fundCode" placeholder="e.g. 103">
+      <label for="txnDept">Department</label>
+      <select id="txnDept" name="departmentCodes">
+        <option value="">All departments</option>
+      </select>
     </div>
     <div class="wc-txn-field">
       <label for="txnSort">Sort by</label>
@@ -136,9 +134,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/supabase-data.js?v=20260801-transaction-search"></script>
-<script src="../assets/transaction-search.js?v=20260801-transaction-search"></script>
-<script src="../assets/search-data.js?v=20260825-full-budget-document"></script>
-<script src="../assets/nav.js?v=20260826-full-budget-doc-menu"></script>
+<script src="../assets/supabase-data.js?v=20260901-exclude-original-budget-transactions"></script>
+<script src="../assets/budget-data.js?v=20260901-transaction-department-dropdown"></script>
+<script src="../assets/transaction-search.js?v=20260901-transaction-department-code-fix"></script>
+<script src="../assets/search-data.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
 </body>
 </html>

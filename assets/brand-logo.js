@@ -84,6 +84,29 @@
         cursor:pointer !important;
         text-decoration:none !important;
       }
+
+      /* One publication-header variant shared by the video home screen and
+         the embedded explorer. Individual surfaces may change only the two
+         color variables; typography, spacing, and seal geometry stay here. */
+      .wc-split-brand.wc-split-brand--publication{
+        height:52px !important;
+      }
+      .wc-split-brand.wc-split-brand--publication .wc-split-brand-top{
+        color:var(--wc-publication-brand-top,#ffffff) !important;
+        font-size:24px !important;
+        font-weight:800 !important;
+      }
+      .wc-split-brand.wc-split-brand--publication .wc-split-brand-bottom{
+        color:var(--wc-publication-brand-bottom,rgba(255,255,255,.82)) !important;
+        font-weight:800 !important;
+      }
+      .wc-split-brand.wc-split-brand--publication .wc-split-brand-seal,
+      .wc-split-brand.wc-split-brand--publication .wc-seal-mark{
+        width:46px !important;
+        height:46px !important;
+        flex-basis:46px !important;
+        background-size:42px 42px !important;
+      }
     `;
 
     document.head.appendChild(style);

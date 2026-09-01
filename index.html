@@ -1693,6 +1693,8 @@
   .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);pointer-events:none}
   .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
   .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.18);border-radius:20px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.42)}
+  .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
+  .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
@@ -1738,12 +1740,14 @@
   </section>
 </div>
 
-<script src="assets/brand-logo.js?v=20260723-asset-path-cleanup"></script>
+<script src="assets/brand-logo.js?v=20260901-shared-publication-variant"></script>
 <script>
   (function(){
     function initLogo(){
       if(window.WaltonSplitLogo){
         document.querySelector(".logo-container").innerHTML = window.WaltonSplitLogo.getHtml("", "");
+        var publicationBrand = document.querySelector(".logo-container .wc-split-brand");
+        if(publicationBrand) publicationBrand.classList.add("wc-split-brand--publication");
         window.WaltonSplitLogo.equalizeAll();
       }
     }
@@ -1799,10 +1803,24 @@
           var embeddedDocument = frame.contentDocument;
           embeddedDocument.documentElement.classList.add("wc-embedded-budget-landing");
           var embeddedStyle = embeddedDocument.createElement("style");
-          embeddedStyle.textContent = 'nav#nav-menu,footer[role="contentinfo"]{display:none!important}' +
-            '#layout{display:block!important;min-height:100vh!important}' +
-            '.wc-explorer-home{padding-top:18px!important}';
+          embeddedStyle.textContent = 'nav#nav-menu{display:none!important}' +
+            'body{display:flex!important;min-height:100vh!important;min-height:100dvh!important;flex-direction:column!important}' +
+            '#layout{display:block!important;min-height:0!important;flex:1 0 auto!important}' +
+            'footer[role="contentinfo"]{margin-top:auto!important}' +
+            '.wc-explorer-home{padding-top:18px!important;padding-bottom:28px!important}';
           embeddedDocument.head.appendChild(embeddedStyle);
+          function syncInnerPopupState(){
+            // Only explorer/detail overlays need the outer landing frame
+            // collapsed. Utility dialogs (Transaction Search,
+            // Accessibility, and Privacy) use wc-modal-open but already
+            // size themselves within the landing panel; treating them as
+            // explorers makes the first click stretch the page full-width.
+            var popupOpen = embeddedDocument.documentElement.classList.contains("wc-home-explorer-open") ||
+              embeddedDocument.body.classList.contains("wc-home-explorer-open");
+            dialog.classList.toggle("is-inner-popup-open", popupOpen);
+          }
+          syncInnerPopupState();
+          new MutationObserver(syncInnerPopupState).observe(embeddedDocument.documentElement, { attributes:true, subtree:true, attributeFilter:["class"] });
         }catch(error){}
         dialog.classList.remove("is-loading");
         frame.focus();

@@ -92,12 +92,18 @@ function buildBackHref(){
     return returnHref;
   }
 
-  return "search.html";
+  // pages/search.html no longer exists as a page -- capital project search
+  // now lives inline on the Capital Explorer (home.html?explorer=capital).
+  return "../home.html?explorer=capital";
 }
 
 function buildBackLabel(backHref){
   if(/^cip-/.test(String(backHref || ""))){
     return "Back to Schedule";
+  }
+
+  if(/explorer=capital/.test(String(backHref || ""))){
+    return "Back to Capital Explorer";
   }
 
   return "Back to Project Search";

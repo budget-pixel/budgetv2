@@ -6,39 +6,30 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20260901-popup-align-start">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260901-embedded-landing-no-header">
+<link rel="stylesheet" href="assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260901-header-budget-search">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
+<header class="wc-explorer-popup-header" aria-label="Walton County Board of County Commissioners">
+  <div class="wc-explorer-popup-brand-mount"></div>
+  <div class="wc-home-search-input-wrap wc-explorer-header-search">
+    <form class="wc-home-search-form" role="search" aria-label="Search the Budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
+      <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
+      <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcHomeSearchDropdown" aria-autocomplete="list">
+      <button type="submit">Search</button>
+    </form>
+    <div id="wcHomeSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
+  </div>
+</header>
 
 <div id="layout">
 <main id="content" class="wc-explorer-home">
   <section class="wc-explorer-intro" aria-labelledby="explore-title">
     <div>
-      <p class="wc-explorer-section-label">Start exploring</p>
       <h2 id="explore-title">Explore the FY 2027 Budget</h2>
       <p>Choose an explorer to see totals, trends, and the detailed ledgers behind Walton County&rsquo;s proposed budget. Amounts below update from the same data used throughout this site.</p>
-    </div>
-    <aside class="wc-explorer-intro-facts" aria-label="Budget facts">
-      <div><span aria-hidden="true">◎</span><strong data-home-fte>—</strong><small>Budgeted FTE</small></div>
-      <div><span aria-hidden="true">▤</span><strong data-home-funds>—</strong><small>Funds managed</small></div>
-    </aside>
-  </section>
-
-  <section class="wc-home-search" aria-labelledby="wcHomeSearchTitle">
-    <div>
-      <h2 id="wcHomeSearchTitle">Search the Budget</h2>
-      <p>Find departments, personnel, funds, ledgers, capital projects, and budget information.</p>
-    </div>
-    <div class="wc-home-search-input-wrap">
-      <form class="wc-home-search-form" role="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
-        <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
-        <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcHomeSearchDropdown" aria-autocomplete="list">
-        <button type="submit">Search</button>
-      </form>
-      <div id="wcHomeSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
     </div>
   </section>
 
@@ -118,15 +109,29 @@
 </main>
 </div>
 
-<script src="assets/search-data.js?v=20260825-full-budget-document"></script>
+<script src="assets/search-data.js?v=20260901-remove-project-search-page"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260901-department-card-change"></script>
+<script src="assets/budget-data.js?v=20260901-personnel-card-position-popup"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260901-wave-utility-popups"></script>
+<script src="assets/nav.js?v=20260901-remove-project-search-page"></script>
 <script>
 (function(){
   "use strict";
+
+  function mountSharedBrand(attempt){
+    var mount = document.querySelector(".wc-explorer-popup-brand-mount");
+    if(!mount || mount.firstElementChild) return;
+    if(window.WaltonSplitLogo && typeof window.WaltonSplitLogo.getHtml === "function"){
+      mount.innerHTML = window.WaltonSplitLogo.getHtml("", "");
+      var publicationBrand = mount.querySelector(".wc-split-brand");
+      if(publicationBrand) publicationBrand.classList.add("wc-split-brand--publication");
+      window.WaltonSplitLogo.scheduleEqualize(mount);
+      return;
+    }
+    if((attempt || 0) < 40) window.setTimeout(function(){ mountSharedBrand((attempt || 0) + 1); }, 50);
+  }
+  mountSharedBrand(0);
 
   var COLORS = ["#087443", "#4da985", "#78bed0", "#d1be78", "#6987ae", "#b9c8bd"];
   var countywideExpenditureTotal = 0;
@@ -381,6 +386,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260901-hide-ledger-back-button"></script>
+<script src="assets/home-explorer-modal.js?v=20260901-prevent-nested-home-shells"></script>
 </body>
 </html>

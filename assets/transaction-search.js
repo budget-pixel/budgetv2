@@ -44,8 +44,7 @@
       dateTo: form.dateTo.value,
       amountMin: form.amountMin.disabled ? "" : form.amountMin.value,
       amountMax: form.amountMax.disabled ? "" : form.amountMax.value,
-      departmentCode: form.departmentCode.value.trim(),
-      fundCode: form.fundCode.value.trim(),
+      departmentCodes: form.departmentCodes.value ? form.departmentCodes.value.split(",").filter(Boolean) : [],
       sort: form.sort.value
     };
   }
@@ -206,6 +205,47 @@
     }
   }
 
+  async function populateDepartmentOptions() {
+    const select = $("#txnDept");
+    if (!select || !window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
+    try {
+      const data = await window.WCBudgetData.loadBudgetData();
+      const codesByName = new Map();
+      const excludedDepartmentNames = new Set([
+        "self insurance expense",
+        "self insurance expenses",
+        "bcc other uses contingency",
+        "interfund group transfer out",
+        "interfund group transfers out"
+      ]);
+      (data.expenditures || []).forEach((row) => {
+        const name = String(row.Dept_Name || "").trim();
+        const rawCode = String(row.Dept_Code || "").trim();
+        const transactionCode = rawCode.slice(0, 6);
+        const normalizedName = name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        if (!name || excludedDepartmentNames.has(normalizedName) || transactionCode.length < 6) return;
+        if (!codesByName.has(name)) codesByName.set(name, new Set());
+        // Historical transaction imports use the six-digit org code on
+        // most rows, while some newer records retain the full budget org
+        // code. Query both representations so a named selection does not
+        // incorrectly return an empty result.
+        codesByName.get(name).add(transactionCode);
+        codesByName.get(name).add(rawCode);
+      });
+      Array.from(codesByName.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .forEach(([name, codes]) => {
+          const option = document.createElement("option");
+          option.value = Array.from(codes).sort().join(",");
+          option.textContent = name;
+          select.appendChild(option);
+        });
+    } catch (error) {
+      // The search remains usable with All departments if budget labels
+      // are temporarily unavailable.
+    }
+  }
+
   function init() {
     $("#txnType").addEventListener("change", updateAmountFieldState);
     $("#txnFilters").addEventListener("submit", (event) => {
@@ -232,6 +272,7 @@
     });
 
     populateYearOptions();
+    populateDepartmentOptions();
     runSearch(true);
   }
 

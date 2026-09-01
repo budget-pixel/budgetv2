@@ -3,8 +3,8 @@
 // search-data.js
 
 window.wcProjectSearchBaseUrl = window.location.pathname.indexOf("/pages/") !== -1
-  ? "search.html?q="
-  : "pages/search.html?q=";
+  ? "../home.html?explorer=capital"
+  : "home.html?explorer=capital";
 
 var wcCoreBudgetPages = [
   { title:"Privacy Statement", section:"Website Information", href:"privacy.html", keywords:["privacy","cookies","analytics","public records","data"] },
@@ -93,7 +93,7 @@ var wcCoreBudgetPages = [
   { title:"Veteran Services", section:"Departments", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbf22a7f73b8c6a62b4" },
   { title:"Capital Budget", section:"Capital Budget", href:"../home.html?explorer=capital" },
   { title:"Capital Improvement Plan Overview", section:"Capital Improvement Plan", href:"capital-improvement-plan.html" },
-  { title:"CIP Project Search", section:"Capital Improvement Plan", href:"search.html" },
+  { title:"CIP Project Search", section:"Capital Improvement Plan", href:"../home.html?explorer=capital" },
   { title:"Transportation and Infrastructure Capital Ledger", section:"Capital Budget", href:"cip-capital-projects.html" },
   { title:"Sheriff Capital Project Ledger", section:"Capital Improvement Plan", href:"cip-sheriff.html" },
   { title:"Tourist Development Fund Capital Ledger", section:"Capital Improvement Plan", href:"cip-tourist-development.html" },
@@ -565,7 +565,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Veteran Services": "veteran-services.html",
     "Capital Projects": "../home.html?explorer=capital",
     "Capital Improvement Plan Overview": "capital-improvement-plan.html",
-    "CIP Project Search": "search.html",
+    "CIP Project Search": "../home.html?explorer=capital",
     "Transportation and Infrastructure Capital Ledger": "cip-capital-projects.html",
     "Sheriff Capital Project Ledger": "cip-sheriff.html",
     "Tourist Development Fund Capital Ledger": "cip-tourist-development.html",
