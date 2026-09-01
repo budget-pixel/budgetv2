@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
+<script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
 <link rel="stylesheet" href="assets/style.css?v=20260901-popup-align-start">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260901-capital-road-mark">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260901-embedded-landing-no-header">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -52,7 +53,6 @@
         <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
         <div class="wc-dollar-mark" role="img" aria-label="Revenue budget"><span aria-hidden="true">$</span></div>
       </div>
-      <div class="wc-explorer-breakdown" data-revenue-breakdown aria-label="Largest revenue sources"></div>
       <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
     </a>
 
@@ -61,12 +61,8 @@
         <div><h3>Personnel Explorer</h3><p>Explore personnel costs, staffing, and benefits.</p></div>
       </div>
       <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-change>FY 2027 proposed</small></div>
+        <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-share>Share of total expenditures</small></div>
         <div class="wc-people-mark" aria-hidden="true"><i></i><i></i><i></i></div>
-      </div>
-      <div class="wc-explorer-stat-pair">
-        <div><span>Total FTE</span><strong data-card-fte>—</strong></div>
-        <div><span>Avg. cost per FTE</span><strong data-card-cost-per-fte>—</strong></div>
       </div>
       <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
     </a>
@@ -76,10 +72,9 @@
         <div><h3>Department Budget Explorer</h3><p>Compare department budgets, services, and performance.</p></div>
       </div>
       <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><span>Board Department Budget</span><small>Operating and personnel spending</small></div>
+        <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><span>Total Department Budget</span><small data-card-department-share>Share of total expenditures</small></div>
         <div class="wc-mini-donut is-department" data-department-donut role="img" aria-label="Department budget composition"><span></span></div>
       </div>
-      <div class="wc-explorer-breakdown" data-department-breakdown aria-label="Largest department budgets"></div>
       <span class="wc-explorer-card-action">Explore Departments <b aria-hidden="true">→</b></span>
     </a>
 
@@ -93,10 +88,6 @@
           <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M42 14h16l29 76H13z"></path><path class="wc-road-centerline" d="M50 22v12m0 10v15m0 12v17"></path></svg>
         </div>
       </div>
-      <div class="wc-explorer-stat-pair">
-        <div><span>Active projects</span><strong data-card-active-projects>—</strong></div>
-        <div><span>Capital items</span><strong data-card-capital-items>—</strong></div>
-      </div>
       <span class="wc-explorer-card-action">Explore Capital <b aria-hidden="true">→</b></span>
     </a>
 
@@ -108,10 +99,6 @@
         <div class="wc-explorer-card-primary"><strong data-card-constitutional-total>—</strong><span>Total Officers Budget</span><small data-card-constitutional-share>Share of total expenditures</small></div>
         <div class="wc-office-badges" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
-      <div class="wc-explorer-stat-pair">
-        <div><span>Offices included</span><strong>6</strong></div>
-        <div><span>Budget view</span><strong>Office comparison</strong></div>
-      </div>
       <span class="wc-explorer-card-action">Explore Constitutional Officers <b aria-hidden="true">→</b></span>
     </a>
 
@@ -120,12 +107,8 @@
         <div><h3>Independent Agencies Explorer</h3><p>Review autonomous entities funded through the County budget.</p></div>
       </div>
       <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-independent-total>—</strong><span>Total Agencies Budget</span><small data-card-independent-change>FY 2027 proposed</small></div>
+        <div class="wc-explorer-card-primary"><strong data-card-independent-total>—</strong><span>Total Agencies Budget</span><small data-card-independent-share>Share of total expenditures</small></div>
         <div class="wc-mini-donut is-independent" role="img" aria-label="Independent agencies budget"><span></span></div>
-      </div>
-      <div class="wc-explorer-stat-pair">
-        <div><span>Entities included</span><strong data-card-independent-count>—</strong></div>
-        <div><span>Budgeted FTE</span><strong data-card-independent-fte>—</strong></div>
       </div>
       <span class="wc-explorer-card-action">Explore Independent Agencies <b aria-hidden="true">→</b></span>
     </a>
@@ -138,7 +121,7 @@
 <script src="assets/search-data.js?v=20260825-full-budget-document"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260901-property-tax-support-path"></script>
+<script src="assets/budget-data.js?v=20260901-department-card-change"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
 <script src="assets/nav.js?v=20260901-wave-utility-popups"></script>
 <script>
@@ -146,6 +129,8 @@
   "use strict";
 
   var COLORS = ["#087443", "#4da985", "#78bed0", "#d1be78", "#6987ae", "#b9c8bd"];
+  var countywideExpenditureTotal = 0;
+  var independentAgencyItems = [];
 
   function number(value){ return Number(value) || 0; }
   function compact(value){
@@ -169,14 +154,6 @@
       totals.set(label, (totals.get(label) || 0) + amountFor(row));
     });
     return Array.from(totals.entries()).map(function(entry){ return { label:entry[0], amount:entry[1] }; }).filter(function(entry){ return entry.amount > 0; }).sort(function(a,b){ return b.amount-a.amount; });
-  }
-  function breakdown(containerSelector, entries, total){
-    var container = document.querySelector(containerSelector);
-    if(!container) return;
-    container.innerHTML = entries.slice(0,3).map(function(entry, index){
-      var share = total ? entry.amount / total * 100 : 0;
-      return '<div><i style="background:' + COLORS[index] + '"></i><span>' + escapeHtml(entry.label) + '</span><strong>' + compact(entry.amount) + '</strong><small>' + Math.round(share) + '%</small></div>';
-    }).join("");
   }
   function donut(selector, entries, total){
     var element = document.querySelector(selector);
@@ -202,6 +179,7 @@
   function render(data){
     var expenditures = (data.expenditures || []).filter(isIncluded);
     var totalBudget = window.WCBudgetData.totalCountywideExpenditureBudget(data);
+    countywideExpenditureTotal = totalBudget;
 
     var revenueRows = (data.revenues || []).filter(function(row){ return String(row.Revenue_Code || "").trim() !== "381000" && fundCode(row) !== "503"; });
     var revenueTotals = window.WCBudgetData.getConsolidatedRevenueTotals(data);
@@ -210,7 +188,6 @@
 
     var personnelRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "personnel services"; });
     var totalPersonnel = sum(personnelRows, "FY2027_Proposed");
-    var priorPersonnel = sum(personnelRows, "FY2026_Original_Budget") || sum(personnelRows, "FY2026_Budget");
     var staffing = data.staffing || [];
     var totalFte = staffing.reduce(function(total,row){ return total + number(row[2027]); },0);
 
@@ -220,12 +197,6 @@
     var departmentGroups = window.WCBudgetData.getDepartmentBudgetBreakdown(data);
     var constitutionalTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);
 
-    var revenueGroups = group(revenueRows, function(row){
-      var name = String(row.Revenue_Name || "Other Revenue").trim();
-      if(/^ad valorem taxes$/i.test(name)) return "Property Taxes";
-      if(/^tourist development tax/i.test(name)) return "Tourist Development Taxes";
-      return name;
-    }, function(row){ return number(row.FY2027_Proposed); });
     var fundNames = new Map((data.funds || []).map(function(fund){ return [String(fund.Fund_Code || "").trim(), String(fund.Fund_Name || "Fund " + fund.Fund_Code).trim()]; }));
     var fundGroups = group(expenditures, function(row){ var code=fundCode(row); return fundNames.get(code) || (code ? "Fund " + code : "Other Funds"); }, function(row){ return number(row.FY2027_Proposed); });
 
@@ -234,43 +205,25 @@
 
     setText("[data-card-revenue-total]", compact(totalRevenue));
     setText("[data-card-revenue-change]", signedChange(totalRevenue, priorRevenue));
-    breakdown("[data-revenue-breakdown]", revenueGroups, totalRevenue);
-    donut("[data-revenue-donut]", revenueGroups, totalRevenue);
-
     setText("[data-card-personnel-total]", compact(totalPersonnel));
-    setText("[data-card-personnel-change]", signedChange(totalPersonnel, priorPersonnel));
-    setText("[data-card-fte]", whole(totalFte));
-    setText("[data-card-cost-per-fte]", totalFte ? compact(totalPersonnel/totalFte) : "—");
-
+    setText("[data-card-personnel-share]", (totalBudget ? (totalPersonnel/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
     setText("[data-card-department-total]", compact(departmentTotal));
-    breakdown("[data-department-breakdown]", departmentGroups, departmentTotal || totalBudget);
+    setText("[data-card-department-share]", (totalBudget ? (departmentTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
     donut("[data-department-donut]", departmentGroups, departmentTotal || totalBudget);
 
     setText("[data-card-capital-total]", compact(totalCapital));
     setText("[data-card-capital-share]", (totalBudget ? (totalCapital/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-    setText("[data-card-capital-items]", whole(capitalRows.filter(function(row){ return number(row.FY2027_Proposed) > 0; }).length));
-
     setText("[data-card-constitutional-total]", compact(constitutionalTotal));
     setText("[data-card-constitutional-share]", (totalBudget ? (constitutionalTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-  }
-
-  function renderProjectCount(projects){
-    var active = (Array.isArray(projects) ? projects : []).filter(function(project){
-      if(project && project.is_legacy_in_house_engineering_row) return false;
-      return (project && Array.isArray(project.funding_by_year) ? project.funding_by_year : []).some(function(year){ return year.year === "FY2027" && number(year.amount_value) > 0; });
-    });
-    setText("[data-card-active-projects]", whole(active.length));
+    if(independentAgencyItems.length) renderIndependentAgencies(independentAgencyItems);
   }
 
   function renderIndependentAgencies(items){
     var agencies = Array.isArray(items) ? items : [];
+    independentAgencyItems = agencies;
     var total = agencies.reduce(function(value,item){ return value + number(item.budget); },0);
-    var prior = agencies.reduce(function(value,item){ return value + number(item.priorBudget); },0);
-    var fte = agencies.reduce(function(value,item){ return value + number(item.fte); },0);
     setText("[data-card-independent-total]", compact(total));
-    setText("[data-card-independent-change]", signedChange(total,prior));
-    setText("[data-card-independent-count]", whole(agencies.length));
-    setText("[data-card-independent-fte]", whole(fte));
+    setText("[data-card-independent-share]", (countywideExpenditureTotal ? (total/countywideExpenditureTotal*100).toFixed(1) : "0") + "% of total expenditures");
   }
 
   document.addEventListener("DOMContentLoaded", function(){
@@ -422,8 +375,6 @@
         document.querySelectorAll("[data-card-revenue-total],[data-card-personnel-total],[data-card-department-total],[data-card-capital-total],[data-card-constitutional-total]").forEach(function(element){ element.textContent="View explorer"; });
       });
     }
-    var projectReady = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
-    projectReady.then(renderProjectCount).catch(function(){ renderProjectCount(window.wcCipProjects || []); });
     if(window.WCIndependentAgencies && window.WCIndependentAgencies.load){
       window.WCIndependentAgencies.load().then(renderIndependentAgencies);
     }

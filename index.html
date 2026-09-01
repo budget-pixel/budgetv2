@@ -1687,7 +1687,16 @@
   .wc-start-copy{max-width:590px;margin:24px 0 0;color:rgba(255,255,255,.9);font-size:clamp(17px,1.5vw,21px);line-height:1.55;text-shadow:0 6px 20px rgba(0,0,0,.22)}
   .wc-home-start{display:inline-flex;align-items:center;gap:10px;min-height:56px;margin-top:34px;padding:0 30px;border-radius:999px;background:var(--wc-gold,#d1be78);color:#07110d;font:800 15px/1 Arial,Helvetica,sans-serif;letter-spacing:.03em;text-decoration:none;text-transform:uppercase;box-shadow:0 16px 34px rgba(0,0,0,.28);transition:transform .2s ease,box-shadow .2s ease}
   .wc-home-start:hover,.wc-home-start:focus-visible{transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.34)}
-  @media(prefers-reduced-motion:reduce){.wc-start-video{display:none}}
+  html.wc-budget-landing-open,body.wc-budget-landing-open{height:100%;overflow:hidden}
+  .wc-budget-landing-dialog{position:fixed;z-index:20000;inset:0;display:flex;align-items:stretch;justify-content:center;padding:18px;background:#0b2a20;overflow:hidden;overscroll-behavior:none;isolation:isolate}
+  .wc-budget-landing-dialog[hidden]{display:none}
+  .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);pointer-events:none}
+  .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
+  .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.18);border-radius:20px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.42)}
+  .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
+  .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
+  .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
+  @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}}
   @media(max-width:700px){
     .wc-start-header{padding:18px}
     .wc-start-header .logo-container{min-width:0}
@@ -1695,6 +1704,8 @@
     .wc-start-content{align-self:end;width:calc(100% - 36px);margin:0 18px 58px;padding:0}
     .wc-start-title{font-size:52px;line-height:1}
     .wc-home-start{margin-top:26px}
+    .wc-budget-landing-dialog{padding:0}
+    .wc-budget-landing-panel{border:0;border-radius:0}
   }
 </style>
 </head>
@@ -1716,6 +1727,16 @@
     </section>
   </div>
 </main>
+
+<div class="wc-budget-landing-dialog" data-budget-landing-dialog role="dialog" aria-modal="true" aria-label="Budget Explorer" hidden>
+  <video class="wc-budget-landing-wave" muted loop playsinline preload="metadata" aria-hidden="true">
+    <source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4">
+  </video>
+  <div class="wc-budget-landing-shade" aria-hidden="true"></div>
+  <section class="wc-budget-landing-panel">
+    <iframe class="wc-budget-landing-frame" data-budget-landing-frame data-src="home.html?embed=landing" title="Walton County Budget Explorer"></iframe>
+  </section>
+</div>
 
 <script src="assets/brand-logo.js?v=20260723-asset-path-cleanup"></script>
 <script>
@@ -1751,9 +1772,47 @@
       setCalmPlayback();
       video.addEventListener("loadedmetadata", setCalmPlayback, { once:true });
     }
+    function initBudgetLandingDialog(){
+      var trigger = document.querySelector(".wc-home-start");
+      var dialog = document.querySelector("[data-budget-landing-dialog]");
+      var frame = document.querySelector("[data-budget-landing-frame]");
+      var wave = dialog ? dialog.querySelector(".wc-budget-landing-wave") : null;
+      if(!trigger || !dialog || !frame) return;
+
+      function openDialog(event){
+        if(event) event.preventDefault();
+        dialog.hidden = false;
+        dialog.classList.add("is-loading");
+        document.documentElement.classList.add("wc-budget-landing-open");
+        document.body.classList.add("wc-budget-landing-open");
+        if(!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src || "home.html?embed=landing");
+        if(wave && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)){
+          wave.defaultPlaybackRate = 0.25;
+          wave.playbackRate = 0.25;
+          var playPromise = wave.play();
+          if(playPromise && typeof playPromise.catch === "function") playPromise.catch(function(){});
+        }
+      }
+
+      frame.addEventListener("load", function(){
+        try{
+          var embeddedDocument = frame.contentDocument;
+          embeddedDocument.documentElement.classList.add("wc-embedded-budget-landing");
+          var embeddedStyle = embeddedDocument.createElement("style");
+          embeddedStyle.textContent = 'nav#nav-menu,footer[role="contentinfo"]{display:none!important}' +
+            '#layout{display:block!important;min-height:100vh!important}' +
+            '.wc-explorer-home{padding-top:18px!important}';
+          embeddedDocument.head.appendChild(embeddedStyle);
+        }catch(error){}
+        dialog.classList.remove("is-loading");
+        frame.focus();
+      });
+      trigger.addEventListener("click", openDialog);
+    }
     function init(){
       initLogo();
       initStartVideo();
+      initBudgetLandingDialog();
     }
     if(document.readyState === "loading"){
       document.addEventListener("DOMContentLoaded", init);

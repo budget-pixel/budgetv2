@@ -18008,11 +18008,12 @@
   // by initConstitutionalOfficersBudgetPage(), so the Budget Overview
   // directory callouts can show the same figures as those pages' own totals
   // without loading their full explorer UI.
-  function getDepartmentBudgetTotal(data) {
-    return getDepartmentBudgetBreakdown(data).reduce((sum, entry) => sum + entry.amount, 0);
+  function getDepartmentBudgetTotal(data, field) {
+    return getDepartmentBudgetBreakdown(data, field).reduce((sum, entry) => sum + entry.amount, 0);
   }
 
-  function getDepartmentBudgetBreakdown(data) {
+  function getDepartmentBudgetBreakdown(data, field) {
+    const amountField = field || "FY2027_Proposed";
     const boardDepartmentNames = BOARD_DEPARTMENT_ROLLUP_NAMES;
     const rollupSourceKey = boardDepartmentRollupKey;
     const groups = new Map();
@@ -18028,7 +18029,7 @@
       if (!rawName) return;
       const key = normalizeDeptName(rawName);
       if (!groups.has(key)) groups.set(key, { label: rawName, amount: 0 });
-      groups.get(key).amount += Number(row.FY2027_Proposed) || 0;
+      groups.get(key).amount += Number(row[amountField]) || 0;
     });
     return Array.from(groups.values()).filter((entry) => entry.amount > 0).sort((a, b) => b.amount - a.amount);
   }
