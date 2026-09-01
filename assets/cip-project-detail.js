@@ -565,7 +565,19 @@ function renderProjectPage(){
   const description = getProjectValue(project,["description","overview","summary"],"No project description is currently available.");
   const statusText = getProjectValue(project,["status_text","status"],"Status not specified");
   const statusClass = escapeHtml(project.status_class || "wc-status-planning");
-  const budget = getProjectValue(project,["budget","project_budget","total_budget","cost"]);
+  const recordedBudget = getProjectValue(project,["budget","project_budget","total_budget","cost"]);
+  const fundingBreakdownTotal = normalizeFundingBreakdown(project).reduce((sum, item) => {
+    const amount = parseBudgetAmount(item.amount);
+    return sum + (amount === null ? 0 : amount);
+  }, 0);
+  const recordedBudgetAmount = parseBudgetAmount(recordedBudget);
+  // The fiscal-year breakdown includes both Past CIP and current/future
+  // appropriations. Use its full total when it exceeds the stored headline
+  // (historical-only records can otherwise carry a placeholder $0), while
+  // preserving a larger authoritative total when the breakdown is partial.
+  const budget = fundingBreakdownTotal > 0
+    ? Math.max(fundingBreakdownTotal, recordedBudgetAmount === null ? 0 : recordedBudgetAmount)
+    : recordedBudget;
   const funding = getProjectValue(project,["funding","funding_source","source"]);
   const district = getProjectValue(project,["district","commission_district"]);
   const target = getProjectValue(project,["target","target_year","year","fiscal_year"]);

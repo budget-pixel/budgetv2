@@ -218,11 +218,9 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   const showAmountColumn = !isHistoricalYear;
   const showProjectNumberColumn = false;
   const showPastCipYearsColumn = false;
-  // Completed date (when status is Complete) or estimated start date
-  // (otherwise) -- sits right after Status. Per-project, from the
-  // supplement's optional completedDate/estimatedStartDate fields (see
-  // cip-projects-data.js); "—" when neither is known for that project.
-  const showDateColumn = isHistoricalYear && showStatusColumn;
+  // Past CIP projects show start and completion timing independently.
+  // Confirmed dates remain plain; estimated dates are labeled "Est.".
+  const showDateColumns = isHistoricalYear && showStatusColumn;
   // Historical rows carry only a category-derived funding label, so the
   // revenue behind them isn't reliable -- shown for FY2027-2031 only, the
   // same way the Fund column is.
@@ -233,7 +231,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   }
 
   const yearLabel = displayYear(year);
-  const leadColumns = 1 + (showProjectNumberColumn ? 1 : 0) + (showPastCipYearsColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0) + (showDateColumn ? 1 : 0);
+  const leadColumns = 1 + (showProjectNumberColumn ? 1 : 0) + (showPastCipYearsColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0) + (showDateColumns ? 2 : 0);
 
   const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -256,14 +254,17 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
     return monthName ? monthName + " " + match[2] : text;
   }
 
-  function projectDateCell(project){
-    if(String(project.status_text || "").trim() === "Complete"){
+  function projectStartedCell(project){
+    if(!project.start_date) return "—";
+    const date = formatMonthYear(project.start_date);
+    return project.start_date_confirmed ? date : "Est. " + date;
+  }
+
+  function projectCompletedCell(project){
+    if(String(project.status_text || "").trim().toLowerCase() === "complete"){
       return project.estimated_completion_date ? formatMonthYear(project.estimated_completion_date) : "—";
     }
-    if(project.start_date){
-      return formatMonthYear(project.start_date);
-    }
-    return project.est_completion_date ? formatMonthYear(project.est_completion_date) : "—";
+    return project.est_completion_date ? "Est. " + formatMonthYear(project.est_completion_date) : "—";
   }
 
   const rowsHtml = [];
@@ -316,7 +317,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
         ${showRevenueSourceColumn ? `<td>${renderRevenueSource(project)}</td>` : ""}
         ${showPhaseColumn ? `<td>${project.phase_text ? `<span class="wc-cip-status-badge ${escapeHtml(project.phase_class || "wc-status-planning")}">${escapeHtml(project.phase_text)}</span>` : "&mdash;"}</td>` : ""}
         ${showStatusColumn ? `<td><span class="wc-cip-status-badge ${escapeHtml(project.status_class || "wc-status-planning")}"${project.status_note ? ` title="${escapeHtml(project.status_note)}"` : ""}>${escapeHtml(project.status_text || "Not available")}</span></td>` : ""}
-        ${showDateColumn ? `<td>${escapeHtml(projectDateCell(project))}</td>` : ""}
+        ${showDateColumns ? `<td>${escapeHtml(projectStartedCell(project))}</td><td>${escapeHtml(projectCompletedCell(project))}</td>` : ""}
         ${showBudgetColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : `<span class="wc-cip-no-amount">${project.eng_color === "red" || project.has_in_house_engineering ? "In-House" : "No amount recorded"}</span>`}</td>` : ""}
         ${showAmountColumn ? `<td class="wc-num">${project.year_amount_value > 0 ? money(project.year_amount_value) : '<span class="wc-cip-no-amount">No amount recorded</span>'}</td>` : ""}
       </tr>
@@ -353,7 +354,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               ${showRevenueSourceColumn ? "<th>Revenue Source</th>" : ""}
               ${showPhaseColumn ? "<th>Phase</th>" : ""}
               ${showStatusColumn ? "<th>Status</th>" : ""}
-              ${showDateColumn ? "<th>Completed / Est. Start</th>" : ""}
+              ${showDateColumns ? "<th>Started</th><th>Completed</th>" : ""}
               ${showBudgetColumn ? `<th class="wc-num">Budget/Actual</th>` : ""}
               ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
             </tr>

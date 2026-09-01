@@ -107,9 +107,9 @@ body.wc-home-explorer-open{position:fixed;left:0;right:0;width:100%;height:100%;
 .wc-home-explorer-modal-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
 .wc-home-explorer-modal-close:hover{background:#eaf3ed}
 .wc-home-explorer-modal-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
-.wc-home-explorer-modal-body{min-width:0;overflow:visible;padding:22px;background:var(--light)}
+.wc-home-explorer-modal-body{min-width:0;overflow:visible;padding:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%)}
 .wc-home-explorer-modal-body>.wc-data-loading{min-height:280px}
-.wc-home-explorer-modal-body .wc-department-explorer,.wc-home-explorer-modal-body .wc-personnel-explorer,.wc-home-explorer-modal-body .wc-revenue-concentration{margin-top:0}
+.wc-home-explorer-modal-body .wc-department-explorer,.wc-home-explorer-modal-body .wc-personnel-explorer,.wc-home-explorer-modal-body .wc-revenue-concentration{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 .wc-home-explorer-modal-body .wc-revenue-concentration-head h3,
 .wc-home-explorer-modal-body .wc-personnel-explorer-head>div:first-child>h2,
 .wc-home-explorer-modal-body .wc-department-explorer-head>div:first-child>h2{display:none}

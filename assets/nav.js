@@ -2542,6 +2542,7 @@
     footer.classList.add("wc-search-footer");
     var accessibilityHref = /\/pages\//.test(window.location.pathname) ? "accessibility.html" : "pages/accessibility.html";
     var privacyHref = /\/pages\//.test(window.location.pathname) ? "privacy.html" : "pages/privacy.html";
+    var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
     var desiredFooterHtml = `
       <div class="wc-budget-footer-inner">
         <div class="wc-footer-search-copy">
@@ -2555,8 +2556,8 @@
         </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
           <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
-          <a href="${accessibilityHref}">Accessibility</a>
-          <a href="${privacyHref}">Privacy</a>
+          <a href="${accessibilityHref}" data-wc-utility-popup="Accessibility Statement">Accessibility</a>
+          <a href="${privacyHref}" data-wc-utility-popup="Privacy Statement">Privacy</a>
         </nav>
       </div>
       <dialog class="wc-footer-contact-dialog" aria-labelledby="wcFooterContactTitle" aria-describedby="wcFooterContactNotice">
@@ -2568,6 +2569,14 @@
             <a href="mailto:budget@mywaltonfl.gov">Continue to Email</a>
           </div>
         </div>
+      </dialog>
+      <dialog class="wc-footer-utility-dialog" aria-labelledby="wcFooterUtilityTitle">
+        <video class="wc-footer-utility-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="${utilityWaveHref}" type="video/mp4"></video>
+        <div class="wc-footer-utility-shade" aria-hidden="true"></div>
+        <section class="wc-footer-utility-panel">
+          <header class="wc-footer-utility-head"><h2 id="wcFooterUtilityTitle">Website Information</h2><button type="button" class="wc-footer-utility-close" aria-label="Close website information">&times;</button></header>
+          <iframe class="wc-footer-utility-frame" title="Website information"></iframe>
+        </section>
       </dialog>
     `;
     if(footerContainer.getAttribute("data-wc-rendered") !== "true" || footerContainer.innerHTML.trim() !== desiredFooterHtml.trim()){
@@ -2608,6 +2617,55 @@
       if(emailLink){
         emailLink.addEventListener('click', function(){ contactDialog.close(); });
       }
+    }
+    var utilityDialog = footer.querySelector('.wc-footer-utility-dialog');
+    var utilityFrame = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-frame');
+    var utilityWave = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-wave');
+    function closeUtilityDialog(){
+      if(!utilityDialog) return;
+      if(utilityWave){utilityWave.pause();utilityWave.currentTime=0;}
+      if(utilityFrame) utilityFrame.src='about:blank';
+      if(typeof utilityDialog.close==='function') utilityDialog.close();else utilityDialog.removeAttribute('open');
+      document.documentElement.classList.remove('wc-modal-open');
+    }
+    footer.querySelectorAll('[data-wc-utility-popup]').forEach(function(link){
+      link.addEventListener('click',function(event){
+        if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey) return;
+        if(!utilityDialog||!utilityFrame||typeof utilityDialog.showModal!=='function') return;
+        event.preventDefault();
+        var title=link.getAttribute('data-wc-utility-popup')||link.textContent.trim();
+        var url=new URL(link.href,window.location.href);
+        url.searchParams.set('embed','utility-popup');
+        utilityDialog.querySelector('#wcFooterUtilityTitle').textContent=title;
+        utilityFrame.title=title;
+        utilityFrame.src=url.href;
+        document.documentElement.classList.add('wc-modal-open');
+        utilityDialog.showModal();
+        if(utilityWave){
+          utilityWave.defaultPlaybackRate=.25;
+          utilityWave.playbackRate=.25;
+          var playPromise=utilityWave.play();
+          if(playPromise&&typeof playPromise.catch==='function') playPromise.catch(function(){});
+        }
+        utilityDialog.querySelector('.wc-footer-utility-close').focus();
+      });
+    });
+    if(utilityDialog){
+      utilityFrame.addEventListener('load',function(){
+        try{
+          if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank') return;
+          utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');
+          var embeddedTitle=utilityFrame.contentDocument.querySelector('.page-title');
+          if(embeddedTitle&&embeddedTitle.textContent.trim()) utilityDialog.querySelector('#wcFooterUtilityTitle').textContent=embeddedTitle.textContent.trim();
+        }catch(error){}
+      });
+      utilityDialog.querySelector('.wc-footer-utility-close').addEventListener('click',closeUtilityDialog);
+      utilityDialog.addEventListener('click',function(event){if(event.target===utilityDialog) closeUtilityDialog();});
+      utilityDialog.addEventListener('cancel',function(event){event.preventDefault();closeUtilityDialog();});
+      utilityDialog.addEventListener('close',function(){
+        document.documentElement.classList.remove('wc-modal-open');
+        if(utilityWave){utilityWave.pause();utilityWave.currentTime=0;}
+      });
     }
   }
   function startWcBudgetNav(){

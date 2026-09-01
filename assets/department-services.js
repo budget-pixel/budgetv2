@@ -320,7 +320,16 @@
   var SNAPSHOT_CHART_CATEGORIES=[
     {label:'Personnel Services',type:'Personnel Services',color:'#0b7741'},
     {label:'Operating Expenditures',type:'Operating Expenditures',color:'#c2ac5f'},
-    {label:'Capital Outlay',type:'Capital Outlay',color:'#24344d'}
+    {label:'Capital Outlay',type:'Capital Outlay',color:'#24344d'},
+    // Grants and Aid, Other Uses, and Debt Service are real top-level
+    // Object_Types too (Statutory & Other Agency Funding is almost
+    // entirely Grants and Aid) -- without them here the chart silently
+    // undercounted any department carrying those rows. Empty series are
+    // dropped automatically below, so this adds nothing for departments
+    // that don't have them.
+    {label:'Grants and Aid',type:'Grants and Aid',color:'#9a4b3f'},
+    {label:'Other Uses',type:'Other Uses',color:'#6b6f76'},
+    {label:'Debt Service',type:'Debt Service',color:'#5a3d8a'}
   ];
   // "Did you know" career-wage sidebar on the Budget Graph. Every figure
   // here is a real, currently-published Florida BLS Occupational
@@ -372,7 +381,8 @@
   function bindSnapshotBudgetGraph(button,expenses,staffing,deptKey,deptLabel){
     button.addEventListener('click',function(){
       if(!window.WCBudgetData||typeof window.WCBudgetData.openBudgetDetailPanel!=='function') return;
-      var suppressFteMarkers=deptKey==='sheriff'||deptKey==='sheriff s office'||deptKey==='board of county commissioners';
+      var isAutonomousEntity=normalize((document.querySelector('.page-eyebrow')||{}).textContent)==='autonomous entities';
+      var suppressFteMarkers=deptKey==='sheriff'||deptKey==='sheriff s office'||deptKey==='board of county commissioners'||isAutonomousEntity;
       var suppressFteNote=suppressFteMarkers||/tax collector|property appraiser|clerk of court|supervisor of elections/i.test(String(deptLabel||''));
       var canvasId='wc-snapshot-chart-'+Math.random().toString(36).slice(2);
       var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
@@ -1006,7 +1016,7 @@
       {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
       {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
-    if(isCapitalCombinedOfficer||isBoardCommissioners){
+    if(isCapitalCombinedOfficer||isBoardCommissioners||isAutonomousEntity){
       var additionalExpenseGroups={};
       expenses.filter(function(row){return !/^(personnel services|operating expenditures|capital outlay)$/i.test(String(row.Object_Type||''));}).forEach(function(row){
         var rawLabel=String(row.Object_Type||row.Object_Name||'Other Expenditures').trim()||'Other Expenditures';
@@ -1036,7 +1046,7 @@
       }
     }
     if(capitalGroup&&!keepCapitalInSummary) snapshotExpenseGroups=snapshotExpenseGroups.filter(function(item){return item!==capitalGroup;});
-    if(keepCapitalInSummary) capitalGroup=null;
+    if(keepCapitalInSummary||isAutonomousEntity) capitalGroup=null;
     var budget=snapshotExpenseGroups.reduce(function(total,item){return total+item.amount;},0);
     var priorBudget=snapshotExpenseGroups.reduce(function(total,item){return total+(item.prior||0);},0);
     var budgetChange=budget-priorBudget;
@@ -1177,13 +1187,20 @@
       var fteChange=fte-priorFte;
       var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
       var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
+      // Some combined-page offices (e.g. Beach Renourishment) have no
+      // staffing rows at all -- showing a Position Summary card with a
+      // permanent 0 FTE reads as broken, so it's dropped entirely and the
+      // grid collapses to 2 columns instead, same as every other snapshot
+      // card on the site.
+      var showStaffingCard=staffing.length>0;
+      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
 
       var snapshot=document.createElement('section');
       snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
-      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+escapeHtml(office.label)+' Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
+      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+escapeHtml(office.label)+' Snapshot</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
         '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'">'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
         '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-office-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
-        '<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>'+
+        staffingCardHtml+
         '</div>';
 
       if(heading) heading.insertAdjacentElement('afterend',snapshot); else officeSection.insertAdjacentElement('afterbegin',snapshot);
@@ -1247,6 +1264,46 @@
 
     var personnelLedgerButton=snapshot.querySelector('[data-independent-personnel-ledger-trigger]');
     if(personnelLedgerButton) bindSnapshotPersonnelLedgerTrigger(personnelLedgerButton);
+    renderCourtInnovationsSnapshot();
+  }
+
+  // Court Technology & Innovations combines two separately budgeted
+  // programs on one page: the main Court Technology - Court Administration
+  // data (handled above like any other independent office) plus a small
+  // "Court Innovations" court-cost program rendered by budget-data.js's
+  // renderCourtInnovationsSupplementalTables() into its own old-style
+  // finance cards (.court-innovations-cards). That block predates the
+  // compact Department Snapshot card and never got migrated, so it still
+  // shows the old, taller table layout. This gives it the same compact
+  // card treatment (no staffing card -- Court Innovations has none) and
+  // hides the old cards, matching every other office on the site.
+  function renderCourtInnovationsSnapshot(){
+    var section=document.querySelector('.court-innovations-supplemental-tables');
+    var oldCards=document.querySelector('.court-innovations-cards');
+    if(!section||!window.WCBudgetData||typeof window.WCBudgetData.getCourtInnovationsExpenses!=='function') return;
+    var expenses=window.WCBudgetData.getCourtInnovationsExpenses()||[];
+    var revenues=window.WCBudgetData.getCourtInnovationsRevenues()||[];
+    if(!expenses.length&&!revenues.length) return;
+    var expenseGroups=[
+      {label:'Personnel Services',amount:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed')},
+      {label:'Operating Expenditures',amount:sum(expenses.filter(function(row){return row.Object_Type==='Operating Expenditures';}),'FY2027_Proposed')},
+      {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed')}
+    ].filter(function(item){return item.amount!==0;});
+    if(!expenseGroups.length) expenseGroups=[{label:'Operating Expenditures',amount:sum(expenses,'FY2027_Proposed')}];
+    var budget=expenseGroups.reduce(function(total,item){return total+item.amount;},0);
+    var revenueGroups=[];
+    revenues.forEach(function(row){var label=row.Revenue_Type||row.Revenue_Name||'Other Revenue';var item=revenueGroups.find(function(entry){return entry.label===label;});if(!item){item={label:label,amount:0};revenueGroups.push(item);}item.amount+=Math.abs(Number(row.FY2027_Proposed)||0);});
+    revenueGroups=revenueGroups.filter(function(item){return item.amount>0;}).sort(function(a,b){return b.amount-a.amount;});
+    var revenueTotal=revenueGroups.reduce(function(total,item){return total+item.amount;},0);
+    var snapshot=document.createElement('section');
+    snapshot.className='wc-profile-snapshot wc-board-department-profile wc-independent-office-snapshot';
+    snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Court Innovations Snapshot</h2></div><div class="wc-profile-snapshot-grid wc-profile-snapshot-grid--no-staffing">'+
+      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong></div><div class="wc-profile-snapshot-table">'+expenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,null);}).join('')+'</div></article>'+
+      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal,null,false,null,null);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div></article>'+
+      '</div>';
+    section.insertAdjacentElement('afterend',snapshot);
+    if(oldCards) oldCards.classList.add('wc-independent-source-grid');
+    bindSnapshotTooltips(snapshot);
   }
 
   function render(){

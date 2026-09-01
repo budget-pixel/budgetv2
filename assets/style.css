@@ -1335,6 +1335,20 @@ html.wc-embedded-department .wc-dept-function-services--with-video>.wc-dept-supp
 .wc-constitutional-officer-portrait figcaption{padding:10px 8px 4px;color:var(--navy);font-size:.82rem;font-weight:800;text-align:center}
 .wc-officer-statement-with-portrait .wc-constitutional-officer-portrait{margin:0}
 @media(max-width:800px){.wc-officer-statement-with-portrait{grid-template-columns:1fr}.wc-constitutional-officer-portrait{width:min(260px,100%);margin:4px auto 8px}.wc-constitutional-officer-portrait img{height:280px}}
+.wc-footer-utility-dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;margin:0;padding:18px;overflow:hidden;border:0;background:#0b2a20;box-sizing:border-box}
+.wc-footer-utility-dialog::backdrop{background:#0b2a20}
+.wc-footer-utility-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(.9);pointer-events:none}
+.wc-footer-utility-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
+.wc-footer-utility-panel{position:relative;z-index:2;display:flex;width:min(1320px,100%);height:100%;margin:0 auto;overflow:hidden;flex-direction:column;border:1px solid rgba(0,63,40,.18);border-radius:20px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.4)}
+.wc-footer-utility-head{display:flex;align-items:center;gap:16px;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--light)}
+.wc-footer-utility-head h2{margin:0;color:var(--navy);font-size:1.2rem}
+.wc-footer-utility-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
+.wc-footer-utility-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:var(--light)}
+html.wc-embedded-utility nav#nav-menu,html.wc-embedded-utility footer[role="contentinfo"],html.wc-embedded-utility .wc-breadcrumb,html.wc-embedded-utility #content>.page-eyebrow,html.wc-embedded-utility #content>.page-title{display:none!important}
+html.wc-embedded-utility #layout{display:block;min-height:100vh}
+html.wc-embedded-utility #content{width:min(1180px,100%);max-width:none;margin:0 auto;padding:34px 28px}
+@media(max-width:700px){.wc-footer-utility-dialog{padding:0}.wc-footer-utility-panel{border:0;border-radius:0}html.wc-embedded-utility #content{padding:24px 18px}}
+@media(prefers-reduced-motion:reduce){.wc-footer-utility-wave{display:none}}
 .wc-department-explorer{margin:20px 0 34px;padding:26px;border:1px solid rgba(0,63,40,.14);border-radius:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%);box-shadow:0 8px 26px rgba(0,63,40,.07)}
 .wc-department-explorer{position:relative;margin-top:20px}
 .wc-department-explorer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}
@@ -3172,10 +3186,20 @@ main#content > .recreation-parks-section {
 .wc-revenue-source-dialog-close:hover { border-color: var(--green); color: var(--green); }
 .wc-revenue-source-dialog-body { min-height: 0; padding: 20px; overflow: auto; }
 .wc-revenue-source-dialog-body .wc-revenue-detail-actions { display: none; }
-.wc-revenue-source-dialog-body .wc-revenue-topic-block { margin: 0; }
+.wc-revenue-source-dialog-body .wc-revenue-topic-block { width: 100%; max-width: none; margin: 0; }
+/* This popup shows exactly one topic at a time, so the chart/narrative
+   pair doesn't need to match height the way a scrolling page of many
+   topic rows does -- stretch just padded the shorter (narrative) card
+   with blank space when it had less content than the chart card. */
+.wc-revenue-source-dialog-body .wc-revenue-topic-row { align-items: start; }
 @media(max-width:700px){.wc-revenue-source-dialog{padding:0}.wc-revenue-source-dialog-shell{border:0;border-radius:0}}
 @media(prefers-reduced-motion:reduce){.wc-revenue-source-dialog-wave{display:none}}
 :root[data-theme="dark"] .wc-revenue-source-dialog-shell,:root[data-theme="dark"] .wc-revenue-source-dialog-head { background: #102119; }
+.wc-revenue-ledger-detail-view { margin-top: 14px; border: 1px solid rgba(0,63,40,.18); border-radius: 20px; background: var(--light); box-shadow: 0 12px 34px rgba(0,35,22,.08); overflow: hidden; }
+.wc-revenue-ledger-back-button { display: inline-flex; align-items: center; gap: 6px; margin: 18px 0 18px 20px; padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--green); font-size: .82rem; font-weight: 800; cursor: pointer; }
+.wc-revenue-ledger-back-button:hover { border-color: var(--green); }
+:root[data-theme="dark"] .wc-revenue-ledger-detail-view { background: #102119; }
+:root[data-theme="dark"] .wc-revenue-ledger-back-button { background: #16241d; color: var(--text); }
 .wc-fund-activity-detail {
   margin: 4px 14px 14px 28px;
   padding: 10px 14px;

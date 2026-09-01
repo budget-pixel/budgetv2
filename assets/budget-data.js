@@ -580,13 +580,14 @@
   const STATUTORY_EXPENSE_OVERRIDES = new Set([
     "00102012|581000|10259",
     "00102012|581000|10260",
-    "00102012|581000|10720",
+    "00102012|581000|10760",
     "00102012|581000|10732",
     "00102012|581000|",
     "00102019|581000|10277",
     "00102019|581000|10278",
     "00102011|582000|10257",
     "00102016|582000|10251",
+    "00102017|582000|10253",
     "00102014|583000|",
     "00102013|531000|10246",
     "00102013|531000|10247",
@@ -1783,6 +1784,29 @@
     });
   }
 
+  // "Surplus Budget Tax Collector"/"Surplus Budget Clerk of Court"/
+  // "Surplus Budget Supervisor of Elections"/"Surplus Budget Property
+  // Appraiser" are General Fund revenue -- the return of each office's
+  // excess fee revenue after its own operating requirements are met, paid
+  // BY that office TO the County, not revenue the office itself collects
+  // or receives. Their Dept_Name is the office's own name, so without this
+  // they'd otherwise show up on that office's own Revenue Summary looking
+  // like money it took in, which is backwards. (Sheriff has the same kind
+  // of row too, but its page isn't affected here -- not requested.)
+  const OWN_OFFICE_SURPLUS_REMITTANCE_DEPT_NAMES = new Set([
+    "tax collector",
+    "clerk of court",
+    "clerk of courts and county comptroller",
+    "clerk of circuit court",
+    "supervisor of elections",
+    "property appraiser"
+  ]);
+  function suppressOwnOfficeSurplusRemittanceRows(rows, deptName) {
+    const normalizedDeptName = normalizeDeptName(deptName);
+    if (!OWN_OFFICE_SURPLUS_REMITTANCE_DEPT_NAMES.has(normalizedDeptName)) return rows;
+    return (rows || []).filter((row) => !/^surplus budget/i.test(String((row && row.Revenue_Name) || "").trim()));
+  }
+
   function combineStateAttorneyAdValoremRows(rows, deptName) {
     const normalizedDeptName = normalizeDeptName(deptName);
     if (normalizedDeptName !== "state attorney" && normalizedDeptName !== "mosquito control") return rows;
@@ -1831,7 +1855,7 @@
   }
 
   function getDepartmentRevenues(deptName, deptCode) {
-    return filterLibraryProjectGrantRevenueRows(suppressMsbuAdValoremRows(
+    return suppressOwnOfficeSurplusRemittanceRows(filterLibraryProjectGrantRevenueRows(suppressMsbuAdValoremRows(
       suppressMossyHeadTransferInPriorYears(
         combineStateAttorneyAdValoremRows(
           combineEagleSpringsProShopSalesRows(rowsForDepartment(cache.revenues, deptName, deptCode), deptName),
@@ -1840,7 +1864,7 @@
         deptName
       ),
       deptName
-    ), deptName);
+    ), deptName), deptName);
   }
 
   const ZERO_ROW_FILTER_DEPT_NAMES = new Set([
@@ -5658,6 +5682,18 @@
     return (cache.expenditures || []).filter(isBccOtherUsesContingencyRow);
   }
 
+  function isCourtInnovationsExpenseRow(r) {
+    return (r.Dept_Code === "00101000" && r.Project_Code === "1040") || normalizeDeptName(r.Dept_Name) === "court innovations";
+  }
+
+  function getCourtInnovationsExpenses() {
+    return (cache.expenditures || []).filter(isCourtInnovationsExpenseRow);
+  }
+
+  function getCourtInnovationsRevenues() {
+    return (cache.revenues || []).filter((r) => normalizeDeptName(r.Dept_Name) === "court innovations");
+  }
+
   function expenseActivityForRow(r) {
     if (isBccOtherUsesContingencyRow(r)) return "Other Uses";
     const deptOverride = EXPENSE_ACTIVITY_OVERRIDE_BY_DEPT_NAME.get(normalizeDeptName(r && r.Dept_Name));
@@ -8554,7 +8590,17 @@
   function revenueProjectionRate(type, topic) {
     if (topic && /^(?:Ad Valorem|Property) Taxes$/.test(topic.title)) return 0;
     if (topic && topic.title === "Tourist Development Taxes") return 0.01;
+    if (topic && /housing prisoners revenue/i.test(topic.title)) return 0;
     return REVENUE_PROJECTION_RATES[type] || 0;
+  }
+
+  function revenueProjectionBase(rows, topic) {
+    const sourceRows = rows || [];
+    if (topic && /housing prisoners revenue/i.test(topic.title)) {
+      const latestActual = sumRevenueRowsForField(sourceRows, "FY2025_Actual", topic);
+      if (latestActual > 0) return latestActual;
+    }
+    return sumRevenueRowsForField(sourceRows, "FY2027_Proposed", topic);
   }
 
   function projectedRevenueAmount(base, type, year, topic) {
@@ -8568,8 +8614,12 @@
       const name = normalizeDeptName(row.Revenue_Name);
       const isAdValorem = code === "311000" || code === "311001" || name === "ad valorem taxes";
       const isTouristTax = ["312120", "312130", "312150", "312160", "312170"].indexOf(code) !== -1 || name === "tourist development taxes";
-      const topic = isAdValorem ? { title: "Property Taxes" } : (isTouristTax ? { title: "Tourist Development Taxes" } : null);
-      return sum + projectedRevenueAmount(row.FY2027_Proposed || 0, row.Revenue_Type, year, topic);
+      const isHousingPrisoners = /housing prisoners revenue/i.test(String(row.Revenue_Name || ""));
+      const topic = isAdValorem
+        ? { title: "Property Taxes" }
+        : (isTouristTax ? { title: "Tourist Development Taxes" } : (isHousingPrisoners ? { title: "Housing Prisoners Revenue" } : null));
+      const base = isHousingPrisoners && (row.FY2025_Actual || 0) > 0 ? row.FY2025_Actual : row.FY2027_Proposed;
+      return sum + projectedRevenueAmount(base || 0, row.Revenue_Type, year, topic);
     }, 0);
   }
 
@@ -8767,7 +8817,12 @@
       )
       .sort((a, b) => dedupedRevenueSum(b[1].rows, "FY2027_Proposed") - dedupedRevenueSum(a[1].rows, "FY2027_Proposed"))
       .map(([name, entry]) =>
-        '<tr><td><button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button></td>' +
+        // Nonoperating Balance Brought Forward (and similar carryforward/
+        // balance rows) is prior-year cash being reappropriated, not a
+        // collected revenue source -- it has no narrative, trend, or
+        // control profile of its own, so it isn't given a detail
+        // page/graph like the real sources above it.
+        '<tr><td>' + ((NON_SOURCE_REVENUE_NAME_PATTERN.test(name) || NON_CLICKABLE_SURPLUS_REVENUE_NAME_PATTERN.test(name)) ? escapeHtml(name) : '<button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button>') + '</td>' +
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = dedupedRevenueSum(entry.rows, col.field);
           totals[i] += sum;
@@ -8849,6 +8904,7 @@
       let showHistoricalYears = false;
       let showFutureYears = false;
       container.innerHTML =
+        '<div class="wc-revenue-ledger-list-view" data-revenue-ledger-list-view>' +
         '<div class="wc-filter-bar wc-machinery-picker">' +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerFund", label: "Fund", options: funds }) +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerDepartment", label: "Department", options: departments }) +
@@ -8858,22 +8914,22 @@
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerHistoryToggle" aria-pressed="false">View Prior Years</button>' +
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerFutureToggle" aria-pressed="false">View Projected Future Years</button>' +
         "</div>" +
-        '<div class="wc-revenue-ledger-filtered-table"></div>';
+        '<div class="wc-revenue-ledger-filtered-table"></div>' +
+        "</div>" +
+        // Clicking a revenue source used to open a second, nested popup
+        // (its own <dialog>, wave video, and close button) stacked on top
+        // of this page's own popup when the ledger itself is opened from
+        // the home explorer -- a popup inside a popup. This swaps the
+        // filter/table view out in place instead, with a single "Back to
+        // Ledger" button to return, so there's only ever one popup.
+        '<section class="wc-revenue-ledger-detail-view" data-revenue-ledger-detail-view hidden>' +
+        '<button type="button" class="wc-revenue-ledger-back-button" data-revenue-ledger-back>&larr; Back to Ledger</button>' +
+        '<div class="wc-revenue-source-dialog-body" data-revenue-ledger-detail-body></div>' +
+        "</section>";
+      const listView = container.querySelector("[data-revenue-ledger-list-view]");
       const tableContainer = container.querySelector(".wc-revenue-ledger-filtered-table");
-      const revenueDialogWaveSrc = window.location.pathname.includes("/pages/")
-        ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4"
-        : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
-      container.insertAdjacentHTML("beforeend",
-        '<dialog class="wc-revenue-source-dialog" data-revenue-source-dialog aria-labelledby="wcRevenueSourceDialogTitle">' +
-        '<video class="wc-revenue-source-dialog-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="' + revenueDialogWaveSrc + '" type="video/mp4"></video><div class="wc-revenue-source-dialog-shade" aria-hidden="true"></div>' +
-        '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueSourceDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-source-dialog-close aria-label="Close">&times;</button></div>' +
-        '<div class="wc-revenue-source-dialog-body" data-revenue-source-dialog-body></div></div>' +
-        '</dialog>'
-      );
-      const revenueSourceDialog = container.querySelector("[data-revenue-source-dialog]");
-      const revenueSourceDialogWave = container.querySelector(".wc-revenue-source-dialog-wave");
-      const revenueSourceDialogBody = container.querySelector("[data-revenue-source-dialog-body]");
-      const revenueSourceDialogTitle = container.querySelector("#wcRevenueSourceDialogTitle");
+      const detailView = container.querySelector("[data-revenue-ledger-detail-view]");
+      const detailBody = container.querySelector("[data-revenue-ledger-detail-body]");
       function ledgerExplorerSourceName(row) {
         let name = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
         if (/interest/i.test(name)) name = "Interest and Investment Earnings";
@@ -8885,11 +8941,23 @@
         }
         return name;
       }
+      const showRevenueLedgerDetail = () => {
+        if (!listView || !detailView) return;
+        listView.hidden = true;
+        detailView.hidden = false;
+        container.scrollIntoView({ block: "start" });
+      };
+      const closeRevenueLedgerDetail = () => {
+        if (!listView || !detailView) return;
+        detailView.hidden = true;
+        listView.hidden = false;
+        if (detailBody) detailBody.innerHTML = "";
+      };
       tableContainer.addEventListener("click", (event) => {
         const sourceButton = event.target.closest("[data-revenue-ledger-source]");
         if (!sourceButton) return;
         const target = sourceButton.dataset.revenueLedgerSource || "";
-        if (!target || !revenueSourceDialog || !revenueSourceDialogBody) return;
+        if (!target || !detailBody) return;
         const matchingRows = sourceRows.filter((row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target);
         const sourceTitle = matchingRows.length ? ledgerExplorerSourceName(matchingRows[0]) : sourceButton.textContent.trim();
         const topic = {
@@ -8900,40 +8968,13 @@
           recurrenceLabel: /^Interest and Investment Earnings$/i.test(sourceTitle) ? "Non-recurring" : "Recurring",
           matches: (row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target
         };
-        if (revenueSourceDialogTitle) revenueSourceDialogTitle.textContent = sourceTitle;
-        revenueSourceDialogBody.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + '</div>';
-        document.documentElement.classList.add("wc-modal-open");
-        revenueSourceDialog.showModal();
-        if (revenueSourceDialogWave) {
-          revenueSourceDialogWave.defaultPlaybackRate = 0.25;
-          revenueSourceDialogWave.playbackRate = 0.25;
-          const playPromise = revenueSourceDialogWave.play();
-          if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
-        }
-        renderRevenueTopicCards(revenueSourceDialogBody, [topic], "wc-chart-revenue-ledger-popup");
-        bindTooltipAnchors(revenueSourceDialogBody);
+        detailBody.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + '</div>';
+        showRevenueLedgerDetail();
+        renderRevenueTopicCards(detailBody, [topic], "wc-chart-revenue-ledger-popup");
+        bindTooltipAnchors(detailBody);
       });
-      const closeRevenueSourceDialog = () => {
-        if (revenueSourceDialogWave) {
-          revenueSourceDialogWave.pause();
-          revenueSourceDialogWave.currentTime = 0;
-        }
-        if (revenueSourceDialog) revenueSourceDialog.close();
-        document.documentElement.classList.remove("wc-modal-open");
-        if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
-      };
-      container.querySelector("[data-revenue-source-dialog-close]").addEventListener("click", closeRevenueSourceDialog);
-      revenueSourceDialog.addEventListener("click", (event) => {
-        if (event.target === revenueSourceDialog) closeRevenueSourceDialog();
-      });
-      revenueSourceDialog.addEventListener("close", () => {
-        if (revenueSourceDialogWave) {
-          revenueSourceDialogWave.pause();
-          revenueSourceDialogWave.currentTime = 0;
-        }
-        document.documentElement.classList.remove("wc-modal-open");
-        if (revenueSourceDialogBody) revenueSourceDialogBody.innerHTML = "";
-      });
+      const backButton = container.querySelector("[data-revenue-ledger-back]");
+      if (backButton) backButton.addEventListener("click", closeRevenueLedgerDetail);
       function renderFilteredLedger() {
         // Department pages first suppress shared/countywide actuals and
         // backfill their General Fund support from that department's own
@@ -10537,6 +10578,7 @@
   // transfers in (381000) and carried-forward balances -- excluded when
   // working out what actually pays for a fund's spending.
   const NON_SOURCE_REVENUE_NAME_PATTERN = /(carry ?forward|brought forward|cash forward|fund balance|appropriated balance|less 5%)/i;
+  const NON_CLICKABLE_SURPLUS_REVENUE_NAME_PATTERN = /^surplus budget.*(?:clerk of (?:the )?court|supervisor of elections|property appraiser|tax collector)/i;
 
   // The named revenue topic a row rolls up to on the Summary of Revenues
   // page ("Tourist Development Taxes", "Property Taxes", ...). The
@@ -11102,9 +11144,12 @@
           '<div class="wc-property-tax-burden-bar wc-property-tax-burden-bar-stacked" aria-label="Taxable value: 16.7 percent homestead, 5.3 percent commercial and industrial, and 78 percent other taxable property"><i class="is-homestead" style="width:16.7%"></i><i class="is-commercial" style="width:5.3%"></i><i class="is-other" style="width:78%"></i></div>' +
           '<p>Estimated FY 2027 levy shares apply the parcel roll and Florida Department of Revenue&rsquo;s 2025 property-use taxable values to proposed ad valorem revenue. This is a tax-base comparison, not a parcel-level billing calculation.</p></div>'
         : '';
+      const propertyTaxSupportPage = window.location.pathname.includes("/pages/")
+        ? "summary-of-property-tax-allocations.html?embed=calculator"
+        : "pages/summary-of-property-tax-allocations.html?embed=calculator";
       const propertyTaxSupportHtml = topic.title === "Property Taxes"
         ? '<button type="button" class="wc-property-tax-support-open" aria-haspopup="dialog" aria-controls="wc-property-tax-support-dialog">What does my property tax support?</button>' +
-          '<dialog class="wc-property-tax-support-dialog" id="wc-property-tax-support-dialog" aria-labelledby="wc-property-tax-support-title"><div><header><div><span>Personalized property-tax estimate</span><h3 id="wc-property-tax-support-title">What does your property tax support?</h3></div><button type="button" class="wc-property-tax-support-close" aria-label="Close personalized property-tax estimate">&times;</button></header><iframe title="Walton County personalized property-tax support calculator" data-src="summary-of-property-tax-allocations.html?embed=calculator"></iframe></div></dialog>'
+          '<dialog class="wc-property-tax-support-dialog" id="wc-property-tax-support-dialog" aria-labelledby="wc-property-tax-support-title"><div><header><div><span>Personalized property-tax estimate</span><h3 id="wc-property-tax-support-title">What does your property tax support?</h3></div><button type="button" class="wc-property-tax-support-close" aria-label="Close personalized property-tax estimate">&times;</button></header><iframe title="Walton County personalized property-tax support calculator" data-src="' + escapeHtml(propertyTaxSupportPage) + '"></iframe></div></dialog>'
         : '';
       const homesteadForegoneHtml = topic.title === "Property Taxes"
         ? '<div class="wc-revenue-control-profile wc-homestead-foregone" data-homestead-foregone aria-live="polite"><div><strong>Homestead-related revenue forgone</strong></div><p>Calculating from the County parcel roll and FY 2027 proposed millage rate.</p></div>'
@@ -11150,9 +11195,11 @@
       const projectionRate = revenueProjectionRate(topicType, topic);
       const projectionNote = topic.isAllOtherRevenue
         ? "FY 2028 and FY 2029 apply each source's revenue-category assumption to its FY 2027 proposed amount."
-        : (projectionRate
-          ? "FY 2028 and FY 2029 apply " + (projectionRate * 100).toFixed(1).replace(/\.0$/, "") + "% annual growth to the FY 2027 proposed amount."
-          : "FY 2028 and FY 2029 hold the FY 2027 proposed amount level because no recurring growth assumption is applied.");
+        : (/housing prisoners revenue/i.test(topic.title)
+          ? "FY 2028 and FY 2029 return to the latest actual collection level of " + formatAbbreviatedCurrency(revenueProjectionBase(topicRows, topic)) + " and hold it flat rather than carrying forward the unusually high FY 2027 proposal."
+          : (projectionRate
+            ? "FY 2028 and FY 2029 apply " + (projectionRate * 100).toFixed(1).replace(/\.0$/, "") + "% annual growth to the FY 2027 proposed amount."
+            : "FY 2028 and FY 2029 hold the FY 2027 proposed amount level because no recurring growth assumption is applied."));
       // Historical compound annual growth rate across the actual years the
       // chart already plots (FY2022-FY2025), so the forward assumption can be
       // read against what collections actually did. Skipped when either
@@ -11306,7 +11353,7 @@
         label: name,
         data: REVENUE_TOPIC_CHART_YEARS.map((y) => {
           return y.projectedYear
-            ? projectedRevenueAmount(sumRevenueRowsForField(rowsForName, "FY2027_Proposed", topic), rowsForName[0] && rowsForName[0].Revenue_Type, y.projectedYear, topic)
+            ? projectedRevenueAmount(revenueProjectionBase(rowsForName, topic), rowsForName[0] && rowsForName[0].Revenue_Type, y.projectedYear, topic)
             : sumRevenueRowsForField(rowsForName, y.field, topic);
         }),
         // Scriptable so it re-resolves (via registerWcThemedChart's
@@ -11638,9 +11685,11 @@
       function revenueSourceExplorerTarget(source) {
         return source && source.name ? revenueTopicSlug(source.name) : "";
       }
-      const sixLargestSources = rankedSources.slice(0, 6);
-      const sixLargestAmount = sixLargestSources.reduce((sum, source) => sum + source.amount, 0);
-      const sixLargestSharePercent = total ? Math.round((sixLargestAmount / total) * 100) : 0;
+      const twelveLargestSources = rankedSources
+        .filter((source) => !/surplus.*tax collector|tax collector.*surplus/i.test(source.name))
+        .slice(0, 12);
+      const twelveLargestAmount = twelveLargestSources.reduce((sum, source) => sum + source.amount, 0);
+      const twelveLargestSharePercent = total ? Math.round((twelveLargestAmount / total) * 100) : 0;
       function revenueChangeHtml(currentAmount, priorAmount, sourceName) {
         const change = currentAmount - priorAmount;
         const percent = priorAmount ? change / Math.abs(priorAmount) * 100 : null;
@@ -11659,7 +11708,7 @@
         if (amount >= 1000) return sign + "$" + Math.round(amount / 1000).toLocaleString("en-US") + "K";
         return sign + formatCurrency(amount);
       }
-      const largestSourceCardsHtml = sixLargestSources.map((source, sourceIndex) => {
+      const largestSourceCardsHtml = twelveLargestSources.map((source, sourceIndex) => {
         const target = revenueSourceExplorerTarget(source);
         const isRestrictedTourism = /tourist development/i.test(source.name);
         // Use the same restriction rule the detail panel/graph badge uses
@@ -11683,22 +11732,31 @@
         return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(source.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(source.amount)) + '</b><small class="wc-revenue-card-share">' + Math.round(source.share * 100) + '% of total budget</small></div><div class="wc-revenue-card-badge-stack"><div class="wc-revenue-card-badges">' + sourceAccessBadgeHtml + '<div class="wc-revenue-recurrence-badge ' + (recurrenceLabel === "Non-recurring" ? "is-nonrecurring" : "is-recurring") + '" data-revenue-tooltip="' + (recurrenceLabel === "Non-recurring" ? "Non-recurring revenue is expected as a one-time or irregular source rather than a dependable annual stream." : "Recurring revenue is expected to continue as an annual source, subject to changes in collections and policy.") + '">' + recurrenceLabel + '</div><div class="wc-revenue-control-badge ' + escapeHtml(control.className) + '" data-revenue-tooltip="' + escapeHtml(control.text) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</div></div></div></div>' + revenueChangeHtml(source.amount, priorAmount, source.name) + '</' + tag + '>';
       }).join("");
       const concentrationHtml = '<section class="wc-revenue-concentration" aria-labelledby="revenue-explorer-title">' +
-        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Start with the six largest sources below. Hover over a badge to learn whether revenue is restricted, recurring, or within the County&rsquo;s control. Select a card for details, or open the ledger to review the full budget.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="revenue-ledger.html">View Revenue Ledger</a><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
-        '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + sixLargestSharePercent + '%</strong> of the total revenue budget is represented by the six sources shown below.</p><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(compactRevenueCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(compactRevenueCurrency(locallySupportedRevenue)) + '</b></div></div></div>' +
+        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Start with the 12 largest sources below. Hover over a badge to learn whether revenue is restricted, recurring, or within the County&rsquo;s control. Select a card for details, or open the ledger to review the full budget.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="revenue-ledger.html" data-explorer-popup-trigger="Revenue Ledger">View Revenue Ledger</a><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
+        '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + twelveLargestSharePercent + '%</strong> of the total revenue budget is represented by the 12 sources shown below.</p><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(compactRevenueCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(compactRevenueCurrency(locallySupportedRevenue)) + '</b></div></div></div>' +
         '<div class="wc-revenue-snapshot">' +
           largestSourceCardsHtml +
         '</div>' +
         '</section>';
       const concentrationContainer = document.getElementById("revenue-source-concentration");
       if (concentrationContainer) {
+        const explorerDialogWaveSrc = window.location.pathname.includes("/pages/")
+          ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4"
+          : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
         concentrationContainer.innerHTML = concentrationHtml +
           '<dialog class="wc-revenue-source-dialog" data-revenue-explorer-dialog aria-labelledby="wcRevenueExplorerDialogTitle">' +
+          '<video class="wc-revenue-source-dialog-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="' + explorerDialogWaveSrc + '" type="video/mp4"></video><div class="wc-revenue-source-dialog-shade" aria-hidden="true"></div>' +
           '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueExplorerDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-explorer-dialog-close aria-label="Close">&times;</button></div>' +
           '<div class="wc-revenue-source-dialog-body" data-revenue-explorer-dialog-body></div></div></dialog>';
         const explorerDialog = concentrationContainer.querySelector("[data-revenue-explorer-dialog]");
+        const explorerDialogWave = concentrationContainer.querySelector(".wc-revenue-source-dialog-wave");
         const explorerDialogBody = concentrationContainer.querySelector("[data-revenue-explorer-dialog-body]");
         const explorerDialogTitle = concentrationContainer.querySelector("#wcRevenueExplorerDialogTitle");
         const closeExplorerDialog = () => {
+          if (explorerDialogWave) {
+            explorerDialogWave.pause();
+            explorerDialogWave.currentTime = 0;
+          }
           if (explorerDialog && explorerDialog.open) explorerDialog.close();
           document.documentElement.classList.remove("wc-modal-open");
           if (explorerDialogBody) explorerDialogBody.innerHTML = "";
@@ -11723,6 +11781,12 @@
           if (explorerDialogTitle) explorerDialogTitle.textContent = source.name;
           document.documentElement.classList.add("wc-modal-open");
           explorerDialog.showModal();
+          if (explorerDialogWave) {
+            explorerDialogWave.defaultPlaybackRate = 0.25;
+            explorerDialogWave.playbackRate = 0.25;
+            const playPromise = explorerDialogWave.play();
+            if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+          }
           renderRevenueTopicCards(explorerDialogBody, [topic], "wc-chart-revenue-explorer-popup");
           explorerDialogBody.querySelectorAll(".wc-revenue-topic-block").forEach((block) => { block.hidden = false; });
           bindTooltipAnchors(explorerDialogBody);
@@ -11733,6 +11797,10 @@
           if (event.target === explorerDialog) closeExplorerDialog();
         });
         explorerDialog.addEventListener("close", () => {
+          if (explorerDialogWave) {
+            explorerDialogWave.pause();
+            explorerDialogWave.currentTime = 0;
+          }
           document.documentElement.classList.remove("wc-modal-open");
           if (explorerDialogBody) explorerDialogBody.innerHTML = "";
         });
@@ -14934,7 +15002,7 @@
           const href = isAllOther ? "personnel-ledger.html?scope=board" : "personnel-ledger.html?dept=" + encodeURIComponent(item[0]);
           return '<a href="' + escapeHtml(href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(item[0]) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(cost2027)) + '</b><small class="wc-revenue-card-share">' + shareOfPersonnel.toFixed(1) + '% of personnel budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte2027)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (costChangeAmt < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></a>';
         }).join("");
-        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>Walton County budgets ' + escapeHtml(formatNumber(totalFte2027)) + ' FTE for FY 2027 &mdash; ' + escapeHtml(formatNumber(boardFte2027)) + ' across Board departments and ' + escapeHtml(formatNumber(constitutionalFte2027)) + ' across Constitutional Officers &mdash; along with the salaries, retirement, health insurance, and other benefits that support them.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><a class="wc-personnel-ledger-trigger" href="personnel-ledger.html">View Personnel Ledger</a><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
+        explorer.innerHTML = '<section class="wc-personnel-explorer" aria-labelledby="personnel-explorer-title"><div class="wc-personnel-explorer-head"><div><span>FY 2027 workforce and cost</span><h2 id="personnel-explorer-title">Personnel Budget Explorer</h2><p>Walton County budgets ' + escapeHtml(formatNumber(totalFte2027)) + ' FTE for FY 2027 &mdash; ' + escapeHtml(formatNumber(boardFte2027)) + ' across Board departments and ' + escapeHtml(formatNumber(constitutionalFte2027)) + ' across Constitutional Officers &mdash; along with the salaries, retirement, health insurance, and other benefits that support them.</p><p>Start with the largest staffing departments below, or open the Personnel Ledger to review FTE and cost by department, function, or fund.</p></div><aside class="wc-personnel-total-budget"><div class="wc-personnel-explorer-total"><span>Total budgeted personnel cost</span><strong>' + escapeHtml(formatCurrency(totalCost2027)) + '</strong><small>' + (costChange >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(costChange))) + ' (' + (costChangePct >= 0 ? "+" : "−") + Math.abs(costChangePct).toFixed(1) + '%)</small><div><a class="wc-personnel-ledger-trigger" href="personnel-ledger.html" data-explorer-popup-trigger="Personnel Ledger">View Personnel Ledger</a><a class="wc-personnel-explainer-link" href="personnel-budget-explained.html">What&rsquo;s in Personnel Cost?</a></div></div></aside></div>' +
           '<div class="wc-personnel-card-summary-row"><p class="wc-personnel-concentration-summary"><strong>' + Math.round(personnelShareOfBudgetPct) + '%</strong> of the total expenditure budget is personnel funding.</p><div class="wc-personnel-budget-split"><div><span>Board departments</span><b>' + escapeHtml(compactCurrency(boardDepartmentPersonnelCost)) + '</b><small>' + Math.round(boardShareOfPersonnelPct) + '% of personnel</small></div><div><span>Constitutional Officers</span><b>' + escapeHtml(compactCurrency(constitutionalPersonnelCost)) + '</b><small>' + Math.round(constitutionalShareOfPersonnelPct) + '% of personnel</small></div></div></div>' +
           '<div class="wc-revenue-snapshot">' + deptCards + '</div></section>';
         const personnelKicker = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > span');
@@ -17675,7 +17743,7 @@
           filterComboFieldHtml({ idPrefix: "wcDepartmentLedgerDepartment", label: "Department", options: departmentLedgerDepartments, initialLabel: departmentLedgerSelectedDepartment || "All" }) +
           '</div>'
         : "";
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><div class="wc-department-ledger-actions"><a class="wc-department-ledger-trigger" href="department-ledger.html">View Department Operating Ledger</a><a class="wc-department-ledger-trigger" href="summary-of-contractual-services.html">View Contractual Services Ledger</a></div></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="../home.html?explorer=capital">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><div class="wc-department-ledger-actions"><a class="wc-department-ledger-trigger" href="department-ledger.html" data-explorer-popup-trigger="Department Operating Ledger">View Department Operating Ledger</a><a class="wc-department-ledger-trigger" href="summary-of-contractual-services.html" data-explorer-popup-trigger="Contractual Services Ledger">View Contractual Services Ledger</a></div></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="../home.html?explorer=capital">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
       if (isLedgerOnly) {
         setupFilterCombo({
           input: explorer.querySelector("#wcDepartmentLedgerFundInput"),
@@ -17920,7 +17988,7 @@
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
         return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total proposed budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger" href="constitutional-ledger.html">View Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");
@@ -18138,6 +18206,8 @@
     getDepartmentNameFromPage,
     getDepartmentExpenses,
     getBccOtherUsesContingencyExpenses,
+    getCourtInnovationsExpenses,
+    getCourtInnovationsRevenues,
     getDepartmentRevenues,
     getDepartmentStaffing,
     getCombinedDepartmentOffices,

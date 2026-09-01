@@ -149,7 +149,7 @@
       ];
       var cardHtml = cards.map(function (card) {
         var share = total ? card.amount / total * 100 : 0;
-        return '<a href="' + escapeHtml(card.href) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + share.toFixed(1) + '% of capital budget</small></div>' +
+        return '<a href="' + escapeHtml(card.href) + '" data-explorer-popup-trigger="' + escapeHtml(card.title) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + share.toFixed(1) + '% of capital budget</small></div>' +
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
@@ -181,7 +181,7 @@
       }).join("");
       var change = total - prior;
       var pct = prior ? change / Math.abs(prior) * 100 : null;
-      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget Explorer</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget Explorer</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
     });
@@ -234,7 +234,8 @@
         embeddedStyle.textContent = 'nav#nav-menu,footer[role="contentinfo"],.wc-breadcrumb{display:none!important}' +
           '#layout{display:block!important;min-height:100vh!important}' +
           '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
-          '#content>.page-eyebrow,#content>.page-title{display:none!important}' +
+          '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
+          '[data-constitutional-ledger-close]{display:none!important}' +
           '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}';
         embeddedDocument.head.appendChild(embeddedStyle);
       } catch (error) {
@@ -334,6 +335,13 @@
     document.addEventListener("click", function (event) {
       var link = event.target.closest('a[href]');
       if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var explorerPopupTitle = link.getAttribute("data-explorer-popup-trigger");
+      if (explorerPopupTitle) {
+        event.preventDefault();
+        var explorerPopupUrl = new URL(link.href, window.location.href);
+        openDepartmentModal(explorerPopupUrl.href, explorerPopupTitle, link);
+        return;
+      }
       var inDepartmentExplorer = modalBody.contains(link) && link.closest(".wc-department-budget-cards");
       var inOfficePicker = link.closest(".wc-budget-detail-modal .wc-department-office-picker-list");
       var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result");

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Board of County Commissioners — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260831-compact-officer-summaries">
+<link rel="stylesheet" href="../assets/style.css?v=20260901-popup-align-start">
 </head>
 <body>
 
@@ -39,6 +39,8 @@
     border:1px solid rgba(0,63,40,.13);
     border-radius:13px;
     background:#fff;
+    color:inherit;
+    text-decoration:none;
     transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
   }
 
@@ -46,6 +48,11 @@
     border-color:var(--green);
     box-shadow:0 6px 16px rgba(0,63,40,.08);
     transform:translateY(-1px);
+  }
+
+  .wc-commissioner-card:focus-visible{
+    outline:3px solid rgba(0,119,67,.38);
+    outline-offset:3px;
   }
 
   .wc-commissioner-card img{
@@ -95,41 +102,41 @@
   }
 </style>
 <div class="wc-commissioner-cards">
-  <div class="wc-commissioner-card">
+  <a class="wc-commissioner-card" href="https://www.mywaltonfl.gov/113/District-One---Dan-Curry" target="_blank" rel="noopener noreferrer" aria-label="View Dan Curry's official District 1 profile">
     <img alt="Commissioner Dan Curry" src="../assets/images/page-images/commissioner-dan-curry.jpeg">
     <div class="wc-commissioner-card-body">
       <span class="wc-commissioner-card-district">District 1</span>
       <span class="wc-commissioner-card-name">Dan Curry</span>
     </div>
-  </div>
-  <div class="wc-commissioner-card">
+  </a>
+  <a class="wc-commissioner-card" href="https://www.mywaltonfl.gov/116/District-Two---Danny-Glidewell" target="_blank" rel="noopener noreferrer" aria-label="View Danny Glidewell's official District 2 profile">
     <img alt="Commissioner Danny Glidewell" src="../assets/images/page-images/commissioner-danny-glidewell.jpeg">
     <div class="wc-commissioner-card-body">
       <span class="wc-commissioner-card-district">District 2</span>
       <span class="wc-commissioner-card-name">Danny Glidewell</span>
     </div>
-  </div>
-  <div class="wc-commissioner-card">
+  </a>
+  <a class="wc-commissioner-card" href="https://www.mywaltonfl.gov/1421/District-Three---Brad-Drake--Chairman" target="_blank" rel="noopener noreferrer" aria-label="View Brad Drake's official District 3 profile">
     <img alt="Commissioner Brad Drake" src="../assets/images/page-images/commissioner-brad-drake.jpeg">
     <div class="wc-commissioner-card-body">
       <span class="wc-commissioner-card-district">District 3</span>
       <span class="wc-commissioner-card-name">Brad Drake</span>
     </div>
-  </div>
-  <div class="wc-commissioner-card">
+  </a>
+  <a class="wc-commissioner-card" href="https://www.mywaltonfl.gov/833/District-Four---Donna-Johns" target="_blank" rel="noopener noreferrer" aria-label="View Donna Johns' official District 4 profile">
     <img alt="Commissioner Donna Johns" src="../assets/images/page-images/commissioner-donna-johns.jpeg">
     <div class="wc-commissioner-card-body">
       <span class="wc-commissioner-card-district">District 4</span>
       <span class="wc-commissioner-card-name">Donna Johns</span>
     </div>
-  </div>
-  <div class="wc-commissioner-card">
+  </a>
+  <a class="wc-commissioner-card" href="https://www.mywaltonfl.gov/133/District-Five---Tony-Anderson" target="_blank" rel="noopener noreferrer" aria-label="View Tony Anderson's official District 5 profile">
     <img alt="Commissioner Tony Anderson" src="../assets/images/page-images/commissioner-tony-anderson.jpeg">
     <div class="wc-commissioner-card-body">
       <span class="wc-commissioner-card-district">District 5</span>
       <span class="wc-commissioner-card-name">Tony Anderson</span>
     </div>
-  </div>
+  </a>
 </div>
 <div id="department-performance-table"></div>
 <div id="department-expense-table"></div>
@@ -225,8 +232,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260831-bcc-contingency-summary"></script>
+<script src="../assets/budget-data.js?v=20260901-remove-detail-title"></script>
 <script src="../assets/nav.js?v=20260826-full-budget-doc-menu"></script>
-<script src="../assets/department-services.js?v=20260831-operating-ledger-full-categories"></script>
+<script src="../assets/department-services.js?v=20260901-combined-office-no-staffing"></script>
 </body>
 </html>
