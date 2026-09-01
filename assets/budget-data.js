@@ -16537,36 +16537,11 @@
         if (names.length === 1) return escapeHtml(names[0]);
         return "Multiple Funds";
       }
-      // Constitutional Officer rows have no office-expand dropdown (see
-      // isAggregateOnlyPersonnelDept) -- their name is the row's only way to
-      // reach that office's own page, keyed by the raw expenditures-sheet
-      // Dept_Name (this scope's groupKey) rather than the staffing sheet's
-      // own spelling.
-      const constitutionalNameHtml = (name) => {
-        const href = CONSTITUTIONAL_PERSONNEL_PAGE_HREF[normalizeDeptName(name)];
-        return href ? '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(name) + '</a>' : escapeHtml(name);
-      };
-      // A rolled-up Board department name links straight to that
-      // department's own page when every office feeding into it shares
-      // one page (the common case). When the rollup spans offices that
-      // live on genuinely different pages (e.g. a merged catch-all),
-      // reuse the same "choose an office" popup the Department Budget
-      // Explorer already uses for the same situation (see the
-      // wc-department-card-picker click handler) rather than guessing
-      // which page the user meant.
-      const boardDeptNameHtml = (name, offices) => {
-        const choices = uniqueSorted(offices)
-          .map((officeName) => ({ name: officeName, href: departmentPageHref(officeName) }))
-          .filter((choice) => choice.href);
-        const distinctHrefs = Array.from(new Set(choices.map((choice) => choice.href)));
-        if (distinctHrefs.length > 1) {
-          const key = "personnel-board-" + slugifyId(name);
-          departmentCardOfficeChoices.set(key, choices);
-          return '<button type="button" class="wc-department-card-picker wc-table-row-link" data-department-key="' + escapeHtml(key) + '" data-department-name="' + escapeHtml(name) + '">' + escapeHtml(name) + '</button>';
-        }
-        const href = distinctHrefs[0] || departmentPageHref(name);
-        return href ? '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(name) + '</a>' : escapeHtml(name);
-      };
+      // Department and Constitutional Officer names are labels in this
+      // ledger, not navigation controls. Position-cost totals remain the
+      // interactive entry point for each row's staffing detail.
+      const constitutionalNameHtml = (name) => escapeHtml(name);
+      const boardDeptNameHtml = (name) => escapeHtml(name);
       // Same "Staffing and Cost by Position" popup used on the Department
       // Ledger (see personnelCostDetailForRows), built here from the raw
       // offices already merged into this Board department row instead of
