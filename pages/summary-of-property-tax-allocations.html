@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
   html.wc-property-tax-calculator-embed body #nav-menu,
@@ -23,6 +23,12 @@
   html.wc-property-tax-calculator-embed body.property-tax-fund-page #content { max-width:none; padding:0; }
   html.wc-property-tax-calculator-embed .wc-tax-grid { margin:0; }
   html.wc-property-tax-calculator-embed .wc-tax-panel { padding:24px 28px 30px; border:0; border-radius:0; box-shadow:none; }
+  /* The personalized "What does your own property tax pay for?" calculator
+     lives on the Property Taxes revenue card as its own popup (which
+     embeds this same page with ?embed=calculator, styled above) -- showing
+     it again on this page's own normal view duplicated it. */
+  html:not(.wc-property-tax-calculator-embed) .wc-ptax-calculator-head,
+  html:not(.wc-property-tax-calculator-embed) .wc-tax-grid { display:none; }
 </style>
 </head>
 <body class="property-tax-fund-page">
@@ -636,7 +642,7 @@
     <div class="wc-ptax-flow-loading">Loading property tax allocation...</div>
   </section>
 
-  <div class="wc-ptax-flow-head">
+  <div class="wc-ptax-flow-head wc-ptax-calculator-head">
     <h2>What does your own property tax pay for?</h2>
     <p>Enter your address or home value to see a personalized estimate, scaled from the same countywide allocation above.</p>
   </div>
@@ -783,7 +789,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260901-remove-detail-title"></script>
+<script src="../assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
 <script>
 (function(){
   function $(selector){
@@ -1594,7 +1600,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   });
 })();
 </script>
-<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>

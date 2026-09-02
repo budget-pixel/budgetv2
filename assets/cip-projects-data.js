@@ -796,6 +796,14 @@
         accountCode === "534000";
       const hasInHouseEngineering = inHouseEngineeringValue > 0;
       const imageUrl = findProjectImage(row, [title, slug, code, accountName, accountCode]);
+      const detectedVideoColumn = Object.keys(row || {}).find((key) => /(?:youtube|video)/i.test(key));
+      const videoUrl = get(row, "YouTube Video") ||
+        get(row, "YouTube URL") ||
+        get(row, "YouTube Link") ||
+        get(row, "Video URL") ||
+        get(row, "Project Video") ||
+        get(row, "Video Link") ||
+        (detectedVideoColumn ? get(row, detectedVideoColumn) : "");
 
       return {
         title,
@@ -841,6 +849,7 @@
         funding_source: fundingSource,
         revenue_source: revenueSourceForFund(fund, departmentFilterValue(department)),
         image_url: imageUrl,
+        video_url: videoUrl,
         district: get(row, "Commissioner District") || "Not specified",
         target: targetYears.join(", ") || getPrimaryYear(combinedFunding),
         target_years: targetYears,

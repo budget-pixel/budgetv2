@@ -11083,6 +11083,9 @@
     }
 
     container.innerHTML = topics.map((topic, topicIndex) => {
+      const topicDisplayTitle = /^tourist development taxes$/i.test(topic.title)
+        ? "Tourist Development Tax"
+        : topic.title;
       const narrativeRow = narrativeRows.find((r) => normalizeDeptName(r.Dept_Name) === normalizeDeptName(topic.narrativeKey));
       const paragraphs = narrativeRow ? splitIntoParagraphs(narrativeRow.Narrative) : [];
       const topicRows = rowsForRevenueTopic(topic);
@@ -11100,12 +11103,32 @@
       }
       if (/indirect administrative fee/i.test(topic.title)) {
         narrativeHtml = '<p>Indirect Administrative Fees reimburse the General Fund for centralized services provided to special revenue funds. The allocation is based on a formal cost-allocation plan prepared by an independent third party.</p>';
+      } else if (/^local discretionary sales surtax$/i.test(topic.title)) {
+        narrativeHtml = '<p>Walton County\'s discretionary 1-cent small county surtax, authorized under Florida Statute 212.055(3) and established by Ordinance No. 94-16 adopted December 5th, 1994, is the funding mechanism for solid waste collection and disposal throughout the county. This funding source also provides a significant portion of funding for capital projects. The tax is ongoing and does not have a sunset clause.</p>' +
+          '<p>While revenues from the surtax experienced steady growth over many years, collections have remained relatively flat in recent fiscal years, reflecting a stabilization in consumer spending patterns and economic activity that impacts sales tax revenue. Despite this leveling off, the surtax continues to be a critical source of funding for essential county services and infrastructure investments.</p>' +
+          '<p><a href="https://waltonclerk.com/vertical/sites/%7BA6BED226-E1BB-4A16-9632-BB8E6515F4E0%7D/uploads/1994-16.pdf" target="_blank" rel="noopener noreferrer">Ordinance 94-16</a><br>' +
+          '<a href="https://view.officeapps.live.com/op/view.aspx?src=http%3A%2F%2Fedr.state.fl.us%2FContent%2Flocal-government%2Fdata%2Fdata-a-to-z%2Fdiscstxco.xlsx&amp;wdOrigin=BROWSELINK" target="_blank" rel="noopener noreferrer">Office of Economic &amp; Demographic Research (Local Option Sales Tax)</a></p>';
+      } else if (/^tourist development taxes?$/i.test(topic.title)) {
+        narrativeHtml = '<p>Walton County\'s Tourist Development Tax (TDT) were established in accordance with Florida Statute 125.0104. The Walton County Tourism Department and its related divisions are funded by these taxes collected from visitors on short-term lodging rentals within two distinct TDT districts. The South Walton TDT district collects 5% on short-term rental accommodations located south of the Intracoastal Waterway, while the North Walton TDT district collects 3% on short-term rental accommodations located north of the Intracoastal Waterway.</p>' +
+          '<p>Tourist Development Tax revenues have seen growth in prior years, resulting from increased tourism. It is projected to remain flat for fiscal year 2026, which is a natural rebalancing as global travel normalizes post-pandemic.</p>' +
+          '<p><a href="https://view.officeapps.live.com/op/view.aspx?src=http%3A%2F%2Fedr.state.fl.us%2FContent%2Flocal-government%2Fdata%2Fdata-a-to-z%2FLOTTrates.xlsx&amp;wdOrigin=BROWSELINK" target="_blank" rel="noopener noreferrer">Office of Economic &amp; Demographic Research (Local Option TDT Tax Rates)</a></p>';
+      } else if (/^property taxes?$/i.test(topic.title)) {
+        narrativeHtml = '<p>Ad valorem taxes are the largest source of revenue for Walton County and result from the levy of taxes on real property and tangible personal property.</p>' +
+          '<p>Preparation of the proposed ad valorem tax budget utilizes the Property Appraiser\'s final taxable values, which are typically finalized on the DR-420 (Certificate of Taxable Value) form on July 1. Millage rates are charged against the taxable value to arrive at the total tax on each parcel. One mill equals a $1 tax for each $1,000 of taxable value.</p>' +
+          '<p>Ad Valorem Tax revenues for Walton County have consistently increased, reflecting rising property values and effective property tax assessments. The projection for Ad Valorem taxes is supported by an increase in the County-Wide Certified Taxable Value, rising from $42.5 billion in fiscal year 2025 to $46.5 billion in fiscal year 2026, a 9% increase. In accordance with statutory budgeting practices, the County budgets only 95% of anticipated Ad Valorem tax collections, providing a conservative estimate that accounts for potential delinquencies and collection variances.</p>' +
+          '<p><a href="https://view.officeapps.live.com/op/view.aspx?src=http%3A%2F%2Fedr.state.fl.us%2FContent%2Flocal-government%2Fdata%2Fdata-a-to-z%2Fadvaltxco.xlsx&amp;wdOrigin=BROWSELINK" target="_blank" rel="noopener noreferrer">Office of Economic and Demographic Research—Florida County Ad Valorem Tax Profiles</a></p>';
+      } else if (/^local option fuel tax$/i.test(topic.title)) {
+        narrativeHtml = '<p>In Walton County, the local option fuel tax, established under Florida Statute 206.41(1)(e) and applied according to Statute 336.025, finances essential transportation and infrastructure projects. The tax is set at five cents per gallon for motor fuel and diesel fuel, with an additional one-cent tax known as the &ldquo;ninth cent.&rdquo; These funds are used for maintaining and repairing county roads and bridges, enhancing traffic safety, and improving public transportation. This revenue ensures that transportation remains safe, reliable, and efficient for both residents and visitors, supporting the county\'s growth and development. According to Florida Statute 336.025, counties can impose this local option fuel tax for up to ten years, meaning it will need to be renewed in 2028 to continue its benefits.</p>' +
+          '<p>The Local Option Fuel Tax and Ninth Cent Tax have maintained a relatively stable revenue stream, with minor fluctuations. This stability underscores consistent fuel consumption and reliable tax collection efforts.</p>' +
+          '<p><a href="https://waltonclerk.com/vertical/sites/%7BA6BED226-E1BB-4A16-9632-BB8E6515F4E0%7D/uploads/2017-20.pdf" target="_blank" rel="noopener noreferrer">Ordinance 2017-20</a><br>' +
+          '<a href="https://view.officeapps.live.com/op/view.aspx?src=http%3A%2F%2Fedr.state.fl.us%2FContent%2Flocal-government%2Fdata%2Fdata-a-to-z%2Flocfueltxco.xlsx&amp;wdOrigin=BROWSELINK" target="_blank" rel="noopener noreferrer">Office of Economic &amp; Demographic Research (Local Option Fuel Tax)</a></p>';
       } else if (/^morrison springs entry fee$/i.test(topic.title)) {
         narrativeHtml = '<p>Revenue derived from the $4 per-vehicle admission fee at Morrison Springs County Park, providing a dedicated revenue source to help offset costs associated with park operations, maintenance, and visitor services.</p>';
       } else if (/local government\s+(?:half|1\s*\/\s*2)[ -]?cent sales tax/i.test(topic.title)) {
         narrativeHtml = '<p>Florida&rsquo;s Local Government Half-cent Sales Tax Program provides counties and municipalities with a share of state sales-tax proceeds. The state places earmarked revenue in the clearing trust fund and distributes it monthly to participating local governments; despite the program&rsquo;s name, the local payment is not calculated by simply applying 0.5% to taxable sales.</p>' +
-          '<p><a href="https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&amp;URL=0200-0299/0218/Sections/0218.62.html" target="_blank" rel="noopener noreferrer">Section 218.62, Florida Statutes</a>, divides the amount earmarked for a county primarily by population. The county government&rsquo;s share is <strong>(U + ⅔I) &divide; (T + ⅔I)</strong>, where <strong>U</strong> is the unincorporated population, <strong>I</strong> is the population within municipalities, and <strong>T</strong> is the total county population. Each municipality&rsquo;s share is <strong>M &divide; (T + ⅔I)</strong>, where <strong>M</strong> is that municipality&rsquo;s population. Each percentage is multiplied by the half-cent funds available for distribution within the county.</p>' +
-          '<p>This revenue generally moves with statewide sales-tax activity and the statutory population allocation. It supports general County services and facilities, but Walton County does not establish the tax rate or distribution formula.</p>';
+          '<p><a href="https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&amp;URL=0200-0299/0218/Sections/0218.62.html" target="_blank" rel="noopener noreferrer">Section 218.62, Florida Statutes</a>, divides the money among the county and its municipalities mainly according to population. The County receives credit for everyone who lives outside a municipality, plus part of the population living inside municipalities. Each municipality receives a share based on the number of people who live within its boundaries. The state uses these population shares to determine how much of the available half-cent sales-tax money each local government receives.</p>' +
+          '<p>This revenue generally moves with statewide sales-tax activity and the statutory population allocation. It supports general County services and facilities, but Walton County does not establish the tax rate or distribution formula.</p>' +
+          '<p><a href="https://view.officeapps.live.com/op/view.aspx?src=http%3A%2F%2Fedr.state.fl.us%2FContent%2Flocal-government%2Fdata%2Fdata-a-to-z%2Fhfctstxco.xlsx&amp;wdOrigin=BROWSELINK" target="_blank" rel="noopener noreferrer">Office of Economic &amp; Demographic Research (Local Option Government Half-Cent Sales Tax)</a></p>';
       } else if (/housing prisoners revenue/i.test(topic.title)) {
         narrativeHtml = '<p>Housing Prisoners Revenue is collected by the Walton County Sheriff\'s Office for prisoner-housing activity under the applicable reimbursement arrangements.</p>';
       } else if (/ambulance/i.test(topic.title)) {
@@ -11147,6 +11170,12 @@
       const propertyTaxSupportPage = window.location.pathname.includes("/pages/")
         ? "summary-of-property-tax-allocations.html?embed=calculator"
         : "pages/summary-of-property-tax-allocations.html?embed=calculator";
+      const propertyTaxAllocationLedgerHref = window.location.pathname.includes("/pages/")
+        ? "summary-of-property-tax-allocations.html"
+        : "pages/summary-of-property-tax-allocations.html";
+      const propertyTaxAllocationLedgerHtml = topic.title === "Property Taxes"
+        ? '<a class="wc-revenue-ledger-trigger wc-property-tax-ledger-link" href="' + escapeHtml(propertyTaxAllocationLedgerHref) + '" data-explorer-popup-trigger="Property Tax Allocation Ledger">Property Tax Allocation Ledger</a>'
+        : '';
       const propertyTaxSupportHtml = topic.title === "Property Taxes"
         ? '<button type="button" class="wc-property-tax-support-open" aria-haspopup="dialog" aria-controls="wc-property-tax-support-dialog">What does my property tax support?</button>' +
           '<dialog class="wc-property-tax-support-dialog" id="wc-property-tax-support-dialog" aria-labelledby="wc-property-tax-support-title"><div><header><div><span>Personalized property-tax estimate</span><h3 id="wc-property-tax-support-title">What does your property tax support?</h3></div><button type="button" class="wc-property-tax-support-close" aria-label="Close personalized property-tax estimate">&times;</button></header><iframe title="Walton County personalized property-tax support calculator" data-src="' + escapeHtml(propertyTaxSupportPage) + '"></iframe></div></dialog>'
@@ -11267,7 +11296,8 @@
         '</div>';
       const narrativeCardHtml =
         '<div class="wc-revenue-topic-narrative-card">' +
-        '<h2 class="wc-revenue-topic-title">' + escapeHtml(topic.title) + "</h2>" +
+        '<h2 class="wc-revenue-topic-title">' + escapeHtml(topicDisplayTitle) + "</h2>" +
+        propertyTaxAllocationLedgerHtml +
         propertyTaxSupportHtml +
         narrativeHtml +
         adValoremBurdenHtml +
@@ -11557,7 +11587,7 @@
         topics.push({ title: "All Other Revenue", narrativeKey: "All Other Revenue", isAllOtherRevenue: true, matches: () => true });
         if (select) {
           select.innerHTML = '<option value="">Select a revenue source…</option>' + topics.map((topic) =>
-            '<option value="' + escapeHtml(revenueTopicSlug(topic.title)) + '">' + escapeHtml(topic.title) + '</option>'
+            '<option value="' + escapeHtml(revenueTopicSlug(topic.title)) + '">' + escapeHtml(/^tourist development taxes$/i.test(topic.title) ? "Tourist Development Tax" : topic.title) + '</option>'
           ).join("");
         }
         renderRevenueTopicCards(dynamicContainer, topics, "wc-chart-revenue-source");

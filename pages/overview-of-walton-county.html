@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Overview of Walton County — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
 </head>
 <body class="wc-overview-page">
 
@@ -18,7 +18,6 @@
 
 <div class="page-eyebrow">Our County</div>
 <h1 class="page-title">Overview of Walton County</h1>
-<p class="page-intro wc-overview-intro">A fast-growing county shaped by coastal landscapes, historic communities, public service, and long-term stewardship.</p>
 
 <section class="wc-overview-hero" aria-label="Walton County profile">
   <img src="../assets/images/page-images/overview-walton-waterway.png" alt="Walton County landscape and waterway">
@@ -134,31 +133,31 @@
   </div>
 
   <div class="wc-overview-commissioners">
-    <article class="wc-overview-person-card">
+    <a class="wc-overview-person-card" href="https://www.mywaltonfl.gov/113/District-One---Dan-Curry" target="_blank" rel="noopener noreferrer" aria-label="View Dan Curry's official District 1 profile">
       <img src="../assets/images/page-images/commissioner-dan-curry.jpeg" alt="District I Commissioner Dan Curry">
       <h3>Dan Curry</h3>
       <p>District I</p>
-    </article>
-    <article class="wc-overview-person-card">
+    </a>
+    <a class="wc-overview-person-card" href="https://www.mywaltonfl.gov/116/District-Two---Danny-Glidewell" target="_blank" rel="noopener noreferrer" aria-label="View Danny Glidewell's official District 2 profile">
       <img src="../assets/images/page-images/commissioner-danny-glidewell.jpeg" alt="District II Commissioner Danny Glidewell">
       <h3>Danny Glidewell</h3>
       <p>District II</p>
-    </article>
-    <article class="wc-overview-person-card">
+    </a>
+    <a class="wc-overview-person-card" href="https://www.mywaltonfl.gov/1421/District-Three---Brad-Drake--Chairman" target="_blank" rel="noopener noreferrer" aria-label="View Brad Drake's official District 3 profile">
       <img src="../assets/images/page-images/commissioner-brad-drake.jpeg" alt="District III Commissioner Brad Drake">
       <h3>Brad Drake</h3>
       <p>District III, Chair</p>
-    </article>
-    <article class="wc-overview-person-card">
+    </a>
+    <a class="wc-overview-person-card" href="https://www.mywaltonfl.gov/833/District-Four---Donna-Johns" target="_blank" rel="noopener noreferrer" aria-label="View Donna Johns' official District 4 profile">
       <img src="../assets/images/page-images/commissioner-donna-johns.jpeg" alt="District IV Commissioner Donna Johns">
       <h3>Donna Johns</h3>
       <p>District IV</p>
-    </article>
-    <article class="wc-overview-person-card">
+    </a>
+    <a class="wc-overview-person-card" href="https://www.mywaltonfl.gov/133/District-Five---Tony-Anderson" target="_blank" rel="noopener noreferrer" aria-label="View Tony Anderson's official District 5 profile">
       <img src="../assets/images/page-images/commissioner-tony-anderson.jpeg" alt="District V Commissioner Tony Anderson">
       <h3>Tony Anderson</h3>
       <p>District V, Vice Chair</p>
-    </article>
+    </a>
   </div>
 </section>
 
@@ -183,7 +182,7 @@
       <span><strong>Property Appraiser</strong><small>Gary J. Gregor</small></span>
     </a>
     <a class="wc-overview-officer-row" href="supervisor-of-elections.html">
-      <img src="../assets/images/page-images/supervisor-elections-ryan-messer.webp" alt="Supervisor of Elections Ryan Messer">
+      <img src="../assets/images/page-images/supervisor-elections-ryan-messer.jpg" alt="Supervisor of Elections Ryan Messer">
       <span><strong>Supervisor of Elections</strong><small>Ryan Messer</small></span>
     </a>
     <a class="wc-overview-officer-row" href="sheriffs-office.html">
@@ -537,14 +536,37 @@
   }
 
   .wc-overview-person-card{
+    display:block;
     min-width:0;
+    padding:12px 12px 16px;
+    border:1px solid rgba(0,63,40,.13);
+    border-radius:20px;
+    background:#fff;
+    color:inherit;
+    text-decoration:none;
+    transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+
+  .wc-overview-person-card:hover{
+    border-color:#003f28;
+    box-shadow:0 10px 24px rgba(0,63,40,.1);
+    transform:translateY(-3px);
+  }
+
+  .wc-overview-person-card:focus-visible{
+    outline:3px solid rgba(0,119,67,.38);
+    outline-offset:3px;
+  }
+
+  .wc-overview-person-card:hover h3{
+    color:#003f28;
   }
 
   .wc-overview-person-card img{
     width:100%;
     aspect-ratio:4 / 5;
     object-fit:cover;
-    border-radius:18px;
+    border-radius:14px;
     background:#f7fbf7;
   }
 
@@ -746,7 +768,8 @@
   :root[data-theme="dark"] .wc-overview-video-section,
   :root[data-theme="dark"] .wc-overview-map-card,
   :root[data-theme="dark"] .wc-overview-officers-section,
-  :root[data-theme="dark"] .wc-overview-officer-row{
+  :root[data-theme="dark"] .wc-overview-officer-row,
+  :root[data-theme="dark"] .wc-overview-person-card{
     background:rgba(14,28,22,.92);
     border-color:var(--border);
   }
@@ -786,8 +809,13 @@
   }
 
   :root[data-theme="dark"] .wc-overview-text-link,
-  :root[data-theme="dark"] .wc-overview-officer-row:hover strong{
+  :root[data-theme="dark"] .wc-overview-officer-row:hover strong,
+  :root[data-theme="dark"] .wc-overview-person-card:hover h3{
     color:var(--green);
+  }
+
+  :root[data-theme="dark"] .wc-overview-person-card:hover{
+    border-color:var(--green);
   }
 
   :root[data-theme="dark"] .wc-overview-link-grid a{
@@ -918,6 +946,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 </body>
 </html>

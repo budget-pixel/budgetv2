@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CIP Project Detail — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
 </head>
 <body>
 
@@ -277,6 +277,23 @@
     margin:0 0 14px 0;
     font-size:17px;
     color:var(--text);
+  }
+
+  .wc-project-video-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:16 / 9;
+    overflow:hidden;
+    border-radius:10px;
+    background:#172033;
+  }
+
+  .wc-project-video-frame iframe{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
   }
 
   .wc-project-panel-heading{
@@ -558,69 +575,17 @@
   }
 
   .wc-project-timeline{
-    position:relative;
     display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding-left:18px;
-  }
-
-  .wc-project-timeline::before{
-    content:"";
-    position:absolute;
-    top:5px;
-    bottom:5px;
-    left:4px;
-    width:2px;
-    background:rgba(0,98,49,0.16);
-  }
-
-  .wc-project-timeline-item{
-    position:relative;
-  }
-
-  .wc-project-timeline-item::before{
-    content:"";
-    position:absolute;
-    top:5px;
-    left:-18px;
-    width:10px;
-    height:10px;
-    border-radius:999px;
-    background:#006231;
-    box-shadow:0 0 0 4px rgba(0,98,49,0.12);
-  }
-
-  .wc-project-timeline-item span{
-    display:block;
-    margin-bottom:5px;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:5px;
     color:var(--muted);
-    font-size:10px;
-    font-weight:700;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-  }
-
-  .wc-project-timeline-item strong{
-    display:block;
-    color:var(--text);
-    font-size:13px;
-    line-height:1.45;
-  }
-
-  .wc-project-timeline-empty{
-    margin:0;
-    color:var(--muted);
-    font-size:13px;
+    font-size:14px;
     line-height:1.5;
   }
 
-  .wc-project-timeline:has(.wc-project-timeline-empty){
-    padding-left:0;
-  }
-
-  .wc-project-timeline:has(.wc-project-timeline-empty)::before{
-    display:none;
+  .wc-project-timeline-separator{
+    color:var(--muted);
   }
 
   @media(max-width:900px){
@@ -745,8 +710,8 @@
 
 </style>
 <div id="app"></div>
-<script src="../assets/cip-projects-data.js?v=20260826-project-timeline"></script>
-<script src="../assets/cip-project-detail.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/cip-projects-data.js?v=20260902-project-video"></script>
+<script src="../assets/cip-project-detail.js?v=20260902-project-video"></script>
   </main>
 </div>
 
@@ -835,6 +800,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 </body>
 </html>

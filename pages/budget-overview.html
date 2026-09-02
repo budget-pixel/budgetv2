@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Ledgers — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
 </head>
 <body>
 
@@ -27,12 +27,12 @@
 </main>
 </div>
 
-<script src="../assets/search-data.js?v=20260901-remove-project-search-page"></script>
-<script src="../assets/budget-data.js?v=20260901-remove-detail-title"></script>
+<script src="../assets/search-data.js?v=20260902-remove-table-of-contents"></script>
+<script src="../assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260827-live-historical-sheet"></script>
-<script src="../assets/cip-overview.js?v=20260901-remove-project-search-page"></script>
-<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script src="../assets/cip-overview.js?v=20260902-matched-popup-shell"></script>
+<script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
@@ -49,134 +49,12 @@
             href:"full-budget-document.html",
             label:"Full Publication",
             description:"View the complete FY 2027 budget publication as one printable document — every ledger, department, and fund schedule in one place."
-          },
-          {
-            title:"Consolidated Budget Ledger",
-            href:"consolidated-financial-schedules.html",
-            label:"All Funds",
-            metric:"totalBudget",
-            metricLabel:"Total Budget",
-            description:"Review combined County financial schedules across funds, revenues, expenses, transfers, and balances."
-          },
-          {
-            title:"Budget Change Summary",
-            href:"summary-of-budget-changes-and-adjustments.html",
-            label:"Changes",
-            metric:"budgetChange",
-            metricLabel:"FY 2027 Increase",
-            description:"Compare proposed expenditures to the prior budget by department, showing both increases and decreases."
-          },
-          {
-            title:"Revenue Ledger",
-            href:"revenue-ledger.html",
-            label:"Revenue",
-            metric:"revenue",
-            description:"The complete FY 2027 revenue classification schedule, by revenue category and source, with prior-year comparisons."
-          },
-          {
-            title:"Property Tax Allocation Ledger",
-            href:"summary-of-property-tax-allocations.html",
-            label:"Property Tax",
-            metric:"propertyTax",
-            description:"See the dollar amount each department receives from the countywide property tax."
-          },
-          {
-            title:"Personnel Ledger",
-            href:"personnel-ledger.html",
-            label:"Personnel",
-            metric:"personnel",
-            description:"Review FY 2027 personnel cost and staffing by Board department, Constitutional Officer, function, or fund."
-          },
-          {
-            title:"Department Operating Ledger",
-            href:"department-ledger.html",
-            label:"Board Departments",
-            metric:"department",
-            description:"Compare proposed operating and personnel spending across Board departments."
-          },
-          {
-            title:"Contractual Services Ledger",
-            href:"summary-of-contractual-services.html",
-            label:"Board Contracted Services",
-            metric:"contractualServices",
-            description:"Review FY 2027 contractual services and outside-vendor spending by Board department."
-          },
-          {
-            title:"Constitutional Officers Ledger",
-            href:"constitutional-ledger.html",
-            label:"Constitutional Officers",
-            metric:"constitutionalOfficers",
-            description:"Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices."
-          },
-          {
-            title:"Independent Agencies Ledger",
-            href:"independent-agencies-ledger.html",
-            label:"Independent Agencies",
-            metric:"independentAgencies",
-            description:"Budget, staffing, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities."
-          }
-        ]
-      },
-      {
-        label:"Capital",
-        items:[
-          {
-            title:"Machinery, Vehicles, & Equipment Ledger",
-            href:"summary-of-machinery-vehicles-and-equipment.html",
-            label:"Capital",
-            metric:"capitalMachinery",
-            description:"Review budgeted machinery, vehicles, and equipment by department, fund, and equipment type."
-          },
-          {
-            title:"Transportation and Infrastructure Capital Ledger",
-            href:"cip-capital-projects.html",
-            label:"Capital",
-            metric:"capitalTransportation",
-            description:"Review Transportation Fund, Capital Projects Fund, and grant-funded infrastructure in one schedule, with the funding source identified for every project."
-          },
-          {
-            title:"Tourist Development Fund Capital Ledger",
-            href:"cip-tourist-development.html",
-            label:"Capital",
-            metric:"capitalTouristDevelopment",
-            description:"Explore tourism-related capital investments funded through tourist development resources."
-          },
-          {
-            title:"Sheriff Capital Project Ledger",
-            href:"cip-sheriff.html",
-            label:"Capital",
-            metric:"capitalSheriff",
-            description:"Review all capital projects associated with the Walton County Sheriff's Office."
-          },
-          {
-            title:"Recreation Plat Fee Fund Capital Ledger",
-            href:"recreation-plat-fee-fund.html",
-            label:"Capital",
-            metric:"capitalRecreationPlatFee",
-            description:"Review the Recreation Plat Fee Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
-          },
-          {
-            title:"Sidewalk Fund Capital Ledger",
-            href:"sidewalk-fund.html",
-            label:"Capital",
-            metric:"capitalSidewalk",
-            description:"Review the Sidewalk Fund's FY 2027 budgeted capital amount, pending Board direction on specific projects."
           }
         ]
       },
       {
         label:"Debt & Fund Detail",
         items:[
-          {
-            title:"Debt Ledger",
-            href:"debt-overview.html",
-            label:"Debt & Obligations",
-            metrics:[
-              { key:"debtPrincipal", label:"Principal" },
-              { key:"debtInterest", label:"Interest" }
-            ],
-            description:"Explore outstanding debt, annual debt service, borrowing strategy, and long-term obligations."
-          },
           {
             title:"Budget Forecast Explorer",
             href:"financial-forecast.html",
@@ -222,18 +100,6 @@
             href:"summary-of-expenses.html",
             label:"Expenses",
             description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
-          },
-          {
-            title:"Transaction Search",
-            href:"transaction-search.html",
-            label:"Raw Data",
-            description:"Search every public vendor payment and revenue receipt on file since FY 2020 by vendor, amount, date, or fund."
-          },
-          {
-            title:"Supporting Budget Documentation",
-            href:"supporting-budget-documentation.html",
-            label:"Documents",
-            description:"Open supporting budget requests, certifications, policies, ordinances, fee schedules, and reference workbooks."
           }
         ]
       }

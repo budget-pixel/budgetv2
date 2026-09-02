@@ -17,6 +17,7 @@
   var departmentModal = null;
   var departmentFrame = null;
   var departmentTrigger = null;
+  var departmentFrameAwaitingInitialLoad = false;
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
   var capitalSearchOutsideClickHandler = null;
@@ -425,23 +426,58 @@
       '<section class="wc-home-department-modal-panel">' +
         '<header class="wc-home-department-modal-head"><h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
-        '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page"></iframe>' +
+        '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
     document.body.appendChild(departmentModal);
     departmentFrame = departmentModal.querySelector("iframe");
     departmentFrame.addEventListener("load", function () {
+      // openDepartmentModal already set the modal's title from the trigger
+      // that opened it (an explorer card's label, an "Environmental
+      // Resources" override, etc.), so leave that alone on this first load.
+      // But a plain in-page link clicked inside the popup (e.g. Overview of
+      // Walton County's "View Board of County Commissioners" link) just
+      // navigates this same iframe like any other link -- with nothing
+      // re-opening the modal, that load would otherwise leave the header
+      // showing the popup's original title over a totally different page.
+      // Re-derive the title from whatever page just loaded instead, except
+      // on this very first load where the caller's title should win.
+      var isFollowOnNavigation = !departmentFrameAwaitingInitialLoad;
+      departmentFrameAwaitingInitialLoad = false;
       try {
         var embeddedDocument = departmentFrame.contentDocument;
         embeddedDocument.documentElement.classList.add("wc-embedded-department");
+        // Utility/legal pages (Glossary, Accessibility, Privacy, Transaction
+        // Search) opened here already carry wc-embedded-utility -- set by
+        // their own inline <script> from the ?embed=utility-popup this
+        // modal now requests for them -- which hides their footer via
+        // style.css. Leave that alone; only department pages get their
+        // footer force-shown below (they want the sitewide search footer
+        // inside the popup, these standalone statements don't).
+        var isUtilityEmbed = embeddedDocument.documentElement.classList.contains("wc-embedded-utility");
         var embeddedStyle = embeddedDocument.createElement("style");
         embeddedStyle.textContent = 'nav#nav-menu,.wc-breadcrumb{display:none!important}' +
-          'footer[role="contentinfo"]{display:block!important}' +
+          (isUtilityEmbed ? '' : 'footer[role="contentinfo"]{display:block!important}') +
           '#layout{display:block!important;min-height:0!important}' +
           '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
           '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
           '[data-constitutional-ledger-close]{display:none!important}' +
           '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}';
         embeddedDocument.head.appendChild(embeddedStyle);
+        if (isFollowOnNavigation) {
+          var headingEl = embeddedDocument.querySelector(".page-title");
+          var derivedTitle = headingEl ? headingEl.textContent.trim() : "";
+          if (!derivedTitle) derivedTitle = (embeddedDocument.title || "").split(/[—-]/)[0].trim();
+          var loadedUrl;
+          try { loadedUrl = new URL(embeddedDocument.location.href); } catch (loadedUrlError) { loadedUrl = null; }
+          if (loadedUrl && /\/environmental-resources\.html$/i.test(loadedUrl.pathname)) derivedTitle = "Environmental Resources";
+          if (derivedTitle) {
+            var titleEl = departmentModal.querySelector("#wcHomeDepartmentModalTitle");
+            var closeButtonEl = departmentModal.querySelector(".wc-home-department-modal-close");
+            if (titleEl) titleEl.textContent = derivedTitle;
+            if (closeButtonEl) closeButtonEl.setAttribute("aria-label", "Close " + derivedTitle);
+            departmentFrame.title = derivedTitle + " budget page";
+          }
+        }
         // Any link inside this popup that points back at home.html (the
         // CIP hero's "Back to Capital Projects"/"Search Projects", a
         // project's "Back to Project Search"/"Back to Capital Explorer",
@@ -458,6 +494,34 @@
           try {
             resolvedUrl = new URL(link.href, embeddedDocument.location.href);
           } catch (urlError) {
+            return;
+          }
+          if (/\/(?:transaction-search|glossary-acronyms-and-frequently-asked-questions|accessibility|privacy)\.html$/i.test(resolvedUrl.pathname)) {
+            event.preventDefault();
+            openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger);
+            return;
+          }
+          // A department/officer/agency link clicked from inside an
+          // already-open popup (e.g. a name in the Property Tax Allocation
+          // Ledger's table) would otherwise navigate this same iframe to
+          // that page directly -- it "works" in the sense of loading, but
+          // silently drops the popup chrome/title along the way instead of
+          // opening like every other department link on the site does.
+          // Reopens through the same singleton popup instead (replacing
+          // this content, not nesting a new one).
+          var linkedFilename = resolvedUrl.pathname.split("/").pop();
+          var linkedPage = (window.wcBudgetPages || []).find(function (item) {
+            var isDepartmentPage = item.section === "Departments" && item.title !== "Departments";
+            var isConstitutionalPage = item.section === "Constitutional Officers" && item.title !== "Constitutional Officers";
+            var isIndependentAgencyPage = item.section === "Autonomous Entities";
+            if (!isDepartmentPage && !isConstitutionalPage && !isIndependentAgencyPage) return false;
+            try { return new URL(item.href, window.location.href).pathname.split("/").pop() === linkedFilename; }
+            catch (linkedPageError) { return false; }
+          });
+          if (linkedPage) {
+            event.preventDefault();
+            var linkedTitle = linkedFilename === "environmental-resources.html" ? "Environmental Resources" : linkedPage.title;
+            openDepartmentModal(resolvedUrl.href, linkedTitle, departmentTrigger);
             return;
           }
           if (!/\/(search|home)\.html$/i.test(resolvedUrl.pathname)) return;
@@ -477,6 +541,8 @@
     return departmentModal;
   }
 
+  var UTILITY_POPUP_PAGE_PATTERN = /\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions)\.html$/i;
+
   function openDepartmentModal(href, title, trigger) {
     ensureDepartmentModal();
     departmentTrigger = trigger;
@@ -486,7 +552,20 @@
       ? "Environmental Resources"
       : title || "Department";
     var waveVideo = departmentModal.querySelector(".wc-home-department-modal-wave");
-    url.searchParams.set("embed", "department-popup");
+    // Glossary/Accessibility/Privacy/Transaction Search are standalone
+    // legal/utility pages, not department pages -- they already know how to
+    // render themselves chromeless via ?embed=utility-popup (see their own
+    // inline <script>, and html.wc-embedded-utility in style.css), the same
+    // markup nav.js's own footer dialog uses for them. Tag them the same
+    // way here so the load handler below can skip forcing this popup's own
+    // "Still looking for something?" search footer onto them -- without
+    // this they render their own full site footer (nav.js runs inside the
+    // iframe too), complete with its own dormant wave-video utility dialog
+    // sitting right under the two-paragraph statement: a second wave shell
+    // nested inside this one's, and a stray footer-shaped box under the text.
+    var isUtilityPage = UTILITY_POPUP_PAGE_PATTERN.test(url.pathname);
+    url.searchParams.set("embed", isUtilityPage ? "utility-popup" : "department-popup");
+    departmentModal.classList.toggle("is-utility-page", isUtilityPage);
     if (waveVideo) {
       waveVideo.defaultPlaybackRate = 0.25;
       waveVideo.playbackRate = 0.25;
@@ -498,7 +577,12 @@
     departmentFrame.title = departmentTitle + " budget page";
     departmentModal.dataset.standalone = openedWithoutExplorer ? "true" : "false";
     if (openedWithoutExplorer) lockBackgroundPage();
+    if (!openedWithoutExplorer) {
+      var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
+      if (explorerWave) explorerWave.pause();
+    }
     departmentModal.classList.add("is-loading");
+    departmentFrameAwaitingInitialLoad = true;
     departmentFrame.src = url.href;
     departmentModal.hidden = false;
     modal.classList.add("is-department-popup-open");
@@ -517,6 +601,13 @@
     }
     departmentFrame.src = "about:blank";
     modal.classList.remove("is-department-popup-open");
+    if (!openedWithoutExplorer) {
+      var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
+      if (explorerWave) {
+        var playPromise = explorerWave.play();
+        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
+      }
+    }
     departmentModal.removeAttribute("data-standalone");
     if (openedWithoutExplorer) unlockBackgroundPage();
     if (departmentTrigger && document.contains(departmentTrigger)) departmentTrigger.focus();
@@ -527,6 +618,7 @@
     if (!modal || modal.hidden) return;
     closeDepartmentModal();
     modal.hidden = true;
+    modal.classList.remove("is-utility-page");
     var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
     if (explorerWave) {
       explorerWave.pause();
@@ -542,7 +634,9 @@
     var config = EXPLORERS[type];
     if (!config) return;
     activeCard = card;
+    modal.classList.remove("is-utility-page");
     modalTitle.textContent = config.title;
+    modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close explorer");
     modal.hidden = false;
     lockBackgroundPage();
     modal.scrollTop = 0;
@@ -567,7 +661,7 @@
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
       '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
-      '<footer class="wc-home-explorer-modal-footer"><div><strong>Still looking for something?</strong><span>Search departments, budgets, personnel, funds, publications, and county information.</span><button type="button" data-explorer-footer-action="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg></button></div><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="contact">Contact Budget Office</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
+      '<footer class="wc-home-explorer-modal-footer"><div><strong>Still looking for something?</strong><span>Search departments, budgets, personnel, funds, publications, and county information.</span><button type="button" data-explorer-footer-action="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg></button></div><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="contact">Contact Budget Office</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
     document.body.appendChild(modal);
     modalBody = modal.querySelector(".wc-home-explorer-modal-body");
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
@@ -625,12 +719,35 @@
       var actionButton = event.target.closest("[data-explorer-footer-action]");
       if (!actionButton) return;
       var action = actionButton.dataset.explorerFooterAction;
+      var pageAction = {
+        transactions: { href: "pages/transaction-search.html", title: "Transaction Search" },
+        glossary: { href: "pages/glossary-acronyms-and-frequently-asked-questions.html", title: "Glossary, Acronyms & FAQ" },
+        documentation: { href: "pages/supporting-budget-documentation.html", title: "Supporting Budget Documentation" },
+        accessibility: { href: "pages/accessibility.html", title: "Accessibility Statement" },
+        privacy: { href: "pages/privacy.html", title: "Privacy Statement" }
+      }[action];
+      if (pageAction) {
+        var utilityUrl = new URL(pageAction.href, window.location.href);
+        utilityUrl.searchParams.set("embed", "utility-popup");
+        modal.classList.add("is-utility-page");
+        modalTitle.textContent = pageAction.title;
+        modalBody.innerHTML = '<iframe class="wc-home-explorer-utility-frame" title="' + escapeHtml(pageAction.title) + '"></iframe>';
+        var utilityFrame = modalBody.querySelector(".wc-home-explorer-utility-frame");
+        utilityFrame.addEventListener("load", function () {
+          try {
+            utilityFrame.contentDocument.documentElement.classList.add("wc-embedded-utility");
+          } catch (error) {}
+        });
+        utilityFrame.src = utilityUrl.href;
+        modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close " + pageAction.title);
+        modal.querySelector(".wc-home-explorer-modal-close").focus();
+        return;
+      }
       var sourceFooter = document.querySelector('body > footer[role="contentinfo"]');
       if (!sourceFooter) return;
       var sourceControl = action === "search" ? sourceFooter.querySelector(".wc-footer-search-icon-button")
         : action === "contact" ? sourceFooter.querySelector(".wc-footer-contact-button")
-        : action === "transactions" ? sourceFooter.querySelector('[data-wc-utility-popup="Transaction Search"]')
-        : sourceFooter.querySelector('[data-wc-utility-popup="' + (action === "privacy" ? "Privacy Statement" : "Accessibility Statement") + '"]');
+        : null;
       if (sourceControl) sourceControl.click();
     });
     modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });

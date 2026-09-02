@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Organizational Structure — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260901-remove-project-search-page">
+<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
 </head>
 <body>
 
@@ -26,9 +26,9 @@
 </section>
 
 <div class="wc-chart-actions">
-  <a class="wc-full-size-link" href="org-chart-full-size.html">
+  <button type="button" class="wc-full-size-link" id="wcFullSizeChartBtn">
     View Full-Size Chart
-  </a>
+  </button>
 </div><div class="wc-image-card">
 
   <div class="wc-chart-container">
@@ -36,6 +36,7 @@
     <img id="wcImage" alt="Walton County Organizational Chart" src="../assets/images/page-images/walton-county-org-chart.png" class="wc-image">
 
   </div>
+  <button type="button" class="wc-fullscreen-close" id="wcFullscreenCloseBtn" aria-label="Close full-size chart">&times;</button>
 
 </div><style>
 
@@ -150,6 +151,65 @@
     border-radius:20px;
 
     cursor:default;
+  }
+
+  .wc-chart-container:fullscreen,
+  .wc-chart-container.wc-is-fullscreen{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:100%;
+    padding:28px;
+    background:#0b1a14;
+    box-sizing:border-box;
+    border-radius:0;
+  }
+
+  .wc-chart-container.wc-is-fullscreen{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    z-index:9999;
+  }
+
+  .wc-chart-container:fullscreen .wc-image,
+  .wc-chart-container.wc-is-fullscreen .wc-image{
+    width:100%;
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    border-radius:8px;
+  }
+
+  .wc-fullscreen-close{
+    display:none;
+    position:fixed;
+    top:20px;
+    right:24px;
+    z-index:10000;
+    align-items:center;
+    justify-content:center;
+    width:44px;
+    height:44px;
+    border:0;
+    border-radius:50%;
+    background:rgba(255,255,255,.14);
+    color:#fff;
+    font-size:22px;
+    line-height:1;
+    cursor:pointer;
+  }
+
+  .wc-fullscreen-close:hover,
+  .wc-fullscreen-close:focus{
+    background:rgba(255,255,255,.26);
+  }
+
+  .wc-chart-container.wc-is-fullscreen ~ .wc-fullscreen-close{
+    display:flex;
   }
 
   :root[data-theme="dark"] .wc-image-card{
@@ -272,6 +332,66 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script>
+(function(){
+  var btn = document.getElementById("wcFullSizeChartBtn");
+  var closeBtn = document.getElementById("wcFullscreenCloseBtn");
+  var container = document.querySelector(".wc-chart-container");
+  if(!btn || !container) return;
+
+  function requestFs(el){
+    var request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    try { return request ? request.call(el) : null; } catch(e){ return null; }
+  }
+
+  function exitFs(){
+    var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+    try { return exit ? exit.call(document) : null; } catch(e){ return null; }
+  }
+
+  function fullscreenElement(){
+    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+  }
+
+  function open(){
+    /* The native Fullscreen API can be blocked or scoped oddly when this
+       page runs inside the home explorer's iframe popup, so a self-built
+       fixed, full-viewport overlay is the reliable path -- request native
+       fullscreen too when it's available, as a bonus, but don't depend on
+       it for the chart to actually fill the screen. */
+    container.classList.add("wc-is-fullscreen");
+    document.body.style.overflow = "hidden";
+    requestFs(container);
+  }
+
+  function close(){
+    container.classList.remove("wc-is-fullscreen");
+    document.body.style.overflow = "";
+    if(fullscreenElement() === container) exitFs();
+  }
+
+  btn.addEventListener("click", function(){
+    if(container.classList.contains("wc-is-fullscreen")) close();
+    else open();
+  });
+
+  if(closeBtn) closeBtn.addEventListener("click", close);
+
+  document.addEventListener("keydown", function(event){
+    if(event.key === "Escape" && container.classList.contains("wc-is-fullscreen")) close();
+  });
+
+  ["fullscreenchange", "webkitfullscreenchange", "msfullscreenchange"].forEach(function(evt){
+    document.addEventListener(evt, function(){
+      if(!fullscreenElement() && container.classList.contains("wc-is-fullscreen")) close();
+    });
+  });
+
+  container.addEventListener("click", function(event){
+    if(container.classList.contains("wc-is-fullscreen") && event.target === container) close();
+  });
+})();
+</script>
+<script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 </body>
 </html>

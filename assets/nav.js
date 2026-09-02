@@ -2543,6 +2543,8 @@
     var accessibilityHref = /\/pages\//.test(window.location.pathname) ? "accessibility.html" : "pages/accessibility.html";
     var privacyHref = /\/pages\//.test(window.location.pathname) ? "privacy.html" : "pages/privacy.html";
     var transactionSearchHref = /\/pages\//.test(window.location.pathname) ? "transaction-search.html" : "pages/transaction-search.html";
+    var glossaryFaqHref = /\/pages\//.test(window.location.pathname) ? "glossary-acronyms-and-frequently-asked-questions.html" : "pages/glossary-acronyms-and-frequently-asked-questions.html";
+    var supportingDocsHref = /\/pages\//.test(window.location.pathname) ? "supporting-budget-documentation.html" : "pages/supporting-budget-documentation.html";
     var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
     var desiredFooterHtml = `
       <div class="wc-budget-footer-inner">
@@ -2557,6 +2559,8 @@
         </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
           <a href="${transactionSearchHref}" data-wc-utility-popup="Transaction Search">Transaction Search</a>
+          <a href="${glossaryFaqHref}" data-wc-utility-popup="Glossary, Acronyms &amp; FAQ">Glossary &amp; FAQ</a>
+          <a href="${supportingDocsHref}" data-wc-utility-popup="Supporting Budget Documentation">Supporting Documentation</a>
           <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
           <a href="${accessibilityHref}" data-wc-utility-popup="Accessibility Statement">Accessibility</a>
           <a href="${privacyHref}" data-wc-utility-popup="Privacy Statement">Privacy</a>
@@ -2643,31 +2647,17 @@
         utilityFrame.src=url.href;
         document.documentElement.classList.add('wc-modal-open');
         utilityDialog.showModal();
-        if(utilityWave){
-          utilityWave.defaultPlaybackRate=.25;
-          utilityWave.playbackRate=.25;
-          var playPromise=utilityWave.play();
-          if(playPromise&&typeof playPromise.catch==='function') playPromise.catch(function(){});
-        }
+        if(utilityWave){var playPromise=utilityWave.play();if(playPromise&&typeof playPromise.catch==='function')playPromise.catch(function(){});}
         utilityDialog.querySelector('.wc-footer-utility-close').focus();
       });
     });
     if(utilityDialog){
       utilityFrame.addEventListener('load',function(){
-        try{
-          if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank') return;
-          utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');
-          var embeddedTitle=utilityFrame.contentDocument.querySelector('.page-title');
-          if(embeddedTitle&&embeddedTitle.textContent.trim()) utilityDialog.querySelector('#wcFooterUtilityTitle').textContent=embeddedTitle.textContent.trim();
-        }catch(error){}
+        try{if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank')return;utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');}catch(error){}
       });
       utilityDialog.querySelector('.wc-footer-utility-close').addEventListener('click',closeUtilityDialog);
-      utilityDialog.addEventListener('click',function(event){if(event.target===utilityDialog) closeUtilityDialog();});
+      utilityDialog.addEventListener('click',function(event){if(event.target===utilityDialog)closeUtilityDialog();});
       utilityDialog.addEventListener('cancel',function(event){event.preventDefault();closeUtilityDialog();});
-      utilityDialog.addEventListener('close',function(){
-        document.documentElement.classList.remove('wc-modal-open');
-        if(utilityWave){utilityWave.pause();utilityWave.currentTime=0;}
-      });
     }
   }
   function startWcBudgetNav(){

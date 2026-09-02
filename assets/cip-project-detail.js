@@ -219,6 +219,9 @@ function mergeSameProjectRecords(primaryProject, projects){
     .pop() || primaryProject.project_code || "";
   const contracts = matches.flatMap(project => Array.isArray(project.contracts) ? project.contracts : []);
   const timeline = matches.flatMap(project => Array.isArray(project.timeline) ? project.timeline : []);
+  const videoUrl = matches
+    .map(project => project.video_url || project.youtube_url || project.youtube_video || project.video)
+    .find(hasDisplayValue) || primaryProject.video_url || "";
 
   return Object.assign({}, primaryProject, {
     project_code: projectCode,
@@ -228,7 +231,8 @@ function mergeSameProjectRecords(primaryProject, projects){
     target_years: combinedFunding.map(item => item.year),
     target: combinedFunding.map(item => item.year).join(", "),
     contracts,
-    timeline
+    timeline,
+    video_url: videoUrl
   });
 }
 
@@ -246,46 +250,61 @@ function renderListItem(label, value){
 }
 
 function renderUnifiedProjectTimeline(project){
-  const timeline = Array.isArray(project.timeline) ? project.timeline : [];
-  const contracts = Array.isArray(project.contracts) ? project.contracts : [];
-  const items = timeline.length
-    ? timeline.filter(item => hasDisplayValue(item.date) && hasDisplayValue(item.text))
-        .map(item => ({ label:item.date, text:item.text }))
-    : contracts.map(contract => {
-        const contractType = hasDisplayValue(contract.label)
-          ? contract.label
-          : hasDisplayValue(contract.phase) ? contract.phase + " Contract" : "Contract Award";
-        const parts = [contractType];
-        if(hasDisplayValue(contract.contractor)) parts.push(contract.contractor);
-        if(hasDisplayValue(contract.amount)) parts.push(contract.amount);
-        if(hasDisplayValue(contract.contractNumber)) parts.push(contract.contractNumber);
-        if(hasDisplayValue(contract.note)) parts.push(contract.note);
-        return {
-          label:hasDisplayValue(contract.date) ? contract.date : "Award date not listed",
-          text:parts.join(" — ")
-        };
-      }).filter(item => hasDisplayValue(item.text));
+  const startDate = getProjectValue(project,["start_date","estimated_start_date"],"");
+  const completionDate = getProjectValue(project,["estimated_completion_date","est_completion_date","completion_date"],"");
+  const isComplete = String(project.status_text || project.status || "").trim().toLowerCase() === "complete";
+  const parts = [];
 
-  if(hasDisplayValue(project.estimated_completion_date)){
-    const isComplete = String(project.status_text || "").trim().toLowerCase() === "complete";
-    items.push({
-      label:isComplete ? "Completed" : "Estimated Completion",
-      text:project.estimated_completion_date
-    });
+  if(hasDisplayValue(startDate)) parts.push(`<span>Start: ${displayValue(startDate)}</span>`);
+  if(hasDisplayValue(completionDate)) parts.push(`<span>${isComplete ? "Completed" : "Est. Completion"}: ${displayValue(completionDate)}</span>`);
+
+  return parts.length
+    ? parts.join('<span class="wc-project-timeline-separator" aria-hidden="true">·</span>')
+    : '<span>No project dates are currently listed.</span>';
+}
+
+function getYouTubeEmbedUrl(project){
+  const rawValue = getProjectValue(project,["video_url","youtube_url","youtube_video","project_video","video"],"");
+
+  if(!hasDisplayValue(rawValue)) return "";
+
+  const value = String(rawValue).trim();
+  let videoId = "";
+
+  if(/^[a-zA-Z0-9_-]{11}$/.test(value)){
+    videoId = value;
+  }else{
+    try{
+      const url = new URL(value);
+      const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+      if(host === "youtu.be") videoId = url.pathname.split("/").filter(Boolean)[0] || "";
+      if(host === "youtube.com" || host === "m.youtube.com" || host === "youtube-nocookie.com"){
+        videoId = url.searchParams.get("v") || url.pathname.match(/^\/(?:embed|shorts|live)\/([^/?#]+)/)?.[1] || "";
+      }
+    }catch(error){
+      return "";
+    }
   }
 
-  if(!items.length){
-    return '<p class="wc-project-timeline-empty">No dated project milestones are currently listed.</p>';
-  }
+  return /^[a-zA-Z0-9_-]{11}$/.test(videoId)
+    ? `https://www.youtube-nocookie.com/embed/${videoId}?controls=1&modestbranding=1&rel=0&playsinline=1`
+    : "";
+}
 
-  return items.map(item => {
-    return `
-      <div class="wc-project-timeline-item">
-        <span>${displayValue(item.label)}</span>
-        <strong>${displayValue(item.text)}</strong>
+function renderProjectVideo(project){
+  const embedUrl = getYouTubeEmbedUrl(project);
+
+  if(!embedUrl) return "";
+
+  return `
+    <section class="wc-project-panel wc-project-video-panel">
+      <h2>Project Video</h2>
+      <div class="wc-project-video-frame">
+        <iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(project.title || "Capital project")} video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
-    `;
-  }).join("");
+    </section>
+  `;
 }
 
 function renderTimelineItem(label, value){
@@ -614,6 +633,8 @@ function renderProjectPage(){
             <h2>Project Overview</h2>
             <p class="wc-project-overview-text">${displayValue(description)}</p>
           </section>
+
+          ${renderProjectVideo(project)}
 
           ${renderProjectImages(project)}
 

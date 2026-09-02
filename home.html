@@ -6,8 +6,8 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20260901-remove-project-search-page">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260901-header-budget-search">
+<link rel="stylesheet" href="assets/style.css?v=20260902-property-tax-ledger-link">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260902-utility-popup-frame">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -28,14 +28,55 @@
 <main id="content" class="wc-explorer-home">
   <section class="wc-explorer-intro" aria-labelledby="explore-title">
     <div>
-      <h2 id="explore-title">Explore the FY 2027 Budget</h2>
+      <h2 id="explore-title">Explore the Fiscal Year 2027 Budget</h2>
       <p>Choose an explorer to see totals, trends, and the detailed ledgers behind Walton County&rsquo;s proposed budget. Amounts below update from the same data used throughout this site.</p>
+      <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
+        <a class="wc-explorer-intro-icon-link" href="pages/overview-of-walton-county.html" data-explorer-popup-trigger="Overview of Walton County">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span>
+          <span>Overview of Walton County</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/organizational-structure.html" data-explorer-popup-trigger="Organizational Structure">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4M12 7H6a2 2 0 0 0-2 2v3M12 7h6a2 2 0 0 1 2 2v3M4 15h4v4H4zM10 15h4v4h-4zM16 15h4v4h-4z"></path></svg></span>
+          <span>Organizational Structure</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/gfoa-distinguished-budget-presentation-award.html" data-explorer-popup-trigger="GFOA Distinguished Budget Presentation Award">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5 7 21l5-2.5L17 21l-1.5-8.5"></path></svg></span>
+          <span>GFOA Award</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/consolidated-financial-schedules.html" data-explorer-popup-trigger="Consolidated Budget Ledger">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="4" rx="1"></rect><rect x="4" y="10" width="16" height="4" rx="1"></rect><rect x="4" y="16" width="16" height="4" rx="1"></rect></svg></span>
+          <span>Consolidated Budget Ledger</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/summary-of-budget-changes-and-adjustments.html" data-explorer-popup-trigger="Budget Change Summary">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg></span>
+          <span>Budget Change Summary</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/debt-overview.html" data-explorer-popup-trigger="Debt Ledger">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M6 8l6-3 6 3M4 8h4M16 8h4M6 8l-2 6a2 2 0 0 0 4 0L6 8ZM18 8l-2 6a2 2 0 0 0 4 0l-2-6Z"></path></svg></span>
+          <span>Debt Ledger</span>
+        </a>
+      </div>
     </div>
   </section>
 
   <p class="wc-home-full-doc-link"><a href="pages/full-budget-document.html">View the Full Budget Document</a> &mdash; every ledger and fund schedule in one printable publication.</p>
 
   <section class="wc-explorer-card-grid" aria-label="Budget explorers">
+
+    <a class="wc-explorer-card wc-card-our-county" href="pages/our-county.html">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Our County Directory</h3><p>Browse county context, governance, and community pages.</p></div>
+      </div>
+      <span class="wc-explorer-card-action">Browse Our County <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-ledger-directory" href="pages/budget-overview.html">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Ledger Directory</h3><p>Browse every budget ledger and fund schedule directly.</p></div>
+      </div>
+      <span class="wc-explorer-card-action">Browse Ledgers <b aria-hidden="true">→</b></span>
+    </a>
+
     <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
       <div class="wc-explorer-card-heading">
         <div><h3>Revenue Explorer</h3><p>See where Walton County&rsquo;s funding comes from.</p></div>
@@ -109,12 +150,12 @@
 </main>
 </div>
 
-<script src="assets/search-data.js?v=20260901-remove-project-search-page"></script>
+<script src="assets/search-data.js?v=20260902-remove-table-of-contents"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260901-personnel-card-position-popup"></script>
+<script src="assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260901-remove-project-search-page"></script>
+<script src="assets/nav.js?v=20260902-footer-supporting-docs"></script>
 <script>
 (function(){
   "use strict";
@@ -386,6 +427,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260901-prevent-nested-home-shells"></script>
+<script src="assets/home-explorer-modal.js?v=20260902-nested-department-links"></script>
 </body>
 </html>
