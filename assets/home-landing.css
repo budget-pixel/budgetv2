@@ -67,6 +67,7 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-intro-facts small{margin-top:3px;color:var(--home-muted);font-size:.59rem;font-weight:700;text-transform:uppercase}
 
 .wc-explorer-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wc-explorer-card-grid-categories{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 .wc-explorer-card{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:22px 22px 18px;border:1px solid var(--home-line);border-radius:18px;background:var(--home-surface);color:var(--home-ink);text-decoration:none;box-shadow:0 5px 16px rgba(28,56,43,.035);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 .wc-explorer-card:hover{transform:translateY(-3px);border-color:#77b192;box-shadow:0 15px 30px rgba(18,70,45,.09)}
 .wc-explorer-card:focus-visible{outline:3px solid var(--home-gold);outline-offset:3px}
@@ -112,7 +113,7 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-card-action b{margin-left:8px;font-size:.9rem}.wc-explorer-card:hover .wc-explorer-card-action{background:var(--home-green);color:#fff}
 
 @media(min-width:1350px){.wc-explorer-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wc-explorer-card-body{grid-template-columns:1fr 112px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark{width:94px;height:94px}.wc-mini-donut:after{inset:22px}.wc-mini-donut span{inset:33px}.wc-dollar-mark span{font-size:4.3rem}.wc-road-mark svg{width:69px;height:69px}}
-@media(max-width:760px){html.wc-embedded-budget-landing .wc-explorer-popup-header{align-items:stretch;flex-direction:column;gap:8px;padding:10px 14px 12px}.wc-explorer-header-search{width:100%;flex-basis:auto}.wc-explorer-home{width:min(100% - 22px,1500px);padding-top:12px}.wc-explorer-intro{padding:30px 3px 20px}.wc-explorer-intro-facts{display:grid;grid-template-columns:1fr 1fr}.wc-home-search{grid-template-columns:1fr;gap:14px;padding:18px}.wc-explorer-card-grid{grid-template-columns:1fr}}
+@media(max-width:760px){html.wc-embedded-budget-landing .wc-explorer-popup-header{align-items:stretch;flex-direction:column;gap:8px;padding:10px 14px 12px}.wc-explorer-header-search{width:100%;flex-basis:auto}.wc-explorer-home{width:min(100% - 22px,1500px);padding-top:12px}.wc-explorer-intro{padding:30px 3px 20px}.wc-explorer-intro-facts{display:grid;grid-template-columns:1fr 1fr}.wc-home-search{grid-template-columns:1fr;gap:14px;padding:18px}.wc-explorer-card-grid{grid-template-columns:1fr}.wc-explorer-card-grid-categories{grid-template-columns:1fr!important}}
 @media(max-width:430px){.wc-explorer-intro-facts{grid-template-columns:1fr}.wc-home-search-form{padding-left:12px}.wc-home-search-form button{padding-inline:14px}.wc-explorer-card{min-height:0;padding:19px 17px 16px}.wc-explorer-card-body{grid-template-columns:1fr 90px;gap:10px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark{width:82px;height:82px}.wc-mini-donut:after{inset:19px}.wc-mini-donut span{inset:29px}.wc-dollar-mark span{font-size:3.7rem}.wc-road-mark svg{width:60px;height:60px}}
 @media(prefers-reduced-motion:reduce){.wc-explorer-card,.wc-explorer-card-action{transition:none}}
 
@@ -126,7 +127,7 @@ body.wc-home-explorer-open{position:fixed;left:0;right:0;width:100%;height:100%;
    whenever any home explorer modal is open (this class covers both) is a
    simple, reliable guarantee rather than chasing that stacking quirk. */
 body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
-.wc-home-explorer-modal{position:fixed;inset:0;z-index:20000;display:block;overflow-x:hidden;overflow-y:auto;padding:0 18px 18px;background:#0b2a20;overscroll-behavior:contain;isolation:isolate}
+.wc-home-explorer-modal{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:18px;background:#0b2a20;overscroll-behavior:contain;isolation:isolate}
 .wc-home-explorer-modal[hidden]{display:none}
 .wc-home-explorer-modal.is-department-popup-open{overflow:hidden}
 .wc-home-explorer-modal.is-department-popup-open>.wc-home-explorer-modal-wave,
@@ -134,14 +135,22 @@ body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
 .wc-home-explorer-modal.is-department-popup-open>.wc-home-explorer-modal-panel{display:none!important}
 .wc-home-explorer-modal-wave{position:fixed;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);pointer-events:none}
 .wc-home-explorer-modal-backdrop{position:fixed;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
-.wc-home-explorer-modal-panel{position:relative;z-index:2;display:flex;flex-direction:column;width:min(1500px,100%);min-height:calc(100vh - 36px);min-height:calc(100dvh - 36px);margin:18px auto 0;overflow:visible;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34)}
+/* Sizes to its own content (head + body + footer) up to the viewport cap,
+   rather than always opening near-full height -- a short explorer (e.g.
+   Independent Agencies with only a few cards) no longer leaves empty space
+   below its footer. Content here is built directly into the DOM (not an
+   iframe like the department popup), so the browser's own layout keeps
+   this in sync automatically -- no JS height measurement needed. Content
+   taller than the cap scrolls inside .wc-home-explorer-modal-body instead
+   of the whole page, so the head/footer chrome stays pinned in view. */
+.wc-home-explorer-modal-panel{position:relative;z-index:2;display:flex;flex-direction:column;width:min(1500px,100%);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);margin:0;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34)}
 .wc-home-explorer-modal-head{position:static;flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:15px 18px;border-bottom:1px solid var(--border);border-radius:20px 20px 0 0;background:var(--light);box-shadow:0 4px 14px rgba(0,27,17,.08)}
 .wc-home-explorer-modal-heading{min-width:0}
 .wc-home-explorer-modal-heading h2{margin:0;color:var(--navy);font-size:1.45rem;line-height:1.2}
 .wc-home-explorer-modal-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
 .wc-home-explorer-modal-close:hover{background:#eaf3ed}
 .wc-home-explorer-modal-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
-.wc-home-explorer-modal-body{flex:1 1 auto;min-width:0;overflow:visible;padding:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%)}
+.wc-home-explorer-modal-body{flex:1 1 auto;min-width:0;min-height:0;overflow-y:auto;padding:22px;background:linear-gradient(135deg,#f4f8f5 0%,#eef7f1 100%)}
 .wc-home-explorer-modal-footer{position:relative;z-index:2;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 28px;border-top:1px solid rgba(36,52,77,.1);border-radius:0 0 20px 20px;background:#f6f8f5;color:var(--home-ink)}
 .wc-home-explorer-modal-footer>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;min-width:0}
 .wc-home-explorer-modal-footer strong{font-size:.78rem}
@@ -155,7 +164,7 @@ body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
 .wc-home-explorer-modal.is-utility-page{padding:0;background:var(--light)}
 .wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-wave,
 .wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-backdrop{display:none}
-.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-panel{width:100%;height:100%;height:100dvh;min-height:0;margin:0;overflow:hidden;border:0;border-radius:0;box-shadow:none}
+.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-panel{width:100%;height:100%;height:100dvh;min-height:0;max-height:none;margin:0;overflow:hidden;border:0;border-radius:0;box-shadow:none}
 .wc-home-explorer-modal.is-utility-page .wc-home-explorer-modal-body{display:flex;min-height:0;padding:0;overflow:hidden;background:var(--light)}
 .wc-home-explorer-modal.is-utility-page .wc-home-explorer-modal-footer{display:none}
 .wc-home-explorer-utility-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:var(--light)}
@@ -192,15 +201,15 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-department-modal.is-utility-page{padding:0;background:var(--light)}
 .wc-home-department-modal.is-utility-page .wc-home-department-modal-wave,
 .wc-home-department-modal.is-utility-page .wc-home-department-modal-backdrop{display:none}
-.wc-home-department-modal.is-utility-page .wc-home-department-modal-panel{width:100%;height:100%;height:100dvh;margin:0;border:0;border-radius:0;box-shadow:none}
+.wc-home-department-modal.is-utility-page .wc-home-department-modal-panel{width:100%;height:100%;height:100dvh;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none}
 /* Interactive budget book: it draws its own minimal, floating chrome (page
    arrows, page indicator, download/fullscreen/close -- see
    budget-book-viewer.js/.css) over the wave video, so this popup's own
    opaque header and panel background are dropped instead of layering a
    second, redundant set of chrome on top. */
-.wc-home-department-modal.is-budget-book{padding:8px}
+.wc-home-department-modal.is-budget-book{padding:4px}
 .wc-home-department-modal.is-budget-book .wc-home-department-modal-head{display:none}
-.wc-home-department-modal.is-budget-book .wc-home-department-modal-panel{width:min(1900px,100%);height:calc(100vh - 16px);height:calc(100dvh - 16px);max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);border:0;border-radius:0;background:transparent;box-shadow:none}
+.wc-home-department-modal.is-budget-book .wc-home-department-modal-panel{width:min(2000px,100%);height:calc(100vh - 8px);height:calc(100dvh - 8px);max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px);border:0;border-radius:0;background:transparent;box-shadow:none}
 .wc-home-department-modal.is-budget-book .wc-home-department-modal-frame{background:transparent}
 .wc-home-department-modal.is-budget-book.is-loading .wc-home-department-modal-panel::after{inset:0;background:rgba(3,38,28,.4);color:#fff}
 .wc-home-explorer-modal-body .wc-department-budget-cards{margin-top:18px}
@@ -208,7 +217,7 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-explorer-modal-body .wc-revenue-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-explainer-link,.wc-home-explorer-modal-body .wc-department-ledger-trigger{min-height:36px;padding:9px 14px;line-height:1.2}
 .wc-home-capital-summary{margin-bottom:18px}
 .wc-home-capital-summary p{max-width:850px}
-@media(max-width:700px){.wc-home-explorer-modal{padding:0}.wc-home-explorer-modal-panel{width:100%;min-height:100vh;min-height:100dvh;margin:0;border:0;border-radius:0}.wc-home-explorer-modal-head{padding:11px 12px;border-radius:0}.wc-home-explorer-modal-body{padding:14px}.wc-home-explorer-modal-heading h2{font-size:1.05rem}.wc-home-explorer-modal-footer{align-items:flex-start;flex-direction:column;padding:14px 18px;border-radius:0}.wc-home-explorer-modal-footer nav{flex-wrap:wrap}.wc-home-department-modal{padding:0}.wc-home-department-modal-panel{width:100%;height:100vh;height:100dvh;margin:0;border:0;border-radius:0}}
+@media(max-width:700px){.wc-home-explorer-modal{padding:0}.wc-home-explorer-modal-panel{width:100%;height:100vh;height:100dvh;max-height:none;margin:0;border:0;border-radius:0}.wc-home-explorer-modal-head{padding:11px 12px;border-radius:0}.wc-home-explorer-modal-body{padding:14px}.wc-home-explorer-modal-heading h2{font-size:1.05rem}.wc-home-explorer-modal-footer{align-items:flex-start;flex-direction:column;padding:14px 18px;border-radius:0}.wc-home-explorer-modal-footer nav{flex-wrap:wrap}.wc-home-department-modal{padding:0}.wc-home-department-modal-panel{width:100%;height:100vh;height:100dvh;margin:0;border:0;border-radius:0}}
 @media(prefers-reduced-motion:reduce){.wc-home-explorer-modal-wave,.wc-home-department-modal-wave{display:none!important}}
 @media print{.wc-home-explorer-modal{display:none!important}}
 

@@ -22,33 +22,30 @@
   var savedBodyStyles = null;
   var capitalSearchOutsideClickHandler = null;
   var departmentPanelResizeObserver = null;
-  var departmentPanelWindowResizeHandler = null;
+  var departmentModalOpenedAt = 0;
+  // How long the popup stays at its small opening size before it's allowed
+  // to grow -- deliberate, so the reveal reads as a consistent flourish
+  // rather than something that only happens to appear on slow-loading pages.
+  var MIN_POPUP_REVEAL_MS = 900;
 
   // Sizes the department popup to the loaded page's actual content height
-  // (capped at the viewport, same as before) instead of always opening at
-  // near-full height -- a short page like State Attorney or Public
-  // Defender no longer leaves a block of empty space under its footer.
-  // Below the mobile breakpoint the panel stays full-screen (see
-  // home-landing.css), so this clears any inline height there instead of
-  // fighting that layout with an inline style, which would otherwise win
-  // over the stylesheet's media-query rule.
-  function updateDepartmentModalHeight() {
-    if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
-    var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
-    if (!panel) return;
-    // The budget book always wants the full available height for its own
-    // page-flip sizing (see the is-budget-book CSS) rather than shrinking
-    // to fit its iframe's measured content height like a normal department
-    // page -- its content deliberately fills whatever height it's given.
-    if (departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book") || window.innerWidth <= 700) {
-      panel.style.height = "";
+  // (capped at the viewport) instead of always opening at near-full
+  // height -- a short page like State Attorney or Public Defender no
+  // longer leaves a block of empty space below its footer. Utility pages
+  // (Glossary, Transaction Search, Accessibility, Privacy) deliberately
+  // stay full-screen instead (see the is-utility-page bailout below) --
+  // they're meant to feel like standalone pages, not a compact card, and
+  // some of them (Privacy in particular) are long enough to want the full
+  // viewport rather than a shrink-to-fit box.
+  function sizeIframePopupPanel(panel, frame, headEl, isUtilityPage) {
+    if (!panel || !frame || isUtilityPage || window.innerWidth <= 700) {
+      if (panel) panel.style.height = "";
       return;
     }
     var doc;
-    try { doc = departmentFrame.contentDocument; } catch (accessError) { doc = null; }
+    try { doc = frame.contentDocument; } catch (accessError) { doc = null; }
     if (!doc || !doc.documentElement) return;
-    var head = departmentModal.querySelector(".wc-home-department-modal-head");
-    var headHeight = head ? head.getBoundingClientRect().height : 0;
+    var headHeight = headEl ? headEl.getBoundingClientRect().height : 0;
     // documentElement/body scrollHeight can stay pinned near the viewport
     // height even once the class-based CSS override trims #layout's own
     // min-height, because that reset only wins the cascade for #layout
@@ -64,6 +61,56 @@
     var desired = Math.min(maxHeight, Math.max(320, Math.ceil(contentHeight + headHeight)));
     panel.style.height = desired + "px";
   }
+
+  // Watches an iframe's loaded document for size changes (budget data
+  // loading in asynchronously can grow or shrink it after "load" fires)
+  // and re-measures. Returns the observer so the caller can disconnect it
+  // later; also does a few cheap timed re-checks as a fallback for
+  // anything a ResizeObserver doesn't happen to catch (web fonts, images
+  // without explicit dimensions).
+  function watchIframePopupHeight(frame, measure) {
+    var observer = null;
+    try {
+      var doc = frame.contentDocument;
+      if (doc && doc.body && typeof ResizeObserver === "function") {
+        observer = new ResizeObserver(function () { measure(); });
+        observer.observe(doc.body);
+      }
+    } catch (watchError) {
+      // Cross-origin or unsupported -- the timed re-checks below still run.
+    }
+    measure();
+    [50, 200, 500, 1000].forEach(function (delay) { window.setTimeout(measure, delay); });
+    return observer;
+  }
+
+  function updateDepartmentModalHeight() {
+    if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
+    var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
+    // The budget book always wants the full available height for its own
+    // page-flip sizing (see the is-budget-book CSS) rather than shrinking
+    // to fit its iframe's measured content height like a normal department
+    // page.
+    var isUtilityOrBook = departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book");
+    if (isUtilityOrBook) {
+      sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), true);
+      return;
+    }
+    // Hold at the small opening size (set in openDepartmentModal) until the
+    // minimum reveal time has passed -- even a page whose content is fully
+    // ready well before that keeps the deliberate small-then-grow motion
+    // instead of jumping straight to full size.
+    var elapsed = Date.now() - departmentModalOpenedAt;
+    if (elapsed < MIN_POPUP_REVEAL_MS) {
+      window.setTimeout(updateDepartmentModalHeight, MIN_POPUP_REVEAL_MS - elapsed);
+      return;
+    }
+    sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), false);
+  }
+
+  window.addEventListener("resize", function () {
+    updateDepartmentModalHeight();
+  });
 
   function lockBackgroundPage() {
     if (savedBodyStyles) return;
@@ -517,14 +564,27 @@
         // footer force-shown below (they want the sitewide search footer
         // inside the popup, these standalone statements don't).
         var isUtilityEmbed = embeddedDocument.documentElement.classList.contains("wc-embedded-utility");
+        // The budget book supplies its own full-bleed, transparent layout
+        // (see budget-book-viewer.css) and its own chrome -- none of the
+        // generic department-page popup adjustments below apply to it, and
+        // forcing its #content to a centered max-width column (meant for a
+        // normal text/table page) fought with that page's own margin:0
+        // full-bleed rules, leaving the book boxed into one side of the
+        // popup instead of filling it. The sitewide search footer that the
+        // rule below force-shows for ordinary department pages is likewise
+        // wrong here -- it belongs to that page's own content area, not the
+        // page-flip viewer.
+        var isBudgetBookEmbed = departmentModal.classList.contains("is-budget-book");
         var embeddedStyle = embeddedDocument.createElement("style");
-        embeddedStyle.textContent = 'nav#nav-menu,.wc-breadcrumb{display:none!important}' +
-          (isUtilityEmbed ? '' : 'footer[role="contentinfo"]{display:block!important}') +
-          '#layout{display:block!important;min-height:0!important}' +
-          '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
-          '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
-          '[data-constitutional-ledger-close]{display:none!important}' +
-          '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}';
+        embeddedStyle.textContent = isBudgetBookEmbed
+          ? 'nav#nav-menu,.wc-breadcrumb,footer[role="contentinfo"]{display:none!important}'
+          : ('nav#nav-menu,.wc-breadcrumb{display:none!important}' +
+            (isUtilityEmbed ? '' : 'footer[role="contentinfo"]{display:block!important}') +
+            '#layout{display:block!important;min-height:0!important}' +
+            '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
+            '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
+            '[data-constitutional-ledger-close]{display:none!important}' +
+            '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}');
         embeddedDocument.head.appendChild(embeddedStyle);
         if (isFollowOnNavigation) {
           var headingEl = embeddedDocument.querySelector(".page-title");
@@ -595,31 +655,22 @@
         // The query-string class in the embedded page remains the fallback.
       }
       if (!departmentModal.hidden) {
-        window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
+        var isUtilityOrBookLoad = departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book");
+        // Keep the "Loading budget page…" overlay up for the same minimum
+        // reveal window as the height grow (see MIN_POPUP_REVEAL_MS) so the
+        // content reveal and the size grow happen together as one motion,
+        // rather than the real (still small, internally-scrolled) page
+        // flashing into view before the box has grown to show it properly.
+        var loadingRemoveDelay = isUtilityOrBookLoad ? 0 : Math.max(0, MIN_POPUP_REVEAL_MS - (Date.now() - departmentModalOpenedAt));
+        window.setTimeout(function () {
+          window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
+        }, loadingRemoveDelay);
       }
       if (departmentPanelResizeObserver) {
         departmentPanelResizeObserver.disconnect();
         departmentPanelResizeObserver = null;
       }
-      try {
-        var resizeDoc = departmentFrame.contentDocument;
-        if (resizeDoc && resizeDoc.body && typeof ResizeObserver === "function") {
-          // Content can keep growing (or, once async budget data replaces a
-          // loading placeholder, shrinking) after "load" fires -- watch the
-          // body directly rather than measuring only once.
-          departmentPanelResizeObserver = new ResizeObserver(function () { updateDepartmentModalHeight(); });
-          departmentPanelResizeObserver.observe(resizeDoc.body);
-        }
-      } catch (resizeObserverError) {
-        // Cross-origin or unsupported -- fall back to the timed re-checks below.
-      }
-      updateDepartmentModalHeight();
-      // Belt-and-suspenders re-checks for any layout settling ResizeObserver
-      // doesn't happen to catch (e.g. web fonts finishing, images without
-      // explicit dimensions) -- cheap, and each just re-measures once.
-      [50, 200, 500, 1000].forEach(function (delay) {
-        window.setTimeout(updateDepartmentModalHeight, delay);
-      });
+      departmentPanelResizeObserver = watchIframePopupHeight(departmentFrame, updateDepartmentModalHeight);
     });
     departmentModal.addEventListener("click", function (event) {
       if (event.target.closest("[data-department-popup-close]")) closeDepartmentModal();
@@ -674,12 +725,16 @@
       if (explorerWave) explorerWave.pause();
     }
     departmentModal.classList.add("is-loading");
-    // Reset to the default near-full-height loading state -- otherwise a
-    // popup opened right after a short one (e.g. State Attorney) would
-    // start out pinned to that previous, smaller height while this new
-    // page's own content is still loading.
+    // Open small and grow -- deliberately, not just incidentally: even a
+    // static page with no async data step (Overview of Walton County, Org
+    // Chart, GFOA Award) should still open at this small "loading" size
+    // and visibly expand a beat later, the same reveal a data-driven page
+    // like Budget Change Summary naturally gets. See the matching
+    // MIN_POPUP_REVEAL_MS gate in updateDepartmentModalHeight.
     var panelToReset = departmentModal.querySelector(".wc-home-department-modal-panel");
-    if (panelToReset) panelToReset.style.height = "";
+    if (panelToReset && !isUtilityPage && !isBudgetBook) panelToReset.style.height = "360px";
+    else if (panelToReset) panelToReset.style.height = "";
+    departmentModalOpenedAt = Date.now();
     departmentFrameAwaitingInitialLoad = true;
     departmentFrame.src = url.href;
     departmentModal.hidden = false;
@@ -688,10 +743,6 @@
     // close control), so the header's close button isn't focusable there.
     if (isBudgetBook) departmentFrame.focus();
     else departmentModal.querySelector(".wc-home-department-modal-close").focus();
-    if (!departmentPanelWindowResizeHandler) {
-      departmentPanelWindowResizeHandler = function () { updateDepartmentModalHeight(); };
-      window.addEventListener("resize", departmentPanelWindowResizeHandler);
-    }
   }
 
   function closeDepartmentModal() {
@@ -728,6 +779,15 @@
     closeDepartmentModal();
     modal.hidden = true;
     modal.classList.remove("is-utility-page");
+    // Utility pages are the only ones that ever set an inline height on the
+    // panel (see sizeIframePopupPanel) -- clear it so the next regular
+    // explorer opened isn't stuck at a stale utility-page height.
+    var panelToClear = modal.querySelector(".wc-home-explorer-modal-panel");
+    if (panelToClear) panelToClear.style.height = "";
+    if (explorerUtilityPanelResizeObserver) {
+      explorerUtilityPanelResizeObserver.disconnect();
+      explorerUtilityPanelResizeObserver = null;
+    }
     var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
     if (explorerWave) {
       explorerWave.pause();
@@ -748,7 +808,10 @@
     modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close explorer");
     modal.hidden = false;
     lockBackgroundPage();
-    modal.scrollTop = 0;
+    // The panel now sizes to its own content instead of always filling the
+    // viewport, so content scrolls inside modalBody rather than the outer
+    // modal -- reset that instead of the (no longer scrollable) outer element.
+    if (modalBody) modalBody.scrollTop = 0;
     var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
     if (explorerWave) {
       explorerWave.defaultPlaybackRate = 0.25;
@@ -840,12 +903,22 @@
         utilityUrl.searchParams.set("embed", "utility-popup");
         modal.classList.add("is-utility-page");
         modalTitle.textContent = pageAction.title;
+        // Reset to auto/unsized before the new page loads -- otherwise this
+        // popup would start out pinned to whatever height a previously
+        // opened utility page had settled on.
+        var utilityPanelToReset = modal.querySelector(".wc-home-explorer-modal-panel");
+        if (utilityPanelToReset) utilityPanelToReset.style.height = "";
         modalBody.innerHTML = '<iframe class="wc-home-explorer-utility-frame" title="' + escapeHtml(pageAction.title) + '"></iframe>';
         var utilityFrame = modalBody.querySelector(".wc-home-explorer-utility-frame");
+        if (explorerUtilityPanelResizeObserver) {
+          explorerUtilityPanelResizeObserver.disconnect();
+          explorerUtilityPanelResizeObserver = null;
+        }
         utilityFrame.addEventListener("load", function () {
           try {
             utilityFrame.contentDocument.documentElement.classList.add("wc-embedded-utility");
           } catch (error) {}
+          explorerUtilityPanelResizeObserver = watchIframePopupHeight(utilityFrame, updateExplorerUtilityModalHeight);
         });
         utilityFrame.src = utilityUrl.href;
         modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close " + pageAction.title);
