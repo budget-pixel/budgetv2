@@ -143,8 +143,10 @@ body.wc-home-explorer-open{position:fixed;left:0;right:0;width:100%;height:100%;
 .wc-home-explorer-modal-footer nav{display:flex;flex:0 0 auto;gap:18px}
 .wc-home-explorer-modal-footer button:hover{color:var(--home-green)}
 .wc-home-explorer-modal-footer>div button:hover{background:var(--home-green);color:#fff}
-.wc-home-explorer-modal.is-utility-page{padding:0 6px 6px}
-.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-panel{height:calc(100vh - 12px);height:calc(100dvh - 12px);min-height:0;margin-top:6px;overflow:hidden}
+.wc-home-explorer-modal.is-utility-page{padding:0;background:var(--light)}
+.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-wave,
+.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-backdrop{display:none}
+.wc-home-explorer-modal.is-utility-page>.wc-home-explorer-modal-panel{width:100%;height:100%;height:100dvh;min-height:0;margin:0;overflow:hidden;border:0;border-radius:0;box-shadow:none}
 .wc-home-explorer-modal.is-utility-page .wc-home-explorer-modal-body{display:flex;min-height:0;padding:0;overflow:hidden;background:var(--light)}
 .wc-home-explorer-modal.is-utility-page .wc-home-explorer-modal-footer{display:none}
 .wc-home-explorer-utility-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:var(--light)}
@@ -169,8 +171,10 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-department-modal-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
 .wc-home-department-modal-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:var(--light);overscroll-behavior:contain}
 .wc-home-department-modal.is-loading .wc-home-department-modal-frame{visibility:hidden}
-.wc-home-department-modal.is-utility-page{padding:0 6px 6px}
-.wc-home-department-modal.is-utility-page .wc-home-department-modal-panel{height:calc(100vh - 12px);height:calc(100dvh - 12px);margin-top:6px}
+.wc-home-department-modal.is-utility-page{padding:0;background:var(--light)}
+.wc-home-department-modal.is-utility-page .wc-home-department-modal-wave,
+.wc-home-department-modal.is-utility-page .wc-home-department-modal-backdrop{display:none}
+.wc-home-department-modal.is-utility-page .wc-home-department-modal-panel{width:100%;height:100%;height:100dvh;margin:0;border:0;border-radius:0;box-shadow:none}
 .wc-home-explorer-modal-body .wc-department-budget-cards{margin-top:18px}
 .wc-home-explorer-modal-body .wc-revenue-view-actions,.wc-home-explorer-modal-body .wc-department-ledger-actions{gap:10px;margin-top:12px}
 .wc-home-explorer-modal-body .wc-revenue-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-explainer-link,.wc-home-explorer-modal-body .wc-department-ledger-trigger{min-height:36px;padding:9px 14px;line-height:1.2}

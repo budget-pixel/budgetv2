@@ -1328,11 +1328,11 @@ html.wc-embedded-department #content{width:min(1380px,100%);max-width:none;margi
 html.wc-embedded-department #content>.page-eyebrow,
 html.wc-embedded-department #content>.page-title{display:none}
 html.wc-embedded-department .wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}
-.wc-footer-utility-dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;margin:0;padding:0 6px 6px;overflow:hidden;border:0;background:#0b2a20;box-sizing:border-box}
-.wc-footer-utility-dialog::backdrop{background:#0b2a20}
-.wc-footer-utility-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(.9);pointer-events:none}
-.wc-footer-utility-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
-.wc-footer-utility-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:calc(100vh - 12px);height:calc(100dvh - 12px);margin:6px auto 0;overflow:hidden;flex-direction:column;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34);box-sizing:border-box}
+.wc-footer-utility-dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;margin:0;padding:0;overflow:hidden;border:0;background:var(--light);box-sizing:border-box}
+.wc-footer-utility-dialog::backdrop{background:var(--light)}
+.wc-footer-utility-wave{display:none}
+.wc-footer-utility-shade{display:none}
+.wc-footer-utility-panel{position:relative;z-index:2;display:flex;width:100%;height:100%;margin:0;overflow:hidden;flex-direction:column;border:0;border-radius:0;background:var(--light);box-shadow:none;box-sizing:border-box}
 .wc-footer-utility-head{display:flex;align-items:center;gap:16px;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--light)}
 .wc-footer-utility-head h2{margin:0;color:var(--navy);font-size:1.2rem}
 .wc-footer-utility-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
@@ -1340,7 +1340,7 @@ html.wc-embedded-department .wc-dept-function-services--with-video>.wc-dept-supp
 html.wc-embedded-utility nav#nav-menu,html.wc-embedded-utility footer[role="contentinfo"],html.wc-embedded-utility .wc-breadcrumb,html.wc-embedded-utility #content>.page-eyebrow,html.wc-embedded-utility #content>.page-title{display:none!important}
 html.wc-embedded-utility #layout{display:block;min-height:0}
 html.wc-embedded-utility #content{width:min(1380px,100%);max-width:none;margin:0 auto;padding:44px 28px 28px}
-@media(max-width:700px){.wc-footer-utility-dialog{padding:0}.wc-footer-utility-panel{width:100%;height:100vh;height:100dvh;margin:0;border:0;border-radius:0}html.wc-embedded-utility #content{padding:24px 18px}}
+@media(max-width:700px){html.wc-embedded-utility #content{padding:24px 18px}}
 @media(prefers-reduced-motion:reduce){.wc-footer-utility-wave{display:none}}
 .wc-officer-statement-with-portrait{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:start}
 .wc-constitutional-officer-copy{min-width:0}
