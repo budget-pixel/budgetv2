@@ -2,12 +2,12 @@
   "use strict";
 
   var EXPLORERS = {
-    revenue: { title: "Revenue Budget Explorer" },
-    personnel: { title: "Personnel Budget Explorer" },
-    departments: { title: "Department Budget Explorer" },
-    capital: { title: "Capital Budget Explorer" },
-    constitutional: { title: "Constitutional Officers Budget Explorer" },
-    independent: { title: "Independent Agencies Budget Explorer" }
+    revenue: { title: "Revenue Budget" },
+    personnel: { title: "Personnel Budget" },
+    departments: { title: "Department Budget" },
+    capital: { title: "Capital Budget" },
+    constitutional: { title: "Constitutional Officers Budget" },
+    independent: { title: "Independent Agencies Budget" }
   };
 
   var activeCard = null;
@@ -21,6 +21,49 @@
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
   var capitalSearchOutsideClickHandler = null;
+  var departmentPanelResizeObserver = null;
+  var departmentPanelWindowResizeHandler = null;
+
+  // Sizes the department popup to the loaded page's actual content height
+  // (capped at the viewport, same as before) instead of always opening at
+  // near-full height -- a short page like State Attorney or Public
+  // Defender no longer leaves a block of empty space under its footer.
+  // Below the mobile breakpoint the panel stays full-screen (see
+  // home-landing.css), so this clears any inline height there instead of
+  // fighting that layout with an inline style, which would otherwise win
+  // over the stylesheet's media-query rule.
+  function updateDepartmentModalHeight() {
+    if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
+    var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
+    if (!panel) return;
+    // The budget book always wants the full available height for its own
+    // page-flip sizing (see the is-budget-book CSS) rather than shrinking
+    // to fit its iframe's measured content height like a normal department
+    // page -- its content deliberately fills whatever height it's given.
+    if (departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book") || window.innerWidth <= 700) {
+      panel.style.height = "";
+      return;
+    }
+    var doc;
+    try { doc = departmentFrame.contentDocument; } catch (accessError) { doc = null; }
+    if (!doc || !doc.documentElement) return;
+    var head = departmentModal.querySelector(".wc-home-department-modal-head");
+    var headHeight = head ? head.getBoundingClientRect().height : 0;
+    // documentElement/body scrollHeight can stay pinned near the viewport
+    // height even once the class-based CSS override trims #layout's own
+    // min-height, because that reset only wins the cascade for #layout
+    // itself -- some other ancestor in the chain (or the iframe's own
+    // scrolling box) can still report the larger figure. Measuring the
+    // actual bottom edge of the last visible element (the sitewide footer,
+    // always moved to the end of <body> by nav.js) sidesteps that: it
+    // reflects exactly where rendered content stops, not how tall the
+    // document's layout boxes claim to be.
+    var lastVisible = doc.querySelector('footer[role="contentinfo"]') || doc.body;
+    var contentHeight = lastVisible ? Math.ceil(lastVisible.getBoundingClientRect().bottom) : doc.documentElement.scrollHeight;
+    var maxHeight = (window.visualViewport ? window.visualViewport.height : window.innerHeight) - 36;
+    var desired = Math.min(maxHeight, Math.max(320, Math.ceil(contentHeight + headHeight)));
+    panel.style.height = desired + "px";
+  }
 
   function lockBackgroundPage() {
     if (savedBodyStyles) return;
@@ -155,7 +198,27 @@
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
-      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget Explorer</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/capital-improvement-plan.html#wc-cip-what-counts">What is a Capital Project?</a></div></div></aside></div>' +
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
+        '<section class="wc-capital-what-counts" aria-labelledby="wcCapitalWhatCountsTitle">' +
+          '<div class="wc-capital-what-counts-head"><h3 id="wcCapitalWhatCountsTitle">What is a capital project?</h3><p>Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not.</p></div>' +
+          '<div class="wc-capital-what-counts-grid">' +
+            '<article class="wc-capital-what-counts-card is-included"><span>Counted as capital</span><ul>' +
+              '<li>Road, bridge, sidewalk, and drainage construction</li>' +
+              '<li>New or expanded County buildings and facilities</li>' +
+              '<li>Major renovations and system replacements</li>' +
+              '<li>Land, rights-of-way, and easement purchases</li>' +
+              '<li>Machinery, vehicles, and equipment above the capital threshold</li>' +
+            '</ul></article>' +
+            '<article class="wc-capital-what-counts-card is-excluded"><span>Not capital</span><ul>' +
+              '<li>Routine maintenance and repairs</li>' +
+              '<li>Operating supplies and consumables</li>' +
+              '<li>Salaries and day-to-day service delivery</li>' +
+              '<li>Studies with no resulting asset</li>' +
+              '<li>Items below the capitalization threshold</li>' +
+            '</ul></article>' +
+          '</div>' +
+          '<p class="wc-capital-what-counts-note"><a href="pages/capital-improvement-plan.html#wc-cip-what-counts" data-explorer-popup-trigger="Capital Improvement Plan">Read the full explanation</a> &mdash; including the four tests for what qualifies, how projects are financed, and what counts toward the capitalization threshold.</p>' +
+        '</section>' +
         '<section class="wc-home-search wc-capital-project-search" aria-labelledby="wcCapitalSearchTitle">' +
           '<div><h2 id="wcCapitalSearchTitle">Search Capital Projects</h2><p>Find a specific capital project by name, department, or fund.</p></div>' +
           '<div class="wc-home-search-input-wrap">' +
@@ -385,7 +448,7 @@
       }).join("");
       var change = total - prior;
       var pct = prior ? change / Math.abs(prior) * 100 : null;
-      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget Explorer</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
     });
@@ -534,6 +597,29 @@
       if (!departmentModal.hidden) {
         window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
       }
+      if (departmentPanelResizeObserver) {
+        departmentPanelResizeObserver.disconnect();
+        departmentPanelResizeObserver = null;
+      }
+      try {
+        var resizeDoc = departmentFrame.contentDocument;
+        if (resizeDoc && resizeDoc.body && typeof ResizeObserver === "function") {
+          // Content can keep growing (or, once async budget data replaces a
+          // loading placeholder, shrinking) after "load" fires -- watch the
+          // body directly rather than measuring only once.
+          departmentPanelResizeObserver = new ResizeObserver(function () { updateDepartmentModalHeight(); });
+          departmentPanelResizeObserver.observe(resizeDoc.body);
+        }
+      } catch (resizeObserverError) {
+        // Cross-origin or unsupported -- fall back to the timed re-checks below.
+      }
+      updateDepartmentModalHeight();
+      // Belt-and-suspenders re-checks for any layout settling ResizeObserver
+      // doesn't happen to catch (e.g. web fonts finishing, images without
+      // explicit dimensions) -- cheap, and each just re-measures once.
+      [50, 200, 500, 1000].forEach(function (delay) {
+        window.setTimeout(updateDepartmentModalHeight, delay);
+      });
     });
     departmentModal.addEventListener("click", function (event) {
       if (event.target.closest("[data-department-popup-close]")) closeDepartmentModal();
@@ -564,8 +650,14 @@
     // sitting right under the two-paragraph statement: a second wave shell
     // nested inside this one's, and a stray footer-shaped box under the text.
     var isUtilityPage = UTILITY_POPUP_PAGE_PATTERN.test(url.pathname);
+    var isBudgetBook = /\/budget-book\.html$/i.test(url.pathname);
     url.searchParams.set("embed", isUtilityPage ? "utility-popup" : "department-popup");
     departmentModal.classList.toggle("is-utility-page", isUtilityPage);
+    // The interactive budget book supplies its own minimal, transparent
+    // chrome (page-turn arrows, page indicator, download/fullscreen/close)
+    // so the wave video shows through -- this popup's own opaque header
+    // and panel background would otherwise sit on top of it.
+    departmentModal.classList.toggle("is-budget-book", isBudgetBook);
     if (waveVideo) {
       waveVideo.defaultPlaybackRate = 0.25;
       waveVideo.playbackRate = 0.25;
@@ -582,11 +674,24 @@
       if (explorerWave) explorerWave.pause();
     }
     departmentModal.classList.add("is-loading");
+    // Reset to the default near-full-height loading state -- otherwise a
+    // popup opened right after a short one (e.g. State Attorney) would
+    // start out pinned to that previous, smaller height while this new
+    // page's own content is still loading.
+    var panelToReset = departmentModal.querySelector(".wc-home-department-modal-panel");
+    if (panelToReset) panelToReset.style.height = "";
     departmentFrameAwaitingInitialLoad = true;
     departmentFrame.src = url.href;
     departmentModal.hidden = false;
     modal.classList.add("is-department-popup-open");
-    departmentModal.querySelector(".wc-home-department-modal-close").focus();
+    // The budget book hides this popup's own header (it supplies its own
+    // close control), so the header's close button isn't focusable there.
+    if (isBudgetBook) departmentFrame.focus();
+    else departmentModal.querySelector(".wc-home-department-modal-close").focus();
+    if (!departmentPanelWindowResizeHandler) {
+      departmentPanelWindowResizeHandler = function () { updateDepartmentModalHeight(); };
+      window.addEventListener("resize", departmentPanelWindowResizeHandler);
+    }
   }
 
   function closeDepartmentModal() {
@@ -594,6 +699,10 @@
     var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
     departmentModal.hidden = true;
     departmentModal.classList.remove("is-loading");
+    if (departmentPanelResizeObserver) {
+      departmentPanelResizeObserver.disconnect();
+      departmentPanelResizeObserver = null;
+    }
     var waveVideo = departmentModal.querySelector(".wc-home-department-modal-wave");
     if (waveVideo) {
       waveVideo.pause();
@@ -805,6 +914,11 @@
       if (requestedCard) openModal(requestedExplorer, requestedCard);
     }
   }
+
+  // Lets the budget book's own iframe-embedded close (X) button -- shown in
+  // place of this popup's header/close button when is-budget-book is set --
+  // close the popup from inside the same-origin iframe.
+  window.WCHomeExplorer = { closeDepartmentModal: closeDepartmentModal };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

@@ -94,7 +94,7 @@
 
     container.innerHTML =
       '<header class="wc-fleet-header">' +
-        '<div class="wc-fleet-title-row"><div><span class="wc-fleet-eyebrow">Fleet asset record</span><h1>' + escapeHtml(record["Asset Desc."] || "County vehicle") + "</h1></div></div>" +
+        '<div class="wc-fleet-title-row"><div><h1>' + escapeHtml(record["Asset Desc."] || "County vehicle") + "</h1></div></div>" +
         '<div class="wc-fleet-metadata">' + metadata("Asset ID", assetNumber) + metadata("Department", record["Equip Group"] || "Not listed") + metadata("Mileage", quantity(currentMileage, "miles")) + metadata("Vehicle age", vehicleAge == null ? "Not available" : vehicleAge + (vehicleAge === 1 ? " year" : " years")) + "</div>" +
       "</header>" +
       '<section class="wc-fleet-section" aria-labelledby="fleetConditionTitle"><div class="wc-fleet-section-heading"><div><h2 id="fleetConditionTitle">Fleet Notes</h2></div></div>' +

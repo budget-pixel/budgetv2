@@ -6,8 +6,8 @@
 <meta name="description" content="Explore Walton County's FY 2027 proposed budget by revenue, department, personnel, capital, expenditure, and fund.">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20260902-property-tax-ledger-link">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260902-utility-popup-frame">
+<link rel="stylesheet" href="assets/style.css?v=20260903-capital-intro-polish">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260903-fix-footer-spacing">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -31,6 +31,10 @@
       <h2 id="explore-title">Explore the Fiscal Year 2027 Budget</h2>
       <p>Choose an explorer to see totals, trends, and the detailed ledgers behind Walton County&rsquo;s proposed budget. Amounts below update from the same data used throughout this site.</p>
       <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
+        <a class="wc-explorer-intro-icon-link" href="pages/budget-overview.html" data-explorer-popup-trigger="Ledger Directory">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></span>
+          <span>Ledger Directory</span>
+        </a>
         <a class="wc-explorer-intro-icon-link" href="pages/overview-of-walton-county.html" data-explorer-popup-trigger="Overview of Walton County">
           <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span>
           <span>Overview of Walton County</span>
@@ -43,43 +47,27 @@
           <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5 7 21l5-2.5L17 21l-1.5-8.5"></path></svg></span>
           <span>GFOA Award</span>
         </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/consolidated-financial-schedules.html" data-explorer-popup-trigger="Consolidated Budget Ledger">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="4" rx="1"></rect><rect x="4" y="10" width="16" height="4" rx="1"></rect><rect x="4" y="16" width="16" height="4" rx="1"></rect></svg></span>
-          <span>Consolidated Budget Ledger</span>
-        </a>
         <a class="wc-explorer-intro-icon-link" href="pages/summary-of-budget-changes-and-adjustments.html" data-explorer-popup-trigger="Budget Change Summary">
           <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg></span>
           <span>Budget Change Summary</span>
         </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/debt-overview.html" data-explorer-popup-trigger="Debt Ledger">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M6 8l6-3 6 3M4 8h4M16 8h4M6 8l-2 6a2 2 0 0 0 4 0L6 8ZM18 8l-2 6a2 2 0 0 0 4 0l-2-6Z"></path></svg></span>
-          <span>Debt Ledger</span>
+        <a class="wc-explorer-intro-icon-link" href="pages/budget-book.html" data-explorer-popup-trigger="Full Budget Document">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 3h8l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 3v4h4M9 13h6M9 17h6"></path></svg></span>
+          <span>Full Budget Document</span>
+        </a>
+        <a class="wc-explorer-intro-icon-link" href="pages/budget-process.html" data-explorer-popup-trigger="Budget Process">
+          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2"></path></svg></span>
+          <span>Budget Process</span>
         </a>
       </div>
     </div>
   </section>
 
-  <p class="wc-home-full-doc-link"><a href="pages/full-budget-document.html">View the Full Budget Document</a> &mdash; every ledger and fund schedule in one printable publication.</p>
-
-  <section class="wc-explorer-card-grid" aria-label="Budget explorers">
-
-    <a class="wc-explorer-card wc-card-our-county" href="pages/our-county.html">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Our County Directory</h3><p>Browse county context, governance, and community pages.</p></div>
-      </div>
-      <span class="wc-explorer-card-action">Browse Our County <b aria-hidden="true">→</b></span>
-    </a>
-
-    <a class="wc-explorer-card wc-card-ledger-directory" href="pages/budget-overview.html">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Ledger Directory</h3><p>Browse every budget ledger and fund schedule directly.</p></div>
-      </div>
-      <span class="wc-explorer-card-action">Browse Ledgers <b aria-hidden="true">→</b></span>
-    </a>
+  <section class="wc-explorer-card-grid" aria-label="Revenue, personnel, and forecast explorers">
 
     <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
       <div class="wc-explorer-card-heading">
-        <div><h3>Revenue Explorer</h3><p>See where Walton County&rsquo;s funding comes from.</p></div>
+        <div><h3>Revenue Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
@@ -90,7 +78,7 @@
 
     <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="?explorer=personnel">
       <div class="wc-explorer-card-heading">
-        <div><h3>Personnel Explorer</h3><p>Explore personnel costs, staffing, and benefits.</p></div>
+        <div><h3>Personnel Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-share>Share of total expenditures</small></div>
@@ -99,9 +87,27 @@
       <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
     </a>
 
+    <a class="wc-explorer-card wc-card-forecast" href="pages/financial-forecast.html">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Budget Forecast</h3></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Budget Forecast <b aria-hidden="true">→</b></span>
+    </a>
+
+  </section>
+
+  <section class="wc-explorer-intro wc-explorer-intro-categories-section" aria-labelledby="explore-categories-title">
+    <div>
+      <h2 id="explore-categories-title">How the budget is organized</h2>
+      <p>Walton County&rsquo;s budget is organized into four main spending categories: <strong>Department Budgets</strong>, the operating and personnel cost for Board of County Commissioners departments; <strong>Constitutional Officers</strong>, the budgets for the six independently elected constitutional officers and their respective staff, capital, and operating needs; <strong>Capital</strong>, the Board of County Commissioners&rsquo; capital requests for machinery, roads, bridges, infrastructure, and parks; and <strong>Independent Agencies</strong>, entities the County is required to fund under state mandates, or agencies the County elects to fund.</p>
+    </div>
+  </section>
+
+  <section class="wc-explorer-card-grid" aria-label="Department, constitutional officer, capital, and independent agency explorers">
+
     <a class="wc-explorer-card wc-card-departments" data-home-explorer="departments" href="?explorer=departments">
       <div class="wc-explorer-card-heading">
-        <div><h3>Department Budget Explorer</h3><p>Compare department budgets, services, and performance.</p></div>
+        <div><h3>Department Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><span>Total Department Budget</span><small data-card-department-share>Share of total expenditures</small></div>
@@ -110,9 +116,20 @@
       <span class="wc-explorer-card-action">Explore Departments <b aria-hidden="true">→</b></span>
     </a>
 
+    <a class="wc-explorer-card wc-card-constitutional" data-home-explorer="constitutional" href="?explorer=constitutional">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Constitutional Officers Budget</h3></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-constitutional-total>—</strong><span>Total Officers Budget</span><small data-card-constitutional-share>Share of total expenditures</small></div>
+        <div class="wc-office-badges" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Constitutional Officers <b aria-hidden="true">→</b></span>
+    </a>
+
     <a class="wc-explorer-card wc-card-capital" data-home-explorer="capital" href="?explorer=capital">
       <div class="wc-explorer-card-heading">
-        <div><h3>Capital Explorer</h3><p>View projects and infrastructure investments.</p></div>
+        <div><h3>Capital Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-capital-total>—</strong><span>Total Capital Budget</span><small data-card-capital-share>Share of total expenditures</small></div>
@@ -123,20 +140,9 @@
       <span class="wc-explorer-card-action">Explore Capital <b aria-hidden="true">→</b></span>
     </a>
 
-    <a class="wc-explorer-card wc-card-constitutional" data-home-explorer="constitutional" href="?explorer=constitutional">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Constitutional Officers Explorer</h3><p>Compare the Board and Walton County&rsquo;s independently elected offices.</p></div>
-      </div>
-      <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-constitutional-total>—</strong><span>Total Officers Budget</span><small data-card-constitutional-share>Share of total expenditures</small></div>
-        <div class="wc-office-badges" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
-      <span class="wc-explorer-card-action">Explore Constitutional Officers <b aria-hidden="true">→</b></span>
-    </a>
-
     <a class="wc-explorer-card wc-card-independent" data-home-explorer="independent" href="?explorer=independent">
       <div class="wc-explorer-card-heading">
-        <div><h3>Independent Agencies Explorer</h3><p>Review autonomous entities funded through the County budget.</p></div>
+        <div><h3>Independent Agencies Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-independent-total>—</strong><span>Total Agencies Budget</span><small data-card-independent-share>Share of total expenditures</small></div>
@@ -427,6 +433,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260902-nested-department-links"></script>
+<script src="assets/home-explorer-modal.js?v=20260903-budget-book-full-size"></script>
 </body>
 </html>

@@ -238,6 +238,8 @@ a:where(:visited) {
 .wc-directory-item:hover { background: var(--light); }
 .wc-directory-item--static { cursor: default; }
 .wc-directory-item--static:hover { background: transparent; }
+.wc-directory-item-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--light); color: var(--green); }
+.wc-directory-item-icon svg { width: 20px; height: 20px; }
 .wc-directory-item-main { flex: 1 1 auto; min-width: 0; }
 .wc-directory-item-title { display: block; color: var(--navy); font-size: 1rem; font-weight: 800; }
 a.wc-directory-item-title-link { text-decoration: none; }
@@ -1345,6 +1347,12 @@ html.wc-embedded-utility #content{width:min(1380px,100%);max-width:none;margin:0
 .wc-officer-statement-with-portrait{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:start}
 .wc-constitutional-officer-copy{min-width:0}
 .wc-constitutional-officer-portrait{width:100%;max-width:300px;margin:0 0 20px;padding:9px;border:3px solid var(--gold);border-radius:22px;background:#fff;box-shadow:0 12px 34px rgba(0,35,22,.13);box-sizing:border-box}
+/* Stays out of the flow in its raw, full-width HTML position until
+   department-services.js re-parents it into the narrative grid alongside
+   the Statement of Function -- without this, the portrait renders large
+   and full-width for a moment, then visibly jumps into its smaller,
+   side-by-side spot once the department budget data finishes loading. */
+.wc-officer-portrait-pending{display:none}
 .wc-constitutional-officer-portrait img{display:block;width:100%;height:320px;border-radius:14px;object-fit:cover;object-position:center top}
 .wc-constitutional-officer-portrait figcaption{padding:10px 8px 4px;color:var(--navy);font-size:.82rem;font-weight:800;text-align:center}
 .wc-officer-statement-with-portrait .wc-constitutional-officer-portrait{margin:0}
@@ -1403,6 +1411,27 @@ html.wc-embedded-utility #content{width:min(1380px,100%);max-width:none;margin:0
 .wc-capital-search-results-head h3{margin:0;color:var(--navy);font-size:1rem}
 .wc-capital-search-clear{padding:8px 15px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--green);font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
 .wc-capital-search-clear:hover{border-color:var(--green)}
+.wc-capital-what-counts{margin:18px 0 26px;padding:18px 20px;border:1px solid var(--border);border-left:4px solid var(--green);border-radius:16px;background:#fff}
+.wc-capital-what-counts-head{margin-bottom:14px}
+.wc-capital-what-counts-head h3{margin:0 0 8px;color:var(--navy);font-size:1.05rem}
+.wc-capital-what-counts-head p{margin:0;max-width:900px;color:var(--muted);font-size:.82rem;line-height:1.6}
+.wc-capital-what-counts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wc-capital-what-counts-card{padding:16px;border:1px solid var(--border);border-radius:13px;background:#fff}
+.wc-capital-what-counts-card>span{display:inline-block;margin:0 0 10px;padding:4px 10px;border-radius:999px;font-size:.66rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.wc-capital-what-counts-card.is-included>span{background:#e8f3eb;color:#08663f}
+.wc-capital-what-counts-card.is-excluded>span{background:#f6eae8;color:#a3372a}
+.wc-capital-what-counts-card ul{margin:0;padding:0;list-style:none}
+.wc-capital-what-counts-card li{position:relative;margin:0 0 7px;padding:0 0 0 18px;color:#4a5a6a;font-size:.78rem;line-height:1.5}
+.wc-capital-what-counts-card li:last-child{margin-bottom:0}
+.wc-capital-what-counts-card li::before{content:"";position:absolute;top:7px;left:0;width:7px;height:7px;border-radius:999px;background:var(--green)}
+.wc-capital-what-counts-card.is-excluded li::before{background:#c0705f}
+.wc-capital-what-counts-note{margin:14px 0 0;color:var(--muted);font-size:.76rem;line-height:1.6}
+.wc-capital-what-counts-note a{color:var(--green);font-weight:800;text-decoration:none}
+.wc-capital-what-counts-note a:hover{text-decoration:underline}
+:root[data-theme="dark"] .wc-capital-what-counts{background:rgba(14,28,22,.55)}
+:root[data-theme="dark"] .wc-capital-what-counts-card{background:rgba(14,28,22,.92);border-color:var(--border)}
+:root[data-theme="dark"] .wc-capital-what-counts-card li{color:#c3cfda}
+@media(max-width:700px){.wc-capital-what-counts-grid{grid-template-columns:1fr}}
 .wc-department-budget-cards .wc-capital-search-result-static{display:flex;min-height:142px;padding:18px;border:1px solid var(--border);border-radius:14px;background:#fff;flex-direction:column;opacity:.72;cursor:default}
 :root[data-theme="dark"] .wc-department-budget-cards .wc-capital-search-result-static{background:#172235}
 :root[data-theme="dark"] .wc-capital-search-clear{background:#16241d;color:var(--text)}
@@ -4265,7 +4294,7 @@ main#content > .recreation-parks-section {
 /* Fleet asset decision-support dashboard. */
 .wc-fleet-header { margin-bottom: 14px; padding: 26px 28px 0; border: 1px solid var(--border); border-radius: 18px; background: #fff; box-shadow: 0 12px 32px rgba(23,32,51,.06); overflow: hidden; }
 .wc-fleet-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
-.wc-fleet-eyebrow, .wc-fleet-section-heading span, .wc-fleet-decision > div > span, .wc-fleet-assessment-head span { display: block; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.wc-fleet-section-heading span, .wc-fleet-decision > div > span, .wc-fleet-assessment-head span { display: block; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .wc-fleet-title-row h1 { margin: 6px 0 0; color: var(--navy); font-size: clamp(1.85rem, 4vw, 2.55rem); line-height: 1.12; }
 .wc-fleet-status-stack { flex: 0 0 auto; text-align: right; }
 .wc-fleet-status { display: inline-flex; padding: 7px 12px; border-radius: 999px; font-size: .72rem; font-weight: 900; text-transform: uppercase; }
@@ -5231,10 +5260,17 @@ main#content > .recreation-parks-section {
 .wc-dept-function-services>p,.wc-dept-function-services>div p{max-width:none;margin:0 0 10px;color:var(--text);font:400 16px/1.9 Arial,Helvetica,sans-serif;text-align:justify}
 .wc-dept-function-services>p:last-child,.wc-dept-function-services>div p:last-child{margin-bottom:0}
 .wc-dept-function-services>p.wc-profile-section-title{font:800 .92rem/1.3 Arial,Helvetica,sans-serif;color:var(--navy);text-align:left;margin-top:26px}
-.wc-dept-services-list{margin:0 0 10px;padding-left:22px;color:var(--text);font:400 16px/1.75 Arial,Helvetica,sans-serif}
-.wc-dept-services-list li{margin-bottom:8px}
-.wc-dept-services-list li:last-child{margin-bottom:0}
-.wc-dept-services-list strong{color:var(--navy,var(--text))}
+.wc-dept-goal{margin:0 0 18px}
+.wc-dept-service-cards{display:grid;gap:16px}
+.wc-dept-service-card{padding:20px 22px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
+.wc-dept-service-card h3{margin:0;color:var(--navy,var(--text));font-size:17px}
+.wc-dept-service-card>p{margin:6px 0 0;color:var(--text);font-size:14px;line-height:1.6}
+.wc-dept-service-objectives{display:grid;gap:10px;margin-top:14px}
+.wc-dept-service-objective{background:#fff;padding:16px 18px}
+.wc-dept-service-objective h4{margin:0;color:var(--text);font-size:14px;font-weight:800;line-height:1.4}
+.wc-dept-service-objective-measure{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+:root[data-theme="dark"] .wc-dept-service-card{background:#172235}
+:root[data-theme="dark"] .wc-dept-service-objective{background:#0f1826}
 .wc-profile-snapshot{display:block;margin:0;padding:0;border:0;border-radius:0;background:transparent}
 .wc-profile-snapshot[hidden]{display:none!important}
 .wc-profile-snapshot-label{display:block}
@@ -5420,6 +5456,8 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .wc-profile-snapshot-grid--no-staffing{grid-template-columns:repeat(2,minmax(0,1fr))}
 .wc-profile-snapshot-card{display:flex;min-width:0;min-height:270px;flex-direction:column;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--light);box-shadow:0 8px 24px rgba(23,32,51,.04)}
+.wc-combined-office-legacy-card{display:none!important}
+.wc-combined-office-ledger-source{display:none!important}
 .wc-profile-snapshot-staffing{grid-column:auto}
 .wc-profile-snapshot-kicker{display:block;align-self:flex-start;margin:0 0 16px;color:#006231;font-size:19px;font-weight:900;letter-spacing:normal;text-transform:none}
 .wc-profile-snapshot-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin-bottom:17px}

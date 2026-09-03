@@ -12510,6 +12510,20 @@
     }
   ];
 
+  function tourismBeachOfficeRevenueRows(spec, expenseRows) {
+    const recordedRows = rowsForExactNames(cache.revenues, spec.revenueNames);
+    if (recordedRows.length || !expenseRows.length) return recordedRows;
+    const supportRow = {
+      Revenue_Type: "Tourist Development Tax Support",
+      Revenue_Name: "Tourist Development Tax Support",
+      Fund_Name: "Tourist Development Fund"
+    };
+    ["FY2020_Actual", "FY2021_Actual", "FY2022_Actual", "FY2023_Actual", "FY2024_Actual", "FY2025_Actual", "FY2026_Original_Budget", "FY2027_Proposed"].forEach((field) => {
+      supportRow[field] = expenseRows.reduce((sum, row) => sum + (Number(row[field]) || 0), 0);
+    });
+    return [supportRow];
+  }
+
   function renderTourismBeachOperationsSections() {
     return TOURISM_BEACH_SECTIONS.map((spec) => {
       const narrativeRows = rowsForExactNames(cache.departmentNarratives, spec.narrativeNames)
@@ -12519,16 +12533,19 @@
         : "";
 
       const expenseRows = rowsForExactNames(cache.expenditures, spec.expenseNames);
-      const revenueRows = rowsForExactNames(cache.revenues, spec.revenueNames);
+      const revenueRows = tourismBeachOfficeRevenueRows(spec, expenseRows);
       const staffingRows = rowsForExactNames(cache.staffing, spec.staffingNames);
       const performanceRows = rowsForExactNames(cache.performanceMeasures, spec.performanceNames || []);
+      const legacyLedgerSource = [
+        renderTypeSummaryTable(expenseRows, "expense", "Expenditure Summary", spec.label),
+        renderTypeSummaryTable(revenueRows, "revenue", "Revenue Summary", spec.label),
+        renderStaffingTable(staffingRows)
+      ].filter(Boolean).join("");
 
       const body = [
         narrativeHtml,
         renderPerformanceTable(performanceRows),
-        renderTypeSummaryTable(expenseRows, "expense", "Expenditure Summary", spec.label),
-        renderTypeSummaryTable(revenueRows, "revenue", "Revenue Summary", spec.label),
-        renderStaffingTable(staffingRows)
+        legacyLedgerSource ? '<div class="wc-combined-office-ledger-source" hidden>' + legacyLedgerSource + '</div>' : ""
       ].filter(Boolean).join("");
 
       if (!body) return "";
@@ -12566,7 +12583,7 @@
         label: spec.label,
         id: slugifyId(spec.label),
         expenses: rowsForExactNames(cache.expenditures, spec.expenseNames),
-        revenues: rowsForExactNames(cache.revenues, spec.revenueNames),
+        revenues: tourismBeachOfficeRevenueRows(spec, rowsForExactNames(cache.expenditures, spec.expenseNames)),
         staffing: rowsForExactNames(cache.staffing, spec.staffingNames)
       }))
       .filter((office) => office.expenses.length || office.revenues.length || office.staffing.length);

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Full Budget Document — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
+<link rel="stylesheet" href="../assets/style.css?v=20260903-capital-intro-polish">
 <style>
   .wc-full-budget-toc{margin:18px 0 34px;padding:18px 22px;border:1px solid var(--home-line,#d7e2dc);border-radius:14px;background:rgba(0,98,49,.04)}
   .wc-full-budget-toc h2{margin:0 0 10px;font-size:1rem}
@@ -16,7 +16,6 @@
   .wc-full-budget-print-button{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:0;border-radius:999px;background:#003f28;color:#fff;font:800 12px/1 Arial,Helvetica,sans-serif;letter-spacing:.04em;cursor:pointer}
   .wc-full-budget-print-button:hover{background:#002f1f}
   .wc-full-budget-section{margin:0 0 46px}
-  .wc-full-budget-section-eyebrow{margin:0 0 6px;color:var(--home-green,#006231);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
   .wc-full-budget-linkout{margin-top:10px;font-size:.85rem}
   .wc-budget-book-cover{display:none}
   @media print{
@@ -87,27 +86,23 @@
 </div>
 
 <section class="wc-full-budget-section" id="fbd-consolidated">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Consolidated Budget Ledger</h2>
   <div id="consolidated-revenue-budget-table"></div>
   <div id="consolidated-expenditure-budget-table"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-budget-changes">
-  <div class="wc-full-budget-section-eyebrow">Financial Summaries</div>
   <h2>Budget Change Summary</h2>
   <div id="consolidated-budget-changes-table"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-revenue">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Revenue Ledger</h2>
   <p>Explore where Walton County&rsquo;s revenue comes from and how each source supports public services.</p>
   <div id="consolidated-revenue-summary-table"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-expenses">
-  <div class="wc-full-budget-section-eyebrow">Financial Summaries</div>
   <h2>Summary of Expenses</h2>
   <p>Walton County&rsquo;s expenditures are organized into functional classifications that reflect the full range of services provided to residents and visitors, including general government operations, public safety, infrastructure, and community programs.</p>
   <div id="consolidated-expense-summary-table"></div>
@@ -130,42 +125,36 @@
 </section>
 
 <section class="wc-full-budget-section" id="fbd-personnel">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Personnel Ledger</h2>
   <p>FY 2027 personnel cost and staffing by department, function, or fund.</p>
   <div id="personnel-cost-summary"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-departments">
-  <div class="wc-full-budget-section-eyebrow">Departments</div>
   <h2>Department Operating Ledger</h2>
   <p>Proposed operating and personnel spending across Board departments.</p>
   <section id="department-ledger-explorer" aria-label="Department Budget Ledger"></section>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-constitutional">
-  <div class="wc-full-budget-section-eyebrow">Constitutional Officers</div>
   <h2>Constitutional Officers Ledger</h2>
   <p>Staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>
   <section id="constitutional-ledger-explorer" aria-label="Constitutional Officers Budget Ledger"></section>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-independent">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Independent Agencies Ledger</h2>
   <p>Budget, staffing, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities.</p>
   <div id="independentAgenciesFilters" hidden></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-contractual">
-  <div class="wc-full-budget-section-eyebrow">Budget Ledgers</div>
   <h2>Contractual Services Ledger</h2>
   <p>Budgeted Contractual Services included in the adopted budget for departments managed by the Board of County Commissioners, plus anticipated procurements for FY 2027-funded Capital Improvement Plan projects.</p>
   <div id="contractual-services-summary"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-machinery">
-  <div class="wc-full-budget-section-eyebrow">Capital Budget</div>
   <h2>Machinery, Vehicles, &amp; Equipment Ledger</h2>
   <p>Budgeted Machinery, Vehicles, &amp; Equipment by department.</p>
   <div id="machinery-summary"></div>
@@ -173,42 +162,36 @@
 </section>
 
 <section class="wc-full-budget-section" id="fbd-cip-transportation">
-  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
   <h2>Transportation and Infrastructure Capital Ledger</h2>
   <p>This combined schedule brings together infrastructure funded through the Transportation Fund, Capital Projects Fund, and applicable state or federal grants.</p>
   <div id="infrastructureTables"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-cip-tourism">
-  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
   <h2>Tourist Development Fund Capital Ledger</h2>
   <p>Tourism-related infrastructure funded by the local option tourist development tax collected from accommodations within designated tourist zones.</p>
   <div id="touristTables"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-cip-sheriff">
-  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
   <h2>Sheriff Capital Project Ledger</h2>
   <p>Infrastructure and facility improvements related to public safety and law enforcement, financed through fines, forfeitures, and property taxes.</p>
   <div id="sheriffTables"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-cip-recreation">
-  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
   <h2>Recreation Plat Fee Fund Capital Ledger</h2>
   <p>Supported by developer assessments collected in lieu of dedicating on-site recreational space as part of new residential development.</p>
   <div id="recreationPlatFeeTables"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-cip-sidewalk">
-  <div class="wc-full-budget-section-eyebrow">Capital Improvement Plan</div>
   <h2>Sidewalk Fund Capital Ledger</h2>
   <p>Supported by assessments paid in lieu of constructing required sidewalks as part of new development.</p>
   <div id="sidewalkTables"></div>
 </section>
 
 <section class="wc-full-budget-section" id="fbd-fund-schedules">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Fund Financial Ledger</h2>
   <p>Summary schedules outlining revenues, expenses, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments.</p>
   <div id="consolidated-fund-financial-schedule"></div>
@@ -219,7 +202,6 @@
 </section>
 
 <section class="wc-full-budget-section" id="fbd-interfund">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>Interfund Transfer Ledger</h2>
   <p>Both sides of each planned budget transfer between County funds &mdash; which fund provides the resources and which fund receives them.</p>
   <div id="interfund-transfers-out-table"></div>
@@ -227,7 +209,6 @@
 </section>
 
 <section class="wc-full-budget-section" id="fbd-debt">
-  <div class="wc-full-budget-section-eyebrow">Debt and Financial Forecast</div>
   <h2>Debt Ledger</h2>
   <p>Walton County&rsquo;s only outstanding long-term debt is a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020, both used to fund public improvements &mdash; most notably the Broadband project. Both notes are repaid exclusively from the County&rsquo;s half-cent sales tax, not property taxes, and are scheduled to be fully repaid by FY 2030.</p>
   <div class="wc-table-wrap">
@@ -248,7 +229,6 @@
 </section>
 
 <section class="wc-full-budget-section" id="fbd-more">
-  <div class="wc-full-budget-section-eyebrow">Financial Overview</div>
   <h2>More in This Publication</h2>
   <p>A few sections rely on interactive tools (address lookup, adjustable growth assumptions) that don&rsquo;t translate well to a printed document, so they&rsquo;re published as their own pages instead of being repeated here:</p>
   <p class="wc-full-budget-linkout"><a href="summary-of-property-tax-allocations.html">Property Tax Allocation Ledger</a> &mdash; see the dollar amount each department receives from the countywide property tax, including an address lookup tool.</p>

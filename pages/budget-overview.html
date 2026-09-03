@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Ledgers — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260902-property-tax-ledger-link">
+<link rel="stylesheet" href="../assets/style.css?v=20260903-capital-intro-polish">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
 <script src="../assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260827-live-historical-sheet"></script>
-<script src="../assets/cip-overview.js?v=20260902-matched-popup-shell"></script>
+<script src="../assets/cip-overview.js?v=20260903-remove-hero-banner"></script>
 <script src="../assets/nav.js?v=20260902-footer-supporting-docs"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
@@ -42,48 +42,37 @@
     // listing within its group.
     var groups = [
       {
-        label:"Financial Overview",
+        label:"Consolidated & Fund Ledgers",
         items:[
           {
-            title:"Full Budget Document",
-            href:"full-budget-document.html",
-            label:"Full Publication",
-            description:"View the complete FY 2027 budget publication as one printable document — every ledger, department, and fund schedule in one place."
-          }
-        ]
-      },
-      {
-        label:"Debt & Fund Detail",
-        items:[
+            title:"Consolidated Budget Ledger",
+            href:"consolidated-financial-schedules.html",
+            description:"See revenues, expenditures, and fund balances combined across every fund in one consolidated schedule.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="4" rx="1"></rect><rect x="4" y="10" width="16" height="4" rx="1"></rect><rect x="4" y="16" width="16" height="4" rx="1"></rect></svg>'
+          },
           {
-            title:"Budget Forecast Explorer",
-            href:"financial-forecast.html",
-            label:"Budget Forecast",
-            description:"Explore projected revenues, expenditures, reserves, and the assumptions supporting each major fund through FY 2031."
+            title:"Debt Ledger",
+            href:"debt-overview.html",
+            description:"Review outstanding debt, annual principal and interest payments, and the funds behind each obligation.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M6 8l6-3 6 3M4 8h4M16 8h4M6 8l-2 6a2 2 0 0 0 4 0L6 8ZM18 8l-2 6a2 2 0 0 0 4 0l-2-6Z"></path></svg>'
           },
           {
             title:"Fund Financial Ledger",
             href:"fund-financial-schedules.html",
-            label:"Fund Detail",
-            description:"Explore fund-level financial schedules for major operating, special revenue, and capital funds."
+            description:"Browse revenues, expenditures, and balances for each of the County's individual funds.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V6a1 1 0 0 1 1-1h8l6 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M13 5v6h6"></path></svg>'
           },
           {
             title:"Interfund Transfer Ledger",
             href:"summary-of-interfund-transfers.html",
-            label:"Transfers Between Funds",
-            description:"Review planned transfers into and out of County funds and see how resources move between funds to support services, projects, and obligations."
+            description:"See transfers of money between funds, including which fund sends and which fund receives each transfer.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h11l-3-3m3 3-3 3"></path><path stroke-linecap="round" stroke-linejoin="round" d="M17 17H6l3 3m-3-3 3-3"></path></svg>'
           }
         ]
       },
       {
-        label:"Budget Process & Policy",
+        label:"Programs & Services",
         items:[
-          {
-            title:"Budget Process",
-            href:"budget-process.html",
-            label:"Process",
-            description:"Explore budget development, the calendar, budget changes, financial policies, fund structure, and department funding relationships."
-          },
           {
             title:"Program Budget",
             href:"program-budget.html",
@@ -138,7 +127,9 @@
 
     function itemHtml(page){
       var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
+      var iconHtml = page.icon ? '<span class="wc-directory-item-icon" aria-hidden="true">' + page.icon + '</span>' : "";
       return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+        iconHtml +
         '<div class="wc-directory-item-main">' +
           '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +
           '<span class="wc-directory-item-desc">' + escapeHtml(page.description) + '</span>' +

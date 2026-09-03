@@ -30,8 +30,12 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-eyebrow,.wc-explorer-section-label{margin:0 0 6px;color:var(--home-green);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
 
 .wc-explorer-intro{display:block;padding:38px 5px 23px}
+.wc-explorer-intro-categories-section{padding-top:8px}
+.wc-explorer-intro-categories-section h2{font-size:1.35rem}
+.wc-explorer-intro-categories-section>div>p{max-width:1000px;font-size:1rem}
+.wc-explorer-intro-categories-section>div>p strong{color:var(--home-navy)}
 .wc-explorer-intro h2{margin:0;color:var(--home-navy);font-size:clamp(1.65rem,3vw,2.55rem);letter-spacing:-.04em;line-height:1.05}
-.wc-explorer-intro>div>p:last-child{max-width:800px;margin:10px 0 0;color:var(--home-muted);font-size:.8rem;line-height:1.65}
+.wc-explorer-intro>div>p{max-width:800px;margin:10px 0 0;color:var(--home-muted);font-size:.8rem;line-height:1.65}
 .wc-explorer-intro-icons{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .wc-explorer-intro-icon-link{display:flex;align-items:center;gap:10px;padding:9px 16px 9px 10px;border:1px solid var(--home-line);border-radius:999px;background:rgba(255,255,255,.72);color:var(--home-navy);text-decoration:none;font-size:.78rem;font-weight:700;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 .wc-explorer-intro-icon-link:hover{transform:translateY(-2px);border-color:#77b192;box-shadow:0 10px 22px rgba(18,70,45,.09)}
@@ -58,21 +62,18 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-home-search-result strong{font-size:.86rem;font-weight:700}
 .wc-home-search-result span{font-size:.7rem;color:var(--home-muted)}
 .wc-home-search-empty{padding:10px 12px;font-size:.78rem;color:var(--home-muted)}
-.wc-home-full-doc-link{margin:-10px 0 24px;font-size:.78rem;color:var(--home-muted)}
-.wc-home-full-doc-link a{color:var(--home-green);font-weight:700;text-decoration:none}
-.wc-home-full-doc-link a:hover{text-decoration:underline}
 .wc-explorer-intro-facts span{grid-row:1/3;align-self:center;color:#49a878;font-size:1.45rem}
 .wc-explorer-intro-facts strong{color:var(--home-navy);font-size:1rem;line-height:1}
 .wc-explorer-intro-facts small{margin-top:3px;color:var(--home-muted);font-size:.59rem;font-weight:700;text-transform:uppercase}
 
 .wc-explorer-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.wc-explorer-card{position:relative;display:flex;flex-direction:column;min-width:0;min-height:300px;padding:22px 22px 18px;border:1px solid var(--home-line);border-radius:18px;background:var(--home-surface);color:var(--home-ink);text-decoration:none;box-shadow:0 5px 16px rgba(28,56,43,.035);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.wc-explorer-card{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:22px 22px 18px;border:1px solid var(--home-line);border-radius:18px;background:var(--home-surface);color:var(--home-ink);text-decoration:none;box-shadow:0 5px 16px rgba(28,56,43,.035);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 .wc-explorer-card:hover{transform:translateY(-3px);border-color:#77b192;box-shadow:0 15px 30px rgba(18,70,45,.09)}
 .wc-explorer-card:focus-visible{outline:3px solid var(--home-gold);outline-offset:3px}
 .wc-explorer-card-heading{display:block}
 .wc-explorer-card-heading h3{margin:1px 0 0;color:var(--home-navy);font-size:1.04rem;letter-spacing:-.02em}
 .wc-explorer-card-heading p{margin:4px 0 0;color:var(--home-muted);font-size:.69rem;line-height:1.45}
-.wc-explorer-card-body{display:grid;grid-template-columns:1fr 130px;gap:24px;align-items:center;min-height:132px;padding:23px 0 17px}
+.wc-explorer-card-body{display:grid;grid-template-columns:1fr 130px;gap:24px;align-items:center;min-height:132px;padding:12px 0 17px}
 .wc-explorer-card-primary strong{display:block;color:var(--home-green);font-size:clamp(1.65rem,3vw,2.35rem);font-weight:900;letter-spacing:-.045em;line-height:1}
 .wc-explorer-card-primary span{display:block;margin-top:7px;color:var(--home-navy);font-size:.67rem;font-weight:850}
 .wc-explorer-card-primary small{display:block;margin-top:5px;color:var(--home-green);font-size:.61rem;font-weight:750}
@@ -110,13 +111,21 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-card-action{display:flex;align-items:center;justify-content:center;min-height:35px;margin-top:auto;border:1px solid #8cbda2;border-radius:7px;color:var(--home-green);font-size:.65rem;font-weight:900;transition:background .18s ease,color .18s ease}
 .wc-explorer-card-action b{margin-left:8px;font-size:.9rem}.wc-explorer-card:hover .wc-explorer-card-action{background:var(--home-green);color:#fff}
 
-@media(min-width:1350px){.wc-explorer-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wc-explorer-card{min-height:300px}.wc-explorer-card-body{grid-template-columns:1fr 112px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark{width:94px;height:94px}.wc-mini-donut:after{inset:22px}.wc-mini-donut span{inset:33px}.wc-dollar-mark span{font-size:4.3rem}.wc-road-mark svg{width:69px;height:69px}}
+@media(min-width:1350px){.wc-explorer-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wc-explorer-card-body{grid-template-columns:1fr 112px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark{width:94px;height:94px}.wc-mini-donut:after{inset:22px}.wc-mini-donut span{inset:33px}.wc-dollar-mark span{font-size:4.3rem}.wc-road-mark svg{width:69px;height:69px}}
 @media(max-width:760px){html.wc-embedded-budget-landing .wc-explorer-popup-header{align-items:stretch;flex-direction:column;gap:8px;padding:10px 14px 12px}.wc-explorer-header-search{width:100%;flex-basis:auto}.wc-explorer-home{width:min(100% - 22px,1500px);padding-top:12px}.wc-explorer-intro{padding:30px 3px 20px}.wc-explorer-intro-facts{display:grid;grid-template-columns:1fr 1fr}.wc-home-search{grid-template-columns:1fr;gap:14px;padding:18px}.wc-explorer-card-grid{grid-template-columns:1fr}}
 @media(max-width:430px){.wc-explorer-intro-facts{grid-template-columns:1fr}.wc-home-search-form{padding-left:12px}.wc-home-search-form button{padding-inline:14px}.wc-explorer-card{min-height:0;padding:19px 17px 16px}.wc-explorer-card-body{grid-template-columns:1fr 90px;gap:10px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark{width:82px;height:82px}.wc-mini-donut:after{inset:19px}.wc-mini-donut span{inset:29px}.wc-dollar-mark span{font-size:3.7rem}.wc-road-mark svg{width:60px;height:60px}}
 @media(prefers-reduced-motion:reduce){.wc-explorer-card,.wc-explorer-card-action{transition:none}}
 
 html.wc-home-explorer-open{height:100%;overflow:hidden;overscroll-behavior:none}
 body.wc-home-explorer-open{position:fixed;left:0;right:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+/* The sitewide "Still looking for something?" footer sits in normal
+   document flow at the bottom of the page, well below the fixed-position
+   explorer/department modals -- it should always be fully occluded by
+   them, but has been observed peeking through under the popup's edges in
+   some browsers regardless of the z-index stack. Hiding it outright
+   whenever any home explorer modal is open (this class covers both) is a
+   simple, reliable guarantee rather than chasing that stacking quirk. */
+body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
 .wc-home-explorer-modal{position:fixed;inset:0;z-index:20000;display:block;overflow-x:hidden;overflow-y:auto;padding:0 18px 18px;background:#0b2a20;overscroll-behavior:contain;isolation:isolate}
 .wc-home-explorer-modal[hidden]{display:none}
 .wc-home-explorer-modal.is-department-popup-open{overflow:hidden}
@@ -160,11 +169,20 @@ body.wc-home-explorer-open{position:fixed;left:0;right:0;width:100%;height:100%;
    Raise office pickers and other drill-down dialogs above the home explorer
    while it is open so their controls remain visible and clickable. */
 body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
-.wc-home-department-modal{position:fixed;inset:0;z-index:22000;display:block;padding:0 18px 18px;background:#0b2a20;overflow:hidden;overscroll-behavior:none;box-sizing:border-box}
+.wc-home-department-modal{position:fixed;inset:0;z-index:22000;display:flex;align-items:center;justify-content:center;padding:18px;background:#0b2a20;overflow:hidden;overscroll-behavior:none;box-sizing:border-box}
 .wc-home-department-modal[hidden]{display:none}
 .wc-home-department-modal-wave{display:block;position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);pointer-events:none}
 .wc-home-department-modal-backdrop{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22)}
-.wc-home-department-modal-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:calc(100vh - 36px);height:calc(100dvh - 36px);min-height:0;margin:18px auto 0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34);box-sizing:border-box}
+/* Height defaults to the near-full-viewport calc() below (matching the
+   loading state's own height) until JS measures the loaded page's actual
+   content height and sets a shorter inline height on this element -- see
+   updateDepartmentModalHeight() in home-explorer-modal.js. That keeps a
+   short page (Public Defender, State Attorney, etc.) from sitting inside a
+   tall panel with empty space below its footer; max-height still caps any
+   page at the viewport so a tall one behaves exactly as before. */
+.wc-home-department-modal-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:calc(100vh - 36px);height:calc(100dvh - 36px);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;margin:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34);box-sizing:border-box;transition:height .22s ease}
+.wc-home-department-modal.is-loading .wc-home-department-modal-panel{transition:none}
+@media(prefers-reduced-motion:reduce){.wc-home-department-modal-panel{transition:none}}
 .wc-home-department-modal.is-loading .wc-home-department-modal-panel::after{content:"Loading budget page…";position:absolute;inset:62px 0 0;display:grid;place-items:center;background:var(--light);color:var(--green);font-size:.8rem;font-weight:800;letter-spacing:.04em}
 .wc-home-department-modal-head{display:flex;align-items:center;gap:16px;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--light)}
 .wc-home-department-modal-head h2{margin:0;color:var(--navy);font-size:1.2rem}
@@ -175,6 +193,16 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-department-modal.is-utility-page .wc-home-department-modal-wave,
 .wc-home-department-modal.is-utility-page .wc-home-department-modal-backdrop{display:none}
 .wc-home-department-modal.is-utility-page .wc-home-department-modal-panel{width:100%;height:100%;height:100dvh;margin:0;border:0;border-radius:0;box-shadow:none}
+/* Interactive budget book: it draws its own minimal, floating chrome (page
+   arrows, page indicator, download/fullscreen/close -- see
+   budget-book-viewer.js/.css) over the wave video, so this popup's own
+   opaque header and panel background are dropped instead of layering a
+   second, redundant set of chrome on top. */
+.wc-home-department-modal.is-budget-book{padding:8px}
+.wc-home-department-modal.is-budget-book .wc-home-department-modal-head{display:none}
+.wc-home-department-modal.is-budget-book .wc-home-department-modal-panel{width:min(1900px,100%);height:calc(100vh - 16px);height:calc(100dvh - 16px);max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);border:0;border-radius:0;background:transparent;box-shadow:none}
+.wc-home-department-modal.is-budget-book .wc-home-department-modal-frame{background:transparent}
+.wc-home-department-modal.is-budget-book.is-loading .wc-home-department-modal-panel::after{inset:0;background:rgba(3,38,28,.4);color:#fff}
 .wc-home-explorer-modal-body .wc-department-budget-cards{margin-top:18px}
 .wc-home-explorer-modal-body .wc-revenue-view-actions,.wc-home-explorer-modal-body .wc-department-ledger-actions{gap:10px;margin-top:12px}
 .wc-home-explorer-modal-body .wc-revenue-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-explainer-link,.wc-home-explorer-modal-body .wc-department-ledger-trigger{min-height:36px;padding:9px 14px;line-height:1.2}

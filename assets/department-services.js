@@ -149,6 +149,46 @@
     ]
   };
 
+  // Maps each department's performance-measure Objectives (from the
+  // published performance sheet, via getDepartmentPerformanceMeasures) to
+  // the SERVICES[] entry they best support -- indexes line up with the
+  // order objectives are returned in (the sheet's own row order), not with
+  // the Objective text itself, since a handful of departments repeat the
+  // same Objective across multiple Measures. Assignment is judgment-based
+  // (the sheet has no explicit link between an Objective and a service);
+  // departments not listed here (e.g. no rows in the performance sheet)
+  // simply render services with no attached objective.
+  var OBJECTIVE_SERVICE_MAP = {
+    "building construction and maintenance":[1,2],
+    "building department":[2,1],
+    "code compliance":[1,0],
+    "county administration":[0,2,2],
+    "libraries":[1,0],
+    "eagle springs golf and recreation center":[0,2],
+    "eagle springs grill":[0,1],
+    "emergency management":[0,1],
+    "engineering department":[0,1,1],
+    "environmental resources":[2,1],
+    "extension office":[0,1,0],
+    "geographic info systems":[1,1,0],
+    "housing and urban development":[0,0],
+    "human resources":[0,1],
+    "mosquito control":[1,0],
+    "mossy head wastewater treatment facility":[1],
+    "office of management and budget":[0,1,2,1],
+    "office of the county attorney":[1,1,1],
+    "planning":[1,1],
+    "probation":[2],
+    "public works":[2,0],
+    "purchasing":[1,0,2],
+    "recreation":[1],
+    "soil conservation":[1,0],
+    "solid waste":[1,1,2,2],
+    "tourism administration":[0,0],
+    "tourism beach operations":[0,1,2],
+    "veteran services":[1,2,0]
+  };
+
   var CHALLENGE_GROUPS = [
     {
       departments:["building construction and maintenance","engineering department","public works","solid waste","mossy head wastewater treatment facility","recreation","eagle springs golf and recreation center"],
@@ -239,7 +279,6 @@
   var DEPARTMENT_QUESTION_COPY={
     'department-expense-table':['What does this service cost?','Complete FY 2027 cost by category, with history and account-level detail'],
     'department-revenue-table':['How is this service funded?','Funding sources, including whether property taxes support this department'],
-    'department-performance-table':['How will we know the service is working?','Goals, measures, prior results, and FY 2027 targets'],
     'department-staffing-table':['Who does the work?','Authorized positions, staffing changes, and personnel detail']
   };
   // Our repo's own arrangeDepartmentFinancialDashboard() (assets/
@@ -282,7 +321,7 @@
       details.appendChild(body);
       body.appendChild(mount);
     });
-    var orderedQuestionIds=['department-expense-table','department-revenue-table','department-performance-table','department-staffing-table'];
+    var orderedQuestionIds=['department-expense-table','department-revenue-table','department-staffing-table'];
     var orderedQuestions=orderedQuestionIds.map(function(id){
       var mount=document.getElementById(id);
       return mount?mount.closest('.wc-department-question'):null;
@@ -951,20 +990,12 @@
     }
     document.querySelectorAll('.wc-profile-questions .wc-data-updated-note').forEach(function(note){note.remove();});
   }
-  function renderPerformanceProfile(rows,attempt){
-    attempt=attempt||0;
-    var mount=document.getElementById('department-performance-table');
-    if(!mount) return;
-    if(!mount.textContent.trim()&&attempt<40){window.setTimeout(function(){renderPerformanceProfile(rows,attempt+1);},75);return;}
-    if(!rows.length){mount.hidden=false;mount.innerHTML='<p class="wc-profile-no-measures">No department performance measures were supplied in the published budget data.</p>';return;}
-    var goals=rows.map(function(row){return row.Goal||'';}).filter(function(goal,index,all){return goal&&all.indexOf(goal)===index;});
-    var history=[['2022','Actual_2022'],['2023','Actual_2023'],['2024','Actual_2024'],['2025','Actual_2025'],['Current projection','Projected_2026']];
-    mount.hidden=false;
-    mount.innerHTML=(goals.length===1?'<div class="wc-profile-performance-goal"><span>Department goal</span><strong>'+escapeHtml(goals[0])+'</strong></div>':'')+'<div class="wc-profile-performance-list">'+rows.map(function(row){
-      var values=history.filter(function(item){return row[item[1]]!==''&&row[item[1]]!=null;}).map(function(item){return '<span>'+escapeHtml(item[0])+': <b>'+escapeHtml(row[item[1]])+'</b></span>';}).join('');
-      return '<article class="wc-profile-performance-item"><div><h3>'+escapeHtml(row.Measure||'Performance measure')+'</h3></div><div class="wc-profile-performance-target"><span>Proposed target</span><strong>'+escapeHtml(row.Projected_2027||'Not listed')+'</strong></div>'+((row.Objective||values)?'<details class="wc-profile-performance-history"><summary>View context and history +</summary><div>'+(row.Objective?'<p><span>Objective</span>'+escapeHtml(row.Objective)+'</p>':'')+(values?'<div class="wc-profile-performance-values">'+values+'</div>':'')+'</div></details>':'')+'</article>';
-    }).join('')+'</div>';
-  }
+  // Shared by the Department Goal, Services & Objectives section (see
+  // servicesListHtml in render()), which shows each objective's history
+  // and target inline rather than behind a "View context and history"
+  // toggle -- this data used to live in its own Citizen Questions
+  // accordion entry, since removed.
+  var PERFORMANCE_HISTORY_COLUMNS=[['2022','Actual_2022'],['2023','Actual_2023'],['2024','Actual_2024'],['2025','Actual_2025'],['Current projection','Projected_2026']];
 
   // Constitutional Officers and Autonomous Entities pages (Sheriff, Tax
   // Collector, Property Appraiser, Clerk of Courts, State Attorney, etc.)
@@ -1088,18 +1119,21 @@
       var commissionerPictures=document.querySelector('#content > .wc-commissioner-cards');
       if(commissionerPictures) narrative.insertAdjacentElement('afterend',commissionerPictures);
     }
-    if(narrative){
-      var officerPortrait=document.querySelector('#content > .wc-constitutional-officer-portrait');
-      var officerStatement=narrative.querySelector('.statement-of-function');
-      if(officerPortrait&&officerStatement){
-        var officerCopy=document.createElement('div');
-        officerCopy.className='wc-constitutional-officer-copy';
-        while(officerStatement.firstChild) officerCopy.appendChild(officerStatement.firstChild);
-        officerStatement.classList.add('wc-officer-statement-with-portrait');
-        officerStatement.appendChild(officerCopy);
-        officerStatement.appendChild(officerPortrait);
-      }
+    var officerPortrait=document.querySelector('#content > .wc-constitutional-officer-portrait');
+    var officerStatement=narrative&&narrative.querySelector('.statement-of-function');
+    if(officerPortrait&&officerStatement){
+      var officerCopy=document.createElement('div');
+      officerCopy.className='wc-constitutional-officer-copy';
+      while(officerStatement.firstChild) officerCopy.appendChild(officerStatement.firstChild);
+      officerStatement.classList.add('wc-officer-statement-with-portrait');
+      officerStatement.appendChild(officerCopy);
+      officerStatement.appendChild(officerPortrait);
     }
+    // Whether or not there was a statement to reposition it into, reveal
+    // the portrait now -- it starts hidden (see .wc-officer-portrait-pending
+    // in style.css) so it never flashes in its raw, full-width HTML spot
+    // before landing in its final place.
+    if(officerPortrait) officerPortrait.classList.remove('wc-officer-portrait-pending');
     var oldGrid=document.querySelector('.wc-department-financial-grid');if(oldGrid) oldGrid.classList.add('wc-independent-source-grid');
     [expenseMount,revenueMount,staffingMount].forEach(function(mount){if(mount){mount.classList.add('wc-profile-snapshot-personnel-source');snapshot.appendChild(mount);}});
 
@@ -1153,6 +1187,9 @@
     offices.forEach(function(office){
       var officeSection=document.getElementById(office.id);
       if(!officeSection) return;
+      // This renderer can be reached both on the initial enhancement pass and
+      // on the data-ready retry. Never add a second snapshot to an office.
+      if(officeSection.querySelector('.wc-profile-snapshot--office')) return;
       var heading=officeSection.querySelector('.tourism-admin-section-title');
       var officeKey=normalize(office.label);
       var expenses=office.expenses||[];
@@ -1187,17 +1224,14 @@
       var fteChange=fte-priorFte;
       var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
       var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
-      // Some combined-page offices (e.g. Beach Renourishment) have no
-      // staffing rows at all -- showing a Position Summary card with a
-      // permanent 0 FTE reads as broken, so it's dropped entirely and the
-      // grid collapses to 2 columns instead, same as every other snapshot
-      // card on the site.
-      var showStaffingCard=staffing.length>0;
-      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
+      // Keep the same three-card Department Snapshot layout used by the
+      // Office of Management and Budget. An office with no authorized FTE
+      // still gets an accurate 0-position card instead of changing layouts.
+      var staffingCardHtml='<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>';
 
       var snapshot=document.createElement('section');
       snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
-      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+escapeHtml(office.label)+' Snapshot</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
+      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid">'+
         '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'">'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div>'+snapshotCapitalCalloutHtml(capitalGroup)+'</div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Operating Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
         '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-office-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
         staffingCardHtml+
@@ -1228,12 +1262,21 @@
       var revenueSheetButton=snapshot.querySelector('[data-office-revenue-sheet-trigger]');
       if(revenueSheetButton) bindSnapshotRevenueSheet(revenueSheetButton,revenueCard,office.label);
       var personnelLedgerButton=snapshot.querySelector('[data-office-personnel-ledger-trigger]');
-      if(personnelLedgerButton) personnelLedgerButton.addEventListener('click',function(){
-        var staffingToggle=officeSection.querySelector('.wc-staffing-card .wc-view-budget-lines-toggle[data-target]');
-        if(staffingToggle){staffingToggle.click();return;}
-        var staffingCard=officeSection.querySelector('.wc-staffing-card');
-        if(staffingCard) staffingCard.scrollIntoView({behavior:'smooth',block:'start'});
+      var staffingCard=officeSection.querySelector('.wc-staffing-card');
+      // Remove the legacy cards from the visible layout as soon as their
+      // elements have been captured. The new snapshot actions can still
+      // read or clone these nodes while they are hidden.
+      [expenseCard,revenueCard,staffingCard].forEach(function(legacyCard){
+        if(!legacyCard) return;
+        legacyCard.hidden=true;
+        legacyCard.classList.add('wc-combined-office-legacy-card');
       });
+      if(personnelLedgerButton&&staffingCard){
+        var staffingSheetCard=staffingCard.cloneNode(true);
+        staffingSheetCard.hidden=false;
+        staffingSheetCard.removeAttribute('id');
+        bindSnapshotInformationSheet(personnelLedgerButton,'Personnel Ledger',staffingSheetCard.outerHTML,office.label,'wc-personnel-sheet-body');
+      }
 
       var capitalRows=expenses.filter(function(row){return row.Object_Type==='Capital Outlay'&&(Number(row.FY2027_Proposed)||0)!==0;});
       var capitalTotal=sum(capitalRows,'FY2027_Proposed');
@@ -1259,6 +1302,7 @@
       }).join('')+'<tr class="wc-table-total-row"><td colspan="4">Total</td><td class="wc-num">'+money(contractTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No contractual services are identified for this office.</p>';
       var contractsButton=snapshot.querySelector('[data-office-contracts-trigger]');
       if(contractsButton) bindSnapshotInformationSheet(contractsButton,'Contractual Services',contractSheetHtml,office.label,'wc-contract-sheet-body');
+
     });
   }
 
@@ -1345,7 +1389,33 @@
     // into each office's own section afterward instead (see
     // renderCombinedOfficeSnapshots at the bottom of render()).
     var combinedOffices=window.WCBudgetData.getCombinedDepartmentOffices?window.WCBudgetData.getCombinedDepartmentOffices(title.textContent.trim()):null;
+    // The explorer popup can retain an older budget-data.js instance while
+    // loading the latest department layout script. Do not let that cache
+    // mismatch suppress the Beach Operations snapshots: build the same
+    // office list from the long-standing public department getters.
+    if((!combinedOffices||!combinedOffices.length)&&key==='tourism beach operations'){
+      var beachOfficeSpecs=[
+        {label:'Beach Operations',staffingLabel:'Tourism Beach Operations'},
+        {label:'Beach Renourishment',staffingLabel:'Beach Renourishment'},
+        {label:'Beach Tram',staffingLabel:'Tourism Beach Tram'}
+      ];
+      combinedOffices=beachOfficeSpecs.map(function(spec){
+        var officeExpenses=window.WCBudgetData.getDepartmentExpenses(spec.label)||[];
+        var officeRevenues=window.WCBudgetData.getDepartmentRevenues(spec.label)||[];
+        if(!officeRevenues.length&&officeExpenses.length){
+          var supportRow={Revenue_Type:'Tourist Development Tax Support',Revenue_Name:'Tourist Development Tax Support',Fund_Name:'Tourist Development Fund'};
+          ['FY2020_Actual','FY2021_Actual','FY2022_Actual','FY2023_Actual','FY2024_Actual','FY2025_Actual','FY2026_Original_Budget','FY2027_Proposed'].forEach(function(field){supportRow[field]=sum(officeExpenses,field);});
+          officeRevenues=[supportRow];
+        }
+        return {label:spec.label,id:normalize(spec.label).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),expenses:officeExpenses,revenues:officeRevenues,staffing:window.WCBudgetData.getDepartmentStaffing(spec.staffingLabel)||[]};
+      });
+    }
     if(document.querySelector('.wc-board-department-profile')){
+      // A prior enhancement pass may already have mounted the hidden,
+      // page-wide profile before the combined office snapshots were added.
+      // Recover here so Beach Operations, Beach Tram, and Beach
+      // Renourishment always receive their own standard three-card snapshot.
+      if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
       document.body.classList.remove('wc-board-department-loading');
       var existingMain=document.querySelector('main#content');
       if(existingMain) existingMain.removeAttribute('aria-busy');
@@ -1413,13 +1483,37 @@
       supportingMedia.forEach(function(item){mediaRail.appendChild(item);});
       functionHeading.insertAdjacentElement('afterend',mediaRail);
     }
-    var servicesListHtml='<p class="wc-profile-section-title wc-dept-services-label">County Services</p><ul class="wc-dept-services-list">'+services.map(function(service){return '<li><strong>'+escapeHtml(service[0])+':</strong> '+escapeHtml(service[1])+'</li>';}).join('')+'</ul><p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all the services provided by the department, but is intended to provide citizens with an understandable list of core services provided by this department.</p>';
-    functionSection.insertAdjacentHTML('beforeend',servicesListHtml);
-
     var expenses=window.WCBudgetData.getDepartmentExpenses(title.textContent.trim())||[];
     var revenues=window.WCBudgetData.getDepartmentRevenues(title.textContent.trim())||[];
     var staffing=window.WCBudgetData.getDepartmentStaffing(title.textContent.trim())||[];
     var performanceRows=window.WCBudgetData.getDepartmentPerformanceMeasures(title.textContent.trim())||[];
+
+    var departmentGoals=performanceRows.map(function(row){return row.Goal||'';}).filter(function(goal,index,all){return goal&&all.indexOf(goal)===index;});
+    var goalHtml=departmentGoals.length===1?'<div class="wc-profile-performance-goal wc-dept-goal"><span>Department goal</span><strong>'+escapeHtml(departmentGoals[0])+'</strong></div>':'';
+    var objectiveIndexes=OBJECTIVE_SERVICE_MAP[key]||[];
+    var rowsByService=services.map(function(){return [];});
+    performanceRows.forEach(function(row,rowIndex){
+      var serviceIndex=objectiveIndexes[rowIndex];
+      if(serviceIndex===undefined||!row.Objective||!rowsByService[serviceIndex]) return;
+      rowsByService[serviceIndex].push(row);
+    });
+    function objectiveCardHtml(row){
+      var values=PERFORMANCE_HISTORY_COLUMNS.filter(function(item){return row[item[1]]!==''&&row[item[1]]!=null;}).map(function(item){return '<span>'+escapeHtml(item[0])+': <b>'+escapeHtml(row[item[1]])+'</b></span>';}).join('');
+      return '<article class="wc-profile-performance-item wc-dept-service-objective">'+
+        '<div><h4>'+escapeHtml(row.Objective)+'</h4>'+
+        (row.Measure?'<p class="wc-dept-service-objective-measure">Measured by: '+escapeHtml(row.Measure)+'</p>':'')+
+        (values?'<div class="wc-profile-performance-values">'+values+'</div>':'')+
+        '</div><div class="wc-profile-performance-target"><span>Proposed target</span><strong>'+escapeHtml(row.Projected_2027||'Not listed')+'</strong></div>'+
+        '</article>';
+    }
+    var serviceCardsHtml='<div class="wc-dept-service-cards">'+services.map(function(service,serviceIndex){
+      var rows=rowsByService[serviceIndex];
+      var objectivesHtml=rows.length?'<div class="wc-dept-service-objectives">'+rows.map(objectiveCardHtml).join('')+'</div>':'';
+      return '<article class="wc-dept-service-card"><h3>'+escapeHtml(service[0])+'</h3><p>'+escapeHtml(service[1])+'</p>'+objectivesHtml+'</article>';
+    }).join('')+'</div>';
+    var servicesListHtml='<p class="wc-profile-section-title wc-dept-services-label">Department Goal, Services &amp; Objectives</p>'+goalHtml+serviceCardsHtml+'<p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all the services provided by the department, but is intended to provide citizens with an understandable list of core services provided by this department.</p>';
+    functionSection.insertAdjacentHTML('beforeend',servicesListHtml);
+
     var budget=sum(expenses,'FY2027_Proposed');
     var priorBudget=sum(expenses,'FY2026_Original_Budget');
     var budgetChange=budget-priorBudget;
@@ -1554,6 +1648,12 @@
     // but hidden, rather than shown as a redundant whole-page duplicate.
     if(combinedOffices){snapshot.hidden=true;}
     functionSection.insertAdjacentElement('afterend',snapshot);
+    // Build combined-office snapshots immediately after the shared hidden
+    // snapshot is mounted. The remainder of this enhancement function also
+    // configures page-wide sheets and disclosures; if one of those optional
+    // enhancements cannot initialize, it must not leave the beach offices
+    // showing their legacy summary cards.
+    if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
     bindSnapshotTooltips(snapshot);
     var graphButton=snapshot.querySelector('[data-profile-graph-trigger]');
     if(graphButton) bindSnapshotBudgetGraph(graphButton,expenses,staffing,key,title.textContent.trim());
@@ -1568,7 +1668,6 @@
     var snapshotBudgetSheetButton=snapshot.querySelector('[data-profile-operating-budget-sheet-trigger]');
     if(snapshotBudgetSheetButton) bindSnapshotOperatingBudgetSheet(snapshotBudgetSheetButton,document.getElementById('department-expense-table'),title.textContent.trim(),expenses);
     var revenueQuestion=configureExistingQuestion('department-revenue-table','Who pays for this department?','funding');
-    var performanceQuestion=configureExistingQuestion('department-performance-table','How is this department held accountable?','accountable');
     var staffingMount=document.getElementById('department-staffing-table');
     var staffingQuestion=staffingMount&&staffingMount.closest('.wc-department-question');
     if(staffingMount){staffingMount.classList.add('wc-profile-snapshot-personnel-source');snapshot.appendChild(staffingMount);}
@@ -1576,14 +1675,18 @@
     var revenueMount=document.getElementById('department-revenue-table');
     if(revenueMount){revenueMount.classList.add('wc-profile-snapshot-personnel-source');snapshot.appendChild(revenueMount);}
     if(revenueQuestion) revenueQuestion.remove();
-    var group=expenseQuestion&&expenseQuestion.closest('.wc-department-questions');
-    if(!group){group=document.createElement('section');group.className='wc-department-questions';snapshot.insertAdjacentElement('afterend',group);}
-    group.classList.add('wc-profile-questions');
-    group.setAttribute('aria-label','Citizen questions');
-    if(!group.querySelector(':scope>.wc-profile-section-title')) group.insertAdjacentHTML('afterbegin','<h2 class="wc-profile-section-title">Citizen questions</h2>');
+    // Expense/Revenue/Staffing questions above are pulled out of their
+    // <details> shell into the always-visible Department Snapshot card, so
+    // by the time all three are removed below, the .wc-department-questions
+    // wrapper built in ensureDepartmentQuestionDisclosures has nothing left
+    // in it -- there is no more standalone "Citizen questions" accordion
+    // (performance/goals content now lives in the Department Goal,
+    // Services & Objectives section instead; see servicesListHtml above).
+    var leftoverQuestionsGroup=expenseQuestion&&expenseQuestion.closest('.wc-department-questions');
     var expenseMount=document.getElementById('department-expense-table');
     if(expenseMount){expenseMount.classList.add('wc-profile-snapshot-personnel-source');snapshot.appendChild(expenseMount);}
     if(expenseQuestion) expenseQuestion.remove();
+    if(leftoverQuestionsGroup&&!leftoverQuestionsGroup.children.length) leftoverQuestionsGroup.remove();
 
     var isBuildingConstruction=key==='building construction and maintenance';
     var recurringSpecs=[
@@ -1666,18 +1769,11 @@
     }).join('')+'<tr class="wc-table-total-row"><td colspan="4">Total</td><td class="wc-num">'+money(contractTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No contractual services are identified for this department.</p>';
     var contractsButton=snapshot.querySelector('[data-profile-contracts-trigger]');
     if(contractsButton) bindSnapshotInformationSheet(contractsButton,'Contractual Services',contractSheetHtml,title.textContent.trim(),'wc-contract-sheet-body');
-    if(performanceQuestion){
-      var performanceBody=performanceQuestion.querySelector('.wc-simple-disclosure-body');
-      if(performanceBody) performanceBody.insertAdjacentHTML('afterbegin','<dl class="wc-profile-accountability"><div><dt>Oversight and review</dt><dd>Work is reviewed through Board oversight, budget monitoring, adopted policies, public meetings, and financial reporting.</dd></div><div><dt>Countywide coordination</dt><dd>The department coordinates with other County functions when its work requires shared staff, systems, purchasing, legal, technology, or capital support.</dd></div><div><dt>Measurable results</dt><dd>'+(performanceRows.length?'Published measures include prior results and proposed targets so progress can be evaluated over time.':'No department performance measures were supplied in the published budget data.')+'</dd></div></dl>');
-      group.appendChild(performanceQuestion);
-    }
     enhanceFinanceSheets(expenseQuestion,null,null);
-    renderPerformanceProfile(performanceRows);
     if(key==='libraries'){
       var libraryWebsite=document.querySelector('main#content > a.libraries-iframe-link');
       if(libraryWebsite) document.querySelector('main#content').appendChild(libraryWebsite);
     }
-    if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
     document.body.classList.remove('wc-board-department-loading');
     var profileMain=document.querySelector('main#content');
     if(profileMain) profileMain.removeAttribute('aria-busy');
