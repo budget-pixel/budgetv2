@@ -300,9 +300,9 @@ function agencyCardHtml(a, extraClass = "") {
 // full-width, since its 13-line breakdown needs the room -- everything else
 // sits in a uniform two-up grid so the section reads consistently.
 const PAGE_GROUPS = [
-  [0, 1, 2, 3],
-  [4, 5, 6, 7],
-  [8, 9, 10, 11, 12]
+  [0, 1, 2, 3, 4],
+  [5, 6, 7, 8],
+  [9, 10, 11, 12]
 ];
 
 const startPage = Number(process.argv[3] || 189);

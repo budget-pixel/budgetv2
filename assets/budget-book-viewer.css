@@ -13,7 +13,7 @@
    already supplies the surrounding chrome/close affordance elsewhere. */
 html:has(body.wc-book-embedded),body.wc-book-embedded,body.wc-book-embedded #layout,body.wc-book-embedded main#content{background:transparent}
 body.wc-book-embedded .wc-book-controls,body.wc-book-embedded .wc-book-status{display:none}
-body.wc-book-embedded .wc-book-stage{padding:26px 50px 6px}
+body.wc-book-embedded .wc-book-stage{padding:26px 50px 46px}
 body.wc-book-embedded .wc-book-stage::before{display:none}
 body.wc-book-embedded .wc-book-loading{background:rgba(3,38,28,.4);color:#fff}
 body.wc-book-embedded .wc-book-prev{left:20px}
@@ -21,5 +21,5 @@ body.wc-book-embedded .wc-book-next{right:20px}
 body.wc-book-embedded .wc-book-embed-toolbar{display:flex;flex-direction:column;position:absolute;top:26px;right:28px;z-index:6;gap:14px}
 body.wc-book-embedded .wc-book-embed-icon-btn{display:grid;place-items:center;width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.4);border-radius:50%;background:rgba(11,42,32,.6);color:#fff;cursor:pointer;text-decoration:none;box-shadow:0 6px 18px rgba(3,20,14,.3);backdrop-filter:blur(3px)}
 body.wc-book-embedded .wc-book-embed-icon-btn:hover{background:rgba(11,42,32,.88)}
-body.wc-book-embedded .wc-book-embed-page-indicator{display:block;position:absolute;left:50%;bottom:24px;translate:-50% 0;z-index:6;padding:9px 22px;border-radius:999px;background:rgba(11,42,32,.6);color:#fff;font:700 11.5px Arial,sans-serif;letter-spacing:.03em;box-shadow:0 6px 18px rgba(3,20,14,.3);backdrop-filter:blur(3px)}
+body.wc-book-embedded .wc-book-embed-page-indicator{display:block;position:absolute;left:50%;bottom:6px;translate:-50% 0;z-index:6;padding:9px 22px;border-radius:999px;background:rgba(11,42,32,.6);color:#fff;font:700 11.5px Arial,sans-serif;letter-spacing:.03em;box-shadow:0 6px 18px rgba(3,20,14,.3);backdrop-filter:blur(3px)}
 @media(max-width:760px){body.wc-book-page #layout{height:calc(100svh - 62px)}.wc-book-controls{padding:8px 10px}.wc-book-title span,.wc-book-button.secondary{display:none}.wc-book-button{padding:8px 10px}.wc-book-stage{padding:8px 42px}.wc-book-stage .wc-flipbook.is-open-spread.stf__parent::after{display:none}.wc-book-nav{width:34px;height:52px}.wc-book-prev{left:4px}.wc-book-next{right:4px}.wc-book-status{min-height:58px;padding-bottom:max(20px,env(safe-area-inset-bottom))}.wc-book-status span:last-child{display:none}.wc-book-range{width:48vw}body.wc-book-embedded .wc-book-stage{padding:16px 36px}body.wc-book-embedded .wc-book-embed-icon-btn{width:32px;height:32px}}@media(prefers-reduced-motion:reduce){.stf__item{transition-duration:0s!important}}

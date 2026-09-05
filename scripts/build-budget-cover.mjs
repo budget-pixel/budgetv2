@@ -28,6 +28,10 @@ const imageDataUri = (name, mime) => {
 const COVER_PHOTO = imageDataUri("homepage-hero.jpg", "image/jpeg");
 const COUNTY_SEAL = imageDataUri("walton-county-logo-no-background.png", "image/png");
 const GFOA_MARK = imageDataUri("gfoa-logo-mark.png", "image/png");
+// Embedded as a data URI (not a Google Fonts <link>) so the build never
+// depends on network access at render time -- same reasoning as inlining
+// the images above.
+const TITLE_FONT = "data:font/ttf;base64," + readFileSync(path.join(repoRoot, "assets/fonts/LibreBaskerville-Bold.ttf")).toString("base64");
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>FY 2027 Budget Book Cover</title>
@@ -35,6 +39,12 @@ const html = `<!doctype html>
   @page{ size:letter portrait; margin:0; }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
+  @font-face{
+    font-family:"Libre Baskerville";
+    font-weight:700;
+    font-style:normal;
+    src:url("${TITLE_FONT}") format("truetype");
+  }
   body{ font-family:Arial, Helvetica, sans-serif; }
   .cover{
     position:relative;
@@ -81,35 +91,16 @@ const html = `<!doctype html>
   }
   .cover-top{
     display:flex;
-    align-items:center;
-    gap:.16in;
   }
   .cover-seal{
-    width:.72in;
-    height:.72in;
-    flex:0 0 .72in;
+    width:1.05in;
+    height:1.05in;
+    flex:0 0 1.05in;
     border-radius:50%;
     border:3px solid #d1be78;
-    background:#ffffff url("${COUNTY_SEAL}") center center / .66in .66in no-repeat;
-    box-shadow:0 2px 10px rgba(0,0,0,.35);
+    background:#ffffff url("${COUNTY_SEAL}") center center / .96in .96in no-repeat;
+    box-shadow:0 3px 14px rgba(0,0,0,.4);
     box-sizing:border-box;
-  }
-  .cover-top-text{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    width:3.75in;
-    line-height:1.15;
-  }
-  .cover-top-text em{
-    display:block;
-    font-style:normal;
-    color:#f4f2e8;
-    font-size:9.5pt;
-    font-weight:800;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    white-space:nowrap;
   }
   .cover-main{
     max-width:7in;
@@ -126,11 +117,11 @@ const html = `<!doctype html>
   }
   .cover-title{
     margin:0;
-    font-family:Georgia, "Times New Roman", serif;
-    font-weight:800;
-    font-size:76pt;
-    line-height:.96;
-    letter-spacing:-.02em;
+    font-family:"Libre Baskerville", Georgia, "Times New Roman", serif;
+    font-weight:700;
+    font-size:72pt;
+    line-height:1;
+    letter-spacing:-.01em;
     text-shadow:0 2px 22px rgba(0,0,0,.35);
   }
   .cover-subtitle{
@@ -195,7 +186,7 @@ const html = `<!doctype html>
   .cover-meta{
     display:flex;
     align-items:center;
-    justify-content:flex-end;
+    justify-content:space-between;
     gap:.3in;
     padding-top:.2in;
     border-top:1px solid rgba(255,255,255,.32);
@@ -215,9 +206,6 @@ const html = `<!doctype html>
     <div class="cover-content">
       <div class="cover-top">
         <div class="cover-seal"></div>
-        <div class="cover-top-text">
-          <em>Board of County Commissioners</em>
-        </div>
       </div>
       <div class="cover-main">
         <p class="cover-kicker">Fiscal Year 2027 &middot; Tentative Budget</p>
@@ -235,6 +223,7 @@ const html = `<!doctype html>
           </div>
         </div>
         <div class="cover-meta">
+          <span>Board of County Commissioners</span>
           <span>Tentative &bull; October 1, 2026 &ndash; September 30, 2027</span>
         </div>
       </div>
