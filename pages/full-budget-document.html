@@ -19,14 +19,35 @@
   .wc-full-budget-linkout{margin-top:10px;font-size:.85rem}
   .wc-budget-book-cover{display:none}
   @media print{
-    .wc-budget-book-cover{display:flex!important;height:13in!important;min-height:0!important;box-sizing:border-box;flex-direction:column;justify-content:space-between;padding:.75in!important;background:linear-gradient(145deg,#003f28 0%,#006231 58%,#0b2d23 100%)!important;color:#fff!important;page-break-after:always;overflow:hidden;position:relative}
-    .wc-budget-book-cover::after{content:"";position:absolute;width:5.4in;height:5.4in;border:1px solid rgba(255,255,255,.18);border-radius:50%;right:-2in;bottom:-1.8in;box-shadow:0 0 0 .42in rgba(255,255,255,.04),0 0 0 .84in rgba(255,255,255,.035)}
-    .wc-budget-book-cover-kicker{font:800 10pt/1.2 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#e7c95f}
-    .wc-budget-book-cover h1{max-width:7in;margin:auto 0 0;font:800 43pt/.96 Georgia,serif;letter-spacing:-.035em;color:#fff!important}
-    .wc-budget-book-cover-year{margin:12pt 0 0;font:700 20pt/1.2 Arial,sans-serif;color:#fff!important}
-    .wc-budget-book-cover-rule{width:.85in;height:5px;margin:18pt 0;background:#e7c95f!important}
-    .wc-budget-book-cover p{max-width:6.2in;margin:0;font:12pt/1.45 Arial,sans-serif;color:#e8f0ed!important}
-    .wc-budget-book-cover-footer{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;font:700 9pt/1.3 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff!important}
+    /* This page's own dedicated cover already carries the Walton County
+       brand -- the sitewide print header/pill (see budget-pdf.js) is
+       inserted as main's very first child, ahead of the cover, and would
+       otherwise sit as a stray ribbon above it on page 1. */
+    body.wc-full-budget-document .wc-print-document-header,
+    body.wc-full-budget-document .wc-print-brand-pill{display:none!important}
+    .wc-budget-book-cover{display:block!important;height:13in!important;min-height:0!important;box-sizing:border-box;padding:0!important;color:#fff!important;page-break-after:always;overflow:hidden;position:relative;background:#0b2a20!important}
+    .wc-budget-book-cover-photo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important}
+    .wc-budget-book-cover-scrim-top{position:absolute;top:0;left:0;right:0;height:3.6in;background:linear-gradient(180deg,rgba(4,28,20,.62) 0%,rgba(4,28,20,.28) 55%,rgba(4,28,20,0) 100%)}
+    .wc-budget-book-cover-scrim-bottom{position:absolute;bottom:0;left:0;right:0;height:8.4in;background:linear-gradient(180deg,rgba(3,23,16,0) 0%,rgba(3,20,14,.5) 22%,rgba(3,19,13,.78) 46%,rgba(2,15,11,.9) 70%,rgba(1,10,7,.95) 100%)}
+    .wc-budget-book-cover-frame{position:absolute;inset:.28in;border:1px solid rgba(255,255,255,.38)}
+    .wc-budget-book-cover-content{position:relative;z-index:1;display:flex;height:100%;flex-direction:column;justify-content:space-between;box-sizing:border-box;padding:.62in .68in .55in}
+    .wc-budget-book-cover-brand{display:flex!important;align-items:center;gap:.16in}
+    .wc-budget-book-cover-seal{width:.72in!important;height:.72in!important;flex:0 0 .72in;max-width:none!important;border-radius:50%;border:3px solid #d1be78!important;background:#ffffff url("../assets/images/page-images/walton-county-logo-no-background.png") center center / .66in .66in no-repeat!important;box-shadow:0 2px 10px rgba(0,0,0,.35);box-sizing:border-box}
+    .wc-budget-book-cover-brand-text{display:flex;flex-direction:column;line-height:1.15}
+    .wc-budget-book-cover-brand-text span{font:800 13pt/1 Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#fff!important}
+    .wc-budget-book-cover-brand-text em{font-style:normal;margin-top:.05in;font:700 8pt/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#e7c95f!important;white-space:nowrap}
+    .wc-budget-book-cover-main{max-width:6.7in;margin:auto 0 .62in}
+    .wc-budget-book-cover-kicker{margin:0 0 .16in;font:800 11pt/1.2 Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#e7c95f!important}
+    .wc-budget-book-cover h1{margin:0;font:800 52pt/.98 Georgia,serif;letter-spacing:-.02em;color:#fff!important;text-shadow:0 2px 18px rgba(0,0,0,.3)}
+    .wc-budget-book-cover-rule{width:.95in;height:4px;margin:.28in 0 .2in;background:#e7c95f!important}
+    .wc-budget-book-cover p{max-width:5.6in;margin:0;font:12.5pt/1.5 Arial,sans-serif;color:#eef4f0!important}
+    .wc-budget-book-cover-bottom{display:flex;flex-direction:column;gap:.22in}
+    .wc-budget-book-cover-award{display:inline-flex!important;align-items:center;gap:.16in;align-self:flex-start;padding:.13in .22in .13in .16in;border-radius:999px;background:rgba(255,255,255,.96)!important;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+    .wc-budget-book-cover-award img{width:.5in!important;height:.5in!important;max-width:none!important;object-fit:contain}
+    .wc-budget-book-cover-award-text{display:flex;flex-direction:column;line-height:1.22}
+    .wc-budget-book-cover-award-text b{font:800 9.6pt/1 Arial,sans-serif;letter-spacing:.02em;color:#0b2a20!important}
+    .wc-budget-book-cover-award-text span{margin-top:.03in;font:700 8pt/1 Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#4d5f57!important}
+    .wc-budget-book-cover-footer{position:relative;z-index:1;display:flex!important;align-items:center;justify-content:flex-end;gap:.3in;padding-top:.2in;border-top:1px solid rgba(255,255,255,.32);font:800 9.5pt/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#f4f2e8!important}
     .wc-full-budget-toc{display:none}
     .wc-full-budget-print-bar{display:none}
     .wc-full-budget-section{page-break-before:always}
@@ -39,14 +60,29 @@
 <div id="layout"><main id="content">
 
 <section class="wc-budget-book-cover" aria-hidden="true">
-  <div class="wc-budget-book-cover-kicker">Walton County, Florida</div>
-  <div>
-    <h1>Annual<br>Budget Book</h1>
-    <div class="wc-budget-book-cover-year">Fiscal Year 2027</div>
-    <div class="wc-budget-book-cover-rule"></div>
-    <p>A transparent financial plan for public services, infrastructure, and the future of Walton County.</p>
+  <img class="wc-budget-book-cover-photo" src="../assets/images/page-images/homepage-hero.jpg" alt="">
+  <div class="wc-budget-book-cover-scrim-top"></div>
+  <div class="wc-budget-book-cover-scrim-bottom"></div>
+  <div class="wc-budget-book-cover-frame"></div>
+  <div class="wc-budget-book-cover-content">
+    <div class="wc-budget-book-cover-brand">
+      <div class="wc-budget-book-cover-seal" aria-hidden="true"></div>
+      <div class="wc-budget-book-cover-brand-text"><span>Walton County</span><em>Board of County Commissioners</em></div>
+    </div>
+    <div class="wc-budget-book-cover-main">
+      <div class="wc-budget-book-cover-kicker">Fiscal Year 2027</div>
+      <h1>Annual<br>Budget Book</h1>
+      <div class="wc-budget-book-cover-rule"></div>
+      <p>A financial plan for public services, infrastructure, and the future of Walton County.</p>
+    </div>
+    <div class="wc-budget-book-cover-bottom">
+      <div class="wc-budget-book-cover-award">
+        <img src="../assets/images/page-images/gfoa-logo-mark.png" alt="">
+        <div class="wc-budget-book-cover-award-text"><b>GFOA Distinguished Budget</b><span>Presentation Award</span></div>
+      </div>
+      <div class="wc-budget-book-cover-footer"><span>October 1, 2026 &ndash; September 30, 2027</span></div>
+    </div>
   </div>
-  <div class="wc-budget-book-cover-footer"><span>Board of County Commissioners</span><span>October 1, 2026 - September 30, 2027</span></div>
 </section>
 
 <div class="page-eyebrow">Financial Overview</div>
@@ -315,6 +351,34 @@
     portraitPrint.textContent = "@media print{@page{size:letter portrait;margin:.35in}.wc-full-budget-document main#content{zoom:.72!important;padding-right:.08in!important}.wc-full-budget-document .wc-print-document-header{margin-bottom:.12in!important}.wc-full-budget-document table{font-size:5.5pt!important}.wc-full-budget-document th,.wc-full-budget-document td{padding:3px 4px!important}}";
     document.head.appendChild(portraitPrint);
   });
+  // Stretches the cover's "WALTON COUNTY" letter-spacing so it spans the
+  // same width as "BOARD OF COUNTY COMMISSIONERS" underneath it -- the same
+  // technique brand-logo.js's equalizeBrandTextWidth() uses for the site's
+  // own nav lockup. Run right before print (when the cover is actually
+  // visible/laid out) rather than on load, since it's display:none outside
+  // of @media print and can't be measured until then.
+  function equalizeCoverBrandWidth(){
+    var top = document.querySelector(".wc-budget-book-cover-brand-text span");
+    var bottom = document.querySelector(".wc-budget-book-cover-brand-text em");
+    if (!top || !bottom) return;
+    top.style.removeProperty("letter-spacing");
+    var topWidth = top.getBoundingClientRect().width;
+    var bottomWidth = bottom.getBoundingClientRect().width;
+    if (!topWidth || !bottomWidth) return;
+    var gaps = Math.max(top.textContent.trim().length - 1, 1);
+    var baseSpacing = parseFloat(getComputedStyle(top).letterSpacing) || 0;
+    var nextSpacing = baseSpacing + (bottomWidth - topWidth) / gaps;
+    top.style.setProperty("letter-spacing", nextSpacing + "px", "important");
+  }
+  window.addEventListener("beforeprint", equalizeCoverBrandWidth);
+  if (window.matchMedia) {
+    var coverPrintQuery = window.matchMedia("print");
+    if (typeof coverPrintQuery.addEventListener === "function") {
+      coverPrintQuery.addEventListener("change", function(event){
+        if (event.matches) equalizeCoverBrandWidth();
+      });
+    }
+  }
 </script>
 </body>
 </html>

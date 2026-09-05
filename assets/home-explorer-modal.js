@@ -23,6 +23,8 @@
   var capitalSearchOutsideClickHandler = null;
   var departmentPanelResizeObserver = null;
   var departmentModalOpenedAt = 0;
+  var explorerModalOpenedAt = 0;
+  var explorerUtilityPanelResizeObserver = null;
   // How long the popup stays at its small opening size before it's allowed
   // to grow -- deliberate, so the reveal reads as a consistent flourish
   // rather than something that only happens to appear on slow-loading pages.
@@ -108,8 +110,17 @@
     sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), false);
   }
 
+  function updateExplorerUtilityModalHeight() {
+    if (!modal || modal.hidden) return;
+    var utilityFrame = modalBody.querySelector(".wc-home-explorer-utility-frame");
+    if (!utilityFrame) return;
+    var panel = modal.querySelector(".wc-home-explorer-modal-panel");
+    sizeIframePopupPanel(panel, utilityFrame, modal.querySelector(".wc-home-explorer-modal-head"), true);
+  }
+
   window.addEventListener("resize", function () {
     updateDepartmentModalHeight();
+    updateExplorerUtilityModalHeight();
   });
 
   function lockBackgroundPage() {
@@ -779,6 +790,7 @@
     closeDepartmentModal();
     modal.hidden = true;
     modal.classList.remove("is-utility-page");
+    modal.classList.remove("is-loading");
     // Utility pages are the only ones that ever set an inline height on the
     // panel (see sizeIframePopupPanel) -- clear it so the next regular
     // explorer opened isn't stuck at a stale utility-page height.
@@ -820,7 +832,19 @@
       if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
     }
     modal.querySelector(".wc-home-explorer-modal-close").focus();
+    // Open small and grow -- the same deliberate reveal the department/
+    // org-chart/GFOA-award popups use (see MIN_POPUP_REVEAL_MS), so every
+    // popup in the explorer reads as one consistent motion instead of the
+    // big summary explorers (Department Budget, Constitutional Officers
+    // Budget, etc.) snapping straight to full height.
+    modal.classList.add("is-loading");
+    explorerModalOpenedAt = Date.now();
+    var openedAt = explorerModalOpenedAt;
     renderExplorer(type);
+    window.setTimeout(function () {
+      if (modal.hidden || explorerModalOpenedAt !== openedAt) return;
+      window.requestAnimationFrame(function () { modal.classList.remove("is-loading"); });
+    }, MIN_POPUP_REVEAL_MS);
   }
 
   function init() {

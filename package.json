@@ -22,5 +22,8 @@
     "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.61.1",
     "lighthouse": "^13.4.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }

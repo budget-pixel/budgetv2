@@ -144,6 +144,14 @@ body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
    taller than the cap scrolls inside .wc-home-explorer-modal-body instead
    of the whole page, so the head/footer chrome stays pinned in view. */
 .wc-home-explorer-modal-panel{position:relative;z-index:2;display:flex;flex-direction:column;width:min(1500px,100%);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);margin:0;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34)}
+/* Opens small and holds there for MIN_POPUP_REVEAL_MS (see
+   home-explorer-modal.js) before revealing at full content size -- the same
+   deliberate reveal the department/org-chart/GFOA-award popups use, so
+   every popup in the explorer reads as one consistent motion. */
+.wc-home-explorer-modal.is-loading .wc-home-explorer-modal-panel{height:360px;max-height:360px}
+.wc-home-explorer-modal.is-loading .wc-home-explorer-modal-body,
+.wc-home-explorer-modal.is-loading .wc-home-explorer-modal-footer{visibility:hidden}
+.wc-home-explorer-modal.is-loading .wc-home-explorer-modal-panel::after{content:"Loading explorer…";position:absolute;inset:62px 0 0;display:grid;place-items:center;background:var(--light);color:var(--green);font-size:.8rem;font-weight:800;letter-spacing:.04em}
 .wc-home-explorer-modal-head{position:static;flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:15px 18px;border-bottom:1px solid var(--border);border-radius:20px 20px 0 0;background:var(--light);box-shadow:0 4px 14px rgba(0,27,17,.08)}
 .wc-home-explorer-modal-heading{min-width:0}
 .wc-home-explorer-modal-heading h2{margin:0;color:var(--navy);font-size:1.45rem;line-height:1.2}

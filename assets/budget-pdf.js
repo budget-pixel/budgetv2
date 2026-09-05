@@ -1147,6 +1147,124 @@ var PRINT_CSS = `
     display:none !important;
   }
 
+  /* Contractual Services Ledger: the department pickers are interactive
+     controls with no purpose in a static budget book. Removing them gives
+     the dense service schedule more room and lets the first table begin
+     directly beneath its explanatory note. */
+  #contractual-services-summary .wc-filter-bar{
+    display:none !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-overview{
+    margin:12px 0 18px !important;
+    padding:14px 16px !important;
+    border:1px solid #c7d8ce !important;
+    border-radius:0 !important;
+    background:#f4f8f5 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-overview-heading{
+    margin-bottom:10px !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-metrics{
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:0 !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-metrics article{
+    min-height:0 !important;
+    padding:7px 12px !important;
+    border:0 !important;
+    border-left:1px solid #c7d8ce !important;
+    border-radius:0 !important;
+    background:transparent !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-metrics article:first-child{
+    border-left:0 !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-metrics strong{
+    font-size:15pt !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-section h2{
+    margin-top:16px !important;
+    padding-bottom:5px !important;
+    border-bottom:2px solid #006231 !important;
+    font-family:Georgia,"Times New Roman",serif !important;
+    font-size:14pt !important;
+    font-weight:600 !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-section + .wc-contract-ledger-section{
+    break-before:page !important;
+    page-break-before:always !important;
+  }
+
+  #contractual-services-summary .wc-contract-ledger-section-note{
+    max-width:8.7in !important;
+    margin:6px 0 10px !important;
+    color:#435064 !important;
+    font-size:7.5pt !important;
+    line-height:1.35 !important;
+  }
+
+  #contractual-services-summary .wc-data-table-wrap{
+    margin-top:10px !important;
+  }
+
+  #contractual-services-summary .wc-data-table{
+    font-size:7.6pt !important;
+    table-layout:fixed !important;
+  }
+
+  #contractual-services-summary .wc-data-table th,
+  #contractual-services-summary .wc-data-table td{
+    padding:5px 6px !important;
+    line-height:1.22 !important;
+  }
+
+  #contractual-services-summary .wc-data-table th:nth-child(1){width:17%}
+  #contractual-services-summary .wc-data-table th:nth-child(2){width:40%}
+  #contractual-services-summary .wc-data-table th:nth-child(3){width:10%}
+  #contractual-services-summary .wc-data-table th:nth-child(4){width:15%}
+  #contractual-services-summary .wc-data-table th:nth-child(5){width:18%}
+
+  #contractual-services-summary .wc-data-table th:nth-child(6),
+  #contractual-services-summary .wc-data-table td:nth-child(6){
+    display:none !important;
+  }
+
+  #contractual-services-summary .wc-data-table thead th{
+    border-bottom:2px solid #d1be78 !important;
+    background:#004b30 !important;
+    font-size:7pt !important;
+    letter-spacing:.02em !important;
+  }
+
+  #contractual-services-summary .wc-data-table tbody tr:not(.wc-table-group-row):not(.wc-table-subtotal-row):not(.wc-table-total-row):nth-child(even) td{
+    background:#f7f9f8 !important;
+  }
+
+  #contractual-services-summary .wc-data-table tr.wc-table-group-row td{
+    padding-top:7px !important;
+    padding-bottom:5px !important;
+    background:#e8f0eb !important;
+    color:#003f28 !important;
+    font-size:7.2pt !important;
+    letter-spacing:.08em !important;
+    border-top:1px solid #a9c0b2 !important;
+  }
+
+  #contractual-services-summary .wc-data-table tr.wc-table-subtotal-row td{
+    background:#f3efdf !important;
+    border-top:1px solid #d1be78 !important;
+  }
+
   /* Capital Projects Fund Schedule page (cip-capital-projects.html): this
      is the one CIP fund page that bundles two schedules -- the fund's own
      Capital Projects Fund schedule up top, then a second Grant Funded

@@ -14036,10 +14036,13 @@
       const deptName = selectedDept === ALL_DEPARTMENTS_VALUE ? "" : selectedDept;
       const items = rows.filter((r) => !deptName || r.Dept_Name === deptName);
       const showDeptColumn = !deptName;
-      // Department?, Service -- then the FY 2027 numeric column, then
-      // Contract Status, Vendor, Contract No., Link.
+      // Department?, Service -- then the FY 2027 numeric column, followed
+      // by status, provider, and one combined contract/document column.
+      // Making the contract number itself the document link removes the
+      // repetitive, context-free "Link" column and gives the descriptive
+      // fields more room in both the screen and printed ledgers.
       const leadingCols = showDeptColumn ? 2 : 1;
-      const trailingCols = 4;
+      const trailingCols = 3;
       const colCount = leadingCols + 1 + trailingCols;
 
       // Capital Projects Fund, when it shows up here, is pushed to the end
@@ -14065,6 +14068,10 @@
         let fundAmount = 0;
         fundItems.forEach((r) => {
           fundAmount += r.Amount || 0;
+          const contractLabel = r.Contract_No || (r.Contract_Link ? "View document" : "");
+          const contractDocument = r.Contract_Link
+            ? '<a class="wc-contract-document-link" href="' + escapeHtml(r.Contract_Link) + '" target="_blank" rel="noopener">' + escapeHtml(contractLabel) + "</a>"
+            : escapeHtml(contractLabel);
           bodyRows.push(
             "<tr>" +
             (showDeptColumn ? "<td>" + escapeHtml(r.Dept_Name || "") + "</td>" : "") +
@@ -14072,8 +14079,7 @@
             '<td class="wc-num">' + formatCurrency(r.Amount || 0) + "</td>" +
             "<td>" + escapeHtml(r.Contract_Status || "") + "</td>" +
             "<td>" + escapeHtml(r.Vendor || "") + "</td>" +
-            "<td>" + escapeHtml(r.Contract_No || "") + "</td>" +
-            "<td>" + (r.Contract_Link ? '<a href="' + escapeHtml(r.Contract_Link) + '" target="_blank" rel="noopener">Link</a>' : "") + "</td></tr>"
+            "<td>" + contractDocument + "</td></tr>"
           );
         });
         bodyRows.push(
@@ -14101,8 +14107,7 @@
           { label: "FY 2027", num: true },
           { label: "Procurement / Contract Status" },
           { label: "Current Service Provider" },
-          { label: "Contract No." },
-          { label: "Document Link" }
+          { label: "Contract / Document" }
         ]);
 
       mountOrHide(
@@ -14145,8 +14150,20 @@
 
     const departmentServiceRows = rows.filter((r) => !r.Is_Cip);
     const cipRows = rows.filter((r) => r.Is_Cip);
+    const departmentServiceTotal = departmentServiceRows.reduce((sum, row) => sum + (row.Amount || 0), 0);
+    const cipTotal = cipRows.reduce((sum, row) => sum + (row.Amount || 0), 0);
+    const departmentCount = new Set(departmentServiceRows.map((row) => row.Dept_Name).filter(Boolean)).size;
+    const activeContractCount = departmentServiceRows.filter((row) => normalizeDeptName(row.Contract_Status) === "active contract").length;
 
     container.innerHTML =
+      '<section class="wc-contract-ledger-overview" aria-label="Contractual services at a glance">' +
+      '<div class="wc-contract-ledger-overview-heading"><span>At a Glance</span><p>FY 2027 planned contracted services and anticipated capital procurements.</p></div>' +
+      '<div class="wc-contract-ledger-metrics">' +
+      '<article><span>Department Services</span><strong>' + formatCurrency(departmentServiceTotal) + '</strong><small>' + departmentServiceRows.length + ' budgeted services</small></article>' +
+      '<article><span>Capital Procurements</span><strong>' + formatCurrency(cipTotal) + '</strong><small>' + cipRows.length + ' funded project scopes</small></article>' +
+      '<article><span>Departments Represented</span><strong>' + departmentCount + '</strong><small>Board-managed departments</small></article>' +
+      '<article><span>Active Contracts</span><strong>' + activeContractCount + '</strong><small>Identified at budget adoption</small></article>' +
+      '</div></section>' +
       '<section class="wc-contract-ledger-section">' +
       "<h2>Department Services</h2>" +
       '<p class="wc-contract-ledger-section-note">Contracted operating services procured by Board departments -- professional services, maintenance, technology, and similar agreements.</p>' +
