@@ -717,6 +717,7 @@
     'Contractual Services':'Covers payments made under an identified contract or service agreement, such as professional services, engineering, legal, auditing, IT services, and other outside vendor services.',
     'Internal Service Charges':'Covers charges billed to this fund by an internal service fund -- for example fleet maintenance, information technology, or self-insurance -- for services it provides countywide.',
     'Capital Outlay':'Covers major investments in long-term County assets, including vehicles, machinery and equipment, technology systems, buildings, facility improvements, roads, drainage, parks, and other infrastructure projects.',
+    'Interfund Transfer':'Covers transfers of this fund’s resources to other County funds, such as intergovernmental transfers funded by the Small County Surtax.',
     'General Government Taxes':'Ad valorem, tourist development, sales surtax, fuel taxes, and other locally levied taxes.',
     'Intergovernmental Revenues':'Grants, shared revenues, and payments received from federal, state, or other governmental sources.',
     'Charges for Services':'Fees charged for specific County services provided to residents, businesses, or other users.',
@@ -1173,6 +1174,10 @@
     if(whoPaysButton) bindSnapshotWhoPaysSheet(whoPaysButton,whoPaysSheetHtml,title.textContent.trim());
     var revenueSheetButton=snapshot.querySelector('[data-independent-revenue-sheet-trigger]');
     if(revenueSheetButton) bindSnapshotRevenueSheet(revenueSheetButton,revenueMount,title.textContent.trim());
+    var personnelLedgerButton=snapshot.querySelector('[data-independent-personnel-ledger-trigger]');
+    if(personnelLedgerButton) bindSnapshotPersonnelLedgerTrigger(personnelLedgerButton);
+    renderCourtInnovationsSnapshot();
+  }
   // Builds one Department Snapshot card per office for a combined
   // multi-office department page (Tourism Administration, Tourism Beach
   // Operations -- see window.WCBudgetData.getCombinedDepartmentOffices),
@@ -1191,6 +1196,7 @@
       // on the data-ready retry. Never add a second snapshot to an office.
       if(officeSection.querySelector('.wc-profile-snapshot--office')) return;
       var heading=officeSection.querySelector('.tourism-admin-section-title');
+      var narrativeBlock=officeSection.querySelector('.tourism-admin-section-narrative');
       var officeKey=normalize(office.label);
       var expenses=office.expenses||[];
       var revenues=office.revenues||[];
@@ -1237,7 +1243,7 @@
         staffingCardHtml+
         '</div>';
 
-      if(heading) heading.insertAdjacentElement('afterend',snapshot); else officeSection.insertAdjacentElement('afterbegin',snapshot);
+      if(narrativeBlock) narrativeBlock.insertAdjacentElement('afterend',snapshot); else if(heading) heading.insertAdjacentElement('afterend',snapshot); else officeSection.insertAdjacentElement('afterbegin',snapshot);
 
       bindSnapshotTooltips(snapshot);
       var graphButton=snapshot.querySelector('[data-office-graph-trigger]');
@@ -1304,11 +1310,6 @@
       if(contractsButton) bindSnapshotInformationSheet(contractsButton,'Contractual Services',contractSheetHtml,office.label,'wc-contract-sheet-body');
 
     });
-  }
-
-    var personnelLedgerButton=snapshot.querySelector('[data-independent-personnel-ledger-trigger]');
-    if(personnelLedgerButton) bindSnapshotPersonnelLedgerTrigger(personnelLedgerButton);
-    renderCourtInnovationsSnapshot();
   }
 
   // Court Technology & Innovations combines two separately budgeted
@@ -1484,6 +1485,14 @@
       functionHeading.insertAdjacentElement('afterend',mediaRail);
     }
     var expenses=window.WCBudgetData.getDepartmentExpenses(title.textContent.trim())||[];
+    // The Solid Waste Transfer (interfund transfer to other funds, e.g. the
+    // Small County Surtax transfers to Transportation and Mossy Head WWTF)
+    // is booked under its own Dept_Name in the sheet -- folded in here so it
+    // shows as its own "Interfund Transfer" line on this same Expenditure
+    // Summary card instead of a separate single-line card of its own.
+    if(normalize(title.textContent.trim())==='solid waste'){
+      expenses=expenses.concat(window.WCBudgetData.getDepartmentExpenses('Solid Waste Transfer')||[]);
+    }
     var revenues=window.WCBudgetData.getDepartmentRevenues(title.textContent.trim())||[];
     var staffing=window.WCBudgetData.getDepartmentStaffing(title.textContent.trim())||[];
     var performanceRows=window.WCBudgetData.getDepartmentPerformanceMeasures(title.textContent.trim())||[];
@@ -1548,7 +1557,8 @@
       {label:'Operating Expenditures',amount:sum(expenses.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(expenses.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
       {label:'Contractual Services',amount:sum(expenses.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(expenses.filter(isContractualServiceRow),'FY2026_Original_Budget')},
       {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
-      {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
+      {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')},
+      {label:'Interfund Transfer',amount:sum(expenses.filter(function(row){return row.Object_Type==='Other Uses';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Other Uses';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
     var originalExpenseRows=document.querySelectorAll('#department-expense-table .wc-finance-card-row');
     snapshotExpenseGroups.forEach(function(item){

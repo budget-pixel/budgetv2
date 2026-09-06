@@ -131,7 +131,6 @@
   // and therefore excluded from that department's main summary table so
   // amounts aren't counted twice.
   const EXPENSE_OBJECT_CODES_BROKEN_OUT = {
-    "solid waste": ["534000"],
     "building construction and maintenance": ["543000"],
     "board of county commissioners": ["531001", "531002", "531003", "531004"],
     "office of the county attorney": ["531000"],
@@ -12217,19 +12216,6 @@
     });
   }
 
-  function renderSolidWasteSupplementalTables() {
-    const franchiseRows = rowsForExactDepartment(cache.expenditures, "Solid Waste")
-      .filter((r) => String(r.Object_Code || "").trim() === "534000");
-    const transferRows = rowsForExactDepartment(cache.expenditures, "Solid Waste Transfer");
-    const pieces = [
-      renderTypeSummaryTable(franchiseRows, "expense", "Waste Collection and Disposal Franchise Services", "Solid Waste"),
-      renderTypeSummaryTable(transferRows, "expense", "Interfund Transfer", "Solid Waste Transfer")
-    ].filter(Boolean);
-
-    if (!pieces.length) return "";
-    return '<section class="solid-waste-supplemental-tables">' + pieces.join("") + "</section>";
-  }
-
   function renderBuildingConstructionSupplementalTables() {
     const rows = rowsForExactDepartment(cache.expenditures, "Building Construction and Maintenance");
     const utilityRows = rows.filter((r) => String(r.Object_Code || "").trim() === "543000");
@@ -12442,23 +12428,18 @@
       const narrativeRows = rowsForExactNames(cache.departmentNarratives, spec.narrativeNames)
         .filter((r) => r.Narrative && r.Narrative.trim());
       const narrativeHtml = narrativeRows.length
-        ? splitIntoParagraphs(narrativeRows[0].Narrative).map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("")
+        ? '<div class="tourism-admin-section-narrative">' + splitIntoParagraphs(narrativeRows[0].Narrative).map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("") + "</div>"
         : "";
 
       // Zehnder, Inc.'s advertising services contract (Project_Code 10655)
-      // gets its own card -- see Summary of Contractual Services, which
-      // combines this same project across divisions the same way -- so
-      // it's pulled out of each division's own Expenditure Summary here
-      // too, rather than counted in both places.
-      const allExpenseRows = rowsForExactNames(cache.expenditures, spec.expenseNames);
-      const advertisingRows = allExpenseRows.filter((r) => String(r.Project_Code || "").trim() === "10655");
-      const expenseRows = allExpenseRows.filter((r) => String(r.Project_Code || "").trim() !== "10655");
+      // used to get its own standalone card here, pulled out of each
+      // division's Expenditure Summary -- now folded back into that same
+      // card's Contractual Services line instead (matching the modern
+      // Department Snapshot's own Contractual Services total, which always
+      // included it), so this legacy layer no longer shows Zehnder twice.
+      const expenseRows = rowsForExactNames(cache.expenditures, spec.expenseNames);
       const staffingRows = rowsForExactNames(cache.staffing, spec.staffingNames);
-      const advertisingCardHtml = renderTypeSummaryTable(advertisingRows, "expense", "Advertising Services (Zehnder, INC)", spec.label);
-      const expenseCardHtml = renderTypeSummaryTable(expenseRows, "expense", "Expenditure Summary", spec.label);
-      const financialCardsHtml = advertisingCardHtml
-        ? '<div class="tourism-admin-financial-pair">' + expenseCardHtml + advertisingCardHtml + "</div>"
-        : expenseCardHtml;
+      const financialCardsHtml = renderTypeSummaryTable(expenseRows, "expense", "Expenditure Summary", spec.label);
       const body = [
         narrativeHtml,
         spec.label === "Tourism Administration" ? performanceHtml : "",
@@ -12529,7 +12510,7 @@
       const narrativeRows = rowsForExactNames(cache.departmentNarratives, spec.narrativeNames)
         .filter((r) => r.Narrative && r.Narrative.trim());
       const narrativeHtml = narrativeRows.length
-        ? splitIntoParagraphs(narrativeRows[0].Narrative).map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("")
+        ? '<div class="tourism-admin-section-narrative">' + splitIntoParagraphs(narrativeRows[0].Narrative).map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("") + "</div>"
         : "";
 
       const expenseRows = rowsForExactNames(cache.expenditures, spec.expenseNames);
@@ -13206,11 +13187,22 @@
           // avoid double-counting it on the BCC page.
           const isBcc = normalizeDeptName(deptName) === "board of county commissioners";
           const isBuildingConstruction = normalizeDeptName(deptName) === "building construction and maintenance";
-          const expenseRows = filterAllZeroRowsForSelectedDepartments(getDepartmentExpenses(deptName, deptCode).filter(
+          const isSolidWaste = normalizeDeptName(deptName) === "solid waste";
+          let expenseRows = filterAllZeroRowsForSelectedDepartments(getDepartmentExpenses(deptName, deptCode).filter(
             (r) =>
               !excludedObjectCodes.includes(String(r.Object_Code || "").trim()) &&
               !(isBcc && String(r.Project_Code || "").trim() === "1040")
           ), deptName);
+          // The Solid Waste Transfer (interfund transfer to other funds) is
+          // booked under its own Dept_Name in the sheet -- folded in here
+          // (with Dept_Name normalized to match) so it shows as its own
+          // line on the same Expenditure Summary card instead of a
+          // separate single-line card of its own.
+          if (isSolidWaste) {
+            expenseRows = expenseRows.concat(
+              rowsForExactDepartment(cache.expenditures, "Solid Waste Transfer").map((r) => ({ ...r, Dept_Name: deptName }))
+            );
+          }
           // Some pages display supplemental expense cards below the main
           // Expenditure Summary. The revenue plug should balance to the
           // same combined total a reader sees across those cards.
@@ -13328,12 +13320,7 @@
         );
         bindTooltipAnchors(stateAidEl);
 
-        mountOrHide(
-          solidWasteEl,
-          normalizeDeptName(deptName) === "solid waste" ? renderSolidWasteSupplementalTables() : ""
-        );
-        bindTooltipAnchors(solidWasteEl);
-        bindPriorYearsToggle(solidWasteEl);
+        mountOrHide(solidWasteEl, "");
 
         mountOrHide(
           buildingConstructionEl,
@@ -17626,6 +17613,30 @@
         });
         const offices = Array.from(officesByKey.values()).filter((office) => office.current || office.prior).sort((a, b) => b.current - a.current);
         if (dept.key === "code compliance" && offices.length === 1) offices[0].prior = dept.prior;
+        // Tourism Administration's offices read in a deliberate editorial
+        // order (lead office first, then its divisions) rather than sorted
+        // by dollar amount like every other rolled-up department.
+        if (dept.key === "tourism administration") {
+          const tourismOfficeOrder = [
+            "tourism administration",
+            "sales and visitor center",
+            "sales and visitors center",
+            "communications",
+            "marketing",
+            "north walton",
+            "north walton tourist development tax",
+            "tourism public safety",
+            "south walton fire lifeguard services"
+          ];
+          const tourismOfficeRank = (name) => {
+            const norm = normalizeDeptName(name);
+            const exact = tourismOfficeOrder.indexOf(norm);
+            if (exact !== -1) return exact;
+            const prefixMatch = tourismOfficeOrder.findIndex((entry) => norm.indexOf(entry) === 0 || entry.indexOf(norm) === 0);
+            return prefixMatch !== -1 ? prefixMatch : tourismOfficeOrder.length;
+          };
+          offices.sort((a, b) => tourismOfficeRank(a.name) - tourismOfficeRank(b.name));
+        }
         return offices;
       }
 
