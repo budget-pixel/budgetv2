@@ -38,8 +38,9 @@ const EXPENSE_TOTAL = EXPENSE_CATEGORIES.reduce((s, [, v]) => s + v, 0);
 // SOURCES.revenues, Revenue_Type "General Government Taxes" grouped by
 // Revenue_Name -- Ad Valorem (property) $161,066,332; Tourist Development
 // Tax $58,965,950; Discretionary Sales Surtax $40,000,000; Fuel/Gas Taxes
-// $4,810,212; Communications Services Tax $350,000 -- the smallest three
-// combined into "All Other Revenue" with Permits/Fees and Fines.
+// $4,810,212; Communications Services Tax $350,000 -- broken out as their
+// own rows (rather than collapsed into one "All Other Revenue" bucket) so
+// this side of the chart carries the same 9 rows as Where the Money Goes.
 const REVENUE_SOURCES = [
   ["Property Tax", 161.07],
   ["Tourist Development Tax", 58.97],
@@ -47,7 +48,9 @@ const REVENUE_SOURCES = [
   ["Charges for Services", 38.67],
   ["Intergovernmental Revenues", 29.32],
   ["Miscellaneous Revenue", 14.59],
-  ["All Other Revenue", 8.85]
+  ["Fuel/Gas Taxes", 4.81],
+  ["Permits, Fees &amp; Fines", 3.69],
+  ["All Other Revenue", 0.35]
 ];
 const REVENUE_TOTAL = REVENUE_SOURCES.reduce((s, [, v]) => s + v, 0);
 
@@ -267,22 +270,20 @@ const html = `<!doctype html>
     <p class="intro">A one-page look at how Walton County plans to raise and spend money in Fiscal Year 2027 &mdash; the full detail behind these figures follows throughout this document.</p>
 
     <div class="stat-strip">
-      <div class="stat-card"><b>$512.4M</b><span>Total Budget, All Funds</span></div>
       <div class="stat-card"><b>$345.2M</b><span>Net Operating Budget</span></div>
       <div class="stat-card"><b>3.4347</b><span>County Millage Rate</span></div>
-      <div class="stat-card"><b>1,515</b><span>Budgeted FTE</span></div>
+      <div class="stat-card"><b>667</b><span>Board Department FTE</span></div>
+      <div class="stat-card"><b>848</b><span>Constitutional Officer FTE</span></div>
     </div>
 
     <div class="charts-row">
       <div>
         <h2>Where the Money Comes From</h2>
         ${REVENUE_SOURCES.map(([l, v]) => barRow(l, v, REVENUE_TOTAL, "#0b7741")).join("")}
-        <p class="chart-total">$${REVENUE_TOTAL.toFixed(1)}M in direct revenue &mdash; excludes interfund transfers and other financing sources.</p>
       </div>
       <div>
         <h2>Where the Money Goes</h2>
         ${EXPENSE_CATEGORIES.map(([l, v]) => barRow(l, v, EXPENSE_TOTAL, "#003f28")).join("")}
-        <p class="chart-total">$${EXPENSE_TOTAL.toFixed(1)}M in service delivery &mdash; excludes interfund transfers and the self-insurance fund.</p>
       </div>
     </div>
 

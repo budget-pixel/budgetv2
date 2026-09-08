@@ -79,7 +79,7 @@ const html = `<!doctype html>
     border:1px solid #e4ebe7;
     border-radius:16px;
     background:#fbfcfa;
-    box-shadow:0 18px 40px rgba(15,23,38,.08);
+    box-shadow:0 4px 0 rgba(15,23,38,.08);
   }
   .chart-card img{
     display:block;

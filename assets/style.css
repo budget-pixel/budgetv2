@@ -5478,12 +5478,13 @@ main#content > .recreation-parks-section {
    snapshotCapitalCalloutHtml in department-services.js) -- only present on
    Expenditures Summary cards that have a Capital Outlay group to call out;
    every other snapshot card's kicker+total render exactly as before. */
-.wc-profile-snapshot-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:14px}
-.wc-profile-snapshot-head>div:first-child{min-width:0}
-.wc-profile-snapshot-capital-callout{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:right}
-.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total{margin-bottom:0;gap:4px 10px}
-.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>strong{font-size:22px;letter-spacing:0}
-.wc-profile-snapshot-capital-callout-label{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.wc-profile-snapshot-head{display:flex;flex-wrap:nowrap;align-items:flex-start;justify-content:space-between;gap:10px}
+.wc-profile-snapshot-head>div:first-child{flex:1 1 auto;min-width:0}
+.wc-profile-snapshot-capital-callout{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-top:27px;padding:7px 9px;border:1px solid var(--border);border-radius:10px;background:#fff;text-align:right}
+.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total{flex-wrap:nowrap;margin-bottom:0;gap:3px 7px}
+.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>strong{font-size:17px;letter-spacing:0}
+.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>small{font-size:12px;white-space:nowrap}
+.wc-profile-snapshot-capital-callout-label{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .wc-profile-snapshot-table{display:flex;flex-direction:column;margin-bottom:6px;border-top:1px solid var(--border)}
 .wc-profile-snapshot-table>p{margin:11px 0;color:var(--muted);font-size:13px;border-bottom:1px solid var(--border)}
 .wc-profile-snapshot-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -5548,5 +5549,6 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-staffing>dl dt,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dt{margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
 .wc-profile-snapshot-staffing>dl dd,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dd{margin:0;color:var(--text);font-size:12px;font-weight:800;line-height:1.4}
 @media(max-width:1000px){.wc-profile-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wc-profile-snapshot-staffing{grid-column:1/-1;min-height:0}}
-@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}.wc-profile-snapshot-capital-callout{align-items:flex-start;text-align:left}}
+@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}.wc-profile-snapshot-capital-callout{align-items:flex-end;text-align:right}}
+@media(max-width:430px){.wc-profile-snapshot-head{flex-wrap:wrap}.wc-profile-snapshot-capital-callout{align-items:flex-start;margin-top:0;text-align:left}}
 @media(max-width:640px){.wc-workforce-bars li{grid-template-columns:1fr auto;gap:6px}.wc-workforce-bar{grid-column:1/-1}}

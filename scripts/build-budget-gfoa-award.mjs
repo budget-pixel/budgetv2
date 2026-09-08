@@ -149,7 +149,7 @@ const html = `<!doctype html>
     padding:.09in;
     border-radius:18px;
     background:#ffffff;
-    box-shadow:0 28px 56px rgba(0,0,0,.4);
+    box-shadow:0 10px 0 rgba(0,0,0,.35);
     transform:rotate(2.25deg);
     transform-origin:center center;
   }
@@ -166,7 +166,7 @@ const html = `<!doctype html>
     right:3.05in;
     bottom:.9in;
     padding:.09in;
-    box-shadow:0 28px 56px rgba(0,0,0,.4);
+    box-shadow:0 10px 0 rgba(0,0,0,.35);
     transform:rotate(-6deg);
   }
   .certificate-card.is-recognition img{

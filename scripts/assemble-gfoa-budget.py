@@ -130,18 +130,22 @@ constitutional = reader("budget-book-constitutional-officers-ledger.pdf")
 independent = reader("budget-book-independent-agencies-ledger.pdf")
 overview = reader("budget-book-overview.pdf")
 financial_policies = reader("budget-book-financial-policies.pdf")
+org_structure = reader("budget-book-org-structure.pdf")
 writer = PdfWriter()
 
 # Opening, corrected contents, and County context. The Overview of Walton
 # County now comes from its own dedicated build (adds the historical/public
-# information QR panel under Constitutional Officers); base.pages[13] is the
-# Organizational Structure page that used to follow it in the flattened book.
+# information QR panel under Constitutional Officers). Organizational
+# Structure also comes from its own dedicated build (build-organizational-
+# structure.mjs) rather than base.pages[13] -- the flattened book's copy of
+# that page carries a stray shadow artifact behind the chart that the
+# dedicated build fixes.
 writer.add_page(cover.pages[0])
 writer.add_page(award.pages[0])
 add_range(writer, transmittal, 1, 2)
 add_range(writer, toc, 1, 2)
 add_range(writer, overview, 1, 3)
-writer.add_page(base.pages[13])
+writer.add_page(org_structure.pages[0])
 writer.add_page(strategic.pages[0])
 add_range(writer, community, 1, 3)
 writer.add_page(brief.pages[0])
@@ -163,13 +167,16 @@ add_range(writer, enh, 9, 16)
 
 # Constitutional Officers, agencies, and departments. The revised overview and
 # two Tourism profiles replace the obsolete overview/exclusion language.
+# The Departments and Services chapter divider is followed directly by the
+# Department Operating Ledger (base.pages[38]) as the chapter's first content
+# page; the old stats/office-list overview (enh.pages[18]) was dropped as
+# redundant with it.
 writer.add_page(base.pages[23])
 add_range(writer, constitutional, 1, 7)
 writer.add_page(base.pages[31])
-add_range(writer, independent, 1, 4)
-writer.add_page(base.pages[38])
+add_range(writer, independent, 1, 3)
 writer.add_page(departments.pages[0])
-writer.add_page(enh.pages[18])
+writer.add_page(base.pages[38])
 add_range(writer, departments, 3, 37)
 
 # Financial plan rebuilt from the corrected tentative-budget source pages.
@@ -193,12 +200,12 @@ add_range(writer, capital_ledgers, 1, 8)
 add_range(writer, glossary, 1, 9)
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 133
+EXPECTED_PAGES = 131
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 41, 49, 55, 92, 112, 133}
+skip_number = {1, 2, 41, 49, 53, 90, 110, 131}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         page.merge_page(number_stamp(number), over=True)
@@ -235,25 +242,25 @@ outline = [
     ("Public Participation", 40, "Public Value and Decision Guide"),
     ("Constitutional Officers", 41, None),
     ("Other Agencies and Court-Related Functions", 49, None),
-    ("Departments and Services", 55, None),
-    ("Tourism Administration", 84, "Departments and Services"),
-    ("Sales and Visitors Center", 85, "Tourism Administration"),
-    ("Communications", 86, "Tourism Administration"),
-    ("Marketing", 87, "Tourism Administration"),
-    ("North Walton", 88, "Tourism Administration"),
-    ("Beach Operations", 89, "Departments and Services"),
-    ("Beach Renourishment", 90, "Beach Operations"),
-    ("Beach Tram", 91, "Beach Operations"),
-    ("Financial Plan", 92, None),
-    ("Revenue Portfolio", 95, "Financial Plan"),
-    ("Revenue Ledger", 96, "Financial Plan"),
-    ("Personnel Ledger", 101, "Financial Plan"),
-    ("Fund Financial Ledger", 106, "Financial Plan"),
-    ("Debt Ledger", 109, "Financial Plan"),
-    ("Long-Term Outlook", 110, "Financial Plan"),
-    ("Capital Budget", 112, None),
-    ("Capital Improvement Plan", 113, "Capital Budget"),
-    ("Glossary and Frequently Asked Questions", 124, None),
+    ("Departments and Services", 53, None),
+    ("Tourism Administration", 82, "Departments and Services"),
+    ("Sales and Visitors Center", 83, "Tourism Administration"),
+    ("Communications", 84, "Tourism Administration"),
+    ("Marketing", 85, "Tourism Administration"),
+    ("North Walton", 86, "Tourism Administration"),
+    ("Beach Operations", 87, "Departments and Services"),
+    ("Beach Renourishment", 88, "Beach Operations"),
+    ("Beach Tram", 89, "Beach Operations"),
+    ("Financial Plan", 90, None),
+    ("Revenue Portfolio", 93, "Financial Plan"),
+    ("Revenue Ledger", 94, "Financial Plan"),
+    ("Personnel Ledger", 99, "Financial Plan"),
+    ("Fund Financial Ledger", 104, "Financial Plan"),
+    ("Debt Ledger", 107, "Financial Plan"),
+    ("Long-Term Outlook", 108, "Financial Plan"),
+    ("Capital Budget", 110, None),
+    ("Capital Improvement Plan", 111, "Capital Budget"),
+    ("Glossary and Frequently Asked Questions", 122, None),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -264,8 +271,8 @@ for title, page_number, parent_title in outline:
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
 writer.add_uri(32, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
 writer.add_uri(39, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
-writer.add_uri(132, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(132, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(130, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
+writer.add_uri(130, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

@@ -770,6 +770,13 @@ const sharedCss = `
     gap:.28in;
     margin-bottom:.13in;
   }
+  section.profile-page h1{ width:calc(100% - 2.18in); }
+  section.profile-page .side-card{
+    position:absolute;
+    top:.96in;
+    right:.6in;
+    width:1.9in;
+  }
   h2{
     margin:0 0 .05in;
     color:#003f28;
@@ -968,7 +975,7 @@ async function buildDeptPage(d, pageNumber) {
   const footnoteHtml = d.footnote ? `<p class="footnote">†Figures shown are this office's own reported costs. Summed across all Environmental Services programs, this does not exactly reach the Environmental Services department total in the Department Operating Ledger — that total includes additional cost categories not broken out at the individual program level.</p>` : "";
 
   return `
-  <section>
+  <section class="profile-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">${d.entityType || "Departments"}${d.footnote ? "†" : ""}</small>
     <h1>${d.name}</h1>

@@ -25,12 +25,12 @@ const HERITAGE = imageDataUri("overview-cultural-heritage.jpg", "image/jpeg");
 const DISTRICTS_MAP = imageDataUri("overview-county-districts.jpg", "image/jpeg");
 
 const COMMISSIONERS = [
-  ["commissioner-dan-curry.jpeg", "Dan Curry", "District I"],
-  ["commissioner-danny-glidewell.jpeg", "Danny Glidewell", "District II"],
-  ["commissioner-brad-drake.jpeg", "Brad Drake", "District III, Chair"],
-  ["commissioner-donna-johns.jpeg", "Donna Johns", "District IV"],
-  ["commissioner-tony-anderson.jpeg", "Tony Anderson", "District V, Vice Chair"]
-].map(([file, name, role]) => [imageDataUri(file, file.endsWith(".jpeg") ? "image/jpeg" : "image/png"), name, role]);
+  ["commissioner-dan-curry.jpeg", "Dan Curry", "District I", "center"],
+  ["commissioner-danny-glidewell.jpeg", "Danny Glidewell", "District II", "center"],
+  ["commissioner-brad-drake.jpeg", "Brad Drake", "District III, Chair", "center"],
+  ["commissioner-donna-johns.jpeg", "Donna Johns", "District IV", "center"],
+  ["commissioner-tony-anderson.jpeg", "Tony Anderson", "District V, Vice Chair", "center", "scale(1.15) translateY(-5%)"]
+].map(([file, name, role, position, transform]) => [imageDataUri(file, file.endsWith(".jpeg") ? "image/jpeg" : "image/png"), name, role, position, transform]);
 
 const OFFICERS = [
   ["tax-collector-rhonda-skipper.jpg", "Tax Collector", "Rhonda Skipper"],
@@ -40,8 +40,8 @@ const OFFICERS = [
   ["sheriff-mike-adkinson.jpg", "Sheriff", "Michael A. Adkinson, Jr."]
 ].map(([file, role, name]) => [imageDataUri(file, file.endsWith(".png") ? "image/png" : "image/jpeg"), role, name]);
 
-const commissionerCards = COMMISSIONERS.map(([src, name, role]) =>
-  `<div class="person-card"><img src="${src}" alt=""><h3>${name}</h3><p>${role}</p></div>`
+const commissionerCards = COMMISSIONERS.map(([src, name, role, position, transform]) =>
+  `<div class="person-card"><img src="${src}" alt="" style="object-position:${position};transform:${transform || "none"}"><h3>${name}</h3><p>${role}</p></div>`
 ).join("");
 
 const officerRows = OFFICERS.map(([src, role, name]) =>
@@ -334,13 +334,15 @@ const html = `<!doctype html>
   }
   .gov-grid{
     display:grid;
-    grid-template-columns:2.1in 1fr;
+    grid-template-columns:1.65in 1fr;
     gap:.3in;
     align-items:start;
   }
   .gov-map{
     display:block;
     width:100%;
+    max-height:2.55in;
+    object-fit:contain;
     border-radius:12px;
     border:1px solid #e4ebe7;
   }

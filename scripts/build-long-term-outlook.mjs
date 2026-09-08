@@ -87,7 +87,7 @@ const sharedCss = `
   .stat-card b{ display:block; color:#fff; font:800 13pt/1.1 Georgia, serif; }
   .stat-card span{ display:block; margin-top:.03in; color:#e7c95f; font-size:6.1pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; line-height:1.25; }
   .chart-wrap{ margin:.08in 0 .06in; }
-  .chart{ display:flex; align-items:flex-end; gap:.18in; height:1in; padding:0 .1in; border-bottom:1.5px solid #003f28; }
+  .chart{ display:flex; align-items:flex-end; justify-content:center; gap:.5in; height:1in; padding:0 .1in; border-bottom:1.5px solid #003f28; }
   .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; max-width:1.1in; }
   .bar-col .amt{ font-size:6.6pt; font-weight:800; color:#003f28; margin-bottom:.03in; }
   .bar{ width:55%; border-radius:3px 3px 0 0; background:#0b7741; }

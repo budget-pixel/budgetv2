@@ -239,7 +239,7 @@ const html = `<!doctype html>
           <p class="stat-card-title">By the Numbers</p>
           <div class="stat">
             <b>$345.2M</b>
-            <span>Net Operating Budget <em class="is-note">Excl. Transfers &amp; Self-Insurance</em></span>
+            <span>Net Operating Budget</span>
           </div>
           <div class="stat">
             <b>$206.9M</b>
@@ -247,7 +247,7 @@ const html = `<!doctype html>
           </div>
           <div class="stat">
             <b>3.4347</b>
-            <span>County Millage Rate <em class="is-down">&minus;2.4%</em></span>
+            <span>County Millage Rate</span>
           </div>
           <div class="stat">
             <b>667</b>
@@ -265,8 +265,8 @@ const html = `<!doctype html>
 
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <h2 style="margin-top:0">Budget Summary</h2>
-    <p>The FY 2027 budget totals $512,387,492 across all funds. Excluding $143,663,984 in interfund transfers and $23,500,000 budgeted through the County&rsquo;s self-insurance fund &mdash; money that recirculates within County government rather than funding new services &mdash; the net operating budget is $345,223,508. This budget maintains a reduced County operating millage rate of 3.4347 mills, down from 3.519 mills the prior year, alongside a North Walton Mosquito Control District millage of 0.4410 mills.</p>
+    <h2 style="margin-top:.4in">Budget Summary</h2>
+    <p>The FY 2027 budget totals $345.2 million. This budget maintains a reduced County operating millage rate of 3.4347 mills, down from 3.519 mills the prior year, alongside a North Walton Mosquito Control District millage of 0.4410 mills.</p>
     <p>Public Safety remains the County&rsquo;s largest expenditure category at $126.6 million, followed by General Government at $82.7 million, Economic Environment at $62.8 million, and Transportation at $58.1 million. On the revenue side, General Government Taxes &mdash; led by Ad Valorem property taxes at $161.1 million &mdash; continue to fund the largest share of County services, followed by Charges for Services at $38.7 million and Intergovernmental Revenues at $29.3 million.</p>
 
     <h2>Fund Highlights</h2>
@@ -280,10 +280,10 @@ const html = `<!doctype html>
     </div>
 
     <h2>Investing in Our Workforce</h2>
-    <p>The FY 2027 budget includes a net increase of 15 full-time positions, bringing the County&rsquo;s total to 1,515: 667 across the 33 Board departments under the County Administrator (up 12), and 848 across the Constitutional Officers, the Board of County Commissioners, and Court-related functions (up 3). These additions focus on maintaining existing infrastructure and service levels &mdash; not expanding new programs &mdash; and were reviewed individually before being recommended to the Board.</p>
+    <p>The FY 2027 budget includes a net increase of 15 full-time positions, bringing the County&rsquo;s total to 1,515 &mdash; an increase of 12 in Board departments and 3 in Constitutional Officers. These additions focus on maintaining existing infrastructure and service levels &mdash; not expanding new programs &mdash; and were reviewed individually before being recommended to the Board.</p>
 
     <h2>Looking Ahead</h2>
-    <p>As we move into Fiscal Year 2027, we remain mindful of the factors that could affect County operations in the year ahead, including legislative changes to sales and property tax policy and the broader uncertainty of economic conditions. Careful, ongoing monitoring of these revenue sources will remain essential to keeping the budget balanced.</p>
+    <p>As we move into Fiscal Year 2027, we remain mindful of the factors that could affect County operations in the year ahead, including legislative changes to property tax policy and the broader uncertainty of economic conditions. Careful, ongoing monitoring of these revenue sources will remain essential to keeping the budget balanced.</p>
     <p>I want to thank the Board of County Commissioners for its guidance, and the entire County staff for its dedication in developing this budget. Together, we are ensuring that Walton County remains a well-managed, fiscally sound, and vibrant place to live, work, and visit.</p>
 
     <div class="signature-block">

@@ -162,7 +162,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Strategic Initiatives</h1>
-    <p class="intro">Walton County&rsquo;s annual budget is built around a shared mission, vision, and set of core values &mdash; the strategic foundation that connects every department&rsquo;s programs and services back to a common purpose. These statements reflect the draft Walton County Strategic Plan 2027&ndash;2032 and remain subject to final Board action.</p>
+    <p class="intro">Walton County&rsquo;s annual budget is built around a shared mission, vision, and set of core values &mdash; the strategic foundation that connects every department&rsquo;s programs and services back to a common purpose. These statements reflect the Walton County Strategic Plan 2027&ndash;2032.</p>
 
     <div class="statement">
       <span class="statement-label">Our Foundation &middot; Mission</span>

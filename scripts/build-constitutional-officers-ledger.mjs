@@ -68,7 +68,7 @@ const SPLIT = [
 // [office, fte, fy26, fy27, personnel, operating, capitalOther]
 const SUMMARY_ROWS = [
   ["Walton County Sheriff's Office", 669, 114116228, 114116228, 83607042, 21348864, 9160322],
-  ["Board of County Commissioners*", 11, 12889938, 12791280, 2791180, 7890100, 2110000],
+  ["Board of County Commissioners", 11, 12889938, 12791280, 2791180, 7890100, 2110000],
   ["Tax Collector", 40, 7900000, 8500000, 7512920, 987080, 0],
   ["Clerk of Courts & County Comptroller", 80, 5984728, 6871175, 4905230, 1845945, 120000],
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
@@ -121,8 +121,7 @@ const OFFICES = [
       { item: "Boating Improvements (Vessel Registration Fees)", amount: 100000 },
       { item: "Board-Approved Capital Improvements", amount: 75000 }
     ],
-    capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in statutory Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project.",
-    footnote: "Total includes a $500,000 (FY2026) / $400,000 (FY2027) statutory Other Uses Contingency reserve, which the Expenditure Ledger shows separately under its \"Other Uses\" functional classification rather than under General Government &mdash; both are the same dollars, presented two different ways in this book."
+    capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in statutory Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project."
   },
   {
     name: "Tax Collector", fund: "Fee-Based (State Approved)",
@@ -298,6 +297,15 @@ const sharedCss = `
   .qr-wrap img.qr{ width:.72in; height:.72in; background:#fff; border-radius:4px; padding:3px; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .top-grid{ display:grid; grid-template-columns:1fr 1.9in; gap:.28in; margin-bottom:.14in; }
+  section.profile-page h1,
+  section.profile-page .official-line,
+  section.profile-page .comm-grid{ width:calc(100% - 2.18in); }
+  section.profile-page .side-card{
+    position:absolute;
+    top:1.02in;
+    right:.62in;
+    width:1.9in;
+  }
   h2.sec{ margin:0 0 .05in; color:#003f28; font:800 7.9pt Georgia, serif; text-transform:uppercase; letter-spacing:.03em; border:0; padding:0; }
   p.sof{ margin:0 0 .1in; color:#33453c; font-size:8pt; line-height:1.42; }
   .indep-box{ margin-top:.08in; padding:.1in .14in; background:#f9f8f2; border:1px solid #d1be78; border-radius:8px; }
@@ -388,7 +396,7 @@ async function buildOfficerPage(o, pageNumber) {
   }
 
   return `
-  <section${denseClass}>
+  <section class="profile-page${denseClass ? " dense-profile" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officers</small>
     <h1>${o.name}</h1>
@@ -397,7 +405,7 @@ async function buildOfficerPage(o, pageNumber) {
       <div>
         <h2 class="sec">Statement of Function</h2>
         <p class="sof">${o.sof}</p>
-        <div class="indep-box"><p>Like all Constitutional Officers, this office operates as a separate entity, setting its own policies and procedures, employee hiring, and line-item budget management once its budget is approved.</p></div>
+        ${o.name === "Board of County Commissioners" ? "" : `<div class="indep-box"><p>Like all Constitutional Officers, this office operates as a separate entity, setting its own policies and procedures, employee hiring, and line-item budget management once its budget is approved.</p></div>`}
       </div>
       <div class="side-card">
         <div class="side-fund">${o.fund}</div>
@@ -456,7 +464,6 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <p class="footnote">*Board of County Commissioners' total includes a $500,000 (FY2026) / $400,000 (FY2027) statutory Other Uses Contingency reserve, which the Expenditure Ledger shows separately under its "Other Uses" functional classification rather than under General Government &mdash; both are the same dollars, presented two different ways in this book. The "Capital &amp; Other" column reflects the same combined presentation used in the live Constitutional Officers data.</p>
     <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

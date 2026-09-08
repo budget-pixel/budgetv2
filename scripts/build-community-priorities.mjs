@@ -171,7 +171,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Community Priorities and Organizational Challenges</h1>
-    <p class="intro">The draft Walton County Strategic Plan 2027&ndash;2032 identifies six Strategic Priority Areas that align County goals across local government, economy, environment, and quality of life. The FY2027 tentative budget uses that developing framework to connect resources with community needs; final strategic-plan status will be updated after Board action.</p>
+    <p class="intro">The Walton County Strategic Plan 2027&ndash;2032 identifies six Strategic Priority Areas that align County goals across local government, economy, environment, and quality of life. The FY2027 tentative budget uses that framework to connect resources with community needs.</p>
 
     <h2>Strategic Priority Areas, FY2027&ndash;FY2032</h2>
     <div class="area-grid">

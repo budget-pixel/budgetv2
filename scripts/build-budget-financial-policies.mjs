@@ -100,7 +100,7 @@ const sharedCss = `
     border-top:4px solid #0b7741;
     border-radius:0 0 10px 10px;
     background:#fbfcfa;
-    box-shadow:0 4px 12px rgba(0,0,0,.04);
+    box-shadow:0 2px 0 rgba(0,0,0,.04);
   }
   .objective-card h3{
     margin:0 0 .08in;

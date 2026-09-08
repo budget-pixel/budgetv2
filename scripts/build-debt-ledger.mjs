@@ -181,11 +181,6 @@ const html = `<!doctype html>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
-    <h2>Outstanding Notes</h2>
-    <div class="notes-grid">
-      ${NOTES.map(([n, a, p]) => `<div class="note-card"><b>${n}</b><span class="amt">${a}</span><span>${p}</span></div>`).join("")}
-    </div>
-
     <h2>Debt Ledger &mdash; Capital Projects Fund</h2>
     <div class="ledger">
       <div class="lrow head"><div class="rlabel">Year Ending September 30</div><div class="rnum">Principal</div><div class="rnum">Interest</div><div class="rnum">Total</div></div>

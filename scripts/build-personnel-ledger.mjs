@@ -157,8 +157,8 @@ const sharedCss = `
   .ledger{ border-top:1px solid #003f28; }
   .lrow{
     display:grid;
-    grid-template-columns:2in 1.15in .62in .62in .5in .82in .82in .82in;
-    gap:.05in;
+    grid-template-columns:1.65in .95in .62in .62in .5in .82in .82in .82in;
+    gap:.045in;
     align-items:center;
     padding:.038in 0;
     border-bottom:1px solid #f1f4f1;

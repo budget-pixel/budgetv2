@@ -286,8 +286,6 @@ const page2 = `
 
     ${row(GRAND_TOTAL, "grand")}
 
-    <p class="footnote">Section subtotals do not sum exactly to the countywide total above; the difference reflects debt service, interfund transfers, and reserve balances not broken out by department in this table. Figures reflect the FY 2026 adopted budget compared to the FY 2027 tentative budget and may not sum exactly due to rounding and in-year budget amendments.</p>
-
     <footer><span>FY 2027 Annual Budget</span><b>PAGE_B</b></footer>
   </section>
 `;

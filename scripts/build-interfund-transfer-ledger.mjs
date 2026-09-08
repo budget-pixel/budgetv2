@@ -163,8 +163,6 @@ const html = `<!doctype html>
     <h1>Interfund Transfer Ledger</h1>
     <p class="intro">Both sides of each planned FY2027 budget transfer between County funds &mdash; which fund provides the resources and which fund receives them. Every dollar transferred out is matched by a dollar transferred in; the two tables below total the same $143,663,984.</p>
 
-    <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
-
     <h2>Interfund Transfers Out</h2>
     <div class="ledger">
       ${tableHead("Fund (Transferring Out)")}

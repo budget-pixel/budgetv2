@@ -22,8 +22,7 @@ import { chromium } from "playwright";
 const STATS = [
   ["$9.20M", "Total FY2027 Budget"],
   ["-$96K", "Net Change from FY2026"],
-  ["-1.0%", "Net Percent Change"],
-  ["13", "Independent Agencies"]
+  ["-1.0%", "Net Percent Change"]
 ];
 
 // [entity, fy26, fy27, fund]
@@ -166,7 +165,7 @@ const sharedCss = `
   }
   .stat-strip{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:.12in;
     margin:0 0 .2in;
   }
@@ -235,7 +234,7 @@ const sharedCss = `
     padding:.15in .2in;
     margin-bottom:.13in;
     background:#fbfcfa;
-    box-shadow:0 4px 12px rgba(0,0,0,.04);
+    box-shadow:0 2px 0 rgba(0,0,0,.04);
   }
   .ag-head{
     display:flex;
@@ -254,7 +253,8 @@ const sharedCss = `
   .ag-brow{ display:flex; justify-content:space-between; gap:.08in; padding:.032in 0; border-bottom:1px solid #f1f4f1; font-size:7pt; break-inside:avoid; }
   .ag-brow span{ color:#173229; }
   .ag-brow b{ color:#003f28; white-space:nowrap; }
-  .agency-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.12in; align-items:start; }
+  .agency-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.12in; align-items:stretch; }
+  .agency-grid .ag-card{ display:flex; flex-direction:column; height:100%; }
   .agency-grid .ag-card{ margin:0; padding:.12in .15in; }
   .agency-grid .ag-head{ margin-bottom:.055in; padding-bottom:.045in; }
   .agency-grid .ag-head h3{ font-size:10.2pt; }
@@ -301,8 +301,7 @@ function agencyCardHtml(a, extraClass = "") {
 // sits in a uniform two-up grid so the section reads consistently.
 const PAGE_GROUPS = [
   [0, 1, 2, 3, 4],
-  [5, 6, 7, 8],
-  [9, 10, 11, 12]
+  [5, 6, 7, 8, 9, 10, 11, 12]
 ];
 
 const startPage = Number(process.argv[3] || 189);
@@ -321,7 +320,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
-    <p class="footnote">E911 Fund's revenue is transferred to and included in the Walton County Sheriff's Office budget shown in the Constitutional Officers Ledger; it is not additional countywide spending beyond that total. No entity in this section has FY2027 capital funding.</p>
+    <p class="footnote">E911 Fund revenue is transferred to the Walton County Sheriff's Office budget.</p>
     <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

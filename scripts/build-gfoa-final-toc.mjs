@@ -18,31 +18,31 @@ const sections = [
   { title: "Constitutional Officers", subtitle: "Function, elected leadership, revenue sources, staffing, and budget summary for independently elected offices and the Board.", items: [["Constitutional Officers Ledger",42],["Walton County Sheriff's Office",43],["Board of County Commissioners",44],["Tax Collector",45],["Clerk of Courts & County Comptroller",46],["Property Appraiser",47],["Supervisor of Elections",48]] },
   { title: "Other Agencies and Court-Related Functions", subtitle: "Budget and funding information for courts, health, statutory partners, and other independent entities.", items: [
     ["Independent Agencies Ledger",50],
-    ["Statutory & Other Agency Funding",51], ["Walton County Health Department",51], ["South Walton Fire & State Control",51], ["Medical Examiner",51],
-    ["E911 Fund",52], ["Non-Profit Funding Program",52], ["State Attorney",52], ["Public Defender",52],
-    ["Circuit Court",53], ["Court Technology & Innovations",53], ["County Court",53], ["Daughette MSBU Fund",53], ["Guardian Ad Litem",53]
+    ["Statutory & Other Agency Funding",51], ["Walton County Health Department",51], ["South Walton Fire & State Control",51], ["Medical Examiner",51], ["E911 Fund",51],
+    ["Non-Profit Funding Program",52], ["State Attorney",52], ["Public Defender",52],
+    ["Circuit Court",52], ["Court Technology & Innovations",52], ["County Court",52], ["Daughette MSBU Fund",52], ["Guardian Ad Litem",52]
   ] },
-  { title: "Departments and Services", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",54],["Departments and Services Overview",56]],
+  { title: "Departments and Services", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",54]],
     groups: [
-      ["Beach Operations",89,[["Beach Renourishment",90],["Beach Tram",91],["Tourism Lifeguard Services and Beach Safety",82]]],
-      ["Building Department",58,[]],
-      ["Building Construction and Maintenance",57,[]],
-      ["Code Compliance",59,[]],
-      ["County Administration Offices",60,[["Extension Office",66],["Geographic Information Systems",67],["Housing & Urban Development",68],["Human Resources",69],["Libraries",70],["Probation",76],["Soil Conservation",80],["Veteran Services",83]]],
-      ["Emergency Management",63,[]],
-      ["Engineering Department",64,[]],
-      ["Environmental Services",null,[["Environmental Resources",65],["Mosquito Control",71],["Mossy Head Wastewater Treatment Facility",72],["Solid Waste",81]]],
-      ["Office of Management and Budget",73,[]],
-      ["Office of the County Attorney",74,[]],
-      ["Parks & Recreation",null,[["Eagle Springs Golf and Recreation Center",61],["Eagle Springs Grill",62],["Recreation",79]]],
-      ["Planning",75,[]],
-      ["Public Works",77,[]],
-      ["Purchasing",78,[]],
-      ["Tourism Administration",84,[["Sales and Visitors Center",85],["Communications",86],["Marketing",87],["North Walton",88]]]
+      ["Beach Operations",87,[["Beach Renourishment",88],["Beach Tram",89],["Tourism Lifeguard Services and Beach Safety",80]]],
+      ["Building Department",56,[]],
+      ["Building Construction and Maintenance",55,[]],
+      ["Code Compliance",57,[]],
+      ["County Administration Offices",58,[["Extension Office",64],["Geographic Information Systems",65],["Housing & Urban Development",66],["Human Resources",67],["Libraries",68],["Probation",74],["Soil Conservation",78],["Veteran Services",81]]],
+      ["Emergency Management",61,[]],
+      ["Engineering Department",62,[]],
+      ["Environmental Services",null,[["Environmental Resources",63],["Mosquito Control",69],["Mossy Head Wastewater Treatment Facility",70],["Solid Waste",79]]],
+      ["Office of Management and Budget",71,[]],
+      ["Office of the County Attorney",72,[]],
+      ["Parks & Recreation",null,[["Eagle Springs Golf and Recreation Center",59],["Eagle Springs Grill",60],["Recreation",77]]],
+      ["Planning",73,[]],
+      ["Public Works",75,[]],
+      ["Purchasing",76,[]],
+      ["Tourism Administration",82,[["Sales and Visitors Center",83],["Communications",84],["Marketing",85],["North Walton",86]]]
     ]
   },
-  { title: "Financial Plan", subtitle: "Countywide revenues, expenditures, staffing, operating budgets, fund schedules, transfers, debt, and long-term outlook.", items: [["Financial Plan Chapter",92],["Consolidated Budget Ledger",93],["Revenue Portfolio",95],["Revenue Ledger",96],["Expenditure Ledger",99],["Personnel Ledger",101],["Contractual Services Ledger",102],["Fund Financial Ledger",106],["Interfund Transfer Ledger",108],["Debt Ledger",109],["Long-Term Outlook",110]] },
-  { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [["Capital Budget Chapter",112],["Capital Improvement Plan",113],["Machinery, Vehicles and Equipment Ledger",116],["Transportation and Infrastructure Capital Ledger",118],["Tourist Development Fund Capital Ledger",120],["Sheriff Capital Project Ledger",121],["Recreation Plat Fee Fund Capital Ledger",122],["Sidewalk Fund Capital Ledger",123],["Glossary, Acronyms and Frequently Asked Questions",124],["Back Cover",133]] }
+  { title: "Financial Plan", subtitle: "Countywide revenues, expenditures, staffing, operating budgets, fund schedules, transfers, debt, and long-term outlook.", items: [["Financial Plan Chapter",90],["Consolidated Budget Ledger",91],["Revenue Portfolio",93],["Revenue Ledger",94],["Expenditure Ledger",97],["Personnel Ledger",99],["Contractual Services Ledger",100],["Fund Financial Ledger",104],["Interfund Transfer Ledger",106],["Debt Ledger",107],["Long-Term Outlook",108]] },
+  { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [["Capital Budget Chapter",110],["Capital Improvement Plan",111],["Machinery, Vehicles and Equipment Ledger",114],["Transportation and Infrastructure Capital Ledger",116],["Tourist Development Fund Capital Ledger",118],["Sheriff Capital Project Ledger",119],["Recreation Plat Fee Fund Capital Ledger",120],["Sidewalk Fund Capital Ledger",121],["Glossary, Acronyms and Frequently Asked Questions",122],["Back Cover",131]] }
 ];
 
 // Three chapters per printed page instead of one.
@@ -59,7 +59,7 @@ function renderRows(s){
   return `${summary}<main class="dept-groups">${groups}</main>`;
 }
 const byTitle = Object.fromEntries(sections.map(s => [s.title, s]));
-const renderChapter = (s) => `<div class="chapter"><small class="kicker">Budget Book Guide</small><h1>${s.title}</h1><p class="subtitle">${s.subtitle}</p>${renderRows(s)}</div>`;
+const renderChapter = (s) => `<div class="chapter"><h1>${s.title}</h1><p class="subtitle">${s.subtitle}</p>${renderRows(s)}</div>`;
 const pages = PAGE_GROUPS.map(g => `<section class="page"><header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>${g.titles.map(t => renderChapter(byTitle[t])).join('')}<footer><span>FY 2027 Tentative Budget</span><b>${g.footer}</b></footer></section>`).join('');
 const browser = await chromium.launch({headless:true});
 const page = await browser.newPage();
