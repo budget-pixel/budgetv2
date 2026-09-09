@@ -124,7 +124,7 @@ const OFFICES = [
     capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in statutory Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project."
   },
   {
-    name: "Tax Collector", fund: "Fee-Based (State Approved)",
+    name: "Tax Collector", fund: "General Fund (State Approved)",
     official: "Rhonda Skipper", title: "Tax Collector", photo: "tax-collector-rhonda-skipper.jpg",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission",
     fte: 40, ftePrior: 40, fteDelta: 0, fy26: 7900000, fy27: 8500000,
@@ -144,7 +144,7 @@ const OFFICES = [
     newPositions: [{ title: "IT Tech III", n: 1 }, { title: "IT Systems Administrator", n: 1 }, { title: "Network Administrator", n: 1 }]
   },
   {
-    name: "Property Appraiser", fund: "Fee-Based (State Approved)",
+    name: "Property Appraiser", fund: "General Fund (State Approved)",
     official: "Gary Gregor", title: "Property Appraiser", photo: "property-appraiser-gary-gregor.png",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45269/Property-Appraiser-Submission",
     fte: 37, ftePrior: 38, fteDelta: -1, fy26: 4829596, fy27: 4954338,
@@ -168,33 +168,42 @@ const OFFICES = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
+// Amounts come from each office's own Revenue Summary line (o.revenue,
+// see above), not a fresh calculation -- e.g. the Sheriff's "Other
+// Sources $102.6M" is that office's property-tax-funded interfund
+// transfer (per the live Who Pays Ledger's own sheriff-specific
+// property-tax classification), so it's attributed to the taxpayer
+// row here the same way. Left blank where the office's own revenue
+// text says the amount isn't part of this County-funded presentation
+// (Tax Collector's fee commissions, Clerk's outside court/recording
+// revenue) rather than implying a false precision.
 function whoPaysFor(o) {
   const rows = {
     "Walton County Sheriff's Office": [
-      ["Property owners and County taxpayers", "County funding supports law enforcement, corrections, fire rescue, animal services, and court security."],
-      ["Service users and partner agencies", "Patient/insurance payments, service charges, intergovernmental funding, and E911-related revenues offset costs."]
+      ["Property owners and County taxpayers", 102600000, "County funding supports law enforcement, corrections, fire rescue, animal services, and court security."],
+      ["Service users and partner agencies", 11500000, "Patient/insurance payments, service charges, intergovernmental funding, and E911-related revenues offset costs."]
     ],
     "Board of County Commissioners": [
-      ["Residents and property owners", "Property taxes and other locally generated revenues support the Board's Countywide policy and administrative functions."],
-      ["Visitors, businesses, and service users", "Sales-related revenues, fees, permits, and shared revenues contribute to services and capital activity."]
+      ["Residents and property owners", 4500000, "Property taxes and other locally generated revenues support the Board's Countywide policy and administrative functions."],
+      ["Visitors, businesses, and service users", 8200000, "Sales-related revenues, fees, permits, and shared revenues contribute to services and capital activity."]
     ],
     "Tax Collector": [
-      ["Taxing authorities and transaction customers", "Statutory commissions and fees are earned while collecting taxes and providing vehicle, vessel, license, and related services."],
-      ["County taxpayers", "The County-funded share is supported by general governmental revenues."]
+      ["Taxing authorities and transaction customers", null, "Statutory commissions and fees are earned while collecting taxes and providing vehicle, vessel, license, and related services."],
+      ["County taxpayers", 4400000, "The County-funded share is supported by general governmental revenues."]
     ],
     "Clerk of Courts & County Comptroller": [
-      ["Residents and property owners", "County general revenues support Clerk-to-the-Board, finance, records, technology, and comptroller functions."],
-      ["Court and records users", "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
+      ["Residents and property owners", 6900000, "County general revenues support Clerk-to-the-Board, finance, records, technology, and comptroller functions."],
+      ["Court and records users", null, "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
     ],
     "Property Appraiser": [
-      ["Property owners through local taxing authorities", "The County, municipalities, and school board fund proportional shares of the State-approved property appraisal budget."],
-      ["County taxpayers", "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
+      ["Property owners through local taxing authorities", 5000000, "The County, municipalities, and school board fund proportional shares of the State-approved property appraisal budget."],
+      ["County taxpayers", null, "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
     ],
     "Supervisor of Elections": [
-      ["Residents and property owners", "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations."]
+      ["Residents and property owners", 1700000, "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations."]
     ]
   };
-  return rows[o.name] || [["County taxpayers and service users", "The funding mix reflects the public revenues and service charges supporting this office."]];
+  return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
 }
 
 const sharedCss = `
@@ -326,8 +335,10 @@ const sharedCss = `
   .side-split b{ color:#e7c95f; }
   .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin-bottom:.13in; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.45; }
-  .payer-row{ margin:0 0 .055in; padding-left:.09in; border-left:3px solid #d1be78; color:#33453c; font-size:6.8pt; line-height:1.3; }
-  .payer-row b{ display:block; color:#003f28; font-size:7pt; }
+  .payer-row{ margin:0 0 .07in; color:#33453c; font-size:6.8pt; line-height:1.3; }
+  .payer-row .payer-head{ display:flex; justify-content:space-between; align-items:baseline; gap:.08in; }
+  .payer-row b{ color:#003f28; font-size:7pt; }
+  .payer-row .payer-amt{ flex:0 0 auto; color:#006231; font-size:7.3pt; font-weight:800; white-space:nowrap; }
   .source-trace{ margin-top:.04in !important; color:#68786f !important; font-size:5.7pt !important; line-height:1.28 !important; font-style:italic; }
   .fte-list{ margin:0; }
   .fte-row{ display:flex; justify-content:space-between; gap:.08in; padding:.035in 0; border-bottom:1px solid #f1f4f1; font-size:7.2pt; }
@@ -362,7 +373,7 @@ async function buildOfficerPage(o, pageNumber) {
   const delta = o.fy27 - o.fy26;
   const isDown = delta < 0;
   const dsign = delta >= 0 ? "+" : "&minus;";
-  const payerHtml = whoPaysFor(o).map(([label, detail]) => `<div class="payer-row"><b>${label}</b>${detail}</div>`).join("");
+  const payerHtml = whoPaysFor(o).map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div>${detail}</div>`).join("");
   const denseClass = o.name === "Property Appraiser" ? " class=\"dense-profile\"" : "";
 
   const officialHtml = o.commissioners
@@ -427,7 +438,7 @@ async function buildOfficerPage(o, pageNumber) {
       </div>
     </div>
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
-      <div class="rev-box"><h2>Who Pays</h2>${payerHtml}<p class="source-trace">Accounting sources: ${o.revenue}</p></div>
+      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}<p class="source-trace">Accounting sources: ${o.revenue}</p></div>
       ${hasBreakouts
         ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests &mdash; FY2027</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY2027</h2>${fteHtml}</div>`}

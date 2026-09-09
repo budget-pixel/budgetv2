@@ -2994,6 +2994,16 @@ main#content > .recreation-parks-section {
   transform: translateY(10px) scale(.985);
   transition: opacity .24s ease, transform .24s ease;
 }
+.wc-budget-detail-card.wc-budget-detail-card--ledger {
+  display: flex;
+  height: min(86vh, 960px);
+  flex-direction: column;
+}
+.wc-budget-detail-card.wc-budget-detail-card--ledger .wc-budget-detail-body {
+  min-height: 0;
+  max-height: none;
+  flex: 1 1 auto;
+}
 .wc-budget-detail-modal.is-open .wc-budget-detail-card {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -4763,6 +4773,9 @@ main#content > .recreation-parks-section {
     width: min(100%, calc(100vw - 24px));
     border-radius: 22px;
     max-height: 82vh;
+  }
+  .wc-budget-detail-card.wc-budget-detail-card--ledger {
+    height: 82vh;
   }
   .wc-budget-detail-header {
     padding: 18px 18px 14px;

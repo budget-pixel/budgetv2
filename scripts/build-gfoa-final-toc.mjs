@@ -18,40 +18,44 @@ const sections = [
     ["Budget in Brief",15],["Budget Change Summary",16],["Property Tax Allocation Ledger",18],["Florida Amendment 3 Risk",20],
     { header: "Budget Process" },
     ["Budget Process",21],["Budget Calendar",22],["Financial Policies",23],["Summary of Financial Policies",24],
-    ["Statistical and Supplemental Information",25],["Principal Property Taxpayers",26],
-    ["What Residents Receive",27],["From Priority to Measurable Result",28],["Program and Service Budget",29],["Program Outcome Cards",31],["Revenue Strategy",33],
+    ["What Residents Receive",25],["From Priority to Measurable Result",26],["Program and Service Budget",27],["Program Outcome Cards",29],["Revenue Strategy",31],
     { header: "Workforce Plan" },
-    ["Workforce Plan",34],["Personnel Ledger",35],["Workforce Investment",36],
-    ["Long-Term Decisions",37],["Capital Portfolio",38],["Major Project Decision Record",39],["Capital Accountability",40],["Public Participation and Decision Record",41]
+    ["Workforce Plan",32],["Personnel Ledger",33],
+    ["Long-Term Decisions",34],["Capital Portfolio",35],["Major Project Decision Record",36],["Capital Accountability",37],["Public Participation and Decision Record",38]
   ]},
-  { title: "Constitutional Officers", subtitle: "Function, elected leadership, revenue sources, staffing, and budget summary for independently elected offices and the Board.", items: [["Constitutional Officers Ledger",43],["Walton County Sheriff's Office",44],["Board of County Commissioners",45],["Tax Collector",46],["Clerk of Courts & County Comptroller",47],["Property Appraiser",48],["Supervisor of Elections",49]] },
+  { title: "Constitutional Officers", subtitle: "Function, elected leadership, revenue sources, staffing, and budget summary for independently elected offices and the Board.", items: [["Constitutional Officers Ledger",40],["Walton County Sheriff's Office",41],["Board of County Commissioners",42],["Tax Collector",43],["Clerk of Courts & County Comptroller",44],["Property Appraiser",45],["Supervisor of Elections",46]] },
   { title: "Other Agencies and Court-Related Functions", subtitle: "Budget and funding information for courts, health, statutory partners, and other independent entities.", items: [
-    ["Independent Agencies Ledger",51],
-    ["Statutory & Other Agency Funding",52], ["Walton County Health Department",52], ["South Walton Fire & State Control",52], ["Medical Examiner",52], ["E911 Fund",52],
-    ["Non-Profit Funding Program",53], ["State Attorney",53], ["Public Defender",53],
-    ["Circuit Court",53], ["Court Technology & Innovations",53], ["County Court",53], ["Daughette MSBU Fund",53], ["Guardian Ad Litem",53]
+    ["Independent Agencies Ledger",48],
+    ["Statutory & Other Agency Funding",49], ["Walton County Health Department",49], ["South Walton Fire & State Control",49], ["Medical Examiner",49], ["E911 Fund",49],
+    ["Non-Profit Funding Program",50], ["State Attorney",50], ["Public Defender",50],
+    ["Circuit Court",50], ["Court Technology & Innovations",50], ["County Court",50], ["Daughette MSBU Fund",50], ["Guardian Ad Litem",50]
   ] },
-  { title: "Departments and Services", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",55]],
+  { title: "Departments and Services", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",52]],
     groups: [
-      ["Beach Operations",88,[["Beach Renourishment",89],["Beach Tram",90]]],
-      ["Building Department",57,[]],
-      ["Building Construction and Maintenance",56,[]],
-      ["Code Compliance",58,[]],
-      ["County Administration Offices",59,[["Extension Office",65],["Geographic Information Systems",66],["Housing & Urban Development",67],["Human Resources",68],["Libraries",69],["Probation",75],["Soil Conservation",79],["Veteran Services",82]]],
-      ["Emergency Management",62,[]],
-      ["Engineering Department",63,[]],
-      ["Environmental Services",null,[["Environmental Resources",64],["Mosquito Control",70],["Mossy Head Wastewater Treatment Facility",71],["Solid Waste",80]]],
-      ["Office of Management and Budget",72,[]],
-      ["Office of the County Attorney",73,[]],
-      ["Parks & Recreation",null,[["Eagle Springs Golf and Recreation Center",60],["Eagle Springs Grill",61],["Recreation",78]]],
-      ["Planning",74,[]],
-      ["Public Works",76,[]],
-      ["Purchasing",77,[]],
-      ["Tourism Administration",83,[["Sales and Visitors Center",84],["Communications",85],["Marketing",86],["North Walton",87],["Tourism Lifeguard Services and Beach Safety",81]]]
+      ["Beach Operations",85,[["Beach Renourishment",86],["Beach Tram",87]]],
+      ["Building Department",54,[]],
+      ["Building Construction and Maintenance",53,[]],
+      ["Code Compliance",55,[]],
+      ["County Administration Offices",56,[["Extension Office",62],["Geographic Information Systems",63],["Housing & Urban Development",64],["Human Resources",65],["Libraries",66],["Probation",72],["Soil Conservation",76],["Veteran Services",79]]],
+      ["Emergency Management",59,[]],
+      ["Engineering Department",60,[]],
+      ["Environmental Services",null,[["Environmental Resources",61],["Mosquito Control",67],["Mossy Head Wastewater Treatment Facility",68],["Solid Waste",77]]],
+      ["Office of Management and Budget",69,[]],
+      ["Office of the County Attorney",70,[]],
+      ["Parks & Recreation",null,[["Eagle Springs Golf and Recreation Center",57],["Eagle Springs Grill",58],["Recreation",75]]],
+      ["Planning",71,[]],
+      ["Public Works",73,[]],
+      ["Purchasing",74,[]],
+      ["Tourism Administration",80,[["Sales and Visitors Center",81],["Communications",82],["Marketing",83],["North Walton",84],["Tourism Lifeguard Services and Beach Safety",78]]]
     ]
   },
-  { title: "Financial Plan", subtitle: "Countywide revenues, expenditures, staffing, operating budgets, fund schedules, transfers, debt, and long-term outlook.", items: [["Financial Plan Chapter",91],["Consolidated Budget Ledger",92],["Revenue Portfolio",94],["Revenue Ledger",95],["Expenditure Ledger",98],["Contractual Services Ledger",100],["Fund Financial Ledger",104],["Interfund Transfer Ledger",106],["Debt Ledger",107],["Long-Term Outlook",108]] },
-  { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [["Capital Budget Chapter",110],["Capital Improvement Plan",111],["Machinery, Vehicles and Equipment Ledger",114],["Transportation and Infrastructure Capital Ledger",116],["Tourist Development Fund Capital Ledger",118],["Sheriff Capital Project Ledger",119],["Recreation Plat Fee Fund Capital Ledger",120],["Sidewalk Fund Capital Ledger",121],["Glossary, Acronyms and Frequently Asked Questions",122],["Back Cover",131]] }
+  { title: "Financial Plan", subtitle: "Countywide revenues, expenditures, staffing, operating budgets, fund schedules, transfers, debt, and long-term outlook.", items: [["Financial Plan Chapter",88],["Consolidated Budget Ledger",89],["Revenue Portfolio",91],["Revenue Ledger",92],["Expenditure Ledger",95],["Contractual Services Ledger",97],["Fund Financial Ledger",101],["Interfund Transfer Ledger",103],["Debt Ledger",104],["Long-Term Outlook",105]] },
+  { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [
+    ["Capital Budget Chapter",107],["Capital Improvement Plan",108],["Machinery, Vehicles and Equipment Ledger",111],["Transportation and Infrastructure Capital Ledger",113],["Tourist Development Fund Capital Ledger",115],["Sheriff Capital Project Ledger",116],["Recreation Plat Fee Fund Capital Ledger",117],["Sidewalk Fund Capital Ledger",118],
+    { header: "Glossary, Statistical, and Supplemental Information" },
+    ["Statistical and Supplemental Information",119],["Principal Property Taxpayers",120],["Glossary, Acronyms and Frequently Asked Questions",121],
+    ["Back Cover",130]
+  ] }
 ];
 
 // Three chapters per printed page instead of one.

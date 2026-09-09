@@ -169,7 +169,7 @@ const sharedCss = `
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:.12in;
-    margin:0 0 .18in;
+    margin:.16in 0 .18in;
   }
   .stat-card{
     padding:.11in .08in;
@@ -279,7 +279,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <div class="title-row">
       <div class="title-copy">
-        <small class="kicker">Financial Overview</small>
+        <small class="kicker">Workforce Budget</small>
         <h1>Personnel Ledger</h1>
         <p class="intro">FY2027 staffing and personnel cost by Constitutional Officer and by Board department, compared to FY2026.</p>
       </div>

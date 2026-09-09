@@ -149,7 +149,8 @@ const html = `<!doctype html>
     padding:.09in;
     border-radius:18px;
     background:#ffffff;
-    box-shadow:0 10px 0 rgba(0,0,0,.35);
+    border:1px solid rgba(15,35,58,.16);
+    box-shadow:0 10px 0 rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.28);
     transform:rotate(2.25deg);
     transform-origin:center center;
   }
@@ -254,7 +255,13 @@ const html = `<!doctype html>
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-gfoa-award.pdf";
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage();
+// The rotated certificate cards are composited raster layers (CSS
+// transform:rotate on a bordered, shadowed box) rather than vector paths,
+// so at the default deviceScaleFactor:1 their edges rasterize at screen
+// resolution and print jagged/stair-stepped. A higher deviceScaleFactor
+// rasterizes those layers at higher pixel density before they're baked
+// into the PDF, so the rotated borders stay smooth at print resolution.
+const page = await browser.newPage({ deviceScaleFactor: 3 });
 await page.setContent(html, { waitUntil: "networkidle" });
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();

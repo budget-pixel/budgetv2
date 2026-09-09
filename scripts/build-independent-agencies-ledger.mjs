@@ -227,43 +227,24 @@ const sharedCss = `
     text-transform:uppercase;
   }
 
-  .ag-card{
-    border:1px solid #e4ebe7;
-    border-top:4px solid #0b7741;
-    border-radius:0 0 11px 11px;
-    padding:.15in .2in;
-    margin-bottom:.13in;
-    background:#fbfcfa;
-    box-shadow:0 2px 0 rgba(0,0,0,.04);
-  }
-  .ag-head{
-    display:flex;
-    justify-content:space-between;
+  .ag-entry{ padding:.14in 0; border-bottom:1px solid #e4ebe7; }
+  .ag-entry:first-child{ padding-top:0; }
+  .ag-entry:last-child{ border-bottom:0; }
+  .ag-entry-head{
+    display:grid;
+    grid-template-columns:1fr .95in .95in .95in 1.1in;
+    gap:.06in;
     align-items:baseline;
-    padding-bottom:.06in;
-    border-bottom:2px solid #d1be78;
-    margin-bottom:.08in;
+    margin-bottom:.05in;
   }
-  .ag-head h3{ margin:0; color:#003f28; font:800 11.5pt Georgia, serif; }
-  .ag-head .ag-fund{ color:#68786f; font-size:6.8pt; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
-  .ag-stats{ display:flex; gap:.2in; margin-bottom:.07in; font-size:7pt; color:#33453c; }
-  .ag-stats b{ color:#003f28; }
-  .ag-narrative{ font-size:6.9pt; line-height:1.38; color:#33453c; margin:0 0 .1in; }
-  .ag-breakdown{ column-count:2; column-gap:.28in; margin-top:.06in; padding-top:.08in; border-top:1px solid #e4ebe7; }
-  .ag-brow{ display:flex; justify-content:space-between; gap:.08in; padding:.032in 0; border-bottom:1px solid #f1f4f1; font-size:7pt; break-inside:avoid; }
+  .ag-entry-head .rlabel{ color:#003f28; font:800 9.4pt Georgia, serif; }
+  .ag-entry-head .rnum{ text-align:right; color:#33453c; font-size:7.9pt; font-variant-numeric:tabular-nums; }
+  .ag-entry-head .rfund{ text-align:right; color:#68786f; font-size:7.2pt; font-style:italic; }
+  .ag-narrative{ max-width:7.2in; font-size:7.7pt; line-height:1.48; color:#33453c; margin:0; }
+  .ag-breakdown{ column-count:3; column-gap:.3in; margin-top:.09in; padding-top:.08in; border-top:1px solid #eef1ee; }
+  .ag-brow{ display:flex; justify-content:space-between; gap:.08in; padding:.045in 0; border-bottom:1px solid #f6f8f6; font-size:7.5pt; break-inside:avoid; }
   .ag-brow span{ color:#173229; }
   .ag-brow b{ color:#003f28; white-space:nowrap; }
-  .agency-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.12in; align-items:stretch; }
-  .agency-grid .ag-card{ display:flex; flex-direction:column; height:100%; }
-  .agency-grid .ag-card{ margin:0; padding:.12in .15in; }
-  .agency-grid .ag-head{ margin-bottom:.055in; padding-bottom:.045in; }
-  .agency-grid .ag-head h3{ font-size:10.2pt; }
-  .agency-grid .ag-stats{ flex-wrap:wrap; gap:.04in .12in; margin-bottom:.05in; font-size:6.25pt; }
-  .agency-grid .ag-narrative{ margin-bottom:.04in; font-size:6.15pt; line-height:1.31; }
-  .agency-grid .ag-card.feature{ grid-column:1 / -1; }
-  .agency-grid .ag-card.feature .ag-narrative{ font-size:6.45pt; }
-  .agency-grid .ag-card.feature .ag-breakdown{ column-count:3; column-gap:.18in; }
-  .agency-grid .ag-card.feature .ag-brow{ font-size:6.15pt; padding:.024in 0; }
 `;
 
 function summaryRowHtml(r) {
@@ -273,35 +254,32 @@ function summaryRowHtml(r) {
   return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div><div class="rfund">${fund}</div></div>`;
 }
 
-function agencyCardHtml(a, extraClass = "") {
+function agencyCardHtml(a) {
   const delta = a.fy27 - a.fy26;
   const isDown = delta < 0;
-  const dsign = delta >= 0 ? "+" : "&minus;";
-  const personnelBit = a.personnel > 0 ? ` &middot; Personnel <b>${money(a.personnel)}</b> &middot; Operating <b>${money(a.operating)}</b>` : "";
   return `
-  <div class="ag-card${extraClass ? ` ${extraClass}` : ""}">
-    <div class="ag-head">
-      <h3>${a.name}</h3>
-      <div class="ag-fund">${a.fund}</div>
-    </div>
-    <div class="ag-stats">
-      <span>FY26 <b>${money(a.fy26)}</b></span>
-      <span>FY27 <b>${money(a.fy27)}</b></span>
-      <span class="${isDown ? "change is-down" : "change"}">${dsign}${money(Math.abs(delta)).slice(1)} (${pct(delta, a.fy26)})</span>
-      ${personnelBit}
+  <div class="ag-entry">
+    <div class="ag-entry-head">
+      <div class="rlabel">${a.name}</div>
+      <div class="rnum">${money(a.fy26)}</div>
+      <div class="rnum">${money(a.fy27)}</div>
+      <div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, a.fy26)}</div>
+      <div class="rfund">${a.fund}</div>
     </div>
     <p class="ag-narrative">${a.narrative}</p>
     ${a.breakdown ? `<div class="ag-breakdown">${a.breakdown.map(([n, v]) => `<div class="ag-brow"><span>${n}</span><b>${money(v)}</b></div>`).join("")}</div>` : ""}
   </div>`;
 }
 
-// Consolidated into three editorial spreads, each using the same two-column
-// card grid. The statutory allocation is the one deliberate exception --
-// full-width, since its 13-line breakdown needs the room -- everything else
-// sits in a uniform two-up grid so the section reads consistently.
+// A single flowing ledger list (matching the overview page's own summary
+// table column widths) instead of a two-column card grid, split across
+// two continuation pages by cumulative content weight rather than a flat
+// item count -- the statutory allocation's 13-line breakdown is worth
+// several plain entries, so it anchors the first page while the rest
+// balance out evenly instead of leaving the first page mostly empty.
 const PAGE_GROUPS = [
-  [0, 1, 2, 3, 4],
-  [5, 6, 7, 8, 9, 10, 11, 12]
+  [0, 1, 2, 3, 4, 5, 6],
+  [7, 8, 9, 10, 11, 12]
 ];
 
 const startPage = Number(process.argv[3] || 189);
@@ -328,16 +306,14 @@ pageCounter++;
 
 const agencyPagesHtml = PAGE_GROUPS.map((idxs) => {
   const group = idxs.map((i) => AGENCIES[i]);
-  const groupIndex = PAGE_GROUPS.indexOf(idxs);
-  const cards = group.map((a, i) => {
-    if (groupIndex === 0 && i === 0) return agencyCardHtml(a, "feature");
-    return agencyCardHtml(a);
-  }).join("");
+  const rowHead = `<div class="ag-entry-head" style="border-bottom:1px solid #003f28;color:#68786f;font-size:6.3pt;font-weight:800;letter-spacing:.01em;text-transform:uppercase;padding-bottom:.06in;"><div>Entity</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div><div class="rfund">Fund</div></div>`;
+  const cards = group.map((a) => agencyCardHtml(a)).join("");
   const html = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 style="font-size:16pt;">Independent Agencies Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
-    <div class="agency-grid">${cards}</div>
+    ${rowHead}
+    ${cards}
     <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
   </section>
   `;

@@ -164,7 +164,6 @@ writer.add_page(enh.pages[8])
 
 add_range(writer, process, 1, 2)
 add_range(writer, financial_policies, 1, 2)
-add_range(writer, base, 22, 23)
 
 # Public-value/GFOA decision guide, including revenue risk, projects, and workshops.
 # Revenue Portfolio (enh page 8) moves down to the Financial Plan chapter,
@@ -176,10 +175,14 @@ add_range(writer, enh, 1, 7)
 # Personnel Ledger now sits right behind the Workforce Plan page (enh page
 # 10), inside the Workforce Plan group, instead of deep in the Financial
 # Plan chapter -- so enh page 10 is pulled out on its own, then Personnel
-# Ledger, then the rest of the Workforce/Public Value range (enh 11-16).
+# Ledger, then the rest of the Workforce/Public Value range. The old enh
+# page 11 ("Where Personnel Investment Changes") was deleted -- its stat
+# cards were merged into enh page 10 -- so this range now starts at enh
+# page 11 (Long-Term Decisions, formerly enh page 12) instead of 12, and
+# runs one page shorter (11-15 instead of 12-16).
 writer.add_page(enh.pages[9])
 writer.add_page(personnel.pages[0])
-add_range(writer, enh, 11, 16)
+add_range(writer, enh, 11, 15)
 
 # Constitutional Officers, agencies, and departments. The revised overview and
 # two Tourism profiles replace the obsolete overview/exclusion language.
@@ -215,15 +218,22 @@ add_range(writer, long_term, 1, 2)
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
 add_range(writer, capital_ledgers, 1, 8)
+
+# Statistical and Supplemental Information and Principal Property Taxpayers
+# moved here, right in front of the Glossary, as part of the new "Glossary,
+# Statistical, and Supplemental Information" reference subsection -- instead
+# of sitting up in the Introduction and Our County chapter.
+add_range(writer, base, 22, 23)
+
 add_range(writer, glossary, 1, 9)
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 131
+EXPECTED_PAGES = 130
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 42, 50, 54, 91, 110, 131}
+skip_number = {1, 2, 39, 47, 51, 88, 107, 130}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         page.merge_page(number_stamp(number), over=True)
@@ -249,36 +259,38 @@ outline = [
     ("Property Tax Allocation Ledger", 18, "Introduction and Our County"),
     ("Florida Amendment 3 Risk", 20, "Introduction and Our County"),
     ("Financial Policies", 23, "Introduction and Our County"),
-    ("Public Value and Decision Guide", 27, None),
-    ("Program and Service Budget", 29, "Public Value and Decision Guide"),
-    ("Program Outcomes", 31, "Public Value and Decision Guide"),
-    ("Revenue Strategy", 33, "Public Value and Decision Guide"),
-    ("Workforce Plan", 34, "Public Value and Decision Guide"),
-    ("Personnel Ledger", 35, "Workforce Plan"),
-    ("Long-Term Decisions", 37, "Public Value and Decision Guide"),
-    ("Capital Portfolio", 38, "Public Value and Decision Guide"),
-    ("Major Project Decision Record", 39, "Public Value and Decision Guide"),
-    ("Public Participation", 41, "Public Value and Decision Guide"),
-    ("Constitutional Officers", 42, None),
-    ("Other Agencies and Court-Related Functions", 50, None),
-    ("Departments and Services", 54, None),
-    ("Tourism Administration", 83, "Departments and Services"),
-    ("Sales and Visitors Center", 84, "Tourism Administration"),
-    ("Communications", 85, "Tourism Administration"),
-    ("Marketing", 86, "Tourism Administration"),
-    ("North Walton", 87, "Tourism Administration"),
-    ("Beach Operations", 88, "Departments and Services"),
-    ("Beach Renourishment", 89, "Beach Operations"),
-    ("Beach Tram", 90, "Beach Operations"),
-    ("Financial Plan", 91, None),
-    ("Revenue Portfolio", 94, "Financial Plan"),
-    ("Revenue Ledger", 95, "Financial Plan"),
-    ("Fund Financial Ledger", 104, "Financial Plan"),
-    ("Debt Ledger", 107, "Financial Plan"),
-    ("Long-Term Outlook", 108, "Financial Plan"),
-    ("Capital Budget", 110, None),
-    ("Capital Improvement Plan", 111, "Capital Budget"),
-    ("Glossary and Frequently Asked Questions", 122, None),
+    ("Public Value and Decision Guide", 25, None),
+    ("Program and Service Budget", 27, "Public Value and Decision Guide"),
+    ("Program Outcomes", 29, "Public Value and Decision Guide"),
+    ("Revenue Strategy", 31, "Public Value and Decision Guide"),
+    ("Workforce Plan", 32, "Public Value and Decision Guide"),
+    ("Personnel Ledger", 33, "Workforce Plan"),
+    ("Long-Term Decisions", 34, "Public Value and Decision Guide"),
+    ("Capital Portfolio", 35, "Public Value and Decision Guide"),
+    ("Major Project Decision Record", 36, "Public Value and Decision Guide"),
+    ("Public Participation", 38, "Public Value and Decision Guide"),
+    ("Constitutional Officers", 39, None),
+    ("Other Agencies and Court-Related Functions", 47, None),
+    ("Departments and Services", 51, None),
+    ("Tourism Administration", 80, "Departments and Services"),
+    ("Sales and Visitors Center", 81, "Tourism Administration"),
+    ("Communications", 82, "Tourism Administration"),
+    ("Marketing", 83, "Tourism Administration"),
+    ("North Walton", 84, "Tourism Administration"),
+    ("Beach Operations", 85, "Departments and Services"),
+    ("Beach Renourishment", 86, "Beach Operations"),
+    ("Beach Tram", 87, "Beach Operations"),
+    ("Financial Plan", 88, None),
+    ("Revenue Portfolio", 91, "Financial Plan"),
+    ("Revenue Ledger", 92, "Financial Plan"),
+    ("Fund Financial Ledger", 101, "Financial Plan"),
+    ("Debt Ledger", 104, "Financial Plan"),
+    ("Long-Term Outlook", 105, "Financial Plan"),
+    ("Capital Budget", 107, None),
+    ("Capital Improvement Plan", 108, "Capital Budget"),
+    ("Statistical and Supplemental Information", 119, "Capital Budget"),
+    ("Principal Property Taxpayers", 120, "Capital Budget"),
+    ("Glossary and Frequently Asked Questions", 121, "Capital Budget"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -287,10 +299,10 @@ for title, page_number, parent_title in outline:
     parents[title] = item
 
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-writer.add_uri(33, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
-writer.add_uri(40, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
-writer.add_uri(130, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(130, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(31, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
+writer.add_uri(37, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
+writer.add_uri(129, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
+writer.add_uri(129, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

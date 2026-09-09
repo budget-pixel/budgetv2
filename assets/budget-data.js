@@ -4585,9 +4585,11 @@
 
   function openBudgetDetailModal(toggle, detail) {
     const modal = ensureBudgetDetailModal();
+    const card = modal.querySelector(".wc-budget-detail-card");
     const title = modal.querySelector("#wc-budget-detail-title");
     const body = modal.querySelector(".wc-budget-detail-body");
     const label = toggle.dataset.closedLabel || toggle.textContent || "Budget Lines";
+    if (card) card.classList.toggle("wc-budget-detail-card--ledger", /ledger|budget lines/i.test(label));
     if (title) title.textContent = label.replace(/^View\s+/i, "");
     if (body) {
       body.className = "wc-budget-detail-body wc-budget-lines-card";
@@ -4635,10 +4637,12 @@
   function openBudgetDetailPanel(toggle, options) {
     options = options || {};
     const modal = ensureBudgetDetailModal();
+    const card = modal.querySelector(".wc-budget-detail-card");
     const title = modal.querySelector("#wc-budget-detail-title");
     const kicker = modal.querySelector(".wc-budget-detail-kicker");
     const body = modal.querySelector(".wc-budget-detail-body");
     if (title) title.textContent = options.title || "Detail";
+    if (card) card.classList.toggle("wc-budget-detail-card--ledger", /ledger/i.test(options.title || ""));
     if (kicker) kicker.textContent = options.kicker !== undefined ? options.kicker : "Budget Detail";
     if (body) {
       body.className = "wc-budget-detail-body" + (options.bodyClassName ? " " + options.bodyClassName : "");
@@ -9107,8 +9111,12 @@
       return source.reduce((s, r) => s + (r[col.field] || 0), 0);
     }
 
-    const lastIndex = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.length - 1;
-    const totals = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map(() => 0);
+    // Expenditures are budgeted through FY2027 on this ledger. Revenue-only
+    // FY2028/FY2029 projections must not become the expense table's default
+    // visible columns; FY2027 Proposed is the current/default view.
+    const expenditureLedgerColumns = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.filter((column) => !column.projected);
+    const lastIndex = expenditureLedgerColumns.length - 1;
+    const totals = expenditureLedgerColumns.map(() => 0);
     const allMatchingRows = [];
     const allMatchingDedupedRows = [];
     const bodyRows = EXPENSE_ACTIVITY_SECTIONS.map((section) => {
@@ -9119,7 +9127,7 @@
       allMatchingDedupedRows.push(...matchingDeduped);
       return (
         '<tr><td><button type="button" class="wc-revenue-ledger-source-link" data-expenditure-ledger-activity="' + escapeHtml(section.containerId) + '" title="View ' + escapeHtml(section.title || section.activity) + ' graph and explanation">' + escapeHtml(section.title || section.activity) + "</button></td>" +
-        CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
+        expenditureLedgerColumns.map((col, i) => {
           const sum = columnSum(matching, matchingDeduped, col);
           totals[i] += sum;
           return '<td class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + formatCurrency(sum) + "</td>";
@@ -9138,7 +9146,7 @@
     const unclassifiedDedupedRows = dedupedRows.filter((r) => !knownActivities.has(expenseActivityForRow(r).toLowerCase()));
     allMatchingRows.push(...unclassifiedExpenseRows);
     allMatchingDedupedRows.push(...unclassifiedDedupedRows);
-    const unclassifiedExpenseValues = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
+    const unclassifiedExpenseValues = expenditureLedgerColumns.map((col, i) => {
       const sum = columnSum(unclassifiedExpenseRows, unclassifiedDedupedRows, col);
       totals[i] += sum;
       return sum;
@@ -9171,7 +9179,7 @@
       '<div class="wc-data-table-scroll">' +
       '<table class="wc-data-table">' +
       "<thead><tr><th>Expense Area</th>" +
-      CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c, i) => '<th class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
+      expenditureLedgerColumns.map((c, i) => '<th class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
       "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
       "</table>" +
@@ -12456,20 +12464,6 @@
       "<h3>Highlights</h3>" +
       TOURISM_ADMIN_HIGHLIGHTS_PARAGRAPHS.map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("") +
       "</section>";
-    const tourismAdminSpec = TOURISM_ADMIN_SECTIONS.find((spec) => spec.label === "Tourism Administration");
-    // The Tourist Development Fund (111) books revenue under several
-    // Dept_Names across tourism divisions. This page should present that
-    // full fund revenue once, as a single Tourism Administration card,
-    // rather than splitting it into one card per Dept_Name.
-    const tourismAdminRevenue = tourismAdminSpec
-      ? renderTypeSummaryGroup(
-          normalizeTourismAdminRevenueRows((cache.revenues || []).filter((r) => fundCodeForRow(r) === "111")),
-          "revenue",
-          "Revenue Summary",
-          null
-        )
-      : "";
-
     // Rendered inside the "Tourism Administration" division's own section,
     // right after its statement-of-function narrative but before its
     // Expenditure Summary card, instead of the page's standalone
@@ -12509,7 +12503,7 @@
       );
     }).filter(Boolean).join("");
 
-    return overview + tourismAdminRevenue + sections;
+    return overview + sections;
   }
 
   // Tourism Beach Operations' page combines three separately budgeted

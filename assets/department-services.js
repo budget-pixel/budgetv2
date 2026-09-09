@@ -1434,6 +1434,11 @@
       // Recover here so Beach Operations, Beach Tram, and Beach
       // Renourishment always receive their own standard three-card snapshot.
       if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
+      if(key==='tourism administration'){
+        var existingChangeGrid=document.querySelector('.wc-profile-change-grid');
+        var existingAdminIntro=document.querySelector('#tourism-administration .tourism-admin-section-narrative');
+        if(existingChangeGrid&&existingAdminIntro) existingAdminIntro.insertAdjacentElement('afterend',existingChangeGrid);
+      }
       document.body.classList.remove('wc-board-department-loading');
       var existingMain=document.querySelector('main#content');
       if(existingMain) existingMain.removeAttribute('aria-busy');
@@ -1681,6 +1686,11 @@
     // enhancements cannot initialize, it must not leave the beach offices
     // showing their legacy summary cards.
     if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
+    if(key==='tourism administration'){
+      var tourismAdminIntro=document.querySelector('#tourism-administration .tourism-admin-section-narrative');
+      var tourismAdminChangeGrid=functionSection.querySelector('.wc-profile-change-grid');
+      if(tourismAdminIntro&&tourismAdminChangeGrid) tourismAdminIntro.insertAdjacentElement('afterend',tourismAdminChangeGrid);
+    }
     bindSnapshotTooltips(snapshot);
     var graphButton=snapshot.querySelector('[data-profile-graph-trigger]');
     if(graphButton) bindSnapshotBudgetGraph(graphButton,expenses,staffing,key,title.textContent.trim());

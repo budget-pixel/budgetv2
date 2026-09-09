@@ -1,6 +1,55 @@
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
+// Maps each office's name (DEPARTMENTS[].name) to its live page on the
+// budget site, so every department page can carry a QR code to the fuller
+// online version -- instead of the QR only appearing for the dozen or so
+// offices that happen to have a public video. Tourism Administration's
+// four divisions share one live page (tourism-administration.html) split
+// into sections; the anchors match the slugified ids
+// renderTourismAdministrationSections gives those sections (see
+// DEPARTMENT_PAGE_ANCHOR_OVERRIDES in assets/budget-data.js). Beach
+// Renourishment and Beach Tram are line items within the Beach Operations
+// page, with no dedicated section of their own, so they link to the plain
+// page like Beach Operations itself.
+const DEPARTMENT_PAGE_HREFS = new Map([
+  ["Building Construction and Maintenance", "building-construction-and-maintenance.html"],
+  ["Building Department", "building-department.html"],
+  ["Code Compliance", "code-compliance.html"],
+  ["County Administration Offices", "county-administration.html"],
+  ["Eagle Springs Golf and Recreation Center", "eagle-springs-golf-and-recreation-center.html"],
+  ["Eagle Springs Grill", "eagle-springs-grill.html"],
+  ["Emergency Management", "emergency-management.html"],
+  ["Engineering Department", "engineering-department.html"],
+  ["Environmental Resources", "environmental-resources.html"],
+  ["Extension Office", "extension-office.html"],
+  ["Geographic Info Systems", "geographic-info-systems.html"],
+  ["Housing & Urban Development", "housing-and-urban-development.html"],
+  ["Human Resources", "human-resources.html"],
+  ["Libraries", "libraries.html"],
+  ["Mosquito Control", "mosquito-control.html"],
+  ["Mossy Head Wastewater Treatment Facility", "mossy-head-wastewater-treatment-facility.html"],
+  ["Office of Management and Budget", "office-of-management-and-budget.html"],
+  ["Office of the County Attorney", "office-of-the-county-attorney.html"],
+  ["Planning", "planning.html"],
+  ["Probation", "probation.html"],
+  ["Public Works", "public-works.html"],
+  ["Purchasing", "purchasing.html"],
+  ["Recreation", "recreation.html"],
+  ["Soil Conservation", "soil-conservation.html"],
+  ["Solid Waste", "solid-waste.html"],
+  ["Tourism Lifeguard Services and Beach Safety", "tourism-lifeguard-services-and-beach-safety.html"],
+  ["Veteran Services", "veteran-services.html"],
+  ["Tourism Administration", "tourism-administration.html"],
+  ["Sales and Visitors Center", "tourism-administration.html#sales-and-visitor-center"],
+  ["Communications", "tourism-administration.html#communications"],
+  ["Marketing", "tourism-administration.html#marketing"],
+  ["North Walton", "tourism-administration.html#north-walton"],
+  ["Beach Operations", "tourism-beach-operations.html"],
+  ["Beach Renourishment", "tourism-beach-operations.html"],
+  ["Beach Tram", "tourism-beach-operations.html"]
+]);
+
 // Rebuilds the FY 2027 Budget Book's "Departments and Services" chapter
 // -- one full magazine-quality page per department, addressing GFOA
 // Distinguished Budget Presentation departmental-section criteria:
@@ -700,21 +749,70 @@ function partnersFor(d) {
   return "County Administration, Office of Management and Budget, Purchasing, Human Resources, Information Technology, and operational partners as needed.";
 }
 
+// Splits a department's Revenue Summary text (d.revenue, e.g. "General
+// Government Taxes &mdash; Ad Valorem Taxes $1.8M &middot; Miscellaneous
+// Revenue &mdash; Indirect Administrative Fees $413K") into its
+// top-level, middot-separated line items, each with the dollar amount
+// at its end. Used to attribute a real dollar figure to each Who Funds
+// row instead of leaving the payer narrative unquantified.
+function parseRevenueGroups(html) {
+  return String(html || "").split(/\s*&middot;\s*/).map((seg) => {
+    const m = seg.match(/\$([\d,.]+)\s*(M|K)?\s*$/);
+    if (!m) return null;
+    let amount = parseFloat(m[1].replace(/,/g, ""));
+    if (m[2] === "M") amount *= 1000000; else if (m[2] === "K") amount *= 1000;
+    return { label: seg.replace(/&mdash;/g, "-"), amount };
+  }).filter(Boolean);
+}
+function sumRevenue(html) {
+  return parseRevenueGroups(html).reduce((s, g) => s + g.amount, 0);
+}
+function sumRevenueMatching(html, re) {
+  return parseRevenueGroups(html).filter((g) => re.test(g.label)).reduce((s, g) => s + g.amount, 0);
+}
+
 function whoPaysFor(d) {
   const n = d.name.toLowerCase();
-  if (d.fund.includes("Tourist Development")) return [["Overnight visitors", "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."], ["Residents and day visitors", "They benefit from the service but do not pay this lodging tax unless they purchase a taxable overnight stay."]];
-  if (/tourism lifeguard/.test(n)) return [["Overnight visitors", "Tourist Development Tax supports the service agreement; it is collected on eligible short-term lodging stays."]];
-  if (/building department/.test(n)) return [["Permit applicants, property owners, contractors and developers", "Building Fund resources originate primarily from permits and development-related service activity; prior resources may also be carried forward."]];
-  if (/golf and recreation/.test(n)) return [["Golfers, members and facility users", "Memberships, green fees, cart fees, pool entry and other customer charges support the facility."], ["Residents and visitors", "Intergovernmental or General Fund support covers the portion not recovered from users."]];
-  if (/eagle springs grill/.test(n)) return [["Customers and event patrons", "Food, beverage and event purchases support Grill operations."], ["County support", "Any remaining cost is supported through the applicable County fund."]];
-  if (/housing/.test(n)) return [["Federal taxpayers", "Federal housing-assistance resources support eligible households and program administration."]];
-  if (/engineering|public works/.test(n)) return [["Residents and non-residents purchasing fuel", "Local-option and other fuel taxes support transportation services."], ["Property owners and broader taxpayers", "Property-tax, grant or shared-government support may fund eligible projects and operations."]];
-  if (/solid waste/.test(n)) return [["Solid-waste customers and property owners", "Service charges, assessments and other dedicated Solid Waste Fund resources support collection and disposal services."], ["County funds receiving or providing support", "Transfers and indirect administrative allocations retain the payer mix of the originating fund."]];
-  if (/mosquito/.test(n)) return [["Property owners in the service area", "Dedicated assessments and special-revenue resources support mosquito-control services."], ["County funds", "Indirect administrative allocations reimburse shared County support where budgeted."]];
-  if (/planning|code compliance/.test(n)) return [["Applicants, property owners, businesses and regulated users", "Permits, certificates, service charges and fines are paid when the related activity or service occurs."], ["Property owners and general taxpayers", "General Fund or property-tax support covers services not recovered through fees."]];
-  if (/library|recreation/.test(n)) return [["Residents and property owners", "General Fund support provides broad public access."], ["Program and facility users", "Applicable rentals, program fees or service charges are paid only by participating users."]];
-  if (d.fund === "General Fund") return [["Residential, commercial and other property owners", "Ad valorem property taxes support the General Fund based on taxable property value."], ["Residents, visitors and businesses", "Sales taxes, shared revenues, fees and other General Fund resources broaden support beyond property tax."]];
-  return [["Users and beneficiaries of the dedicated fund", "Fees, restricted taxes, grants or prior fund resources support eligible services."], ["State, federal or other County funding sources", "Shared revenues and transfers retain the payer mix of their originating source."]];
+  const total = sumRevenue(d.revenue);
+  if (d.fund.includes("Tourist Development")) return [["Overnight visitors", total || null, "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."], ["Residents and day visitors", null, "They benefit from the service but do not pay this lodging tax unless they purchase a taxable overnight stay."]];
+  if (/tourism lifeguard/.test(n)) return [["Overnight visitors", total || null, "Tourist Development Tax supports the service agreement; it is collected on eligible short-term lodging stays."]];
+  if (/building department/.test(n)) return [["Permit applicants, property owners, contractors and developers", total || null, "Building Fund resources originate primarily from permits and development-related service activity; prior resources may also be carried forward."]];
+  if (/golf and recreation/.test(n)) {
+    const fees = sumRevenueMatching(d.revenue, /charges for services/i);
+    return [["Golfers, members and facility users", fees || null, "Memberships, green fees, cart fees, pool entry and other customer charges support the facility."], ["Residents and visitors", (total - fees) || null, "Intergovernmental or General Fund support covers the portion not recovered from users."]];
+  }
+  if (/eagle springs grill/.test(n)) {
+    const fees = sumRevenueMatching(d.revenue, /charges for services/i);
+    return [["Customers and event patrons", fees || null, "Food, beverage and event purchases support Grill operations."], ["County support", (total - fees) || null, "Any remaining cost is supported through the applicable County fund."]];
+  }
+  if (/housing/.test(n)) return [["Federal taxpayers", total || null, "Federal housing-assistance resources support eligible households and program administration."]];
+  if (/engineering|public works/.test(n)) {
+    const fuel = sumRevenueMatching(d.revenue, /fuel tax/i);
+    return [["Residents and non-residents purchasing fuel", fuel || null, "Local-option and other fuel taxes support transportation services."], ["Property owners and broader taxpayers", (total - fuel) || null, "Property-tax, grant or shared-government support may fund eligible projects and operations."]];
+  }
+  if (/solid waste/.test(n)) {
+    const dedicated = sumRevenueMatching(d.revenue, /sales surtax|charges for services|special assessment/i);
+    return [["Solid-waste customers and property owners", dedicated || null, "Service charges, assessments and other dedicated Solid Waste Fund resources support collection and disposal services."], ["County funds receiving or providing support", (total - dedicated) || null, "Transfers and indirect administrative allocations retain the payer mix of the originating fund."]];
+  }
+  if (/mosquito/.test(n)) {
+    const dedicated = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|assessment|ad valorem/i);
+    return [["Property owners in the service area", dedicated || null, "Dedicated assessments and special-revenue resources support mosquito-control services."], ["County funds", (total - dedicated) || null, "Indirect administrative allocations reimburse shared County support where budgeted."]];
+  }
+  if (/planning|code compliance/.test(n)) {
+    const fees = sumRevenueMatching(d.revenue, /charges for services|permits|fees|fines|special assessment/i);
+    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
+    return [["Applicants, property owners, businesses and regulated users", fees || null, "Permits, certificates, service charges and fines are paid when the related activity or service occurs."], ["Property owners and general taxpayers", taxes || null, "General Fund or property-tax support covers services not recovered through fees."]];
+  }
+  if (/library|recreation/.test(n)) {
+    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
+    const fees = sumRevenueMatching(d.revenue, /charges for services|fees/i);
+    return [["Residents and property owners", taxes || null, "General Fund support provides broad public access."], ["Program and facility users", fees || null, "Applicable rentals, program fees or service charges are paid only by participating users."]];
+  }
+  if (d.fund === "General Fund") {
+    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
+    return [["Residential, commercial and other property owners", taxes || null, "Ad valorem property taxes support the General Fund based on taxable property value."], ["Residents, visitors and businesses", (total - taxes) || null, "Sales taxes, shared revenues, fees and other General Fund resources broaden support beyond property tax."]];
+  }
+  return [["Users and beneficiaries of the dedicated fund", total || null, "Fees, restricted taxes, grants or prior fund resources support eligible services."], ["State, federal or other County funding sources", null, "Shared revenues and transfers retain the payer mix of their originating source."]];
 }
 
 const sharedCss = `
@@ -764,6 +862,7 @@ const sharedCss = `
     grid-template-columns:1fr 1.9in;
     gap:.28in;
     margin-bottom:.13in;
+    min-height:3.3in;
   }
   section.profile-page h1{ width:calc(100% - 2.18in); }
   section.profile-page .side-card{
@@ -854,7 +953,7 @@ const sharedCss = `
   .rev-con-grid.three{ grid-template-columns:1.05fr 1fr 1fr; }
   .rev-box h2, .con-box h2, .cap-box h2{ padding-bottom:.04in; border-bottom:1px solid #003f28; margin-bottom:.05in; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.1pt; line-height:1.42; }
-  .payer-row{margin:0 0 .045in;padding-left:.085in;border-left:3px solid #d1be78;color:#33453c;font-size:6.65pt;line-height:1.3}.payer-row b{display:block;color:#003f28;font-size:6.8pt}.source-trace{margin:.055in 0 0;color:#68786f;font-size:5.75pt!important;line-height:1.3!important;font-style:italic}
+  .payer-row{margin:0 0 .06in;color:#33453c;font-size:6.65pt;line-height:1.3}.payer-row .payer-head{display:flex;justify-content:space-between;align-items:baseline;gap:.08in}.payer-row b{color:#003f28;font-size:6.8pt}.payer-row .payer-amt{flex:0 0 auto;color:#006231;font-size:7pt;font-weight:800;white-space:nowrap}.source-trace{margin:.055in 0 0;color:#68786f;font-size:5.75pt!important;line-height:1.3!important;font-style:italic}
   .con-list{ margin:0; }
   .con-row{ display:flex; justify-content:space-between; gap:.08in; padding:.03in 0; border-bottom:1px solid #f1f4f1; font-size:6.9pt; }
   .con-row .con-name{ color:#173229; }
@@ -925,13 +1024,14 @@ async function buildDeptPage(d, pageNumber) {
   const fy26 = fy27 - deltaTotal;
   const isDown = deltaTotal < 0;
   const dsign = deltaTotal >= 0 ? "+" : "−";
-  const payerHtml = whoPaysFor(d).map(([payer, explanation]) => `<div class="payer-row"><b>${payer}</b>${explanation}</div>`).join("");
+  const payerHtml = whoPaysFor(d).map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div>${explanation}</div>`).join("");
 
   let qrHtml = "";
-  if (d.video) {
-    const url = `https://www.youtube.com/watch?v=${d.video}`;
+  const pageHref = DEPARTMENT_PAGE_HREFS.get(d.name);
+  if (pageHref) {
+    const url = `https://budget-waltoncountyfl.com/pages/${pageHref}`;
     const dataUrl = await QRCode.toDataURL(url, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
-    qrHtml = `<div class="qr-wrap"><img src="${dataUrl}" alt="QR"/><span>Watch Video</span></div>`;
+    qrHtml = `<div class="qr-wrap"><img src="${dataUrl}" alt="QR"/><span>View Online</span></div>`;
   }
 
   const pmHtml = d.pms.map((pm) => `
@@ -1005,7 +1105,7 @@ async function buildDeptPage(d, pageNumber) {
     <h2>Core Services</h2><div class="svc-grid">${(d.services || [["Primary service", d.sof.split(".")[0] + "."]]).map(([t, desc]) => `<div class="svc-card"><b>${t}</b><span>${desc}</span></div>`).join("")}</div>
     <div class="decision-strip"><div class="decision-card"><b>FY2027 Service-Level Change</b>${serviceChangeFor(d)}</div><div class="decision-card"><b>Delivery Partners</b>${partnersFor(d)}</div></div>
     <div class="rev-con-grid three">
-      <div class="rev-box"><h2>Who Pays</h2>${payerHtml}<p class="source-trace">Accounting sources: ${d.revenue}</p></div>
+      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}<p class="source-trace">Accounting sources: ${d.revenue}</p></div>
       <div class="con-box"><h2>Contracts</h2>${conHtml}</div>
       <div class="cap-box"><h2>Capital Requests &mdash; FY2027</h2>${capItems.length ? capHtml : (d.capital ? `<p class="con-empty">${money(d.capital)} is budgeted as capital; no itemized request list was available.</p>` : `<p class="con-empty">No FY2027 capital requests.</p>`)}</div>
     </div>
@@ -1025,7 +1125,7 @@ async function main() {
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Departments<br/>and Services</h1b>
-      <p>A statement of function, department goal, services, challenges, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board department offices and programs.</p>
+      <p>A statement of function, department goal, services, challenges, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board offices and programs.</p>
     </div>
   </section>`;
 
@@ -1038,7 +1138,7 @@ async function main() {
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1 style="border-bottom:none;padding-bottom:0;">Departments and Services</h1>
-    <p class="sof">Each of the following ${DEPARTMENTS.length} pages presents one Board department office or program in full: its statement of function, department goal, services and challenges, funding sources, contracted services, budget by category (Personnel, Contractual, Operating, Capital), staffing, and verified performance measures where available. Where an office has a public video overview, a QR code links to it. Tourism Administration and Beach Operations are presented at the office level to match the online explorer hierarchy.</p>
+    <p class="sof">Each of the following ${DEPARTMENTS.length} pages presents one Board office or program in full: its statement of function, department goal, services and challenges, funding sources, contracted services, budget by category (Personnel, Contractual, Operating, Capital), staffing, and verified performance measures where available. Each page carries a QR code linking to that office's live page online, which carries more detail than fits in print. Tourism Administration and Beach Operations are presented at the office level to match the online explorer hierarchy.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>${DEPARTMENTS.length}</b><span>Offices Profiled</span></div>
       <div class="stat-card"><b>${money(totalFy27)}</b><span>Combined FY2027 Budget</span></div>

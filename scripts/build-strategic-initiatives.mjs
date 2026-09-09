@@ -184,8 +184,6 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <p class="plan-note">The Strategic Plan 2027&ndash;2032 also defines six Strategic Priority Areas &mdash; Public Safety and Health, Planned Growth and Infrastructure, Environment and Natural Resources, Economic Development and Tourism, Government and Operational Performance, and Quality of Life. See the following chapter, Community Priorities and Organizational Challenges, for each area's goals and how the FY2027 budget funds them.</p>
-
     <footer><span>FY 2027 Annual Budget</span><b>12</b></footer>
   </section>
 </body></html>`;
