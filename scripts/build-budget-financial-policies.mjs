@@ -201,7 +201,7 @@ const pageHeader = () => `<header><span>Walton County, Florida</span><em>Fiscal 
 const page1 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Financial Structure, Policies, and Process</small>
+    <small class="kicker">Budget Process</small>
     <h1>Financial Policies</h1>
     <p class="intro">Walton County&rsquo;s Financial Policies establish the framework for sound fiscal management and responsible stewardship of public resources. They guide the Board of County Commissioners in evaluating current operations, planning for future needs, and making informed financial decisions that support the County&rsquo;s strategic objectives &mdash; promoting long-term financial stability, transparency, accountability, and consistency in budgeting practices.</p>
 
@@ -222,7 +222,7 @@ const page1 = `
 const page2 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Financial Structure, Policies, and Process</small>
+    <small class="kicker">Budget Process</small>
     <h1>Summary of Financial Policies</h1>
     <p class="intro">Nine adopted policies govern how Walton County safeguards, invests, allocates, and reports on public funds.</p>
 

@@ -3248,6 +3248,12 @@ main#content > .recreation-parks-section {
 .wc-revenue-ledger-back-button:hover { border-color: var(--green); }
 :root[data-theme="dark"] .wc-revenue-ledger-detail-view { background: #102119; }
 :root[data-theme="dark"] .wc-revenue-ledger-back-button { background: #16241d; color: var(--text); }
+.wc-expenditure-ledger-page > #layout #content > .wc-revenue-full-bleed{display:none!important}
+.wc-expenditure-ledger-detail-content{padding:0 20px 22px}
+.wc-expenditure-ledger-detail-content .wc-revenue-heading-inner{width:100%;max-width:none;margin:0 0 20px;padding:30px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;box-shadow:none;text-align:left}
+.wc-expenditure-ledger-detail-content .wc-revenue-heading-inner span{display:block;margin-bottom:7px;color:var(--green);font-size:.68rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+.wc-expenditure-ledger-detail-content .wc-revenue-heading-inner h2{margin:0 0 10px;color:var(--navy)}
+.wc-expenditure-ledger-detail-content .wc-revenue-heading-inner p{max-width:1000px;margin:0;color:var(--muted);line-height:1.65}
 .wc-fund-activity-detail {
   margin: 4px 14px 14px 28px;
   padding: 10px 14px;
@@ -4269,6 +4275,7 @@ main#content > .recreation-parks-section {
 .wc-asset-page { width: 100%; max-width: 1040px; margin: 0 auto; padding: 28px 22px 56px; }
 .wc-asset-actions { margin-bottom: 16px; }
 .wc-asset-back { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 13px; border: 1px solid rgba(0,98,49,.14); border-radius: 999px; background: #fff; color: var(--green); font-size: .82rem; font-weight: 800; text-decoration: none; }
+.wc-budget-process-back { margin-bottom: 24px; }
 .wc-asset-back:hover { border-color: var(--green); }
 .wc-asset-hero { margin-bottom: 16px; padding: 26px 28px; border: 1px solid rgba(209,190,120,.34); border-radius: 18px; background: #fff; box-shadow: 0 18px 44px rgba(0,98,49,.08); }
 .wc-asset-hero-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }

@@ -71,13 +71,13 @@ const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "3.83%"];
 const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$159,639,395", "100.00%"];
 
 const EXAMPLE_ROWS = [
-  ["Sheriff's Office", "61.39%", "$527.14"],
-  ["Capital Projects", "15.68%", "$134.64"],
-  ["Clerk of Court", "4.30%", "$36.92"],
-  ["Property Appraiser", "3.10%", "$26.62"],
-  ["Board of County Commissioners", "2.81%", "$24.13"],
-  ["Tax Collector", "2.79%", "$23.96"],
-  ["All Other Entities", "9.93%", "$85.27"]
+  ["Sheriff's Office", "61.39%", "$421.77"],
+  ["Capital Projects", "15.68%", "$107.71"],
+  ["Clerk of Court", "4.30%", "$29.54"],
+  ["Property Appraiser", "3.10%", "$21.30"],
+  ["Board of County Commissioners", "2.81%", "$19.30"],
+  ["Tax Collector", "2.79%", "$19.17"],
+  ["All Other Entities", "9.93%", "$68.21"]
 ];
 
 const PROPERTY_TAX_CALCULATOR_URL = "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator";
@@ -321,7 +321,7 @@ const pageHeader = () => `<header><span>Walton County, Florida</span><em>Fiscal 
 const page1 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Financial Summaries</small>
+    <small class="kicker">Financial Overview</small>
     <h1>Property Tax Allocation</h1>
     <p class="intro">How Walton County&rsquo;s share of a property tax bill is distributed across Constitutional Officers, Independent Agencies, Capital projects, and Board Departments. Figures exclude the North Walton Mosquito Control District, a separate taxing district with its own millage rate.</p>
     <div class="stat-strip">
@@ -364,12 +364,17 @@ const page2 = `
 
     ${row(GRAND_TOTAL, "grand")}
 
+    <div class="dept-table" style="margin-top:.08in">
+      ${row(["North Walton Mosquito Control District", "$1,426,937", "0.89%"])}
+      ${row(["Total Ad Valorem Revenue (All Funds)", "$161,066,332", "100.00%"], "grand")}
+    </div>
+
     <div class="example-card">
       <div class="example-head">
         <div>
           <h2>What This Means for a Homeowner</h2>
-          <p>On a home with $250,000 in taxable value, the County&rsquo;s FY 2027 tentative millage of 3.4347 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
-          <div class="example-total"><b>$858.68</b><span>Total County portion of the tax bill</span></div>
+          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 tentative millage of 3.4347 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
+          <div class="example-total"><b>$686.94</b><span>Total County portion of the tax bill</span></div>
         </div>
         <div class="tax-qr">
           <img src="${PROPERTY_TAX_QR}" alt="QR code for the Walton County personalized property tax calculator">

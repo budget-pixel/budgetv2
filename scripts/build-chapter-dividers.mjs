@@ -23,7 +23,7 @@ const css = `
 const constitutionalOfficersDivider = `
   <section>
     <div class="divider">
-      <span class="kicker2">Budget Book Guide</span>
+      <span class="kicker2">Budget Book</span>
       <h1b>Constitutional<br/>Officers</h1b>
       <p>A statement of function, elected official, revenue sources, and budget summary for each of Walton County's five independently elected offices and the Board of County Commissioners.</p>
     </div>
@@ -33,7 +33,7 @@ const constitutionalOfficersDivider = `
 const otherAgenciesDivider = `
   <section>
     <div class="divider">
-      <span class="kicker2">Budget Book Guide</span>
+      <span class="kicker2">Budget Book</span>
       <h1b>Other Agencies and<br/>Court-Related Functions</h1b>
       <p>Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     </div>
@@ -56,7 +56,7 @@ const financialPlanDivider = `
 const capitalBudgetDivider = `
   <section>
     <div class="divider">
-      <span class="kicker2">Budget Book Guide</span>
+      <span class="kicker2">Budget Book</span>
       <h1b>Capital Budget</h1b>
       <p>The Capital Improvement Plan and the fund-specific ledgers that finance it &mdash; machinery, vehicles and equipment, transportation and infrastructure, tourist development, Sheriff facilities, recreation plat fees, and sidewalks.</p>
     </div>

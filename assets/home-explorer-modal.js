@@ -658,8 +658,36 @@
             openDepartmentModal(resolvedUrl.href, linkedTitle, departmentTrigger);
             return;
           }
-          if (!/\/(search|home)\.html$/i.test(resolvedUrl.pathname)) return;
+          if (!/\/(search|home)\.html$/i.test(resolvedUrl.pathname)) {
+            // Ordinary same-site links navigate this iframe directly. Hide
+            // it before navigation so the destination's legacy nav cannot
+            // flash for a frame while the load handler installs the popup-
+            // only chrome rules. External, new-tab, download, and same-page
+            // anchor links keep their normal behavior.
+            var currentEmbeddedUrl;
+            try { currentEmbeddedUrl = new URL(embeddedDocument.location.href); }
+            catch (currentUrlError) { currentEmbeddedUrl = null; }
+            var isSamePageAnchor = currentEmbeddedUrl && resolvedUrl.pathname === currentEmbeddedUrl.pathname && resolvedUrl.search === currentEmbeddedUrl.search && resolvedUrl.hash;
+            if (resolvedUrl.origin === window.location.origin && /\.html$/i.test(resolvedUrl.pathname) && !isSamePageAnchor && !link.hasAttribute("download") && (!link.target || link.target === "_self")) {
+              departmentModal.classList.add("is-loading");
+              var navigatingPanel = departmentModal.querySelector(".wc-home-department-modal-panel");
+              if (navigatingPanel) navigatingPanel.style.height = "360px";
+              departmentModalOpenedAt = Date.now();
+              if (departmentPanelResizeObserver) {
+                departmentPanelResizeObserver.disconnect();
+                departmentPanelResizeObserver = null;
+              }
+            }
+            return;
+          }
           event.preventDefault();
+          var linkedExplorerType = resolvedUrl.searchParams.get("explorer");
+          if (linkedExplorerType && EXPLORERS[linkedExplorerType]) {
+            var explorerReturnTrigger = departmentTrigger;
+            closeDepartmentModal();
+            openModal(linkedExplorerType, explorerReturnTrigger);
+            return;
+          }
           closeDepartmentModal();
         }, true);
       } catch (error) {

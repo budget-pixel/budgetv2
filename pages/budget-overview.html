@@ -67,28 +67,131 @@
             href:"summary-of-interfund-transfers.html",
             description:"See transfers of money between funds, including which fund sends and which fund receives each transfer.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h11l-3-3m3 3-3 3"></path><path stroke-linecap="round" stroke-linejoin="round" d="M17 17H6l3 3m-3-3 3-3"></path></svg>'
+          },
+          {
+            title:"Budget Adjustments",
+            href:"summary-of-budget-changes-and-adjustments.html",
+            description:"Review major additions, reductions, transfers, and other changes in the proposed budget.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg>'
+          },
+          {
+            title:"Budget Forecast",
+            href:"financial-forecast.html",
+            description:"Review long-range revenue and expenditure projections, planning assumptions, and fund outlooks.",
+            icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 18 9 12l4 3 7-9"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 6h5v5"></path><path d="M4 4v16h16"></path></svg>'
           }
         ]
       },
       {
-        label:"Programs & Services",
+        label:"Revenue & Expenditure Ledgers",
         items:[
           {
-            title:"Program Budget",
-            href:"program-budget.html",
-            label:"Programs & Service Levels",
-            description:"Explore major services across departments, including cost, funding, service measures, community impact, and alignment with County priorities."
-          }
-        ]
-      },
-      {
-        label:"Reports & Documentation",
-        items:[
+            title:"Revenue Ledger",
+            href:"revenue-ledger.html",
+            description:"Review every budgeted revenue source by fund, category, and account.",
+            metric:"revenue",
+            metricLabel:"FY 2027 Revenue"
+          },
           {
-            title:"Summary of Expenses",
+            title:"Expenditure Ledger",
             href:"summary-of-expenses.html",
-            label:"Expenses",
-            description:"Browse expenditure summaries by function, fund, and budget category for the proposed fiscal year."
+            description:"Browse planned expenditures by function, fund, department, and budget category.",
+            metric:"totalBudget",
+            metricLabel:"FY 2027 Expenditures"
+          },
+          {
+            title:"Property Tax Allocation Ledger",
+            href:"summary-of-property-tax-allocations.html",
+            description:"See how countywide property-tax revenue is allocated among departments and constitutional officers.",
+            metric:"propertyTax",
+            metricLabel:"FY 2027 Property Tax"
+          }
+        ]
+      },
+      {
+        label:"Operating, Personnel & Agency Ledgers",
+        items:[
+          {
+            title:"Department Operating Ledger",
+            href:"department-ledger.html",
+            description:"Compare Board department operating budgets, annual changes, personnel, contracts, and other operating costs.",
+            metric:"department",
+            metricLabel:"Department Budget"
+          },
+          {
+            title:"Constitutional Officers Ledger",
+            href:"constitutional-ledger.html",
+            description:"Review the budgets of Walton County's independently elected constitutional officers.",
+            metric:"constitutionalOfficers",
+            metricLabel:"Officers Budget"
+          },
+          {
+            title:"Independent Agencies Ledger",
+            href:"independent-agencies-ledger.html",
+            description:"Review funding for independent, statutory, judicial, and community partner agencies.",
+            metric:"independentAgencies",
+            metricLabel:"Agencies Budget"
+          },
+          {
+            title:"Personnel Ledger",
+            href:"personnel-ledger.html",
+            description:"Review authorized positions and full-time-equivalent staffing by department and position.",
+            metric:"personnel",
+            metricLabel:"Personnel Cost"
+          },
+          {
+            title:"Contractual Services Ledger",
+            href:"summary-of-contractual-services.html",
+            description:"See contracted services, providers, agreement details, and budgeted amounts by department.",
+            metric:"contractualServices",
+            metricLabel:"Contractual Services"
+          }
+        ]
+      },
+      {
+        label:"Capital Ledgers",
+        items:[
+          {
+            title:"Transportation and Infrastructure Capital Ledger",
+            href:"cip-capital-projects.html",
+            description:"Review Capital Projects Fund, transportation, infrastructure, and grant-funded projects.",
+            metric:"capitalTransportation",
+            metricLabel:"FY 2027 Projects"
+          },
+          {
+            title:"Tourist Development Fund Capital Ledger",
+            href:"cip-tourist-development.html",
+            description:"Review tourism-related capital investments supported by Tourist Development Fund resources.",
+            metric:"capitalTouristDevelopment",
+            metricLabel:"FY 2027 Projects"
+          },
+          {
+            title:"Sheriff Capital Project Ledger",
+            href:"cip-sheriff.html",
+            description:"Review capital projects associated with the Walton County Sheriff's Office.",
+            metric:"capitalSheriff",
+            metricLabel:"FY 2027 Projects"
+          },
+          {
+            title:"Recreation Plat Fee Capital Ledger",
+            href:"recreation-plat-fee-fund.html",
+            description:"Review recreation capital investments supported by recreation plat-fee revenue.",
+            metric:"capitalRecreationPlatFee",
+            metricLabel:"FY 2027 Capital"
+          },
+          {
+            title:"Sidewalk Fund Capital Ledger",
+            href:"sidewalk-fund.html",
+            description:"Review sidewalk capital investments and their dedicated funding.",
+            metric:"capitalSidewalk",
+            metricLabel:"FY 2027 Capital"
+          },
+          {
+            title:"Machinery, Vehicles & Equipment Ledger",
+            href:"summary-of-machinery-vehicles-and-equipment.html",
+            description:"Review planned machinery, vehicle, and equipment purchases by department.",
+            metric:"capitalMachinery",
+            metricLabel:"FY 2027 Equipment"
           }
         ]
       }
@@ -125,9 +228,27 @@
       return "";
     }
 
+    function defaultLedgerIcon(page){
+      var title = String(page.title || "").toLowerCase();
+      if(title.indexOf("revenue") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path stroke-linecap="round" d="M15 8.5h-4.2a2.3 2.3 0 0 0 0 4.6h2.4a2.3 2.3 0 0 1 0 4.6H9M12 6.5v2M12 17.7v2"></path></svg>';
+      if(title.indexOf("expenditure") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18H6z"></path><path stroke-linecap="round" d="M9 8h6M9 12h6M9 16h3"></path></svg>';
+      if(title.indexOf("property tax") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 11 9-7 9 7"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path></svg>';
+      if(title.indexOf("department") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V7l8-4 8 4v14"></path><path d="M8 9h2M14 9h2M8 13h2M14 13h2M10 21v-4h4v4"></path></svg>';
+      if(title.indexOf("constitutional") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-5 9 5M5 10h14M6 10v8M10 10v8M14 10v8M18 10v8M4 20h16"></path></svg>';
+      if(title.indexOf("independent") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6M4 6h3M17 6h3M12 2v2"></path></svg>';
+      if(title.indexOf("personnel") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="3"></circle><path d="M6 21v-3a6 6 0 0 1 12 0v3M4 11a2.5 2.5 0 0 0-2 2.5V17M20 11a2.5 2.5 0 0 1 2 2.5V17"></path></svg>';
+      if(title.indexOf("contract") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v4h4M9 11h6M9 15h6"></path><path stroke-linecap="round" d="m9 19 1.5 1.5L14 17"></path></svg>';
+      if(title.indexOf("sheriff") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.3 3.5 4.2-.5-.5 4.2 3.5 2.3-3.5 2.3.5 4.2-4.2-.5L12 22l-2.3-3.5-4.2.5.5-4.2-3.5-2.3L6 10.2 5.5 6l4.2.5z"></path><circle cx="12" cy="12.5" r="2.5"></circle></svg>';
+      if(title.indexOf("tourist") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M5 13c2-2 4-2 6 0s4 2 6 0M12 4v6M9 7h6"></path></svg>';
+      if(title.indexOf("recreation") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path d="M7 6.5c3 2 7 2 10 0M7 17.5c3-2 7-2 10 0M6.5 7c2 3 2 7 0 10M17.5 7c-2 3-2 7 0 10"></path></svg>';
+      if(title.indexOf("sidewalk") !== -1 || title.indexOf("transportation") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21 10 3M16 21 14 3M12 5v3M12 11v3M12 17v3"></path></svg>';
+      if(title.indexOf("machinery") !== -1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15h12l3 3H4zM7 15V9h6l3 6M9 9V6h4v3"></path><circle cx="7" cy="19" r="2"></circle><circle cx="17" cy="19" r="2"></circle></svg>';
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18H6z"></path><path stroke-linecap="round" d="M9 8h6M9 12h6M9 16h4"></path></svg>';
+    }
+
     function itemHtml(page){
       var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
-      var iconHtml = page.icon ? '<span class="wc-directory-item-icon" aria-hidden="true">' + page.icon + '</span>' : "";
+      var iconHtml = '<span class="wc-directory-item-icon" aria-hidden="true">' + (page.icon || defaultLedgerIcon(page)) + '</span>';
       return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
         iconHtml +
         '<div class="wc-directory-item-main">' +

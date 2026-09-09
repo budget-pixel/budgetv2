@@ -131,6 +131,10 @@ independent = reader("budget-book-independent-agencies-ledger.pdf")
 overview = reader("budget-book-overview.pdf")
 financial_policies = reader("budget-book-financial-policies.pdf")
 org_structure = reader("budget-book-org-structure.pdf")
+divider_constitutional = reader("divider-constitutional-officers.pdf")
+divider_other_agencies = reader("divider-other-agencies.pdf")
+divider_financial_plan = reader("divider-financial-plan.pdf")
+divider_capital_budget = reader("divider-capital-budget.pdf")
 writer = PdfWriter()
 
 # Opening, corrected contents, and County context. The Overview of Walton
@@ -151,9 +155,12 @@ add_range(writer, community, 1, 3)
 writer.add_page(brief.pages[0])
 
 # Budget Change Summary and Property Tax Allocation now sit right behind
-# Budget in Brief instead of deep in the Financial Plan section.
+# Budget in Brief instead of deep in the Financial Plan section. Florida
+# Amendment 3 Risk (enh page 9) moves up here too, right behind Property
+# Tax Allocation, instead of sitting deep in the Public Value chapter.
 add_range(writer, change, 1, 2)
 add_range(writer, property_tax, 1, 2)
+writer.add_page(enh.pages[8])
 
 add_range(writer, process, 1, 2)
 add_range(writer, financial_policies, 1, 2)
@@ -162,31 +169,42 @@ add_range(writer, base, 22, 23)
 # Public-value/GFOA decision guide, including revenue risk, projects, and workshops.
 # Revenue Portfolio (enh page 8) moves down to the Financial Plan chapter,
 # right before the Revenue Ledger, instead of sitting here after Revenue Strategy.
+# Florida Amendment 3 Risk (enh page 9) moved up to the Financial Overview
+# group above, so this second range starts at enh page 10 instead of 9.
 add_range(writer, enh, 1, 7)
-add_range(writer, enh, 9, 16)
+
+# Personnel Ledger now sits right behind the Workforce Plan page (enh page
+# 10), inside the Workforce Plan group, instead of deep in the Financial
+# Plan chapter -- so enh page 10 is pulled out on its own, then Personnel
+# Ledger, then the rest of the Workforce/Public Value range (enh 11-16).
+writer.add_page(enh.pages[9])
+writer.add_page(personnel.pages[0])
+add_range(writer, enh, 11, 16)
 
 # Constitutional Officers, agencies, and departments. The revised overview and
 # two Tourism profiles replace the obsolete overview/exclusion language.
 # The Departments and Services chapter divider is followed directly by the
 # Department Operating Ledger (base.pages[38]) as the chapter's first content
 # page; the old stats/office-list overview (enh.pages[18]) was dropped as
-# redundant with it.
-writer.add_page(base.pages[23])
+# redundant with it. Chapter dividers now come from the freshly-rendered
+# divider_* PDFs (kicker text "Budget Book", not the old base.pages copies
+# that still said "Budget Book Guide").
+writer.add_page(divider_constitutional.pages[0])
 add_range(writer, constitutional, 1, 7)
-writer.add_page(base.pages[31])
+writer.add_page(divider_other_agencies.pages[0])
 add_range(writer, independent, 1, 3)
 writer.add_page(departments.pages[0])
 writer.add_page(base.pages[38])
 add_range(writer, departments, 3, 37)
 
 # Financial plan rebuilt from the corrected tentative-budget source pages.
-# Budget Change Summary and Property Tax Allocation moved up front (see above).
-writer.add_page(base.pages[68])
+# Budget Change Summary and Property Tax Allocation moved up front (see
+# above); Personnel Ledger moved into the Workforce Plan group (see above).
+writer.add_page(divider_financial_plan.pages[0])
 add_range(writer, consolidated, 1, 2)
 writer.add_page(enh.pages[7])
 add_range(writer, revenue, 1, 3)
 add_range(writer, expenses, 1, 2)
-writer.add_page(personnel.pages[0])
 add_range(writer, base, 82, 85)
 add_range(writer, funds, 1, 2)
 writer.add_page(transfers.pages[0])
@@ -194,7 +212,7 @@ writer.add_page(debt.pages[0])
 add_range(writer, long_term, 1, 2)
 
 # Capital plan, detailed fund schedules, reference section, and back cover.
-writer.add_page(base.pages[85])
+writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
 add_range(writer, capital_ledgers, 1, 8)
 add_range(writer, glossary, 1, 9)
@@ -205,7 +223,7 @@ if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 41, 49, 53, 90, 110, 131}
+skip_number = {1, 2, 42, 50, 54, 91, 110, 131}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         page.merge_page(number_stamp(number), over=True)
@@ -229,32 +247,32 @@ outline = [
     ("Budget in Brief", 15, "Introduction and Our County"),
     ("Budget Change Summary", 16, "Introduction and Our County"),
     ("Property Tax Allocation Ledger", 18, "Introduction and Our County"),
-    ("Financial Policies", 22, "Introduction and Our County"),
-    ("Public Value and Decision Guide", 26, None),
-    ("Program and Service Budget", 28, "Public Value and Decision Guide"),
-    ("Program Outcomes", 30, "Public Value and Decision Guide"),
-    ("Revenue Strategy", 32, "Public Value and Decision Guide"),
-    ("Florida Amendment 3 Risk", 33, "Public Value and Decision Guide"),
+    ("Florida Amendment 3 Risk", 20, "Introduction and Our County"),
+    ("Financial Policies", 23, "Introduction and Our County"),
+    ("Public Value and Decision Guide", 27, None),
+    ("Program and Service Budget", 29, "Public Value and Decision Guide"),
+    ("Program Outcomes", 31, "Public Value and Decision Guide"),
+    ("Revenue Strategy", 33, "Public Value and Decision Guide"),
     ("Workforce Plan", 34, "Public Value and Decision Guide"),
-    ("Long-Term Decisions", 36, "Public Value and Decision Guide"),
-    ("Capital Portfolio", 37, "Public Value and Decision Guide"),
-    ("Major Project Decision Record", 38, "Public Value and Decision Guide"),
-    ("Public Participation", 40, "Public Value and Decision Guide"),
-    ("Constitutional Officers", 41, None),
-    ("Other Agencies and Court-Related Functions", 49, None),
-    ("Departments and Services", 53, None),
-    ("Tourism Administration", 82, "Departments and Services"),
-    ("Sales and Visitors Center", 83, "Tourism Administration"),
-    ("Communications", 84, "Tourism Administration"),
-    ("Marketing", 85, "Tourism Administration"),
-    ("North Walton", 86, "Tourism Administration"),
-    ("Beach Operations", 87, "Departments and Services"),
-    ("Beach Renourishment", 88, "Beach Operations"),
-    ("Beach Tram", 89, "Beach Operations"),
-    ("Financial Plan", 90, None),
-    ("Revenue Portfolio", 93, "Financial Plan"),
-    ("Revenue Ledger", 94, "Financial Plan"),
-    ("Personnel Ledger", 99, "Financial Plan"),
+    ("Personnel Ledger", 35, "Workforce Plan"),
+    ("Long-Term Decisions", 37, "Public Value and Decision Guide"),
+    ("Capital Portfolio", 38, "Public Value and Decision Guide"),
+    ("Major Project Decision Record", 39, "Public Value and Decision Guide"),
+    ("Public Participation", 41, "Public Value and Decision Guide"),
+    ("Constitutional Officers", 42, None),
+    ("Other Agencies and Court-Related Functions", 50, None),
+    ("Departments and Services", 54, None),
+    ("Tourism Administration", 83, "Departments and Services"),
+    ("Sales and Visitors Center", 84, "Tourism Administration"),
+    ("Communications", 85, "Tourism Administration"),
+    ("Marketing", 86, "Tourism Administration"),
+    ("North Walton", 87, "Tourism Administration"),
+    ("Beach Operations", 88, "Departments and Services"),
+    ("Beach Renourishment", 89, "Beach Operations"),
+    ("Beach Tram", 90, "Beach Operations"),
+    ("Financial Plan", 91, None),
+    ("Revenue Portfolio", 94, "Financial Plan"),
+    ("Revenue Ledger", 95, "Financial Plan"),
     ("Fund Financial Ledger", 104, "Financial Plan"),
     ("Debt Ledger", 107, "Financial Plan"),
     ("Long-Term Outlook", 108, "Financial Plan"),
@@ -269,8 +287,8 @@ for title, page_number, parent_title in outline:
     parents[title] = item
 
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-writer.add_uri(32, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
-writer.add_uri(39, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
+writer.add_uri(33, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
+writer.add_uri(40, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
 writer.add_uri(130, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
 writer.add_uri(130, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 

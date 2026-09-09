@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import QRCode from "qrcode";
 
 // Builds the FY 2027 Budget Book's "Personnel Ledger" -- FTE staffing and
 // personnel cost by Constitutional Officer and by Board department, FY2026
@@ -17,6 +18,17 @@ import { chromium } from "playwright";
 // is omitted here to match the Constitutional Officers table's cleaner
 // FY2026/FY2027 Total Personnel Cost format and keep both tables to one
 // page -- the total ties out either way.
+
+// The live Personnel Ledger page carries more detail than fits on this
+// print page (e.g. per-department FY26/FY27 breakdowns are the same, but
+// the live ledger stays current and links out to each department's own
+// profile) -- so this page carries a QR code pointing readers there.
+const PERSONNEL_LEDGER_URL = "https://budget-waltoncountyfl.com/pages/personnel-ledger.html";
+const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
+  margin: 1,
+  width: 200,
+  color: { dark: "#003f28", light: "#ffffff" }
+});
 
 const STATS = [
   ["1,515", "Total FY2027 Positions"],
@@ -113,6 +125,45 @@ const sharedCss = `
     color:#33453c;
     font-size:8.6pt;
     line-height:1.4;
+  }
+  .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.2in;
+  }
+  .title-copy{ flex:1; min-width:0; }
+  .page-qr{
+    flex:0 0 auto;
+    width:1.15in;
+    margin-top:.24in;
+    padding:.09in;
+    border-radius:10px;
+    background:#003f28;
+    text-align:center;
+  }
+  .page-qr img{
+    display:block;
+    width:.72in;
+    height:.72in;
+    margin:0 auto .045in;
+    padding:3px;
+    border-radius:4px;
+    background:#fff;
+  }
+  .page-qr b{
+    display:block;
+    color:#e7c95f;
+    font-size:6.4pt;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+  }
+  .page-qr span{
+    display:block;
+    margin-top:.025in;
+    color:#dce9e1;
+    font-size:5.3pt;
+    line-height:1.25;
   }
   .stat-strip{
     display:grid;
@@ -226,9 +277,18 @@ const html = `<!doctype html>
 <body>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Financial Overview</small>
-    <h1>Personnel Ledger</h1>
-    <p class="intro">FY2027 staffing and personnel cost by Constitutional Officer and by Board department, compared to FY2026.</p>
+    <div class="title-row">
+      <div class="title-copy">
+        <small class="kicker">Financial Overview</small>
+        <h1>Personnel Ledger</h1>
+        <p class="intro">FY2027 staffing and personnel cost by Constitutional Officer and by Board department, compared to FY2026.</p>
+      </div>
+      <div class="page-qr">
+        <img src="${PERSONNEL_LEDGER_QR}" alt="QR code to the Personnel Ledger online">
+        <b>View Online</b>
+        <span>The live Personnel Ledger has more detail than this print page.</span>
+      </div>
+    </div>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 

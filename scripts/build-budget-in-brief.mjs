@@ -23,7 +23,7 @@ import { chromium } from "playwright";
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
   ["Other Constitutional Officers", 33.08],
-  ["Capital Projects", 53.68],
+  ["Capital Projects (All Funds)", 53.68],
   ["Tourism Administration", 29.67],
   ["Environmental Services", 23.51],
   ["Public Works", 20.83],
@@ -33,24 +33,26 @@ const EXPENSE_CATEGORIES = [
 ];
 const EXPENSE_TOTAL = EXPENSE_CATEGORIES.reduce((s, [, v]) => s + v, 0);
 
-// Named tax types instead of the lumped "General Government Taxes"
-// bucket, plus the standard non-tax revenue categories. Source: DATA_
-// SOURCES.revenues, Revenue_Type "General Government Taxes" grouped by
-// Revenue_Name -- Ad Valorem (property) $161,066,332; Tourist Development
-// Tax $58,965,950; Discretionary Sales Surtax $40,000,000; Fuel/Gas Taxes
-// $4,810,212; Communications Services Tax $350,000 -- broken out as their
-// own rows (rather than collapsed into one "All Other Revenue" bucket) so
-// this side of the chart carries the same 9 rows as Where the Money Goes.
+// The same top revenue sources shown, in the same order, on the home
+// page's Revenue Explorer ("Start with the 12 largest sources below") --
+// the 8 largest named sources (Property Taxes $161.1M, Tourist
+// Development Taxes $59M, Discretionary Sales Surtax $40M, Local
+// Government 1/2 Cent Sales Tax $16.8M, Interest and Investment Earnings
+// $5.25M, Indirect Administrative Fees $4.11M, Local Option Fuel Tax
+// $4.01M, State Revenue Share Proceeds $3.73M) plus everything else
+// (Charges for Services, remaining Intergovernmental Revenue,
+// Miscellaneous Revenue, Permits/Fees/Fines, etc.) rolled into "All
+// Other Revenue" against the $345.2M total revenue budget.
 const REVENUE_SOURCES = [
   ["Property Tax", 161.07],
   ["Tourist Development Tax", 58.97],
-  ["Sales Surtax", 40.0],
-  ["Charges for Services", 38.67],
-  ["Intergovernmental Revenues", 29.32],
-  ["Miscellaneous Revenue", 14.59],
-  ["Fuel/Gas Taxes", 4.81],
-  ["Permits, Fees &amp; Fines", 3.69],
-  ["All Other Revenue", 0.35]
+  ["Discretionary Sales Surtax", 40.0],
+  ["Local Government 1/2 Cent Sales Tax", 16.8],
+  ["Interest", 5.25],
+  ["Indirect Administrative Fee", 4.11],
+  ["Local Option Fuel Tax", 4.01],
+  ["State Revenue Share Proceeds", 3.73],
+  ["All Other Revenue", 51.28]
 ];
 const REVENUE_TOTAL = REVENUE_SOURCES.reduce((s, [, v]) => s + v, 0);
 

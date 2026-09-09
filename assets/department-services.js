@@ -420,6 +420,7 @@
   function bindSnapshotBudgetGraph(button,expenses,staffing,deptKey,deptLabel){
     button.addEventListener('click',function(){
       if(!window.WCBudgetData||typeof window.WCBudgetData.openBudgetDetailPanel!=='function') return;
+      var showCombinedTotal=/tax collector/i.test(String(deptLabel||''));
       var isAutonomousEntity=normalize((document.querySelector('.page-eyebrow')||{}).textContent)==='autonomous entities';
       var suppressFteMarkers=deptKey==='sheriff'||deptKey==='sheriff s office'||deptKey==='board of county commissioners'||isAutonomousEntity;
       var suppressFteNote=suppressFteMarkers||/tax collector|property appraiser|clerk of court|supervisor of elections/i.test(String(deptLabel||''));
@@ -427,7 +428,7 @@
       var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
         '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend"></div>'+
         (suppressFteNote?'':'<p class="wc-snapshot-chart-fte-note"><span class="wc-snapshot-chart-fte-marker"></span> A triangle on Personnel Services marks a year where authorized FTE grew &mdash; that year&rsquo;s cost increase includes added positions, not just pay or benefit changes. FTE-by-year detail is available for FY 2025&ndash;FY 2027 only.</p>')+
-        '<p class="wc-snapshot-chart-note">Personnel, operating, and capital spending by fiscal year. Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the tentative budget.</p>';
+        '<p class="wc-snapshot-chart-note">'+(showCombinedTotal?'Total spending by fiscal year.':'Personnel, operating, and capital spending by fiscal year.')+' Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the tentative budget.</p>';
       var careerStat=SNAPSHOT_CAREER_STATS[deptKey];
       var careerHtml=careerStat?(
         '<aside class="wc-snapshot-career-fact">'+
@@ -438,7 +439,7 @@
       var html=careerHtml?'<div class="wc-snapshot-chart-layout"><div class="wc-snapshot-chart-main">'+chartHtml+'</div>'+careerHtml+'</div>':chartHtml;
       var body=window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Graph',kicker:deptLabel,bodyClassName:'wc-snapshot-chart-body',html:html});
       ensureChartJs().then(function(){
-        renderSnapshotChart(document.getElementById(canvasId),document.getElementById(canvasId+'-legend'),expenses,staffing,!suppressFteMarkers);
+        renderSnapshotChart(document.getElementById(canvasId),document.getElementById(canvasId+'-legend'),expenses,staffing,!suppressFteMarkers,showCombinedTotal);
       }).catch(function(){
         if(body) body.insertAdjacentHTML('beforeend','<p class="wc-data-error">Unable to load the chart.</p>');
       });
@@ -547,21 +548,37 @@
     });
     return map;
   }
-  function renderSnapshotChart(canvas,legendEl,expenses,staffing,showFteMarkers){
+  function renderSnapshotChart(canvas,legendEl,expenses,staffing,showFteMarkers,showCombinedTotal){
     if(!canvas||typeof window.Chart==='undefined') return;
     var existingChart=window.Chart.getChart(canvas);
     if(existingChart) existingChart.destroy();
     var years=SNAPSHOT_CHART_YEARS;
     var firstNonZero=years.length-1;
     for(var i=0;i<years.length;i++){
-      var total=SNAPSHOT_CHART_CATEGORIES.reduce(function(catSum,cat){
-        return catSum+expenses.filter(function(row){return row.Object_Type===cat.type;}).reduce(function(rowSum,row){return rowSum+(Number(row[years[i].field])||0);},0);
-      },0);
+      var total=showCombinedTotal
+        ? expenses.reduce(function(rowSum,row){return rowSum+(Number(row[years[i].field])||0);},0)
+        : SNAPSHOT_CHART_CATEGORIES.reduce(function(catSum,cat){
+            return catSum+expenses.filter(function(row){return row.Object_Type===cat.type;}).reduce(function(rowSum,row){return rowSum+(Number(row[years[i].field])||0);},0);
+          },0);
       if(total!==0){firstNonZero=i;break;}
     }
     var trimmedYears=years.slice(firstNonZero);
     var fteByYear=personnelFteByYear(staffing);
-    var datasets=SNAPSHOT_CHART_CATEGORIES.map(function(cat){
+    var datasets=showCombinedTotal?[{
+      label:'Total',
+      data:trimmedYears.map(function(y){
+        return expenses.reduce(function(total,row){return total+(Number(row[y.field])||0);},0);
+      }),
+      borderColor:'#0b7741',
+      backgroundColor:'#0b7741',
+      baseColor:'#0b7741',
+      tension:0.3,
+      baseRadius:3,
+      baseHoverRadius:5,
+      pointRadius:3,
+      pointHoverRadius:5,
+      borderWidth:2.5
+    }]:SNAPSHOT_CHART_CATEGORIES.map(function(cat){
       var rows=expenses.filter(function(row){return row.Object_Type===cat.type;});
       var dataset={
         label:cat.label,
@@ -1099,7 +1116,7 @@
     var capitalAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer||isAutonomousEntity)?'':'<button type="button" class="wc-profile-snapshot-sheet" data-independent-capital-trigger>View Capital Investments</button>';
     var contractsAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer||isAutonomousEntity)?'':'<button type="button" class="wc-profile-snapshot-sheet" data-independent-contracts-trigger>View Contractual Services</button>';
     var expenseActions=capitalAction+contractsAction;
-    var personnelLedgerAction=(isSheriffOffice||isCapitalCombinedOfficer||isAutonomousEntity)?'':'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div>';
+    var personnelLedgerAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer||isAutonomousEntity)?'':'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div>';
 
     var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+personnelLedgerAction+'</article>':'';
 

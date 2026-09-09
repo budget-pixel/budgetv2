@@ -68,7 +68,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Building Department", fte: 21, personnel: 2312201, operating: 1687799, contractual: 0, capital: 0,
+    name: "Building Department", fte: 21, personnel: 2312201, operating: 1016059, indirect: 671740, contractual: 0, capital: 0,
     deltaP: 198043, deltaO: -233043, deltaC: -165000, video: "3n4ns8jANzQ", fund: "Building Fund",
     sof: "The Building Department plays a pivotal role in ensuring the safety, compliance, and integrity of construction projects within the community, serving as the central hub for regulatory oversight and support throughout the construction process. Among its core responsibilities, the department issues contractor licenses, reviews permit applications, and conducts thorough inspections at various stages of construction to guarantee adherence to building codes and standards.",
     goal: "Ensure safe, quality construction.",
@@ -323,7 +323,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Mosquito Control", fte: 8, personnel: 673438, operating: 662499, contractual: 0, capital: 91000,
+    name: "Mosquito Control", fte: 8, personnel: 673438, operating: 398316, indirect: 264183, contractual: 0, capital: 91000,
     deltaP: -67045, deltaO: 168982, deltaC: -15000, video: "U5q2lymuFys", fund: "Mosquito Control Fund",
     sof: "The Mosquito Control Department is dedicated to protecting public health and enhancing quality of life for residents and visitors by managing mosquito populations through surveillance, larval control, and public education, aimed at minimizing nuisance and reducing the risk of mosquito-borne disease.",
     goal: "Protect public health and enhance quality of life by managing mosquito populations through effective, innovative, and environmentally responsible practices.",
@@ -534,7 +534,7 @@ const DEPARTMENTS = [
     footnote: true
   },
   {
-    name: "Solid Waste", fte: 28, personnel: 2377275, operating: 1752292, contractual: 200000, capital: 1800000,
+    name: "Solid Waste", fte: 28, personnel: 2377275, operating: 1055100, indirect: 697192, contractual: 200000, capital: 1800000,
     deltaP: 42984, deltaO: -59614, deltaC: 1140000, video: "iz8DOXLQ8yU", fund: "Solid Waste Fund",
     sof: "Walton County Solid Waste manages the Franchise Agreement with Waste Management Inc. for municipal waste collection and disposal, and oversees daily operations of the Walton County Central Landfill — a Class I Transfer Station, Class III Landfills, recycling facilities, a yard waste facility, a waste tire collection center, and a groundwater monitoring system, all permitted by FDEP.",
     goal: "Ensure regulatory compliance, operational efficiency, and protection of natural resources across all waste streams.",
@@ -597,7 +597,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Tourism Administration", entityType: "Tourism Administration Office", fte: 4, personnel: 631415, operating: 2608585, contractual: 0, capital: 50000,
+    name: "Tourism Administration", entityType: "Tourism Administration Office", fte: 4, personnel: 631415, operating: 1554500, indirect: 1054085, contractual: 0, capital: 50000,
     deltaP: 291333, deltaO: 0, deltaC: 0, video: null, fund: "Tourist Development Fund",
     sof: "Tourism Administration provides executive leadership, financial stewardship, strategic coordination, and administrative support for Walton County Tourism. The office sustains the revenue base needed for visitor services and tourism-funded community investments while coordinating the work of marketing, communications, sales, visitor services, beach operations, and industry partners.",
     goal: "Strengthen and promote the Walton County tourism brand to attract visitors and enhance the local economy.",
@@ -609,7 +609,7 @@ const DEPARTMENTS = [
     pms: [{q:"Tourism-supported jobs in Walton County",obj:"Foster sustainable tourism that supports local jobs annually",y:["47,000","47,000","41,600","33,800"],target:"32,000"},{q:"Average Daily Rate for Walton County lodging",obj:"Position Walton County as a high-value destination",y:["$413","$413","$385","$352"],target:"$375"}]
   },
   {
-    name: "Sales and Visitors Center", entityType: "Tourism Administration Office", fte: 9, personnel: 863987, operating: 948575, contractual: 137438, capital: 0,
+    name: "Sales and Visitors Center", entityType: "Tourism Administration Office", fte: 9, personnel: 863987, operating: 821850, indirect: 126725, contractual: 137438, capital: 0,
     deltaP: 159277, deltaO: 0, deltaC: 0, video: null, fund: "Tourist Development Fund",
     sof: "The Group Sales team generates new business opportunities and builds awareness of Walton County for meetings and conventions, incentives, weddings, and consumer travel. Visitor Center staff provide trusted destination information and help connect guests with local places, services, and experiences.",
     goal: "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
@@ -618,7 +618,7 @@ const DEPARTMENTS = [
     revenue:"Tourist Development Tax on eligible short-term lodging stays", contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:137438}], pms:[]
   },
   {
-    name: "Communications", entityType: "Tourism Administration Office", fte: 5, personnel: 515869, operating: 320131, contractual: 114000, capital: 0,
+    name: "Communications", entityType: "Tourism Administration Office", fte: 5, personnel: 515869, operating: 262939, indirect: 57192, contractual: 114000, capital: 0,
     deltaP: 55555, deltaO: 0, deltaC: 0, video: null, fund: "Tourist Development Fund",
     sof: "The Communications Division supports Walton County Tourism through earned and owned media that inspire travel and inform visitors, residents, partners, and stakeholders. The division manages strategic communications, public relations, media activities, familiarization tours, press visits, industry relations, and community education about tourism's local value.",
     goal: "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
@@ -627,7 +627,7 @@ const DEPARTMENTS = [
     revenue:"Tourist Development Tax on eligible short-term lodging stays", contracts:[{service:"Public Relations Services",provider:"Turner Public Relations, LLC · Contract 25-17",amount:114000}], pms:[]
   },
   {
-    name: "Marketing", entityType: "Tourism Administration Office", fte: 4, personnel: 408142, operating: 1592061, contractual: 12502247, capital: 0,
+    name: "Marketing", entityType: "Tourism Administration Office", fte: 4, personnel: 408142, operating: 1367234, indirect: 224827, contractual: 12502247, capital: 0,
     deltaP: 667858, deltaO: 0, deltaC: 0, video: null, fund: "Tourist Development Fund",
     sof: "The Marketing Division uses research, creative campaigns, digital channels, social media, and travel-trade coordination to communicate Walton County's destination experiences to priority audiences. This work supports visitor spending, local employment, and a diversified tourism economy.",
     goal:"Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
@@ -638,7 +638,7 @@ const DEPARTMENTS = [
     contractsNote:"Also includes marketing research ($65,000), digital asset management ($25,000), and customer relationship management ($25,000).", pms:[]
   },
   {
-    name: "North Walton", entityType: "Tourism Administration Office", fte: 0, personnel: 0, operating: 355500, contractual: 0, capital: 0,
+    name: "North Walton", entityType: "Tourism Administration Office", fte: 0, personnel: 0, operating: 349998, indirect: 5502, contractual: 0, capital: 0,
     deltaP: 32500, deltaO: 0, deltaC: 0, video: null, fund: "North Walton Tourist Development Tax District",
     sof:"North Walton tourism funding builds awareness of Walton County destinations and experiences north of Choctawhatchee Bay. The program supports eligible destination promotion and visitor-development activity within the North Walton Tourist Development Tax district.",
     goal:"Increase awareness of North Walton as a visitor destination while directing restricted district revenue to eligible uses.",
@@ -647,7 +647,7 @@ const DEPARTMENTS = [
     revenue:"North Walton Tourist Development Tax collected on eligible short-term lodging stays north of the Intracoastal Waterway", contracts:[], pms:[]
   },
   {
-    name: "Beach Operations", entityType: "Beach Operations Office", fte: 66, personnel: 4991699, operating: 4635801, contractual: 1470000, capital: 1902500,
+    name: "Beach Operations", entityType: "Beach Operations Office", fte: 66, personnel: 4991699, operating: 3801809, indirect: 833992, contractual: 1470000, capital: 1902500,
     deltaP: 2528302, deltaO: 0, deltaC: 0, video: null, fund: "Tourist Development Fund",
     sof:"Beach Operations maintains the cleanliness, function, and accessibility of Walton County's coastal public spaces. Its work includes beach and bay access maintenance, regional access and parking facilities, multi-use trails, scenic corridors, landscaping, equipment, and related visitor infrastructure.",
     goal:"Maintain clean, reliable, and accessible beach and bay facilities and infrastructure for visitors.",
@@ -669,7 +669,7 @@ const DEPARTMENTS = [
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Renourishment Program",amount:10750000}], contracts:[{service:"Beach Renourishment Task Order Services",provider:"Multiple professional-service providers",amount:250000}], pms:[]
   },
   {
-    name:"Beach Tram", entityType:"Beach Operations Office", fte:56, personnel:3813305, operating:921916, contractual:0, capital:507000,
+    name:"Beach Tram", entityType:"Beach Operations Office", fte:56, personnel:3813305, operating:744750, indirect:177166, contractual:0, capital:507000,
     deltaP:1726095, deltaO:0, deltaC:0, video:null, fund:"Tourist Development Fund",
     sof:"The Beach Tram Program provides free shuttle service between designated parking locations and key beach access points. The service improves access to popular beach areas, reduces parking demand and congestion, and supports a more convenient and sustainable visitor experience.",
     goal:"Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
@@ -698,11 +698,6 @@ function partnersFor(d) {
   if (/human resources|management and budget|attorney|purchasing|administration/.test(n)) return "All Board departments, Constitutional Officers when applicable, County Administration, and external professional or regulatory partners.";
   if (/library|recreation|golf|grill|veteran|extension|housing/.test(n)) return "County Administration, community organizations, municipalities, state or federal program partners, and contracted providers as applicable.";
   return "County Administration, Office of Management and Budget, Purchasing, Human Resources, Information Technology, and operational partners as needed.";
-}
-
-function internalCostFor(d) {
-  if (d.fund !== "General Fund") return "Indirect administrative cost allocations are included in Operating where budgeted under the applicable object code.";
-  return "No separate indirect administrative charge is assigned to this General Fund presentation; shared support is budgeted centrally.";
 }
 
 function whoPaysFor(d) {
@@ -852,7 +847,6 @@ const sharedCss = `
   .side-split{ font-size:6.3pt; line-height:1.5; }
   .side-split div{ display:flex; justify-content:space-between; }
   .side-split b{ color:#e7c95f; }
-  .internal-cost{margin:.065in 0 0;padding-top:.055in;border-top:1px solid rgba(255,255,255,.2);color:#c7d9cf;font-size:5.45pt;line-height:1.3}
   .qr-wrap{ margin-top:.08in; padding-top:.08in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
   .qr-wrap img{ width:.8in; height:.8in; background:#fff; border-radius:4px; padding:3px; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
@@ -926,7 +920,7 @@ const sharedCss = `
 `;
 
 async function buildDeptPage(d, pageNumber) {
-  const fy27 = d.personnel + d.contractual + d.operating + d.capital + (d.other || 0);
+  const fy27 = d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0);
   const deltaTotal = d.deltaP + d.deltaO + d.deltaC;
   const fy26 = fy27 - deltaTotal;
   const isDown = deltaTotal < 0;
@@ -1001,9 +995,9 @@ async function buildDeptPage(d, pageNumber) {
           <div><span>Personnel</span><b>${money(d.personnel)}</b></div>
           <div><span>Contractual</span><b>${money(d.contractual)}</b></div>
           <div><span>Operating</span><b>${money(d.operating)}</b></div>
+          ${(d.indirect || 0) ? `<div><span>Indirect</span><b>${money(d.indirect)}</b></div>` : ""}
           <div><span>Capital</span><b>${money(d.capital)}</b></div>
         </div>
-        <p class="internal-cost"><b>Internal costs:</b> ${internalCostFor(d)}</p>
         ${d.changeNote ? `<p style="margin:.06in 0 0;color:#a9c4b3;font-size:6pt;line-height:1.35;">Primary change: ${d.changeNote}</p>` : ""}
         ${qrHtml}
       </div>
@@ -1029,13 +1023,13 @@ async function main() {
   const dividerHtml = `
   <section style="background:#003f28;padding:0;">
     <div class="divider">
-      <span class="kicker2">Budget Book Guide</span>
+      <span class="kicker2">Budget Book</span>
       <h1b>Departments<br/>and Services</h1b>
       <p>A statement of function, department goal, services, challenges, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board department offices and programs.</p>
     </div>
   </section>`;
 
-  const totalFy27 = DEPARTMENTS.reduce((s, d) => s + d.personnel + d.contractual + d.operating + d.capital + (d.other || 0), 0);
+  const totalFy27 = DEPARTMENTS.reduce((s, d) => s + d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0), 0);
   const totalFte = DEPARTMENTS.reduce((s, d) => s + d.fte, 0);
   const withVideo = DEPARTMENTS.filter((d) => d.video).length;
 
@@ -1053,7 +1047,7 @@ async function main() {
     </div>
     <h2 style="margin-top:.1in;">Offices in This Chapter</h2>
     <div class="index-list">
-      ${DEPARTMENTS.map((d) => `<div class="index-row"><span>${d.name}</span><b>${money(d.personnel + d.contractual + d.operating + d.capital + (d.other || 0))}</b></div>`).join("")}
+      ${DEPARTMENTS.map((d) => `<div class="index-row"><span>${d.name}</span><b>${money(d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0))}</b></div>`).join("")}
     </div>
     <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
   </section>`;

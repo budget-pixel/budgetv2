@@ -8384,7 +8384,16 @@
     const expenseTotalValues = expenseSubtotalValues.map((v, i) => v + otherUsesValues[i]);
     bodyRows.push(rowHtml("Total Expenditures and Other Financial Uses", expenseTotalValues, "wc-table-subtotal-row"));
 
-    const changeValues = revenueTotalValues.map((v, i) => v - expenseTotalValues[i]);
+    // Source accounts can carry fractional-dollar precision even though the
+    // published schedule displays whole dollars. Treat a resulting variance
+    // of one dollar or less as balanced so rounding noise does not appear as
+    // a real increase or decrease in fund balance (the General Fund's FY2027
+    // column is one such case).
+    const FUND_BALANCE_ROUNDING_TOLERANCE = 1;
+    const changeValues = revenueTotalValues.map((v, i) => {
+      const change = v - expenseTotalValues[i];
+      return Math.abs(change) <= FUND_BALANCE_ROUNDING_TOLERANCE ? 0 : change;
+    });
     bodyRows.push(rowHtml("Change in Fund Balance", changeValues));
 
     // FY 2028/FY 2029 have no recorded fund balance of their own (see
@@ -9071,7 +9080,7 @@
     { containerId: "expense-activity-human-services", activity: "Human Services" },
     { containerId: "expense-activity-culture-and-recreation", activity: "Culture and Recreation" },
     { containerId: "expense-activity-court-related-cost", activity: "Court Related Cost", title: "Court-Related Cost" },
-    { containerId: "expense-activity-other-uses", activity: "Other Uses" }
+    { containerId: "expense-activity-other-uses", activity: "Other Uses", description: "Other Uses includes transfers, reserves, and other financing uses that are reported separately from direct operating, personnel, capital, debt-service, and grant expenditures." }
   ];
 
   function renderConsolidatedExpenseSummaryTable() {
@@ -9109,7 +9118,7 @@
       allMatchingRows.push(...matching);
       allMatchingDedupedRows.push(...matchingDeduped);
       return (
-        "<tr><td>" + escapeHtml(section.title || section.activity) + "</td>" +
+        '<tr><td><button type="button" class="wc-revenue-ledger-source-link" data-expenditure-ledger-activity="' + escapeHtml(section.containerId) + '" title="View ' + escapeHtml(section.title || section.activity) + ' graph and explanation">' + escapeHtml(section.title || section.activity) + "</button></td>" +
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = columnSum(matching, matchingDeduped, col);
           totals[i] += sum;
@@ -9152,15 +9161,16 @@
 
     const showPrior = getShowPriorYears();
     return (
+      '<div class="wc-revenue-ledger-list-view" data-expenditure-ledger-list-view>' +
       '<div class="wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '">' +
       '<div class="wc-table-wrap">' +
       '<div class="wc-table-label-row">' +
-      '<p class="wc-table-label">Consolidated Expense Summary</p>' +
+      '<p class="wc-table-label">Expenditure Ledger</p>' +
       priorYearsToggleHtml(showPrior) +
       "</div>" +
       '<div class="wc-data-table-scroll">' +
       '<table class="wc-data-table">' +
-      "<thead><tr><th></th>" +
+      "<thead><tr><th>Expense Area</th>" +
       CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c, i) => '<th class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
       "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
@@ -9168,7 +9178,12 @@
       "</div>" +
       "</div>" +
       renderExpenseDepartmentBudgetLinesFooter(allMatchingRows, allMatchingDedupedRows) +
-      "</div>"
+      "</div>" +
+      "</div>" +
+      '<section class="wc-revenue-ledger-detail-view" data-expenditure-ledger-detail-view hidden>' +
+      '<button type="button" class="wc-revenue-ledger-back-button" data-expenditure-ledger-back>&larr; Back to Ledger</button>' +
+      '<div data-expenditure-ledger-detail-body></div>' +
+      "</section>"
     );
   }
 
@@ -10066,12 +10081,49 @@
   }
 
   function initConsolidatedExpenseSummaryPage() {
-    initConsolidatedFundTableContainer(
-      "consolidated-expense-summary-table",
-      renderConsolidatedExpenseSummaryTable,
-      "consolidated expense summary",
-      bindPriorYearsToggle
-    );
+    const container = document.getElementById("consolidated-expense-summary-table");
+    if (!container) return;
+    container.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>";
+    loadBudgetData().then((data) => {
+      if (Object.keys(data.errors || {}).length >= data.datasetCount) {
+        container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+        return;
+      }
+      container.innerHTML = renderConsolidatedExpenseSummaryTable();
+      bindPriorYearsToggle(container);
+      const listView = container.querySelector("[data-expenditure-ledger-list-view]");
+      const detailView = container.querySelector("[data-expenditure-ledger-detail-view]");
+      const detailBody = container.querySelector("[data-expenditure-ledger-detail-body]");
+      container.addEventListener("click", (event) => {
+        const activityButton = event.target.closest("[data-expenditure-ledger-activity]");
+        if (!activityButton) return;
+        const section = EXPENSE_ACTIVITY_SECTIONS.find((item) => item.containerId === activityButton.dataset.expenditureLedgerActivity);
+        if (!section) return;
+        const sourceChart = document.getElementById(section.containerId);
+        const sourceSection = sourceChart && sourceChart.closest(".wc-revenue-full-bleed");
+        const sourceHeading = sourceSection && sourceSection.querySelector(".wc-revenue-heading-inner");
+        const detailChartId = "wc-expenditure-ledger-detail-chart";
+        detailBody.innerHTML =
+          '<section class="wc-expenditure-ledger-detail-content">' +
+          (sourceHeading ? sourceHeading.outerHTML : '<div class="wc-revenue-heading-inner"><span>Expenditure Classification</span><h2>' + escapeHtml(section.title || section.activity) + "</h2>" + (section.description ? "<p>" + escapeHtml(section.description) + "</p>" : "") + "</div>") +
+          '<div id="' + detailChartId + '-mount"></div>' +
+          "</section>";
+        listView.hidden = true;
+        detailView.hidden = false;
+        renderExpenseActivityChart(detailBody.querySelector("#" + detailChartId + "-mount"), section, detailChartId);
+        detailView.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      const backButton = container.querySelector("[data-expenditure-ledger-back]");
+      if (backButton) backButton.addEventListener("click", () => {
+        detailView.hidden = true;
+        detailBody.innerHTML = "";
+        listView.hidden = false;
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }).catch((err) => {
+      console.error("WCBudgetData: failed to load expenditure ledger", err);
+      container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
+    });
   }
 
   // Traces a rounded-rectangle path on `ctx` without relying on the
@@ -10427,6 +10479,7 @@
   }
 
   function initExpenseActivityChartsPage() {
+    if (document.body.classList.contains("wc-expenditure-ledger-page")) return;
     const sections = EXPENSE_ACTIVITY_SECTIONS.filter((s) => document.getElementById(s.containerId));
     if (!sections.length) return;
 

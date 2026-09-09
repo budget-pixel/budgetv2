@@ -26,10 +26,10 @@
 
 <div id="layout">
 <main id="content" class="wc-explorer-home">
-  <section class="wc-explorer-intro" aria-labelledby="explore-title">
+  <section class="wc-explorer-intro wc-explorer-intro-categories-section" aria-labelledby="explore-categories-title">
     <div>
-      <h2 id="explore-title">Explore the Fiscal Year 2027 Budget</h2>
-      <p>Choose an explorer to see totals, trends, and the detailed ledgers behind Walton County&rsquo;s proposed budget. Amounts below update from the same data used throughout this site.</p>
+      <h2 id="explore-categories-title">How the budget is organized</h2>
+      <p>Walton County&rsquo;s budget is organized into four main spending categories: <strong>Department and Services Budget</strong>, the operating and personnel cost for Board of County Commissioners departments; <strong>Constitutional Officers</strong>, the budgets for the six independently elected constitutional officers and their respective staff, capital, and operating needs; <strong>Capital</strong>, the Board of County Commissioners&rsquo; capital requests for machinery, roads, bridges, infrastructure, and parks; and <strong>Independent Agencies</strong>, entities the County is required to fund under state mandates, or agencies the County elects to fund.</p>
       <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
         <a class="wc-explorer-intro-icon-link" href="pages/budget-overview.html" data-explorer-popup-trigger="Ledger Directory">
           <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></span>
@@ -63,55 +63,17 @@
     </div>
   </section>
 
-  <section class="wc-explorer-card-grid" aria-label="Revenue, personnel, and forecast explorers">
-
-    <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Revenue Budget</h3></div>
-      </div>
-      <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
-        <div class="wc-dollar-mark" role="img" aria-label="Revenue budget"><span aria-hidden="true">$</span></div>
-      </div>
-      <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
-    </a>
-
-    <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="?explorer=personnel">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Personnel Budget</h3></div>
-      </div>
-      <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-share>Share of total expenditures</small></div>
-        <div class="wc-people-mark" aria-hidden="true"><i></i><i></i><i></i></div>
-      </div>
-      <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
-    </a>
-
-    <a class="wc-explorer-card wc-card-forecast" href="pages/financial-forecast.html" data-explorer-popup-trigger="Budget Forecast">
-      <div class="wc-explorer-card-heading">
-        <div><h3>Budget Forecast</h3></div>
-      </div>
-      <span class="wc-explorer-card-action">Explore Budget Forecast <b aria-hidden="true">→</b></span>
-    </a>
-
-  </section>
-
-  <section class="wc-explorer-intro wc-explorer-intro-categories-section" aria-labelledby="explore-categories-title">
-    <div>
-      <h2 id="explore-categories-title">How the budget is organized</h2>
-      <p>Walton County&rsquo;s budget is organized into four main spending categories: <strong>Department Budgets</strong>, the operating and personnel cost for Board of County Commissioners departments; <strong>Constitutional Officers</strong>, the budgets for the six independently elected constitutional officers and their respective staff, capital, and operating needs; <strong>Capital</strong>, the Board of County Commissioners&rsquo; capital requests for machinery, roads, bridges, infrastructure, and parks; and <strong>Independent Agencies</strong>, entities the County is required to fund under state mandates, or agencies the County elects to fund.</p>
-    </div>
-  </section>
-
   <section class="wc-explorer-card-grid wc-explorer-card-grid-categories" aria-label="Department, constitutional officer, capital, and independent agency explorers">
 
     <a class="wc-explorer-card wc-card-departments" data-home-explorer="departments" href="?explorer=departments">
       <div class="wc-explorer-card-heading">
-        <div><h3>Department Budget</h3></div>
+        <div><h3>Department and Services Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><span>Total Department Budget</span><small data-card-department-share>Share of total expenditures</small></div>
-        <div class="wc-mini-donut is-department" data-department-donut role="img" aria-label="Department budget composition"><span></span></div>
+        <div class="wc-department-mark" role="img" aria-label="County departments">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M24 84V32l26-14 26 14v52H24Z"></path><path class="wc-department-mark-detail" d="M36 40h8v8h-8zm20 0h8v8h-8zM36 56h8v8h-8zm20 0h8v8h-8zM43 84V70h14v14M18 84h64"></path></svg>
+        </div>
       </div>
       <span class="wc-explorer-card-action">Explore Departments <b aria-hidden="true">→</b></span>
     </a>
@@ -149,6 +111,32 @@
         <div class="wc-mini-donut is-independent" role="img" aria-label="Independent agencies budget"><span></span></div>
       </div>
       <span class="wc-explorer-card-action">Explore Independent Agencies <b aria-hidden="true">→</b></span>
+    </a>
+
+  </section>
+
+  <section class="wc-explorer-card-grid wc-explorer-card-grid-secondary" aria-label="Revenue and personnel explorers">
+
+    <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Revenue Budget</h3></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
+        <div class="wc-dollar-mark" role="img" aria-label="Revenue budget"><span aria-hidden="true">$</span></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
+    </a>
+
+    <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="?explorer=personnel">
+      <div class="wc-explorer-card-heading">
+        <div><h3>Personnel Budget</h3></div>
+      </div>
+      <div class="wc-explorer-card-body">
+        <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-share>Share of total expenditures</small></div>
+        <div class="wc-people-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <span class="wc-explorer-card-action">Explore Personnel <b aria-hidden="true">→</b></span>
     </a>
 
   </section>
@@ -246,7 +234,6 @@
     var capitalRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) !== "107"; });
     var totalCapital = sum(capitalRows, "FY2027_Proposed");
     var departmentTotal = window.WCBudgetData.getDepartmentBudgetTotal(data);
-    var departmentGroups = window.WCBudgetData.getDepartmentBudgetBreakdown(data);
     var constitutionalTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);
 
     var fundNames = new Map((data.funds || []).map(function(fund){ return [String(fund.Fund_Code || "").trim(), String(fund.Fund_Name || "Fund " + fund.Fund_Code).trim()]; }));
@@ -261,8 +248,6 @@
     setText("[data-card-personnel-share]", (totalBudget ? (totalPersonnel/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
     setText("[data-card-department-total]", compact(departmentTotal));
     setText("[data-card-department-share]", (totalBudget ? (departmentTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-    donut("[data-department-donut]", departmentGroups, departmentTotal || totalBudget);
-
     setText("[data-card-capital-total]", compact(totalCapital));
     setText("[data-card-capital-share]", (totalBudget ? (totalCapital/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
     setText("[data-card-constitutional-total]", compact(constitutionalTotal));

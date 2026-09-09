@@ -327,7 +327,7 @@ const pageHeader = () => `<header><span>Walton County, Florida</span><em>Fiscal 
 const page1 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Our County</small>
+    <small class="kicker">Budget Process</small>
     <h1>Budget Process</h1>
     <p class="intro">See how a department request becomes Walton County&rsquo;s FY2027 tentative spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
 
@@ -368,7 +368,7 @@ const page1 = `
 const page2 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Our County</small>
+    <small class="kicker">Budget Process</small>
     <h1>Budget Calendar</h1>
     <p class="intro">Key budget development dates, public workshops, notices, hearings, and adoption milestones for Fiscal Year 2027.</p>
 

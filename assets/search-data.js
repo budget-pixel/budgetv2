@@ -29,8 +29,8 @@ var wcCoreBudgetPages = [
   { title:"Revenue Budget", section:"Financial Overview", href:"../home.html?explorer=revenue" },
   { title:"Department Budget Explorer", section:"Financial Overview", href:"../home.html?explorer=departments" },
   { title:"Independent Agencies Budget Explorer", section:"Financial Overview", href:"../home.html?explorer=independent" },
-  { title:"Summary of Expenses", section:"Financial Summaries", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdf2d67fd0fb063ce6" },
-  { title:"Budget Change Summary", section:"Financial Summaries", href:"summary-of-budget-changes-and-adjustments.html" },
+  { title:"Expenditure Ledger", section:"Financial Summaries", href:"summary-of-expenses.html" },
+  { title:"Budget Change Summary", section:"Financial Overview", href:"summary-of-budget-changes-and-adjustments.html" },
   { title:"Interfund Transfer Ledger", section:"Financial Overview", href:"summary-of-interfund-transfers.html" },
   { title:"Personnel Budget", section:"Financial Overview", href:"../home.html?explorer=personnel" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
@@ -202,7 +202,7 @@ var wcHiddenBudgetPageTitles = new Set([
       "revenues", "revenue", "revenue summary", "property taxes", "ad valorem taxes", "ad valoram taxes", "taxes", "tourist development taxes", "tdt", "tourist tax", "bed tax", "sales tax", "charges for services", "intergovernmental revenues", "fines", "forfeitures", "miscellaneous revenue", "permits", "fees", "special assessments", "millage", "taxable value"
     ],
 
-    "Summary of Expenses": [
+    "Expenditure Ledger": [
       "expenses", "expenditures", "spending", "expense summary", "appropriations", "operating expenses", "personnel services", "operating costs", "capital outlay", "debt service", "public safety", "general government", "transportation", "culture recreation", "human services"
     ],
 
@@ -506,7 +506,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Revenue Budget": "../home.html?explorer=revenue",
     "Department Budget Explorer": "../home.html?explorer=departments",
     "Independent Agencies Budget Explorer": "../home.html?explorer=independent",
-    "Summary of Expenses": "summary-of-expenses.html",
+    "Expenditure Ledger": "summary-of-expenses.html",
     "Interfund Transfer Ledger": "summary-of-interfund-transfers.html",
     "Personnel Budget": "../home.html?explorer=personnel",
     "Machinery, Vehicles, & Equipment Ledger": "summary-of-machinery-vehicles-and-equipment.html",

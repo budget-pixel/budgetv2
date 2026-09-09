@@ -242,7 +242,7 @@ const pageHeader = () => `<header><span>Walton County, Florida</span><em>Fiscal 
 const page1 = `
   <section>
     ${pageHeader()}
-    <small class="kicker">Financial Summaries</small>
+    <small class="kicker">Financial Overview</small>
     <h1>Budget Change Summary</h1>
     <p class="intro">A comparison of the FY 2026 and FY 2027 budgets by Constitutional Officer, Independent Agency, Board Department, and capital fund.</p>
     <div class="stat-strip">
