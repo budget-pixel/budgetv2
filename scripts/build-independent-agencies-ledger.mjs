@@ -247,11 +247,22 @@ const sharedCss = `
   .ag-brow b{ color:#003f28; white-space:nowrap; }
 `;
 
+// Revenue source, not the fund name, is what readers want here -- most
+// of these entities are General Fund-budgeted, which is property-tax
+// supported; E911 Fund entities are supported by E911 fee revenue; the
+// Daughette MSBU Fund is supported by its own special assessment.
+function revenueSourceFor(fund) {
+  if (fund === "General Fund") return "Property Tax";
+  if (fund === "E911 Fund") return "E911";
+  if (fund === "Daughette MSBU Fund") return "Special Assessment";
+  return fund;
+}
+
 function summaryRowHtml(r) {
   const [name, fy26, fy27, fund] = r;
   const delta = fy27 - fy26;
   const isDown = delta < 0;
-  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div><div class="rfund">${fund}</div></div>`;
+  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div><div class="rfund">${revenueSourceFor(fund)}</div></div>`;
 }
 
 function agencyCardHtml(a) {
@@ -264,7 +275,7 @@ function agencyCardHtml(a) {
       <div class="rnum">${money(a.fy26)}</div>
       <div class="rnum">${money(a.fy27)}</div>
       <div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, a.fy26)}</div>
-      <div class="rfund">${a.fund}</div>
+      <div class="rfund">${revenueSourceFor(a.fund)}</div>
     </div>
     <p class="ag-narrative">${a.narrative}</p>
     ${a.breakdown ? `<div class="ag-breakdown">${a.breakdown.map(([n, v]) => `<div class="ag-brow"><span>${n}</span><b>${money(v)}</b></div>`).join("")}</div>` : ""}
@@ -294,7 +305,7 @@ const overviewPage = `
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <h2>Agency Summary</h2>
     <div class="ledger">
-      <div class="lrow head"><div class="rlabel">Entity</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div><div class="rfund">Fund</div></div>
+      <div class="lrow head"><div class="rlabel">Entity</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div><div class="rfund">Revenue Source</div></div>
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
@@ -306,7 +317,7 @@ pageCounter++;
 
 const agencyPagesHtml = PAGE_GROUPS.map((idxs) => {
   const group = idxs.map((i) => AGENCIES[i]);
-  const rowHead = `<div class="ag-entry-head" style="border-bottom:1px solid #003f28;color:#68786f;font-size:6.3pt;font-weight:800;letter-spacing:.01em;text-transform:uppercase;padding-bottom:.06in;"><div>Entity</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div><div class="rfund">Fund</div></div>`;
+  const rowHead = `<div class="ag-entry-head" style="border-bottom:1px solid #003f28;color:#68786f;font-size:6.3pt;font-weight:800;letter-spacing:.01em;text-transform:uppercase;padding-bottom:.06in;"><div>Entity</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div><div class="rfund">Revenue Source</div></div>`;
   const cards = group.map((a) => agencyCardHtml(a)).join("");
   const html = `
   <section>

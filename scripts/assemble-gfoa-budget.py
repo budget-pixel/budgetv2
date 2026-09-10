@@ -23,11 +23,21 @@ def add_range(writer, source, start, end):
 
 
 def number_stamp(number):
+    # Each chapter's own footer (text + its divider line) sits at a
+    # slightly different y-offset depending on that script's own CSS
+    # (observed 33-36pt from the bottom across chapters). Covering only a
+    # band tight around the text left stray slivers of the original
+    # line/text poking out on some chapters. Instead, blank the whole
+    # footer band (line included) full-width, then redraw a single
+    # consistent line and label so every page matches regardless of the
+    # source chapter's own footer positioning.
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=(612, 792))
     c.setFillColorRGB(1, 1, 1)
-    c.rect(34, 15, 176, 20, fill=1, stroke=0)
-    c.rect(532, 15, 52, 20, fill=1, stroke=0)
+    c.rect(0, 0, 612, 40, fill=1, stroke=0)
+    c.setStrokeColorRGB(0.7961, 0.8471, 0.8196)
+    c.setLineWidth(0.75)
+    c.line(45, 36, 567, 36)
     c.setFillColorRGB(0.39, 0.46, 0.42)
     c.setFont("Helvetica-Bold", 7.5)
     c.drawString(44, 23, "FY 2027 TENTATIVE BUDGET")
@@ -159,7 +169,7 @@ writer.add_page(divider_our_county.pages[0])
 add_range(writer, overview, 1, 3)
 writer.add_page(org_structure.pages[0])
 writer.add_page(strategic.pages[0])
-add_range(writer, community, 1, 3)
+add_range(writer, community, 1, 1)
 
 # Financial Overview divider, then Budget in Brief through Florida
 # Amendment 3 Risk (Budget Change Summary and Property Tax Allocation sit
@@ -175,7 +185,7 @@ writer.add_page(brief.pages[0])
 add_range(writer, consolidated, 1, 2)
 add_range(writer, change, 1, 2)
 writer.add_page(enh.pages[7])
-add_range(writer, revenue, 1, 5)
+add_range(writer, revenue, 1, 4)
 add_range(writer, property_tax, 1, 2)
 writer.add_page(enh.pages[8])
 add_range(writer, expenses, 1, 3)
@@ -185,7 +195,7 @@ writer.add_page(debt.pages[0])
 
 writer.add_page(divider_budget_process.pages[0])
 add_range(writer, process, 1, 2)
-writer.add_page(enh.pages[14])
+writer.add_page(enh.pages[11])
 add_range(writer, financial_policies, 1, 2)
 
 # Public-value/GFOA decision guide, including revenue risk, projects, and workshops.
@@ -223,7 +233,7 @@ writer.add_page(divider_other_agencies.pages[0])
 add_range(writer, independent, 1, 3)
 writer.add_page(departments.pages[0])
 writer.add_page(base.pages[38])
-add_range(writer, departments, 3, 37)
+add_range(writer, departments, 3, 34)
 
 # Financial plan, now trimmed down to Contractual Services Ledger and
 # Long-Term Outlook -- Consolidated Budget, Revenue Portfolio, Revenue,
@@ -237,34 +247,30 @@ add_range(writer, long_term, 1, 2)
 
 # Capital plan, detailed fund schedules, reference section, and back cover.
 # Capital Portfolio, Major Project Decision Record, and Capital
-# Accountability (enh pages 12-14) moved here, right after the Capital
-# Improvement Plan, instead of sitting in the Workforce Budget chapter --
-# their subject is capital decision-making, which belongs with the rest
-# of the capital plan. Long-Term Decisions (enh page 11) stays behind in
-# Workforce Budget.
+# Accountability were removed as duplicative of the Capital Improvement
+# Plan and the now fully itemized Machinery, Vehicles, and Equipment
+# Ledger. Long-Term Decisions (enh page 11) stays behind in Workforce
+# Budget.
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
-writer.add_page(enh.pages[11])
-writer.add_page(enh.pages[12])
-writer.add_page(enh.pages[13])
-add_range(writer, capital_ledgers, 1, 8)
+add_range(writer, capital_ledgers, 1, 10)
 
-# Glossary, Statistical, and Supplemental Information is now its own
-# closing chapter with its own divider, not a subsection tucked inside
-# Capital Budget. Statistical and Supplemental Information and Principal
-# Property Taxpayers still lead it, right in front of the Glossary.
+# Glossary, Statistical, and Supplemental Information is the book's
+# closing chapter, with its own divider. The Glossary itself leads the
+# chapter now, with Statistical and Supplemental Information and
+# Principal Property Taxpayers following behind it.
 writer.add_page(divider_glossary.pages[0])
+add_range(writer, glossary, 1, 9)
 add_range(writer, base, 22, 23)
 
-add_range(writer, glossary, 1, 9)
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 139
+EXPECTED_PAGES = 132
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 8, 17, 39, 52, 56, 64, 68, 105, 112, 127, 139}
+skip_number = {1, 2, 8, 15, 36, 49, 53, 61, 65, 99, 106, 120, 132}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         page.merge_page(number_stamp(number), over=True)
@@ -285,50 +291,46 @@ outline = [
     ("Budget Message", 3, None),
     ("Introduction and Our County", 8, None),
     ("Community Priorities and Challenges", 14, "Introduction and Our County"),
-    ("Financial Overview", 17, None),
-    ("Budget in Brief", 18, "Financial Overview"),
-    ("Consolidated Budget Ledger", 19, "Financial Overview"),
-    ("Budget Change Summary", 21, "Financial Overview"),
-    ("Revenue Portfolio", 23, "Financial Overview"),
-    ("Revenue Ledger", 24, "Financial Overview"),
-    ("Property Tax Allocation Ledger", 29, "Financial Overview"),
-    ("Florida Amendment 3 Risk", 31, "Financial Overview"),
-    ("Expenditure Ledger", 32, "Financial Overview"),
-    ("Fund Financial Ledger", 35, "Financial Overview"),
-    ("Interfund Transfer Ledger", 37, "Financial Overview"),
-    ("Debt Ledger", 38, "Financial Overview"),
-    ("Budget Process", 39, None),
-    ("Public Participation", 42, "Budget Process"),
-    ("Financial Policies", 43, "Budget Process"),
-    ("Public Value and Decision Guide", 45, "Budget Process"),
-    ("Program and Service Budget", 47, "Public Value and Decision Guide"),
-    ("Program Outcomes", 49, "Public Value and Decision Guide"),
-    ("Revenue Strategy", 51, "Public Value and Decision Guide"),
-    ("Workforce Budget", 52, None),
-    ("Personnel Ledger", 54, "Workforce Budget"),
-    ("Long-Term Decisions", 55, "Workforce Budget"),
-    ("Constitutional Officers", 56, None),
-    ("Other Agencies and Court-Related Functions", 64, None),
-    ("Departments and Services", 68, None),
-    ("Tourism Administration", 97, "Departments and Services"),
-    ("Sales and Visitors Center", 98, "Tourism Administration"),
-    ("Communications", 99, "Tourism Administration"),
-    ("Marketing", 100, "Tourism Administration"),
-    ("North Walton", 101, "Tourism Administration"),
-    ("Beach Operations", 102, "Departments and Services"),
-    ("Beach Renourishment", 103, "Beach Operations"),
-    ("Beach Tram", 104, "Beach Operations"),
-    ("Financial Plan", 105, None),
-    ("Contractual Services Ledger", 106, "Financial Plan"),
-    ("Long-Term Outlook", 110, "Financial Plan"),
-    ("Capital Budget", 112, None),
-    ("Capital Improvement Plan", 113, "Capital Budget"),
-    ("Capital Portfolio", 116, "Capital Budget"),
-    ("Major Project Decision Record", 117, "Capital Budget"),
-    ("Glossary, Statistical, and Supplemental Information", 127, None),
-    ("Statistical and Supplemental Information", 128, "Glossary, Statistical, and Supplemental Information"),
-    ("Principal Property Taxpayers", 129, "Glossary, Statistical, and Supplemental Information"),
-    ("Glossary and Frequently Asked Questions", 130, "Glossary, Statistical, and Supplemental Information"),
+    ("Financial Overview", 15, None),
+    ("Budget in Brief", 16, "Financial Overview"),
+    ("Consolidated Budget Ledger", 17, "Financial Overview"),
+    ("Budget Change Summary", 19, "Financial Overview"),
+    ("Revenue Portfolio", 21, "Financial Overview"),
+    ("Revenue Ledger", 22, "Financial Overview"),
+    ("Property Tax Allocation Ledger", 26, "Financial Overview"),
+    ("Florida Amendment 3 Risk", 28, "Financial Overview"),
+    ("Expenditure Ledger", 29, "Financial Overview"),
+    ("Fund Financial Ledger", 32, "Financial Overview"),
+    ("Interfund Transfer Ledger", 34, "Financial Overview"),
+    ("Debt Ledger", 35, "Financial Overview"),
+    ("Budget Process", 36, None),
+    ("Public Participation", 39, "Budget Process"),
+    ("Financial Policies", 40, "Budget Process"),
+    ("Public Value and Decision Guide", 42, "Budget Process"),
+    ("Program and Service Budget", 44, "Public Value and Decision Guide"),
+    ("Program Outcomes", 46, "Public Value and Decision Guide"),
+    ("Revenue Strategy", 48, "Public Value and Decision Guide"),
+    ("Workforce Budget", 49, None),
+    ("Personnel Ledger", 51, "Workforce Budget"),
+    ("Long-Term Decisions", 52, "Workforce Budget"),
+    ("Constitutional Officers", 53, None),
+    ("Other Agencies and Court-Related Functions", 61, None),
+    ("Departments and Services", 65, None),
+    ("Tourism Administration", 93, "Departments and Services"),
+    ("Sales and Visitors Center", 94, "Tourism Administration"),
+    ("Communications", 95, "Tourism Administration"),
+    ("Marketing", 96, "Tourism Administration"),
+    ("Beach Operations", 97, "Departments and Services"),
+    ("Beach Tram", 98, "Beach Operations"),
+    ("Financial Plan", 99, None),
+    ("Contractual Services Ledger", 100, "Financial Plan"),
+    ("Long-Term Outlook", 104, "Financial Plan"),
+    ("Capital Budget", 106, None),
+    ("Capital Improvement Plan", 107, "Capital Budget"),
+    ("Glossary, Statistical, and Supplemental Information", 120, None),
+    ("Glossary and Frequently Asked Questions", 121, "Glossary, Statistical, and Supplemental Information"),
+    ("Statistical and Supplemental Information", 130, "Glossary, Statistical, and Supplemental Information"),
+    ("Principal Property Taxpayers", 131, "Glossary, Statistical, and Supplemental Information"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -337,10 +339,109 @@ for title, page_number, parent_title in outline:
     parents[title] = item
 
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-writer.add_uri(30, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
-writer.add_uri(41, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
-writer.add_uri(138, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(138, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(27, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
+writer.add_uri(38, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
+writer.add_uri(131, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
+writer.add_uri(131, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+
+# Every QR code in the book gets a matching clickable link over the same
+# spot, so a reader viewing the PDF on-screen can click straight through
+# instead of having to scan with a phone. Rects below are the QR images'
+# own bounding boxes (0-indexed page, PyMuPDF top-left-origin coordinates
+# as reported by page.get_image_rects()) -- converted to PDF's
+# bottom-left-origin space by _uri. If a chapter's layout changes enough
+# to move a QR code, re-run the PyMuPDF scan and refresh the matching
+# rect(s) below rather than guessing.
+PAGE_H = 792  # 11in x 72pt/in
+
+
+def _uri(page_index, url, rect, pad=3):
+    x0, y0, x1, y1 = rect
+    writer.add_uri(
+        page_index,
+        url,
+        (x0 - pad, PAGE_H - y1 - pad, x1 + pad, PAGE_H - y0 + pad),
+        border=no_border,
+    )
+
+
+# Discover Walton County: "See Walton County in motion" video QR
+_uri(9, "https://www.youtube.com/watch?v=SIDgNn9c1q0", (63.8, 351.8, 132.8, 420.0))
+
+# Board of County Commissioners: five "Walton County history and public
+# information" QR codes, left to right
+_uri(10, "https://www.youtube.com/watch?v=fnHIXvjeif4&list=PL9UIKCDmOMoE_F9wjRwMdUXqn-8RNcdmr", (84.0, 559.5, 128.2, 603.8))
+_uri(10, "https://www.mywaltonfl.gov/DocumentCenter/View/41693/Who_was_George_Walton_Jr", (183.8, 559.5, 228.8, 603.8))
+_uri(10, "https://www.mywaltonfl.gov/314/History", (283.5, 559.5, 328.5, 603.8))
+_uri(10, "https://waltoncountyheritage.org/", (383.2, 559.5, 428.2, 603.8))
+_uri(10, "https://walton200.com/", (483.8, 559.5, 528.0, 603.8))
+
+# Property Tax Allocation: property-tax calculator QR
+_uri(26, "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator", (477.0, 288.0, 534.0, 345.8))
+
+# Summary of Financial Policies: nine policy QR codes, reading top-to-bottom
+# then left-to-right (matches the two-column layout)
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9811/Fund-Balance-Policy-Resolution", (234.0, 181.5, 281.2, 229.5))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9817/Budget-Policy-Per-Florida-Statutes-Chapters-129-and-200", (506.2, 181.5, 553.5, 229.5))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9813/Cash-Handling-Policy", (234.0, 297.0, 281.2, 344.2))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40346/Grants-Administration-Handbook", (506.2, 297.0, 553.5, 344.2))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9812", (234.0, 405.8, 281.2, 453.0))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40294/Capital-Asset-Policy", (506.2, 405.8, 553.5, 453.0))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/11655", (234.0, 514.5, 281.2, 561.8))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9816", (506.2, 514.5, 553.5, 561.8))
+_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy", (234.0, 623.2, 281.2, 670.5))
+
+# Personnel Ledger QR
+_uri(50, "https://budget-waltoncountyfl.com/pages/personnel-ledger.html", (502.5, 82.5, 549.8, 130.5))
+
+# Constitutional Officers: each officer's own budget-certification QR
+_uri(54, "https://www.mywaltonfl.gov/DocumentCenter/View/45225/Sheriff-Budget-Certification", (475.5, 233.2, 522.8, 280.5))
+_uri(56, "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission", (475.5, 233.2, 522.8, 280.5))
+_uri(57, "https://www.mywaltonfl.gov/DocumentCenter/View/45227/Clerk-of-Court-and-Comptroller-Budget", (475.5, 214.5, 522.8, 261.8))
+_uri(58, "https://www.mywaltonfl.gov/DocumentCenter/View/45269/Property-Appraiser-Submission", (475.5, 221.2, 522.8, 268.5))
+_uri(59, "https://www.mywaltonfl.gov/DocumentCenter/View/45234/Supervisor-of-Elections-Budget", (475.5, 214.5, 522.8, 261.8))
+
+# Departments and Services: each department's own "View Online" QR,
+# page index -> (url, rect)
+DEPARTMENT_QR = {
+    66: ("https://budget-waltoncountyfl.com/pages/building-construction-and-maintenance.html", (474.0, 219.75, 527.25, 272.25)),
+    67: ("https://budget-waltoncountyfl.com/pages/building-department.html", (474.0, 228.75, 527.25, 282.0)),
+    68: ("https://budget-waltoncountyfl.com/pages/code-compliance.html", (474.0, 198.75, 527.25, 252.0)),
+    69: ("https://budget-waltoncountyfl.com/pages/county-administration.html", (474.0, 219.75, 527.25, 272.25)),
+    70: ("https://budget-waltoncountyfl.com/pages/eagle-springs-golf-and-recreation-center.html", (474.0, 219.75, 527.25, 272.25)),
+    71: ("https://budget-waltoncountyfl.com/pages/eagle-springs-grill.html", (474.0, 219.75, 527.25, 272.25)),
+    72: ("https://budget-waltoncountyfl.com/pages/emergency-management.html", (474.0, 216.75, 527.25, 270.0)),
+    73: ("https://budget-waltoncountyfl.com/pages/engineering-department.html", (474.0, 198.75, 527.25, 252.0)),
+    74: ("https://budget-waltoncountyfl.com/pages/environmental-resources.html", (474.0, 219.75, 527.25, 272.25)),
+    75: ("https://budget-waltoncountyfl.com/pages/extension-office.html", (474.0, 219.75, 527.25, 272.25)),
+    76: ("https://budget-waltoncountyfl.com/pages/geographic-info-systems.html", (474.0, 198.75, 527.25, 252.0)),
+    77: ("https://budget-waltoncountyfl.com/pages/housing-and-urban-development.html", (474.0, 226.5, 527.25, 279.0)),
+    78: ("https://budget-waltoncountyfl.com/pages/human-resources.html", (474.0, 198.75, 527.25, 252.0)),
+    79: ("https://budget-waltoncountyfl.com/pages/libraries.html", (474.0, 198.75, 527.25, 252.0)),
+    80: ("https://budget-waltoncountyfl.com/pages/mosquito-control.html", (474.0, 228.75, 527.25, 282.0)),
+    81: ("https://budget-waltoncountyfl.com/pages/mossy-head-wastewater-treatment-facility.html", (474.0, 219.75, 527.25, 272.25)),
+    82: ("https://budget-waltoncountyfl.com/pages/office-of-management-and-budget.html", (474.0, 227.25, 527.25, 280.5)),
+    83: ("https://budget-waltoncountyfl.com/pages/office-of-the-county-attorney.html", (474.0, 216.75, 527.25, 270.0)),
+    84: ("https://budget-waltoncountyfl.com/pages/planning.html", (474.0, 224.25, 527.25, 277.5)),
+    85: ("https://budget-waltoncountyfl.com/pages/probation.html", (474.0, 198.75, 527.25, 252.0)),
+    86: ("https://budget-waltoncountyfl.com/pages/public-works.html", (474.0, 219.75, 527.25, 272.25)),
+    87: ("https://budget-waltoncountyfl.com/pages/purchasing.html", (474.0, 227.25, 527.25, 280.5)),
+    88: ("https://budget-waltoncountyfl.com/pages/recreation.html", (474.0, 219.75, 527.25, 272.25)),
+    89: ("https://budget-waltoncountyfl.com/pages/soil-conservation.html", (474.0, 198.75, 527.25, 252.0)),
+    90: ("https://budget-waltoncountyfl.com/pages/solid-waste.html", (474.0, 228.75, 527.25, 282.0)),
+    91: ("https://budget-waltoncountyfl.com/pages/veteran-services.html", (474.0, 198.75, 527.25, 252.0)),
+    92: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html", (474.0, 228.75, 527.25, 282.0)),
+    93: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#sales-and-visitor-center", (474.0, 228.75, 527.25, 282.0)),
+    94: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#communications", (474.0, 228.75, 527.25, 282.0)),
+    95: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#marketing", (474.0, 228.75, 527.25, 282.0)),
+    96: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
+    97: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
+}
+for _page_idx, (_url, _rect) in DEPARTMENT_QR.items():
+    _uri(_page_idx, _url, _rect)
+
+# Capital Improvement Plan QR
+_uri(108, "https://budget-waltoncountyfl.com/pages/capital-improvement-plan.html", (59.25, 521.25, 111.0, 573.75))
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

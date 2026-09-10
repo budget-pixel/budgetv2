@@ -27,7 +27,6 @@ const imageDataUri = (name, mime) => {
 
 const COVER_PHOTO = imageDataUri("homepage-hero.jpg", "image/jpeg");
 const COUNTY_SEAL = imageDataUri("walton-county-logo-no-background.png", "image/png");
-const GFOA_MARK = imageDataUri("gfoa-logo-mark.png", "image/png");
 // Embedded as a data URI (not a Google Fonts <link>) so the build never
 // depends on network access at render time -- same reasoning as inlining
 // the images above.
@@ -150,39 +149,6 @@ const html = `<!doctype html>
     flex-direction:column;
     gap:.22in;
   }
-  .cover-award{
-    display:inline-flex;
-    align-items:center;
-    gap:.16in;
-    align-self:flex-start;
-    padding:.13in .22in .13in .16in;
-    border-radius:999px;
-    background:rgba(255,255,255,.96);
-    box-shadow:0 6px 18px rgba(0,0,0,.22);
-  }
-  .cover-award img{
-    width:.5in;
-    height:.5in;
-    object-fit:contain;
-  }
-  .cover-award-text{
-    display:flex;
-    flex-direction:column;
-    line-height:1.22;
-  }
-  .cover-award-text b{
-    color:#0b2a20;
-    font-size:9.6pt;
-    font-weight:800;
-    letter-spacing:.02em;
-  }
-  .cover-award-text span{
-    color:#4d5f57;
-    font-size:8pt;
-    font-weight:700;
-    letter-spacing:.05em;
-    text-transform:uppercase;
-  }
   .cover-meta{
     display:flex;
     align-items:center;
@@ -215,13 +181,6 @@ const html = `<!doctype html>
         <p class="cover-tagline">A financial plan for public services, infrastructure, and the future of the County.</p>
       </div>
       <div class="cover-bottom">
-        <div class="cover-award">
-          <img src="${GFOA_MARK}" alt="">
-          <div class="cover-award-text">
-            <b>GFOA Distinguished Budget</b>
-            <span>Presentation Award</span>
-          </div>
-        </div>
         <div class="cover-meta">
           <span>Board of County Commissioners</span>
           <span>Tentative &bull; October 1, 2026 &ndash; September 30, 2027</span>

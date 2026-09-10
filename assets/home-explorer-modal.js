@@ -72,18 +72,32 @@
   // without explicit dimensions).
   function watchIframePopupHeight(frame, measure) {
     var observer = null;
+    var classObserver = null;
     try {
       var doc = frame.contentDocument;
       if (doc && doc.body && typeof ResizeObserver === "function") {
         observer = new ResizeObserver(function () { measure(); });
         observer.observe(doc.body);
       }
+      // Opening a ledger uses a fixed-position overlay inside the iframe,
+      // so it does not necessarily change body dimensions and therefore
+      // may not wake the ResizeObserver above. Watch the body's modal-open
+      // class as well so the outer department popup can expand immediately.
+      if (doc && doc.body && typeof MutationObserver === "function") {
+        classObserver = new MutationObserver(function () { measure(); });
+        classObserver.observe(doc.body, { attributes: true, attributeFilter: ["class"] });
+      }
     } catch (watchError) {
       // Cross-origin or unsupported -- the timed re-checks below still run.
     }
     measure();
     [50, 200, 500, 1000].forEach(function (delay) { window.setTimeout(measure, delay); });
-    return observer;
+    return {
+      disconnect: function () {
+        if (observer) observer.disconnect();
+        if (classObserver) classObserver.disconnect();
+      }
+    };
   }
 
   function updateDepartmentModalHeight() {
@@ -98,6 +112,16 @@
       sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), true);
       return;
     }
+    // Ledger/detail panels are fixed overlays within the embedded page.
+    // While one is open, keep the containing department popup at its full
+    // viewport height instead of shrink-wrapping the shorter page beneath
+    // it and clipping most of the ledger.
+    try {
+      if (departmentFrame.contentDocument && departmentFrame.contentDocument.body.classList.contains("wc-budget-detail-open")) {
+        panel.style.height = "";
+        return;
+      }
+    } catch (detailPanelAccessError) {}
     // Hold at the small opening size (set in openDepartmentModal) until the
     // minimum reveal time has passed -- even a page whose content is fully
     // ready well before that keeps the deliberate small-then-grow motion
@@ -595,7 +619,7 @@
             '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
             '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
             '[data-constitutional-ledger-close]{display:none!important}' +
-            '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:8px!important}');
+            '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:-34px!important}');
         embeddedDocument.head.appendChild(embeddedStyle);
         if (isFollowOnNavigation) {
           var headingEl = embeddedDocument.querySelector(".page-title");

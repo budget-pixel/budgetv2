@@ -27,30 +27,6 @@ const PRIORITY_AREAS = [
   { t: "Quality of Life", d: "Guide long-term development through strategic planning for public facilities, infrastructure, transportation, and responsible growth that meets community needs.", goals: ["Facilitate Citizen Engagement through Voluntary Board Service", "Expand Public Access to Gulf, Bay, and River Waterways", "Encourage Attainable Workforce Housing through Public-Private Partnerships"] }
 ];
 
-const CONNECTIONS = [
-  ["Public Safety and Health", "The $24.5M Transportation and Infrastructure Capital Ledger funds road, drainage, and pedestrian-path projects; Emergency Management's FY2027 capital (UTV, radio equipment) and the Lifeguard Services Agreement's built-in 4% annual increase sustain year-round readiness. The County's 2015 Note Payable continues to fund the countywide broadband build-out."],
-  ["Planned Growth and Infrastructure", "Planning's $282,000 Land Development Code Update contract directly funds this area's code-simplification goal. Mossy Head Wastewater Treatment Facility operates the county's sewer conversion infrastructure, and Building Construction &amp; Maintenance's FY2027 capital requests replace aging facility vehicles and equipment countywide."],
-  ["Environment and Natural Resources", "Solid Waste's FY2027 capital includes a new gate arm for the Transfer Station, a direct step toward transfer station expansion. Environmental Resources' Choctawhatchee Basin Alliance water-quality contracts ($62,875 combined) and Soil Conservation's USDA-NRCS cost-share programs support natural resource and agricultural land preservation."],
-  ["Economic Development and Tourism", "The Tourist Development Fund grew 15.9% to $59.0M in FY2027, funding the year's single largest capital commitment: $10.8M for beach renourishment. Recreation's capital-funded building improvements and the Recreation Plat Fee Fund support the greenspace and recreational access this area calls for."],
-  ["Government and Operational Performance", "The Office of Management and Budget holds the GFOA Distinguished Budget Presentation Award and Purchasing holds the National Procurement Institute's Achievement of Excellence in Procurement Award. Planning's investment in EnerGov, OpenGov, and GovOS software modernizes permitting and short-term rental processes."],
-  ["Quality of Life", "Housing &amp; Urban Development administers $3.1M in federal HUD rental assistance, the County's direct program for attainable housing. Libraries served over 215,000 visitors in FY2025, and Eagle Springs Golf &amp; Recreation Center's and Recreation's FY2027 capital requests expand public recreational access."]
-];
-
-const CHALLENGE_THEMES = [
-  { n: 7, label: "Growth vs. Aging Assets", text: "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.", depts: "Building Construction & Maintenance, Eagle Springs Golf & Recreation, Engineering, Mossy Head WWTF, Public Works, Recreation, Solid Waste" },
-  { n: 6, label: "Workforce Capacity", text: "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.", depts: "County Administration, GIS, Human Resources, OMB, County Attorney, Purchasing" },
-  { n: 6, label: "Service Demand", text: "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.", depts: "Building Department, Extension Office, HUD, Libraries, Probation, Veteran Services" },
-  { n: 5, label: "Regulatory Enforcement", text: "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.", depts: "Code Compliance, Environmental Resources, Mosquito Control, Planning, Soil Conservation" },
-  { n: 2, label: "Seasonal Readiness", text: "Maintaining year-round readiness for unpredictable events, seasonal demand, severe weather, and competition for trained personnel and specialized equipment.", depts: "Emergency Management, Tourism Lifeguard Services & Beach Safety" }
-];
-
-const OPPORTUNITIES = [
-  { b: "In-House Engineering", d: "Performing capital project design and construction management in-house rather than through outside consultants is estimated to save $1,660,880 in FY2027 &mdash; freeing capital dollars for more projects." },
-  { b: "National Recognition", d: "Office of Management and Budget holds the GFOA Distinguished Budget Presentation Award for FY2025 and FY2026; Purchasing was named a 2026 winner of the National Procurement Institute's Achievement of Excellence in Procurement Award." },
-  { b: "Growing Tourism Tax Base", d: "The Tourist Development Fund grew 15.9% to $59.0M in FY2027, funding beach renourishment, dune and boardwalk repair, and transit projects without drawing on property taxes." },
-  { b: "Lower Millage Despite Growth", d: "The County reduced its operating millage rate to 3.4347 mills from 3.519 mills the prior year, while still funding a net increase of 15 full-time positions and a record $71.3M capital program." }
-];
-
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
   *{ box-sizing:border-box; }
@@ -179,59 +155,22 @@ const page1 = `
     </div>
 
     <h2>Growth Is the Common Thread</h2>
-    <p class="body">Walton County's population has grown 36.8% since 2010 to 75,305 residents, and the Tourist Development Fund &mdash; a direct measure of visitor demand &mdash; grew another 15.9% in FY2027 alone. The Strategic Plan's priority areas, and nearly every department's stated challenge elsewhere in this book, trace back to the same root cause: service levels, staffing, and infrastructure all have to keep pace with a county that keeps growing.</p>
+    <p class="body">Walton County's population has grown 36.8% since 2010 to 75,305 residents, and the county hosts an estimated 4.7 million visitors annually &mdash; nearly 63 tourists for every resident. The Strategic Plan's priority areas, and nearly every department's stated challenge elsewhere in this book, trace back to the same root cause: service levels, staffing, and infrastructure all have to keep pace with a county that keeps growing.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>+36.8%</b><span>Population Growth Since 2010</span></div>
       <div class="stat-card"><b>75,305</b><span>Current Population</span></div>
-      <div class="stat-card"><b>+15.9%</b><span>FY2027 Tourist Development Fund Growth</span></div>
+      <div class="stat-card"><b>~4.7M</b><span>Estimated Annual Visitors</span></div>
       <div class="stat-card"><b>77.7%</b><span>Homeownership Rate</span></div>
     </div>
-    <p class="footnote">Strategic Priority Areas and goals reproduced from the Walton County Strategic Plan 2027&ndash;2032. Mission, Vision, and Core Values from the same plan appear on the preceding Strategic Initiatives page.</p>
 
     <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
-  </section>
-`;
-
-const page2 = `
-  <section>
-    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <h1 class="continued">Community Priorities and Organizational Challenges <span class="sub">(continued)</span></h1>
-
-    <h2 style="margin-top:.08in;">How the FY2027 Budget Funds Each Priority Area</h2>
-    <p class="body">The Strategic Plan sets direction; the budget is where it is funded. Every connection below cites a specific FY2027 budget line, contract, or department already detailed elsewhere in this book.</p>
-    <div class="conn-table">
-      <div class="crow head"><div>Strategic Priority Area</div><div>FY2027 Budget Connection</div></div>
-      ${CONNECTIONS.map(([a, c]) => `<div class="crow"><div class="carea">${a}</div><div class="cresp">${c}</div></div>`).join("")}
-    </div>
-
-    <h2>Opportunities</h2>
-    <p class="body">Growth is a challenge, but it also funds solutions. Several FY2027 wins came directly out of the same pressures the Strategic Plan is designed to address.</p>
-    <div class="opp-grid">
-      ${OPPORTUNITIES.map((o) => `<div class="opp-card"><b>${o.b}</b><span>${o.d}</span></div>`).join("")}
-    </div>
-
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
-  </section>
-`;
-
-const page3 = `
-  <section>
-    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <h1 class="continued">Community Priorities and Organizational Challenges <span class="sub">(continued)</span></h1>
-
-    <h2 style="margin-top:.08in;">Cross-Cutting Organizational Challenges</h2>
-    <p class="body">Beyond the Strategic Plan's countywide priorities, every one of the 27 Departments and Services pages in this book states a Challenges statement in the department's own words. Tallied across all 27, five distinct themes emerge &mdash; shown below by how many departments cite each one.</p>
-    ${CHALLENGE_THEMES.map((t) => `<div class="theme-row"><div class="theme-n"><b>${t.n}</b><span>Depts.</span></div><div><div class="theme-label">${t.label}</div><div class="theme-depts">${t.depts}</div></div><div class="theme-text">${t.text}</div></div>`).join("")}
-    <p class="footnote">Department-level detail for every challenge and budget line referenced in this chapter appears on that department's own page in the Departments and Services chapter.</p>
-
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Community Priorities and Organizational Challenges</title>
 <style>${sharedCss}</style></head>
-<body>${page1}${page2}${page3}</body></html>`;
+<body>${page1}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-community-priorities.pdf";
 const browser = await chromium.launch({ headless: true });

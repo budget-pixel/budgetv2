@@ -172,16 +172,17 @@ const REV_GROUPS = [
 ];
 const DETAIL_TOTAL = ["Total", "$327,945,088", "$345,223,508"];
 
-// 89 rows across 7 groups no longer fit two continuation pages at the
-// larger, more readable type size below -- General Government Taxes'
-// frequently-wrapping labels plus Charges for Services' 37 rows together
-// still overflow one page even though Charges for Services' labels are
-// mostly one line, so General Government Taxes and Charges for Services
-// each get their own page.
-const REV_GROUPS_A = REV_GROUPS.slice(0, 1);
-const REV_GROUPS_B = REV_GROUPS.slice(1, 2);
-const REV_GROUPS_C = REV_GROUPS.slice(2, 5);
-const REV_GROUPS_D = REV_GROUPS.slice(5);
+// 97 rows across 7 groups no longer fit two continuation pages at the
+// larger, more readable type size below, and Charges for Services' 38
+// rows alone fill a full page on its own -- but splitting the remaining
+// 6 categories across 3 pages (as an earlier version of this file did)
+// left every one of those pages under half full. They're grouped by row
+// count (not source order) across 2 pages instead of 3 so each page is
+// reasonably full rather than by category order.
+const byIndex = (...idx) => idx.map((i) => REV_GROUPS[i]);
+const REV_GROUPS_A = byIndex(0, 2, 6, 5); // General Government Taxes (11) + Other Sources (5) + Judgments, Fines and Forfeits (4) + Intergovernmental Revenues (8) = 28 rows
+const REV_GROUPS_B = byIndex(1); // Charges for Services = 38 rows
+const REV_GROUPS_C = byIndex(3, 4); // Permits Fees and Special Assessments (16) + Miscellaneous Revenue (15) = 31 rows, plus the grand total and footnote
 
 function money(s) { return Number(s.replace(/[$,]/g, "")) || 0; }
 function fmt(n) { return (n < 0 ? "&minus;$" : "$") + Math.abs(n).toLocaleString("en-US"); }
@@ -339,28 +340,15 @@ const page4 = `
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_C)}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 3}</b></footer>
-  </section>
-`;
-
-const page5 = `
-  <section>
-    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <h1 class="continued">Revenue Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
-    ${dtableHead}
-    <div class="dtable">
-      ${buildRevSections(REV_GROUPS_D)}
-    </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DETAIL_TOTAL[1]}</div><div class="dnum">${DETAIL_TOTAL[2]}</div><div class="dnum"></div></div>
-    <p class="footnote">*Eight sources marked with an asterisk are discontinued or not budgeted for FY2027, together totaling $1,280,560 in FY2026.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 4}</b></footer>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 3}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Revenue Ledger</title>
 <style>${sharedCss}</style></head>
-<body>${page1}${page2}${page3}${page4}${page5}</body></html>`;
+<body>${page1}${page2}${page3}${page4}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-revenue-ledger.pdf";
 const browser = await chromium.launch({ headless: true });

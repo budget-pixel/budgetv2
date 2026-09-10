@@ -19,31 +19,60 @@ import { chromium } from "playwright";
 // balance genuinely flows through the countywide roll-forward. Flagged
 // in a footnote below rather than left as an unexplained discrepancy.
 
-const STATS = [
-  ["$431.8M", "Estimated Ending Balance, FY2027"],
-  ["$488.9M", "Total Revenue & Other Sources"],
-  ["$488.9M", "Total Expenditures & Other Uses"],
-  ["15", "Funds, 6 Major / 9 Non-Major"]
+// FY2028/FY2029 projections exist only at the countywide level -- the
+// live per-fund schedules stop at FY2027 -- so this table now runs
+// FY2022 Actual through FY2027 Tentative (6 years) instead of the
+// 8-year countywide-only range it used before.
+const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Tentative"];
+
+// [row, FY22...FY27] -- countywide rows only; Total Revenues and Total
+// Expenditures are shown broken out by fund instead (see REVENUE_BY_FUND
+// and EXPENDITURE_BY_FUND below).
+const CONSOLIDATED_TOP = [
+  ["Beginning Fund Balance", "$206,500,685", "$273,894,781", "$313,775,975", "$367,413,796", "$435,939,242", "$431,812,854"]
+];
+const CONSOLIDATED_MID = [
+  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
+  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,615,667", "$488,887,492"]
+];
+const CONSOLIDATED_MID2 = [
+  ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
+  ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$472,176,003", "$488,887,492"]
+];
+const CONSOLIDATED_BOTTOM = [
+  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$4,439,664", "$0"],
+  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$440,378,906", "$431,812,854"]
 ];
 
-const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Tentative", "FY28 Proj.", "FY29 Proj."];
-
-// [row, FY22...FY29]
-const CONSOLIDATED = [
-  ["Beginning Fund Balance", "$206,500,685", "$273,894,781", "$313,775,975", "$367,413,796", "$435,939,242", "$431,812,854", "$431,812,854", "$416,774,438"],
-  ["Total Revenues", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$336,211,087", "$345,223,508", "$344,851,716", "$347,506,193"],
-  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984", "$143,663,984", "$143,663,984"],
-  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,615,667", "$488,887,492", "$488,515,700", "$491,170,177"],
-  ["Total Expenditures", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508", "$355,580,213", "$366,247,619"],
-  ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984", "$147,973,904", "$152,413,121"],
-  ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$472,176,003", "$488,887,492", "$503,554,116", "$518,660,740"],
-  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$4,439,664", "$0", "-$15,038,416", "-$27,490,563"],
-  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$440,378,906", "$431,812,854", "$416,774,438", "$389,283,875"]
+// [fund, FY22...FY27] -- Total Revenues only (not Total Revenue and
+// Other Sources), matching each fund's own schedule on the live site.
+const REVENUE_BY_FUND = [
+  ["General Fund", "$78,461,600", "$85,605,447", "$176,479,967", "$201,872,576", "$209,010,222", "$204,279,098"],
+  ["Transportation Fund", "$23,662,086", "$17,491,134", "$17,011,653", "$12,997,868", "$11,132,143", "$15,668,118"],
+  ["Fine & Forfeiture / Sheriff Fund", "$72,818,787", "$88,583,254", "$25,254,560", "$42,706,440", "$12,631,972", "$15,651,972"],
+  ["Tourist Development Fund", "$66,975,578", "$66,999,372", "$70,236,908", "$65,403,419", "$51,500,000", "$58,965,950"],
+  ["Solid Waste Fund", "$39,857,430", "$40,448,918", "$42,325,079", "$43,839,760", "$41,000,000", "$40,701,564"],
+  ["Capital Projects Fund", "$1,034,410", "$1,819,434", "$5,218,763", "$2,160,857", "$306,000", "$0"],
+  ["Non-Major Funds", "$10,160,164", "$10,679,927", "$13,253,306", "$12,326,494", "$6,184,362", "$5,956,806"]
 ];
+const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$336,211,087", "$341,223,508"];
+
+// [fund, FY22...FY27] -- Total Expenditures only (not Total Expenditures
+// and Other Uses).
+const EXPENDITURE_BY_FUND = [
+  ["General Fund", "$71,471,052", "$78,627,465", "$73,781,082", "$78,938,073", "$87,300,548", "$81,239,108"],
+  ["Transportation Fund", "$33,094,927", "$25,881,227", "$27,037,520", "$26,230,765", "$26,604,000", "$30,668,118"],
+  ["Fine & Forfeiture / Sheriff Fund", "$66,006,876", "$80,296,105", "$100,876,080", "$123,069,284", "$114,116,228", "$114,116,228"],
+  ["Tourist Development Fund", "$39,299,739", "$47,968,373", "$51,432,452", "$46,991,176", "$51,500,000", "$58,965,950"],
+  ["Solid Waste Fund", "$14,918,353", "$15,747,341", "$17,181,725", "$19,282,584", "$22,110,673", "$23,119,567"],
+  ["Capital Projects Fund", "$8,413,918", "$10,544,329", "$13,868,195", "$12,040,906", "$20,336,997", "$27,617,731"],
+  ["Non-Major Funds", "$7,592,215", "$6,922,290", "$14,930,076", "$9,178,983", "$9,802,977", "$9,496,806"]
+];
+const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
 
 // [fund, beginning, totalRevOther, totalExpOther, change, ending]
 const MAJOR_FUNDS = [
-  ["General Fund", "$81,910,494", "$206,861,095", "$206,861,095", "$1", "$81,910,495"],
+  ["General Fund", "$81,910,494", "$206,861,095", "$206,861,095", "$0", "$81,910,494"],
   ["Transportation Fund", "$41,124,267", "$30,668,118", "$30,668,118", "$0", "$41,124,267"],
   ["Fine & Forfeiture / Sheriff Fund", "$49,765,273", "$114,116,228", "$114,116,228", "$0", "$49,765,273"],
   ["Tourist Development Fund", "$166,535,869", "$58,965,950", "$58,965,950", "$0", "$166,535,869"],
@@ -64,6 +93,7 @@ const NON_MAJOR_FUNDS = [
 
 const cRow = (cells, cls) => `<div class="crow${cls ? " " + cls : ""}"><div class="clabel">${cells[0]}</div>${cells.slice(1).map((c) => `<div class="cnum">${c}</div>`).join("")}</div>`;
 const cHead = `<div class="crow head"><div class="clabel">Consolidated Fund Financial Schedule</div>${YEARS.map((y) => `<div class="cnum">${y}</div>`).join("")}</div>`;
+const cGroupLabel = (label) => `<div class="crow grouplabel"><div class="clabel">${label}</div></div>`;
 
 function fRow(cells) {
   const isDown = cells[4].trim().startsWith("-");
@@ -111,7 +141,7 @@ const sharedCss = `
     font:800 21pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:16pt; margin-top:0; }
+  h1.continued{ font-size:16pt; margin-top:.14in; }
   h1 span.sub{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -120,20 +150,6 @@ const sharedCss = `
     font-size:8.4pt;
     line-height:1.4;
   }
-  .stat-strip{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:.12in;
-    margin:0 0 .18in;
-  }
-  .stat-card{
-    padding:.1in .08in;
-    border-radius:9px;
-    background:#003f28;
-    text-align:center;
-  }
-  .stat-card b{ display:block; color:#fff; font:800 11.5pt/1.1 Georgia, serif; }
-  .stat-card span{ display:block; margin-top:.02in; color:#e7c95f; font-size:5.9pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; line-height:1.2; }
   h2{
     margin:.06in 0 .08in;
     color:#003f28;
@@ -144,16 +160,16 @@ const sharedCss = `
   .cledger{ border-top:2px solid #d1be78; }
   .crow{
     display:grid;
-    grid-template-columns:1.35in repeat(8,1fr);
-    gap:.045in;
+    grid-template-columns:1.85in repeat(6,1fr);
+    gap:.08in;
     align-items:center;
-    padding:.052in 0;
+    padding:.062in 0;
     border-bottom:1px solid #f1f4f1;
   }
   .crow.head{
     border-bottom:1px solid #003f28;
     color:#68786f;
-    font-size:5.7pt;
+    font-size:6.3pt;
     font-weight:800;
     letter-spacing:.005em;
     text-transform:uppercase;
@@ -162,23 +178,30 @@ const sharedCss = `
     align-items:end;
     height:.34in;
   }
-  .crow.head .clabel{ font-size:6.6pt; align-self:end; }
+  .crow.head .clabel{ font-size:7.2pt; align-self:end; }
   .crow.head .cnum{ text-align:right; }
-  .clabel{ color:#173229; font-size:6.5pt; }
-  .cnum{ text-align:right; color:#33453c; font-size:6.1pt; font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .crow.subtotal{ border-top:1px solid #003f28; border-bottom:0; padding-top:.045in; }
+  .clabel{ color:#173229; font-size:7.3pt; }
+  .cnum{ text-align:right; color:#33453c; font-size:6.9pt; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .crow.subtotal{ border-top:1px solid #003f28; border-bottom:0; padding-top:.05in; }
   .crow.subtotal .clabel, .crow.subtotal .cnum{ color:#003f28; font-weight:800; }
   .crow.grand{
     margin-top:.03in;
     border-top:1.5px solid #003f28;
     border-bottom:1.5px solid #003f28;
-    padding:.06in 0;
+    padding:.065in 0;
   }
-  .crow.grand .clabel, .crow.grand .cnum{ color:#003f28; font-weight:800; font-size:6.6pt; }
+  .crow.grand .clabel, .crow.grand .cnum{ color:#003f28; font-weight:800; font-size:7.3pt; }
+  .crow.grouplabel{
+    padding:.075in 0 .02in;
+    border-bottom:0;
+  }
+  .crow.grouplabel .clabel{ color:#53665d; font-size:6.4pt; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+  .crow.fundrow .clabel{ padding-left:.14in; color:#33453c; font-weight:400; }
 
   .fledger{ border-top:2px solid #d1be78; }
   .fgroup{
     margin-top:.14in;
+    margin-bottom:.06in;
     padding-bottom:.04in;
     border-bottom:1px solid #003f28;
     color:#003f28;
@@ -240,19 +263,22 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. This page shows the countywide consolidated schedule; the next page details each of the 15 individual funds.</p>
-    <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. Total Revenues and Total Expenditures are broken out by fund below; the next page details each of the 15 individual funds' full schedules.</p>
     <div class="cledger">
       ${cHead}
-      ${cRow(CONSOLIDATED[0])}
-      ${cRow(CONSOLIDATED[1])}
-      ${cRow(CONSOLIDATED[2])}
-      ${cRow(CONSOLIDATED[3], "subtotal")}
-      ${cRow(CONSOLIDATED[4])}
-      ${cRow(CONSOLIDATED[5])}
-      ${cRow(CONSOLIDATED[6], "subtotal")}
-      ${cRow(CONSOLIDATED[7], "grand")}
-      ${cRow(CONSOLIDATED[8], "grand")}
+      ${cRow(CONSOLIDATED_TOP[0])}
+      ${cGroupLabel("Total Revenues, by Fund")}
+      ${REVENUE_BY_FUND.map((r) => cRow(r, "fundrow")).join("")}
+      ${cRow(REVENUE_BY_FUND_TOTAL, "subtotal")}
+      ${cRow(CONSOLIDATED_MID[0])}
+      ${cRow(CONSOLIDATED_MID[1], "subtotal")}
+      ${cGroupLabel("Total Expenditures, by Fund")}
+      ${EXPENDITURE_BY_FUND.map((r) => cRow(r, "fundrow")).join("")}
+      ${cRow(EXPENDITURE_BY_FUND_TOTAL, "subtotal")}
+      ${cRow(CONSOLIDATED_MID2[0])}
+      ${cRow(CONSOLIDATED_MID2[1], "subtotal")}
+      ${cRow(CONSOLIDATED_BOTTOM[0], "grand")}
+      ${cRow(CONSOLIDATED_BOTTOM[1], "grand")}
     </div>
     <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
   </section>

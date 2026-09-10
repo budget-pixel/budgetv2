@@ -64,6 +64,10 @@ const sharedCss = `
   .fund-table th:nth-child(1){ width:22%; } .fund-table th:nth-child(2){ width:44%; } .fund-table th:nth-child(3){ width:14%; text-align:right; } .fund-table th:nth-child(4){ width:20%; text-align:right; }
   .dept-table th:nth-child(1){ width:46%; } .dept-table th:nth-child(2){ width:18%; text-align:right; } .dept-table th:nth-child(3){ width:36%; text-align:right; }
   .item-table th:nth-child(1){ width:42%; } .item-table th:nth-child(2){ width:19%; } .item-table th:nth-child(3){ width:16%; } .item-table th:nth-child(4){ width:12%; } .item-table th:nth-child(5){ width:11%; text-align:right; }
+  .item-table2{ margin-bottom:.06in; }
+  .item-table2 th:nth-child(1){ width:78%; } .item-table2 th:nth-child(2){ width:22%; text-align:right; }
+  .item-cols{ column-count:2; column-gap:.3in; }
+  .item-cols .item-table2{ break-inside:avoid; }
   .proj-table th:nth-child(1){ width:44%; } .proj-table th:nth-child(2){ width:36%; } .proj-table th:nth-child(3){ width:20%; text-align:right; }
   p.note{ margin:.1in 0 0; color:#68786f; font-size:6.8pt; line-height:1.38; font-style:italic; }
   p.footnote{ margin:.08in 0 0; color:#68786f; font-size:6.8pt; line-height:1.38; font-style:italic; }
@@ -110,67 +114,138 @@ const MACHINERY_FUNDING = [
 ];
 const MACHINERY_TOTAL = 7120300;
 
-// [department, items, total, coveredElsewhere]
+// [department, items, total] -- every department's full item-level detail
+// now appears on the following pages instead of pointing back to its own
+// department page, so no "covered elsewhere" flag is needed here.
 const MACHINERY_BY_DEPT = [
-  ["Public Works", 17, 2499000, true],
-  ["Solid Waste", 8, 1790000, true],
-  ["Beach Operations", 19, 1302500, false],
-  ["Beach Tram", 4, 507000, false],
-  ["Building Construction &amp; Maintenance", 7, 316000, true],
-  ["Planning", 2, 109000, true],
-  ["Code Compliance", 6, 148800, true],
-  ["Mosquito Control", 3, 91000, true],
-  ["Eagle Springs Golf and Recreation Center", 2, 81000, true],
-  ["County Administration Offices", 1, 65000, true],
-  ["Tourism Administration", 1, 50000, false],
-  ["Engineering Department", 1, 45000, true],
-  ["Extension Office", 1, 40000, true],
-  ["Human Resources", 1, 31000, true],
-  ["Environmental Resources", 2, 20000, true],
-  ["Emergency Management", 2, 25000, true]
+  ["Public Works", 17, 2499000],
+  ["Solid Waste", 8, 1790000],
+  ["Beach Operations", 19, 1302500],
+  ["Beach Tram", 4, 507000],
+  ["Building Construction &amp; Maintenance", 7, 316000],
+  ["Planning", 2, 109000],
+  ["Code Compliance", 6, 148800],
+  ["Mosquito Control", 3, 91000],
+  ["Eagle Springs Golf and Recreation Center", 2, 81000],
+  ["County Administration Offices", 1, 65000],
+  ["Tourism Administration", 1, 50000],
+  ["Engineering Department", 1, 45000],
+  ["Extension Office", 1, 40000],
+  ["Human Resources", 1, 31000],
+  ["Environmental Resources", 2, 20000],
+  ["Emergency Management", 2, 25000]
 ];
 
+// [item description, amount] -- one array per department, in the same
+// order as MACHINERY_BY_DEPT above. Each department's items are the exact
+// capitalItems already verified on that department's own page in the
+// Departments and Services chapter (machinery/vehicles/equipment only --
+// building or infrastructure capital items, and any requested-but-not-
+// funded item, are excluded here the same way they're excluded from this
+// ledger's department totals above).
+const PUBLIC_WORKS_ITEMS = [
+  ["21-Yard Dump Truck (New) &times;5 &mdash; Districts 1&ndash;5", 1225000],
+  ["Mid-size Excavator (New) &times;2", 318000],
+  ["3/4 Ton Crew Cab Truck w/Utility Body (Replacement) &times;3", 195000],
+  ["Service Truck w/Lube Body (New)", 195000],
+  ["Mid-size Excavator w/Mulching Head (New)", 186000],
+  ["Flatbed Dump Truck (New)", 165000],
+  ["1/2 Ton Pickup Crew Cab w/Fuel Transfer Tank (Replacement) &times;2", 116000],
+  ["75-80 hp Tractor w/Loader, Grapple, Forks (New)", 85000],
+  ["1,000 Gal Water Tank w/Pump &amp; Chemical Rack (New)", 14000]
+];
+const SOLID_WASTE_ITEMS = [
+  ["Compactor (New)", 1150000],
+  ["10,000 lb Lull &amp; Attachments (New)", 200000],
+  ["Service Truck &amp; Tools (New)", 200000],
+  ["Pickup Truck 4x4 (New) &times;2", 125000],
+  ["Mini-Skid Steer &amp; Attachments (New)", 60000],
+  ["Roll-off Dumpsters (New)", 40000],
+  ["Gate Arm for Transfer Station (New)", 15000]
+];
 const BEACH_OPERATIONS_ITEMS = [
-  ["18k Hunter 4-post Lift", "Replacement", "Equipment", "&mdash;", 50000],
-  ["Snap On Zeus Shop Diagnostic Tool", "New", "Equipment", "&mdash;", 18000],
-  ["Telehandler Lift", "New", "Equipment", "&mdash;", 150000],
-  ["Portable Change Message Board", "Replacement", "Equipment", "8323", 25000],
-  ["Portable Change Message Board", "Replacement", "Equipment", "8637", 25000],
-  ["Turo Dingo Lift Landscape", "New", "Equipment", "&mdash;", 70000],
-  ["20' Trailer", "Replacement", "Equipment", "4369", 9000],
-  ["16' Utility Trailer", "Replacement", "Equipment", "3963", 5000],
-  ["14k Tilt Trailer", "Replacement", "Equipment", "8880", 12000],
-  ["Ford Transit Van, Additional Staff", "New", "Vehicle", "&mdash;", 70000],
-  ["Bronco Sport/Ranger, Administration", "New", "Vehicle", "&mdash;", 35000],
-  ["Trash Compactor", "New", "Equipment", "&mdash;", 100000],
-  ["F250 Super Cab 4x4, New Specialist Position", "New", "Vehicle", "&mdash;", 78000],
-  ["F250 Super Cab 4x4, New Specialist Position", "New", "Vehicle", "&mdash;", 78000],
-  ["F250 Super Cab 4x4, Service Electrician Helper", "New", "Vehicle", "&mdash;", 101000],
-  ["F250 Super Cab 4x4, New Landscape Tech", "New", "Vehicle", "&mdash;", 101000],
-  ["F250 Super Cab 4x4", "Replacement", "Vehicle", "8635", 101000],
-  ["F150 Super Cab 4x4", "Replacement", "Vehicle", "9043", 74500],
-  ["Truck Wash System", "New", "Equipment", "&mdash;", 200000]
+  ["18k Hunter 4-post Lift (Replacement)", 50000],
+  ["Snap On Zeus Shop Diagnostic Tool (New)", 18000],
+  ["Telehandler Lift (New)", 150000],
+  ["Portable Change Message Board (Replacement) &mdash; BCC Repl. #8323", 25000],
+  ["Portable Change Message Board (Replacement) &mdash; BCC Repl. #8637", 25000],
+  ["Turo Dingo Lift Landscape (New)", 70000],
+  ["20' Trailer (Replacement) &mdash; BCC Repl. #4369", 9000],
+  ["16' Utility Trailer (Replacement) &mdash; BCC Repl. #3963", 5000],
+  ["14k Tilt Trailer (Replacement) &mdash; BCC Repl. #8880", 12000],
+  ["Ford Transit Van, Additional Staff (New)", 70000],
+  ["Bronco Sport/Ranger, Administration (New)", 35000],
+  ["Trash Compactor (New)", 100000],
+  ["F250 Super Cab 4x4, New Specialist Position (New)", 78000],
+  ["F250 Super Cab 4x4, New Specialist Position (New)", 78000],
+  ["F250 Super Cab 4x4, Service Electrician Helper (New)", 101000],
+  ["F250 Super Cab 4x4, New Landscape Tech (New)", 101000],
+  ["F250 Super Cab 4x4 (Replacement) &mdash; BCC Repl. #8635", 101000],
+  ["F150 Super Cab 4x4 (Replacement) &mdash; BCC Repl. #9043", 74500],
+  ["Truck Wash System (New)", 200000]
 ];
 const BEACH_TRAM_ITEMS = [
-  ["2027 Starcraft ADA Shuttle", "Replacement", "Vehicle", "10284", 155000],
-  ["2027 Ford Ranger XLT 2WD Crew Cab", "New", "Vehicle", "&mdash;", 42000],
-  ["2027 Starcraft ADA Shuttle", "Replacement", "Vehicle", "10289", 155000],
-  ["2027 Starcraft ADA Shuttle", "Replacement", "Vehicle", "10287", 155000]
+  ["2027 Starcraft ADA Shuttle (Replacement) &mdash; BCC Repl. #10284", 155000],
+  ["2027 Ford Ranger XLT 2WD Crew Cab (New)", 42000],
+  ["2027 Starcraft ADA Shuttle (Replacement) &mdash; BCC Repl. #10289", 155000],
+  ["2027 Starcraft ADA Shuttle (Replacement) &mdash; BCC Repl. #10287", 155000]
+];
+const BUILDING_CM_ITEMS = [
+  ["Crew Cab Truck (Replacement) &times;2", 136000],
+  ["Van (Replacement) &times;2", 90000],
+  ["52&quot; Lawn Mower (New) &times;2", 22000],
+  ["Crew Cab Truck &mdash; New Morrison Springs Attendant (New)", 68000]
+];
+const PLANNING_ITEMS = [
+  ["SUV (Replacement)", 60000],
+  ["Short-Term Rental SUV (New)", 49000]
+];
+const CODE_COMPLIANCE_ITEMS = [
+  ["SUV (Replacement) &times;2", 72000],
+  ["UTV (New) &times;4", 76800]
+];
+const MOSQUITO_CONTROL_ITEMS = [
+  ["4x4 Cab Truck (New)", 55000],
+  ["ULV Spray Unit (New) &times;2", 36000]
+];
+const EAGLE_SPRINGS_GOLF_ITEMS = [
+  ["Reel Grinder (New)", 68000],
+  ["Golf Lift (New)", 13000]
+];
+const COUNTY_ADMIN_ITEMS = [
+  ["SUV (New)", 65000]
 ];
 const TOURISM_ADMIN_ITEMS = [
-  ["SUV", "Replacement", "Vehicle", "8668", 50000]
+  ["SUV (Replacement) &mdash; BCC Repl. #8668", 50000]
+];
+const ENGINEERING_ITEMS = [
+  ["4x4 Crew Cab Truck (New)", 45000]
+];
+const EXTENSION_OFFICE_ITEMS = [
+  ["4x4 Crew Cab Truck (Replacement)", 40000]
+];
+const HUMAN_RESOURCES_ITEMS = [
+  ["SUV (Replacement)", 31000]
+];
+const ENVIRONMENTAL_RESOURCES_ITEMS = [
+  ["ATV Side-by-side (New)", 17500],
+  ["ATV Trailer (New)", 2500]
+];
+const EMERGENCY_MANAGEMENT_ITEMS = [
+  ["UTV (Replacement)", 15000],
+  ["Harris XL 200 Radio (New)", 10000]
 ];
 
 function deptTable(rows) {
   return `<table class="dept-table"><thead><tr><th>Department</th><th>Items</th><th>FY2027 Amount</th></tr></thead><tbody>
-    ${rows.map((r) => `<tr><td>${r[0]}${r[3] ? ' <span style="color:#68786f;font-style:italic;">&mdash; see Departments and Services</span>' : ""}</td><td class="num">${r[1]}</td><td class="num">${money(r[2])}</td></tr>`).join("")}
+    ${rows.map((r) => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${money(r[2])}</td></tr>`).join("")}
     <tr class="grand"><td>All Departments</td><td class="num">77</td><td class="num">${money(MACHINERY_TOTAL)}</td></tr>
   </tbody></table>`;
 }
 
 function itemTable(rows, dept) {
-  return `<h2 style="margin-top:.1in;font-size:9pt;">${dept}</h2><table class="item-table"><thead><tr><th>Item Description</th><th>New / Replacement</th><th>Type</th><th>BCC Repl. #</th><th>Amount</th></tr></thead><tbody>
-    ${rows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="num">${money(r[4])}</td></tr>`).join("")}
+  return `<h2 style="margin-top:.08in;font-size:8.6pt;">${dept}</h2><table class="item-table2"><thead><tr><th>Item Description</th><th>Amount</th></tr></thead><tbody>
+    ${rows.map((r) => `<tr><td>${r[0]}</td><td class="num">${money(r[1])}</td></tr>`).join("")}
   </tbody></table>`;
 }
 
@@ -190,7 +265,6 @@ const machineryPage1 = `
     ${fundTable(MACHINERY_FUNDING, MACHINERY_TOTAL)}
     <h2>By Department</h2>
     ${deptTable(MACHINERY_BY_DEPT)}
-    <p class="pointer">Itemized detail for the 13 departments marked above also appears on the applicable department page. Beach Operations, Beach Tram, and Tourism Administration are summarized in their restored department profiles; the next page preserves their complete item-level capital detail.</p>
     <footer><span>FY 2027 Annual Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
@@ -203,8 +277,41 @@ const machineryPage2 = `
     ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
     ${itemTable(BEACH_TRAM_ITEMS, "Beach Tram &mdash; $507,000")}
     ${itemTable(TOURISM_ADMIN_ITEMS, "Tourism Administration &mdash; $50,000")}
-    <p class="footnote">Requested but not included in the FY2027 budget: Environmental Resources' Vessel &amp; Trailer, $60,000 (Property Taxes) &mdash; shown on that department's own page in the Departments and Services chapter.</p>
     <footer><span>FY 2027 Annual Budget</span><b>${"{{PAGE2}}"}</b></footer>
+  </section>
+`;
+
+const machineryPage3 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <h1 class="continued">Machinery, Vehicles, &amp; Equipment Ledger <span class="sub">(continued)</span></h1>
+    <p class="intro">Itemized FY2027 requests for Public Works, Solid Waste, and Building Construction &amp; Maintenance.</p>
+    ${itemTable(PUBLIC_WORKS_ITEMS, "Public Works &mdash; $2,499,000")}
+    ${itemTable(SOLID_WASTE_ITEMS, "Solid Waste &mdash; $1,790,000")}
+    ${itemTable(BUILDING_CM_ITEMS, "Building Construction &amp; Maintenance &mdash; $316,000")}
+    <footer><span>FY 2027 Annual Budget</span><b>${"{{PAGE3}}"}</b></footer>
+  </section>
+`;
+
+const machineryPage4 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <h1 class="continued">Machinery, Vehicles, &amp; Equipment Ledger <span class="sub">(continued)</span></h1>
+    <p class="intro">Itemized FY2027 requests for the remaining ten departments.</p>
+    <div class="item-cols">
+      ${itemTable(PLANNING_ITEMS, "Planning &mdash; $109,000")}
+      ${itemTable(CODE_COMPLIANCE_ITEMS, "Code Compliance &mdash; $148,800")}
+      ${itemTable(MOSQUITO_CONTROL_ITEMS, "Mosquito Control &mdash; $91,000")}
+      ${itemTable(EAGLE_SPRINGS_GOLF_ITEMS, "Eagle Springs Golf and Recreation Center &mdash; $81,000")}
+      ${itemTable(COUNTY_ADMIN_ITEMS, "County Administration Offices &mdash; $65,000")}
+      ${itemTable(ENGINEERING_ITEMS, "Engineering Department &mdash; $45,000")}
+      ${itemTable(EXTENSION_OFFICE_ITEMS, "Extension Office &mdash; $40,000")}
+      ${itemTable(HUMAN_RESOURCES_ITEMS, "Human Resources &mdash; $31,000")}
+      ${itemTable(ENVIRONMENTAL_RESOURCES_ITEMS, "Environmental Resources &mdash; $20,000")}
+      ${itemTable(EMERGENCY_MANAGEMENT_ITEMS, "Emergency Management &mdash; $25,000")}
+    </div>
+    <p class="footnote">Requested but not included in the FY2027 budget: Environmental Resources' Vessel &amp; Trailer, $60,000 (Property Taxes) &mdash; shown on that department's own page in the Departments and Services chapter.</p>
+    <footer><span>FY 2027 Annual Budget</span><b>${"{{PAGE4}}"}</b></footer>
   </section>
 `;
 
@@ -428,10 +535,10 @@ const sidewalkPage = simpleFundPage(
 // ============================== ASSEMBLE ==============================
 
 const startPage = Number(process.argv[3] || 100);
-const pages = [machineryPage1, machineryPage2, transPage1, transPage2, touristPage, sheriffPage, recreationPage, sidewalkPage];
+const pages = [machineryPage1, machineryPage2, machineryPage3, machineryPage4, transPage1, transPage2, touristPage, sheriffPage, recreationPage, sidewalkPage];
 let html = pages.join("\n");
 let n = startPage;
-html = html.replace(/\{\{PAGE1\}\}|\{\{PAGE2\}\}/g, () => String(n++));
+html = html.replace(/\{\{PAGE1\}\}|\{\{PAGE2\}\}|\{\{PAGE3\}\}|\{\{PAGE4\}\}/g, () => String(n++));
 
 const fullHtml = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Capital Fund Ledgers</title>

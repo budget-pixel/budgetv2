@@ -32,8 +32,19 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-intro{display:block;padding:38px 5px 23px}
 .wc-explorer-intro-categories-section{padding-top:8px}
 .wc-explorer-intro-categories-section h2{font-size:1.35rem}
-.wc-explorer-intro-categories-section>div>p{max-width:1000px;font-size:1rem}
-.wc-explorer-intro-categories-section>div>p strong{color:var(--home-navy)}
+.wc-explorer-intro-copy-row{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(350px,1fr);align-items:stretch;gap:34px}
+.wc-explorer-intro-copy p{max-width:1000px;margin:10px 0 0;color:var(--home-muted);font-size:1rem;line-height:1.65}
+.wc-explorer-intro-copy p strong{color:var(--home-navy)}
+.wc-full-budget-feature{display:flex;align-items:center;gap:17px;min-height:132px;padding:20px 22px;border:1px solid rgba(0,98,49,.24);border-left:5px solid var(--home-gold);border-radius:18px;background:linear-gradient(135deg,#edf6f0 0%,#fff 100%);color:var(--home-navy);text-decoration:none;box-shadow:0 10px 28px rgba(18,70,45,.08);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.wc-full-budget-feature:hover{transform:translateY(-3px);border-color:#77b192;box-shadow:0 16px 34px rgba(18,70,45,.13)}
+.wc-full-budget-feature:focus-visible{outline:3px solid var(--home-gold);outline-offset:3px}
+.wc-full-budget-feature-icon{display:grid;width:58px;height:58px;flex:0 0 auto;place-items:center;border-radius:16px;background:var(--home-green);color:#fff}
+.wc-full-budget-feature-icon svg{width:31px;height:31px}
+.wc-full-budget-feature-copy{display:flex;min-width:0;flex:1;flex-direction:column}
+.wc-full-budget-feature-copy small{color:var(--home-green);font-size:.65rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.wc-full-budget-feature-copy strong{margin-top:5px;font-size:1.1rem;line-height:1.15}
+.wc-full-budget-feature-copy em{margin-top:6px;color:var(--home-muted);font-size:.72rem;font-style:normal;line-height:1.4}
+.wc-full-budget-feature>b{color:var(--home-green);font-size:1.4rem}
 .wc-explorer-intro h2{margin:0;color:var(--home-navy);font-size:clamp(1.65rem,3vw,2.55rem);letter-spacing:-.04em;line-height:1.05}
 .wc-explorer-intro>div>p{max-width:800px;margin:10px 0 0;color:var(--home-muted);font-size:.8rem;line-height:1.65}
 .wc-explorer-intro-icons{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
@@ -118,6 +129,7 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-card-action b{margin-left:8px;font-size:.9rem}.wc-explorer-card:hover .wc-explorer-card-action{background:var(--home-green);color:#fff}
 
 @media(min-width:1350px){.wc-explorer-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wc-explorer-card-body{grid-template-columns:1fr 112px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark,.wc-department-mark{width:94px;height:94px}.wc-mini-donut:after{inset:22px}.wc-mini-donut span{inset:33px}.wc-dollar-mark span{font-size:4.3rem}.wc-road-mark svg,.wc-department-mark svg{width:69px;height:69px}}
+@media(max-width:900px){.wc-explorer-intro-copy-row{grid-template-columns:1fr}.wc-full-budget-feature{min-height:0}}
 @media(max-width:760px){html.wc-embedded-budget-landing .wc-explorer-popup-header{align-items:stretch;flex-direction:column;gap:8px;padding:10px 14px 12px}.wc-explorer-header-search{width:100%;flex-basis:auto}.wc-explorer-home{width:min(100% - 22px,1500px);padding-top:12px}.wc-explorer-intro{padding:30px 3px 20px}.wc-explorer-intro-facts{display:grid;grid-template-columns:1fr 1fr}.wc-home-search{grid-template-columns:1fr;gap:14px;padding:18px}.wc-explorer-card-grid{grid-template-columns:1fr}.wc-explorer-card-grid-categories,.wc-explorer-card-grid-secondary{grid-template-columns:1fr!important}}
 @media(max-width:430px){.wc-explorer-intro-facts{grid-template-columns:1fr}.wc-home-search-form{padding-left:12px}.wc-home-search-form button{padding-inline:14px}.wc-explorer-card{min-height:0;padding:19px 17px 16px}.wc-explorer-card-body{grid-template-columns:1fr 90px;gap:10px}.wc-mini-donut,.wc-dollar-mark,.wc-road-mark,.wc-department-mark{width:82px;height:82px}.wc-mini-donut:after{inset:19px}.wc-mini-donut span{inset:29px}.wc-dollar-mark span{font-size:3.7rem}.wc-road-mark svg,.wc-department-mark svg{width:60px;height:60px}}
 @media(prefers-reduced-motion:reduce){.wc-explorer-card,.wc-explorer-card-action{transition:none}}

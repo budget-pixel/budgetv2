@@ -121,7 +121,7 @@ const OFFICES = [
       { item: "Boating Improvements (Vessel Registration Fees)", amount: 100000 },
       { item: "Board-Approved Capital Improvements", amount: 75000 }
     ],
-    capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in statutory Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project."
+    capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project."
   },
   {
     name: "Tax Collector", fund: "General Fund (State Approved)",
@@ -168,6 +168,20 @@ const OFFICES = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
+// Splits a property-tax-funded amount into a residential and a
+// commercial/other row using the same 87.9% / 12.1% real-property
+// just-value shares the live site's Who Pays Ledger uses, so the two
+// presentations stay consistent.
+function splitPropertyTax(amount, detail) {
+  if (!amount) return [];
+  const residential = amount * 0.879;
+  const commercial = amount - residential;
+  return [
+    ["Residential property owners", residential, detail],
+    ["Commercial and other property owners", commercial, detail]
+  ];
+}
+
 // Amounts come from each office's own Revenue Summary line (o.revenue,
 // see above), not a fresh calculation -- e.g. the Sheriff's "Other
 // Sources $102.6M" is that office's property-tax-funded interfund
@@ -176,15 +190,18 @@ function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") 
 // row here the same way. Left blank where the office's own revenue
 // text says the amount isn't part of this County-funded presentation
 // (Tax Collector's fee commissions, Clerk's outside court/recording
-// revenue) rather than implying a false precision.
+// revenue) rather than implying a false precision. Rows funded by
+// property tax are split into residential/commercial shares (see
+// splitPropertyTax); rows funded by a mix of revenue types are left
+// as a single combined row rather than guessing a split.
 function whoPaysFor(o) {
   const rows = {
     "Walton County Sheriff's Office": [
-      ["Property owners and County taxpayers", 102600000, "County funding supports law enforcement, corrections, fire rescue, animal services, and court security."],
+      ...splitPropertyTax(102600000, "County funding supports law enforcement, corrections, fire rescue, animal services, and court security."),
       ["Service users and partner agencies", 11500000, "Patient/insurance payments, service charges, intergovernmental funding, and E911-related revenues offset costs."]
     ],
     "Board of County Commissioners": [
-      ["Residents and property owners", 4500000, "Property taxes and other locally generated revenues support the Board's Countywide policy and administrative functions."],
+      ...splitPropertyTax(4500000, "Property taxes support the Board's Countywide policy and administrative functions."),
       ["Visitors, businesses, and service users", 8200000, "Sales-related revenues, fees, permits, and shared revenues contribute to services and capital activity."]
     ],
     "Tax Collector": [
@@ -192,16 +209,14 @@ function whoPaysFor(o) {
       ["County taxpayers", 4400000, "The County-funded share is supported by general governmental revenues."]
     ],
     "Clerk of Courts & County Comptroller": [
-      ["Residents and property owners", 6900000, "County general revenues support Clerk-to-the-Board, finance, records, technology, and comptroller functions."],
+      ...splitPropertyTax(6900000, "County general revenues support Clerk-to-the-Board, finance, records, technology, and comptroller functions."),
       ["Court and records users", null, "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
     ],
     "Property Appraiser": [
-      ["Property owners through local taxing authorities", 5000000, "The County, municipalities, and school board fund proportional shares of the State-approved property appraisal budget."],
+      ...splitPropertyTax(5000000, "The County, municipalities, and school board fund proportional shares of the State-approved property appraisal budget."),
       ["County taxpayers", null, "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
     ],
-    "Supervisor of Elections": [
-      ["Residents and property owners", 1700000, "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations."]
-    ]
+    "Supervisor of Elections": splitPropertyTax(1700000, "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations.")
   };
   return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
 }
@@ -438,7 +453,7 @@ async function buildOfficerPage(o, pageNumber) {
       </div>
     </div>
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
-      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}<p class="source-trace">Accounting sources: ${o.revenue}</p></div>
+      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}</div>
       ${hasBreakouts
         ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY2027</h2>${fteHtml}</div>`}

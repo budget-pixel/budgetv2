@@ -23,21 +23,21 @@ const STATS = [
   ["$345.2M", "Total FY2027 Expenses"],
   ["+$13.5M", "Net Change from FY2026"],
   ["+4.1%", "Net Percent Change"],
-  ["$126.6M", "Largest Function: Public Safety"]
+  ["$126.2M", "Largest Function: Public Safety"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Tentative"];
 
 // [function, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
 const ROWS = [
-  ["General Government", "$41,601,558", "$44,384,300", "$44,139,916", "$50,167,207", "$53,830,890", "$52,357,579"],
-  ["Public Safety", "$73,956,672", "$89,742,446", "$118,699,437", "$135,231,059", "$126,902,374", "$126,571,918"],
-  ["Physical Environment", "$16,057,926", "$18,051,006", "$21,512,980", "$21,879,408", "$25,078,840", "$25,985,970"],
+  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$62,789,397", "$62,603,479"],
+  ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,221,918"],
+  ["Physical Environment", "$15,448,028", "$17,139,861", "$20,480,144", "$20,797,576", "$23,738,840", "$24,559,033"],
   ["Transportation", "$41,530,734", "$36,422,624", "$42,302,193", "$39,852,608", "$48,143,047", "$58,121,849"],
-  ["Economic Environment", "$41,973,920", "$51,941,877", "$55,736,087", "$51,413,281", "$54,854,737", "$62,444,450"],
-  ["Human Services", "$16,177,429", "$16,556,934", "$6,803,677", "$6,938,271", "$8,924,310", "$5,250,035"],
-  ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,954,083", "$5,557,084", "$6,406,200", "$6,106,603"],
-  ["Court-Related Cost", "$4,246,730", "$4,672,355", "$4,988,800", "$5,437,242", "$7,131,025", "$7,985,104"],
+  ["Economic Environment", "$41,878,146", "$51,789,996", "$55,678,766", "$51,137,982", "$54,818,996", "$62,339,656"],
+  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$3,857,041"],
+  ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,953,833", "$5,476,961", "$6,306,200", "$6,006,603"],
+  ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
 ];
 const TOTAL = ["Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
@@ -51,16 +51,13 @@ const TOTAL = ["Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,47
 // as two print-style columns (65 department rows across 9 function
 // groups don't fit a single column at readable type size) with no
 // per-group subtotal row -- the page 1 Consolidated Expense Summary is
-// the authoritative function-level total; repeating a subtotal here that
-// wouldn't exactly match it (some of General Government's "Statutory &
-// Other" line is reclassified by activity under other functions on page
-// 1 -- see that page's callout) would need its own caveat for no benefit.
-// Only the grand Total ties to both pages, since every dollar is counted
-// under exactly one department here regardless of activity.
+// the authoritative function-level total, which this page's department
+// groups sum to exactly (each department belongs to exactly one function).
 const DEPT_GROUPS = [
   ["General Government", [
     ["Board of County Commissioners", "$12,389,938", "$12,391,280"],
     ["Building Construction and Maintenance", "$9,986,168", "$8,912,305"],
+    ["Clerk of Court", "$5,984,728", "$6,871,175"],
     ["County Administration", "$2,219,903", "$2,260,039"],
     ["Court Innovations", "$50,000", "$43,109"],
     ["Geographic Info Systems", "$801,815", "$839,146"],
@@ -90,7 +87,6 @@ const DEPT_GROUPS = [
   ["Physical Environment", [
     ["Environmental Services", "$840,902", "$648,922"],
     ["Extension Office", "$600,710", "$597,319"],
-    ["Mosquito Control", "$1,340,000", "$1,426,937"],
     ["Daughette MSBU", "$43,225", "$43,225"],
     ["Soil Conservation", "$143,330", "$150,000"],
     ["Solid Waste", "$22,110,673", "$23,119,567"]
@@ -112,13 +108,14 @@ const DEPT_GROUPS = [
     ["South Walton Fire Lifeguard Services", "$3,250,749", "$3,380,779"],
     ["Tourism Administration", "$2,998,667", "$3,290,000"],
     ["Tourism North Walton", "$323,000", "$355,500"],
-    ["Tourism Public Safety", "$4,420,000", "$5,295,000"]
+    ["Tourism Public Safety", "$4,420,000", "$5,295,000"],
+    ["Veteran Services", "$236,100", "$316,650"]
   ]],
   ["Human Services", [
     ["Human Services", "$4,072,199", "$186,119"],
+    ["Mosquito Control", "$1,340,000", "$1,426,937"],
     ["Mosquito Control State Aid", "$61,856", "$69,588"],
     ["Non-Profit Funding Program", "$477,820", "$450,000"],
-    ["Veteran Services", "$236,100", "$316,650"],
     ["Walton County Health Department", "$1,724,397", "$1,724,397"]
   ]],
   ["Culture and Recreation", [
@@ -131,7 +128,6 @@ const DEPT_GROUPS = [
   ]],
   ["Court-Related Cost", [
     ["Circuit Court", "$260,511", "$261,493"],
-    ["Clerk of Court", "$5,984,728", "$6,871,175"],
     ["County Court", "$69,956", "$70,056"],
     ["Court Technology - Court Administration", "$393,758", "$185,436"],
     ["Guardian Ad Litem", "$9,000", "$9,000"],
@@ -422,7 +418,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services' decline reflects a one-time FY2026 grant that did not recur. Some departments' expenditures span more than one functional classification &mdash; for example, a portion of the County's "Statutory &amp; Other" administrative costs supports activities classified here under Public Safety, Economic Environment, Human Services, and Culture and Recreation rather than General Government alone.</p>
+      <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services' decline reflects a one-time FY2026 grant that did not recur.</p>
     </div>
 
     <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
@@ -452,7 +448,6 @@ const page3 = `
       ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
-    <p class="footnote">Some departments' spending spans more than one functional classification &mdash; see the Consolidated Expense Summary callout on the previous page.</p>
     <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;

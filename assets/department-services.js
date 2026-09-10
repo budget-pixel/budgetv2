@@ -1434,11 +1434,6 @@
       // Recover here so Beach Operations, Beach Tram, and Beach
       // Renourishment always receive their own standard three-card snapshot.
       if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
-      if(key==='tourism administration'){
-        var existingChangeGrid=document.querySelector('.wc-profile-change-grid');
-        var existingAdminIntro=document.querySelector('#tourism-administration .tourism-admin-section-narrative');
-        if(existingChangeGrid&&existingAdminIntro) existingAdminIntro.insertAdjacentElement('afterend',existingChangeGrid);
-      }
       document.body.classList.remove('wc-board-department-loading');
       var existingMain=document.querySelector('main#content');
       if(existingMain) existingMain.removeAttribute('aria-busy');
@@ -1472,11 +1467,21 @@
     if(mediaWrapper){
       Array.prototype.forEach.call(mediaWrapper.children,function(child){
         if(child===narrative) return false;
-        if(child.matches&&child.matches('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,.libraries-video-frame,.wc-omb-award-top,.wc-plaque-card,.wc-savings-card,figure,a[class*="iframe-link"]')) supportingMedia.push(child);
+        if(child.matches&&child.matches('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,.libraries-video-frame,.wc-omb-award-top,.wc-plaque-card,figure,a[class*="iframe-link"]')) supportingMedia.push(child);
       });
     }
     document.querySelectorAll('main#content > a.environmental-iframe-link,main#content > a.public-works-iframe-link,main#content > a.lifeguard-iframe-link,main#content > .recreation-parks-section').forEach(function(item){
       if(supportingMedia.indexOf(item)===-1) supportingMedia.push(item);
+    });
+    // Treat every YouTube embed on a department page as top-of-page
+    // supporting media, even when a new page uses a wrapper class that is
+    // not in the legacy list above. Do not use a generic iframe selector:
+    // department pages also contain maps, library sites, and other tools
+    // that should remain in their own content sections.
+    document.querySelectorAll('main#content iframe[src*="youtube.com/embed"],main#content iframe[src*="youtube-nocookie.com/embed"]').forEach(function(videoFrame){
+      if(supportingMedia.some(function(item){return item===videoFrame||item.contains(videoFrame);})) return;
+      var videoWrapper=videoFrame.closest('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,[class*="video-frame"]')||videoFrame;
+      if(supportingMedia.indexOf(videoWrapper)===-1) supportingMedia.push(videoWrapper);
     });
     if(supportingMedia.length&&functionHeading){
       functionSection.classList.add('wc-dept-function-services--with-video','wc-dept-video-right');
@@ -1518,9 +1523,14 @@
     var revenues=window.WCBudgetData.getDepartmentRevenues(title.textContent.trim())||[];
     var staffing=window.WCBudgetData.getDepartmentStaffing(title.textContent.trim())||[];
     var performanceRows=window.WCBudgetData.getDepartmentPerformanceMeasures(title.textContent.trim())||[];
+    // Performance data is now presented within each core service below.
+    // Remove the older standalone goal/objective/measure table so the same
+    // information is not shown twice on department pages.
+    document.querySelectorAll('.wc-performance-card').forEach(function(card){card.remove();});
 
     var departmentGoals=performanceRows.map(function(row){return row.Goal||'';}).filter(function(goal,index,all){return goal&&all.indexOf(goal)===index;});
-    var goalHtml=departmentGoals.length===1?'<div class="wc-profile-performance-goal wc-dept-goal"><span>Department goal</span><strong>'+escapeHtml(departmentGoals[0])+'</strong></div>':'';
+    var goalHtml=departmentGoals.length?'<div class="wc-dept-goal-quote"><span>Department Goal</span><p>'+escapeHtml(departmentGoals[0])+'</p></div>':'';
+    var challengeHtml=challenge?'<div class="wc-dept-goal-quote wc-dept-challenge-quote"><span>Department Challenge</span><p>'+escapeHtml(challenge)+'</p></div>':'';
     var objectiveIndexes=OBJECTIVE_SERVICE_MAP[key]||[];
     var rowsByService=services.map(function(){return [];});
     performanceRows.forEach(function(row,rowIndex){
@@ -1528,22 +1538,40 @@
       if(serviceIndex===undefined||!row.Objective||!rowsByService[serviceIndex]) return;
       rowsByService[serviceIndex].push(row);
     });
-    function objectiveCardHtml(row){
-      var values=PERFORMANCE_HISTORY_COLUMNS.filter(function(item){return row[item[1]]!==''&&row[item[1]]!=null;}).map(function(item){return '<span>'+escapeHtml(item[0])+': <b>'+escapeHtml(row[item[1]])+'</b></span>';}).join('');
-      return '<article class="wc-profile-performance-item wc-dept-service-objective">'+
-        '<div><h4>'+escapeHtml(row.Objective)+'</h4>'+
-        (row.Measure?'<p class="wc-dept-service-objective-measure">Measured by: '+escapeHtml(row.Measure)+'</p>':'')+
-        (values?'<div class="wc-profile-performance-values">'+values+'</div>':'')+
-        '</div><div class="wc-profile-performance-target"><span>Proposed target</span><strong>'+escapeHtml(row.Projected_2027||'Not listed')+'</strong></div>'+
+    function performanceMeasureHtml(row){
+      var trendColumns=PERFORMANCE_HISTORY_COLUMNS.slice(0,4);
+      var trend=trendColumns.filter(function(item){return row[item[1]]!==''&&row[item[1]]!=null;}).map(function(item){return '<span><b>'+escapeHtml(row[item[1]])+'</b>'+escapeHtml(item[0])+'</span>';}).join('');
+      var target=row.Projected_2027!==''&&row.Projected_2027!=null?row.Projected_2027:'Not listed';
+      return '<article class="wc-dept-measure-item">'+
+        '<p class="wc-dept-measure-name">'+escapeHtml(row.Measure||'Performance measure')+'</p>'+
+        (row.Objective?'<p class="wc-dept-measure-objective">'+escapeHtml(row.Objective)+'</p>':'')+
+        '<div class="wc-dept-measure-trend">'+trend+'<span class="is-target"><b>'+escapeHtml(target)+'</b>FY27 Target</span></div>'+
         '</article>';
     }
-    var serviceCardsHtml='<div class="wc-dept-service-cards">'+services.map(function(service,serviceIndex){
+    var matchedPerformanceRows=[];
+    var serviceBlocksHtml=services.map(function(service,serviceIndex){
       var rows=rowsByService[serviceIndex];
-      var objectivesHtml=rows.length?'<div class="wc-dept-service-objectives">'+rows.map(objectiveCardHtml).join('')+'</div>':'';
-      return '<article class="wc-dept-service-card"><h3>'+escapeHtml(service[0])+'</h3><p>'+escapeHtml(service[1])+'</p>'+objectivesHtml+'</article>';
-    }).join('')+'</div>';
-    var servicesListHtml='<p class="wc-profile-section-title wc-dept-services-label">Department Goal, Services &amp; Objectives</p>'+goalHtml+serviceCardsHtml+'<p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all the services provided by the department, but is intended to provide citizens with an understandable list of core services provided by this department.</p>';
+      rows.forEach(function(row){if(matchedPerformanceRows.indexOf(row)===-1) matchedPerformanceRows.push(row);});
+      return '<section class="wc-dept-service-block"><div class="wc-dept-service-head"><h3>'+escapeHtml(service[0])+'</h3><p>'+escapeHtml(service[1])+'</p></div>'+rows.map(performanceMeasureHtml).join('')+'</section>';
+    }).join('');
+    var unmatchedPerformanceRows=performanceRows.filter(function(row){return matchedPerformanceRows.indexOf(row)===-1;});
+    var departmentWideHtml=unmatchedPerformanceRows.length?'<section class="wc-dept-service-block is-department-wide"><div class="wc-dept-service-head"><h3>Department-wide Measures</h3><p>Tracked across the department rather than tied to one core service.</p></div>'+unmatchedPerformanceRows.map(performanceMeasureHtml).join('')+'</section>':'';
+    var serviceCardsHtml='<div class="wc-dept-service-measure-list">'+serviceBlocksHtml+departmentWideHtml+'</div>';
+    var noMeasuresHtml=performanceRows.length?'':'<p class="wc-dept-no-measures">No verified performance series is currently available for publication.</p>';
+    var servicesListHtml='<section class="wc-dept-goal-chain"><p class="wc-profile-section-title wc-dept-services-label">Department Goal, Services &amp; Performance</p>'+goalHtml+challengeHtml+'<div class="wc-dept-core-services-head"><h3>Core Services &amp; Performance</h3></div>'+serviceCardsHtml+noMeasuresHtml+'<p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all services provided by the department, but identifies its core public services and the measures used to track results.</p></section>';
     functionSection.insertAdjacentHTML('beforeend',servicesListHtml);
+    // These two page-specific summary boxes belong with the introductory
+    // narrative, not beside the page title or in the media rail. Place them
+    // immediately after the Statement of Function copy and before the
+    // Department Goal, Services & Objectives section.
+    var statementCallout=key==='mosquito control'
+      ? document.querySelector('.mosquito-tax-card')
+      : (key==='engineering department'?document.querySelector('.wc-savings-card'):null);
+    var servicesLabel=functionSection.querySelector('.wc-dept-services-label');
+    if(statementCallout&&servicesLabel){
+      statementCallout.classList.add('wc-dept-statement-callout');
+      servicesLabel.insertAdjacentElement('beforebegin',statementCallout);
+    }
 
     var budget=sum(expenses,'FY2027_Proposed');
     var priorBudget=sum(expenses,'FY2026_Original_Budget');
@@ -1603,48 +1631,6 @@
         priorBudget=budget-budgetChange;
       }
     }
-    var changesByObject={};
-    expenses.forEach(function(row){
-      var code=String(row.Object_Code||'').trim();
-      var name=row.Object_Name||'Budget line';
-      var type=row.Object_Type||'';
-      var changeKey=code||normalize(type+' '+name);
-      if(!changesByObject[changeKey]) changesByObject[changeKey]={code:code,name:name,type:type,prior:0,current:0,diff:0};
-      changesByObject[changeKey].prior+=Number(row.FY2026_Original_Budget)||0;
-      changesByObject[changeKey].current+=Number(row.FY2027_Proposed)||0;
-    });
-    var changes=Object.keys(changesByObject).map(function(changeKey){var item=changesByObject[changeKey];item.diff=item.current-item.prior;return item;}).filter(function(item){return item.diff!==0&&!/salar(?:y|ies)/i.test(item.name);}).sort(function(a,b){return Math.abs(b.diff)-Math.abs(a.diff);}).slice(0,3);
-    if(!functionSection.querySelector('.wc-profile-change-grid')){
-      var changeCopy='No new services are being added this year. The department budget is '+(budgetChange>0?'increasing':budgetChange<0?'decreasing':'remaining level')+(budgetChange!==0?' by '+money(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''):'')+'.';
-      function renderedChangeAmount(item){
-        var match=item.renderedChange&&item.renderedChange.text.match(/([+\-−])?\$([0-9,]+)/);
-        if(!match) return 0;
-        var amount=Number(match[2].replace(/,/g,''))||0;
-        return (match[1]==='-'||match[1]==='−')?-amount:amount;
-      }
-      var personnelGroup=snapshotExpenseGroups.find(function(item){return item.label==='Personnel Services';});
-      var isPersonnelDriven=false;
-      if(key==='code compliance'){
-        var rankedCategories=snapshotExpenseGroups.filter(function(item){return item.renderedChange;}).map(function(item){return {label:item.label,amount:renderedChangeAmount(item)};}).sort(function(a,b){return Math.abs(b.amount)-Math.abs(a.amount);});
-        var topCategory=rankedCategories[0];
-        if(topCategory&&topCategory.amount!==0){
-          isPersonnelDriven=topCategory.label==='Personnel Services';
-          if(!isPersonnelDriven) changeCopy+=' The primary change is '+topCategory.label+' '+(topCategory.amount>0?'increasing':'decreasing')+' by '+money(Math.abs(topCategory.amount))+'.';
-        }
-      }else{
-        var personnelDiff=personnelGroup?(personnelGroup.amount-(personnelGroup.prior||0)):0;
-        var topLineItem=changes[0];
-        isPersonnelDriven=personnelDiff!==0&&Math.abs(personnelDiff)>=Math.abs(topLineItem?topLineItem.diff:0);
-        if(!isPersonnelDriven&&topLineItem) changeCopy+=' The primary change is '+topLineItem.name+' '+(topLineItem.diff>0?'increasing':'decreasing')+' by '+money(Math.abs(topLineItem.diff))+'.';
-      }
-      if(isPersonnelDriven) changeCopy+=' The primary change can be attributed to the additional staffing requested, needed to keep pace with growing service demand across the county.';
-      var changeGrid=document.createElement('div');
-      changeGrid.className='wc-profile-change-grid';
-      changeGrid.innerHTML=
-        '<div class="wc-profile-change-card is-changing"><p class="wc-profile-change-card-label"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M21 7v6h-6"/></svg></i>Changing</p><p>'+escapeHtml(changeCopy)+'</p></div>'+
-        '<div class="wc-profile-change-card is-challenge"><p class="wc-profile-change-card-label"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19zM12 9v5M12 18h.01"/></svg></i>Challenges</p><p>'+escapeHtml(challenge)+'</p></div>';
-      functionSection.appendChild(changeGrid);
-    }
     var snapshotRevenueGroups=[];
     revenues.forEach(function(row){var label=row.Revenue_Type||row.Revenue_Name||'Other Revenue';var item=snapshotRevenueGroups.find(function(groupItem){return groupItem.label===label;});if(!item){item={label:label,amount:0};snapshotRevenueGroups.push(item);}item.amount+=Math.abs(Number(row.FY2027_Proposed)||0);});
     snapshotRevenueGroups=snapshotRevenueGroups.filter(function(item){return item.amount>0;}).sort(function(a,b){return b.amount-a.amount;}).slice(0,3);
@@ -1686,11 +1672,6 @@
     // enhancements cannot initialize, it must not leave the beach offices
     // showing their legacy summary cards.
     if(combinedOffices) renderCombinedOfficeSnapshots(combinedOffices,title.textContent.trim());
-    if(key==='tourism administration'){
-      var tourismAdminIntro=document.querySelector('#tourism-administration .tourism-admin-section-narrative');
-      var tourismAdminChangeGrid=functionSection.querySelector('.wc-profile-change-grid');
-      if(tourismAdminIntro&&tourismAdminChangeGrid) tourismAdminIntro.insertAdjacentElement('afterend',tourismAdminChangeGrid);
-    }
     bindSnapshotTooltips(snapshot);
     var graphButton=snapshot.querySelector('[data-profile-graph-trigger]');
     if(graphButton) bindSnapshotBudgetGraph(graphButton,expenses,staffing,key,title.textContent.trim());
