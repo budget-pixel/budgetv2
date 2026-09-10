@@ -117,23 +117,25 @@ const MACHINERY_TOTAL = 7120300;
 // [department, items, total] -- every department's full item-level detail
 // now appears on the following pages instead of pointing back to its own
 // department page, so no "covered elsewhere" flag is needed here.
+// Ordered to match the department list order used throughout the book
+// (the same order departments appear in the Departments and Services chapter).
 const MACHINERY_BY_DEPT = [
-  ["Public Works", 17, 2499000],
-  ["Solid Waste", 8, 1790000],
-  ["Beach Operations", 19, 1302500],
-  ["Beach Tram", 4, 507000],
   ["Building Construction &amp; Maintenance", 7, 316000],
-  ["Planning", 2, 109000],
   ["Code Compliance", 6, 148800],
-  ["Mosquito Control", 3, 91000],
-  ["Eagle Springs Golf and Recreation Center", 2, 81000],
   ["County Administration Offices", 1, 65000],
-  ["Tourism Administration", 1, 50000],
+  ["Eagle Springs Golf and Recreation Center", 2, 81000],
+  ["Emergency Management", 2, 25000],
   ["Engineering Department", 1, 45000],
+  ["Environmental Resources", 2, 20000],
   ["Extension Office", 1, 40000],
   ["Human Resources", 1, 31000],
-  ["Environmental Resources", 2, 20000],
-  ["Emergency Management", 2, 25000]
+  ["Mosquito Control", 3, 91000],
+  ["Planning", 2, 109000],
+  ["Public Works", 17, 2499000],
+  ["Solid Waste", 8, 1790000],
+  ["Tourism Administration", 1, 50000],
+  ["Beach Operations", 19, 1302500],
+  ["Beach Tram", 4, 507000]
 ];
 
 // [item description, amount] -- one array per department, in the same

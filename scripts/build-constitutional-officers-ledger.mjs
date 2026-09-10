@@ -168,6 +168,18 @@ const OFFICES = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
+// Household equivalents (34,362 Walton County households, per U.S.
+// Census Bureau statistics) match the same figure used by the live
+// site's Who Pays Ledger, so a resident-facing dollar amount can be
+// expressed as an annual/monthly household cost the same way there.
+const HOUSEHOLDS = 34362;
+function householdCost(amount) {
+  const annual = amount / HOUSEHOLDS;
+  const monthly = annual / 12;
+  const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${fmt(annual)} per household annually (${fmt(monthly)} monthly)`;
+}
+
 // Splits a property-tax-funded amount into a residential and a
 // commercial/other row using the same 87.9% / 12.1% real-property
 // just-value shares the live site's Who Pays Ledger uses, so the two
@@ -177,7 +189,7 @@ function splitPropertyTax(amount, detail) {
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, detail],
+    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 34,362 households &mdash; a planning proxy, not an individual household's tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }

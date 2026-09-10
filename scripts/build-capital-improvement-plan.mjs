@@ -54,7 +54,7 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:16pt; margin-top:0; }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   h1 span.sub{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;

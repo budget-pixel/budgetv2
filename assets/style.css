@@ -1376,16 +1376,6 @@ html.wc-embedded-utility #content{width:min(1380px,100%);max-width:none;margin:0
 .wc-department-ledger-trigger:hover{background:linear-gradient(135deg, #00341f 0%, #00432c 100%)}.wc-department-ledger{margin:30px 0;padding:24px;border:1px solid rgba(0,63,40,.15);border-radius:20px;background:#fff;scroll-margin-top:105px}.wc-department-ledger h2{margin:0 0 6px;color:var(--navy);font-size:1.35rem}.wc-department-ledger>p{margin:0 0 16px;color:var(--muted);font-size:.75rem}.wc-department-ledger.wc-ledger-page-flush{margin:0;padding:0;border:0;border-radius:0;background:transparent;scroll-margin-top:0}
 .wc-contract-ledger-section{margin:0 0 34px}.wc-contract-ledger-section h2{margin:0 0 6px;color:var(--navy);font-size:1.35rem}.wc-contract-ledger-section-note{margin:0 0 16px;color:var(--muted);font-size:.75rem}
 .wc-contract-document-link{font-weight:700;white-space:nowrap}
-.wc-contract-ledger-overview{margin:22px 0 30px;padding:22px;border:1px solid rgba(0,63,40,.14);border-radius:18px;background:linear-gradient(135deg,#f4f8f5 0%,#eef6f1 100%)}
-.wc-contract-ledger-overview-heading{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:16px}
-.wc-contract-ledger-overview-heading>span{color:var(--green);font-size:.72rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
-.wc-contract-ledger-overview-heading>p{margin:0;color:var(--muted);font-size:.78rem}
-.wc-contract-ledger-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.wc-contract-ledger-metrics article{padding:15px 16px;border:1px solid rgba(0,63,40,.12);border-radius:12px;background:#fff}
-.wc-contract-ledger-metrics span{display:block;color:var(--muted);font-size:.64rem;font-weight:850;letter-spacing:.04em;text-transform:uppercase}
-.wc-contract-ledger-metrics strong{display:block;margin:6px 0 3px;color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-size:1.35rem;font-weight:600;line-height:1}
-.wc-contract-ledger-metrics small{color:var(--muted);font-size:.68rem}
-@media(max-width:760px){.wc-contract-ledger-overview-heading{display:block}.wc-contract-ledger-overview-heading>p{margin-top:6px}.wc-contract-ledger-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .wc-department-explorer-list-footer{display:flex;justify-content:flex-end;margin:14px 0 0}.wc-department-list-link{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 14px;border:1px solid var(--green);border-radius:999px;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:.72rem;font-weight:800;text-decoration:none}.wc-department-list-link:hover{background:var(--green2);border-color:var(--green2)}.wc-department-list-link .wc-department-list-link-icon{display:inline-block;transition:transform .15s ease}.wc-department-list-link[aria-expanded="true"] .wc-department-list-link-icon{transform:rotate(180deg)}
 .wc-department-explorer-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}.wc-department-explorer-metrics article{padding:14px;border:1px solid rgba(0,63,40,.11);border-radius:12px;background:#fff}.wc-department-explorer-metrics span{display:block;color:var(--muted);font-size:.7rem;font-weight:800;text-transform:uppercase}.wc-department-explorer-metrics strong{display:block;margin:5px 0 2px;color:var(--navy);font-size:1.12rem}.wc-department-explorer-metrics small{color:var(--muted);font-size:.74rem}.wc-department-explorer-metrics .wc-department-metric-change{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--green);font-size:.68rem;font-style:normal;font-weight:800}.wc-department-explorer-metrics .wc-department-metric-change.is-decrease{color:#b42318}
 .wc-debt-metrics article{background:#fff;border-color:rgba(0,98,49,.14)}
@@ -5273,7 +5263,7 @@ main#content > .recreation-parks-section {
 .wc-dept-function-services--with-video.wc-dept-video-right>.extension-video-frame,
 .wc-dept-function-services--with-video.wc-dept-video-right>.mosquito-video-frame,
 .wc-dept-function-services--with-video.wc-dept-video-right>.libraries-video-frame{float:right;margin-left:26px}
-.wc-dept-service-note{margin:8px 0 0;padding:9px 12px;border-left:3px solid var(--green);background:var(--light);color:var(--muted);font-size:11.5px;line-height:1.45;text-align:left}
+.wc-dept-service-note{grid-column:1/-1;margin:4px 0 0;padding:12px 14px;border:0;border-radius:10px;background:var(--light);color:var(--muted);font-size:11.5px;line-height:1.45;text-align:left}
 @media(max-width:760px){
   .wc-dept-has-top-media>.page-title,.wc-dept-has-top-media.wc-dept-has-top-award>.page-title{max-width:none}
   .wc-dept-function-services--with-video>.wc-video-frame,
@@ -5295,31 +5285,25 @@ main#content > .recreation-parks-section {
 .wc-dept-function-services>p:last-child,.wc-dept-function-services>div p:last-child{margin-bottom:0}
 .wc-dept-function-services>p.wc-profile-section-title{font:800 .92rem/1.3 Arial,Helvetica,sans-serif;color:var(--navy);text-align:left;margin-top:26px}
 .wc-dept-goal{margin:0 0 18px}
-.wc-dept-service-cards{display:grid;gap:16px}
-.wc-dept-service-card{padding:20px 22px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
-.wc-dept-service-card h3{margin:0;color:var(--navy,var(--text));font-size:17px}
-.wc-dept-service-card>p{margin:6px 0 0;color:var(--text);font-size:14px;line-height:1.6}
-.wc-dept-service-objectives{display:grid;gap:10px;margin-top:14px}
-.wc-dept-service-objective{background:#fff;padding:16px 18px}
-.wc-dept-service-objective h4{margin:0;color:var(--text);font-size:14px;font-weight:800;line-height:1.4}
-.wc-dept-service-objective-measure{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
-.wc-dept-goal-chain{margin-top:26px}
-.wc-dept-goal-chain>.wc-dept-services-label{margin-top:0!important}
-.wc-dept-goal-quote{margin:0 0 22px;padding:5px 0 6px;border-left:0}
-.wc-dept-challenge-quote{margin-top:-8px}
+.wc-dept-goal-chain{clear:both;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:34px;padding-top:4px}
+.wc-dept-goal-chain>.wc-dept-services-label{grid-column:1/-1;margin:0!important}
+.wc-dept-goal-quote{min-height:132px;margin:0;padding:20px 22px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(145deg,#f7faf8,#eef5f1);box-shadow:0 8px 22px rgba(23,32,51,.04)}
+.wc-dept-challenge-quote{margin:0;background:linear-gradient(145deg,#fbfaf5,#f5f1df)}
 .wc-dept-function-services .wc-dept-goal-quote span{display:block;margin-bottom:6px;color:#9a7b18;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
-.wc-dept-function-services .wc-dept-goal-quote p{margin:0;color:var(--navy);font:italic 700 18px/1.5 Georgia,"Times New Roman",serif;text-align:left}
-.wc-dept-core-services-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.wc-dept-core-services-head h3{margin:0;color:var(--green);font:800 16px/1.25 Georgia,"Times New Roman",serif;text-transform:uppercase;letter-spacing:.035em}
+.wc-dept-function-services .wc-dept-goal-quote p{margin:0;color:var(--navy);font:700 17px/1.5 Georgia,"Times New Roman",serif;text-align:left}
+.wc-dept-core-services-head{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:12px 0 0;padding-bottom:0;border-bottom:0}
+.wc-dept-core-services-head h3{margin:0;padding-left:10px;border-left:4px solid var(--gold);color:var(--navy);font:800 .92rem/1.3 Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:.05em}
 .wc-dept-function-services .wc-dept-core-services-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.4;text-align:right}
-.wc-dept-service-measure-list{border-top:0}
-.wc-dept-service-block{padding:16px 0;border-bottom:1px solid #e7ede9}
-.wc-dept-service-block:last-child{border-bottom:0}
+.wc-dept-service-measure-list{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border-top:0}
+.wc-dept-service-block{min-width:0;padding:20px;border:1px solid var(--border);border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(23,32,51,.04)}
+.wc-dept-service-block:last-child{border-bottom:1px solid var(--border)}
 .wc-dept-service-head{margin-bottom:8px}
 .wc-dept-service-head h3{margin:0;color:var(--green);font:800 17px/1.3 Georgia,"Times New Roman",serif}
+.wc-dept-service-block:not(.is-department-wide)>.wc-dept-service-head h3{display:flex;align-items:baseline;gap:9px}
+.wc-dept-service-block:not(.is-department-wide)>.wc-dept-service-head h3::before{content:"•";flex:0 0 auto;color:var(--green);font-family:Arial,Helvetica,sans-serif;font-size:19px;line-height:1}
 .wc-dept-function-services .wc-dept-service-head p{margin:4px 0 0;color:var(--text);font-size:14px;line-height:1.55;text-align:left}
 .wc-dept-service-block.is-department-wide .wc-dept-service-head h3{color:var(--muted);font:900 12px/1.3 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
-.wc-dept-measure-item{margin:10px 0 0 20px;padding:10px 0 10px 16px;border-left:3px solid var(--gold)}
+.wc-dept-measure-item{margin:14px 0 0;padding:14px 16px;border:0;border-radius:12px;background:var(--light)}
 .wc-dept-function-services .wc-dept-measure-name{margin:0;color:var(--green);font-size:14px;font-weight:800;line-height:1.45;text-align:left}
 .wc-dept-function-services .wc-dept-measure-objective{margin:4px 0 9px;color:var(--muted);font-size:12px;font-style:italic;line-height:1.45;text-align:left}
 .wc-dept-measure-trend{display:flex;align-items:flex-start;flex-wrap:wrap;gap:10px 28px}
@@ -5328,9 +5312,8 @@ main#content > .recreation-parks-section {
 .wc-dept-measure-trend span.is-target{margin-left:4px;padding-left:28px;border-left:1px solid var(--border);color:var(--green)}
 .wc-dept-measure-trend span.is-target b{color:var(--green)}
 .wc-dept-no-measures{margin:12px 0;padding:15px 18px;border:1px solid var(--border);border-radius:12px;background:var(--light);color:var(--muted);font-size:13px;font-style:italic}
-@media(max-width:700px){.wc-dept-core-services-head{align-items:flex-start;flex-direction:column}.wc-dept-function-services .wc-dept-core-services-head p{text-align:left}.wc-dept-measure-item{margin-left:8px}.wc-dept-measure-trend{gap:10px 18px}.wc-dept-measure-trend span.is-target{margin-left:0;padding-left:18px}}
-:root[data-theme="dark"] .wc-dept-service-card{background:#172235}
-:root[data-theme="dark"] .wc-dept-service-objective{background:#0f1826}
+@media(max-width:700px){.wc-dept-goal-chain,.wc-dept-service-measure-list{grid-template-columns:1fr}.wc-dept-goal-quote{min-height:0}.wc-dept-core-services-head{align-items:flex-start;flex-direction:column}.wc-dept-function-services .wc-dept-core-services-head p{text-align:left}.wc-dept-measure-item{margin-left:0}.wc-dept-measure-trend{gap:10px 18px}.wc-dept-measure-trend span.is-target{margin-left:0;padding-left:18px}}
+:root[data-theme="dark"] .wc-dept-goal-quote,:root[data-theme="dark"] .wc-dept-service-block{background:#172235}
 .wc-profile-snapshot{display:block;margin:0;padding:0;border:0;border-radius:0;background:transparent}
 .wc-profile-snapshot[hidden]{display:none!important}
 .wc-profile-snapshot-label{display:block}
@@ -5352,16 +5335,6 @@ main#content > .recreation-parks-section {
 .wc-profile-collaboration-note{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border);color:var(--muted);font-size:14px;line-height:1.65}.wc-profile-collaboration-note strong{color:var(--text)}
 .wc-profile-challenge-note{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:14px;line-height:1.65}.wc-profile-challenge-note strong{color:var(--text)}
 .wc-profile-change-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0 0}
-.wc-profile-change-card{position:relative;padding:22px 24px 22px 26px;border:1px solid var(--border);border-radius:14px;background:var(--light);overflow:hidden}
-.wc-profile-change-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
-.wc-profile-change-card.is-changing::before{background:var(--green)}
-.wc-profile-change-card.is-challenge::before{background:var(--gold)}
-.wc-profile-change-card-label{display:flex;align-items:center;gap:8px;margin:0 0 10px;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
-.wc-profile-change-card-label i{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;color:#fff}
-.wc-profile-change-card.is-changing .wc-profile-change-card-label i{background:var(--green)}
-.wc-profile-change-card.is-challenge .wc-profile-change-card-label i{background:var(--gold2)}
-.wc-profile-change-card-label svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.wc-profile-change-card>p:last-child{margin:0;color:var(--text);font-size:14.5px;line-height:1.7}
 @media(max-width:700px){.wc-profile-change-grid{grid-template-columns:1fr}}
 .wc-profile-snapshot-personnel-source{display:none!important}
 .wc-profile-fund-card{display:flex!important;flex-direction:column}.wc-profile-fund-card dd{display:flex;flex:1;flex-direction:column}.wc-profile-fund-sheet-button{align-self:flex-start;margin-top:auto!important}.wc-profile-fund-sheet-source{display:none!important}
@@ -5515,6 +5488,17 @@ main#content > .recreation-parks-section {
 .wc-independent-source-grid{display:none!important}
 .wc-profile-snapshot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .wc-profile-snapshot-grid--no-staffing{grid-template-columns:repeat(2,minmax(0,1fr))}
+.wc-profile-snapshot-grid--single{grid-template-columns:minmax(0,1fr)}
+.wc-profile-snapshot-grid--lifeguard{grid-template-columns:minmax(0,1fr) minmax(360px,1fr);align-items:stretch}
+.wc-lifeguard-summary-map{position:relative;display:block;min-height:270px;overflow:hidden;border:5px solid var(--gold);border-radius:18px;background:#e8eeea}
+.wc-lifeguard-summary-map iframe{width:100%;height:100%;min-height:270px;border:0;pointer-events:none}
+.wc-lifeguard-summary-map span{position:absolute;top:50%;left:50%;padding:11px 18px;transform:translate(-50%,-50%);border-radius:999px;background:#fff;color:var(--navy);font-size:13px;font-weight:800;box-shadow:0 5px 18px rgba(0,0,0,.18)}
+.wc-program-safety-section{margin-top:34px}
+.wc-program-safety-section>p{margin:0 0 14px;color:var(--text);font-size:16px;line-height:1.7}
+.wc-program-safety-copy h3{margin:22px 0 6px;color:var(--green);font:800 18px/1.35 Georgia,"Times New Roman",serif}
+.wc-program-safety-copy p{margin:0;color:var(--text);font-size:16px;line-height:1.7}
+.wc-program-document-links{display:flex;flex-wrap:wrap;gap:10px 22px}
+.wc-program-document-links a{color:var(--green);font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:400;text-decoration:underline}
 .wc-profile-snapshot-card{display:flex;min-width:0;min-height:270px;flex-direction:column;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--light);box-shadow:0 8px 24px rgba(23,32,51,.04)}
 .wc-combined-office-legacy-card{display:none!important}
 .wc-combined-office-ledger-source{display:none!important}
@@ -5523,17 +5507,8 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin-bottom:17px}
 .wc-profile-snapshot-total>strong{color:var(--navy,var(--text));font-size:clamp(34px,3.2vw,48px);font-weight:900;letter-spacing:-.035em;line-height:1}
 .wc-profile-snapshot-total>small{color:var(--muted);font-size:16px;font-weight:800}.wc-profile-snapshot-total>small.is-up{color:var(--green)}.wc-profile-snapshot-total>small.is-down{color:var(--flag)}
-/* Wraps the kicker+headline block beside the Capital Outlay callout (see
-   snapshotCapitalCalloutHtml in department-services.js) -- only present on
-   Expenditures Summary cards that have a Capital Outlay group to call out;
-   every other snapshot card's kicker+total render exactly as before. */
 .wc-profile-snapshot-head{display:flex;flex-wrap:nowrap;align-items:flex-start;justify-content:space-between;gap:10px}
 .wc-profile-snapshot-head>div:first-child{flex:1 1 auto;min-width:0}
-.wc-profile-snapshot-capital-callout{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;margin-top:27px;padding:7px 9px;border:1px solid var(--border);border-radius:10px;background:#fff;text-align:right}
-.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total{flex-wrap:nowrap;margin-bottom:0;gap:3px 7px}
-.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>strong{font-size:17px;letter-spacing:0}
-.wc-profile-snapshot-capital-callout .wc-profile-snapshot-total>small{font-size:12px;white-space:nowrap}
-.wc-profile-snapshot-capital-callout-label{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .wc-profile-snapshot-table{display:flex;flex-direction:column;margin-bottom:6px;border-top:1px solid var(--border)}
 .wc-profile-snapshot-table>p{margin:11px 0;color:var(--muted);font-size:13px;border-bottom:1px solid var(--border)}
 .wc-profile-snapshot-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
@@ -5550,7 +5525,6 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-delta.is-flat{color:var(--muted);background:var(--border)}
 :root[data-theme="dark"] .wc-profile-snapshot-delta.is-up{background:rgba(123,211,159,.16)}
 :root[data-theme="dark"] .wc-profile-snapshot-delta.is-down{background:rgba(255,138,128,.16)}
-:root[data-theme="dark"] .wc-profile-snapshot-capital-callout{background:rgba(0,0,0,.18)}
 .wc-profile-snapshot-row .wc-finance-card-sublines{margin-top:7px}.wc-profile-snapshot-row .wc-finance-card-subline span,.wc-profile-snapshot-row .wc-finance-card-subline strong{font-size:10px}
 .wc-profile-snapshot-legend{display:flex;gap:14px;margin:12px 0 14px}
 .wc-profile-snapshot-legend span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10.5px;font-weight:700}
@@ -5579,8 +5553,6 @@ main#content > .recreation-parks-section {
 :root[data-theme="dark"] .wc-snapshot-chart-legend-item.is-active{background:rgba(123,211,159,.1)}
 .wc-snapshot-chart-legend-item.is-dimmed{opacity:.4}
 .wc-snapshot-chart-legend-item i{display:inline-block;width:10px;height:10px;border-radius:3px}
-.wc-snapshot-chart-fte-note{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px;color:var(--muted);font-size:12.5px;line-height:1.6}
-.wc-snapshot-chart-fte-marker{flex:0 0 auto;width:0;height:0;margin-top:4px;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #d1be78}
 .wc-snapshot-chart-note{margin:0;padding-top:14px;border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;line-height:1.6}
 @media(max-width:700px){.wc-snapshot-chart-wrap{height:260px}}
 .wc-profile-snapshot-fte-label{max-width:240px;margin:0 0 14px;color:var(--muted);font-size:12px;font-weight:700;line-height:1.45}
@@ -5598,6 +5570,7 @@ main#content > .recreation-parks-section {
 .wc-profile-snapshot-staffing>dl dt,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dt{margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
 .wc-profile-snapshot-staffing>dl dd,.wc-profile-snapshot .wc-profile-snapshot-staffing>dl dd{margin:0;color:var(--text);font-size:12px;font-weight:800;line-height:1.4}
 @media(max-width:1000px){.wc-profile-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wc-profile-snapshot-staffing{grid-column:1/-1;min-height:0}}
-@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}.wc-profile-snapshot-capital-callout{align-items:flex-end;text-align:right}}
-@media(max-width:430px){.wc-profile-snapshot-head{flex-wrap:wrap}.wc-profile-snapshot-capital-callout{align-items:flex-start;margin-top:0;text-align:left}}
+@media(max-width:800px){.wc-profile-snapshot-grid--lifeguard{grid-template-columns:1fr}}
+@media(max-width:650px){.wc-profile-snapshot-grid{grid-template-columns:1fr}.wc-profile-snapshot-staffing{grid-column:auto}.wc-profile-snapshot-card{min-height:0}}
+@media(max-width:430px){.wc-profile-snapshot-head{flex-wrap:wrap}}
 @media(max-width:640px){.wc-workforce-bars li{grid-template-columns:1fr auto;gap:6px}.wc-workforce-bar{grid-column:1/-1}}

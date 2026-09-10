@@ -2763,34 +2763,9 @@
       repairWcBudgetNavAfterOpenGovNavigation();
     }, 700);
   }
-  function watchForOpenGovNavigation(){
-    var originalPushState = history.pushState;
-    var originalReplaceState = history.replaceState;
-    history.pushState = function(){
-      originalPushState.apply(history, arguments);
-      if(location.href !== wcLastKnownUrl){
-        wcLastKnownUrl = location.href;
-        queueWcBudgetNavRepair();
-      }
-    };
-    history.replaceState = function(){
-      originalReplaceState.apply(history, arguments);
-      if(location.href !== wcLastKnownUrl){
-        wcLastKnownUrl = location.href;
-        queueWcBudgetNavRepair();
-      }
-    };
-    window.addEventListener("popstate", function(){
-      if(location.href !== wcLastKnownUrl){
-        wcLastKnownUrl = location.href;
-        queueWcBudgetNavRepair();
-      }
-    });
-  }
   lockHorizontalPageScroll();
   setTimeout(lockHorizontalPageScroll, 500);
   setTimeout(lockHorizontalPageScroll, 1500);
   setTimeout(lockHorizontalPageScroll, 3000);
   // Navigation watcher intentionally disabled for OpenGov stability testing.
-  // watchForOpenGovNavigation();
 })();

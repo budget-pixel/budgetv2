@@ -168,7 +168,7 @@ const DEPARTMENTS = [
     ],
     challenges: "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
     changeNote: "Machinery & Equipment increasing by $65,000.",
-    revenue: "General Government Taxes &mdash; Ad Valorem Taxes $1.8M &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $413K",
+    revenue: "General Government Taxes &mdash; Ad Valorem Taxes $1,847,203 &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $412,836",
     capitalItems: [
       { item: "SUV (New)", amount: 65000 }
     ],
@@ -284,8 +284,7 @@ const DEPARTMENTS = [
     pms: [
       { q: "Number of stormwater inspections performed and compliance with NPDES regulations", obj: "Conduct regular stormwater inspections to ensure compliance with NPDES and environmental regulations", y: ["77", "77", "78", "80"], target: "80" },
       { q: "Number of environmental conservation projects completed per fiscal year (e.g. reef deployments, habitat plans)", obj: "Implement and complete environmental conservation projects to improve ecosystem health", y: ["10", "10", "10", "12"], target: "13" }
-    ],
-    footnote: true
+    ]
   },
   {
     name: "Extension Office", fte: 8.5, personnel: 514924, operating: 39395, contractual: 0, capital: 40000, other: 3000,
@@ -341,7 +340,7 @@ const DEPARTMENTS = [
     sof: "The Walton County Department of Human Resources provides centralized personnel services for all Walton County BCC departments — recruitment, selection, performance management, discipline policy, employee development, workers' compensation, and benefits for the BCC, all Constitutional offices, and retirees. The department also oversees countywide ADA compliance.",
     goal: "Attract, develop, and support a qualified workforce by delivering effective HR services and ensuring timely personnel actions.",
     challenges: "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
-    revenue: "Intergovernmental Revenues $1.1M &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $323K",
+    revenue: "Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $1,103,953 &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $322,983",
     capitalItems: [
       { item: "SUV (Replacement)", amount: 31000 }
     ],
@@ -384,8 +383,7 @@ const DEPARTMENTS = [
     pms: [
       { q: "Total number of acres treated per fiscal year", obj: "Implement targeted mosquito control interventions using science-based techniques", y: ["355,025", "473,516", "575,734", "580,000"], target: "610,000" },
       { q: "Number of site inspections performed per fiscal year", obj: "Conduct regular site inspections to identify and mitigate mosquito breeding grounds", y: ["4,936", "5,303", "8,289", "9,600"], target: "9,750" }
-    ],
-    footnote: true
+    ]
   },
   {
     name: "Mossy Head Wastewater Treatment Facility", fte: 1, personnel: 94800, operating: 219200, contractual: 150000, capital: 0,
@@ -416,7 +414,7 @@ const DEPARTMENTS = [
     achievement: { label: "GFOA Distinguished Budget Presentation Award", detail: "Walton County has received the Government Finance Officers Association's Distinguished Budget Presentation Award for FY2025 and FY2026, recognizing the County's budget document as a policy document, financial plan, operations guide, and communications device." },
     challenges: "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
     changeNote: "Books, Publications, Subscriptions or Memberships decreasing by $260,000.",
-    revenue: "Miscellaneous Revenue &mdash; Indirect Administrative Fees $619K &middot; Intergovernmental Revenues $441K &middot; Charges for Services $15K",
+    revenue: "Miscellaneous Revenue &mdash; Indirect Administrative Fees $619,356 &middot; Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $440,670 &middot; Charges for Services &mdash; Cremation Fees $15,000",
     contracts: [],
     pms: [
       { q: "Percentage of budget prepared in compliance with Florida Statutes and Truth in Millage requirements", obj: "Prepare and present an annual budget in full compliance with Florida Statutes and Truth in Millage requirements", y: ["100%", "100%", "100%", "100%"], target: "100%", svc: 0 },
@@ -537,7 +535,7 @@ const DEPARTMENTS = [
     achievement: { label: "Achievement of Excellence in Procurement Award", detail: "Walton County Purchasing was named a 2026 winner of the National Procurement Institute's Achievement of Excellence in Procurement Award, recognizing innovation, professionalism, e-procurement, and ethics in public procurement." },
     challenges: "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
     changeNote: "Books, Publications, Subscriptions or Memberships increasing by $64,000.",
-    revenue: "Intergovernmental Revenues $865K &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $212K",
+    revenue: "Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $864,637 &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $211,862",
     capitalItems: [
       { item: "Procurement Building Improvements (New)", amount: 50000 }
     ],
@@ -576,8 +574,7 @@ const DEPARTMENTS = [
     pms: [
       { q: "Number of EQIP contracts approved and total acreage managed under the program per fiscal year", obj: "Facilitate USDA conservation programs (EQIP and CSP) to help landowners implement conservation practices", y: ["66 / 14,768", "84 / 17,553", "80 / 13,918", "76 / 15,189"], target: "80 / 15,500" },
       { q: "Number of CSP contracts approved and total acreage managed under the program per fiscal year", obj: "Provide guidance, hydrologic data, and mapping resources to support conservation planning", y: ["4 / 1,782", "8 / 2,183", "18 / 9,782", "19 / 9,987"], target: "20 / 10,000" }
-    ],
-    footnote: true
+    ]
   },
   {
     name: "Solid Waste", fte: 28, personnel: 2377275, operating: 1055100, indirect: 697192, contractual: 200000, capital: 1800000,
@@ -605,8 +602,7 @@ const DEPARTMENTS = [
     pms: [
       { q: "Total tons of Class I waste processed per year", obj: "Safely and efficiently process Class I waste in compliance with all applicable regulations", y: ["93,752", "94,525", "94,732", "96,147"], target: "97,376" },
       { q: "Total tons of recyclable material processed per year", obj: "Maximize diversion of recyclable materials from landfill through effective collection and processing", y: ["1,517", "1,412", "1,267", "1,137"], target: "1,150" }
-    ],
-    footnote: true
+    ]
   },
   {
     name: "Veteran Services", fte: 3, personnel: 298724, operating: 17926, contractual: 0, capital: 0,
@@ -631,8 +627,8 @@ const DEPARTMENTS = [
     changeNote: "Total office funding increasing by $291,333.",
     revenue: "Tourist Development Tax on eligible short-term lodging stays",
     capitalItems: [{item:"Administrative capital and equipment",amount:50000}],
-    contracts: [{ service: "South Walton Fire Lifeguard Services (Tourism Lifeguard Services and Beach Safety)", provider: "South Walton Fire District", amount: 3380779, separate: true }],
-    contractsNote: "The $3,380,779 Lifeguard Services Agreement is tracked separately from the operating total above, not folded into it; it funds beach-safety and lifeguard coverage under a purchased-service agreement rather than County staff.",
+    contracts: [],
+    sideCards: [{ label: "Tourism Lifeguard Services and Beach Safety", amount: 3380779, detail: "South Walton Fire District &mdash; purchased-service agreement funding beach-safety and lifeguard coverage, tracked separately from Tourism Administration's operating budget above." }],
     pms: [{q:"Tourism-supported jobs in Walton County",obj:"Foster sustainable tourism that supports local jobs annually",y:["47,000","47,000","41,600","33,800"],target:"32,000",svc:0},{q:"Average Daily Rate for Walton County lodging",obj:"Position Walton County as a high-value destination",y:["$413","$413","$385","$352"],target:"$375",svc:1}]
   },
   {
@@ -661,8 +657,10 @@ const DEPARTMENTS = [
     services:[["Plan and place destination advertising","Develops integrated campaigns and media investments for priority markets."],["Manage digital visitor engagement","Operates web, social, email, customer-relationship, and digital-asset platforms."],["Measure market performance","Uses tourism research and analytics to guide audiences, timing, and investment."]],
     challenges:"Adapting to travel demand and media-market changes while demonstrating return on a large visitor-funded advertising investment and managing visitation responsibly.", changeNote:"Total office funding increasing by $667,858.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
-    contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:11951147},{service:"Regional Tourism Communications Partnership",provider:"Florida's Coastal Northwest Communications Council",amount:265500},{service:"Tourism Analytics Platform",provider:"Key Data Dashboard, Inc",amount:84600},{service:"Public Relations",provider:"Turner Public Relations, LLC · Contract 25-17",amount:86000},{service:"North Walton destination promotion program",provider:"North Walton Tourist Development Tax District",amount:355500,separate:true}],
-    contractsNote:"Also includes marketing research ($65,000), digital asset management ($25,000), and customer relationship management ($25,000). The $355,500 North Walton program is tracked separately from the totals above, not folded into them; it promotes destinations and experiences north of Choctawhatchee Bay using restricted North Walton Tourist Development Tax district revenue.", pms:[]
+    contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:11951147},{service:"Regional Tourism Communications Partnership",provider:"Florida's Coastal Northwest Communications Council",amount:265500},{service:"Tourism Analytics Platform",provider:"Key Data Dashboard, Inc",amount:84600},{service:"Public Relations",provider:"Turner Public Relations, LLC · Contract 25-17",amount:86000}],
+    contractsNote:"Also includes marketing research ($65,000), digital asset management ($25,000), and customer relationship management ($25,000).",
+    sideCards: [{ label: "North Walton", amount: 355500, detail: "North Walton Tourist Development Tax District &mdash; restricted destination promotion program for areas north of Choctawhatchee Bay, tracked separately from Marketing's operating budget above." }],
+    pms:[]
   },
   {
     name: "Beach Operations", entityType: "Beach Operations Office", fte: 66, personnel: 4991699, operating: 3801809, indirect: 833992, contractual: 1470000, capital: 1902500,
@@ -673,9 +671,9 @@ const DEPARTMENTS = [
     serviceChange:"Adds staffing and capital capacity to support growing maintenance demands and expanded public infrastructure.",
     challenges:"Meeting peak-season service demand across a growing coastal asset network while responding to weather, erosion, traffic, workforce, and equipment pressures.", changeNote:"Total office funding increasing by $2,528,302.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
-    capitalItems:[{item:"Beach Operations vehicles, machinery and equipment",amount:1902500},{item:"Beach Renourishment Program",amount:10750000}],
-    contracts:[{service:"SR 83 (US 331) Landscaping Improvements",provider:"C&A Landscape Maintenance, LLC · Contract 25-26",amount:515000},{service:"US Highway 331 Median & Right-of-Way Maintenance",provider:"Harper Landscaping, LLC · Contract 22-028",amount:455000},{service:"Highway 98 Median & Right-of-Way Maintenance",provider:"ZIIC Outdoors, LLC · Contract 020-016",amount:300000},{service:"Task Order Services",provider:"Multiple providers as authorized",amount:200000},{service:"Beach Renourishment Task Order Services",provider:"Multiple professional-service providers",amount:250000,separate:true}],
-    contractsNote:"The $10,750,000 Beach Renourishment Program capital item and its $250,000 task-order services contract preserve and restore Walton County's 26 miles of beach; both are tracked separately from the totals above, not folded into them.",
+    capitalItems:[{item:"Beach Operations vehicles, machinery and equipment",amount:1902500}],
+    contracts:[{service:"SR 83 (US 331) Landscaping Improvements",provider:"C&A Landscape Maintenance, LLC · Contract 25-26",amount:515000},{service:"US Highway 331 Median & Right-of-Way Maintenance",provider:"Harper Landscaping, LLC · Contract 22-028",amount:455000},{service:"Highway 98 Median & Right-of-Way Maintenance",provider:"ZIIC Outdoors, LLC · Contract 020-016",amount:300000},{service:"Task Order Services",provider:"Multiple providers as authorized",amount:200000}],
+    sideCards: [{ label: "Beach Renourishment", amount: 11000000, detail: "$10,750,000 capital program plus $250,000 in task-order services to preserve and restore Walton County's 26 miles of beach, tracked separately from Beach Operations' totals above." }],
     pms:[{q:"Beach and bay public access facilities cleaned daily",obj:"Clean all beach and bay public access facilities daily during peak season",y:["60","60","62","63"],target:"66",svc:0},{q:"Maintenance work orders completed",obj:"Complete at least 6,000 maintenance work orders annually",y:["4,177","5,111","5,970","6,000"],target:"6,000",svc:2}]
   },
   {
@@ -728,12 +726,24 @@ function sumRevenueExcluding(html, includeRe, excludeRe) {
 // Splits a property-tax-funded amount into a residential and a
 // commercial/other row using the same 87.9% / 12.1% real-property
 // just-value shares the live site's Who Pays Ledger uses.
+// Household equivalents (34,362 Walton County households, per U.S.
+// Census Bureau statistics) match the same figure used by the live
+// site's Who Pays Ledger, so a resident-facing dollar amount can be
+// expressed as an annual/monthly household cost the same way there.
+const HOUSEHOLDS = 34362;
+function householdCost(amount) {
+  const annual = amount / HOUSEHOLDS;
+  const monthly = annual / 12;
+  const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${fmt(annual)} per household annually (${fmt(monthly)} monthly)`;
+}
+
 function splitPropertyTax(amount, detail) {
   if (!amount) return [];
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, detail],
+    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 34,362 households &mdash; a planning proxy, not an individual household's tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }
@@ -745,15 +755,15 @@ function splitSalesTax(amount, detail) {
   const nonResident = amount * 0.68;
   const resident = amount - nonResident;
   return [
-    ["Non-residents", nonResident, detail],
-    ["Residents", resident, detail]
+    ["Non-residents", nonResident, `${detail} Estimated using the County's tourism visitor study, which found visitors account for 68% of local retail spending.`],
+    ["Residents", resident, `${detail} The remaining 32% resident share reflects the same visitor-spending study, equal to ${householdCost(resident)} across 34,362 households.`]
   ];
 }
 
 function whoPaysFor(d) {
   const n = d.name.toLowerCase();
   const total = sumRevenue(d.revenue);
-  if (d.fund.includes("Tourist Development")) return [["Overnight visitors", total || null, "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."], ["Residents and day visitors", null, "They benefit from the service but do not pay this lodging tax unless they purchase a taxable overnight stay."]];
+  if (d.fund.includes("Tourist Development")) return [["Overnight visitors", total || null, "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."]];
   if (/tourism lifeguard/.test(n)) return [["Overnight visitors", total || null, "Tourist Development Tax supports the service agreement; it is collected on eligible short-term lodging stays."]];
   if (/building department/.test(n)) return [["Permit applicants, property owners, contractors and developers", total || null, "Building Fund resources originate primarily from permits and development-related service activity; prior resources may also be carried forward."]];
   if (/golf and recreation/.test(n)) {
@@ -813,6 +823,20 @@ function whoPaysFor(d) {
       ...splitSalesTax(salesTax, "Local sales-tax revenue supports the General Fund."),
       ["Program and facility users", fees || null, "Applicable rentals, program fees or service charges are paid only by participating users."],
       ...(other ? [["Residents, visitors and businesses", other, "Shared revenues and other General Fund resources broaden support."]] : [])
+    ];
+  }
+  if (/indirect administrative fees/i.test(d.revenue)) {
+    const indirect = sumRevenueMatching(d.revenue, /indirect administrative fees/i);
+    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
+    const salesTax = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|sales surtax/i);
+    const fees = sumRevenueExcluding(d.revenue, /charges for services|fees/i, /indirect administrative fees/i);
+    const other = total - indirect - taxes - salesTax - fees;
+    return [
+      ...splitPropertyTax(taxes, "Ad valorem property taxes support the General Fund based on taxable property value."),
+      ...splitSalesTax(salesTax, "Local sales-tax revenue supports the General Fund."),
+      ...(fees ? [["Service users", fees, "Paid by the residents, businesses, applicants, customers, or other users receiving the specific fee-supported service."]] : []),
+      ["County funds receiving administrative support", indirect || null, "Indirect Administrative Fees reimburse the General Fund for countywide administrative support provided to the Tourist Development, Building, Mosquito Control, and Solid Waste funds &mdash; an internal cost allocation, not a fee charged to an individual service user."],
+      ...(other ? [["Residents, visitors and businesses", other, "Shared revenues and other General Fund resources broaden support beyond property and sales tax."]] : [])
     ];
   }
   if (d.fund === "General Fund") {
@@ -927,10 +951,12 @@ const sharedCss = `
   .svc-block:last-child{ border-bottom:0; }
   .svc-block .svc-head{ margin-bottom:.03in; }
   .svc-block .svc-head b{ display:block; color:#003f28; font:800 7.6pt Georgia, serif; }
+  .svc-block:not(.leftover) .svc-head b::before{ content:"\\2022"; margin-right:.06in; color:#b89521; }
   .svc-block .svc-head span{ display:block; margin-top:.02in; color:#33453c; font-size:6.9pt; line-height:1.32; }
   .svc-block.leftover .svc-head b{ color:#68786f; font:800 6.4pt Arial, Helvetica, sans-serif; text-transform:uppercase; letter-spacing:.03em; }
   .svc-block.leftover .svc-head span{ font-style:italic; }
   .svc-block .pm-item{ margin:.03in 0 0 .14in; padding:.04in 0 .04in .12in; border-bottom:0; border-left:2px solid #d1be78; }
+  .side-col{ display:flex; flex-direction:column; }
   .side-card{
     margin-top:.16in;
     background:#003f28;
@@ -938,6 +964,9 @@ const sharedCss = `
     padding:.14in .16in;
     color:#fff;
   }
+  .side-card.sub{ margin-top:.14in; padding:.11in .16in; }
+  .side-sub-amt{ margin-top:.03in; color:#fff; font:800 13pt Georgia, serif; }
+  .side-sub-detail{ margin:.05in 0 0; color:#a9c4b3; font-size:6.1pt; line-height:1.4; }
   .side-fund{ color:#e7c95f; font-size:6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin-bottom:.06in; }
   .side-stats{ display:flex; flex-direction:column; gap:.05in; margin-bottom:.08in; }
   .side-stats div{ display:flex; justify-content:space-between; align-items:baseline; gap:.08in; }
@@ -977,14 +1006,14 @@ const sharedCss = `
   .cap-row.notfunded b{ color:#a24b1e; }
   .cap-more{ margin:.03in 0 0; color:#68786f; font-size:6.2pt; font-style:italic; }
   .cap-note{ margin:.04in 0 0; color:#68786f; font-size:6.1pt; font-style:italic; line-height:1.32; }
-  .goal-chain{ margin-top:.13in; margin-bottom:.14in; }
+  .goal-chain{ margin-top:.1in; margin-bottom:.14in; }
   .pm-item{ padding:.06in 0; border-bottom:1px solid #eef2ef; }
   .pm-item:last-child{ border-bottom:0; }
   .pm-item .pm-q{ margin:0 0 .02in; color:#003f28; font-size:7.7pt; font-weight:700; }
   .pm-item .pm-obj{ margin:0 0 .045in; color:#68786f; font-size:6.7pt; font-style:italic; line-height:1.3; }
-  .pm-trend{ display:flex; align-items:baseline; flex-wrap:wrap; gap:.1in .22in; }
+  .pm-trend{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)) auto; align-items:baseline; gap:.1in .3in; }
   .pm-trend span{ color:#8b988f; font-size:5.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
-  .pm-trend span b{ display:block; margin-bottom:.015in; color:#173229; font:800 8.4pt Georgia, serif; font-variant-numeric:tabular-nums; }
+  .pm-trend span b{ display:block; margin-bottom:.015in; color:#173229; font:800 9.5pt Georgia, serif; font-variant-numeric:tabular-nums; }
   .pm-trend span.target{ padding-left:.22in; border-left:1px solid #e4ebe7; color:#0b7741; }
   .pm-trend span.target b{ color:#0b7741; }
   .footnote{ margin-top:.1in; color:#68786f; font-size:6.4pt; line-height:1.35; font-style:italic; }
@@ -1065,17 +1094,25 @@ async function buildDeptPage(d, pageNumber) {
   const matchedPms = new Set();
   const svcBlocks = serviceList.map(([t, desc], i) => {
     const linked = hasExplicitServices ? d.pms.filter((pm) => pm.svc === i) : d.pms;
+    if (!linked.length) return null;
     linked.forEach((pm) => matchedPms.add(pm));
     return `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div>${linked.map(pmBlock).join("")}</div>`;
-  }).join("");
+  }).filter(Boolean).join("");
   const leftoverPms = hasExplicitServices ? d.pms.filter((pm) => !matchedPms.has(pm)) : [];
   const leftoverHtml = leftoverPms.length
     ? `<div class="svc-block leftover"><div class="svc-head"><b>Department-wide Measures</b><span>Tracked departmentwide rather than tied to a single service above.</span></div>${leftoverPms.map(pmBlock).join("")}</div>`
     : "";
 
   const conHtml = d.contracts.length
-    ? `<div class="con-list">${d.contracts.map((c) => `<div class="con-row"><div class="con-name">${c.service}<em>${c.provider}${c.separate ? " &mdash; tracked separately" : ""}</em></div><b>${money(c.amount)}</b></div>`).join("")}</div>${d.contractsNote ? `<p class="con-note">${d.contractsNote}</p>` : ""}`
+    ? `<div class="con-list">${d.contracts.map((c) => `<div class="con-row"><div class="con-name">${c.service}${c.separate ? `<em>Tracked separately</em>` : ""}</div><b>${money(c.amount)}</b></div>`).join("")}</div>${d.contractsNote ? `<p class="con-note">${d.contractsNote}</p>` : ""}`
     : `<p class="con-empty">No contracted services identified for this office.</p>`;
+
+  const sideCardsHtml = (d.sideCards || []).map((s) => `
+    <div class="side-card sub">
+      <div class="side-fund">${s.label}</div>
+      <div class="side-sub-amt">${money(s.amount)}</div>
+      <p class="side-sub-detail">${s.detail}</p>
+    </div>`).join("");
 
   const capItems = d.capitalItems || [];
   const MAX_CAP_ROWS = 5;
@@ -1092,55 +1129,55 @@ async function buildDeptPage(d, pageNumber) {
     if (d.capitalNote) capHtml += `<p class="cap-note">${d.capitalNote}</p>`;
   }
 
-  const footnoteHtml = d.footnote ? `<p class="footnote">†Figures shown are this office's own reported costs. Summed across all Environmental Services programs, this does not exactly reach the Environmental Services department total in the Department Operating Ledger — that total includes additional cost categories not broken out at the individual program level.</p>` : "";
-
   return `
   <section class="profile-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <div class="top-grid">
       <div>
-        <small class="kicker">${d.entityType || "Departments"}${d.footnote ? "†" : ""}</small>
+        <small class="kicker">${d.entityType || "Departments"}</small>
         <h1>${d.name}</h1>
         <h2>Statement of Function</h2>
         <p class="sof">${d.sof}</p>
-        ${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
+        ${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}
         ${d.challenges ? `<div class="goal-quote mid"><span>Challenges</span><p>${d.challenges}</p></div>` : ""}
-        <div class="goal-chain">
-          <h2>Core Services &amp; Performance</h2>
-          <p class="svc-change-note">${serviceChangeFor(d)}</p>
-          <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
-          ${d.pms.length ? "" : `<p class="con-empty">No verified performance series was available for publication. Contract monitoring should report coverage, preventive actions, rescues, response activity, staffing readiness, and material service variances.</p>`}
-        </div>
       </div>
-      <div class="side-card">
-        <div class="side-fund">${d.fund}</div>
-        <div class="side-stats">
-          <div><b>${money(fy26)}</b><span>FY2026 Total</span></div>
-          <div><b>${money(fy27)}</b><span>FY2027 Total</span></div>
+      <div class="side-col">
+        <div class="side-card">
+          <div class="side-fund">${d.fund}</div>
+          <div class="side-stats">
+            <div><b>${money(fy26)}</b><span>FY2026 Total</span></div>
+            <div><b>${money(fy27)}</b><span>FY2027 Total</span></div>
+          </div>
+          <div class="side-change ${isDown ? "down" : "up"}">
+            <b>${dsign}${money(Math.abs(deltaTotal)).slice(1)}</b>
+            <span>${pct(deltaTotal, fy26)} &middot; ${d.fte} FTE</span>
+          </div>
+          ${fteDeltaHtml}
+          <div class="side-split">
+            <div><span>Personnel</span><b>${money(d.personnel)}</b></div>
+            <div><span>Contractual</span><b>${money(d.contractual)}</b></div>
+            <div><span>Operating</span><b>${money(d.operating)}</b></div>
+            ${(d.indirect || 0) ? `<div><span>Indirect</span><b>${money(d.indirect)}</b></div>` : ""}
+            <div><span>Capital</span><b>${money(d.capital)}</b></div>
+          </div>
+          ${d.changeNote ? `<p style="margin:.06in 0 0;color:#a9c4b3;font-size:6pt;line-height:1.35;">Primary change: ${d.changeNote}</p>` : ""}
+          ${qrHtml}
         </div>
-        <div class="side-change ${isDown ? "down" : "up"}">
-          <b>${dsign}${money(Math.abs(deltaTotal)).slice(1)}</b>
-          <span>${pct(deltaTotal, fy26)} &middot; ${d.fte} FTE</span>
-        </div>
-        ${fteDeltaHtml}
-        <div class="side-split">
-          <div><span>Personnel</span><b>${money(d.personnel)}</b></div>
-          <div><span>Contractual</span><b>${money(d.contractual)}</b></div>
-          <div><span>Operating</span><b>${money(d.operating)}</b></div>
-          ${(d.indirect || 0) ? `<div><span>Indirect</span><b>${money(d.indirect)}</b></div>` : ""}
-          <div><span>Capital</span><b>${money(d.capital)}</b></div>
-        </div>
-        ${d.changeNote ? `<p style="margin:.06in 0 0;color:#a9c4b3;font-size:6pt;line-height:1.35;">Primary change: ${d.changeNote}</p>` : ""}
-        ${qrHtml}
+        ${sideCardsHtml}
       </div>
+    </div>
+    <div class="goal-chain">
+      <h2>Core Services &amp; Performance</h2>
+      <p class="svc-change-note">${serviceChangeFor(d)}</p>
+      <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
+      ${d.pms.length ? "" : `<p class="con-empty">No verified performance series was available for publication. Contract monitoring should report coverage, preventive actions, rescues, response activity, staffing readiness, and material service variances.</p>`}
     </div>
     <div class="rev-con-grid three">
       <div class="rev-box"><h2>Who Funds</h2>${payerHtml}</div>
       <div class="con-box"><h2>Contracts</h2>${conHtml}</div>
       <div class="cap-box"><h2>Capital Requests</h2>${capItems.length ? capHtml : (d.capital ? `<p class="con-empty">${money(d.capital)} is budgeted as capital; no itemized request list was available.</p>` : `<p class="con-empty">No FY2027 capital requests.</p>`)}</div>
     </div>
-    ${footnoteHtml}
     <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
   </section>`;
 }

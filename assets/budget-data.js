@@ -106,7 +106,8 @@
     "tourism sales and visitor center": ["sales and visitors center", "sales and visitor center"],
     "tourism lifeguard services and beach safety": [
       "south walton fire lifeguard services",
-      "public safety"
+      "public safety",
+      "tourism public safety"
     ]
   };
 
@@ -2832,16 +2833,6 @@
   // for it. An unknown/blank fund code (combineByName's merged,
   // multi-department rows) defaults to true since those rows really do
   // span several departments.
-  function fundHasMultipleDepartments(fundCode) {
-    if (!fundCode) return true;
-    const names = new Set();
-    (cache.revenues || []).forEach((r) => {
-      if (fundCodeForRow(r) !== fundCode) return;
-      const name = normalizeDeptName(r.Dept_Name);
-      if (name) names.add(name);
-    });
-    return names.size > 1;
-  }
 
   // Every sheet tab used to be re-fetched from scratch on every page view
   // (no caching at all) with no retry, so on a slow connection the tab most
@@ -4736,6 +4727,9 @@
       // that same ledger rather than a plain list of names.
       const choiceDisplayName = (choice) => {
         const href = String(choice.href || "").toLowerCase();
+        if (normalizeDeptName(choice.name) === "south walton fire lifeguard services") {
+          return "South Walton Fire Lifeguard and Public Safety Services";
+        }
         return href.indexOf("environmental-resources.html") !== -1 || normalizeDeptName(choice.name) === "environmental services"
           ? "Environmental Resources"
           : choice.name;
@@ -7149,37 +7143,6 @@
     addForecastBaselineDetail(baselineRevenueDetails, detailName, category, adjustment);
   }
 
-  function capCapitalProjectsFinancingRevenue(revenueCategories, revenueDetails, expenseCategories) {
-    const financingCategory = "Other Sources";
-    const transferDetailName = "Interfund Group Transfer In";
-    const financingValues = revenueCategories.get(financingCategory);
-    if (!financingValues) return;
-
-    FINANCIAL_FORECAST_YEARS.forEach((year) => {
-      const projectExpense = sumForecastCategories(expenseCategories, year);
-      let nonFinancingRevenue = 0;
-      revenueCategories.forEach((values, category) => {
-        if (category !== financingCategory) nonFinancingRevenue += values[year] || 0;
-      });
-
-      const currentFinancingRevenue = financingValues[year] || 0;
-      const cappedFinancingRevenue = Math.min(currentFinancingRevenue, Math.max(0, projectExpense - nonFinancingRevenue));
-      financingValues[year] = cappedFinancingRevenue;
-
-      if (!revenueDetails || !revenueDetails.has(transferDetailName)) return;
-      const transferDetail = revenueDetails.get(transferDetailName);
-      let otherFinancingDetails = 0;
-      revenueDetails.forEach((entry, name) => {
-        if (name !== transferDetailName && entry.category === financingCategory) {
-          otherFinancingDetails += entry.values[year] || 0;
-        }
-      });
-      transferDetail.values[year] = Math.min(
-        transferDetail.values[year] || 0,
-        Math.max(0, cappedFinancingRevenue - otherFinancingDetails)
-      );
-    });
-  }
 
   function balanceForecastFundToZeroNetChange(revenueCategories, revenueDetails, expenseCategories, balancingDetailName) {
     const financingCategory = "Other Sources";
@@ -7226,26 +7189,6 @@
     syncRevenueForecastCategoriesFromDetails(revenueCategories, revenueDetails);
   }
 
-  function balanceTouristDevelopmentBeachRenourishment(revenueCategories, expenseCategories, expenseDetails) {
-    const balancingDetailName = "Beach Renourishment";
-    if (!expenseDetails || !expenseDetails.has(balancingDetailName)) return;
-    const beachRenourishment = expenseDetails.get(balancingDetailName);
-    const balancingCategory = beachRenourishment.category;
-    const categoryValues = balancingCategory ? expenseCategories.get(balancingCategory) : null;
-    if (!categoryValues) return;
-
-    FINANCIAL_FORECAST_YEARS.forEach((year) => {
-      const revenues = sumForecastCategories(revenueCategories, year);
-      const expenditures = sumForecastCategories(expenseCategories, year);
-      const shortfall = expenditures - revenues;
-      if (shortfall <= 0) return;
-
-      const currentDetailValue = beachRenourishment.values[year] || 0;
-      const reduction = Math.min(currentDetailValue, shortfall);
-      beachRenourishment.values[year] = currentDetailValue - reduction;
-      categoryValues[year] = Math.max(0, (categoryValues[year] || 0) - reduction);
-    });
-  }
 
   function getCipProjectYearAmount(project, year) {
     const key = "FY" + year;
@@ -7861,49 +7804,6 @@
     );
   }
 
-  function renderForecastCharts(model) {
-    return (
-      '<section class="wc-forecast-section wc-forecast-visuals" aria-labelledby="forecast-visuals-heading">' +
-        '<div class="wc-section-heading-row">' +
-          '<h2 id="forecast-visuals-heading" class="wc-fund-section-heading">Revenues, Expenses, And Ending Balance</h2>' +
-          '<p>Bars compare money coming in, money going out, and the projected ending balance for each year.</p>' +
-        '</div>' +
-        '<div class="wc-forecast-visual-grid">' +
-          model.funds.map((item) => {
-            const max = Math.max.apply(null, FINANCIAL_FORECAST_YEARS.flatMap((year) => [
-              item.annual[year].revenues || 0,
-              item.annual[year].expenditures || 0,
-              item.annual[year].endingBalance || 0
-            ]));
-            return (
-              '<article class="wc-forecast-visual-panel">' +
-                '<h3>' + escapeHtml(item.fund.label) + '</h3>' +
-                '<div class="wc-forecast-legend" aria-hidden="true">' +
-                  '<span class="is-revenue">Revenue</span><span class="is-expense">Expense</span><span class="is-balance">Ending Balance</span>' +
-                '</div>' +
-                '<div class="wc-forecast-comparison-chart">' +
-                  FINANCIAL_FORECAST_YEARS.map((year) => {
-                    const annual = item.annual[year];
-                    return (
-                      '<div class="wc-forecast-comparison-row">' +
-                        '<strong>FY ' + year + '</strong>' +
-                        '<div>' +
-                          renderForecastBar(annual.revenues || 0, max, "is-revenue", "FY " + year + " revenue " + forecastMoney(annual.revenues || 0)) +
-                          renderForecastBar(annual.expenditures || 0, max, "is-expense", "FY " + year + " expense " + forecastMoney(annual.expenditures || 0)) +
-                          renderForecastBar(annual.endingBalance || 0, max, "is-balance", "FY " + year + " ending balance " + forecastMoney(annual.endingBalance || 0)) +
-                        '</div>' +
-                        '<span>' + forecastShortMoney(annual.endingBalance || 0) + '</span>' +
-                      '</div>'
-                    );
-                  }).join("") +
-                '</div>' +
-              '</article>'
-            );
-          }).join("") +
-        '</div>' +
-      '</section>'
-    );
-  }
 
   function assumptionRateRange(model, lineType, category) {
     const values = (model.assumptions || [])
@@ -12262,20 +12162,6 @@
       .join("");
   }
 
-  function renderMachineryTable(rows) {
-    if (!rows.length) return "";
-    let total = 0;
-    const bodyRows = rows.map((r) => {
-      total += r.Amount || 0;
-      return "<tr><td>" + escapeHtml(r.Item_Description || "") + '</td><td class="wc-num">' + formatCurrency(r.Amount || 0) + "</td></tr>";
-    });
-    bodyRows.push('<tr class="wc-table-total-row"><td>Total</td><td class="wc-num">' + formatCurrency(total) + "</td></tr>");
-    return renderTable({
-      caption: "Machinery, Vehicles & Equipment",
-      columns: [{ label: "Item Description" }, { label: "Amount", num: true }],
-      bodyRows: bodyRows
-    });
-  }
 
   function renderBuildingConstructionSupplementalTables() {
     const rows = rowsForExactDepartment(cache.expenditures, "Building Construction and Maintenance");
@@ -12437,25 +12323,6 @@
     return nextRows;
   }
 
-  function normalizeTourismAdminRevenueRows(rows) {
-    let northWaltonTdtFy2026Assigned = false;
-    return dedupeRevenueFy2026ByFundAccount(rows).map((row) => {
-      const name = String((row && row.Revenue_Name) || "");
-      const dept = normalizeDeptName(row && row.Dept_Name);
-      if (/^tourist development tax/i.test(name) && dept.indexOf("north walton") !== -1) {
-        const fy2026Budget = northWaltonTdtFy2026Assigned ? 0 : 323000;
-        northWaltonTdtFy2026Assigned = true;
-        return Object.assign({}, row, {
-          FY2026_Original_Budget: fy2026Budget,
-          FY2026_Budget: fy2026Budget,
-          FY2026_Plug: fy2026Budget,
-          _originalBudgetDeduped: true,
-          _suppressRevenueBudgetFallback: true
-        });
-      }
-      return row;
-    });
-  }
 
   function renderTourismAdministrationSections() {
     const overview =
@@ -13970,7 +13837,7 @@
           revenueSourceLabel(largestRevenueSourceForDepartment(dept, "")) || "Not identified";
         byDept.get(dept).forEach((row) => {
           grandTotal += row.amount;
-          const key = fund + " " + source;
+          const key = fund + "\u0000" + source;
           const entry = sourceTotals.get(key) || { fund, source, amount: 0 };
           entry.amount += row.amount;
           sourceTotals.set(key, entry);
@@ -14184,20 +14051,8 @@
 
     const departmentServiceRows = rows.filter((r) => !r.Is_Cip);
     const cipRows = rows.filter((r) => r.Is_Cip);
-    const departmentServiceTotal = departmentServiceRows.reduce((sum, row) => sum + (row.Amount || 0), 0);
-    const cipTotal = cipRows.reduce((sum, row) => sum + (row.Amount || 0), 0);
-    const departmentCount = new Set(departmentServiceRows.map((row) => row.Dept_Name).filter(Boolean)).size;
-    const activeContractCount = departmentServiceRows.filter((row) => normalizeDeptName(row.Contract_Status) === "active contract").length;
 
     container.innerHTML =
-      '<section class="wc-contract-ledger-overview" aria-label="Contractual services at a glance">' +
-      '<div class="wc-contract-ledger-overview-heading"><span>At a Glance</span><p>FY 2027 planned contracted services and anticipated capital procurements.</p></div>' +
-      '<div class="wc-contract-ledger-metrics">' +
-      '<article><span>Department Services</span><strong>' + formatCurrency(departmentServiceTotal) + '</strong><small>' + departmentServiceRows.length + ' budgeted services</small></article>' +
-      '<article><span>Capital Procurements</span><strong>' + formatCurrency(cipTotal) + '</strong><small>' + cipRows.length + ' funded project scopes</small></article>' +
-      '<article><span>Departments Represented</span><strong>' + departmentCount + '</strong><small>Board-managed departments</small></article>' +
-      '<article><span>Active Contracts</span><strong>' + activeContractCount + '</strong><small>Identified at budget adoption</small></article>' +
-      '</div></section>' +
       '<section class="wc-contract-ledger-section">' +
       "<h2>Department Services</h2>" +
       '<p class="wc-contract-ledger-section-note">Contracted operating services procured by Board departments -- professional services, maintenance, technology, and similar agreements.</p>' +
@@ -14486,10 +14341,6 @@
     ["tourism sales and visitors center", "tourism-administration.html"],
     ["veteran services", "veteran-services.html"]
   ]);
-  function personnelDeptPageHref(deptDisplayName) {
-    const href = PERSONNEL_DEPT_PAGE_HREF.get(normalizeDeptName(deptDisplayName));
-    return href ? href + "#department-staffing-table" : "departments.html";
-  }
 
   // One label per staffing row -- the single source of truth for both the
   // callout cards above and the page's own "Fund" filter dropdown, so every
@@ -14918,16 +14769,6 @@
     );
   }
 
-  function renderPersonnelSummaryNote() {
-    const narrativeRows = cache.departmentNarratives || [];
-    const row = narrativeRows.find((r) => normalizeDeptName(r.Dept_Name) === normalizeDeptName("Summary of Personnel Note"));
-    if (!row || !row.Narrative || !row.Narrative.trim()) return "";
-    return (
-      '<section class="wc-personnel-summary-note content-section">' +
-      splitIntoParagraphs(row.Narrative).map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("") +
-      "</section>"
-    );
-  }
 
   // Answer-first GFOA-style Q&A block for the merged Personnel Budget page
   // (Summary of Personnel + Summary of Personnel Cost combined) -- same
@@ -17659,7 +17500,20 @@
           else office.operating += amount;
         });
         const offices = Array.from(officesByKey.values()).filter((office) => office.current || office.prior).sort((a, b) => b.current - a.current);
+        if (dept.key === "tourism administration") {
+          const publicSafetyIndex = offices.findIndex((office) => normalizeDeptName(office.name) === "tourism public safety");
+          if (publicSafetyIndex !== -1) offices.splice(publicSafetyIndex, 1);
+        }
         if (dept.key === "code compliance" && offices.length === 1) offices[0].prior = dept.prior;
+        // Lead with County Administration in its office picker while keeping
+        // the remaining offices in their existing budget-based order.
+        if (dept.key === "county administration offices") {
+          offices.sort((a, b) => {
+            const aIsCountyAdmin = normalizeDeptName(a.name) === "county administration";
+            const bIsCountyAdmin = normalizeDeptName(b.name) === "county administration";
+            return Number(bIsCountyAdmin) - Number(aIsCountyAdmin);
+          });
+        }
         // Tourism Administration's offices read in a deliberate editorial
         // order (lead office first, then its divisions) rather than sorted
         // by dollar amount like every other rolled-up department.

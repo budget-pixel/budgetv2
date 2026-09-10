@@ -213,7 +213,7 @@ const page2 = `
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
     <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $431.8M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund Reserve Ratio</b><span>$81.9M in estimated FY2027 General Fund ending balance is equal to 39.6% of the Fund's $206.9M in total expenditures and other uses &mdash; roughly 4.75 months of General Fund operating costs held in reserve.</span></div>
+      <div class="info-card"><b>General Fund Reserve Ratio</b><span>$81.9M in estimated FY2027 General Fund ending balance is equal to 39.6% of the Fund's $206.9M in total expenditures and other uses &mdash; roughly 4.75 months of General Fund operating costs held in reserve, well above the GFOA-recommended minimum of no less than two months (16.7%) of regular General Fund operating revenues or expenditures.</span></div>
       <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $431.8M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
     </div>
 

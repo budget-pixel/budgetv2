@@ -1155,42 +1155,6 @@ var PRINT_CSS = `
     display:none !important;
   }
 
-  #contractual-services-summary .wc-contract-ledger-overview{
-    margin:12px 0 18px !important;
-    padding:14px 16px !important;
-    border:1px solid #c7d8ce !important;
-    border-radius:0 !important;
-    background:#f4f8f5 !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  #contractual-services-summary .wc-contract-ledger-overview-heading{
-    margin-bottom:10px !important;
-  }
-
-  #contractual-services-summary .wc-contract-ledger-metrics{
-    grid-template-columns:repeat(4,1fr) !important;
-    gap:0 !important;
-  }
-
-  #contractual-services-summary .wc-contract-ledger-metrics article{
-    min-height:0 !important;
-    padding:7px 12px !important;
-    border:0 !important;
-    border-left:1px solid #c7d8ce !important;
-    border-radius:0 !important;
-    background:transparent !important;
-  }
-
-  #contractual-services-summary .wc-contract-ledger-metrics article:first-child{
-    border-left:0 !important;
-  }
-
-  #contractual-services-summary .wc-contract-ledger-metrics strong{
-    font-size:15pt !important;
-  }
-
   #contractual-services-summary .wc-contract-ledger-section h2{
     margin-top:16px !important;
     padding-bottom:5px !important;
