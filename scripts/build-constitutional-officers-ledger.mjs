@@ -440,7 +440,7 @@ async function buildOfficerPage(o, pageNumber) {
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
       <div class="rev-box"><h2>Who Funds</h2>${payerHtml}<p class="source-trace">Accounting sources: ${o.revenue}</p></div>
       ${hasBreakouts
-        ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests &mdash; FY2027</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
+        ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY2027</h2>${fteHtml}</div>`}
     </div>
     <div class="pos-summary">

@@ -172,12 +172,16 @@ const REV_GROUPS = [
 ];
 const DETAIL_TOTAL = ["Total", "$327,945,088", "$345,223,508"];
 
-// 89 rows across 7 groups is too dense for one two-column page at
-// readable type size (unlike the Expenditure Ledger's 65 rows across 9
-// groups) -- split at a natural group boundary into two continuation
-// pages instead of shrinking type further.
-const REV_GROUPS_A = REV_GROUPS.slice(0, 2);
-const REV_GROUPS_B = REV_GROUPS.slice(2);
+// 89 rows across 7 groups no longer fit two continuation pages at the
+// larger, more readable type size below -- General Government Taxes'
+// frequently-wrapping labels plus Charges for Services' 37 rows together
+// still overflow one page even though Charges for Services' labels are
+// mostly one line, so General Government Taxes and Charges for Services
+// each get their own page.
+const REV_GROUPS_A = REV_GROUPS.slice(0, 1);
+const REV_GROUPS_B = REV_GROUPS.slice(1, 2);
+const REV_GROUPS_C = REV_GROUPS.slice(2, 5);
+const REV_GROUPS_D = REV_GROUPS.slice(5);
 
 function money(s) { return Number(s.replace(/[$,]/g, "")) || 0; }
 function fmt(n) { return (n < 0 ? "&minus;$" : "$") + Math.abs(n).toLocaleString("en-US"); }
@@ -239,19 +243,24 @@ const sharedCss = `
   .callout h3{ margin:0 0 .06in; color:#003f28; font:800 9.5pt Georgia, serif; }
   .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.5; }
   h1.continued{ font-size:16pt; margin-top:.05in; }
-  p.footnote{ margin:.14in 0 0; color:#68786f; font-size:6.9pt; line-height:1.4; font-style:italic; }
-  .dtable{ column-count:2; column-gap:.34in; column-rule:1px solid #eef1ee; border-top:2px solid #d1be78; padding-top:.06in; }
-  .dgroup{ break-inside:avoid; break-after:avoid; margin-top:.1in; padding-bottom:.02in; border-bottom:1px solid #003f28; color:#003f28; font:800 7.6pt Georgia, serif; text-transform:uppercase; letter-spacing:.01em; }
+  p.footnote{ margin:.14in 0 0; color:#68786f; font-size:7.3pt; line-height:1.4; font-style:italic; }
+  .dtable-head{ display:grid; grid-template-columns:1fr 1fr; gap:.34in; border-top:2px solid #d1be78; padding-top:.06in; }
+  .dtable{ column-count:2; column-gap:.34in; column-rule:1px solid #eef1ee; }
+  .dgroup{ break-inside:avoid-column; break-after:avoid; margin-top:.14in; padding-bottom:.03in; border-bottom:1px solid #003f28; color:#003f28; font:800 9pt Georgia, serif; text-transform:uppercase; letter-spacing:.01em; }
   .dgroup:first-child{ margin-top:0; }
-  .drow{ break-inside:avoid; display:grid; grid-template-columns:1fr .82in .82in .72in; gap:.05in; align-items:center; padding:.03in 0; border-bottom:1px solid #f1f4f1; }
-  .drow .dlabel{ color:#173229; font-size:6.3pt; line-height:1.15; }
-  .drow .dnum{ text-align:right; color:#33453c; font-size:6.1pt; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .drow{ break-inside:avoid-column; display:flex; align-items:center; gap:.06in; padding:.05in 0; border-bottom:1px solid #f1f4f1; }
+  .drow>*{ min-width:0; }
+  .drow>*:nth-child(1){ flex:1 1 auto; }
+  .drow>*:nth-child(2), .drow>*:nth-child(3){ flex:0 0 .88in; }
+  .drow>*:nth-child(4){ flex:0 0 .74in; }
+  .drow .dlabel{ color:#173229; font-size:7.6pt; line-height:1.2; }
+  .drow .dnum{ text-align:right; color:#33453c; font-size:7.3pt; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .drow .change{ color:#0b7741; font-weight:700; }
   .drow .change.is-down{ color:#a24b1e; }
-  .drow.dhead{ border-bottom:1px solid #003f28; color:#68786f; font-size:6pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; padding-bottom:.05in; }
+  .drow.dhead{ border-bottom:1px solid #003f28; color:#68786f; font-size:7pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; padding-bottom:.07in; }
   .drow.dhead .dnum{ text-align:right; }
-  .drow.grand{ column-span:all; break-inside:avoid; margin-top:.12in; border-top:2px solid #003f28; border-bottom:1.5px solid #003f28; padding:.09in 0; grid-template-columns:1fr .82in .82in .72in; }
-  .drow.grand .dlabel, .drow.grand .dnum{ color:#003f28; font-weight:800; font-size:8pt; }
+  .drow.grand{ column-span:all; break-inside:avoid; margin-top:.14in; border-top:2px solid #003f28; border-bottom:1.5px solid #003f28; padding:.11in 0; }
+  .drow.grand .dlabel, .drow.grand .dnum{ color:#003f28; font-weight:800; font-size:9.5pt; }
   footer{
     position:absolute;
     left:.62in;
@@ -289,20 +298,20 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>General Government Taxes &mdash; led by Ad Valorem property taxes and the Tourist Development Tax &mdash; funds the largest share of County services and grew steadily across all six years. Other Sources' sharp FY2026-FY2027 increase reflects a larger Nonoperating Balance Brought Forward (fund balance carried into the new year), not new revenue. Miscellaneous Revenue's FY2024 peak reflects unusually high interest earnings during a period of higher rates.</p>
+      <p>General Government Taxes includes Ad Valorem property taxes and the Tourist Development Tax, its two largest sources. Within the remaining categories, the largest single revenue is Indirect Administrative Fees for Charges for Services, Nonoperating Balance Brought Forward for Other Sources, the Short-Term Rental Certificate Fee for Permits Fees and Special Assessments, Interest for Miscellaneous Revenue, State Revenue Share Proceeds for Intergovernmental Revenues, and the Parking ordinance fine for Judgments, Fines and Forfeits.</p>
     </div>
 
     <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div></div>`;
+
 const page2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Revenue Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
-    <h2 style="margin-top:.1in;">Revenue by Source</h2>
-    <p class="intro" style="font-size:8pt;margin-bottom:.12in;">Every individual FY2026 and FY2027 revenue source, grouped by the category shown on the previous page.</p>
-    <div class="drow dhead" style="column-span:all;"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div>
+    ${dtableHead}
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_A)}
     </div>
@@ -314,20 +323,44 @@ const page3 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Revenue Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
-    <div class="drow dhead" style="column-span:all;"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div>
+    ${dtableHead}
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_B)}
     </div>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
+  </section>
+`;
+
+const page4 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <h1 class="continued">Revenue Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
+    ${dtableHead}
+    <div class="dtable">
+      ${buildRevSections(REV_GROUPS_C)}
+    </div>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 3}</b></footer>
+  </section>
+`;
+
+const page5 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <h1 class="continued">Revenue Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
+    ${dtableHead}
+    <div class="dtable">
+      ${buildRevSections(REV_GROUPS_D)}
+    </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DETAIL_TOTAL[1]}</div><div class="dnum">${DETAIL_TOTAL[2]}</div><div class="dnum"></div></div>
     <p class="footnote">*Eight sources marked with an asterisk are discontinued or not budgeted for FY2027, together totaling $1,280,560 in FY2026.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 4}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Revenue Ledger</title>
 <style>${sharedCss}</style></head>
-<body>${page1}${page2}${page3}</body></html>`;
+<body>${page1}${page2}${page3}${page4}${page5}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-revenue-ledger.pdf";
 const browser = await chromium.launch({ headless: true });

@@ -135,6 +135,11 @@ divider_constitutional = reader("divider-constitutional-officers.pdf")
 divider_other_agencies = reader("divider-other-agencies.pdf")
 divider_financial_plan = reader("divider-financial-plan.pdf")
 divider_capital_budget = reader("divider-capital-budget.pdf")
+divider_our_county = reader("divider-our-county.pdf")
+divider_financial_overview = reader("divider-financial-overview.pdf")
+divider_budget_process = reader("divider-budget-process.pdf")
+divider_workforce_plan = reader("divider-workforce-plan.pdf")
+divider_glossary = reader("divider-glossary.pdf")
 writer = PdfWriter()
 
 # Opening, corrected contents, and County context. The Overview of Walton
@@ -147,22 +152,40 @@ writer = PdfWriter()
 writer.add_page(cover.pages[0])
 writer.add_page(award.pages[0])
 add_range(writer, transmittal, 1, 2)
-add_range(writer, toc, 1, 2)
+add_range(writer, toc, 1, 3)
+
+# Our County, like every other chapter, now opens on its own divider page.
+writer.add_page(divider_our_county.pages[0])
 add_range(writer, overview, 1, 3)
 writer.add_page(org_structure.pages[0])
 writer.add_page(strategic.pages[0])
 add_range(writer, community, 1, 3)
-writer.add_page(brief.pages[0])
 
-# Budget Change Summary and Property Tax Allocation now sit right behind
-# Budget in Brief instead of deep in the Financial Plan section. Florida
-# Amendment 3 Risk (enh page 9) moves up here too, right behind Property
-# Tax Allocation, instead of sitting deep in the Public Value chapter.
+# Financial Overview divider, then Budget in Brief through Florida
+# Amendment 3 Risk (Budget Change Summary and Property Tax Allocation sit
+# right behind Budget in Brief instead of deep in the Financial Plan
+# section; Florida Amendment 3 Risk, enh page 9, moves up here too instead
+# of sitting deep in the Public Value chapter). The countywide ledgers --
+# Consolidated Budget, Revenue Portfolio, Revenue, Expenditure, Fund
+# Financial, Interfund Transfer, and Debt -- now sit here too, right behind
+# Florida Amendment 3 Risk, instead of down in the Financial Plan chapter;
+# only Contractual Services Ledger and Long-Term Outlook remain there.
+writer.add_page(divider_financial_overview.pages[0])
+writer.add_page(brief.pages[0])
+add_range(writer, consolidated, 1, 2)
 add_range(writer, change, 1, 2)
+writer.add_page(enh.pages[7])
+add_range(writer, revenue, 1, 5)
 add_range(writer, property_tax, 1, 2)
 writer.add_page(enh.pages[8])
+add_range(writer, expenses, 1, 3)
+add_range(writer, funds, 1, 2)
+writer.add_page(transfers.pages[0])
+writer.add_page(debt.pages[0])
 
+writer.add_page(divider_budget_process.pages[0])
 add_range(writer, process, 1, 2)
+writer.add_page(enh.pages[14])
 add_range(writer, financial_policies, 1, 2)
 
 # Public-value/GFOA decision guide, including revenue risk, projects, and workshops.
@@ -179,10 +202,12 @@ add_range(writer, enh, 1, 7)
 # page 11 ("Where Personnel Investment Changes") was deleted -- its stat
 # cards were merged into enh page 10 -- so this range now starts at enh
 # page 11 (Long-Term Decisions, formerly enh page 12) instead of 12, and
-# runs one page shorter (11-15 instead of 12-16).
+# runs one page shorter (11-15 instead of 12-16). Workforce Plan now opens
+# on its own divider page too.
+writer.add_page(divider_workforce_plan.pages[0])
 writer.add_page(enh.pages[9])
 writer.add_page(personnel.pages[0])
-add_range(writer, enh, 11, 15)
+writer.add_page(enh.pages[10])
 
 # Constitutional Officers, agencies, and departments. The revised overview and
 # two Tourism profiles replace the obsolete overview/exclusion language.
@@ -200,40 +225,46 @@ writer.add_page(departments.pages[0])
 writer.add_page(base.pages[38])
 add_range(writer, departments, 3, 37)
 
-# Financial plan rebuilt from the corrected tentative-budget source pages.
-# Budget Change Summary and Property Tax Allocation moved up front (see
-# above); Personnel Ledger moved into the Workforce Plan group (see above).
+# Financial plan, now trimmed down to Contractual Services Ledger and
+# Long-Term Outlook -- Consolidated Budget, Revenue Portfolio, Revenue,
+# Expenditure, Fund Financial, Interfund Transfer, and Debt all moved up
+# into the Financial Overview subsection (see above). Budget Change Summary
+# and Property Tax Allocation moved up front earlier too; Personnel Ledger
+# moved into the Workforce Plan group (see above).
 writer.add_page(divider_financial_plan.pages[0])
-add_range(writer, consolidated, 1, 2)
-writer.add_page(enh.pages[7])
-add_range(writer, revenue, 1, 3)
-add_range(writer, expenses, 1, 2)
 add_range(writer, base, 82, 85)
-add_range(writer, funds, 1, 2)
-writer.add_page(transfers.pages[0])
-writer.add_page(debt.pages[0])
 add_range(writer, long_term, 1, 2)
 
 # Capital plan, detailed fund schedules, reference section, and back cover.
+# Capital Portfolio, Major Project Decision Record, and Capital
+# Accountability (enh pages 12-14) moved here, right after the Capital
+# Improvement Plan, instead of sitting in the Workforce Budget chapter --
+# their subject is capital decision-making, which belongs with the rest
+# of the capital plan. Long-Term Decisions (enh page 11) stays behind in
+# Workforce Budget.
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
+writer.add_page(enh.pages[11])
+writer.add_page(enh.pages[12])
+writer.add_page(enh.pages[13])
 add_range(writer, capital_ledgers, 1, 8)
 
-# Statistical and Supplemental Information and Principal Property Taxpayers
-# moved here, right in front of the Glossary, as part of the new "Glossary,
-# Statistical, and Supplemental Information" reference subsection -- instead
-# of sitting up in the Introduction and Our County chapter.
+# Glossary, Statistical, and Supplemental Information is now its own
+# closing chapter with its own divider, not a subsection tucked inside
+# Capital Budget. Statistical and Supplemental Information and Principal
+# Property Taxpayers still lead it, right in front of the Glossary.
+writer.add_page(divider_glossary.pages[0])
 add_range(writer, base, 22, 23)
 
 add_range(writer, glossary, 1, 9)
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 130
+EXPECTED_PAGES = 139
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 39, 47, 51, 88, 107, 130}
+skip_number = {1, 2, 8, 17, 39, 52, 56, 64, 68, 105, 112, 127, 139}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         page.merge_page(number_stamp(number), over=True)
@@ -252,45 +283,52 @@ writer.root_object[NameObject("/ViewerPreferences")] = DictionaryObject({NameObj
 
 outline = [
     ("Budget Message", 3, None),
-    ("Introduction and Our County", 7, None),
-    ("Community Priorities and Challenges", 12, "Introduction and Our County"),
-    ("Budget in Brief", 15, "Introduction and Our County"),
-    ("Budget Change Summary", 16, "Introduction and Our County"),
-    ("Property Tax Allocation Ledger", 18, "Introduction and Our County"),
-    ("Florida Amendment 3 Risk", 20, "Introduction and Our County"),
-    ("Financial Policies", 23, "Introduction and Our County"),
-    ("Public Value and Decision Guide", 25, None),
-    ("Program and Service Budget", 27, "Public Value and Decision Guide"),
-    ("Program Outcomes", 29, "Public Value and Decision Guide"),
-    ("Revenue Strategy", 31, "Public Value and Decision Guide"),
-    ("Workforce Plan", 32, "Public Value and Decision Guide"),
-    ("Personnel Ledger", 33, "Workforce Plan"),
-    ("Long-Term Decisions", 34, "Public Value and Decision Guide"),
-    ("Capital Portfolio", 35, "Public Value and Decision Guide"),
-    ("Major Project Decision Record", 36, "Public Value and Decision Guide"),
-    ("Public Participation", 38, "Public Value and Decision Guide"),
-    ("Constitutional Officers", 39, None),
-    ("Other Agencies and Court-Related Functions", 47, None),
-    ("Departments and Services", 51, None),
-    ("Tourism Administration", 80, "Departments and Services"),
-    ("Sales and Visitors Center", 81, "Tourism Administration"),
-    ("Communications", 82, "Tourism Administration"),
-    ("Marketing", 83, "Tourism Administration"),
-    ("North Walton", 84, "Tourism Administration"),
-    ("Beach Operations", 85, "Departments and Services"),
-    ("Beach Renourishment", 86, "Beach Operations"),
-    ("Beach Tram", 87, "Beach Operations"),
-    ("Financial Plan", 88, None),
-    ("Revenue Portfolio", 91, "Financial Plan"),
-    ("Revenue Ledger", 92, "Financial Plan"),
-    ("Fund Financial Ledger", 101, "Financial Plan"),
-    ("Debt Ledger", 104, "Financial Plan"),
-    ("Long-Term Outlook", 105, "Financial Plan"),
-    ("Capital Budget", 107, None),
-    ("Capital Improvement Plan", 108, "Capital Budget"),
-    ("Statistical and Supplemental Information", 119, "Capital Budget"),
-    ("Principal Property Taxpayers", 120, "Capital Budget"),
-    ("Glossary and Frequently Asked Questions", 121, "Capital Budget"),
+    ("Introduction and Our County", 8, None),
+    ("Community Priorities and Challenges", 14, "Introduction and Our County"),
+    ("Financial Overview", 17, None),
+    ("Budget in Brief", 18, "Financial Overview"),
+    ("Consolidated Budget Ledger", 19, "Financial Overview"),
+    ("Budget Change Summary", 21, "Financial Overview"),
+    ("Revenue Portfolio", 23, "Financial Overview"),
+    ("Revenue Ledger", 24, "Financial Overview"),
+    ("Property Tax Allocation Ledger", 29, "Financial Overview"),
+    ("Florida Amendment 3 Risk", 31, "Financial Overview"),
+    ("Expenditure Ledger", 32, "Financial Overview"),
+    ("Fund Financial Ledger", 35, "Financial Overview"),
+    ("Interfund Transfer Ledger", 37, "Financial Overview"),
+    ("Debt Ledger", 38, "Financial Overview"),
+    ("Budget Process", 39, None),
+    ("Public Participation", 42, "Budget Process"),
+    ("Financial Policies", 43, "Budget Process"),
+    ("Public Value and Decision Guide", 45, "Budget Process"),
+    ("Program and Service Budget", 47, "Public Value and Decision Guide"),
+    ("Program Outcomes", 49, "Public Value and Decision Guide"),
+    ("Revenue Strategy", 51, "Public Value and Decision Guide"),
+    ("Workforce Budget", 52, None),
+    ("Personnel Ledger", 54, "Workforce Budget"),
+    ("Long-Term Decisions", 55, "Workforce Budget"),
+    ("Constitutional Officers", 56, None),
+    ("Other Agencies and Court-Related Functions", 64, None),
+    ("Departments and Services", 68, None),
+    ("Tourism Administration", 97, "Departments and Services"),
+    ("Sales and Visitors Center", 98, "Tourism Administration"),
+    ("Communications", 99, "Tourism Administration"),
+    ("Marketing", 100, "Tourism Administration"),
+    ("North Walton", 101, "Tourism Administration"),
+    ("Beach Operations", 102, "Departments and Services"),
+    ("Beach Renourishment", 103, "Beach Operations"),
+    ("Beach Tram", 104, "Beach Operations"),
+    ("Financial Plan", 105, None),
+    ("Contractual Services Ledger", 106, "Financial Plan"),
+    ("Long-Term Outlook", 110, "Financial Plan"),
+    ("Capital Budget", 112, None),
+    ("Capital Improvement Plan", 113, "Capital Budget"),
+    ("Capital Portfolio", 116, "Capital Budget"),
+    ("Major Project Decision Record", 117, "Capital Budget"),
+    ("Glossary, Statistical, and Supplemental Information", 127, None),
+    ("Statistical and Supplemental Information", 128, "Glossary, Statistical, and Supplemental Information"),
+    ("Principal Property Taxpayers", 129, "Glossary, Statistical, and Supplemental Information"),
+    ("Glossary and Frequently Asked Questions", 130, "Glossary, Statistical, and Supplemental Information"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -299,10 +337,10 @@ for title, page_number, parent_title in outline:
     parents[title] = item
 
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-writer.add_uri(31, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
-writer.add_uri(37, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
-writer.add_uri(129, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(129, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(30, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
+writer.add_uri(41, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
+writer.add_uri(138, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
+writer.add_uri(138, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

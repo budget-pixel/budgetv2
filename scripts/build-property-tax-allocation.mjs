@@ -27,7 +27,9 @@ const STATS = [
 
 const row = ([name, amount, pct], rowClass) => {
   const cls = rowClass ? ` ${rowClass}` : "";
-  return `<div class="dept-row${cls}"><div class="dept-name">${name}</div><div class="num">${amount}</div><div class="num pct">${pct}</div></div>`;
+  // The grand total's own share of itself is always 100% -- not worth a column.
+  const pctDisplay = pct === "100.00%" ? "" : pct;
+  return `<div class="dept-row${cls}"><div class="dept-name">${name}</div><div class="num">${amount}</div><div class="num pct">${pctDisplay}</div></div>`;
 };
 
 const tableHead = `<div class="dept-row head"><div class="dept-name">Recipient</div><div class="num">FY 2027 Ad Valorem Revenue</div><div class="num">% of Total</div></div>`;

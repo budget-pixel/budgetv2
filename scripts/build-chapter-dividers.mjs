@@ -1,11 +1,11 @@
 import { chromium } from "playwright";
 
-// Builds the two new chapter divider pages needed now that Constitutional
-// Officers and Independent Agencies ("Other Agencies and Court-Related
-// Functions") are their own top-level chapters instead of ledgers nested
-// inside the Financial Plan chapter. Matches the exact divider style
-// already used for the Departments and Services and Financial Plan
-// chapters (dark green full-bleed, gold kicker, white serif h1, no
+// Builds the chapter divider pages the flattened base book doesn't carry
+// on its own -- Constitutional Officers, Other Agencies and Court-Related
+// Functions, Financial Plan, Capital Budget, and now Our County, Financial
+// Overview, Budget Process, and Workforce Plan too, so every chapter opens
+// the same way Departments and Services already does. Same divider style
+// throughout (dark green full-bleed, gold kicker, white serif h1, no
 // footer/page number, consistent with a chapter's opening page).
 
 const css = `
@@ -40,15 +40,16 @@ const otherAgenciesDivider = `
   </section>
 `;
 
-// Retitled from "Financial Plan and Capital Program" now that capital is
-// its own chapter -- description updated to match what actually remains
-// in this chapter (no more capital investments/CIP).
+// Description updated again now that Consolidated Budget, Revenue
+// Portfolio, Revenue, Expenditure, Fund Financial, Interfund Transfer, and
+// Debt ledgers all moved up into the Financial Overview subsection -- this
+// chapter now covers just contractual services and the long-term outlook.
 const financialPlanDivider = `
   <section>
     <div class="divider">
       <span class="kicker2">Financial Plan</span>
       <h1b>Financial Plan</h1b>
-      <p>Countywide revenues, expenditures, staffing, operating budgets, fund schedules, transfers, debt, and the long-term outlook.</p>
+      <p>Countywide contractual services spending and the long-term financial outlook.</p>
     </div>
   </section>
 `;
@@ -59,6 +60,61 @@ const capitalBudgetDivider = `
       <span class="kicker2">Budget Book</span>
       <h1b>Capital Budget</h1b>
       <p>The Capital Improvement Plan and the fund-specific ledgers that finance it &mdash; machinery, vehicles and equipment, transportation and infrastructure, tourist development, Sheriff facilities, recreation plat fees, and sidewalks.</p>
+    </div>
+  </section>
+`;
+
+// Four more dividers, same treatment, for the front-matter chapters that
+// previously had no divider of their own (unlike Constitutional Officers/
+// Departments and Services/Financial Plan/Capital Budget above).
+const ourCountyDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Our<br/>County</h1b>
+      <p>A look at Walton County's people, geography, and governance &mdash; the organizational structure, strategic priorities, and community context behind the FY2027 budget.</p>
+    </div>
+  </section>
+`;
+
+const financialOverviewDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Financial<br/>Overview</h1b>
+      <p>A one-page look at the whole budget, the year-over-year change by department and fund, how a resident's property tax dollar is allocated, and the countywide revenue, expenditure, fund, transfer, and debt ledgers behind it.</p>
+    </div>
+  </section>
+`;
+
+const budgetProcessDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Budget<br/>Process</h1b>
+      <p>How a department request becomes Walton County's FY2027 tentative spending plan, and the key dates residents can follow before final adoption.</p>
+    </div>
+  </section>
+`;
+
+const workforcePlanDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Workforce<br/>Budget</h1b>
+      <p>Personnel cost and capacity across Walton County government &mdash; the number and mix of positions, and the cost of maintaining the existing workforce.</p>
+    </div>
+  </section>
+`;
+
+// Promoted from a subsection inside Capital Budget to its own closing
+// chapter, same divider treatment as everything else.
+const glossaryDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Glossary, Statistical, and<br/>Supplemental Information</h1b>
+      <p>Statistical context, the county's largest taxpayers, and a glossary of budget terms, acronyms, and frequently asked questions.</p>
     </div>
   </section>
 `;
@@ -76,3 +132,8 @@ await render(constitutionalOfficersDivider, process.argv[2] || "/private/tmp/div
 await render(otherAgenciesDivider, process.argv[3] || "/private/tmp/divider-other-agencies.pdf");
 await render(financialPlanDivider, process.argv[4] || "/private/tmp/divider-financial-plan.pdf");
 await render(capitalBudgetDivider, process.argv[5] || "/private/tmp/divider-capital-budget.pdf");
+await render(ourCountyDivider, process.argv[6] || "/private/tmp/divider-our-county.pdf");
+await render(financialOverviewDivider, process.argv[7] || "/private/tmp/divider-financial-overview.pdf");
+await render(budgetProcessDivider, process.argv[8] || "/private/tmp/divider-budget-process.pdf");
+await render(workforcePlanDivider, process.argv[9] || "/private/tmp/divider-workforce-plan.pdf");
+await render(glossaryDivider, process.argv[10] || "/private/tmp/divider-glossary.pdf");

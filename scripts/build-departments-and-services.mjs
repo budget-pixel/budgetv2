@@ -1107,7 +1107,7 @@ async function buildDeptPage(d, pageNumber) {
     <div class="rev-con-grid three">
       <div class="rev-box"><h2>Who Funds</h2>${payerHtml}<p class="source-trace">Accounting sources: ${d.revenue}</p></div>
       <div class="con-box"><h2>Contracts</h2>${conHtml}</div>
-      <div class="cap-box"><h2>Capital Requests &mdash; FY2027</h2>${capItems.length ? capHtml : (d.capital ? `<p class="con-empty">${money(d.capital)} is budgeted as capital; no itemized request list was available.</p>` : `<p class="con-empty">No FY2027 capital requests.</p>`)}</div>
+      <div class="cap-box"><h2>Capital Requests</h2>${capItems.length ? capHtml : (d.capital ? `<p class="con-empty">${money(d.capital)} is budgeted as capital; no itemized request list was available.</p>` : `<p class="con-empty">No FY2027 capital requests.</p>`)}</div>
     </div>
     ${d.pms.length ? `<div class="pm-section"><h2>Performance Measures</h2>${pmHtml}</div>` : `<div class="pm-section"><h2>Contract Accountability</h2><p class="con-empty">No verified performance series was available for publication. Contract monitoring should report coverage, preventive actions, rescues, response activity, staffing readiness, and material service variances.</p></div>`}
     ${footnoteHtml}

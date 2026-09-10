@@ -144,6 +144,13 @@ const DEPT_GROUPS = [
 ];
 const DEPT_TOTAL = ["Total", "$331,771,423", "$345,223,508"];
 
+// 65 rows across 9 function groups no longer fit a single two-column page
+// at the larger, more readable type size below -- split at a natural
+// group boundary into two continuation pages instead, matching the
+// Revenue Ledger's REV_GROUPS_A/REV_GROUPS_B pattern.
+const DEPT_GROUPS_A = DEPT_GROUPS.slice(0, 4);
+const DEPT_GROUPS_B = DEPT_GROUPS.slice(4);
+
 function money(s) { return Number(s.replace(/[$,]/g, "")) || 0; }
 function fmt(n) { return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US"); }
 function deptChange(cells) {
@@ -155,10 +162,12 @@ function deptRow(cells) {
   const isDown = c.startsWith("-");
   return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${cells[1]}</div><div class="dnum">${cells[2]}</div><div class="dnum change${isDown ? " is-down" : ""}">${c}</div></div>`;
 }
-const deptSectionsHtml = DEPT_GROUPS.map(([fn, rows]) => `
+function buildDeptSections(groups) {
+  return groups.map(([fn, rows]) => `
     <div class="dgroup">${fn}</div>
     ${rows.map((r) => deptRow(r)).join("")}
 `).join("");
+}
 
 const row = (cells, cls) => {
   const cl = cls ? ` ${cls}` : "";
@@ -306,43 +315,51 @@ const sharedCss = `
   p.footnote{
     margin:.14in 0 0;
     color:#68786f;
-    font-size:6.9pt;
+    font-size:7.3pt;
     line-height:1.4;
     font-style:italic;
+  }
+  .dtable-head{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.34in;
+    border-top:2px solid #d1be78;
+    padding-top:.06in;
   }
   .dtable{
     column-count:2;
     column-gap:.34in;
     column-rule:1px solid #eef1ee;
-    border-top:2px solid #d1be78;
-    padding-top:.06in;
   }
   .dgroup{
-    break-inside:avoid;
+    break-inside:avoid-column;
     break-after:avoid;
-    margin-top:.1in;
-    padding-bottom:.02in;
+    margin-top:.14in;
+    padding-bottom:.03in;
     border-bottom:1px solid #003f28;
     color:#003f28;
-    font:800 7.6pt Georgia, serif;
+    font:800 9pt Georgia, serif;
     text-transform:uppercase;
     letter-spacing:.01em;
   }
   .dgroup:first-child{ margin-top:0; }
   .drow{
-    break-inside:avoid;
-    display:grid;
-    grid-template-columns:1fr .82in .82in .72in;
-    gap:.05in;
+    break-inside:avoid-column;
+    display:flex;
     align-items:center;
-    padding:.03in 0;
+    gap:.06in;
+    padding:.05in 0;
     border-bottom:1px solid #f1f4f1;
   }
-  .drow .dlabel{ color:#173229; font-size:6.3pt; line-height:1.15; }
+  .drow>*{ min-width:0; }
+  .drow>*:nth-child(1){ flex:1 1 auto; }
+  .drow>*:nth-child(2), .drow>*:nth-child(3){ flex:0 0 .88in; }
+  .drow>*:nth-child(4){ flex:0 0 .74in; }
+  .drow .dlabel{ color:#173229; font-size:7.6pt; line-height:1.2; }
   .drow .dnum{
     text-align:right;
     color:#33453c;
-    font-size:6.1pt;
+    font-size:7.3pt;
     font-variant-numeric:tabular-nums;
     white-space:nowrap;
   }
@@ -351,24 +368,23 @@ const sharedCss = `
   .drow.dhead{
     border-bottom:1px solid #003f28;
     color:#68786f;
-    font-size:6pt;
+    font-size:7pt;
     font-weight:800;
     letter-spacing:.02em;
     text-transform:uppercase;
-    padding-bottom:.05in;
+    padding-bottom:.07in;
   }
   .drow.dhead .dnum{ text-align:right; }
   .drow.grand{
     column-span:all;
     break-inside:avoid;
-    margin-top:.12in;
+    margin-top:.14in;
     border-top:2px solid #003f28;
     border-bottom:1.5px solid #003f28;
-    padding:.09in 0;
-    grid-template-columns:1fr .82in .82in .72in;
+    padding:.11in 0;
   }
   .drow.grand .dlabel,
-  .drow.grand .dnum{ color:#003f28; font-weight:800; font-size:8pt; }
+  .drow.grand .dnum{ color:#003f28; font-weight:800; font-size:9.5pt; }
   footer{
     position:absolute;
     left:.62in;
@@ -413,26 +429,38 @@ const page1 = `
   </section>
 `;
 
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div></div>`;
+
 const page2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Expenditure Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
-    <h2 style="margin-top:.1in;">Expenses by Department</h2>
-    <p class="intro" style="font-size:8pt;margin-bottom:.12in;">Every department's FY2026 and FY2027 operating budget, grouped by the functional classification shown on the previous page.</p>
-    <div class="drow dhead" style="column-span:all;"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div>
+    ${dtableHead}
     <div class="dtable">
-      ${deptSectionsHtml}
+      ${buildDeptSections(DEPT_GROUPS_A)}
+    </div>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+  </section>
+`;
+
+const page3 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <h1 class="continued">Expenditure Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
+    ${dtableHead}
+    <div class="dtable">
+      ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
     <p class="footnote">Some departments' spending spans more than one functional classification &mdash; see the Consolidated Expense Summary callout on the previous page.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Expenditure Ledger</title>
 <style>${sharedCss}</style></head>
-<body>${page1}${page2}</body></html>`;
+<body>${page1}${page2}${page3}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-summary-of-expenses.pdf";
 const browser = await chromium.launch({ headless: true });

@@ -3,7 +3,7 @@
 
   var EXPLORERS = {
     revenue: { title: "Revenue Budget" },
-    personnel: { title: "Personnel Budget" },
+    personnel: { title: "Workforce Budget" },
     departments: { title: "Department Budget" },
     capital: { title: "Capital Budget" },
     constitutional: { title: "Constitutional Officers Budget" },
@@ -519,7 +519,7 @@
       modalBody.innerHTML = '<section id="revenue-source-concentration" aria-label="Revenue Budget Explorer"></section><section id="revenue-peer-comparison" class="wc-revenue-peer-section" hidden aria-labelledby="revenue-peer-title"><button type="button" class="wc-revenue-peer-close">Close Revenue Comparison</button><div class="wc-revenue-peer-card"><div class="wc-revenue-peer-head"><div><span>Florida peer benchmark</span><h2 id="revenue-peer-title">How does Walton County compare?</h2><p>FY 2024 actual county-government revenue per resident provides a consistent comparison across regional and tourism-oriented peers.</p></div><label>Compare by<select id="revenue-peer-metric"></select></label></div><div class="wc-revenue-peer-chart-wrap"><canvas id="revenue-peer-chart"></canvas></div><div id="revenue-peer-insight" class="wc-revenue-peer-insight" aria-live="polite"></div><p class="wc-revenue-peer-source">Source: Florida Office of Economic and Demographic Research, FY 2024 county Annual Financial Report data.</p></div></section><section id="revenue-budget-questions" hidden></section>';
       window.WCBudgetData.renderRevenueBudgetQuestions();
     } else if (type === "personnel") {
-      modalBody.innerHTML = '<section id="personnel-explorer" aria-label="Personnel Budget Explorer"></section><section id="personnel-budget-questions" hidden></section>';
+      modalBody.innerHTML = '<section id="personnel-explorer" aria-label="Workforce Budget Explorer"></section><section id="personnel-budget-questions" hidden></section>';
       window.WCBudgetData.renderPersonnelBudgetQuestions();
     } else if (type === "departments") {
       modalBody.innerHTML = '<section id="department-budget-explorer" aria-label="Department Operating Budget Explorer"></section>';

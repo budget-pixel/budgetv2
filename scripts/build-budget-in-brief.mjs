@@ -13,13 +13,16 @@ import { chromium } from "playwright";
 // departments together and don't tell a resident much. Sheriff first (by
 // far the single largest budget in the county), then the rest of the
 // Constitutional Officers as one line, then Capital, then the largest
-// individual Board departments, with everything smaller rolled into "All
-// Other Departments & Agencies". Figures from the same live Budget Change
-// Summary dataset used to build that page (see build-budget-change-
-// summary.mjs) -- Sheriff $114,116,228; Total Constitutional Officers
-// $147,191,886 (so "other" Constitutional Officers = $33,075,658); Total
-// Capital $53,684,150; department totals from the Board Department
-// Operating and Personnel Budgets list.
+// individual Board departments (eleven named departments/entities in
+// total, matching the twelve-row Revenue Portfolio table on the facing
+// side), with everything smaller rolled into "All Other Departments &
+// Agencies". Figures from the same live Budget Change Summary dataset
+// used to build that page (see build-budget-change-summary.mjs) -- Sheriff
+// $114,116,228; Total Constitutional Officers $147,191,886 (so "other"
+// Constitutional Officers = $33,075,658); Total Capital $53,684,150;
+// department totals from the Board Department Operating and Personnel
+// Budgets list, including Building Construction & Maintenance
+// ($8,596,305), Planning ($6,839,111), and Code Compliance ($4,811,854).
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
   ["Other Constitutional Officers", 33.08],
@@ -29,30 +32,30 @@ const EXPENSE_CATEGORIES = [
   ["Public Works", 20.83],
   ["Beach Operations", 16.08],
   ["County Administration Offices", 10.89],
-  ["All Other Departments & Agencies", 41.56]
+  ["Building Construction & Maintenance", 8.60],
+  ["Planning", 6.84],
+  ["Code Compliance", 4.81],
+  ["All Other Departments & Agencies", 21.31]
 ];
 const EXPENSE_TOTAL = EXPENSE_CATEGORIES.reduce((s, [, v]) => s + v, 0);
 
-// The same top revenue sources shown, in the same order, on the home
-// page's Revenue Explorer ("Start with the 12 largest sources below") --
-// the 8 largest named sources (Property Taxes $161.1M, Tourist
-// Development Taxes $59M, Discretionary Sales Surtax $40M, Local
-// Government 1/2 Cent Sales Tax $16.8M, Interest and Investment Earnings
-// $5.25M, Indirect Administrative Fees $4.11M, Local Option Fuel Tax
-// $4.01M, State Revenue Share Proceeds $3.73M) plus everything else
-// (Charges for Services, remaining Intergovernmental Revenue,
-// Miscellaneous Revenue, Permits/Fees/Fines, etc.) rolled into "All
-// Other Revenue" against the $345.2M total revenue budget.
+// The same twelve revenue sources, in the same order, shown on the
+// Revenue Portfolio table (see build-gfoa-enhancements.mjs's
+// revenueSources) -- together they're 89% of the FY2027 revenue budget,
+// so no separate "All Other Revenue" bucket is added here.
 const REVENUE_SOURCES = [
-  ["Property Tax", 161.07],
-  ["Tourist Development Tax", 58.97],
+  ["Property Taxes", 161.07],
+  ["Tourist Development Taxes", 58.97],
   ["Discretionary Sales Surtax", 40.0],
   ["Local Government 1/2 Cent Sales Tax", 16.8],
-  ["Interest", 5.25],
-  ["Indirect Administrative Fee", 4.11],
+  ["Interest & Investment Earnings", 5.25],
+  ["Indirect Administrative Fees", 4.11],
   ["Local Option Fuel Tax", 4.01],
   ["State Revenue Share Proceeds", 3.73],
-  ["All Other Revenue", 51.28]
+  ["Housing Prisoners Revenue", 3.5],
+  ["Federal Grant - Economic Environment", 3.06],
+  ["Ambulance Fees", 3.0],
+  ["TDC Public Safety Reimbursements", 2.24]
 ];
 const REVENUE_TOTAL = REVENUE_SOURCES.reduce((s, [, v]) => s + v, 0);
 

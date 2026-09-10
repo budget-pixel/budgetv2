@@ -286,7 +286,6 @@ const html = `<!doctype html>
       <div class="page-qr">
         <img src="${PERSONNEL_LEDGER_QR}" alt="QR code to the Personnel Ledger online">
         <b>View Online</b>
-        <span>The live Personnel Ledger has more detail than this print page.</span>
       </div>
     </div>
 
