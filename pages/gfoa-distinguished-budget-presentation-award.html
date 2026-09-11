@@ -61,7 +61,8 @@
   .wc-gfoa-hero-copy h1{
     margin:0 0 16px;
     color:#ffffff;
-    font-size:clamp(40px, 5vw, 64px);
+    font-family:var(--font-editorial);
+    font-size:clamp(38px, 4.5vw, 58px);
     line-height:1.04;
     font-weight:500;
     letter-spacing:0;
@@ -175,7 +176,8 @@
   .wc-gfoa-section-header h2{
     margin:0 0 10px;
     color:var(--text);
-    font-size:clamp(32px, 4vw, 56px);
+    font-family:var(--font-editorial);
+    font-size:clamp(30px, 3.6vw, 48px);
     line-height:1.05;
     font-weight:500;
   }
@@ -275,42 +277,6 @@
       grid-template-columns:1fr;
     }
   }
-
-  /* The hero banner and link button are always set on a fixed dark-green
-     background, so they read fine in either theme without changes. The
-     certificate/image cards and the section text below the hero assume a
-     light page background, so they need explicit dark-theme treatment to
-     stay legible when the site theme switches. */
-  :root[data-theme="dark"] .wc-gfoa-section-header h2{
-    color:var(--text);
-  }
-
-  :root[data-theme="dark"] .wc-gfoa-section-header p{
-    color:var(--muted);
-  }
-
-
-  :root[data-theme="dark"] .wc-gfoa-certificate-card,
-  :root[data-theme="dark"] .wc-gfoa-criterion,
-  :root[data-theme="dark"] .wc-gfoa-image-card{
-    background:rgba(14,28,22,.92);
-    border-color:var(--border);
-    box-shadow:0 18px 46px rgba(0,0,0,.28);
-  }
-
-  :root[data-theme="dark"] .wc-gfoa-criterion{
-    border-width:1px;
-    border-style:solid;
-  }
-
-  :root[data-theme="dark"] .wc-gfoa-criterion strong{
-    color:var(--green);
-  }
-
-  :root[data-theme="dark"] .wc-gfoa-criterion p,
-  :root[data-theme="dark"] .wc-gfoa-image-card small{
-    color:var(--muted);
-  }
 </style>
 
 <div class="wc-gfoa-breadcrumb-source">
@@ -385,11 +351,11 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
   {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
   {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
-  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/strategic-initiatives.html"},
+  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/program-budget.html"},
   {title:"Budget Ledgers",section:"Financial Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Constitutional Officers",section:"Constitutional Officers",href:"../home.html?explorer=constitutional"},
   {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
-  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process-and-calendar.html"},
+  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process.html"},
   {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
   {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
   {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
@@ -401,7 +367,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Summary of Personnel",section:"Financial Summaries",href:"../home.html?explorer=personnel"},
   {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
   {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
-  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
   {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
   {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
@@ -461,6 +427,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
 </body>
 </html>

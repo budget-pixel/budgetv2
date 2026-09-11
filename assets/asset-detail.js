@@ -183,34 +183,5 @@
       });
   }
 
-  // This page is only published for dark-mode visitors (same convention as
-  // Summary of Personnel Cost/Contractual Services -- see nav.js's
-  // wc-dark-mode-only-result handling) -- reads the theme directly from
-  // localStorage rather than document.documentElement's data-theme
-  // attribute, since nav.js (which sets that attribute) loads after this
-  // script and hasn't necessarily run yet.
-  const THEME_STORAGE_KEY = "waltonBudgetTheme";
-  function isDarkModeActive() {
-    try {
-      return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark";
-    } catch (e) {
-      return document.documentElement.getAttribute("data-theme") === "dark";
-    }
-  }
-
-  let assetRecordLoaded = false;
-  function checkThemeAccess() {
-    if (!isDarkModeActive()) {
-      assetRecordLoaded = false;
-      container.innerHTML = '<div class="wc-data-empty"><strong>This page is only available in dark mode.</strong><br>Use the theme toggle in the navigation to switch to dark mode to view this equipment record.</div>';
-      return;
-    }
-    if (assetRecordLoaded) return;
-    assetRecordLoaded = true;
-    loadAssetRecord();
-  }
-
-  checkThemeAccess();
-  // Reacts live if the visitor toggles the theme without reloading the page.
-  new MutationObserver(checkThemeAccess).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  loadAssetRecord();
 }());

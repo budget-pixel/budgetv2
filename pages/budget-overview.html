@@ -27,12 +27,12 @@
 </main>
 </div>
 
-<script src="../assets/search-data.js?v=20260902-remove-table-of-contents"></script>
-<script src="../assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
+<script src="../assets/search-data.js?v=20260910-remove-dark-mode"></script>
+<script src="../assets/budget-data.js?v=20260910-remove-dark-mode"></script>
 <script src="../assets/independent-agencies-data.js?v=20260808-independent-agencies-shared-data"></script>
 <script src="../assets/cip-projects-data.js?v=20260827-live-historical-sheet"></script>
 <script src="../assets/cip-overview.js?v=20260903-remove-hero-banner"></script>
-<script src="../assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
   (function(){
@@ -247,9 +247,8 @@
     }
 
     function itemHtml(page){
-      var liClass = page.darkModeOnly ? ' class="wc-dark-mode-only"' : "";
       var iconHtml = '<span class="wc-directory-item-icon" aria-hidden="true">' + (page.icon || defaultLedgerIcon(page)) + '</span>';
-      return '<li' + liClass + '><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
+      return '<li><a class="wc-directory-item" href="' + escapeHtml(page.href) + '">' +
         iconHtml +
         '<div class="wc-directory-item-main">' +
           '<span class="wc-directory-item-title">' + escapeHtml(page.title) + '</span>' +

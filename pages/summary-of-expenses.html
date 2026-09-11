@@ -17,7 +17,7 @@
 <main id="content">
 
 <div class="page-eyebrow">Financial Summaries</div>
-<h1 class="page-title">Expenditure Ledger</h1>
+<div class="wc-page-title-row"><h1 class="page-title">Expenditure Ledger</h1><a class="wc-asset-back" href="budget-overview.html">&larr; Back to Ledger Directory</a></div>
 
 <style>
   .media-block[data-media-type="tableTile"] [data-embed-id]{
@@ -157,41 +157,33 @@
       0 8px 18px rgba(36,52,77,0.08) !important;
   }
 
-  .social-wrapper{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    height:0 !important;
-    width:0 !important;
-    overflow:hidden !important;
-  }
 
   .highcharts-series-0 path.highcharts-point,
   .highcharts-legend .highcharts-series-0 .highcharts-point{fill:#006231 !important;}
 
   .highcharts-series-1 path.highcharts-point,
-  .highcharts-legend .highcharts-series-1 .highcharts-point{fill:#097FBB !important;}
+  .highcharts-legend .highcharts-series-1 .highcharts-point{fill:#2F8F5B !important;}
 
   .highcharts-series-2 path.highcharts-point,
   .highcharts-legend .highcharts-series-2 .highcharts-point{fill:#D1BE78 !important;}
 
   .highcharts-series-3 path.highcharts-point,
-  .highcharts-legend .highcharts-series-3 .highcharts-point{fill:#FFDE59 !important;}
+  .highcharts-legend .highcharts-series-3 .highcharts-point{fill:#A3955C !important;}
 
   .highcharts-series-4 path.highcharts-point,
-  .highcharts-legend .highcharts-series-4 .highcharts-point{fill:#3A9FD6 !important;}
+  .highcharts-legend .highcharts-series-4 .highcharts-point{fill:#24344D !important;}
 
   .highcharts-series-5 path.highcharts-point,
-  .highcharts-legend .highcharts-series-5 .highcharts-point{fill:#2F8F5B !important;}
+  .highcharts-legend .highcharts-series-5 .highcharts-point{fill:#6FAF8F !important;}
 
   .highcharts-series-6 path.highcharts-point,
-  .highcharts-legend .highcharts-series-6 .highcharts-point{fill:#A3955C !important;}
+  .highcharts-legend .highcharts-series-6 .highcharts-point{fill:#5B7C99 !important;}
 
   .highcharts-series-7 path.highcharts-point,
   .highcharts-legend .highcharts-series-7 .highcharts-point{fill:#C7AA3F !important;}
 
   .highcharts-series-8 path.highcharts-point,
-  .highcharts-legend .highcharts-series-8 .highcharts-point{fill:#065A86 !important;}
+  .highcharts-legend .highcharts-series-8 .highcharts-point{fill:#7A9E7E !important;}
 
   .highcharts-series-9 path.highcharts-point,
   .highcharts-legend .highcharts-series-9 .highcharts-point{fill:#00401F !important;}
@@ -200,19 +192,19 @@
   .highcharts-legend .highcharts-series-10 .highcharts-point{fill:#BFAE6A !important;}
 
   .highcharts-series-11 path.highcharts-point,
-  .highcharts-legend .highcharts-series-11 .highcharts-point{fill:#FFE98A !important;}
+  .highcharts-legend .highcharts-series-11 .highcharts-point{fill:#E6D99F !important;}
 
   .highcharts-series-12 path.highcharts-point,
-  .highcharts-legend .highcharts-series-12 .highcharts-point{fill:#4D4D4D !important;}
+  .highcharts-legend .highcharts-series-12 .highcharts-point{fill:#355C4A !important;}
 
   .highcharts-series-13 path.highcharts-point,
-  .highcharts-legend .highcharts-series-13 .highcharts-point{fill:#7A7A7A !important;}
+  .highcharts-legend .highcharts-series-13 .highcharts-point{fill:#64766D !important;}
 
   .highcharts-series-14 path.highcharts-point,
-  .highcharts-legend .highcharts-series-14 .highcharts-point{fill:#00A651 !important;}
+  .highcharts-legend .highcharts-series-14 .highcharts-point{fill:#0B7741 !important;}
 
   .highcharts-series-15 path.highcharts-point,
-  .highcharts-legend .highcharts-series-15 .highcharts-point{fill:#000000 !important;}
+  .highcharts-legend .highcharts-series-15 .highcharts-point{fill:#172033 !important;}
 
   .highcharts-series-16 path.highcharts-point,
   .highcharts-legend .highcharts-series-16 .highcharts-point{fill:#6FAF8F !important;}
@@ -221,7 +213,7 @@
   .highcharts-legend .highcharts-series-17 .highcharts-point{fill:#5B7C99 !important;}
 
   .highcharts-series-18 path.highcharts-point,
-  .highcharts-legend .highcharts-series-18 .highcharts-point{fill:#8A8F98 !important;}
+  .highcharts-legend .highcharts-series-18 .highcharts-point{fill:#71847A !important;}
 
   .highcharts-series-19 path.highcharts-point,
   .highcharts-legend .highcharts-series-19 .highcharts-point{fill:#7A9E7E !important;}
@@ -230,27 +222,14 @@
   .highcharts-legend .highcharts-series-20 .highcharts-point{fill:#355C7D !important;}
 
   .highcharts-series-21 path.highcharts-point,
-  .highcharts-legend .highcharts-series-21 .highcharts-point{fill:#9BA3AF !important;}
+  .highcharts-legend .highcharts-series-21 .highcharts-point{fill:#7F8D87 !important;}
 
   .highcharts-series-22 path.highcharts-point,
   .highcharts-legend .highcharts-series-22 .highcharts-point{fill:#4B6F52 !important;}
 
   .highcharts-series-23 path.highcharts-point,
   .highcharts-legend .highcharts-series-23 .highcharts-point{fill:#6D8299 !important;}
-</style><script>
-  document.addEventListener("DOMContentLoaded", function(){
-    const socialWrappers = document.querySelectorAll(".social-wrapper");
-
-    socialWrappers.forEach(function(el){
-      el.style.setProperty("display", "none", "important");
-      el.style.setProperty("visibility", "hidden", "important");
-      el.style.setProperty("opacity", "0", "important");
-      el.style.setProperty("height", "0", "important");
-      el.style.setProperty("width", "0", "important");
-      el.style.setProperty("overflow", "hidden", "important");
-    });
-  });
-</script><section class="statement-of-function content-section">
+</style><section class="statement-of-function content-section">
   <h2>Expenditure Overview</h2>
   <p>Review Walton County&rsquo;s expenditures by service area and fiscal year. Select an expense area in the ledger to see its historical graph, the departments contributing to it, and a plain-language explanation of the services it supports.</p>
 </section>
@@ -379,11 +358,6 @@
       0 6px 18px rgba(36,52,77,0.06);
   }
 
-  :root[data-theme="dark"] .wc-revenue-heading-inner{
-    background:#172235;
-    border-color:rgba(158,217,168,.18);
-  }
-
   .wc-revenue-heading-inner span{
     display:inline-block;
     margin-bottom:14px;
@@ -418,7 +392,7 @@
     color:var(--muted);
     font-size:17px;
     line-height:1.9;
-    text-align:justify;
+    text-align:left;
   }
 
   @media(max-width:700px){
@@ -454,11 +428,11 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
   {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
   {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
-  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/strategic-initiatives.html"},
+  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/program-budget.html"},
   {title:"Budget Ledgers",section:"Financial Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Constitutional Officers",section:"Constitutional Officers",href:"../home.html?explorer=constitutional"},
   {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
-  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process-and-calendar.html"},
+  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process.html"},
   {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
   {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
   {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
@@ -470,7 +444,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Summary of Personnel",section:"Financial Summaries",href:"../home.html?explorer=personnel"},
   {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
   {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
-  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
   {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
   {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
@@ -531,7 +505,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 ];
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="../assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
-<script src="../assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="../assets/budget-data.js?v=20260910-remove-dark-mode"></script>
+<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
 </body>
 </html>

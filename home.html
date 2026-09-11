@@ -7,7 +7,7 @@
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
 <link rel="stylesheet" href="assets/style.css?v=20260903-reveal-then-grow">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260903-reveal-then-grow">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260910-ledger-directory-context">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -26,15 +26,22 @@
 
 <div id="layout">
 <main id="content" class="wc-explorer-home">
+  <section class="wc-budget-context" aria-labelledby="wcBudgetContextTitle">
+    <p class="wc-explorer-eyebrow">Walton County, Florida · October 1, 2026–September 30, 2027</p>
+    <h1 id="wcBudgetContextTitle">FY 2027 Tentative Budget</h1>
+    <p>This is the County&rsquo;s tentative spending plan, subject to change before adoption. Explore <strong data-home-budget-total>the proposed spending</strong> for County departments, constitutional offices, capital investments, and independent agencies.</p>
+    <p class="wc-budget-scope">The explorer totals exclude interfund transfers and the Self-Insurance Fund to avoid counting internal flows twice. Workforce spending is included in the service budgets below; it is not an additional spending category.</p>
+    <nav aria-label="Understand the budget"><a href="pages/summary-of-budget-changes-and-adjustments.html" data-explorer-popup-trigger="Budget Change Summary">What changed?</a><a href="pages/program-budget.html" data-explorer-popup-trigger="Programs and Public Services">What services do I receive?</a><a href="pages/budget-process.html" data-explorer-popup-trigger="Budget Process">How can I participate?</a></nav>
+  </section>
   <section class="wc-explorer-intro wc-explorer-intro-categories-section" aria-labelledby="explore-categories-title">
     <div>
       <div class="wc-explorer-intro-copy-row">
         <div class="wc-explorer-intro-copy">
           <h2 id="explore-categories-title">How the budget is organized</h2>
-          <p>Walton County&rsquo;s budget is organized into four main spending categories: <strong>Department and Services Budget</strong>, the operating and personnel cost for Board of County Commissioners departments; <strong>Constitutional Officers</strong>, the budgets for the six independently elected constitutional officers and their respective staff, capital, and operating needs; <strong>Capital</strong>, the Board of County Commissioners&rsquo; capital requests for machinery, roads, bridges, infrastructure, and parks; and <strong>Independent Agencies</strong>, entities the County is required to fund under state mandates, or agencies the County elects to fund.</p>
+          <p>Walton County&rsquo;s budget is organized into four main spending categories: <strong>Department and Services Budget</strong>, operating and personnel costs for Board departments; <strong>Constitutional Officers</strong>, the five independently elected constitutional offices and the Board of County Commissioners, including their staff, capital, and operating needs; <strong>Capital</strong>, Board capital requests for machinery, roads, bridges, infrastructure, and parks; and <strong>Independent Agencies</strong>, entities the County is required to fund or elects to support.</p>
         </div>
         <a class="wc-full-budget-feature" href="pages/budget-book.html?v=20260903-reorder-topspace" data-explorer-popup-trigger="Full Budget Document">
-          <span class="wc-full-budget-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.5 3H16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5.5A1.5 1.5 0 0 1 4 19.5v-15A1.5 1.5 0 0 1 5.5 3Z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M17 4v16"></path><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.2h6M7.5 11.4h6M7.5 14.6h3.6"></path><path stroke-linecap="round" stroke-linejoin="round" d="M13.2 3v6.4L14.6 8l1.4 1.4V3"></path></svg></span>
+          <span class="wc-full-budget-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04A8.97 8.97 0 0 0 6 3.75c-1.05 0-2.06.18-3 .51v14.25A8.99 8.99 0 0 1 6 18c2.3 0 4.41.87 6 2.29m0-14.25a8.97 8.97 0 0 1 6-2.29c1.05 0 2.06.18 3 .51v14.25A8.99 8.99 0 0 0 18 18a8.97 8.97 0 0 0-6 2.29m0-14.25v14.25"></path></svg></span>
           <span class="wc-full-budget-feature-copy"><small>FY 2027 Budget Book</small><strong>Explore the Print Budget</strong><em>Open the complete interactive budget document</em></span>
           <b aria-hidden="true">&rarr;</b>
         </a>
@@ -145,12 +152,12 @@
 </main>
 </div>
 
-<script src="assets/search-data.js?v=20260902-remove-table-of-contents"></script>
+<script src="assets/search-data.js?v=20260910-remove-dark-mode"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260902-property-tax-ledger-link"></script>
+<script src="assets/budget-data.js?v=20260910-remove-dark-mode"></script>
 <script src="assets/independent-agencies-data.js?v=20260817-home-explorer"></script>
-<script src="assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="assets/nav.js?v=20260910-footer-search-fix"></script>
 <script>
 (function(){
   "use strict";
@@ -221,6 +228,7 @@
     var expenditures = (data.expenditures || []).filter(isIncluded);
     var totalBudget = window.WCBudgetData.totalCountywideExpenditureBudget(data);
     countywideExpenditureTotal = totalBudget;
+    setText('[data-home-budget-total]', compact(totalBudget) + ' in proposed expenditures');
 
     var revenueRows = (data.revenues || []).filter(function(row){ return String(row.Revenue_Code || "").trim() !== "381000" && fundCode(row) !== "503"; });
     var revenueTotals = window.WCBudgetData.getConsolidatedRevenueTotals(data);
@@ -414,11 +422,11 @@
       });
     }
     if(window.WCIndependentAgencies && window.WCIndependentAgencies.load){
-      window.WCIndependentAgencies.load().then(renderIndependentAgencies);
+      window.WCIndependentAgencies.load().then(renderIndependentAgencies).catch(function(){setText('[data-card-independent-total]', 'Data unavailable');});
     }
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260903-reveal-then-grow"></script>
+<script src="assets/home-explorer-modal.js?v=20260910-home-popup-search-fix"></script>
 </body>
 </html>

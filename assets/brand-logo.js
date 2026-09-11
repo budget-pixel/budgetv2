@@ -50,7 +50,7 @@
         font-size:22px !important;
         line-height:1 !important;
         font-weight:800 !important;
-        letter-spacing:.06em !important;
+        letter-spacing:.06em;
         text-transform:uppercase !important;
         white-space:nowrap !important;
       }
@@ -143,7 +143,7 @@
     var gaps = Math.max((top.textContent || "").length - 1, 1);
     var baseSpacing = parseFloat(getComputedStyle(top).letterSpacing) || 0;
     var nextSpacing = baseSpacing + (bottomWidth - topWidth) / gaps;
-    top.style.setProperty("letter-spacing", nextSpacing + "px", "important");
+    top.style.setProperty("letter-spacing", nextSpacing + "px");
   }
 
   function equalizeAll(root){

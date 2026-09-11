@@ -39,7 +39,7 @@ var wcCoreBudgetPages = [
   { title:"Transaction Search", section:"Financial Summaries", href:"transaction-search.html", keywords:["forensic audit","vendor search","payments","vendor payments","spending search","every transaction","raw transactions","citizen audit"] },
   { title:"Financials", section:"Financial Overview", href:"budget-overview.html" },
   { title:"Supporting Budget Documentation", section:"Financial Overview", href:"supporting-budget-documentation.html" },
-  { title:"TRIM Newspaper Advertisements", section:"Supporting Budget Documentation", href:"trim-newspaper-advertisements.html", darkModeOnly:true },
+  { title:"TRIM Newspaper Advertisements", section:"Supporting Budget Documentation", href:"trim-newspaper-advertisements.html" },
   { title:"Board of County Commissioners", section:"Constitutional Officers", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbc6947be859271a418" },
   { title:"Clerk of Courts & County Comptroller", section:"Constitutional Officers", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbcc965cb8dc61a1909" },
   { title:"Property Appraiser", section:"Constitutional Officers", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbc872420fe4b9ad729" },

@@ -1179,11 +1179,6 @@ function renderProjects(){
         font-size:14px;
       }
 
-      :root[data-theme="dark"] .wc-cip-test-list li{
-        background:rgba(14,28,22,.92);
-        border-color:var(--border);
-      }
-
       .wc-cip-definition-contrast{
         display:grid;
         gap:14px;
@@ -2720,64 +2715,6 @@ function renderProjects(){
         .wc-project-card h3{
           font-size:16px;
         }
-      }
-
-      /* Dark mode: this page is built from hardcoded hex colors rather than
-         the shared CSS variables (it's an inline style block, injected after
-         style.css loads, so it would otherwise always win the cascade and
-         force a white page regardless of theme). Text colors close to an
-         existing variable's light-mode value were already substituted for
-         var(--text)/var(--muted)/var(--green) above, which adapts them
-         automatically; the white/light section and card backgrounds below
-         still need an explicit dark surface, matching the dark card
-         treatment used elsewhere on the site. Solid green buttons/badges and
-         decorative gradients/underlines are intentionally left out -- they
-         already have light text and read fine unchanged in both themes. */
-      :root[data-theme="dark"] body,
-      :root[data-theme="dark"] .wc-cip-main-section,
-      :root[data-theme="dark"] .wc-intro-section,
-      :root[data-theme="dark"] .wc-cip-feature-section,
-      :root[data-theme="dark"] .wc-cip-info-section,
-      :root[data-theme="dark"] .wc-project-index-section{
-        background: var(--light);
-      }
-
-      :root[data-theme="dark"] .wc-cip-feature-card,
-      :root[data-theme="dark"] .wc-cip-panel,
-      :root[data-theme="dark"] .wc-cip-finance-list li,
-      :root[data-theme="dark"] .wc-cip-fund-card,
-      :root[data-theme="dark"] .wc-cip-process-card,
-      :root[data-theme="dark"] .wc-cip-link-card,
-      :root[data-theme="dark"] .wc-cip-overview-metric,
-      :root[data-theme="dark"] .wc-cip-element-card,
-      :root[data-theme="dark"] .wc-cip-definition-tests,
-      :root[data-theme="dark"] .wc-cip-definition-card,
-      :root[data-theme="dark"] .wc-cip-factor-card,
-      :root[data-theme="dark"] .wc-cip-benefit-card,
-      :root[data-theme="dark"] .wc-cip-trend-chart,
-      :root[data-theme="dark"] .wc-cip-finance-panel,
-      :root[data-theme="dark"] .wc-cip-major-item,
-      :root[data-theme="dark"] .wc-project-index-header,
-      :root[data-theme="dark"] .wc-project-search-stat,
-      :root[data-theme="dark"] .wc-project-full-search-link,
-      :root[data-theme="dark"] .wc-project-toolbar,
-      :root[data-theme="dark"] .wc-project-search:focus,
-      :root[data-theme="dark"] .wc-project-filter,
-      :root[data-theme="dark"] .wc-project-card{
-        background: rgba(14,28,22,.92);
-        border-color: var(--border);
-      }
-
-      :root[data-theme="dark"] .wc-cip-definition-tests h3,
-      :root[data-theme="dark"] .wc-cip-factor-card h3,
-      :root[data-theme="dark"] .wc-cip-subhead,
-      :root[data-theme="dark"] .wc-cip-major-body strong,
-      :root[data-theme="dark"] .wc-cip-trend-column b{
-        color: #e8f3eb;
-      }
-
-      :root[data-theme="dark"] body.wc-cip-overview-page .page-nav{
-        border-top-color: var(--border);
       }
     </style>
 

@@ -1,4 +1,22 @@
 (function(){
+  // Detail and utility documents are designed to appear inside the homepage
+  // popup shell. If one is opened directly in the top-level browser, return
+  // to the homepage and ask it to reopen the same URL in that shell. Embedded
+  // requests and the intentionally standalone accessible budget remain intact.
+  (function redirectStandalonePopupPage(){
+    if(window.top !== window.self) return;
+    if(!/\/pages\/[^/]+\.html$/i.test(window.location.pathname)) return;
+    if(/\/pages\/full-budget-document\.html$/i.test(window.location.pathname)) return;
+    var directParams;
+    try { directParams = new URLSearchParams(window.location.search); }
+    catch(error) { return; }
+    if(directParams.has("embed")) return;
+    var popupPath = window.location.pathname + window.location.search + window.location.hash;
+    var homepage = new URL("../home.html", window.location.href);
+    homepage.searchParams.set("popup", popupPath);
+    window.location.replace(homepage.href);
+  })();
+
   var wcBudgetNavStarted = false;
   var wcLastKnownUrl = location.href;
   var wcRepairTimer = null;
@@ -39,56 +57,10 @@
   var mobileStylesheetId = "wc-budget-mobile-styles";
   var splitLogoScriptId = "wc-split-logo-script";
   var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260901-shared-publication-variant";
-  var wcThemeStorageKey = "waltonBudgetTheme";
-  function applyHiddenAdminThemeParam(){
-    try{
-      var adminTheme = new URLSearchParams(window.location.search).get("adminTheme");
-      if(adminTheme === "dark" || adminTheme === "light"){
-        // Hidden local developer preference only; this is not a public feature or navigation setting.
-        window.localStorage.setItem(wcThemeStorageKey, adminTheme);
-      }
-    }catch(e){}
-  }
-  function getStoredWaltonTheme(){
-    try{
-      return window.localStorage.getItem(wcThemeStorageKey) === "dark" ? "dark" : "light";
-    }catch(e){
-      return "light";
-    }
-  }
-  function applyWaltonTheme(theme){
-    var nextTheme = theme === "dark" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", nextTheme);
-    if(document.body){
-      document.body.classList.toggle("wc-dark-mode", nextTheme === "dark");
-    }
-    document.querySelectorAll(".wc-theme-toggle").forEach(function(button){
-      var isDark = nextTheme === "dark";
-      button.setAttribute("aria-pressed", String(isDark));
-      button.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-      button.title = isDark ? "Light mode" : "Dark mode";
-    });
-  }
-  function setWaltonTheme(theme){
-    var nextTheme = theme === "dark" ? "dark" : "light";
-    try{
-      window.localStorage.setItem(wcThemeStorageKey, nextTheme);
-    }catch(e){
-      /* Theme still applies for this page view. */
-    }
-    applyWaltonTheme(nextTheme);
-  }
-  function toggleWaltonTheme(){
-    setWaltonTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
-  }
-  applyHiddenAdminThemeParam();
-  applyWaltonTheme(getStoredWaltonTheme());
-  window.WaltonBudgetTheme = {
-    apply:applyWaltonTheme,
-    set:setWaltonTheme,
-    toggle:toggleWaltonTheme,
-    get:getStoredWaltonTheme
-  };
+  // The publication has one editorial color system. Clear any legacy theme
+  // state saved by earlier releases so old visitors cannot remain in dark mode.
+  document.documentElement.removeAttribute("data-theme");
+  try { window.localStorage.removeItem("waltonBudgetTheme"); } catch(e){}
   function loadWaltonMobileStylesheet(){
     var mobileStylesheet = document.getElementById(mobileStylesheetId);
     if(!mobileStylesheet){
@@ -524,8 +496,6 @@
     "our-county.html": true,
     "budget-overview.html": true,
     "departments.html": true,
-    "financials.html": true,
-    "autonomous-entities.html": true,
     "search.html": true
   };
   function shouldLoadWaltonBudgetPdf(){
@@ -639,9 +609,6 @@
     box-shadow:none !important;
     transition:box-shadow .2s ease !important;
     font-family:Arial, Helvetica, sans-serif !important;
-  }
-  html[data-theme="dark"] nav#nav-menu.nav-menu{
-    background:linear-gradient(180deg, rgba(5,20,14,.98), rgba(5,20,14,.92)) !important;
   }
   nav#nav-menu.nav-menu.is-scrolled{
     box-shadow:none !important;
@@ -761,6 +728,7 @@
     pointer-events:none !important;
     font-family:Arial, Helvetica, sans-serif !important;
   }
+  nav#nav-menu .wc-nav-search-slot[hidden]{display:none!important;}
   nav#nav-menu.is-search-open .wc-nav-search-slot{
     pointer-events:auto !important;
   }
@@ -946,14 +914,6 @@
     outline:0 !important;
     transition:color .2s ease, border-color .2s ease !important;
   }
-  /* Pages explicitly marked darkModeOnly in search-data.js remain hidden
-     from light-mode search results. */
-  nav#nav-menu .wc-nav-search-result.wc-dark-mode-only-result{
-    display:none !important;
-  }
-  :root[data-theme="dark"] nav#nav-menu .wc-nav-search-result.wc-dark-mode-only-result{
-    display:grid !important;
-  }
   nav#nav-menu .wc-nav-search-result::before,
   nav#nav-menu .wc-nav-search-result::after,
   nav#nav-menu .wc-nav-search-result strong::before,
@@ -1115,12 +1075,6 @@
   }
   nav#nav-menu .wc-theme-toggle .wc-theme-sun{
     display:none !important;
-  }
-  html[data-theme="dark"] nav#nav-menu .wc-theme-toggle .wc-theme-moon{
-    display:none !important;
-  }
-  html[data-theme="dark"] nav#nav-menu .wc-theme-toggle .wc-theme-sun{
-    display:block !important;
   }
   nav#nav-menu .wc-nav-menu-toggle{
     display:none !important;
@@ -1304,11 +1258,7 @@
   nav#nav-menu .hamburger-menu,
   nav#nav-menu .table-of-contents,
   nav#nav-menu .table-of-contents-button,
-  nav#nav-menu .js-inline-nav-menu-item,
-  nav#nav-menu .js-more-nav-menu-dropdown-button,
-  nav#nav-menu li[data-id="more-nav-menu-dropdown"],
-  nav#nav-menu li[aria-controls="more-nav-menu-dropdown-dropdown"],
-  nav#nav-menu li[data-id="6989dbbdb4696f0b333f2246"]{
+  nav#nav-menu .js-inline-nav-menu-item{
     display:none !important;
     visibility:hidden !important;
     opacity:0 !important;
@@ -1320,13 +1270,6 @@
   nav#nav-menu .nav-menu-item-title,
   nav#nav-menu .dropdown-item-title{
     pointer-events:auto !important;
-  }
-  nav#nav-menu .js-more-nav-menu-dropdown-button .nav-menu-item-title,
-  nav#nav-menu li[data-id="more-nav-menu-dropdown"] .nav-menu-item-title,
-  nav#nav-menu li[aria-controls="more-nav-menu-dropdown-dropdown"] .nav-menu-item-title{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
   }
   [data-report-table-container-id]{
     border:1px solid rgba(209,190,120,0.45) !important;
@@ -1538,24 +1481,6 @@
     opacity:1 !important;
     transform:translateY(0) !important;
   }
-  html[data-theme="dark"] .wc-budget-line-tooltip-anchor{
-    border-color:rgba(209,190,120,0.7) !important;
-    background:rgba(10,20,16,0.9) !important;
-    color:#f2f8f4 !important;
-    box-shadow:0 1px 5px rgba(0,0,0,0.34) !important;
-  }
-  html[data-theme="dark"] .wc-budget-line-tooltip-anchor:hover,
-  html[data-theme="dark"] .wc-budget-line-tooltip-anchor:focus{
-    background:#d1be78 !important;
-    color:#08130f !important;
-    outline-color:rgba(209,190,120,0.42) !important;
-  }
-  html[data-theme="dark"] .wc-budget-line-tooltip-bubble{
-    border-color:rgba(209,190,120,0.62) !important;
-    background:#08130f !important;
-    color:#f2f8f4 !important;
-    box-shadow:0 14px 30px rgba(0,0,0,0.46) !important;
-  }
   [data-report-table-id] th:first-child,
   [data-report-table-id] td:first-child{
     position:sticky !important;
@@ -1591,23 +1516,6 @@
   }
   [data-report-table-id] caption{
     display:none !important;
-  }
-  .social-wrapper{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    height:0 !important;
-    width:0 !important;
-    overflow:hidden !important;
-  }
-  .powered-by{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    height:0 !important;
-    width:0 !important;
-    overflow:hidden !important;
-    pointer-events:none !important;
   }
   footer[role="contentinfo"]{
     display:block !important;
@@ -1821,7 +1729,7 @@
   .wc-footer-search-copy p{
     max-width:none !important;
     margin:0 !important;
-    color:rgba(36,52,77,.62) !important;
+    color:#526476 !important;
     font-size:12px !important;
     line-height:1.4 !important;
     font-weight:500 !important;
@@ -1916,50 +1824,6 @@
   .wc-search-footer .wc-budget-footer-brand{
     display:none !important;
   }
-  html[data-theme="dark"] footer[role="contentinfo"].wc-search-footer{
-    background:transparent !important;
-  }
-  html[data-theme="dark"] footer[role="contentinfo"].wc-search-footer .footer-container{
-    background:rgba(14,28,22,.92) !important;
-    border-color:rgba(226,235,229,.16) !important;
-    box-shadow:0 18px 46px rgba(0,0,0,.28) !important;
-  }
-  html[data-theme="dark"] .wc-footer-search-copy h2{
-    color:#edf3ef !important;
-  }
-  html[data-theme="dark"] .wc-footer-search-copy p,
-  html[data-theme="dark"] .wc-search-footer .wc-budget-footer-links a,
-  html[data-theme="dark"] .wc-search-footer .wc-footer-contact-button{
-    color:#a9b9b0 !important;
-  }
-  html[data-theme="dark"] .wc-footer-contact-dialog{
-    border-color:rgba(226,235,229,.18);
-    background:#101d17;
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-contact-dialog p{
-    color:#a9b9b0;
-  }
-  html[data-theme="dark"] .wc-footer-contact-actions button{
-    border-color:rgba(123,211,159,.34);
-    background:transparent;
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-contact-actions a{
-    border-color:rgba(123,211,159,.38);
-    background:rgba(123,211,159,.16);
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-search-button{
-    background:rgba(123,211,159,.13) !important;
-    border-color:rgba(123,211,159,.38) !important;
-    color:#edf3ef !important;
-    box-shadow:none !important;
-  }
-  html[data-theme="dark"] .wc-footer-search-button:hover{
-    background:rgba(123,211,159,.2) !important;
-    color:#edf3ef !important;
-  }
   
   /* STANDALONE WALTON HEADER */
   .wc-standalone-budget-nav{
@@ -1977,9 +1841,6 @@
     border-bottom:0 !important;
     box-shadow:none !important;
     font-family:Arial, Helvetica, sans-serif !important;
-  }
-  html[data-theme="dark"] .wc-standalone-budget-nav{
-    background:linear-gradient(180deg, rgba(5,20,14,.98), rgba(5,20,14,.92)) !important;
   }
   .wc-standalone-brand{
     display:flex !important;
@@ -2110,7 +1971,6 @@
       nav.appendChild(actions);
       var searchToggle = actions.querySelector(".wc-nav-search-toggle");
       var menuToggle = actions.querySelector(".wc-nav-menu-toggle");
-      applyWaltonTheme(getStoredWaltonTheme());
       function syncNavSearchTop(){
         var navRect = nav.getBoundingClientRect();
         document.documentElement.style.setProperty("--wc-nav-search-top", navRect.height + "px");
@@ -2303,42 +2163,6 @@
       nav.appendChild(slot);
     }
   }
-  function hideOpenGovMoreButton(){
-    var nav = document.querySelector("nav#nav-menu.nav-menu");
-    if(!nav){
-      return;
-    }
-    var moreButtons = nav.querySelectorAll(
-      '.js-more-nav-menu-dropdown-button, li[data-id="more-nav-menu-dropdown"], li[aria-controls="more-nav-menu-dropdown-dropdown"], li.nav-menu-item.clickable.js-dropdown-button.js-more-nav-menu-dropdown-button'
-    );
-    moreButtons.forEach(function(button){
-      button.style.setProperty("display", "none", "important");
-      button.style.setProperty("visibility", "hidden", "important");
-      button.style.setProperty("opacity", "0", "important");
-      button.style.setProperty("width", "0", "important");
-      button.style.setProperty("height", "0", "important");
-      button.style.setProperty("overflow", "hidden", "important");
-      button.style.setProperty("pointer-events", "none", "important");
-      button.setAttribute("aria-hidden", "true");
-      button.setAttribute("tabindex", "-1");
-    });
-    nav.querySelectorAll(".nav-menu-item-title").forEach(function(title){
-      if(title.textContent && title.textContent.trim().toLowerCase() === "more"){
-        var parent = title.closest("li");
-        if(parent){
-          parent.style.setProperty("display", "none", "important");
-          parent.style.setProperty("visibility", "hidden", "important");
-          parent.style.setProperty("opacity", "0", "important");
-          parent.style.setProperty("width", "0", "important");
-          parent.style.setProperty("height", "0", "important");
-          parent.style.setProperty("overflow", "hidden", "important");
-          parent.style.setProperty("pointer-events", "none", "important");
-          parent.setAttribute("aria-hidden", "true");
-          parent.setAttribute("tabindex", "-1");
-        }
-      }
-    });
-  }
   function renderStandaloneBudgetNav(){
     if(!document.body){
       return;
@@ -2433,6 +2257,18 @@
     }
   }
   function openWaltonBudgetFooterSearch(){
+    // Department, officer, and ledger pages are displayed inside the homepage
+    // popup. Their local navigation is intentionally hidden, so hand the
+    // footer search request to the homepage shell instead of opening an
+    // invisible search panel inside the iframe.
+    if(window.top !== window.self){
+      try{
+        if(window.parent.WCHomeExplorer && typeof window.parent.WCHomeExplorer.openGlobalSearch === "function"){
+          window.parent.WCHomeExplorer.openGlobalSearch();
+          return;
+        }
+      }catch(parentSearchError){}
+    }
     var nav = document.querySelector("nav#nav-menu.nav-menu");
     function searchPageHref(){
       return /\/pages\//.test(window.location.pathname) ? "search.html" : "pages/search.html";
@@ -2558,6 +2394,8 @@
           </button>
         </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
+          <a href="https://www.mywaltonfl.gov/" target="_blank" rel="noopener">County Website</a>
+          <a href="https://www.mywaltonfl.gov/260/Budget-Publications" target="_blank" rel="noopener">Prior Budgets</a>
           <a href="${transactionSearchHref}" data-wc-utility-popup="Transaction Search">Transaction Search</a>
           <a href="${glossaryFaqHref}" data-wc-utility-popup="Glossary, Acronyms &amp; FAQ">Glossary &amp; FAQ</a>
           <a href="${supportingDocsHref}" data-wc-utility-popup="Supporting Budget Documentation">Supporting Documentation</a>
@@ -2666,7 +2504,6 @@
       initWcNavSearch();
       ensureWcNavChrome();
       ensureWcBreadcrumb();
-      hideOpenGovMoreButton();
       renderWaltonBudgetFooter();
       lockHorizontalPageScroll();
       return;
@@ -2684,10 +2521,7 @@
       setTimeout(initWcNavSearch, 2000);
       setTimeout(ensureWcBreadcrumb, 800);
       setTimeout(ensureWcBreadcrumb, 2000);
-      hideOpenGovMoreButton();
       renderWaltonBudgetFooter();
-      setTimeout(hideOpenGovMoreButton, 500);
-      setTimeout(hideOpenGovMoreButton, 1500);
       setTimeout(renderWaltonBudgetFooter, 500);
       setTimeout(renderWaltonBudgetFooter, 1500);
       return;
@@ -2719,6 +2553,31 @@
     enhanceBudgetTables();
     watchForBudgetTables();
   }
+  function enhanceEmbeddedBudgetVideos(){
+    document.querySelectorAll('iframe[src*="youtube.com/embed/"]').forEach(function(iframe){
+      var host = iframe.parentElement;
+      if(!host || host.classList.contains('wc-video-poster-host')) return;
+      var title = (iframe.getAttribute('title') || 'Walton County budget video').replace(/\s+video(?:\s+\d+)?$/i, '');
+      var poster = document.createElement('button');
+      poster.type = 'button';
+      poster.className = 'wc-video-poster';
+      poster.setAttribute('aria-label', 'Play ' + title);
+      poster.appendChild(document.createTextNode('Watch ' + title));
+      host.classList.add('wc-video-poster-host');
+      host.appendChild(poster);
+      poster.addEventListener('click', function(){
+        host.classList.add('is-video-started');
+        iframe.setAttribute('tabindex', '0');
+        iframe.focus();
+      });
+      iframe.setAttribute('tabindex', '-1');
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', enhanceEmbeddedBudgetVideos, { once:true });
+  }else{
+    enhanceEmbeddedBudgetVideos();
+  }
   loadWaltonSplitLogo(safelyStartWcBudgetNav);
   function lockHorizontalPageScroll(){
     document.documentElement.style.setProperty('overflow-x','hidden','important');
@@ -2733,7 +2592,6 @@
   function repairWcBudgetNavAfterOpenGovNavigation(){
     try{
       ensureWaltonSplitLogoStyles();
-      hideOpenGovMoreButton();
       renderWaltonBudgetFooter();
       lockHorizontalPageScroll();
       if(document.querySelector("nav#nav-menu.nav-menu")){

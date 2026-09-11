@@ -951,7 +951,6 @@ const sharedCss = `
   .svc-block:last-child{ border-bottom:0; }
   .svc-block .svc-head{ margin-bottom:.03in; }
   .svc-block .svc-head b{ display:block; color:#003f28; font:800 7.6pt Georgia, serif; }
-  .svc-block:not(.leftover) .svc-head b::before{ content:"\\2022"; margin-right:.06in; color:#b89521; }
   .svc-block .svc-head span{ display:block; margin-top:.02in; color:#33453c; font-size:6.9pt; line-height:1.32; }
   .svc-block.leftover .svc-head b{ color:#68786f; font:800 6.4pt Arial, Helvetica, sans-serif; text-transform:uppercase; letter-spacing:.03em; }
   .svc-block.leftover .svc-head span{ font-style:italic; }

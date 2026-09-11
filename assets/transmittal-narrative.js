@@ -24,24 +24,6 @@
   // rather than a named topic, so they never get an auto-generated heading.
   const HEADINGLESS_SECTIONS = new Set(["opening", "closing"]);
 
-  function isDebugMode() {
-    try {
-      return new URLSearchParams(window.location.search).get("debugNarrative") === "1";
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function debugLog() {
-    if (!isDebugMode() || !window.console || !console.log) return;
-    console.log.apply(console, ["[TransmittalNarrative]"].concat(Array.prototype.slice.call(arguments)));
-  }
-
-  function debugWarn() {
-    if (!isDebugMode() || !window.console || !console.warn) return;
-    console.warn.apply(console, ["[TransmittalNarrative]"].concat(Array.prototype.slice.call(arguments)));
-  }
-
   function escapeHtml(value) {
     return String(value === undefined || value === null ? "" : value)
       .replace(/&/g, "&amp;")
@@ -268,8 +250,6 @@
 
     Promise.allSettled([fetchCSV(TRANSMITTAL_LETTER_CSV_URL), fetchCSV(LETTER_VALUES_CSV_URL)])
       .then(([letterResult, valuesResult]) => {
-        debugLog("transmittal letter sheet URL:", TRANSMITTAL_LETTER_CSV_URL);
-        debugLog("letter values sheet URL:", LETTER_VALUES_CSV_URL);
 
         if (letterResult.status !== "fulfilled") {
           console.error("TransmittalNarrative: failed to load the transmittal letter sheet", letterResult.reason);
@@ -286,15 +266,6 @@
 
         const result = renderLetter(container, sheetRows, valuesLookup);
 
-        debugLog("transmittal rows loaded:", sheetRows.length);
-        debugLog("active rows rendered:", result.activeRowCount);
-        debugLog("placeholder keys loaded:", Array.from(valuesLookup.keys()));
-        debugLog("final rendered section count:", result.sectionCount);
-        if (result.missingKeys.size) {
-          debugWarn("missing placeholder keys:", Array.from(result.missingKeys));
-        } else {
-          debugLog("missing placeholder keys: none");
-        }
       })
       .catch((err) => {
         console.error("TransmittalNarrative: unexpected error rendering the transmittal letter", err);

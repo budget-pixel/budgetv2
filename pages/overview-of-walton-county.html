@@ -271,7 +271,7 @@
     color:var(--muted);
     font-size:1rem;
     line-height:1.7;
-    text-align:justify;
+    text-align:left;
   }
 
   .wc-overview-facts{
@@ -722,87 +722,6 @@
       border-radius:22px;
     }
   }
-
-
-  :root[data-theme="dark"] .wc-overview-hero{
-    background:linear-gradient(135deg, rgba(14,28,22,.96) 0%, rgba(8,19,16,.96) 100%);
-    border-color:var(--border);
-    box-shadow:0 18px 42px rgba(0,0,0,.28);
-  }
-
-  :root[data-theme="dark"] .wc-overview-hero-panel h2{
-    color:var(--text);
-  }
-
-  :root[data-theme="dark"] .wc-overview-hero-panel p:last-child{
-    color:var(--muted);
-  }
-
-  :root[data-theme="dark"] .wc-overview-fact,
-  :root[data-theme="dark"] .wc-overview-feature-card,
-  :root[data-theme="dark"] .wc-overview-quote,
-  :root[data-theme="dark"] .wc-overview-video-section,
-  :root[data-theme="dark"] .wc-overview-map-card,
-  :root[data-theme="dark"] .wc-overview-officers-section,
-  :root[data-theme="dark"] .wc-overview-officer-row,
-  :root[data-theme="dark"] .wc-overview-person-card{
-    background:rgba(14,28,22,.92);
-    border-color:var(--border);
-  }
-
-  :root[data-theme="dark"] .wc-overview-officers-grid{
-    background:var(--border);
-    border-color:var(--border);
-  }
-
-  :root[data-theme="dark"] .wc-overview-fact-value{
-    color:var(--green);
-  }
-
-  :root[data-theme="dark"] .wc-overview-fact-label,
-  :root[data-theme="dark"] .wc-overview-section-header p,
-  :root[data-theme="dark"] .wc-overview-story-main p,
-  :root[data-theme="dark"] .wc-overview-video-copy p,
-  :root[data-theme="dark"] .wc-overview-government-copy p,
-  :root[data-theme="dark"] .wc-overview-feature-card p,
-  :root[data-theme="dark"] .wc-overview-person-card p,
-  :root[data-theme="dark"] .wc-overview-quote cite,
-  :root[data-theme="dark"] .wc-overview-officer-row small{
-    color:var(--muted);
-  }
-
-  :root[data-theme="dark"] .wc-overview-section-header h2,
-  :root[data-theme="dark"] .wc-overview-story-main h2,
-  :root[data-theme="dark"] .wc-overview-video-copy h2,
-  :root[data-theme="dark"] .wc-overview-links h2,
-  :root[data-theme="dark"] .wc-overview-feature-card h3,
-  :root[data-theme="dark"] .wc-overview-government-copy h3,
-  :root[data-theme="dark"] .wc-overview-person-card h3,
-  :root[data-theme="dark"] .wc-overview-quote p,
-  :root[data-theme="dark"] .wc-overview-officer-row strong,
-  :root[data-theme="dark"] .wc-overview-link-grid a{
-    color:var(--text);
-  }
-
-  :root[data-theme="dark"] .wc-overview-text-link,
-  :root[data-theme="dark"] .wc-overview-officer-row:hover strong,
-  :root[data-theme="dark"] .wc-overview-person-card:hover h3{
-    color:var(--green);
-  }
-
-  :root[data-theme="dark"] .wc-overview-person-card:hover{
-    border-color:var(--green);
-  }
-
-  :root[data-theme="dark"] .wc-overview-link-grid a{
-    border-color:var(--border);
-  }
-
-  :root[data-theme="dark"] .wc-overview-link-grid a:hover{
-    border-color:var(--green);
-    color:var(--green);
-    background:rgba(123,211,159,.08);
-  }
 </style>
 
 <script>
@@ -846,11 +765,11 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
   {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
   {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
-  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/strategic-initiatives.html"},
+  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/program-budget.html"},
   {title:"Budget Ledgers",section:"Financial Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Constitutional Officers",section:"Constitutional Officers",href:"../home.html?explorer=constitutional"},
   {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
-  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process-and-calendar.html"},
+  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process.html"},
   {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
   {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
   {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
@@ -862,7 +781,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Summary of Personnel",section:"Financial Summaries",href:"../home.html?explorer=personnel"},
   {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
   {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
-  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
   {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
   {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
@@ -922,6 +841,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
 </body>
 </html>

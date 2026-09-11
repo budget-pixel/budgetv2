@@ -37,6 +37,10 @@
 
     var slot = document.createElement("div");
     slot.className = "wc-nav-search-slot";
+    slot.hidden = true;
+    slot.setAttribute("role", "dialog");
+    slot.setAttribute("aria-modal", "true");
+    slot.setAttribute("aria-label", "Search the budget");
 
     slot.innerHTML = `
       <div class="wc-nav-search-results" role="presentation">
@@ -65,7 +69,7 @@
             <div class="wc-search-recent" aria-label="Recent searches"></div>
           </div>
 
-          <div class="wc-search-scroll" role="listbox" aria-label="Search results">
+          <div class="wc-search-scroll" role="region" aria-label="Search results">
             <div class="wc-search-kicker">Search Results</div>
             <div class="wc-search-results-inner"></div>
           </div>
@@ -96,6 +100,9 @@
     var closeButton = slot.querySelector(".wc-search-close");
     var recentStorageKey = "wcBudgetRecentSearches";
     var activeResultIndex = -1;
+    var searchReturnFocus = null;
+    var searchBackground = [];
+    var previousOverflow = "";
 
     var links = [];
     var seenHrefs = {};
@@ -198,6 +205,15 @@
         window.WaltonBudgetGlobalSearch.close();
       }
       var wasOpen = nav.classList.contains("is-search-open");
+      if(!wasOpen){
+        searchReturnFocus = document.activeElement;
+        previousOverflow = document.body.style.overflow;
+        searchBackground = Array.from(document.body.children).filter(function(el){
+          return el !== nav && !el.contains(nav) && !el.inert && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName);
+        });
+        searchBackground.forEach(function(el){ el.inert = true; });
+      }
+      slot.hidden = false;
       nav.classList.add("is-search-open");
       document.body.classList.add("wc-global-search-open");
       document.body.style.overflow = "hidden";
@@ -211,11 +227,16 @@
     }
 
     function closeSearchMode(){
+      if(slot.hidden) return;
+      slot.hidden = true;
       nav.classList.remove("is-search-open");
       document.body.classList.remove("wc-global-search-open");
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      searchBackground.forEach(function(el){ el.inert = false; });
+      searchBackground = [];
       results.classList.remove("is-active");
       input.blur();
+      if(searchReturnFocus && searchReturnFocus.isConnected) searchReturnFocus.focus({preventScroll:true});
     }
 
     function resolvePageHref(href){
@@ -451,12 +472,7 @@
       items.forEach(function(item){
         var resultLink = document.createElement("a");
         resultLink.className = "wc-nav-search-result";
-        if(item.darkModeOnly){
-          resultLink.classList.add("wc-dark-mode-only-result");
-        }
         resultLink.href = item.href;
-        resultLink.setAttribute("role", "option");
-        resultLink.setAttribute("aria-selected", "false");
         var matchedKeyword = findMatchedKeyword(item, normalizedQuery);
         resultLink.innerHTML = `<strong>${escapeHtml(item.title)}</strong>` +
           (matchedKeyword ? `<span>${escapeHtml(formatMatchLabel(matchedKeyword))}</span>` : "");
@@ -493,10 +509,7 @@
     }
 
     function getSearchableLinks(){
-      var isDarkMode = document.documentElement.getAttribute("data-theme") === "dark";
-      return links.filter(function(item){
-        return isDarkMode || !item.darkModeOnly;
-      });
+      return links;
     }
 
     function findBestSearchMatch(query){
@@ -584,7 +597,8 @@
       resultLinks.forEach(function(link, i){
         var active = i === activeResultIndex;
         link.classList.toggle("is-active-result", active);
-        link.setAttribute("aria-selected", active ? "true" : "false");
+        if(active) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
         if(active){
           link.scrollIntoView({ block:"nearest" });
         }
@@ -670,7 +684,7 @@
         if(activeResultIndex >= 0 && resultLinks[activeResultIndex]){
           e.preventDefault();
           saveRecentSearch(input.value || resultLinks[activeResultIndex].querySelector("strong").textContent);
-          window.location.href = resultLinks[activeResultIndex].href;
+          resultLinks[activeResultIndex].click();
           return;
         }
         saveRecentSearch(input.value);
@@ -700,6 +714,19 @@
       if(resultLink){
         saveRecentSearch(input.value || resultLink.querySelector("strong").textContent);
       }
+    });
+
+    slot.addEventListener("keydown", function(e){
+      if(e.key === "Escape"){
+        e.preventDefault();
+        e.stopPropagation();
+        closeSearchMode();
+      }
+      if(e.key !== "Tab") return;
+      var focusable = Array.from(slot.querySelectorAll('input,button,a[href]')).filter(function(el){ return !el.disabled && el.getClientRects().length; });
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
     });
 
     if(closeButton){

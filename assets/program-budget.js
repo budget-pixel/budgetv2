@@ -228,7 +228,9 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    renderChecklist();
+    // The editorial checklist is an internal working aid, not public content.
+    var checklist = document.getElementById('program-budget-checklist');
+    if(checklist) checklist.remove();
     var explorer = document.getElementById("program-budget-explorer");
     if (!window.WCBudgetData || !explorer) return;
     window.WCBudgetData.loadBudgetData().then(initializeExplorer).catch(function () {

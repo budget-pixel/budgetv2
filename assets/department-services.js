@@ -693,7 +693,7 @@
     'Personnel Services':'Covers employee compensation and benefits, including salaries, overtime, weekend and holiday pay, seasonal workers, FICA, Florida Retirement System (FRS) contributions, health insurance, workers’ compensation, life insurance, and paid leave buybacks.',
     'Operating Expenditures':'Covers the day-to-day costs of providing County services, including utilities, fuel, maintenance, software, office supplies, communications, training, and other routine operating expenses. Contractual services and internal service charges are shown as their own lines below.',
     'Contractual Services':'Covers payments made under an identified contract or service agreement, such as professional services, engineering, legal, auditing, IT services, and other outside vendor services.',
-    'Internal Service Charges':'Covers charges billed to this fund by an internal service fund -- for example fleet maintenance, information technology, or self-insurance -- for services it provides countywide.',
+    'Indirect Admin Allocation':'General Fund cost allocation for centralized administrative services provided to this special revenue fund.',
     'Capital Outlay':'Covers major investments in long-term County assets, including vehicles, machinery and equipment, technology systems, buildings, facility improvements, roads, drainage, parks, and other infrastructure projects.',
     'Interfund Transfer':'Covers transfers of this fund’s resources to other County funds, such as intergovernmental transfers funded by the Small County Surtax.',
     'General Government Taxes':'Ad valorem, tourist development, sales surtax, fuel taxes, and other locally levied taxes.',
@@ -1007,7 +1007,7 @@
       {label:'Personnel Services',amount:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2026_Original_Budget')},
       {label:'Operating Expenditures',amount:sum(expenses.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(expenses.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
       {label:'Contractual Services',amount:sum(expenses.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(expenses.filter(isContractualServiceRow),'FY2026_Original_Budget')},
-      {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
+      {label:'Indirect Admin Allocation',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
       {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
     if(isCapitalCombinedOfficer||isBoardCommissioners||isAutonomousEntity){
@@ -1169,7 +1169,7 @@
         {label:'Personnel Services',amount:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2026_Original_Budget')},
         {label:'Operating Expenditures',amount:sum(expenses.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(expenses.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
         {label:'Contractual Services',amount:sum(expenses.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(expenses.filter(isContractualServiceRow),'FY2026_Original_Budget')},
-        {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
+        {label:'Indirect Admin Allocation',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
         {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
       ].filter(function(item){return item.amount!==0||item.prior!==0;});
       var capitalGroup=expenseGroups.find(function(item){return item.label==='Capital Outlay';})||null;
@@ -1549,9 +1549,10 @@
     // snapshotDeltaFromRenderedChange are hoisted module-level functions --
     // see their definitions above renderIndependentOfficeSnapshot -- so
     // that function can share this exact row markup.)
-    // Internal Service Charges (Object_Code 549006 -- what a fund pays an
-    // internal service fund, e.g. fleet/IT/insurance, for services it
-    // consumes) and Contractual Services (the same Contract_Status signal
+    // Indirect Admin Allocation (Object_Code 549006 -- the General Fund
+    // cost allocation this special revenue fund pays for centralized
+    // administrative services it consumes) and Contractual Services (the
+    // same Contract_Status signal
     // used by the "View Contractual Services" popup and the countywide
     // Summary of Contractual Services page -- see
     // buildContractualServicesRowsFromExpenditures's own comment on why
@@ -1565,7 +1566,7 @@
       {label:'Personnel Services',amount:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2026_Original_Budget')},
       {label:'Operating Expenditures',amount:sum(expenses.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(expenses.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
       {label:'Contractual Services',amount:sum(expenses.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(expenses.filter(isContractualServiceRow),'FY2026_Original_Budget')},
-      {label:'Internal Service Charges',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
+      {label:'Indirect Admin Allocation',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
       {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')},
       {label:'Interfund Transfer',amount:sum(expenses.filter(function(row){return row.Object_Type==='Other Uses';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Other Uses';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
@@ -1617,7 +1618,7 @@
         {label:'Personnel Services',amount:sum(rows.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2027_Proposed'),prior:sum(rows.filter(function(row){return row.Object_Type==='Personnel Services';}),'FY2026_Original_Budget')},
         {label:'Operating Expenditures',amount:sum(rows.filter(isPlainOperatingRow),'FY2027_Proposed'),prior:sum(rows.filter(isPlainOperatingRow),'FY2026_Original_Budget')},
         {label:'Contractual Services',amount:sum(rows.filter(isContractualServiceRow),'FY2027_Proposed'),prior:sum(rows.filter(isContractualServiceRow),'FY2026_Original_Budget')},
-        {label:'Internal Service Charges',amount:sum(rows.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(rows.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')}
+        {label:'Indirect Admin Allocation',amount:sum(rows.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(rows.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')}
       ].filter(function(item){return item.amount!==0||item.prior!==0;});
       var total=groups.reduce(function(value,item){return value+item.amount;},0);
       var prior=groups.reduce(function(value,item){return value+(item.prior||0);},0);

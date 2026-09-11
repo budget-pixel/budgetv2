@@ -704,57 +704,6 @@
     white-space:normal !important;
   }
 
-  :root[data-theme="dark"] [data-report-table-id] th:first-child,
-  :root[data-theme="dark"] [data-report-table-id] td:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table th:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table td:first-child{
-    background:#0e1c16 !important;
-    color:var(--text) !important;
-    border-color:var(--border) !important;
-    background-clip:border-box !important;
-    box-shadow:inset -1px 0 0 rgba(237,243,239,.16), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] thead th:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table thead th:first-child{
-    background:linear-gradient(135deg,#0c4a32 0%,#143f32 100%) !important;
-    color:#ffffff !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:nth-child(even) th:first-child,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:nth-child(even) td:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:nth-child(even) th:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:nth-child(even) td:first-child{
-    background:#12241d !important;
-    box-shadow:inset -1px 0 0 rgba(237,243,239,.16), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:hover th:first-child,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:hover td:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:hover th:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:hover td:first-child{
-    background:#193626 !important;
-    box-shadow:inset -1px 0 0 rgba(237,243,239,.16), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-group-row td:first-child{
-    background:#182f24 !important;
-    box-shadow:inset -1px 0 0 rgba(237,243,239,.16), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-subtotal-row td:first-child{
-    background:#2d311f !important;
-    box-shadow:inset -1px 0 0 rgba(237,243,239,.16), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] tbody tr.rowGroupTotal__cm3qr th:first-child,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr.rowGroupTotal__cm3qr td:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row td:first-child{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-    box-shadow:inset -1px 0 0 rgba(17,26,22,.22), 4px 0 8px rgba(0,0,0,.28) !important;
-  }
-
   /* Hover styles make horizontally-scrolled mobile tables visually bleed
      through sticky columns in browser/device previews. Keep mobile tables
      stable: row color comes from row type, not pointer hover. */
@@ -788,48 +737,6 @@
     color:#172033 !important;
   }
 
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:hover th,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:hover td,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:hover th,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:hover td{
-    background:#0e1c16 !important;
-    color:var(--text) !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:nth-child(even):hover th,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr:nth-child(even):hover td,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:nth-child(even):hover th,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr:nth-child(even):hover td{
-    background:#12241d !important;
-  }
-
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-group-row:hover td{
-    background:#182f24 !important;
-    color:var(--text) !important;
-  }
-
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-subtotal-row:hover td{
-    background:#202719 !important;
-    color:var(--text) !important;
-  }
-
-  :root[data-theme="dark"] [data-report-table-id] tbody tr.rowGroupTotal__cm3qr:hover th,
-  :root[data-theme="dark"] [data-report-table-id] tbody tr.rowGroupTotal__cm3qr:hover td,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row:hover td{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-  }
-
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-subtotal-row td:first-child{
-    background:#202719 !important;
-    color:var(--text) !important;
-  }
-
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-group-row td:first-child{
-    background:#10261b !important;
-    color:var(--text) !important;
-  }
-
   .wc-fund-financial-schedule-table tr.wc-table-total-row td,
   .wc-fund-financial-schedule-table tr.wc-table-total-row:hover td{
     background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%) !important;
@@ -843,19 +750,6 @@
     box-shadow:inset -1px 0 0 rgba(36,52,77,.22), 3px 0 6px rgba(36,52,77,.10) !important;
   }
 
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-total-row td,
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-total-row:hover td{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-  }
-
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-total-row td:first-child,
-  :root[data-theme="dark"] .wc-fund-financial-schedule-table tr.wc-table-total-row:hover td:first-child{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-    box-shadow:inset -1px 0 0 rgba(17,26,22,.24), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
   .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row td:first-child,
   .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row:hover td:first-child{
     background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%) !important;
@@ -863,25 +757,11 @@
     box-shadow:inset -1px 0 0 rgba(36,52,77,.22), 3px 0 6px rgba(36,52,77,.10) !important;
   }
 
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row td:first-child,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table tbody tr.wc-table-total-row:hover td:first-child{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-    box-shadow:inset -1px 0 0 rgba(17,26,22,.24), 3px 0 6px rgba(0,0,0,.24) !important;
-  }
-
   .wc-data-table-scroll .wc-data-table.wc-fund-financial-schedule-table tbody tr.wc-table-total-row > td.wc-fund-total-label-cell,
   .wc-data-table-scroll .wc-data-table.wc-fund-financial-schedule-table tbody tr.wc-table-total-row:hover > td.wc-fund-total-label-cell{
     background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%) !important;
     color:#172033 !important;
     box-shadow:inset -1px 0 0 rgba(36,52,77,.22), 3px 0 6px rgba(36,52,77,.10) !important;
-  }
-
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table.wc-fund-financial-schedule-table tbody tr.wc-table-total-row > td.wc-fund-total-label-cell,
-  :root[data-theme="dark"] .wc-data-table-scroll .wc-data-table.wc-fund-financial-schedule-table tbody tr.wc-table-total-row:hover > td.wc-fund-total-label-cell{
-    background:linear-gradient(135deg,#d8c77e 0%,#bfa95c 100%) !important;
-    color:#111a16 !important;
-    box-shadow:inset -1px 0 0 rgba(17,26,22,.24), 3px 0 6px rgba(0,0,0,.24) !important;
   }
 
 }

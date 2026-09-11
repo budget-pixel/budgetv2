@@ -10,16 +10,33 @@
     independent: { title: "Independent Agencies Budget" }
   };
 
+  // Every page listed in the Ledger Directory (pages/budget-overview.html's
+  // own hubList) -- these popups get a "Back to Ledger Directory" button in
+  // the department-modal header since each page's own in-content back link
+  // is hidden inside the iframe (see #content>.wc-page-title-row above).
+  var LEDGER_DIRECTORY_PAGES = new Set([
+    "consolidated-financial-schedules.html", "debt-overview.html", "fund-financial-schedules.html",
+    "summary-of-interfund-transfers.html", "summary-of-budget-changes-and-adjustments.html",
+    "financial-forecast.html", "revenue-ledger.html", "summary-of-expenses.html",
+    "summary-of-property-tax-allocations.html", "department-ledger.html", "constitutional-ledger.html",
+    "independent-agencies-ledger.html", "personnel-ledger.html", "summary-of-contractual-services.html",
+    "cip-capital-projects.html", "cip-tourist-development.html", "cip-sheriff.html",
+    "recreation-plat-fee-fund.html", "sidewalk-fund.html", "summary-of-machinery-vehicles-and-equipment.html"
+  ]);
+  var LEDGER_DIRECTORY_HREF = "pages/budget-overview.html";
+
   var activeCard = null;
   var modal = null;
   var modalBody = null;
   var modalTitle = null;
   var departmentModal = null;
   var departmentFrame = null;
+  var openedFromLedgerDirectory = false;
   var departmentTrigger = null;
   var departmentFrameAwaitingInitialLoad = false;
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
+  var backgroundElements = [];
   var capitalSearchOutsideClickHandler = null;
   var departmentPanelResizeObserver = null;
   var departmentModalOpenedAt = 0;
@@ -149,6 +166,10 @@
 
   function lockBackgroundPage() {
     if (savedBodyStyles) return;
+    backgroundElements = Array.from(document.body.children).filter(function(el){
+      return el !== modal && el !== departmentModal && !el.inert && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName);
+    });
+    backgroundElements.forEach(function(el){ el.inert = true; });
     lockedPageScrollY = window.scrollY || window.pageYOffset || 0;
     savedBodyStyles = {
       position: document.body.style.position,
@@ -170,6 +191,8 @@
 
   function unlockBackgroundPage() {
     if (!savedBodyStyles) return;
+    backgroundElements.forEach(function(el){ el.inert = false; });
+    backgroundElements = [];
     document.documentElement.classList.remove("wc-home-explorer-open");
     document.body.classList.remove("wc-home-explorer-open");
     document.body.style.position = savedBodyStyles.position;
@@ -275,8 +298,8 @@
         { title: "Sidewalk Fund Capital Ledger", href: "pages/sidewalk-fund.html", amount: byFund["115"] || 0 }
       ];
       var cardHtml = cards.map(function (card) {
-        var share = total ? card.amount / total * 100 : 0;
-        return '<a href="' + escapeHtml(card.href) + '" data-explorer-popup-trigger="' + escapeHtml(card.title) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + share.toFixed(1) + '% of capital budget</small></div>' +
+        var scope = card.href.indexOf('cip-sheriff') !== -1 ? 'Sheriff capital outlay; separate from Board total' : card.href.indexOf('machinery') !== -1 ? 'Equipment schedule; overlaps fund capital budgets' : 'Capital-outlay appropriations in the selected funds';
+        return '<a href="' + escapeHtml(card.href) + '" data-explorer-popup-trigger="' + escapeHtml(card.title) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + scope + '</small></div>' +
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
@@ -569,12 +592,17 @@
     departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
       '<section class="wc-home-department-modal-panel">' +
-        '<header class="wc-home-department-modal-head"><h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
+        '<header class="wc-home-department-modal-head">' +
+        '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Ledger Directory</button>' +
+        '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
     document.body.appendChild(departmentModal);
     departmentFrame = departmentModal.querySelector("iframe");
+    departmentModal.querySelector("[data-department-popup-back]").addEventListener("click", function () {
+      openDepartmentModal(LEDGER_DIRECTORY_HREF, "Budget Ledgers", departmentTrigger);
+    });
     departmentFrame.addEventListener("load", function () {
       // openDepartmentModal already set the modal's title from the trigger
       // that opened it (an explorer card's label, an "Environmental
@@ -635,6 +663,14 @@
             if (closeButtonEl) closeButtonEl.setAttribute("aria-label", "Close " + derivedTitle);
             departmentFrame.title = derivedTitle + " budget page";
           }
+          // A same-iframe link click (handled below, or a plain in-page
+          // link this handler doesn't specially intercept) lands here too
+          // -- re-evaluate the back button against wherever we actually
+          // ended up, or it would otherwise keep showing on every later
+          // page just because the popup started out on a ledger page.
+          var followOnFilename = loadedUrl ? loadedUrl.pathname.split("/").pop() : "";
+          var followOnBackButton = departmentModal.querySelector("[data-department-popup-back]");
+          if (followOnBackButton) followOnBackButton.hidden = !openedFromLedgerDirectory || followOnFilename === "budget-overview.html" || !LEDGER_DIRECTORY_PAGES.has(followOnFilename);
         }
         // Any link inside this popup that points back at home.html (the
         // CIP hero's "Back to Capital Projects"/"Search Projects", a
@@ -654,6 +690,16 @@
           } catch (urlError) {
             return;
           }
+          // The header's Ledger Directory return control belongs only to
+          // pages reached by selecting a ledger inside that directory. A
+          // ledger opened from an explorer, search result, direct URL, or
+          // another page must not inherit the control merely because its
+          // filename also happens to be listed in the directory.
+          var currentEmbeddedFilename = "";
+          try { currentEmbeddedFilename = new URL(embeddedDocument.location.href).pathname.split("/").pop(); }
+          catch (currentEmbeddedUrlError) {}
+          var resolvedFilename = resolvedUrl.pathname.split("/").pop();
+          openedFromLedgerDirectory = currentEmbeddedFilename === "budget-overview.html" && LEDGER_DIRECTORY_PAGES.has(resolvedFilename);
           if (/\/(?:transaction-search|glossary-acronyms-and-frequently-asked-questions|accessibility|privacy)\.html$/i.test(resolvedUrl.pathname)) {
             event.preventDefault();
             openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger);
@@ -748,6 +794,10 @@
     departmentTrigger = trigger;
     var openedWithoutExplorer = modal.hidden;
     var url = new URL(href, window.location.href);
+    // Every explicit popup open begins a new navigation path. Only a later
+    // click made from inside budget-overview.html can opt into the return
+    // button for the resulting ledger page.
+    openedFromLedgerDirectory = false;
     var departmentTitle = /\/environmental-resources\.html$/i.test(url.pathname) || String(title).toLowerCase() === "environmental services"
       ? "Environmental Resources"
       : title || "Department";
@@ -780,6 +830,9 @@
     }
     departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = departmentTitle;
     departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + departmentTitle);
+    var openedFilename = url.pathname.split("/").pop();
+    var backButton = departmentModal.querySelector("[data-department-popup-back]");
+    if (backButton) backButton.hidden = true;
     departmentFrame.title = departmentTitle + " budget page";
     departmentModal.dataset.standalone = openedWithoutExplorer ? "true" : "false";
     if (openedWithoutExplorer) lockBackgroundPage();
@@ -801,6 +854,7 @@
     departmentFrameAwaitingInitialLoad = true;
     departmentFrame.src = url.href;
     departmentModal.hidden = false;
+    modal.inert = true;
     modal.classList.add("is-department-popup-open");
     // The budget book hides this popup's own header (it supplies its own
     // close control), so the header's close button isn't focusable there.
@@ -812,6 +866,7 @@
     if (!departmentModal || departmentModal.hidden) return;
     var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
     departmentModal.hidden = true;
+    if(modal) modal.inert = false;
     departmentModal.classList.remove("is-loading");
     if (departmentPanelResizeObserver) {
       departmentPanelResizeObserver.disconnect();
@@ -823,6 +878,7 @@
       waveVideo.currentTime = 0;
     }
     departmentFrame.src = "about:blank";
+    openedFromLedgerDirectory = false;
     modal.classList.remove("is-department-popup-open");
     if (!openedWithoutExplorer) {
       var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
@@ -928,6 +984,12 @@
       var inDepartmentExplorer = modalBody.contains(link) && link.closest(".wc-department-budget-cards");
       var inOfficePicker = link.closest(".wc-budget-detail-modal .wc-department-office-picker-list");
       var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result");
+      if(inSearchResults && window.WaltonBudgetGlobalSearch) window.WaltonBudgetGlobalSearch.close();
+      if(inSearchResults && /\/pages\/[^/]+\.html$/.test(new URL(link.href, window.location.href).pathname)){
+        event.preventDefault();
+        openDepartmentModal(link.href, (link.querySelector("strong") || link).textContent.trim(), link);
+        return;
+      }
       if (!inDepartmentExplorer && !inOfficePicker && !inSearchResults) return;
       var url = new URL(link.href, window.location.href);
       var filename = url.pathname.split("/").pop();
@@ -1001,11 +1063,13 @@
         modal.querySelector(".wc-home-explorer-modal-close").focus();
         return;
       }
+      if (action === "search") {
+        openGlobalSearch();
+        return;
+      }
       var sourceFooter = document.querySelector('body > footer[role="contentinfo"]');
       if (!sourceFooter) return;
-      var sourceControl = action === "search" ? sourceFooter.querySelector(".wc-footer-search-icon-button")
-        : action === "contact" ? sourceFooter.querySelector(".wc-footer-contact-button")
-        : null;
+      var sourceControl = action === "contact" ? sourceFooter.querySelector(".wc-footer-contact-button") : null;
       if (sourceControl) sourceControl.click();
     });
     modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
@@ -1062,12 +1126,47 @@
       var requestedCard = document.querySelector('[data-home-explorer="' + requestedExplorer + '"]');
       if (requestedCard) openModal(requestedExplorer, requestedCard);
     }
+    var requestedPopup = "";
+    try { requestedPopup = new URLSearchParams(window.location.search).get("popup") || ""; } catch (error) { requestedPopup = ""; }
+    if (requestedPopup) {
+      try {
+        var popupUrl = new URL(requestedPopup, window.location.href);
+        var isLocalPopupPage = popupUrl.origin === window.location.origin && /\/pages\/[^/]+\.html$/i.test(popupUrl.pathname);
+        if (isLocalPopupPage) {
+          var popupFilename = popupUrl.pathname.split("/").pop();
+          var popupCatalogItem = (window.wcBudgetPages || []).find(function (item) {
+            try { return new URL(item.href, window.location.href).pathname.split("/").pop() === popupFilename; }
+            catch (error) { return false; }
+          });
+          var popupTitle = popupCatalogItem && popupCatalogItem.title
+            ? popupCatalogItem.title
+            : popupFilename.replace(/\.html$/i, "").replace(/-/g, " ").replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+          openDepartmentModal(popupUrl.href, popupTitle, document.body);
+        }
+      } catch (error) {}
+    }
   }
 
-  // Lets the budget book's own iframe-embedded close (X) button -- shown in
-  // place of this popup's header/close button when is-budget-book is set --
-  // close the popup from inside the same-origin iframe.
-  window.WCHomeExplorer = { closeDepartmentModal: closeDepartmentModal };
+  // Lets embedded pages use the homepage shell for controls that live outside
+  // their iframe. Search first dismisses either popup layer so the global
+  // search panel is visible and accessible, then opens it from the main page.
+  function openGlobalSearch() {
+    if (modal && !modal.hidden) closeModal();
+    else closeDepartmentModal();
+    window.setTimeout(function () {
+      if (typeof window.openWaltonBudgetSearch === "function") {
+        window.openWaltonBudgetSearch();
+      } else {
+        window.location.href = "pages/search.html";
+      }
+    }, 0);
+  }
+
+  // The budget book's own iframe-embedded close (X) button uses this API too.
+  window.WCHomeExplorer = {
+    closeDepartmentModal: closeDepartmentModal,
+    openGlobalSearch: openGlobalSearch
+  };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

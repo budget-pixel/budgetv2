@@ -13,8 +13,6 @@
     "our-county.html": true,
     "budget-overview.html": true,
     "departments.html": true,
-    "financials.html": true,
-    "autonomous-entities.html": true,
     "search.html": true
   };
 
@@ -742,7 +740,6 @@ var PRINT_CSS = `
   nav:not(#nav-menu),
   footer,
   footer[role="contentinfo"],
-  .social-wrapper,
   .follow-container,
   #community-react-root,
   .highcharts-exporting-group,

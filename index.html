@@ -22,20 +22,6 @@
     analytics_Storage: "granted"
   });
 </script>
-<script>
-  (function(){
-    try{
-      var adminTheme = new URLSearchParams(window.location.search).get("adminTheme");
-      if(adminTheme === "dark" || adminTheme === "light"){
-        /* Hidden local developer preference only; this is not a public feature or navigation setting. */
-        window.localStorage.setItem("waltonBudgetTheme", adminTheme);
-      }
-      if(window.localStorage.getItem("waltonBudgetTheme") === "dark"){
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    }catch(e){}
-  })();
-</script>
 <style>
   :root{
     --wc-green:#006231;
@@ -44,7 +30,7 @@
     --wc-gold:#d1be78;
     --wc-gold-2:#f1dc94;
     --wc-ink:#172033;
-    --wc-muted:#607184;
+    --wc-muted:#5a6e7f;
     --wc-line:rgba(23,32,51,.11);
     --wc-soft:#f6f8f5;
     --wc-white:#ffffff;
@@ -177,33 +163,6 @@
     color:#ffffff;
     cursor:pointer;
   }
-  .wc-theme-toggle{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:38px;
-    height:38px;
-    flex:0 0 auto;
-    margin-left:4px;
-    border:1px solid rgba(255,255,255,.5);
-    border-radius:999px;
-    background:rgba(255,255,255,.14);
-    color:#ffffff;
-    cursor:pointer;
-  }
-  .wc-theme-toggle:hover{
-    background:rgba(255,255,255,.24);
-  }
-  .wc-theme-toggle svg{
-    width:17px;
-    height:17px;
-    stroke:currentColor;
-    fill:none;
-  }
-  .wc-theme-toggle .wc-theme-sun{display:none}
-  html[data-theme="dark"] .wc-theme-toggle .wc-theme-moon{display:none}
-  html[data-theme="dark"] .wc-theme-toggle .wc-theme-sun{display:block}
-  .wc-theme-toggle-mobile{display:none}
   .wc-search-focus:hover{
     background:rgba(255,255,255,.24);
   }
@@ -916,23 +875,6 @@
     font-size:14px;
     line-height:1.55;
   }
-  html[data-theme="dark"] .wc-budget-guide-dialog,
-  html[data-theme="dark"] .wc-budget-guide-close,
-  html[data-theme="dark"] .wc-budget-guide-reset{
-    background:#0a1410;
-    border-color:var(--wc-line);
-    color:var(--wc-ink);
-  }
-  html[data-theme="dark"] .wc-budget-guide-choice{
-    background:rgba(255,255,255,.04);
-    border-color:var(--wc-line);
-    color:var(--wc-ink);
-  }
-  html[data-theme="dark"] .wc-budget-guide-choice:has(input:checked),
-  html[data-theme="dark"] .wc-budget-guide-result{
-    border-color:rgba(142,203,166,.32);
-    background:rgba(0,98,49,.22);
-  }
   .wc-budget-grid{
     display:grid;
     grid-template-columns:repeat(5, minmax(0,1fr));
@@ -1094,23 +1036,6 @@
     content:"\2192";
     flex:0 0 auto;
     color:var(--wc-green);
-  }
-  html[data-theme="dark"] .wc-fund-picker-dialog{
-    background:#0a1410;
-    border-color:var(--wc-line);
-    color:var(--wc-ink);
-    box-shadow:0 24px 70px rgba(0,0,0,.5);
-  }
-  html[data-theme="dark"] .wc-fund-picker-close{
-    background:rgba(10,20,16,.7);
-    border-color:var(--wc-line);
-  }
-  html[data-theme="dark"] .wc-fund-picker-list a{
-    border-color:var(--wc-line);
-  }
-  html[data-theme="dark"] .wc-fund-picker-list a:hover,
-  html[data-theme="dark"] .wc-fund-picker-list a:focus-visible{
-    background:rgba(123,211,159,.12);
   }
   .wc-budget-card p,
   .wc-investment-card p{
@@ -1388,84 +1313,6 @@
     color:#fff;
   }
 
-  html[data-theme="dark"]{
-    --wc-green:#7bd39f;
-    --wc-green-2:#48b778;
-    --wc-green-3:#0f3f2d;
-    --wc-gold:#d8c77e;
-    --wc-gold-2:#f1dc94;
-    --wc-ink:#edf3ef;
-    --wc-muted:#a9b9b0;
-    --wc-line:rgba(226,235,229,.16);
-    --wc-soft:#101d17;
-    --wc-white:#0f1b16;
-    --wc-shadow:0 24px 70px rgba(0,0,0,.38);
-    color-scheme:dark;
-  }
-  html[data-theme="dark"] body{
-    background:
-      radial-gradient(circle at top left, rgba(123,211,159,.13), transparent 34rem),
-      linear-gradient(180deg,#07110d 0%,#0c1712 45%,#09120e 100%);
-  }
-  html[data-theme="dark"] .wc-story-nav{
-    background:linear-gradient(180deg, rgba(5,20,14,.18), transparent);
-  }
-  html[data-theme="dark"] .wc-home-shell{
-    color:var(--wc-ink);
-  }
-  html[data-theme="dark"] .wc-section-heading h2,
-  html[data-theme="dark"] .wc-budget-card strong,
-  html[data-theme="dark"] .wc-investment-card strong,
-  html[data-theme="dark"] .wc-project-card h3,
-  html[data-theme="dark"] .wc-footer-search-copy h2{
-    color:var(--wc-ink);
-  }
-  html[data-theme="dark"] .wc-budget-card,
-  html[data-theme="dark"] .wc-investment-card,
-  html[data-theme="dark"] .wc-project-card,
-  html[data-theme="dark"] .wc-home-footer{
-    background:rgba(14,28,22,.92);
-    border-color:var(--wc-line);
-    box-shadow:0 18px 46px rgba(0,0,0,.28);
-  }
-  html[data-theme="dark"] .wc-budget-card small,
-  html[data-theme="dark"] .wc-investment-card small,
-  html[data-theme="dark"] .wc-budget-card p,
-  html[data-theme="dark"] .wc-investment-card p,
-  html[data-theme="dark"] .wc-budget-card-millage,
-  html[data-theme="dark"] .wc-project-card p,
-  html[data-theme="dark"] .wc-footer-search-copy p,
-  html[data-theme="dark"] .wc-footer-links a,
-  html[data-theme="dark"] .wc-footer-contact-button{
-    color:var(--wc-muted);
-  }
-  html[data-theme="dark"] .wc-footer-contact-dialog{
-    border-color:rgba(226,235,229,.18);
-    background:#101d17;
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-contact-dialog p{
-    color:#a9b9b0;
-  }
-  html[data-theme="dark"] .wc-footer-contact-actions button{
-    border-color:rgba(123,211,159,.34);
-    background:transparent;
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-contact-actions a{
-    border-color:rgba(123,211,159,.38);
-    background:rgba(123,211,159,.16);
-    color:#edf3ef;
-  }
-  html[data-theme="dark"] .wc-footer-search-button{
-    background:rgba(123,211,159,.13);
-    border-color:rgba(123,211,159,.38);
-    color:var(--wc-ink);
-  }
-  html[data-theme="dark"] .wc-footer-search-button:hover{
-    background:rgba(123,211,159,.2);
-  }
-
   .wc-reveal{
     opacity:0;
     transform:translateY(18px);
@@ -1490,8 +1337,6 @@
       justify-content:flex-start;
       padding-top:8px;
     }
-    .wc-story-nav.is-menu-open .wc-top-links .wc-theme-toggle{display:none}
-    .wc-theme-toggle-mobile{display:none}
     .wc-menu-toggle{display:inline-flex;margin-left:auto}
     .wc-budget-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
   }
@@ -1697,6 +1542,9 @@
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
+  .wc-budget-landing-close{position:absolute;top:8px;right:8px;z-index:10;display:grid;place-items:center;width:36px;height:36px;border:1px solid #b9cdc1;border-radius:50%;background:#fff;color:#004c2e;font-size:24px;cursor:pointer}
+  .wc-budget-landing-close:focus-visible{outline:3px solid #006231;outline-offset:3px}
+  .wc-budget-landing-dialog.is-inner-popup-open>.wc-budget-landing-close{display:none}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
   @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-panel{transition:none}}
@@ -1732,6 +1580,7 @@
 </main>
 
 <div class="wc-budget-landing-dialog" data-budget-landing-dialog role="dialog" aria-modal="true" aria-label="Budget Explorer" hidden>
+  <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
   <video class="wc-budget-landing-wave" muted loop playsinline preload="metadata" aria-hidden="true">
     <source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4">
   </video>
@@ -1785,15 +1634,28 @@
       var minimumRevealMs = 900;
       var openedAt = 0;
       if(!trigger || !dialog || !frame) return;
+      var closeButton = dialog.querySelector('.wc-budget-landing-close');
+      function closeDialog(){
+        dialog.hidden = true;
+        document.querySelector('.wc-start-page').inert = false;
+        document.documentElement.classList.remove('wc-budget-landing-open');
+        document.body.classList.remove('wc-budget-landing-open');
+        if(wave) wave.pause();
+        trigger.focus();
+      }
+      closeButton.addEventListener('click', closeDialog);
+      dialog.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeDialog(); });
 
       function openDialog(event){
         if(event) event.preventDefault();
         dialog.hidden = false;
+        document.querySelector('.wc-start-page').inert = true;
         dialog.classList.add("is-loading");
         openedAt = Date.now();
         document.documentElement.classList.add("wc-budget-landing-open");
         document.body.classList.add("wc-budget-landing-open");
         if(!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src || "home.html?embed=landing");
+        else { dialog.classList.remove('is-loading'); frame.focus(); }
         if(wave && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)){
           wave.defaultPlaybackRate = 0.25;
           wave.playbackRate = 0.25;
@@ -1807,12 +1669,20 @@
           var embeddedDocument = frame.contentDocument;
           embeddedDocument.documentElement.classList.add("wc-embedded-budget-landing");
           var embeddedStyle = embeddedDocument.createElement("style");
-          embeddedStyle.textContent = 'nav#nav-menu{display:none!important}' +
+          embeddedStyle.textContent = 'nav#nav-menu:not(.is-search-open){display:none!important}' +
             'body{display:flex!important;min-height:100vh!important;min-height:100dvh!important;flex-direction:column!important}' +
             '#layout{display:block!important;min-height:0!important;flex:1 0 auto!important}' +
             'footer[role="contentinfo"]{margin-top:auto!important}' +
             '.wc-explorer-home{padding-top:18px!important;padding-bottom:28px!important}';
           embeddedDocument.head.appendChild(embeddedStyle);
+          embeddedDocument.addEventListener('keydown', function(event){
+            if(event.key === 'Escape' && !event.defaultPrevented &&
+              !embeddedDocument.body.classList.contains('wc-home-explorer-open') &&
+              !embeddedDocument.body.classList.contains('wc-global-search-open') &&
+              !embeddedDocument.querySelector('dialog[open]')){
+              event.preventDefault(); closeDialog();
+            }
+          });
           function syncInnerPopupState(){
             // Only explorer/detail overlays need the outer landing frame
             // collapsed. Utility dialogs (Transaction Search,

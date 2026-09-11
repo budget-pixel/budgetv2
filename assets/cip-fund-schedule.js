@@ -571,12 +571,6 @@ function renderFundSchedule(config){
         cursor:pointer;
       }
 
-      :root[data-theme="dark"] .wc-cip-sort-field select{
-        background:#172235;
-        border-color:rgba(158,217,168,.3);
-        color:#e6edf5;
-      }
-
       .wc-cip-district-toggle{
         display:inline-flex;
         align-items:center;

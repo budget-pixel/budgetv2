@@ -3247,6 +3247,13 @@
 
       if (dataFetchDegraded) showDataDegradedBanner();
 
+      // An empty or unavailable primary financial source is not a zero budget.
+      // Stop dependent totals before overrides or summaries can make a partial
+      // dataset appear complete. Existing renderers display their error state.
+      if(cache.errors.expenditures || cache.errors.revenues || !cache.expenditures.length || !cache.revenues.length){
+        throw new Error('Required budget revenue or expenditure data is unavailable.');
+      }
+
       cache.expenditures = applyStatutoryExpenseOverrides(cache.expenditures);
       cache.revenues = applyRevenueNameOverrides(cache.revenues);
 
@@ -13533,10 +13540,6 @@
       const assetNumber = String(row.BCC_Replacement || "").trim();
       if (!assetNumber) return "—";
       if (!/^vehicles?$/i.test(String(row.ME_Type || "").trim())) return escapeHtml(assetNumber);
-      // The asset record page is only published for dark-mode visitors (see
-      // asset-detail.js) -- shown as plain text in light mode rather than a
-      // clickable link that just lands on a "dark mode only" message.
-      if (document.documentElement.getAttribute("data-theme") !== "dark") return escapeHtml(assetNumber);
       const query = new URLSearchParams({
         asset: assetNumber,
         amount: String(row.Amount || 0),
@@ -14471,7 +14474,7 @@
 
   // Shared by the Summary of Personnel page's own callout row and the
   // Financials directory's "Summary of Personnel" link card (see
-  // financials.html), so both stay in sync with one grouping definition.
+  // budget-overview.html), so both stay in sync with one grouping definition.
   // Sorted largest to smallest so the biggest funds/offices read first.
   function getPersonnelFundCallouts(rows) {
     const totalsByFilterLabel = new Map();
@@ -14789,13 +14792,8 @@
       const fteChange = totalFte2027 - totalFte2026;
       const boardFte2027 = staffingRows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name)).reduce((sum, r) => sum + (Number(r[2027]) || 0), 0);
       const constitutionalFte2027 = totalFte2027 - boardFte2027;
-      const workforceTypeTotals = staffingRows.reduce((totals, row) => {
-        const fte = Math.max(0, Number(row[2027]) || 0);
-        const wholeFte = Math.floor(fte + 0.000001);
-        totals.fullTime += wholeFte;
-        totals.partTime += fte - wholeFte;
-        return totals;
-      }, { fullTime: 0, partTime: 0 });
+      // Aggregate FTE does not identify full-time/part-time headcount.
+      // Do not manufacture employee classifications from fractional totals.
 
       const costRows = buildPersonnelCostRows();
       const totalCost2027 = costRows.reduce((sum, r) => sum + r.Salaries + r.Retirement + r.HealthInsurance + r.OtherBenefits, 0);
@@ -14887,17 +14885,11 @@
       const deptCostMatchKey = (rawDeptName) => personnelCostFteMatchKey(rawDeptName);
       const costByDept = new Map();
       const priorCostByDept = new Map();
-      (cache.expenditures || []).forEach((row) => {
-        if (String(row.Object_Type || "").trim() !== "Personnel Services") return;
-        const amount = row.FY2027_Proposed || 0;
-        const priorAmount = personnelCostPriorYearAmount(row);
-        if (!amount && !priorAmount) return;
-        const code = String(row.Object_Code || "").trim();
-        const isSalary = PERSONNEL_COST_SALARY_CODES.has(code);
-        const isRetirement = code === PERSONNEL_COST_RETIREMENT_CODE;
-        const isHealthInsurance = code === PERSONNEL_COST_HEALTH_INSURANCE_CODE;
-        const isOtherBenefit = PERSONNEL_COST_OTHER_BENEFIT_CODES.has(code);
-        if (!isSalary && !isRetirement && !isHealthInsurance && !isOtherBenefit) return;
+      // Reuse the ledger's deduplicated history and classification crosswalk,
+      // including the Tax Collector's prior-year lump-sum personnel funding.
+      costRows.forEach((row) => {
+        const amount = row.Salaries + row.Retirement + row.HealthInsurance + row.OtherBenefits;
+        const priorAmount = row.PriorTotal || 0;
         const key = deptCostMatchKey(row.Dept_Name);
         costByDept.set(key, (costByDept.get(key) || 0) + amount);
         priorCostByDept.set(key, (priorCostByDept.get(key) || 0) + priorAmount);
@@ -14924,7 +14916,9 @@
         const deptCards = largestDepartments.concat([["All Other Departments", allOtherFte]]).map((item) => {
           const isAllOther = item[0] === "All Other Departments";
           const fte2027 = item[1];
-          const fteDelta = isAllOther ? 0 : (deltaByDept.get(item[0]) || 0);
+          const fteDelta = isAllOther
+            ? Array.from(deltaByDept.entries()).filter(([name]) => !largestDeptNames.has(name)).reduce((sum, [, delta]) => sum + delta, 0)
+            : (deltaByDept.get(item[0]) || 0);
           const ftePrior = fte2027 - fteDelta;
           const fteChangePct = ftePrior ? (fteDelta / ftePrior * 100) : null;
           const cost2027 = isAllOther ? allOtherCost : (costByDept.get(deptCostMatchKey(item[0])) || 0);
@@ -14965,7 +14959,7 @@
         const costMixBarsHtml = costMix.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatCurrency(item[1])) + '</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         explainedContainer.innerHTML =
           '<div class="pq-stat-row">' +
-            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + ' · ' + escapeHtml(formatNumber(workforceTypeTotals.fullTime)) + ' full-time, ' + escapeHtml(formatNumber(workforceTypeTotals.partTime)) + ' part-time</small></article>' +
+            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '. FTE measures staffing capacity, not employee headcount. Separate full-time and part-time headcounts are not available in this schedule.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(boardFte2027)) + ' FTE</b><span>Board Departments</span><small>Departments that report to the County Administrator.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(constitutionalFte2027)) + ' FTE</b><span>Constitutional Officers</span><small>Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff.</small></article>' +
           '</div>' +
@@ -17609,7 +17603,7 @@
       // which gets its own stat below -- previously folded into this total
       // alongside internal-service allocations and everything else.
       const totalOperatingAll = departments.reduce((sum, dept) => sum + dept.internal + dept.operating, 0);
-      function costCategoryPct(value) { return total ? (value / total * 100).toFixed(1) : "0.0"; }
+      function costCategoryPct(value) { return totalExcludingCapital ? (value / totalExcludingCapital * 100).toFixed(1) : "0.0"; }
       const costCategorySplitHtml = '<div class="wc-revenue-support-split"><div><span>Total Personnel</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalPersonnel)) + '</b><small>' + costCategoryPct(totalPersonnel) + '%</small></div></div><div><span>Total Contractual Services</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalContracts)) + '</b><small>' + costCategoryPct(totalContracts) + '%</small></div></div><div><span>Total Operating</span><div class="wc-revenue-support-amount-row"><b>' + escapeHtml(compactCurrency(totalOperatingAll)) + '</b><small>' + costCategoryPct(totalOperatingAll) + '%</small></div></div></div>';
       const compositionHtml = '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + Math.round(boardShareOfBudgetPct) + '%</strong> of the total expenditure budget is board department funding.</p>' + costCategorySplitHtml + '</div>';
       // Department "Services / Changing / Challenges" badge content, sourced
@@ -17640,7 +17634,7 @@
         const isPersonnelDriven = personnelDiff !== 0 && Math.abs(personnelDiff) >= Math.abs(topItem ? topItem.diff : 0);
         let text = "The department budget is " + (budgetChange > 0 ? "increasing" : budgetChange < 0 ? "decreasing" : "remaining level") + (budgetChange !== 0 ? " by " + formatCurrency(Math.abs(budgetChange)) + (dept.prior ? " (" + Math.abs(budgetChange / dept.prior * 100).toFixed(1) + "%)" : "") : "") + ".";
         if (isPersonnelDriven) {
-          text += " The primary change can be attributed to additional staffing requested, needed to keep pace with growing service demand across the county.";
+          text += " Personnel services are the largest measured cost driver, " + (personnelDiff > 0 ? "increasing" : "decreasing") + " by " + formatCurrency(Math.abs(personnelDiff)) + ". The figures alone do not identify the reason for the change.";
         } else if (topItem) {
           text += " The primary change is " + topItem.name + " " + (topItem.diff > 0 ? "increasing" : "decreasing") + " by " + formatCurrency(Math.abs(topItem.diff)) + ".";
         }

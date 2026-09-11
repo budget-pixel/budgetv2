@@ -74,21 +74,6 @@
     grid-template-columns:1fr;
   }
 }
-:root[data-theme="dark"] .wc-doc-section h2,
-:root[data-theme="dark"] .wc-doc-card strong{
-  color:var(--text);
-}
-:root[data-theme="dark"] .wc-doc-card{
-  background:rgba(14,28,22,.92);
-  border-color:var(--border);
-  box-shadow:0 18px 42px rgba(0,0,0,.24);
-}
-:root[data-theme="dark"] .wc-doc-card:hover{
-  background:rgba(18,38,29,.96);
-}
-:root[data-theme="dark"] .wc-doc-card span{
-  color:var(--muted);
-}
 </style>
 </head>
 <body>
@@ -181,12 +166,12 @@
 
 <script>
 window.wcBudgetPages = [
-  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financials.html"},
+  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Supporting Budget Documentation",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supporting-budget-documentation.html"}
 ];
 </script>
-<script src="../assets/search-data.js?v=20260902-remove-table-of-contents"></script>
-<script src="../assets/nav.js?v=20260903-reveal-then-grow"></script>
+<script src="../assets/search-data.js?v=20260910-remove-dark-mode"></script>
+<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>

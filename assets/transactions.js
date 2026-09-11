@@ -8,17 +8,6 @@
   // Floating-point summation noise only; not a tolerance for real discrepancies.
   const RECONCILIATION_TOLERANCE = 0.01;
 
-  function isDebugMode() {
-    try {
-      return (
-        /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ||
-        new URLSearchParams(window.location.search).has("debug")
-      );
-    } catch (e) {
-      return false;
-    }
-  }
-
   function $(selector) {
     return document.querySelector(selector);
   }
@@ -286,21 +275,6 @@
           : "";
         status.innerHTML = lines.map((line) => "<p>" + escapeHtml(line) + "</p>").join("") + warning;
       }
-    }
-
-    if (isDebugMode()) {
-      console.log("Transaction detail reconciliation", {
-        fiscalYear: context.fy,
-        objectCode: context.objectCode,
-        departmentCode: context.org,
-        fundCode: context.fundCode || null,
-        programCode: context.projectCode || null,
-        selectedActualAmount: context.selectedActual,
-        queryFilters: queryFilters,
-        rowCount: rows.length,
-        transactionTotal: transactionTotal,
-        difference: difference
-      });
     }
 
     renderTable(rows, context);
