@@ -298,12 +298,12 @@
         { title: "Sidewalk Fund Capital Ledger", href: "pages/sidewalk-fund.html", amount: byFund["115"] || 0 }
       ];
       var cardHtml = cards.map(function (card) {
-        var scope = card.href.indexOf('cip-sheriff') !== -1 ? 'Sheriff capital outlay; separate from Board total' : card.href.indexOf('machinery') !== -1 ? 'Equipment schedule; overlaps fund capital budgets' : 'Capital-outlay appropriations in the selected funds';
+        var scope = card.href.indexOf('cip-sheriff') !== -1 ? 'Sheriff capital outlay; excluded from headline total' : card.href.indexOf('machinery') !== -1 ? 'Equipment schedule; overlaps fund capital budgets' : 'Capital-outlay appropriations in the selected funds';
         return '<a href="' + escapeHtml(card.href) + '" data-explorer-popup-trigger="' + escapeHtml(card.title) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + scope + '</small></div>' +
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
-      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total capital budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment. These are overlapping views, not amounts to add together. Project schedules and annual appropriations can cover different scopes.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Capital outlay, excluding Sheriff</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
         '<section class="wc-capital-what-counts" aria-labelledby="wcCapitalWhatCountsTitle">' +
           '<div class="wc-capital-what-counts-head"><h3 id="wcCapitalWhatCountsTitle">What is a capital project?</h3><p>Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not.</p></div>' +
           '<div class="wc-capital-what-counts-grid">' +
@@ -703,6 +703,19 @@
           if (/\/(?:transaction-search|glossary-acronyms-and-frequently-asked-questions|accessibility|privacy)\.html$/i.test(resolvedUrl.pathname)) {
             event.preventDefault();
             openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger);
+            return;
+          }
+          // The budget book supplies its own transparent, chromeless layout
+          // (see isBudgetBook above), which only gets applied when the popup
+          // is opened fresh through openDepartmentModal -- a plain in-page
+          // link to it (e.g. a "View in Print Budget" reference from a
+          // supporting-documentation card) would otherwise just navigate
+          // this iframe directly, landing on budget-book.html without its
+          // ?embed=department-popup flag and showing that page's full
+          // standalone header/controls nested inside this popup's own.
+          if (/\/budget-book\.html$/i.test(resolvedUrl.pathname)) {
+            event.preventDefault();
+            openDepartmentModal(resolvedUrl.href, "Full Budget Document", departmentTrigger);
             return;
           }
           // A department/officer/agency link clicked from inside an

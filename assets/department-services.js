@@ -428,7 +428,7 @@
       var careerStat=SNAPSHOT_CAREER_STATS[deptKey];
       var careerHtml=careerStat?(
         '<aside class="wc-snapshot-career-fact">'+
-          '<p class="wc-snapshot-career-fact-lead">In Florida, <strong>'+escapeHtml(careerStat.displayLabel)+'</strong> currently earn an average of <strong>'+money(careerStat.wage)+'</strong> a year.</p>'+
+          '<p class="wc-snapshot-career-fact-lead">Florida occupational wage reference: <strong>'+money(careerStat.wage)+'</strong> per year for <strong>'+escapeHtml(careerStat.occupation)+'</strong>. This benchmark is not the pay of County employees.</p>'+
           '<p class="wc-snapshot-career-fact-source">Based on '+escapeHtml(careerStat.occupation)+' wages. Source: U.S. Bureau of Labor Statistics, Occupational Employment &amp; Wage Statistics (Florida), via <a href="https://www.onetonline.org/link/localwages/'+encodeURIComponent(careerStat.socCode)+'.00?st=FL" target="_blank" rel="noopener noreferrer">O*NET OnLine</a>.</p>'+
         '</aside>'
       ):'';
@@ -588,6 +588,12 @@
       if(wrap) wrap.outerHTML='<p class="wc-data-empty">No historical spending data is available for this department.</p>';
       return;
     }
+    canvas.setAttribute('role','img');
+    canvas.setAttribute('aria-label','Spending by fiscal year in dollars. The data table below provides the same values.');
+    var table=document.createElement('details');
+    table.className='wc-snapshot-chart-data';
+    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table"><caption>Spending in dollars; 2020–2025 actuals, 2026 adopted, 2027 tentative</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+    if(wrap)wrap.insertAdjacentElement('afterend',table);
     var chart=new window.Chart(canvas,{
       type:'line',
       data:{labels:trimmedYears.map(function(y){return y.label;}),datasets:datasets},

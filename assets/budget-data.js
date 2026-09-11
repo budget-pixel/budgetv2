@@ -4486,8 +4486,11 @@
   // choices so the delegated click handler below can show a picker.
   const departmentCardOfficeChoices = new Map();
 
+  let budgetDetailBackgroundElements = [];
   function lockBudgetDetailBackgroundScroll() {
     if (budgetDetailScrollLock) return;
+    budgetDetailBackgroundElements = Array.from(document.body.children).filter(el => !el.inert && !el.classList.contains('wc-budget-detail-modal') && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName));
+    budgetDetailBackgroundElements.forEach(el => { el.inert = true; });
     const scrollY = window.scrollY || window.pageYOffset || 0;
     budgetDetailScrollLock = {
       scrollY,
@@ -4510,6 +4513,8 @@
 
   function unlockBudgetDetailBackgroundScroll() {
     if (!budgetDetailScrollLock) return;
+    budgetDetailBackgroundElements.forEach(el => { el.inert = false; });
+    budgetDetailBackgroundElements = [];
     const scrollY = budgetDetailScrollLock.scrollY || 0;
     document.documentElement.style.overflow = budgetDetailScrollLock.htmlOverflow;
     document.body.style.position = budgetDetailScrollLock.bodyPosition;
@@ -4571,7 +4576,18 @@
   }
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeBudgetDetailModal();
+    if (event.key === "Tab" && document.body.classList.contains("wc-budget-detail-open")) {
+      const modal = document.querySelector('.wc-budget-detail-modal');
+      const items = Array.from(modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),summary,[tabindex="0"]')).filter(el => el.getClientRects().length && !el.closest('[hidden]'));
+      const first = items[0], last = items[items.length - 1];
+      if (first && event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (last && !event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    if (event.key === "Escape" && document.body.classList.contains("wc-budget-detail-open")) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeBudgetDetailModal();
+    }
     if ((event.key === " " || event.key === "Spacebar") && event.target && event.target.closest) {
       const drilldownLink = event.target.closest(".wc-actual-drilldown-link");
       if (drilldownLink) {
@@ -4986,7 +5002,7 @@
     return (
       '<div class="wc-data-table-wrap">' +
       headerHtml +
-      '<div class="wc-data-table-scroll">' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
       '<table class="wc-data-table">' +
       tableCaptionHtml +
       "<thead><tr>" +
@@ -6038,7 +6054,7 @@
     return (
       '<div class="wc-table-wrap">' +
       '<p class="wc-table-label">' + escapeHtml(config.caption) + "</p>" +
-      '<div class="wc-data-table-scroll">' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
       '<table class="wc-data-table">' +
       "<thead><tr>" + headerCells.map((h) => "<th>" + escapeHtml(h) + "</th>").join("") + "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
@@ -6225,7 +6241,7 @@
       '<div class="trim-budget-heading"><h2>Budget Summary</h2>' +
       '<p>Walton County, Florida &mdash; Board of County Commissioners &mdash; Fiscal Year 2026&ndash;2027</p>' +
       operatingIncreaseHtml + '</div>' +
-      '<div class="wc-data-table-scroll"><table class="wc-data-table wc-consolidated-financial-table">' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns"><table class="wc-data-table wc-consolidated-financial-table">' +
       '<thead><tr>' + headers.map((header) => '<th>' + escapeHtml(header) + '</th>').join("") + '</tr></thead>' +
       '<tbody>' + bodyRows.join("") + '</tbody></table></div>' +
       '<p class="trim-budget-record-note">The tentative adopted, and/or final budgets are on file in the Office of the Walton County Board of County Commissioners as a public record.</p></div>';
@@ -8758,7 +8774,7 @@
     return (
       '<div class="wc-budget-lines-card">' +
       '<div class="wc-table-wrap">' +
-      '<div class="wc-data-table-scroll">' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
       '<table class="wc-data-table">' +
       "<thead><tr><th>Revenue Sources</th>" +
       CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((c) => '<th class="wc-num' + columnCellClass(c) + '">' + escapeHtml(c.label) + "</th>" + (c.field === "FY2027_Proposed" ? '<th class="wc-num">+/−</th>' : "")).join("") +
@@ -9083,7 +9099,7 @@
       '<p class="wc-table-label">Expenditure Ledger</p>' +
       priorYearsToggleHtml(showPrior) +
       "</div>" +
-      '<div class="wc-data-table-scroll">' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
       '<table class="wc-data-table">' +
       "<thead><tr><th>Expense Area</th>" +
       expenditureLedgerColumns.map((c, i) => '<th class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
@@ -11131,7 +11147,7 @@
           '<div class="wc-property-tax-burden-row"><div><span>Homestead property</span></div><strong>16.7%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.1667)) + '</em></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Commercial &amp; industrial</span></div><strong>5.3%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.053)) + '</em></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Other taxable property</span></div><strong>78.0%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.78)) + '</em></div>' +
-          '<div class="wc-property-tax-burden-bar wc-property-tax-burden-bar-stacked" aria-label="Taxable value: 16.7 percent homestead, 5.3 percent commercial and industrial, and 78 percent other taxable property"><i class="is-homestead" style="width:16.7%"></i><i class="is-commercial" style="width:5.3%"></i><i class="is-other" style="width:78%"></i></div>' +
+          '<div class="wc-property-tax-burden-bar wc-property-tax-burden-bar-stacked" role="img" aria-label="Taxable value: 16.7 percent homestead, 5.3 percent commercial and industrial, and 78 percent other taxable property"><i class="is-homestead" style="width:16.7%"></i><i class="is-commercial" style="width:5.3%"></i><i class="is-other" style="width:78%"></i></div>' +
           '<p>Estimated FY 2027 levy shares apply the parcel roll and Florida Department of Revenue&rsquo;s 2025 property-use taxable values to proposed ad valorem revenue. This is a tax-base comparison, not a parcel-level billing calculation.</p></div>'
         : '';
       const propertyTaxSupportPage = window.location.pathname.includes("/pages/")
@@ -12002,7 +12018,7 @@
       ? personnelLedgerDetail.detailHtml
       : '<div class="wc-budget-lines-detail wc-budget-lines-card' + (showPrior ? " show-prior-years" : "") + '" id="' + detailId + '" hidden>' +
           priorYearsToggleHtml(showPrior, "wc-budget-lines-detail-header") +
-          '<div class="wc-data-table-scroll">' +
+          '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
           '<table class="wc-data-table wc-staffing-table">' +
           "<thead><tr>" +
           "<th>Position Name</th>" +
@@ -14461,7 +14477,7 @@
       '<div class="wc-budget-lines-detail wc-budget-lines-card wc-finance-card' + (showPriorLocal ? " show-prior-years" : "") + '" data-print-title="' + escapeHtml(deptName || "") + '" id="' + detailId + '" hidden>' +
         priorYearsToggleHtml(showPriorLocal, "wc-budget-lines-detail-header") +
         functionalAreaHtml +
-        '<div class="wc-data-table-scroll">' +
+        '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
         '<table class="wc-data-table wc-staffing-table">' +
         "<thead><tr><th>Position Name</th>" +
         priorYears.map((y) => '<th class="wc-num wc-prior-year">FY ' + y + "</th>").join("") +
@@ -14792,8 +14808,8 @@
       const fteChange = totalFte2027 - totalFte2026;
       const boardFte2027 = staffingRows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name)).reduce((sum, r) => sum + (Number(r[2027]) || 0), 0);
       const constitutionalFte2027 = totalFte2027 - boardFte2027;
-      // Aggregate FTE does not identify full-time/part-time headcount.
-      // Do not manufacture employee classifications from fractional totals.
+      // The County has confirmed the FY2027 position mix represented by
+      // this schedule: 1,508 full-time and 7 part-time positions.
 
       const costRows = buildPersonnelCostRows();
       const totalCost2027 = costRows.reduce((sum, r) => sum + r.Salaries + r.Retirement + r.HealthInsurance + r.OtherBenefits, 0);
@@ -14959,7 +14975,7 @@
         const costMixBarsHtml = costMix.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatCurrency(item[1])) + '</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         explainedContainer.innerHTML =
           '<div class="pq-stat-row">' +
-            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '. FTE measures staffing capacity, not employee headcount. Separate full-time and part-time headcounts are not available in this schedule.</small></article>' +
+            '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>1,508 full-time positions · 7 part-time positions. FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(boardFte2027)) + ' FTE</b><span>Board Departments</span><small>Departments that report to the County Administrator.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(constitutionalFte2027)) + ' FTE</b><span>Constitutional Officers</span><small>Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff.</small></article>' +
           '</div>' +
@@ -16139,6 +16155,7 @@
         '<td class="wc-num">' + formatCurrency(positionsGrand.Total) + "</td></tr>"
       );
       positionsHtml =
+        '<p class="wc-data-source-note"><strong>Position cost estimates:</strong> Salary and benefit estimates are allocated to match the department budget, including shared adjustments. These are planning allocations, not individual employee pay or independently reconciled position appropriations.</p>' +
         '<div class="wc-staffing-notes-title-row">' +
         '<p class="wc-staffing-notes-title">Staffing and Cost by Position</p>' +
         '<div class="wc-staffing-notes-title-row-toggles">' +
@@ -16146,7 +16163,7 @@
         '<button type="button" class="wc-view-budget-lines-toggle wc-personnel-position-optional-cols-toggle" aria-pressed="false">Show COLA, Health Insurance &amp; Increase</button>' +
         "</div>" +
         "</div>" +
-        '<div class="wc-data-table-scroll">' +
+        '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
         '<table class="wc-data-table wc-staffing-table wc-personnel-position-detail">' +
         "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\"><span class=\"wc-personnel-full-amt\">Retirement, Health Insurance &amp; Other Benefits</span><span class=\"wc-personnel-base-amt\">Retirement &amp; Other Benefits</span></th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\" title=\"A hypothetical 5% active-employee premium increase, shown for reference only -- not part of Total Personnel Cost.\">Health Insurance Increase (not in Total)</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
         "<tbody>" + positionRows.join("") + "</tbody></table></div>";
@@ -16989,7 +17006,7 @@
 
       const goalGroupHtml = Array.from(goalGroups.entries()).map(([goal, goalRows]) => {
         const measureRows = goalRows.map((row) => {
-          const target = row.Projected_2027 || "Not provided";
+          const target = row.Projected_2027 === null || row.Projected_2027 === undefined || row.Projected_2027 === "" ? "Not provided" : row.Projected_2027;
           return (
             '<div class="wc-alignment-measure-row">' +
               '<div><span>Objective</span><p>' + escapeHtml(row.Objective || "Not provided") + "</p></div>" +
@@ -17012,9 +17029,9 @@
 
       return (
         '<details class="wc-alignment-department">' +
-          '<summary><span class="wc-alignment-department-summary-copy"><strong>' + heading + '</strong><small>' + summaryDetail + '</small></span>' +
+          '<summary><span class="wc-alignment-department-summary-copy"><strong>' + escapeHtml(department.name) + '</strong><small>' + summaryDetail + '</small></span>' +
           '<span class="wc-alignment-department-heading"><span>FY 2027 proposed department budget</span><strong>' + formatCurrency(department.amount) + "</strong></span></summary>" +
-          goalGroupHtml +
+          '<p>Department budget: ' + heading + '</p>' + goalGroupHtml +
         "</details>"
       );
     }).join("");

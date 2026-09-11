@@ -147,7 +147,7 @@ function describeCipTrend(yearTotals){
       ? first.label + " is the largest year in the plan at " + formatMoneyShort(first.total) +
         ", above the " + formatMoneyShort(priorPeak) + " high of the " + priorPlansLabel + ". "
       : "") +
-      "From " + first.label + " to " + last.label + " the adopted plan " + planDirection + " by " +
+      "From " + first.label + " to " + last.label + " the tentative plan " + planDirection + " by " +
       formatMoneyShort(Math.abs(planChange)) + " (" + planPercent.toFixed(0) + "%), from " +
       formatMoneyShort(first.total) + " to " + formatMoneyShort(last.total) + "."
   };
@@ -2923,9 +2923,9 @@ function renderProjects(){
           </div>
           <div class="wc-cip-trend-legend">
             <span class="is-historical">Prior work plans (FY 2025&ndash;FY 2026)</span>
-            <span>Adopted five-year plan (FY 2027&ndash;FY 2031)</span>
+            <span>Tentative five-year plan (FY 2027&ndash;FY 2031)</span>
           </div>
-          <p class="wc-cip-section-note">FY 2025 and FY 2026 figures come from the County&rsquo;s earlier five-year work plans and are shown for context; they are not part of the current adopted plan. Later plan years are estimates that are re-evaluated every budget cycle, so out-year totals typically grow as projects are identified and scheduled.</p>
+          <p class="wc-cip-section-note">FY 2025 and FY 2026 figures come from the County&rsquo;s earlier five-year work plans and are shown for context; they are not part of the current tentative plan. Later plan years are estimates that are re-evaluated every budget cycle, so out-year totals typically grow as projects are identified and scheduled.</p>
         </section>
         ` : ""}
 

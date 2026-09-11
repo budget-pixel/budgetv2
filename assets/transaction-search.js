@@ -33,6 +33,7 @@
   let currentPage = 0;
   let lastRows = [];
   let lastCount = 0;
+  let searchRequestId = 0;
 
   function readFilters() {
     const form = $("#txnFilters");
@@ -84,7 +85,7 @@
     }).join("");
 
     host.innerHTML =
-      '<div class="wc-txn-table-wrap"><table class="wc-txn-table">' +
+      '<div class="wc-txn-table-wrap" tabindex="0" role="region" aria-label="Transaction results; scroll horizontally for more columns"><table class="wc-txn-table">' +
       "<thead><tr>" +
       "<th>Date</th><th>Vendor / Payee</th><th>Description</th><th>Category</th>" +
       "<th>Dept Code</th><th>Fund Code</th><th>Document #</th><th>Amount</th>" +
@@ -92,7 +93,9 @@
   }
 
   function csvEscape(value) {
-    const text = String(value === undefined || value === null ? "" : value);
+    // Prevent spreadsheet formulas in public text fields; preserve numeric amounts.
+    let text = String(value === undefined || value === null ? "" : value);
+    if (typeof value !== "number" && /^[\s]*[=+@-]/.test(text)) text = "'" + text;
     return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
   }
 
@@ -124,6 +127,7 @@
   }
 
   async function runSearch(resetPage) {
+    const requestId = ++searchRequestId;
     if (resetPage) currentPage = 0;
     const status = $("#txnStatus");
     const pagination = $("#txnPagination");
@@ -140,7 +144,20 @@
     pagination.hidden = true;
 
     const filters = readFilters();
-    const result = await window.WCSupabaseData.searchTransactions(filters, currentPage);
+    if (filters.dateFrom && filters.dateTo && filters.dateFrom > filters.dateTo) {
+      status.textContent = "The start date must be on or before the end date.";
+      $("#txnDateTo").focus();
+      return;
+    }
+    if (filters.amountMin !== "" && filters.amountMax !== "" && Number(filters.amountMin) > Number(filters.amountMax)) {
+      status.textContent = "The minimum amount must not exceed the maximum amount.";
+      $("#txnAmountMax").focus();
+      return;
+    }
+    let result;
+    try { result = await window.WCSupabaseData.searchTransactions(filters, currentPage); }
+    catch (error) { if (requestId === searchRequestId) status.textContent = "Transaction search could not connect. Please try again."; return; }
+    if (requestId !== searchRequestId) return;
     lastRows = result.rows || [];
     lastCount = result.count === null || result.count === undefined ? null : result.count;
 

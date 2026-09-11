@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --check assets/budget-data.js && node --check assets/department-services.js && node --check assets/nav.js"
+    "test": "node scripts/check-site.cjs"
   },
   "repository": {
     "type": "git",

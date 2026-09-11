@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20260903-reveal-then-grow">
+<link rel="stylesheet" href="../assets/style.css?v=20260910-launch-review">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
   html.wc-property-tax-calculator-embed body #nav-menu,
   html.wc-property-tax-calculator-embed .wc-breadcrumb,
   html.wc-property-tax-calculator-embed .page-eyebrow,
   html.wc-property-tax-calculator-embed .page-title,
+  html.wc-property-tax-calculator-embed .wc-page-title-row,
   html.wc-property-tax-calculator-embed .wc-ptax-narrative,
   html.wc-property-tax-calculator-embed .wc-ptax > :not(.wc-tax-grid),
   html.wc-property-tax-calculator-embed footer { display:none !important; }
@@ -606,16 +607,18 @@
       </div>
       <p class="wc-tax-disclaimer">Enter your address to see an <span class="wc-tax-disclaimer-emphasis">estimate</span> of how much County property tax you pay and exactly which services it funds. This is an <span class="wc-tax-disclaimer-emphasis">estimate only</span>, covering only the County portion of your property tax bill &mdash; your total tax bill also includes schools and other taxing authorities.</p>
       <div class="wc-tax-calc-field wc-property-search-field">
-        <span>Enter Your Address or Home Value</span>
-        <input id="propertyAddressSearch" type="text" autocomplete="off" placeholder="e.g. 123 Main St, or $300,000">
+        <label for="propertyAddressSearch">Enter Your Address or Taxable Value</label>
+        <input id="propertyAddressSearch" type="text" autocomplete="off" placeholder="e.g. 123 Main St, or $300,000" aria-describedby="taxableValueHelp">
+        <small id="taxableValueHelp">For a manual estimate, enter the taxable value after exemptions, not the market value. Use $ or press Enter to confirm an amount.</small>
         <div id="propertyAddressResults" class="wc-property-search-results" hidden></div>
-        <p id="propertyAddressStatus" class="wc-property-search-status" hidden></p>
+        <p id="propertyAddressStatus" class="wc-property-search-status" role="status" hidden></p>
         <input id="taxCalcValue" type="hidden">
       </div>
       <p class="wc-tax-columns-prompt" id="taxColumnsPrompt">Enter your address or home value above to see your personalized breakdown.</p>
       <div class="wc-tax-single" id="taxColumns" hidden>
         <div class="wc-millage-panel-head" id="taxSupportBreakdownSection" tabindex="-1">
           <h4>What Your Property Tax Supports</h4>
+          <p id="personalTaxTotal" role="status"></p>
         </div>
         <div class="wc-tax-table-wrap">
           <table class="wc-tax-table">
@@ -623,9 +626,7 @@
               <tr>
                 <th scope="col">Department</th>
                 <th scope="col" class="wc-num">% of Total</th>
-                <th scope="col" class="wc-num">Current</th>
-                <th scope="col" class="wc-num">FY 2027 Change</th>
-                <th scope="col" class="wc-num">Estimated New Amount</th>
+                <th scope="col" class="wc-num">FY 2027 Tentative Estimate</th>
               </tr>
             </thead>
             <tbody id="personalTaxTableBody"></tbody>
@@ -640,8 +641,8 @@
           </div>
           <p><strong>Taxable value</strong> is the value the Property Appraiser uses to calculate your tax bill &mdash; it is usually lower than your home's market value because of the homestead exemption and other assessment limits. Your official taxable value is on your annual TRIM notice or the Property Appraiser's website.</p>
           <p><strong>What's included:</strong> this covers the County's own countywide portion of your property tax bill. <strong>What's NOT included:</strong> school district taxes, water management district taxes, special taxing districts (such as North Walton Mosquito Control), and any other independent taxing authorities on your bill &mdash; those are set and billed separately.</p>
-          <p><strong>What Your Property Tax Supports</strong> estimates your County property tax bill using your taxable value and the last approved Walton County millage rate of 3.519 mills, then allocates that estimated bill proportionally across the countywide property tax allocation shown above. This is the <strong>Current</strong> column. Some listed services are shown as fully funded by property tax revenue, while others represent only the portion of that service funded by property tax revenue; other revenues (charges for services, fees, etc.) are netted out, leaving just the property tax revenue portion.</p>
-          <p>The <strong>FY 2027 Change</strong> column highlights departments with an actual budget change from FY2026 to FY2027 that are funded, in whole or in part, by County property tax (ad valorem) revenue &mdash; departments with no such change are shown at $0.00 rather than left off the list. The dollar amount shown for each department estimates how much of your County property tax supports that change by applying the department's actual FY2026-to-FY2027 budget change percentage to your estimated current-year contribution. The <strong>Estimated New Amount</strong> column is simply Current plus that change.</p>
+          <p><strong>What Your Property Tax Supports</strong> multiplies your taxable value by the FY2027 tentative countywide millage rate of 3.4347, divided by 1,000. The table allocates that estimate according to each service's share of the proposed countywide property-tax funding. It is an illustration of how the County portion supports services, not a parcel-specific allocation or official bill.</p>
+          <p>Department spending changes do not directly determine a property's tax increase. This calculator therefore does not add departmental budget-growth percentages to your estimated tax. The tentative rate remains subject to adoption; schools and other taxing authorities are excluded.</p>
           <p><strong class="wc-tax-info-warning">These estimates are provided for informational and educational purposes only and should not be considered an official determination of taxes.</strong> Actual tax amounts may vary based on property classification, exemptions, assessment limitations, taxable value determinations, millage rates, voter-approved levies, and other factors. Users should view official records from the Walton County Property Appraiser for parcel-specific tax information.</p>
           <p class="wc-tax-info-dialog-source">Parcel data is sourced from the Florida GIO statewide dataset.</p>
         </div>
@@ -661,7 +662,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
   {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
   {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
-  {title:"Strategic Initiatives",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/program-budget.html"},
   {title:"Budget Ledgers",section:"Financial Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
   {title:"Constitutional Officers",section:"Constitutional Officers",href:"../home.html?explorer=constitutional"},
   {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
@@ -737,7 +737,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260910-remove-dark-mode"></script>
+<script src="../assets/budget-data.js?v=20260910-launch-review"></script>
 <script>
 (function(){
   function $(selector){
@@ -1150,7 +1150,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     const propertySearchInput = $("#propertyAddressSearch");
     const propertySearchResults = $("#propertyAddressResults");
     const propertySearchStatus = $("#propertyAddressStatus");
-    const COUNTYWIDE_MILLAGE = 3.519;
+    const COUNTYWIDE_MILLAGE = 3.4347;
     const BREAKDOWN_PREVIEW_COUNT = 7;
     // Departments with a real FY2027 increase worth surfacing even
     // though their ad valorem dollar share falls outside the default
@@ -1158,45 +1158,32 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     const ALWAYS_VISIBLE_DEPARTMENTS = ["statutory & other agency funding", "south walton fire & state control"];
     let lastCountyTax = 0;
     let breakdownShowAll = false;
+    let breakdownRequestId = 0;
 
     function moneyWithCents(value){
       return "$" + (Number(value) || 0).toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
     }
 
-    // One combined table: for every ad valorem-funded department, what
-    // you currently pay it (% of Total alongside the Current dollar
-    // amount), whether it has a real, Board-adopted FY2026->FY2027
-    // budget increase and what that means in personalized dollars
-    // (FY2027 Increase, $0.00 if flat -- shown, not hidden, so growing
-    // and flat departments are directly comparable), and the resulting
-    // total (New Amount).
+    // Allocate the tentative County tax estimate by proposed funding share.
     function renderCombinedBreakdown(countyTax){
+      const requestId = ++breakdownRequestId;
       const tbody = $("#personalTaxTableBody");
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="5" class="wc-tax-breakdown-loading">Loading breakdown...</td></tr>';
-      Promise.all([loadAdValoremRows(), getRealAdValoremIncreases()]).then(function(results){
-        const departments = results[0];
-        const increases = results[1];
+      tbody.innerHTML = '<tr><td colspan="3" class="wc-tax-breakdown-loading">Loading breakdown...</td></tr>';
+      loadAdValoremRows().then(function(departments){
+        if (requestId !== breakdownRequestId) return;
         const grandTotal = departments.reduce(function(sum, d){ return sum + d.amount; }, 0);
-        const increaseByName = {};
-        increases.forEach(function(inc){ increaseByName[normalizeMatchName(inc.name)] = inc.percent; });
 
         let rows = departments.map(function(d){
           const share = grandTotal ? d.amount / grandTotal : 0;
           const currentAmount = countyTax * share;
-          const percent = increaseByName[normalizeMatchName(d.name)] || 0;
-          const increaseAmount = currentAmount * (percent / 100);
           return {
             name: d.name,
             currentAmount: currentAmount,
-            percentShare: share,
-            increaseAmount: increaseAmount,
-            newAmount: currentAmount + increaseAmount
+            percentShare: share
           };
         // A row that rounds to $0.00 Current at this taxable value
         // isn't meaningfully "where your tax goes" -- dropped as noise.
-        // A $0.00 FY2027 Increase is kept deliberately (that's the
-        // point: showing flat departments beside growing ones).
         }).filter(function(d){ return Math.abs(d.currentAmount) >= 0.005; });
 
         // Largest share of property tax allocation first (departments
@@ -1218,21 +1205,16 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
           visible = topRows.concat(forcedRows).sort(function(a, b){ return b.percentShare - a.percentShare; });
         }
         const rowsHtml = visible.map(function(d){
-          const hasIncrease = d.increaseAmount >= 0.005;
-          const increaseDisplay = hasIncrease ? "+" + moneyWithCents(d.increaseAmount) : moneyWithCents(0);
-          const increaseClass = hasIncrease ? "" : "wc-tax-zero-value";
           return "<tr>" +
             "<td>" + departmentLabelHtml(d.name) + "</td>" +
             '<td class="wc-num">' + (d.percentShare * 100).toFixed(2) + "%</td>" +
             '<td class="wc-num">' + moneyWithCents(d.currentAmount) + "</td>" +
-            '<td class="wc-num ' + increaseClass + '">' + increaseDisplay + "</td>" +
-            '<td class="wc-num">' + moneyWithCents(d.newAmount) + "</td>" +
           "</tr>";
         }).join("");
 
         let toggleRowHtml = "";
         if (rows.length > BREAKDOWN_PREVIEW_COUNT){
-          toggleRowHtml = '<tr class="wc-tax-table-toggle-row"><td colspan="5">' +
+          toggleRowHtml = '<tr class="wc-tax-table-toggle-row"><td colspan="3">' +
             '<button type="button" id="personalBreakdownToggle" class="wc-millage-reset wc-breakdown-toggle">' +
             (breakdownShowAll ? "Show Fewer" : "Explore All " + rows.length + " County Services &rarr;") +
             "</button></td></tr>";
@@ -1258,7 +1240,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
           });
         }
       }).catch(function(){
-        tbody.innerHTML = '<tr><td colspan="5" class="wc-tax-breakdown-error">Property tax breakdown is not available right now.</td></tr>';
+        if (requestId !== breakdownRequestId) return;
+        tbody.innerHTML = '<tr><td colspan="3" class="wc-tax-breakdown-error">Property tax breakdown is not available right now.</td></tr>';
       });
     }
 
@@ -1271,15 +1254,17 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       // nobody typed in.
       const columnsEl = $("#taxColumns");
       const promptEl = $("#taxColumnsPrompt");
-      const hasValue = taxableValue > 0;
+      const hasValue = valueInput.value.trim() !== "" && taxableValue >= 0;
       if (columnsEl) columnsEl.hidden = !hasValue;
       if (promptEl) promptEl.hidden = hasValue;
       if (!hasValue){
+        breakdownRequestId++;
         lastCountyTax = 0;
         return;
       }
 
       const countywideAmount = taxableValue * COUNTYWIDE_MILLAGE / 1000;
+      $("#personalTaxTotal").textContent = "Estimated FY2027 County tax: " + moneyWithCents(countywideAmount) + " at 3.4347 mills. Excludes schools and other taxing authorities.";
 
       lastCountyTax = countywideAmount;
       renderCombinedBreakdown(countywideAmount);
@@ -1302,22 +1287,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     if (infoButton && infoDialog){
       infoButton.addEventListener("click", openInfoDialog);
     }
-    // The first time a resident actually goes to enter their own address
-    // or value, "How This Is Calculated" opens automatically (once per
-    // visit) so they see the methodology before their first
-    // personalized result, rather than only finding it via a button
-    // they might never click. Native <dialog> focus-trapping means they
-    // must close it before continuing, and focus returns to this same
-    // field afterward so they can pick up typing right where they left
-    // off.
-    let hasPromptedInfoDialog = false;
-    if (propertySearchInput && infoDialog){
-      propertySearchInput.addEventListener("focus", function(){
-        if (hasPromptedInfoDialog) return;
-        hasPromptedInfoDialog = true;
-        openInfoDialog();
-      });
-    }
+    // Methodology remains available on demand without interrupting entry.
     if (infoCloseButton && infoDialog){
       infoCloseButton.addEventListener("click", function(){
         if (typeof infoDialog.close === "function"){
@@ -1422,6 +1392,10 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     }
 
     function commitManualValue(digits){
+      if (!Number.isSafeInteger(Number(digits)) || Number(digits) < 0) {
+        clearManualValue("Enter a non-negative taxable value within the supported numeric range.");
+        return;
+      }
       showResults([]);
       selectedParcelMeta = null;
       const formatted = digits ? "$" + Number(digits).toLocaleString("en-US") : "";
@@ -1435,6 +1409,11 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 
     function handleSearchInput(){
       const raw = input.value;
+      if (/^\s*\$?\s*-\d/.test(raw)) {
+        clearManualValue("Taxable value cannot be negative.");
+        showResults([]);
+        return;
+      }
 
       if (!raw){
         clearManualValue(idlePrompt);
@@ -1451,7 +1430,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
         // confirm no loaded address actually starts with these digits;
         // otherwise, keep showing it as an in-progress address search
         // so a house number doesn't get clobbered into "$331" mid-type.
-        if (loaded){
+        if (/^\s*\$/.test(raw)) {
+          commitManualValue(digits);
+        } else if (loaded){
           const addressMatches = records.filter(function(record){
             return record.address && record.address.toLowerCase().indexOf(raw.trim().toLowerCase()) === 0;
           });
@@ -1467,6 +1448,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       }
 
       const query = raw.trim().toLowerCase();
+      valueInput.value = "";
+      selectedParcelMeta = null;
+      valueInput.dispatchEvent(new CustomEvent("input", { detail:{ preserveParcelMeta:false } }));
       if (query.length < 3){
         showResults([]);
         return;
@@ -1475,6 +1459,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
         return record.address && record.address.toLowerCase().indexOf(query) !== -1;
       });
       showResults(matches);
+      if (loaded) setStatus(matches.length ? "Select a matching property below." : "No matching address found. Try a street name, or enter a taxable value starting with $.");
     }
 
     function loadRecords(){
@@ -1526,6 +1511,12 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 
     input.addEventListener("focus", loadRecords);
     input.addEventListener("input", handleSearchInput);
+    input.addEventListener("keydown", function(event){
+      if (event.key === "Enter" && isManualValueQuery(input.value)) {
+        event.preventDefault();
+        commitManualValue(input.value.replace(/[^0-9]/g, ""));
+      }
+    });
     document.addEventListener("click", function(event){
       if (!resultsBox.contains(event.target) && event.target !== input){
         resultsBox.hidden = true;
@@ -1548,7 +1539,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   });
 })();
 </script>
-<script src="../assets/nav.js?v=20260910-footer-search-fix"></script>
+<script src="../assets/nav.js?v=20260910-launch-review"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>

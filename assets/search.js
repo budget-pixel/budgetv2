@@ -700,13 +700,8 @@
       if(recentButton){
         input.value = recentButton.getAttribute("data-query") || "";
         saveRecentSearch(input.value);
-        var recentMatch = findBestSearchMatch(input.value);
-        if(recentMatch){
-          window.location.href = recentMatch.href;
-        }else{
-          renderResults(input.value);
-          input.focus();
-        }
+        renderResults(input.value);
+        input.focus();
         return;
       }
 

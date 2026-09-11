@@ -13,10 +13,8 @@ var wcCoreBudgetPages = [
   { title:"Our County", section:"Our County", href:"our-county.html" },
   { title:"Overview of Walton County", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd2e29b2249e0a5b99" },
   { title:"Organizational Structure", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1af21806371d68e7" },
-  { title:"Strategic Initiatives", section:"Our County", href:"program-budget.html" },
   { title:"Budget Ledgers", section:"Financial Overview", href:"budget-overview.html" },
   { title:"Full Budget Document", section:"Financial Overview", href:"budget-book.html", keywords:["pdf","full budget","print budget","download budget","whole budget","budget publication","budget book","offline","page flip"] },
-  { title:"Program Budget", section:"Financial Overview", href:"program-budget.html" },
   { title:"Constitutional Officers", section:"Constitutional Officers", href:"../home.html?explorer=constitutional" },
   { title:"Departments", section:"Departments", href:"departments.html" },
   { title:"Budget Process", section:"Financial Overview", href:"budget-process.html" },
@@ -140,14 +138,6 @@ var wcHiddenBudgetPageTitles = new Set([
 
     "Organizational Structure": [
       "org chart", "organization chart", "departments", "county structure", "governance", "board structure", "reporting structure", "administration structure"
-    ],
-
-    "Strategic Initiatives": [
-      "strategic plan", "goals", "priorities", "initiatives", "objectives", "county priorities", "strategic priorities", "performance", "vision", "mission"
-    ],
-
-    "Program Budget": [
-      "programs", "services", "service areas", "strategic plan", "goals", "priorities", "initiatives", "objectives", "county priorities", "strategic priorities", "performance", "vision", "mission", "core values", "program cost", "service level", "subsidy", "cost recovery"
     ],
 
     "Budget Ledgers": [
@@ -489,9 +479,7 @@ var wcHiddenBudgetPageTitles = new Set([
     "Our County": "our-county.html",
     "Overview of Walton County": "overview-of-walton-county.html",
     "Organizational Structure": "organizational-structure.html",
-    "Strategic Initiatives": "program-budget.html",
     "Budget Ledgers": "budget-overview.html",
-    "Program Budget": "program-budget.html",
     "Constitutional Officers": "../home.html?explorer=constitutional",
     "Departments": "departments.html",
     "Budget Process": "budget-process.html",

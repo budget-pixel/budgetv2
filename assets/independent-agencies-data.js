@@ -279,11 +279,10 @@
     if(typeof onLoading === "function") onLoading(loadingItems(baseItems));
 
     if(!(window.WCBudgetData && typeof window.WCBudgetData.loadBudgetData === "function")){
-      return Promise.resolve(fallbackItems(baseItems));
+      return Promise.reject(new Error("Budget data service unavailable"));
     }
     return window.WCBudgetData.loadBudgetData()
-      .then(function(data){ return enrichItems(baseItems, data); })
-      .catch(function(){ return fallbackItems(baseItems); });
+      .then(function(data){ return enrichItems(baseItems, data); });
   }
 
   window.WCIndependentAgencies = { load:load };

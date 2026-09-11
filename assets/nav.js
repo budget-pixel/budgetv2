@@ -56,7 +56,7 @@
   });
   var mobileStylesheetId = "wc-budget-mobile-styles";
   var splitLogoScriptId = "wc-split-logo-script";
-  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260901-shared-publication-variant";
+  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260910-launch-review";
   // The publication has one editorial color system. Clear any legacy theme
   // state saved by earlier releases so old visitors cannot remain in dark mode.
   document.documentElement.removeAttribute("data-theme");
@@ -124,7 +124,7 @@
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
-          wcBudgetAssetBaseUrl + "search.js?v=20260901-remove-project-search-page",
+          wcBudgetAssetBaseUrl + "search.js?v=20260910-launch-review",
           function(){
             var fallbackSlot = document.querySelector(".wc-nav-search-slot-fallback");
             if(fallbackSlot && fallbackSlot.parentNode){
@@ -731,7 +731,14 @@
   nav#nav-menu .wc-nav-search-slot[hidden]{display:none!important;}
   nav#nav-menu.is-search-open .wc-nav-search-slot{
     pointer-events:auto !important;
+    background:#003f28 !important;
   }
+  nav#nav-menu.is-search-open .wc-search-kicker,
+  nav#nav-menu.is-search-open .wc-search-group-label,
+  nav#nav-menu.is-search-open .wc-search-recent-label,
+  nav#nav-menu.is-search-open .wc-nav-search-result span{color:#dcebe3 !important;}
+  nav#nav-menu .wc-nav-search-result:focus-visible,
+  nav#nav-menu .wc-nav-search-result.is-active-result{outline:2px solid #d1be78 !important;outline-offset:-2px !important;}
   nav#nav-menu .wc-search-wrap{
     position:fixed !important;
     top:calc(var(--wc-nav-search-top, var(--wc-header-h, 76px)) + 48px) !important;
@@ -1744,8 +1751,7 @@
     padding:0 !important;
     border-top:0 !important;
   }
-  .wc-search-footer .wc-budget-footer-links a,
-  .wc-search-footer .wc-footer-contact-button{
+  .wc-search-footer .wc-budget-footer-links a{
     min-height:auto !important;
     padding:0 !important;
     border:0 !important;
@@ -1760,65 +1766,9 @@
     text-decoration:none !important;
     cursor:pointer !important;
   }
-  .wc-search-footer .wc-budget-footer-links a:hover,
-  .wc-search-footer .wc-footer-contact-button:hover{
+  .wc-search-footer .wc-budget-footer-links a:hover{
     color:#004b2d !important;
     background:transparent !important;
-  }
-  .wc-footer-contact-dialog{
-    position:fixed;
-    inset:0;
-    margin:auto;
-    width:min(520px, calc(100% - 32px));
-    max-height:calc(100vh - 32px);
-    overflow:auto;
-    padding:0;
-    border:1px solid rgba(36,52,77,.16);
-    border-radius:18px;
-    background:#fff;
-    color:#172033;
-    box-shadow:0 24px 70px rgba(0,0,0,.24);
-  }
-  .wc-footer-contact-dialog::backdrop{
-    background:rgba(10,18,28,.58);
-  }
-  .wc-footer-contact-dialog-inner{
-    padding:26px;
-  }
-  .wc-footer-contact-dialog h2{
-    margin:0 0 12px;
-    font:700 24px/1.2 Georgia, "Times New Roman", serif;
-  }
-  .wc-footer-contact-dialog p{
-    margin:0;
-    color:#4e5d69;
-    font-size:14px;
-    line-height:1.65;
-  }
-  .wc-footer-contact-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-    margin-top:22px;
-  }
-  .wc-footer-contact-actions button,
-  .wc-footer-contact-actions a{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-height:40px;
-    padding:0 16px;
-    border:1px solid rgba(0,63,40,.22);
-    border-radius:999px;
-    background:#fff;
-    color:#003f28;
-    font:700 12px/1 Arial, Helvetica, sans-serif;
-    text-decoration:none;
-    cursor:pointer;
-  }
-  .wc-footer-contact-actions a{
-    background:#003f28;
-    color:#fff;
   }
   .wc-search-footer .wc-budget-footer-bottom,
   .wc-search-footer .wc-budget-footer-brand{
@@ -2200,7 +2150,7 @@
       sectionCrumb = '<a href="../home.html">Budget Explorer</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === titleText){
       sectionCrumb = "";
-    }else if(titleText === "Overview of Walton County" || titleText === "Organizational Structure" || titleText === "Statistical & Supplemental Information" || titleText === "Glossary, Acronyms, and Frequently Asked Questions" || titleText === "Strategic Initiatives"){
+    }else if(titleText === "Overview of Walton County" || titleText === "Organizational Structure" || titleText === "Statistical & Supplemental Information" || titleText === "Glossary, Acronyms, and Frequently Asked Questions"){
       sectionCrumb = '<a href="our-county.html">Our County</a><span class="wc-breadcrumb-sep">/</span>';
     }else if(eyebrowText === "Departments"){
       sectionCrumb = '<a href="../home.html?explorer=departments">Department Budgets</a><span class="wc-breadcrumb-sep">/</span>';
@@ -2378,7 +2328,6 @@
     footer.classList.add("wc-search-footer");
     var accessibilityHref = /\/pages\//.test(window.location.pathname) ? "accessibility.html" : "pages/accessibility.html";
     var privacyHref = /\/pages\//.test(window.location.pathname) ? "privacy.html" : "pages/privacy.html";
-    var transactionSearchHref = /\/pages\//.test(window.location.pathname) ? "transaction-search.html" : "pages/transaction-search.html";
     var glossaryFaqHref = /\/pages\//.test(window.location.pathname) ? "glossary-acronyms-and-frequently-asked-questions.html" : "pages/glossary-acronyms-and-frequently-asked-questions.html";
     var supportingDocsHref = /\/pages\//.test(window.location.pathname) ? "supporting-budget-documentation.html" : "pages/supporting-budget-documentation.html";
     var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
@@ -2394,26 +2343,12 @@
           </button>
         </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
-          <a href="https://www.mywaltonfl.gov/" target="_blank" rel="noopener">County Website</a>
-          <a href="https://www.mywaltonfl.gov/260/Budget-Publications" target="_blank" rel="noopener">Prior Budgets</a>
-          <a href="${transactionSearchHref}" data-wc-utility-popup="Transaction Search">Transaction Search</a>
           <a href="${glossaryFaqHref}" data-wc-utility-popup="Glossary, Acronyms &amp; FAQ">Glossary &amp; FAQ</a>
           <a href="${supportingDocsHref}" data-wc-utility-popup="Supporting Budget Documentation">Supporting Documentation</a>
-          <button class="wc-footer-contact-button" type="button">Contact Budget Office</button>
           <a href="${accessibilityHref}" data-wc-utility-popup="Accessibility Statement">Accessibility</a>
           <a href="${privacyHref}" data-wc-utility-popup="Privacy Statement">Privacy</a>
         </nav>
       </div>
-      <dialog class="wc-footer-contact-dialog" aria-labelledby="wcFooterContactTitle" aria-describedby="wcFooterContactNotice">
-        <div class="wc-footer-contact-dialog-inner">
-          <h2 id="wcFooterContactTitle">Contact Budget Office</h2>
-          <p id="wcFooterContactNotice">Under Florida law, email addresses are public records. If you do not want your email address released in response to a public records request, do not send electronic mail to this entity. Instead, contact this office by phone or in writing.</p>
-          <div class="wc-footer-contact-actions">
-            <form method="dialog"><button type="submit">Cancel</button></form>
-            <a href="mailto:budget@mywaltonfl.gov">Continue to Email</a>
-          </div>
-        </div>
-      </dialog>
       <dialog class="wc-footer-utility-dialog" aria-labelledby="wcFooterUtilityTitle">
         <video class="wc-footer-utility-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="${utilityWaveHref}" type="video/mp4"></video>
         <div class="wc-footer-utility-shade" aria-hidden="true"></div>
@@ -2441,27 +2376,6 @@
         openWaltonBudgetFooterSearch();
       });
     });
-    var contactDialog = footer.querySelector('.wc-footer-contact-dialog');
-    footer.querySelectorAll('.wc-footer-contact-button').forEach(function(button){
-      button.addEventListener('click', function(){
-        if(contactDialog && typeof contactDialog.showModal === 'function'){
-          contactDialog.showModal();
-        }else if(contactDialog){
-          contactDialog.setAttribute('open', '');
-        }
-      });
-    });
-    if(contactDialog){
-      contactDialog.addEventListener('click', function(event){
-        if(event.target === contactDialog){
-          contactDialog.close();
-        }
-      });
-      var emailLink = contactDialog.querySelector('a[href^="mailto:"]');
-      if(emailLink){
-        emailLink.addEventListener('click', function(){ contactDialog.close(); });
-      }
-    }
     var utilityDialog = footer.querySelector('.wc-footer-utility-dialog');
     var utilityFrame = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-frame');
     var utilityWave = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-wave');

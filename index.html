@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Walton County FY 2027 Tentative Budget</title>
+<meta name="description" content="Explore Walton County's FY 2027 tentative budget. Understand public services, revenues, workforce costs, capital projects, and ways to participate.">
+<link rel="icon" type="image/png" href="assets/images/page-images/walton-county-logo-no-background.png">
+<link rel="canonical" href="https://budget-waltoncountyfl.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Walton County FY 2027 Tentative Budget">
+<meta property="og:description" content="Understand the spending plan, explore public services, and learn how to participate.">
+<meta property="og:url" content="https://budget-waltoncountyfl.com/">
+<meta property="og:image" content="https://budget-waltoncountyfl.com/assets/images/page-images/walton-county-logo-no-background.png">
+<meta name="twitter:card" content="summary">
 <script>
   /* Microsoft Clarity -- every other page loads this via assets/nav.js,
      but the homepage builds its own nav inline and never includes that
@@ -1533,21 +1542,29 @@
   .wc-home-start{display:inline-flex;align-items:center;gap:10px;min-height:56px;margin-top:34px;padding:0 30px;border-radius:999px;background:var(--wc-gold,#d1be78);color:#07110d;font:800 15px/1 Arial,Helvetica,sans-serif;letter-spacing:.03em;text-decoration:none;text-transform:uppercase;box-shadow:0 16px 34px rgba(0,0,0,.28);transition:transform .2s ease,box-shadow .2s ease}
   .wc-home-start:hover,.wc-home-start:focus-visible{transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.34)}
   html.wc-budget-landing-open,body.wc-budget-landing-open{height:100%;overflow:hidden}
-  .wc-budget-landing-dialog{position:fixed;z-index:20000;inset:0;display:flex;align-items:stretch;justify-content:center;padding:18px;background:#0b2a20;overflow:hidden;overscroll-behavior:none;isolation:isolate}
+  .wc-budget-landing-dialog{position:fixed;z-index:20000;inset:0;display:flex;align-items:stretch;justify-content:center;padding:18px;background:rgba(11,42,32,0);overflow:hidden;overscroll-behavior:none;isolation:isolate;transition:background-color .72s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog[hidden]{display:none}
-  .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);pointer-events:none}
-  .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);pointer-events:none}
-  .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.34);transition:height .22s ease}
-  .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel{align-self:center;width:min(1500px,100%);height:360px;max-height:360px}
+  .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);opacity:0;pointer-events:none;transition:opacity .62s ease}
+  .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);opacity:0;pointer-events:none;transition:opacity .62s ease}
+  .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.34);transform:translate(var(--wc-open-x,0),var(--wc-open-y,0)) scale(var(--wc-open-scale-x,1),var(--wc-open-scale-y,1));transform-origin:center;opacity:.7;transition:box-shadow .7s ease,height .22s ease;will-change:transform}
+  .wc-budget-landing-dialog.is-visible{background-color:#0b2a20}
+  .wc-budget-landing-dialog.is-visible .wc-budget-landing-wave,.wc-budget-landing-dialog.is-visible .wc-budget-landing-shade{opacity:1}
+  .wc-budget-landing-dialog.is-visible .wc-budget-landing-panel{transform:translate(0,0) scale(1);border-radius:22px;opacity:1}
+  .wc-budget-landing-dialog.is-opening .wc-budget-landing-panel,.wc-budget-landing-dialog.is-closing .wc-budget-landing-panel{border-radius:999px;box-shadow:0 12px 34px rgba(0,27,17,.2)}
+  .wc-budget-landing-dialog.is-visible.is-opening .wc-budget-landing-panel{border-radius:22px;box-shadow:0 28px 80px rgba(0,27,17,.34)}
+  .wc-budget-landing-frame,.wc-budget-landing-close{opacity:0;transition:opacity .3s ease .28s}
+  .wc-budget-landing-dialog.is-visible .wc-budget-landing-frame,.wc-budget-landing-dialog.is-visible .wc-budget-landing-close{opacity:1}
+  .wc-budget-landing-dialog.is-closing .wc-budget-landing-frame,.wc-budget-landing-dialog.is-closing .wc-budget-landing-close{opacity:0;transition-delay:0s}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
-  .wc-budget-landing-close{position:absolute;top:8px;right:8px;z-index:10;display:grid;place-items:center;width:36px;height:36px;border:1px solid #b9cdc1;border-radius:50%;background:#fff;color:#004c2e;font-size:24px;cursor:pointer}
-  .wc-budget-landing-close:focus-visible{outline:3px solid #006231;outline-offset:3px}
-  .wc-budget-landing-dialog.is-inner-popup-open>.wc-budget-landing-close{display:none}
+  .wc-budget-landing-close{position:absolute;top:19px;right:24px;z-index:10;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid var(--border,#e0e8e4);border-radius:50%;background:#f5f8f6;color:var(--navy,#172033);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
+  .wc-budget-landing-close:hover{background:#eaf3ed}
+  .wc-budget-landing-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
+  .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-close{display:none}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
-  @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-panel{transition:none}}
+  @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-dialog,.wc-budget-landing-panel,.wc-budget-landing-shade,.wc-budget-landing-frame,.wc-budget-landing-close{transition:none!important}}
   @media(max-width:700px){
     .wc-start-header{padding:18px}
     .wc-start-header .logo-container{min-width:0}
@@ -1580,17 +1597,17 @@
 </main>
 
 <div class="wc-budget-landing-dialog" data-budget-landing-dialog role="dialog" aria-modal="true" aria-label="Budget Explorer" hidden>
-  <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
   <video class="wc-budget-landing-wave" muted loop playsinline preload="metadata" aria-hidden="true">
     <source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4">
   </video>
   <div class="wc-budget-landing-shade" aria-hidden="true"></div>
   <section class="wc-budget-landing-panel">
+    <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
     <iframe class="wc-budget-landing-frame" data-budget-landing-frame data-src="home.html?embed=landing" title="Walton County Budget Explorer"></iframe>
   </section>
 </div>
 
-<script src="assets/brand-logo.js?v=20260901-shared-publication-variant"></script>
+<script src="assets/brand-logo.js?v=20260910-launch-review"></script>
 <script>
   (function(){
     function initLogo(){
@@ -1631,29 +1648,92 @@
       var dialog = document.querySelector("[data-budget-landing-dialog]");
       var frame = document.querySelector("[data-budget-landing-frame]");
       var wave = dialog ? dialog.querySelector(".wc-budget-landing-wave") : null;
+      var panel = dialog ? dialog.querySelector(".wc-budget-landing-panel") : null;
       var minimumRevealMs = 900;
       var openedAt = 0;
-      if(!trigger || !dialog || !frame) return;
+      var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+      var animationTimer = 0;
+      var sharedAnimation = null;
+      if(!trigger || !dialog || !frame || !panel) return;
       var closeButton = dialog.querySelector('.wc-budget-landing-close');
-      function closeDialog(){
+      function setSharedElementOrigin(){
+        var triggerRect = trigger.getBoundingClientRect();
+        var panelRect = panel.getBoundingClientRect();
+        if(!panelRect.width || !panelRect.height) return "none";
+        var x = triggerRect.left + triggerRect.width / 2 - panelRect.left - panelRect.width / 2;
+        var y = triggerRect.top + triggerRect.height / 2 - panelRect.top - panelRect.height / 2;
+        var scaleX = Math.max(.04, triggerRect.width / panelRect.width);
+        var scaleY = Math.max(.04, triggerRect.height / panelRect.height);
+        panel.style.setProperty("--wc-open-x", x + "px");
+        panel.style.setProperty("--wc-open-y", y + "px");
+        panel.style.setProperty("--wc-open-scale-x", scaleX);
+        panel.style.setProperty("--wc-open-scale-y", scaleY);
+        // Commit the button-sized state before the visible class supplies
+        // the expanded state; without this read, some browsers may combine
+        // both updates into one paint and skip the shared-element motion.
+        void panel.offsetWidth;
+        return "translate(" + x + "px," + y + "px) scale(" + scaleX + "," + scaleY + ")";
+      }
+      function finishClose(){
         dialog.hidden = true;
+        dialog.classList.remove("is-visible","is-opening","is-closing");
+        if(sharedAnimation){ sharedAnimation.cancel(); sharedAnimation = null; }
+        panel.style.removeProperty("--wc-open-x");
+        panel.style.removeProperty("--wc-open-y");
+        panel.style.removeProperty("--wc-open-scale-x");
+        panel.style.removeProperty("--wc-open-scale-y");
         document.querySelector('.wc-start-page').inert = false;
         document.documentElement.classList.remove('wc-budget-landing-open');
         document.body.classList.remove('wc-budget-landing-open');
         if(wave) wave.pause();
         trigger.focus();
       }
+      function closeDialog(){
+        if(dialog.hidden || dialog.classList.contains("is-closing")) return;
+        window.clearTimeout(animationTimer);
+        var closingTransform = setSharedElementOrigin();
+        dialog.classList.remove("is-opening","is-visible");
+        dialog.classList.add("is-closing");
+        if(motionQuery && motionQuery.matches) finishClose();
+        else {
+          if(sharedAnimation) sharedAnimation.cancel();
+          sharedAnimation = panel.animate([
+            {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1},
+            {transform:closingTransform,borderRadius:"999px",opacity:.7}
+          ],{duration:680,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+          animationTimer = window.setTimeout(finishClose, 720);
+        }
+      }
       closeButton.addEventListener('click', closeDialog);
       dialog.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeDialog(); });
 
       function openDialog(event){
         if(event) event.preventDefault();
+        window.clearTimeout(animationTimer);
         dialog.hidden = false;
         document.querySelector('.wc-start-page').inert = true;
+        dialog.classList.remove("is-visible","is-closing");
+        dialog.classList.add("is-opening");
         dialog.classList.add("is-loading");
         openedAt = Date.now();
         document.documentElement.classList.add("wc-budget-landing-open");
         document.body.classList.add("wc-budget-landing-open");
+        var openingTransform = setSharedElementOrigin();
+        // Two frames ensure the browser paints the panel at the Begin
+        // button before animating it to its final dimensions.
+        window.requestAnimationFrame(function(){
+          window.requestAnimationFrame(function(){
+            dialog.classList.add("is-visible");
+            if(!(motionQuery && motionQuery.matches)){
+              if(sharedAnimation) sharedAnimation.cancel();
+              sharedAnimation = panel.animate([
+                {transform:openingTransform,borderRadius:"999px",opacity:.7},
+                {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1}
+              ],{duration:760,easing:"cubic-bezier(.22,1,.36,1)"});
+            }
+            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); }, 820);
+          });
+        });
         if(!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src || "home.html?embed=landing");
         else { dialog.classList.remove('is-loading'); frame.focus(); }
         if(wave && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)){
@@ -1682,7 +1762,7 @@
               !embeddedDocument.querySelector('dialog[open]')){
               event.preventDefault(); closeDialog();
             }
-          });
+          }, true);
           function syncInnerPopupState(){
             // Only explorer/detail overlays need the outer landing frame
             // collapsed. Utility dialogs (Transaction Search,
