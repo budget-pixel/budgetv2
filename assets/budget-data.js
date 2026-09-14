@@ -3099,8 +3099,12 @@
         const sum381fy2025 = all381.reduce((s, r) => s + (r.FY2025_Actual || 0), 0);
         const sum381fy2026 = all381.reduce((s, r) => s + (r.FY2026_Original_Budget || r.FY2026_Budget || 0), 0);
         const total2027 = [src311, ...all381].reduce((s, r) => s + (r.FY2027_Proposed || 0), 0);
-        const fy2027AdValorem = Math.max(0, total2027 - 480000);
-        let interfundAssigned = false;
+        // The E911 Fund's interfund transfer-in amount comes from whichever
+        // 381000 row the revenue sheet marks with a "E911" Note, so this
+        // tracks the sheet instead of a hardcoded dollar figure.
+        const e911TransferRow = all381.find((r) => String((r && r.Note) || "").trim().toLowerCase() === "e911");
+        const e911TransferAmount = e911TransferRow ? (e911TransferRow.FY2027_Proposed || 0) : 0;
+        const fy2027AdValorem = Math.max(0, total2027 - e911TransferAmount);
         filledRevenueRows = filledRevenueRows.map((r) => {
           const code = String((r && r.Revenue_Code) || "").trim();
           if (code === "311000") {
@@ -3115,12 +3119,14 @@
             };
           }
           if (code === "381000") {
-            const fy2027 = !interfundAssigned ? 480000 : 0;
-            interfundAssigned = true;
+            // Keep the amount on the row the sheet actually marks "E911" so
+            // its Note travels with it, rather than an arbitrary first row.
+            const fy2027 = r === e911TransferRow ? e911TransferAmount : 0;
             return {
               ...r,
               _actualsBackfilled: true,
               _originalBudgetDeduped: true,
+              Note: r === e911TransferRow ? "E911 Interfund" : r.Note,
               FY2024_Actual: 0,
               FY2025_Actual: 0,
               FY2026_Original_Budget: 0,
@@ -13170,8 +13176,9 @@
             const sum381fy2025 = all381.reduce((s, r) => s + (r.FY2025_Actual || 0), 0);
             const sum381fy2026 = all381.reduce((s, r) => s + (r.FY2026_Original_Budget || r.FY2026_Budget || 0), 0);
             const total2027 = [src311, ...all381].reduce((s, r) => s + (r.FY2027_Proposed || 0), 0);
-            const fy2027AdValorem = Math.max(0, total2027 - 480000);
-            let interfundAssigned = false;
+            const e911TransferRow = all381.find((r) => String((r && r.Note) || "").trim().toLowerCase() === "e911");
+            const e911TransferAmount = e911TransferRow ? (e911TransferRow.FY2027_Proposed || 0) : 0;
+            const fy2027AdValorem = Math.max(0, total2027 - e911TransferAmount);
             filledRevenueRows = filledRevenueRows.map((r) => {
               const code = String((r && r.Revenue_Code) || "").trim();
               if (code === "311000") {
@@ -13186,12 +13193,14 @@
                 };
               }
               if (code === "381000") {
-                const fy2027 = !interfundAssigned ? 480000 : 0;
-                interfundAssigned = true;
+                // Keep the amount on the row the sheet actually marks "E911" so
+                // its Note travels with it, rather than an arbitrary first row.
+                const fy2027 = r === e911TransferRow ? e911TransferAmount : 0;
                 return {
                   ...r,
                   _actualsBackfilled: true,
                   _originalBudgetDeduped: true,
+                  Note: r === e911TransferRow ? "E911 Interfund" : r.Note,
                   FY2024_Actual: 0,
                   FY2025_Actual: 0,
                   FY2026_Original_Budget: 0,
