@@ -977,11 +977,16 @@
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
-      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div><button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
-      '<footer class="wc-home-explorer-modal-footer"><div><strong>Still looking for something?</strong><span>Search departments, budgets, personnel, funds, publications, and county information.</span><button type="button" data-explorer-footer-action="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg></button></div><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="contact">Contact Budget Office</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
+      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
+        '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
+      '<footer class="wc-home-explorer-modal-footer"><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
     document.body.appendChild(modal);
     modalBody = modal.querySelector(".wc-home-explorer-modal-body");
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
+    if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
+      window.WCBudgetNav.initNavSearchBar(modal.querySelector(".wc-nav-search-bar-wrap"));
+    }
 
     new MutationObserver(function () { prefixPageLinks(modalBody); }).observe(modalBody, { childList: true, subtree: true });
     document.addEventListener("click", function (event) {
@@ -996,7 +1001,7 @@
       }
       var inDepartmentExplorer = modalBody.contains(link) && link.closest(".wc-department-budget-cards");
       var inOfficePicker = link.closest(".wc-budget-detail-modal .wc-department-office-picker-list");
-      var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result");
+      var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result,.wc-nav-search-bar-result");
       if(inSearchResults && window.WaltonBudgetGlobalSearch) window.WaltonBudgetGlobalSearch.close();
       if(inSearchResults && /\/pages\/[^/]+\.html$/.test(new URL(link.href, window.location.href).pathname)){
         event.preventDefault();
@@ -1043,7 +1048,6 @@
       if (!actionButton) return;
       var action = actionButton.dataset.explorerFooterAction;
       var pageAction = {
-        transactions: { href: "pages/transaction-search.html", title: "Transaction Search" },
         glossary: { href: "pages/glossary-acronyms-and-frequently-asked-questions.html", title: "Glossary, Acronyms & FAQ" },
         documentation: { href: "pages/supporting-budget-documentation.html", title: "Supporting Budget Documentation" },
         accessibility: { href: "pages/accessibility.html", title: "Accessibility Statement" },
@@ -1074,16 +1078,7 @@
         utilityFrame.src = utilityUrl.href;
         modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close " + pageAction.title);
         modal.querySelector(".wc-home-explorer-modal-close").focus();
-        return;
       }
-      if (action === "search") {
-        openGlobalSearch();
-        return;
-      }
-      var sourceFooter = document.querySelector('body > footer[role="contentinfo"]');
-      if (!sourceFooter) return;
-      var sourceControl = action === "contact" ? sourceFooter.querySelector(".wc-footer-contact-button") : null;
-      if (sourceControl) sourceControl.click();
     });
     modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
     document.addEventListener("keydown", function (event) {
@@ -1176,8 +1171,14 @@
   }
 
   // The budget book's own iframe-embedded close (X) button uses this API too.
+  // openDepartmentModal is exposed so nav.js's own footer utility-popup
+  // dialog (a separate, simpler modal that doesn't know about the budget
+  // book's transparent chrome) can hand off a click on a budget-book.html
+  // link to this department-popup system instead of just navigating its
+  // own iframe in place.
   window.WCHomeExplorer = {
     closeDepartmentModal: closeDepartmentModal,
+    openDepartmentModal: openDepartmentModal,
     openGlobalSearch: openGlobalSearch
   };
 

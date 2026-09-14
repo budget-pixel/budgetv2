@@ -11687,7 +11687,7 @@
         const code = String(row.Revenue_Code || "").trim();
         const amount = row.FY2027_Proposed || 0;
         if (/^tourist development tax/i.test(name)) return sum + amount;
-        if (["312600", "335180"].includes(code)) return sum + amount * 0.802;
+        if (["312600", "335180"].includes(code)) return sum + amount * 0.68;
         return sum;
       }, 0);
       const locallySupportedRevenue = Math.max(0, total - visitorSupportedRevenue);

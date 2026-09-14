@@ -177,10 +177,13 @@ const html = `<!doctype html>
     background:#ffffff;
   }
   .caption{
+    position:relative;
+    z-index:3;
     display:flex;
     align-items:center;
     gap:.14in;
-    margin-top:.5in;
+    width:2.35in;
+    margin-top:.24in;
   }
   .caption-mark{
     display:flex;
@@ -233,11 +236,12 @@ const html = `<!doctype html>
       <h1>Distinguished Budget Presentation Award</h1>
       <div class="rule"></div>
       <div class="badges">
-        <span class="badge"><b>2nd Year</b> Received</span>
-        <span class="badge">Submitted for Renewal</span>
+        <span class="badge"><b>Two-Time</b> Recipient</span>
+        <span class="badge">FY2027 Submitted for Review</span>
       </div>
-      <p>The Government Finance Officers Association of the United States and Canada presented a Distinguished Budget Presentation Award to Walton County, Florida for its Annual Budget for the fiscal year beginning October 1, 2025.</p>
-      <p>Under GFOA&rsquo;s revised criteria, governments are evaluated on the completeness and clarity of budget communications &mdash; including public priorities, value, long-term outlook, revenues, personnel, departments, programs, capital, process, accessibility, and the tools used to reach public stakeholders.</p>
+      <p>The Government Finance Officers Association of the United States and Canada presented Walton County, Florida with its second consecutive Distinguished Budget Presentation Award for the Annual Budget beginning October 1, 2025.</p>
+      <p>To receive this award, a government must publish a budget document that meets program criteria as a policy document, a financial plan, an operations guide, and a communications device.</p>
+      <p>The certificates below recognize the prior-year publication. This FY2027 Tentative Budget has been submitted separately for review and consideration under the current program criteria.</p>
       <div class="caption">
         <div class="caption-mark"><img src="${GFOA_MARK}" alt=""></div>
         <span>Government Finance<br>Officers Association</span>
@@ -248,7 +252,7 @@ const html = `<!doctype html>
       <div class="certificate-card">
         <img src="${CERTIFICATE}" alt="GFOA Distinguished Budget Presentation Award certificate for Walton County">
       </div>
-      <footer><span>FY 2027 Annual Budget</span><b>2</b></footer>
+      <footer><span>FY 2027 Tentative Budget</span><b>2</b></footer>
     </div>
   </section>
 </body></html>`;

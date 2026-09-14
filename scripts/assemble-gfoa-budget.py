@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import ArrayObject, BooleanObject, DictionaryObject, NameObject, NumberObject, TextStringObject
+from pypdf.generic import ArrayObject, BooleanObject, ContentStream, DictionaryObject, NameObject, NumberObject, TextStringObject
 from reportlab.pdfgen import canvas
 
 
@@ -45,6 +45,76 @@ def number_stamp(number):
     c.save()
     buffer.seek(0)
     return PdfReader(buffer).pages[0]
+
+
+def remove_source_footer_text(page, pdf_writer):
+    """Remove legacy footer text objects before adding the final footer.
+
+    A white overlay hid the old footer visually but left its stale label and
+    page number in text extraction and assistive-technology reading order.
+    Generated chapter footers occupy the bottom 40 points of the page, so
+    discard text blocks positioned in that band while preserving page art.
+    """
+    contents = page.get_contents()
+    if contents is None:
+        return
+    stream = ContentStream(contents, pdf_writer)
+    kept = []
+    block = []
+    in_text = False
+    is_footer = False
+    ctm = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+    ctm_stack = []
+
+    def concat(left, right):
+        a1, b1, c1, d1, e1, f1 = left
+        a2, b2, c2, d2, e2, f2 = right
+        return (
+            a1 * a2 + c1 * b2,
+            b1 * a2 + d1 * b2,
+            a1 * c2 + c1 * d2,
+            b1 * c2 + d1 * d2,
+            a1 * e2 + c1 * f2 + e1,
+            b1 * e2 + d1 * f2 + f1,
+        )
+
+    for operands, operator in stream.operations:
+        if not in_text and operator == b"q":
+            ctm_stack.append(ctm)
+        elif not in_text and operator == b"Q":
+            ctm = ctm_stack.pop() if ctm_stack else (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+        elif not in_text and operator == b"cm" and len(operands) >= 6:
+            try:
+                matrix = tuple(float(value) for value in operands[:6])
+                ctm = concat(ctm, matrix)
+            except (TypeError, ValueError):
+                pass
+        if operator == b"BT":
+            in_text = True
+            is_footer = False
+            block = [(operands, operator)]
+            continue
+        if in_text:
+            block.append((operands, operator))
+            if operator == b"Tm" and len(operands) >= 6:
+                try:
+                    x = float(operands[4])
+                    y = float(operands[5])
+                    effective_y = ctm[1] * x + ctm[3] * y + ctm[5]
+                    is_footer = is_footer or effective_y < 40
+                except (TypeError, ValueError):
+                    pass
+            if operator == b"ET":
+                if not is_footer:
+                    kept.extend(block)
+                block = []
+                in_text = False
+            continue
+        kept.append((operands, operator))
+    if block and not is_footer:
+        kept.extend(block)
+    stream.operations = kept
+    page[NameObject("/Contents")] = pdf_writer._add_object(stream)
 
 
 def back_cover():
@@ -143,13 +213,13 @@ financial_policies = reader("budget-book-financial-policies.pdf")
 org_structure = reader("budget-book-org-structure.pdf")
 divider_constitutional = reader("divider-constitutional-officers.pdf")
 divider_other_agencies = reader("divider-other-agencies.pdf")
-divider_financial_plan = reader("divider-financial-plan.pdf")
 divider_capital_budget = reader("divider-capital-budget.pdf")
 divider_our_county = reader("divider-our-county.pdf")
 divider_financial_overview = reader("divider-financial-overview.pdf")
 divider_budget_process = reader("divider-budget-process.pdf")
 divider_workforce_plan = reader("divider-workforce-plan.pdf")
 divider_glossary = reader("divider-glossary.pdf")
+divider_program_services = reader("divider-program-services.pdf")
 writer = PdfWriter()
 
 # Opening, corrected contents, and County context. The Overview of Walton
@@ -185,6 +255,7 @@ writer.add_page(brief.pages[0])
 add_range(writer, consolidated, 1, 2)
 add_range(writer, change, 1, 2)
 writer.add_page(enh.pages[7])
+writer.add_page(enh.pages[6])
 add_range(writer, revenue, 1, 4)
 add_range(writer, property_tax, 1, 2)
 writer.add_page(enh.pages[8])
@@ -192,18 +263,24 @@ add_range(writer, expenses, 1, 3)
 add_range(writer, funds, 1, 2)
 writer.add_page(transfers.pages[0])
 writer.add_page(debt.pages[0])
+# Long-Term Outlook joins its former siblings here in Financial Overview
+# instead of sitting alone in its own "Financial Plan" chapter later in the
+# book -- its own kicker already reads "Financial Overview", confirming
+# that's where it was meant to live once the rest of this chapter's content
+# (Consolidated Budget, Revenue Portfolio, Revenue, Expenditure, Fund
+# Financial, Interfund Transfer, Debt) moved up here.
+add_range(writer, long_term, 1, 2)
 
 writer.add_page(divider_budget_process.pages[0])
 add_range(writer, process, 1, 2)
 writer.add_page(enh.pages[11])
 add_range(writer, financial_policies, 1, 2)
 
-# Public-value/GFOA decision guide, including revenue risk, projects, and workshops.
-# Revenue Portfolio (enh page 8) moves down to the Financial Plan chapter,
-# right before the Revenue Ledger, instead of sitting here after Revenue Strategy.
-# Florida Amendment 3 Risk (enh page 9) moved up to the Financial Overview
-# group above, so this second range starts at enh page 10 instead of 9.
-add_range(writer, enh, 1, 7)
+# Public Value and the Program & Service pages are placed with the completed
+# Program and Service Budget chapter below. Revenue Strategy now follows the
+# Revenue Portfolio in Financial Overview. The former draft Accountability
+# and Long-Term Decisions pages were retired after their useful content was
+# consolidated into page 14 and the Long-Term Outlook.
 
 # Personnel Ledger now sits right behind the Workforce Plan page (enh page
 # 10), inside the Workforce Plan group, instead of deep in the Financial
@@ -217,7 +294,8 @@ add_range(writer, enh, 1, 7)
 writer.add_page(divider_workforce_plan.pages[0])
 writer.add_page(enh.pages[9])
 writer.add_page(personnel.pages[0])
-writer.add_page(enh.pages[10])
+# Long-Term Decisions (enh page 11) moved to the Draft section at the end
+# of the book alongside the other pulled Public Value/Program pages.
 
 # Constitutional Officers, agencies, and departments. The revised overview and
 # two Tourism profiles replace the obsolete overview/exclusion language.
@@ -231,19 +309,15 @@ writer.add_page(divider_constitutional.pages[0])
 add_range(writer, constitutional, 1, 7)
 writer.add_page(divider_other_agencies.pages[0])
 add_range(writer, independent, 1, 3)
+# The completed program-accountability section now precedes the detailed
+# department profiles so readers see countywide outcomes, full cost,
+# contributing services, and FY2027 targets before the organizational view.
+writer.add_page(divider_program_services.pages[0])
+writer.add_page(enh.pages[0])
+add_range(writer, enh, 3, 6)
 writer.add_page(departments.pages[0])
 writer.add_page(base.pages[38])
 add_range(writer, departments, 3, 34)
-
-# Financial plan, now trimmed down to Contractual Services Ledger and
-# Long-Term Outlook -- Consolidated Budget, Revenue Portfolio, Revenue,
-# Expenditure, Fund Financial, Interfund Transfer, and Debt all moved up
-# into the Financial Overview subsection (see above). Budget Change Summary
-# and Property Tax Allocation moved up front earlier too; Personnel Ledger
-# moved into the Workforce Plan group (see above).
-writer.add_page(divider_financial_plan.pages[0])
-add_range(writer, base, 82, 85)
-add_range(writer, long_term, 1, 2)
 
 # Capital plan, detailed fund schedules, reference section, and back cover.
 # Capital Portfolio, Major Project Decision Record, and Capital
@@ -253,7 +327,7 @@ add_range(writer, long_term, 1, 2)
 # Budget.
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
-add_range(writer, capital_ledgers, 1, 10)
+add_range(writer, capital_ledgers, 1, 9)
 
 # Glossary, Statistical, and Supplemental Information is the book's
 # closing chapter, with its own divider. The Glossary itself leads the
@@ -265,14 +339,15 @@ add_range(writer, base, 22, 23)
 
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 132
+EXPECTED_PAGES = 125
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 8, 15, 36, 49, 53, 61, 65, 99, 106, 120, 132}
+skip_number = {1, 2, 8, 15, 39, 45, 48, 56, 60, 66, 100, 113, 125}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
+        remove_source_footer_text(page, writer)
         page.merge_page(number_stamp(number), over=True)
 
 writer.add_metadata({
@@ -296,41 +371,41 @@ outline = [
     ("Consolidated Budget Ledger", 17, "Financial Overview"),
     ("Budget Change Summary", 19, "Financial Overview"),
     ("Revenue Portfolio", 21, "Financial Overview"),
-    ("Revenue Ledger", 22, "Financial Overview"),
-    ("Property Tax Allocation Ledger", 26, "Financial Overview"),
-    ("Florida Amendment 3 Risk", 28, "Financial Overview"),
-    ("Expenditure Ledger", 29, "Financial Overview"),
-    ("Fund Financial Ledger", 32, "Financial Overview"),
-    ("Interfund Transfer Ledger", 34, "Financial Overview"),
-    ("Debt Ledger", 35, "Financial Overview"),
-    ("Budget Process", 36, None),
-    ("Public Participation", 39, "Budget Process"),
-    ("Financial Policies", 40, "Budget Process"),
-    ("Public Value and Decision Guide", 42, "Budget Process"),
-    ("Program and Service Budget", 44, "Public Value and Decision Guide"),
-    ("Program Outcomes", 46, "Public Value and Decision Guide"),
-    ("Revenue Strategy", 48, "Public Value and Decision Guide"),
-    ("Workforce Budget", 49, None),
-    ("Personnel Ledger", 51, "Workforce Budget"),
-    ("Long-Term Decisions", 52, "Workforce Budget"),
-    ("Constitutional Officers", 53, None),
-    ("Other Agencies and Court-Related Functions", 61, None),
-    ("Departments and Services", 65, None),
-    ("Tourism Administration", 93, "Departments and Services"),
-    ("Sales and Visitors Center", 94, "Tourism Administration"),
-    ("Communications", 95, "Tourism Administration"),
-    ("Marketing", 96, "Tourism Administration"),
-    ("Beach Operations", 97, "Departments and Services"),
-    ("Beach Tram", 98, "Beach Operations"),
-    ("Financial Plan", 99, None),
-    ("Contractual Services Ledger", 100, "Financial Plan"),
-    ("Long-Term Outlook", 104, "Financial Plan"),
-    ("Capital Budget", 106, None),
-    ("Capital Improvement Plan", 107, "Capital Budget"),
-    ("Glossary, Statistical, and Supplemental Information", 120, None),
-    ("Glossary and Frequently Asked Questions", 121, "Glossary, Statistical, and Supplemental Information"),
-    ("Statistical and Supplemental Information", 130, "Glossary, Statistical, and Supplemental Information"),
-    ("Principal Property Taxpayers", 131, "Glossary, Statistical, and Supplemental Information"),
+    ("Revenue Strategy", 22, "Financial Overview"),
+    ("Revenue Ledger", 23, "Financial Overview"),
+    ("Property Tax Allocation Ledger", 27, "Financial Overview"),
+    ("Florida Amendment 3 Risk", 29, "Financial Overview"),
+    ("Expenditure Ledger", 30, "Financial Overview"),
+    ("Fund Financial Ledger", 33, "Financial Overview"),
+    ("Interfund Transfer Ledger", 35, "Financial Overview"),
+    ("Debt Ledger", 36, "Financial Overview"),
+    ("Long-Term Outlook", 37, "Financial Overview"),
+    ("Budget Process", 39, None),
+    ("Public Participation", 42, "Budget Process"),
+    ("Financial Policies", 43, "Budget Process"),
+    ("Workforce Budget", 45, None),
+    ("Personnel Ledger", 47, "Workforce Budget"),
+    ("Constitutional Officers", 48, None),
+    ("Other Agencies and Court-Related Functions", 56, None),
+    ("Program and Service Budget", 60, None),
+    ("Public Value", 61, "Program and Service Budget"),
+    ("Safety, Justice and Effective Government", 62, "Program and Service Budget"),
+    ("Visitors, Mobility and Infrastructure", 63, "Program and Service Budget"),
+    ("Environment, Growth and Community Development", 64, "Program and Service Budget"),
+    ("Quality of Life and Community Wellbeing", 65, "Program and Service Budget"),
+    ("Departments and Services", 66, None),
+    ("Tourism Administration", 94, "Departments and Services"),
+    ("Sales and Visitors Center", 95, "Tourism Administration"),
+    ("Communications", 96, "Tourism Administration"),
+    ("Marketing", 97, "Tourism Administration"),
+    ("Beach Operations", 98, "Departments and Services"),
+    ("Beach Tram", 99, "Beach Operations"),
+    ("Capital Budget", 100, None),
+    ("Capital Improvement Plan", 101, "Capital Budget"),
+    ("Glossary, Statistical, and Supplemental Information", 113, None),
+    ("Glossary and Frequently Asked Questions", 114, "Glossary, Statistical, and Supplemental Information"),
+    ("Statistical and Supplemental Information", 123, "Glossary, Statistical, and Supplemental Information"),
+    ("Principal Property Taxpayers", 124, "Glossary, Statistical, and Supplemental Information"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -339,10 +414,10 @@ for title, page_number, parent_title in outline:
     parents[title] = item
 
 no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
-writer.add_uri(27, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
-writer.add_uri(38, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
-writer.add_uri(131, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(131, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(28, "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
+writer.add_uri(41, "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
+writer.add_uri(124, "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
+writer.add_uri(124, "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 
 # Every QR code in the book gets a matching clickable link over the same
 # spot, so a reader viewing the PDF on-screen can click straight through
@@ -377,71 +452,73 @@ _uri(10, "https://waltoncountyheritage.org/", (383.2, 559.5, 428.2, 603.8))
 _uri(10, "https://walton200.com/", (483.8, 559.5, 528.0, 603.8))
 
 # Property Tax Allocation: property-tax calculator QR
-_uri(26, "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator", (477.0, 288.0, 534.0, 345.8))
+_uri(27, "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator", (477.0, 288.0, 534.0, 345.8))
 
 # Summary of Financial Policies: nine policy QR codes, reading top-to-bottom
 # then left-to-right (matches the two-column layout)
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9811/Fund-Balance-Policy-Resolution", (234.0, 181.5, 281.2, 229.5))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9817/Budget-Policy-Per-Florida-Statutes-Chapters-129-and-200", (506.2, 181.5, 553.5, 229.5))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9813/Cash-Handling-Policy", (234.0, 297.0, 281.2, 344.2))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40346/Grants-Administration-Handbook", (506.2, 297.0, 553.5, 344.2))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9812", (234.0, 405.8, 281.2, 453.0))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40294/Capital-Asset-Policy", (506.2, 405.8, 553.5, 453.0))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/11655", (234.0, 514.5, 281.2, 561.8))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/9816", (506.2, 514.5, 553.5, 561.8))
-_uri(40, "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy", (234.0, 623.2, 281.2, 670.5))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9811/Fund-Balance-Policy-Resolution", (234.0, 181.5, 281.2, 229.5))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9817/Budget-Policy-Per-Florida-Statutes-Chapters-129-and-200", (506.2, 181.5, 553.5, 229.5))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9813/Cash-Handling-Policy", (234.0, 297.0, 281.2, 344.2))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/40346/Grants-Administration-Handbook", (506.2, 297.0, 553.5, 344.2))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9812", (234.0, 405.8, 281.2, 453.0))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/40294/Capital-Asset-Policy", (506.2, 405.8, 553.5, 453.0))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/11655", (234.0, 514.5, 281.2, 561.8))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9816", (506.2, 514.5, 553.5, 561.8))
+_uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy", (234.0, 623.2, 281.2, 670.5))
 
 # Personnel Ledger QR
-_uri(50, "https://budget-waltoncountyfl.com/pages/personnel-ledger.html", (502.5, 82.5, 549.8, 130.5))
+_uri(46, "https://budget-waltoncountyfl.com/pages/personnel-ledger.html", (502.5, 82.5, 549.8, 130.5))
 
 # Constitutional Officers: each officer's own budget-certification QR
-_uri(54, "https://www.mywaltonfl.gov/DocumentCenter/View/45225/Sheriff-Budget-Certification", (475.5, 233.2, 522.8, 280.5))
-_uri(56, "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission", (475.5, 233.2, 522.8, 280.5))
-_uri(57, "https://www.mywaltonfl.gov/DocumentCenter/View/45227/Clerk-of-Court-and-Comptroller-Budget", (475.5, 214.5, 522.8, 261.8))
-_uri(58, "https://www.mywaltonfl.gov/DocumentCenter/View/45269/Property-Appraiser-Submission", (475.5, 221.2, 522.8, 268.5))
-_uri(59, "https://www.mywaltonfl.gov/DocumentCenter/View/45234/Supervisor-of-Elections-Budget", (475.5, 214.5, 522.8, 261.8))
+_uri(49, "https://www.mywaltonfl.gov/DocumentCenter/View/45225/Sheriff-Budget-Certification", (475.5, 233.2, 522.8, 280.5))
+_uri(51, "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission", (475.5, 233.2, 522.8, 280.5))
+_uri(52, "https://www.mywaltonfl.gov/DocumentCenter/View/45227/Clerk-of-Court-and-Comptroller-Budget", (475.5, 214.5, 522.8, 261.8))
+_uri(53, "https://www.mywaltonfl.gov/DocumentCenter/View/45269/Property-Appraiser-Submission", (475.5, 221.2, 522.8, 268.5))
+_uri(54, "https://www.mywaltonfl.gov/DocumentCenter/View/45234/Supervisor-of-Elections-Budget", (475.5, 214.5, 522.8, 261.8))
 
 # Departments and Services: each department's own "View Online" QR,
 # page index -> (url, rect)
 DEPARTMENT_QR = {
-    66: ("https://budget-waltoncountyfl.com/pages/building-construction-and-maintenance.html", (474.0, 219.75, 527.25, 272.25)),
-    67: ("https://budget-waltoncountyfl.com/pages/building-department.html", (474.0, 228.75, 527.25, 282.0)),
-    68: ("https://budget-waltoncountyfl.com/pages/code-compliance.html", (474.0, 198.75, 527.25, 252.0)),
-    69: ("https://budget-waltoncountyfl.com/pages/county-administration.html", (474.0, 219.75, 527.25, 272.25)),
-    70: ("https://budget-waltoncountyfl.com/pages/eagle-springs-golf-and-recreation-center.html", (474.0, 219.75, 527.25, 272.25)),
-    71: ("https://budget-waltoncountyfl.com/pages/eagle-springs-grill.html", (474.0, 219.75, 527.25, 272.25)),
-    72: ("https://budget-waltoncountyfl.com/pages/emergency-management.html", (474.0, 216.75, 527.25, 270.0)),
-    73: ("https://budget-waltoncountyfl.com/pages/engineering-department.html", (474.0, 198.75, 527.25, 252.0)),
-    74: ("https://budget-waltoncountyfl.com/pages/environmental-resources.html", (474.0, 219.75, 527.25, 272.25)),
-    75: ("https://budget-waltoncountyfl.com/pages/extension-office.html", (474.0, 219.75, 527.25, 272.25)),
-    76: ("https://budget-waltoncountyfl.com/pages/geographic-info-systems.html", (474.0, 198.75, 527.25, 252.0)),
-    77: ("https://budget-waltoncountyfl.com/pages/housing-and-urban-development.html", (474.0, 226.5, 527.25, 279.0)),
-    78: ("https://budget-waltoncountyfl.com/pages/human-resources.html", (474.0, 198.75, 527.25, 252.0)),
-    79: ("https://budget-waltoncountyfl.com/pages/libraries.html", (474.0, 198.75, 527.25, 252.0)),
-    80: ("https://budget-waltoncountyfl.com/pages/mosquito-control.html", (474.0, 228.75, 527.25, 282.0)),
-    81: ("https://budget-waltoncountyfl.com/pages/mossy-head-wastewater-treatment-facility.html", (474.0, 219.75, 527.25, 272.25)),
-    82: ("https://budget-waltoncountyfl.com/pages/office-of-management-and-budget.html", (474.0, 227.25, 527.25, 280.5)),
-    83: ("https://budget-waltoncountyfl.com/pages/office-of-the-county-attorney.html", (474.0, 216.75, 527.25, 270.0)),
-    84: ("https://budget-waltoncountyfl.com/pages/planning.html", (474.0, 224.25, 527.25, 277.5)),
-    85: ("https://budget-waltoncountyfl.com/pages/probation.html", (474.0, 198.75, 527.25, 252.0)),
-    86: ("https://budget-waltoncountyfl.com/pages/public-works.html", (474.0, 219.75, 527.25, 272.25)),
-    87: ("https://budget-waltoncountyfl.com/pages/purchasing.html", (474.0, 227.25, 527.25, 280.5)),
-    88: ("https://budget-waltoncountyfl.com/pages/recreation.html", (474.0, 219.75, 527.25, 272.25)),
-    89: ("https://budget-waltoncountyfl.com/pages/soil-conservation.html", (474.0, 198.75, 527.25, 252.0)),
-    90: ("https://budget-waltoncountyfl.com/pages/solid-waste.html", (474.0, 228.75, 527.25, 282.0)),
-    91: ("https://budget-waltoncountyfl.com/pages/veteran-services.html", (474.0, 198.75, 527.25, 252.0)),
-    92: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html", (474.0, 228.75, 527.25, 282.0)),
-    93: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#sales-and-visitor-center", (474.0, 228.75, 527.25, 282.0)),
-    94: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#communications", (474.0, 228.75, 527.25, 282.0)),
-    95: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#marketing", (474.0, 228.75, 527.25, 282.0)),
-    96: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
-    97: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
+    61: ("https://budget-waltoncountyfl.com/pages/building-construction-and-maintenance.html", (474.0, 219.75, 527.25, 272.25)),
+    62: ("https://budget-waltoncountyfl.com/pages/building-department.html", (474.0, 228.75, 527.25, 282.0)),
+    63: ("https://budget-waltoncountyfl.com/pages/code-compliance.html", (474.0, 198.75, 527.25, 252.0)),
+    64: ("https://budget-waltoncountyfl.com/pages/county-administration.html", (474.0, 219.75, 527.25, 272.25)),
+    65: ("https://budget-waltoncountyfl.com/pages/eagle-springs-golf-and-recreation-center.html", (474.0, 219.75, 527.25, 272.25)),
+    66: ("https://budget-waltoncountyfl.com/pages/eagle-springs-grill.html", (474.0, 219.75, 527.25, 272.25)),
+    67: ("https://budget-waltoncountyfl.com/pages/emergency-management.html", (474.0, 216.75, 527.25, 270.0)),
+    68: ("https://budget-waltoncountyfl.com/pages/engineering-department.html", (474.0, 198.75, 527.25, 252.0)),
+    69: ("https://budget-waltoncountyfl.com/pages/environmental-resources.html", (474.0, 219.75, 527.25, 272.25)),
+    70: ("https://budget-waltoncountyfl.com/pages/extension-office.html", (474.0, 219.75, 527.25, 272.25)),
+    71: ("https://budget-waltoncountyfl.com/pages/geographic-info-systems.html", (474.0, 198.75, 527.25, 252.0)),
+    72: ("https://budget-waltoncountyfl.com/pages/housing-and-urban-development.html", (474.0, 226.5, 527.25, 279.0)),
+    73: ("https://budget-waltoncountyfl.com/pages/human-resources.html", (474.0, 198.75, 527.25, 252.0)),
+    74: ("https://budget-waltoncountyfl.com/pages/libraries.html", (474.0, 198.75, 527.25, 252.0)),
+    75: ("https://budget-waltoncountyfl.com/pages/mosquito-control.html", (474.0, 228.75, 527.25, 282.0)),
+    76: ("https://budget-waltoncountyfl.com/pages/mossy-head-wastewater-treatment-facility.html", (474.0, 219.75, 527.25, 272.25)),
+    77: ("https://budget-waltoncountyfl.com/pages/office-of-management-and-budget.html", (474.0, 227.25, 527.25, 280.5)),
+    78: ("https://budget-waltoncountyfl.com/pages/office-of-the-county-attorney.html", (474.0, 216.75, 527.25, 270.0)),
+    79: ("https://budget-waltoncountyfl.com/pages/planning.html", (474.0, 224.25, 527.25, 277.5)),
+    80: ("https://budget-waltoncountyfl.com/pages/probation.html", (474.0, 198.75, 527.25, 252.0)),
+    81: ("https://budget-waltoncountyfl.com/pages/public-works.html", (474.0, 219.75, 527.25, 272.25)),
+    82: ("https://budget-waltoncountyfl.com/pages/purchasing.html", (474.0, 227.25, 527.25, 280.5)),
+    83: ("https://budget-waltoncountyfl.com/pages/recreation.html", (474.0, 219.75, 527.25, 272.25)),
+    84: ("https://budget-waltoncountyfl.com/pages/soil-conservation.html", (474.0, 198.75, 527.25, 252.0)),
+    85: ("https://budget-waltoncountyfl.com/pages/solid-waste.html", (474.0, 228.75, 527.25, 282.0)),
+    86: ("https://budget-waltoncountyfl.com/pages/veteran-services.html", (474.0, 198.75, 527.25, 252.0)),
+    87: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html", (474.0, 228.75, 527.25, 282.0)),
+    88: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#sales-and-visitor-center", (474.0, 228.75, 527.25, 282.0)),
+    89: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#communications", (474.0, 228.75, 527.25, 282.0)),
+    90: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#marketing", (474.0, 228.75, 527.25, 282.0)),
+    91: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
+    92: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html#beach-tram", (474.0, 228.75, 527.25, 282.0)),
 }
 for _page_idx, (_url, _rect) in DEPARTMENT_QR.items():
-    _uri(_page_idx, _url, _rect)
+    # Program and Service Budget adds five pages immediately before the
+    # department chapter (divider plus four accountability pages).
+    _uri(_page_idx + 6, _url, _rect)
 
 # Capital Improvement Plan QR
-_uri(108, "https://budget-waltoncountyfl.com/pages/capital-improvement-plan.html", (59.25, 521.25, 111.0, 573.75))
+_uri(102, "https://budget-waltoncountyfl.com/pages/capital-improvement-plan.html", (59.25, 521.25, 111.0, 573.75))
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

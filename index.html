@@ -1555,6 +1555,15 @@
   .wc-budget-landing-frame,.wc-budget-landing-close{opacity:0;transition:opacity .3s ease .28s}
   .wc-budget-landing-dialog.is-visible .wc-budget-landing-frame,.wc-budget-landing-dialog.is-visible .wc-budget-landing-close{opacity:1}
   .wc-budget-landing-dialog.is-closing .wc-budget-landing-frame,.wc-budget-landing-dialog.is-closing .wc-budget-landing-close{opacity:0;transition-delay:0s}
+  /* A slower, more deliberate reveal than the shared base transitions
+     above (which also govern the close, and should stay snappy there) --
+     scoped to .is-opening only, so closing is untouched. Durations are
+     picked to land together: the panel's own WAAPI transform animation
+     (see openDialog) now runs 1050ms, so these settle at or just before
+     that finishes rather than visibly trailing it. */
+  .wc-budget-landing-dialog.is-opening{transition:background-color 1s cubic-bezier(.22,1,.36,1)}
+  .wc-budget-landing-dialog.is-opening .wc-budget-landing-wave,.wc-budget-landing-dialog.is-opening .wc-budget-landing-shade{transition:opacity .9s ease}
+  .wc-budget-landing-dialog.is-opening .wc-budget-landing-frame,.wc-budget-landing-dialog.is-opening .wc-budget-landing-close{transition:opacity .4s ease .55s}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
@@ -1729,9 +1738,9 @@
               sharedAnimation = panel.animate([
                 {transform:openingTransform,borderRadius:"999px",opacity:.7},
                 {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1}
-              ],{duration:760,easing:"cubic-bezier(.22,1,.36,1)"});
+              ],{duration:1050,easing:"cubic-bezier(.22,1,.36,1)"});
             }
-            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); }, 820);
+            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); }, 1110);
           });
         });
         if(!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src || "home.html?embed=landing");

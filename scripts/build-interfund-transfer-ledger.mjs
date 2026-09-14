@@ -177,7 +177,7 @@ const html = `<!doctype html>
       <div class="lrow grand"><div class="rlabel">Total</div><div class="rdesc"></div><div class="rnum">${IN_TOTAL}</div></div>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 </body></html>`;
 

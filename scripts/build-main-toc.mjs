@@ -103,7 +103,7 @@ const html = `<!doctype html>
     <p class="intro">A complete guide to Walton County's community context, operating departments, financial plan, and capital program.</p>
     <h2 style="margin:0 0 .06in;color:#003f28;font:800 11pt Georgia, serif;">Introduction and Our County</h2>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    <footer><span>FY 2027 Annual Budget</span><b>5</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>5</b></footer>
   </section>
 </body></html>`;
 

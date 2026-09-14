@@ -120,7 +120,7 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:15pt; margin-top:.2in; }
+  h1.continued{ font-size:15pt; margin-top:.24in; }
   h1.continued span{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -262,7 +262,7 @@ const page1 = `
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -286,7 +286,7 @@ const page2 = `
 
     ${row(GRAND_TOTAL, "grand")}
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

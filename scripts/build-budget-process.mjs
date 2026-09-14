@@ -13,17 +13,17 @@ import { chromium } from "playwright";
 // navigation, no print equivalent).
 
 const PHASES = [
-  ["Phase 1", "Preparation", "Departments prepare operating and capital requests based on service needs, staffing, projects, and funding assumptions.", "February–April"],
-  ["Phase 2", "Review", "OMB and County Administration evaluate requests against revenue estimates, priorities, fund capacity, and policy guidance.", "April–June"],
-  ["Phase 3", "Workshops", "The tentative budget is reviewed publicly with the Board, including funding requests, service levels, and the proposed millage rate.", "June–July"],
+  ["Phase 1", "Preparation", "Departments prepare operating and capital requests identifying service needs, staffing, projects, funding assumptions, and proposed service changes.", "February–April"],
+  ["Phase 2", "Review", "OMB and County Administration evaluate requests, reduction options, revenue estimates, fund capacity, policy guidance, and the Board's strategic priorities on pages 13–14.", "April–June"],
+  ["Phase 3", "Workshops", "The tentative budget is reviewed publicly with the Board, including funding requests, service levels, alignment with strategic priorities, and the proposed millage rate.", "June–July"],
   ["Phase 4", "Adoption", "Required public hearings are held before the Board adopts the final millage rate and annual operating budget.", "September"]
 ];
 
 const ROLES = [
   ["Departments & Constitutional Offices", "Define service needs and submit operating, personnel, and capital requests."],
   ["Office of Management & Budget", "Coordinates the cycle, reviews submissions, balances resources, and prepares recommendations."],
-  ["County Administration", "Evaluates tradeoffs and aligns recommendations with County priorities and capacity."],
-  ["Board of County Commissioners", "Provides direction, considers public input, sets millage rates, and adopts the budget."]
+  ["County Administration", "Mr. Kellenberger, County Administrator, aligns OMB's recommendations with Board priorities and capacity."],
+  ["Board of County Commissioners", "Five elected commissioners, chaired by Brad Drake (District 3), set direction, weigh public input, and adopt the final budget and millage rate."]
 ];
 
 const AFTER = [
@@ -108,27 +108,27 @@ const sharedCss = `
     line-height:1.5;
   }
   h2{
-    margin:0 0 .1in;
+    margin:0 0 .06in;
     color:#003f28;
     font:800 12.5pt/1.2 Georgia, serif;
   }
   h2 span{
     display:block;
-    margin-bottom:.04in;
+    margin-bottom:.03in;
     color:#b89521;
     font-size:7.6pt;
     font-weight:900;
     letter-spacing:.1em;
     text-transform:uppercase;
   }
-  .section-block{ margin:0 0 .3in; }
+  .section-block{ margin:0 0 .14in; }
   .phase-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:.14in;
   }
   .phase-card{
-    padding:.16in .15in;
+    padding:.13in .14in;
     border:1px solid #e4ebe7;
     border-radius:12px;
     background:#fbfcfa;
@@ -151,12 +151,12 @@ const sharedCss = `
   .phase-card p{
     margin:0;
     color:#33453c;
-    font-size:8.2pt;
-    line-height:1.42;
+    font-size:8pt;
+    line-height:1.3;
   }
   .phase-card small{
     display:block;
-    margin-top:.1in;
+    margin-top:.07in;
     color:#68786f;
     font-size:7.2pt;
     font-weight:800;
@@ -166,7 +166,7 @@ const sharedCss = `
   .role-grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:.16in .3in;
+    gap:.1in .3in;
   }
   .role-item{
     padding-left:.18in;
@@ -181,26 +181,26 @@ const sharedCss = `
   .role-item p{
     margin:0;
     color:#33453c;
-    font-size:8.4pt;
-    line-height:1.42;
+    font-size:8.2pt;
+    line-height:1.3;
   }
   .public-card{
-    margin-top:.18in;
-    padding:.18in .22in;
+    margin-top:.12in;
+    padding:.13in .18in;
     border:1px solid #d1be78;
     border-radius:12px;
     background:#f9f8f2;
   }
   .public-card h3{
-    margin:0 0 .06in;
+    margin:0 0 .05in;
     color:#003f28;
     font:800 10.5pt/1.2 Georgia, serif;
   }
   .public-card p{
-    margin:0 0 .1in;
+    margin:0 0 .07in;
     color:#33453c;
     font-size:8.6pt;
-    line-height:1.45;
+    line-height:1.4;
   }
   .public-list{
     display:flex;
@@ -218,10 +218,10 @@ const sharedCss = `
   .after-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:.16in;
+    gap:.14in;
   }
   .after-card{
-    padding:.16in;
+    padding:.12in .13in;
     border:1px solid #e4ebe7;
     border-radius:12px;
   }
@@ -241,8 +241,8 @@ const sharedCss = `
   .after-card p{
     margin:0;
     color:#33453c;
-    font-size:8.2pt;
-    line-height:1.42;
+    font-size:8pt;
+    line-height:1.32;
   }
   footer{
     position:absolute;
@@ -361,7 +361,12 @@ const page1 = `
       </div>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_A</b></footer>
+    <div class="section-block" style="margin-bottom:0;">
+      <h2><span>Request Guidance</span>What Departments Were Asked to Provide</h2>
+      <p class="intro" style="margin-bottom:0;line-height:1.2;font-size:7.5pt;">Departments were instructed to identify service needs, staffing, projects, funding assumptions, proposed service changes, and reduction options. OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13–14. Public comments and budget effects are documented on page 41.</p>
+    </div>
+
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -381,7 +386,7 @@ const page2 = `
     </div>
     <p class="cal-note"><strong>Budget Coordinator:</strong> Office of Management and Budget. All dates shown are estimates for planning purposes and may be adjusted as necessary during the budget development process.</p>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

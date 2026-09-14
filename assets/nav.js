@@ -68,7 +68,7 @@
       mobileStylesheet.id = mobileStylesheetId;
       mobileStylesheet.rel = "stylesheet";
     }
-    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=27";
+    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=29";
     document.head.appendChild(mobileStylesheet);
   }
   function loadWcScriptOnce(scriptId, src, onload){
@@ -1083,6 +1083,140 @@
   nav#nav-menu .wc-theme-toggle .wc-theme-sun{
     display:none !important;
   }
+  /* One shared look for every "visible search bar" instance on the site
+     (top nav, the Explore-type modal's header) -- deliberately the same
+     white pill, green icon/button, and dropdown styling as the homepage
+     popup's own search bar (see .wc-home-search-form in home-landing.css)
+     so all of them read as one component regardless of which script
+     rendered the markup they sit in. */
+  .wc-nav-search-bar-wrap{
+    display:flex !important;
+    position:relative !important;
+    width:min(320px, 26vw) !important;
+    min-width:0 !important;
+    flex:0 1 320px !important;
+  }
+  .wc-nav-search-bar-form{
+    display:flex !important;
+    align-items:center !important;
+    width:100% !important;
+    min-width:0 !important;
+    padding:5px 5px 5px 15px !important;
+    border:1px solid #b9cdc1 !important;
+    border-radius:999px !important;
+    background:#ffffff !important;
+    box-shadow:0 5px 16px rgba(0,63,40,.08) !important;
+    box-sizing:border-box !important;
+    transition:border-color .2s ease, box-shadow .2s ease !important;
+  }
+  .wc-nav-search-bar-form:focus-within{
+    border-color:#006231 !important;
+    box-shadow:0 0 0 3px rgba(0,98,49,.12),0 5px 16px rgba(0,63,40,.08) !important;
+  }
+  .wc-nav-search-bar-form svg{
+    flex:0 0 auto !important;
+    width:18px !important;
+    height:18px !important;
+    color:#006231 !important;
+  }
+  .wc-nav-search-bar-form input{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:7px 9px !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    color:#172033 !important;
+    font:inherit !important;
+    font-size:13px !important;
+    font-weight:500 !important;
+    letter-spacing:0 !important;
+    text-transform:none !important;
+    outline:0 !important;
+  }
+  .wc-nav-search-bar-form input::placeholder{
+    color:#78899a !important;
+  }
+  .wc-nav-search-bar-form button{
+    flex:0 0 auto !important;
+    min-height:auto !important;
+    margin:0 !important;
+    padding:8px 16px !important;
+    border:0 !important;
+    border-radius:999px !important;
+    background:#006231 !important;
+    color:#ffffff !important;
+    font:inherit !important;
+    font-size:11px !important;
+    font-weight:800 !important;
+    letter-spacing:.03em !important;
+    text-transform:uppercase !important;
+    cursor:pointer !important;
+    transition:background .2s ease !important;
+  }
+  .wc-nav-search-bar-form button:hover{
+    background:#004c2e !important;
+  }
+  .wc-nav-search-bar-dropdown{
+    position:absolute !important;
+    top:calc(100% + 8px) !important;
+    left:0 !important;
+    right:0 !important;
+    z-index:40 !important;
+    max-height:360px !important;
+    overflow-y:auto !important;
+    padding:6px !important;
+    border:1px solid #b9cdc1 !important;
+    border-radius:14px !important;
+    background:#ffffff !important;
+    box-shadow:0 12px 32px rgba(0,63,40,.14) !important;
+  }
+  .wc-nav-search-bar-dropdown[hidden]{
+    display:none !important;
+  }
+  .wc-nav-search-bar-result{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:1px !important;
+    padding:9px 12px !important;
+    border-radius:9px !important;
+    color:#172033 !important;
+    text-decoration:none !important;
+  }
+  .wc-nav-search-bar-result:hover,
+  .wc-nav-search-bar-result.is-active{
+    background:#eef7f1 !important;
+  }
+  .wc-nav-search-bar-result strong{
+    font-size:13px !important;
+    font-weight:700 !important;
+  }
+  .wc-nav-search-bar-result span{
+    font-size:11px !important;
+    color:#5b6b7c !important;
+  }
+  .wc-nav-search-bar-empty{
+    padding:10px 12px !important;
+    font-size:12px !important;
+    color:#5b6b7c !important;
+  }
+  nav#nav-menu .wc-nav-search-toggle{
+    display:none !important;
+  }
+  @media (max-width:1150px){
+    nav#nav-menu .wc-nav-search-bar-wrap{
+      display:none !important;
+    }
+    nav#nav-menu .wc-nav-search-toggle{
+      display:inline-flex !important;
+    }
+  }
+  @media (max-width:760px){
+    .wc-home-explorer-modal-head .wc-nav-search-bar-wrap{
+      display:none !important;
+    }
+  }
   nav#nav-menu .wc-nav-menu-toggle{
     display:none !important;
     color:#ffffff !important;
@@ -1689,58 +1823,6 @@
     padding:0 !important;
     background:transparent !important;
   }
-  .wc-footer-search-copy{
-    display:flex !important;
-    align-items:center !important;
-    flex-wrap:wrap !important;
-    column-gap:10px !important;
-    row-gap:2px !important;
-    max-width:none !important;
-    flex:1 1 260px !important;
-    min-width:0 !important;
-  }
-  .wc-footer-search-icon-button{
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    flex:0 0 auto !important;
-    width:26px !important;
-    height:26px !important;
-    padding:0 !important;
-    border:1px solid rgba(0,63,40,.18) !important;
-    border-radius:999px !important;
-    background:#003f28 !important;
-    color:#ffffff !important;
-    cursor:pointer !important;
-    transition:background .2s ease, transform .2s ease !important;
-    align-self:center !important;
-  }
-  .wc-footer-search-icon-button:hover{
-    background:#002f1f !important;
-    transform:translateY(-1px) !important;
-  }
-  .wc-footer-search-icon-button svg{
-    width:13px !important;
-    height:13px !important;
-  }
-  .wc-footer-search-copy h2{
-    margin:0 !important;
-    color:#172033 !important;
-    font-family:inherit !important;
-    font-size:14px !important;
-    line-height:1.3 !important;
-    font-weight:800 !important;
-    letter-spacing:0 !important;
-    white-space:nowrap !important;
-  }
-  .wc-footer-search-copy p{
-    max-width:none !important;
-    margin:0 !important;
-    color:#526476 !important;
-    font-size:12px !important;
-    line-height:1.4 !important;
-    font-weight:500 !important;
-  }
   .wc-search-footer .wc-budget-footer-links{
     display:flex !important;
     align-items:center !important;
@@ -1869,6 +1951,145 @@
   function wcPageHref(href){
     return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
   }
+  // A live, in-place results dropdown for the visible search bar in the top
+  // nav -- the same look and behavior as the search bar on the homepage
+  // popup's own header, just driven from window.wcBudgetPages (the same
+  // sitewide page index search-data.js already merges into every page) so
+  // it works consistently everywhere nav.js runs, not just on home.html.
+  function initNavSearchBar(wrap){
+    if(!wrap || wrap.getAttribute("data-wc-nav-search-bound") === "true"){
+      return;
+    }
+    wrap.setAttribute("data-wc-nav-search-bound", "true");
+    var form = wrap.querySelector(".wc-nav-search-bar-form");
+    var input = form ? form.querySelector("input") : null;
+    var dropdown = wrap.querySelector(".wc-nav-search-bar-dropdown");
+    if(!form || !input || !dropdown){
+      return;
+    }
+    var activeIndex = -1;
+    function resultHref(page){
+      var href = String((page && page.href) || "").trim();
+      if(!href || /^(https?:|mailto:|tel:|#|\/|\.\.?\/|pages\/)/.test(href)){
+        return href;
+      }
+      return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
+    }
+    function normalize(value){
+      return String(value === undefined || value === null ? "" : value).toLowerCase().trim();
+    }
+    function getResultLinks(){
+      return Array.prototype.slice.call(dropdown.querySelectorAll(".wc-nav-search-bar-result"));
+    }
+    function setActive(index){
+      var resultLinks = getResultLinks();
+      activeIndex = resultLinks.length ? (index + resultLinks.length) % resultLinks.length : -1;
+      resultLinks.forEach(function(link, i){
+        var active = i === activeIndex;
+        link.classList.toggle("is-active", active);
+        link.setAttribute("aria-selected", active ? "true" : "false");
+        if(active){ link.scrollIntoView({ block:"nearest" }); }
+      });
+    }
+    function hideDropdown(){
+      dropdown.hidden = true;
+      dropdown.innerHTML = "";
+      activeIndex = -1;
+      input.setAttribute("aria-expanded", "false");
+    }
+    function renderDropdown(query){
+      var pages = window.wcBudgetPages || [];
+      var normalizedQuery = normalize(query);
+      if(!normalizedQuery || !pages.length){
+        hideDropdown();
+        return;
+      }
+      var matches = pages.map(function(page, index){
+        var title = normalize(page.title);
+        var haystack = normalize([page.title, page.section, page.description, page.summary].filter(Boolean).join(" "));
+        var keywordHit = Array.isArray(page.keywords) && page.keywords.some(function(term){
+          return normalize(term).indexOf(normalizedQuery) !== -1;
+        });
+        if(haystack.indexOf(normalizedQuery) === -1 && !keywordHit){
+          return null;
+        }
+        var rank;
+        if(title === normalizedQuery){ rank = 0; }
+        else if(title.indexOf(normalizedQuery) === 0){ rank = 1; }
+        else if(title.indexOf(normalizedQuery) !== -1){ rank = 2; }
+        else{ rank = 3; }
+        return { page:page, rank:rank, index:index };
+      }).filter(Boolean).sort(function(a, b){
+        return a.rank - b.rank || a.index - b.index;
+      }).slice(0, 8).map(function(entry){ return entry.page; });
+      activeIndex = -1;
+      if(!matches.length){
+        dropdown.innerHTML = '<div class="wc-nav-search-bar-empty">No matching pages found.</div>';
+        dropdown.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+        return;
+      }
+      dropdown.innerHTML = matches.map(function(page){
+        var title = String(page.title || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var section = String(page.section || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return '<a class="wc-nav-search-bar-result" role="option" aria-selected="false" href="' + resultHref(page) + '">' +
+          "<strong>" + title + "</strong>" +
+          (section ? "<span>" + section + "</span>" : "") +
+          "</a>";
+      }).join("");
+      dropdown.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    }
+    input.addEventListener("input", function(){
+      renderDropdown(input.value);
+    });
+    input.addEventListener("focus", function(){
+      renderDropdown(input.value);
+    });
+    input.addEventListener("keydown", function(event){
+      var resultLinks = getResultLinks();
+      if(event.key === "Escape"){
+        hideDropdown();
+        return;
+      }
+      if(event.key === "ArrowDown" && resultLinks.length){
+        event.preventDefault();
+        setActive(activeIndex + 1);
+        return;
+      }
+      if(event.key === "ArrowUp" && resultLinks.length){
+        event.preventDefault();
+        setActive(activeIndex - 1);
+        return;
+      }
+      if(event.key === "Enter" && activeIndex >= 0 && resultLinks[activeIndex]){
+        event.preventDefault();
+        resultLinks[activeIndex].click();
+      }
+    });
+    document.addEventListener("click", function(event){
+      if(!wrap.contains(event.target)){
+        hideDropdown();
+      }
+    });
+    form.addEventListener("submit", function(event){
+      event.preventDefault();
+      var resultLinks = getResultLinks();
+      if(activeIndex >= 0 && resultLinks[activeIndex]){
+        resultLinks[activeIndex].click();
+        return;
+      }
+      if(resultLinks.length){
+        resultLinks[0].click();
+      }
+    });
+  }
+  // Exposed so home-explorer-modal.js's own overlay (the Revenue/Personnel/
+  // Capital/Constitutional Officers "Explore" modal, which has no
+  // nav#nav-menu of its own to hang this off of) can reuse this same
+  // search-bar component in its header instead of duplicating it.
+  window.WCBudgetNav = window.WCBudgetNav || {};
+  window.WCBudgetNav.initNavSearchBar = initNavSearchBar;
   function ensureWcNavChrome(){
     var nav = document.querySelector("nav#nav-menu.nav-menu");
     if(!nav){
@@ -1909,6 +2130,17 @@
       var actions = document.createElement("div");
       actions.className = "wc-nav-actions";
       actions.innerHTML = `
+        <div class="wc-nav-search-bar-wrap">
+          <form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
+            </svg>
+            <label class="wc-sr-only" for="wcNavBudgetSearch">Search the Walton County budget</label>
+            <input id="wcNavBudgetSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
+            <button type="submit">Search</button>
+          </form>
+          <div id="wcNavSearchBarDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
+        </div>
         <button type="button" class="wc-nav-search-toggle" aria-label="Search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
@@ -1919,6 +2151,7 @@
         </button>
       `;
       nav.appendChild(actions);
+      initNavSearchBar(actions.querySelector(".wc-nav-search-bar-wrap"));
       var searchToggle = actions.querySelector(".wc-nav-search-toggle");
       var menuToggle = actions.querySelector(".wc-nav-menu-toggle");
       function syncNavSearchTop(){
@@ -2333,15 +2566,6 @@
     var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
     var desiredFooterHtml = `
       <div class="wc-budget-footer-inner">
-        <div class="wc-footer-search-copy">
-          <h2>Still looking for something?</h2>
-          <p>Search departments, budgets, personnel, funds, publications, and county information.</p>
-          <button class="wc-footer-search-icon-button" type="button" aria-label="Search the Budget">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
-            </svg>
-          </button>
-        </div>
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
           <a href="${glossaryFaqHref}" data-wc-utility-popup="Glossary, Acronyms &amp; FAQ">Glossary &amp; FAQ</a>
           <a href="${supportingDocsHref}" data-wc-utility-popup="Supporting Budget Documentation">Supporting Documentation</a>
@@ -2364,17 +2588,6 @@
     }
     footer.querySelectorAll('.wc-budget-footer-bottom').forEach(function(footerBottom){
       footerBottom.remove();
-    });
-    footer.querySelectorAll('.wc-footer-search-icon-button').forEach(function(button){
-      if(button.getAttribute("data-wc-search-bound") === "true"){
-        return;
-      }
-      button.setAttribute("data-wc-search-bound", "true");
-      button.addEventListener("click", function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        openWaltonBudgetFooterSearch();
-      });
     });
     var utilityDialog = footer.querySelector('.wc-footer-utility-dialog');
     var utilityFrame = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-frame');
@@ -2405,7 +2618,35 @@
     });
     if(utilityDialog){
       utilityFrame.addEventListener('load',function(){
-        try{if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank')return;utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');}catch(error){}
+        try{
+          if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank')return;
+          utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');
+          // This dialog is a plain content-page viewer -- it has no idea
+          // about the budget book's transparent, chromeless layout. A link
+          // to it clicked from inside a page shown here (e.g. the HB 1329
+          // list on Supporting Budget Documentation) would otherwise just
+          // navigate this same iframe in place, landing on budget-book.html
+          // without its embed flag and showing that page's full standalone
+          // header nested under this dialog's own "Supporting Budget
+          // Documentation" title bar. Hand it off to the homepage's own
+          // department-popup system instead, which already renders the
+          // book correctly -- falling back to a plain navigation only if
+          // that system isn't available on this page.
+          utilityFrame.contentDocument.addEventListener('click',function(event){
+            var link=event.target.closest('a[href]');
+            if(!link||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+            var resolved;
+            try{resolved=new URL(link.href,utilityFrame.contentDocument.location.href);}catch(urlError){return;}
+            if(!/\/budget-book\.html$/i.test(resolved.pathname))return;
+            event.preventDefault();
+            closeUtilityDialog();
+            if(window.WCHomeExplorer&&typeof window.WCHomeExplorer.openDepartmentModal==='function'){
+              window.WCHomeExplorer.openDepartmentModal(resolved.href,'Full Budget Document',null);
+            }else{
+              window.location.href=resolved.href;
+            }
+          },true);
+        }catch(error){}
       });
       utilityDialog.querySelector('.wc-footer-utility-close').addEventListener('click',closeUtilityDialog);
       utilityDialog.addEventListener('click',function(event){if(event.target===utilityDialog)closeUtilityDialog();});

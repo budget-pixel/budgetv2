@@ -502,7 +502,8 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
+    <p class="intro" style="margin-top:.14in;">Accountability does not stop at organizational lines. Many community outcomes require several departments working together toward one result &mdash; the Program and Service Budget chapter groups these offices by the shared goal they fund, not just the org chart, and names every contributing department for each.</p>
+    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;

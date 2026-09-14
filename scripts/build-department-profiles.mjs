@@ -291,6 +291,7 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   p.intro{
     max-width:7.3in;
     margin:0 0 .16in;
@@ -349,7 +350,7 @@ const sharedCss = `
   .change{ color:#0b7741; font-weight:700; }
   .change.is-down{ color:#a24b1e; }
   .qr-box{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .qr-box img{ width:.85in; height:.85in; }
+  .qr-box img{ box-sizing:border-box; width:.85in; height:.85in; padding:.07in; border:2px solid #d1be78; border-radius:50%; background:#fff; }
   .qr-box span{ margin-top:.03in; color:#68786f; font-size:5.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
 `;
 
@@ -377,7 +378,7 @@ const indexPage = `
       ${OFFICES.map((o) => `<div class="index-row"><span>${o.name}</span><b>${money(o.personnel + o.operating + o.capital + (o.other || 0))}</b></div>`).join("")}
     </div>
     <p class="footnote">Figures shown for each office are that office's own reported Personnel, Operating, and Capital costs. For four Environmental Services programs (marked &dagger;) and Building Construction and Maintenance (marked *), summing an office's own figures does not exactly reach its parent department's total in the Department Operating Ledger &mdash; each department's full budget includes additional cost categories not broken out at the individual office level.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;
@@ -389,9 +390,9 @@ async function main() {
     const html = `
     <section>
       <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-      <h1 style="font-size:16pt;">Department Profiles <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
+      <h1 class="continued">Department Profiles <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
       ${pair.join("")}
-      <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
+      <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
     </section>
     `;
     pageCounter++;

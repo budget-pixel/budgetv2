@@ -56,7 +56,7 @@ function ledgerTable(rows, capital) {
 }
 
 const header = () => `<header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>`;
-const footer = (page) => `<footer><span>FY 2027 Annual Budget</span><b>${page}</b></footer>`;
+const footer = (page) => `<footer><span>FY 2027 Tentative Budget</span><b>${page}</b></footer>`;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Contractual Services Ledger</title><style>
 @page{size:letter portrait;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#173229}section{position:relative;width:8.5in;height:11in;padding:.56in .62in .5in;background:#fff;page-break-after:always;overflow:hidden}section:last-child{page-break-after:auto}

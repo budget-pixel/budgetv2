@@ -90,21 +90,26 @@ const sharedCss = `
     font-size:8pt;
     line-height:1.4;
   }
-  .area-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:.13in; margin:.06in 0 .1in; }
-  .area-card{ padding:.1in .13in; border:1px solid #e4ebe7; border-radius:9px; background:#fbfcfa; }
-  .area-card b{ display:block; color:#003f28; font:800 8.4pt Georgia, serif; margin-bottom:.03in; }
-  .area-card p{ margin:0 0 .05in; color:#33453c; font-size:6.9pt; line-height:1.32; }
-  .area-card ul{ margin:0; padding-left:.13in; }
-  .area-card li{ font-size:6.6pt; color:#173229; line-height:1.35; margin-bottom:.01in; }
-  .stat-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:.12in; margin:.06in 0 .12in; }
-  .stat-card{ padding:.1in .1in; border-radius:10px; background:#003f28; text-align:center; }
-  .stat-card b{ display:block; color:#fff; font:800 12pt/1.1 Georgia, serif; }
-  .stat-card span{ display:block; margin-top:.03in; color:#e7c95f; font-size:5.9pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; line-height:1.25; }
-  .conn-table{ border-top:2px solid #d1be78; margin-top:.06in; }
-  .crow{ display:grid; grid-template-columns:1.7in 1fr; gap:.14in; padding:.09in 0; border-bottom:1px solid #eef1ee; }
+  .area-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.08in; margin:.05in 0 .08in; }
+  .area-card{ position:relative; min-height:.76in; padding:.1in .09in .08in .35in; border:1px solid #e4ebe7; border-radius:8px; background:#fbfcfa; }
+  .area-card .num{ position:absolute; left:.08in; top:.09in; display:grid; place-items:center; width:.21in; height:.21in; border-radius:50%; background:#003f28; color:#e7c95f; font:800 7pt Georgia,serif; }
+  .area-card b{ display:block; color:#003f28; font:800 7.3pt Georgia, serif; margin-bottom:.025in; }
+  .area-card p{ margin:0; color:#33453c; font-size:5.65pt; line-height:1.27; }
+  .challenge-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.08in; margin:.05in 0 .08in; }
+  .challenge-card{ padding:.075in .1in; border-left:4px solid #d1be78; border-radius:0 7px 7px 0; background:#f9f8f2; }
+  .challenge-card.org{ border-left-color:#006231; background:#f3f8f5; }
+  .challenge-card small{ display:block; margin-bottom:.02in; color:#a88418; font-size:5.2pt; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+  .challenge-card.org small{ color:#006231; }
+  .challenge-card b{ display:block; color:#003f28; font:800 7.4pt Georgia,serif; }
+  .challenge-card p{ margin:.02in 0 0; color:#33453c; font-size:5.65pt; line-height:1.3; }
+  .conn-table{ border-top:2px solid #d1be78; margin-top:.04in; }
+  .crow{ display:grid; grid-template-columns:1.15in 1.65in .8in 1.65in 1fr; gap:.08in; padding:.055in 0; border-bottom:1px solid #eef1ee; }
   .crow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.3pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; }
-  .crow .carea{ font-size:8pt; font-weight:800; color:#003f28; line-height:1.3; }
-  .crow .cresp{ font-size:7.6pt; color:#33453c; line-height:1.42; }
+  .crow .carea{ font-size:6.3pt; font-weight:800; color:#003f28; line-height:1.25; }
+  .crow .cresp{ font-size:5.8pt; color:#33453c; line-height:1.3; }
+  .crow .money{ color:#006231; font-size:6pt; font-weight:900; line-height:1.25; }
+  .crow .result{ color:#33453c; font-size:5.7pt; line-height:1.3; }
+  .crow .when{ color:#68786f; font-size:5.55pt; line-height:1.3; }
   .theme-row{ display:grid; grid-template-columns:.5in 1.75in 1fr; gap:.13in; align-items:center; padding:.07in 0; border-bottom:1px solid #eef1ee; }
   .theme-row .theme-n{ text-align:center; }
   .theme-row .theme-n b{ display:block; font:800 14pt Georgia, serif; color:#003f28; }
@@ -147,23 +152,35 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Community Priorities and Organizational Challenges</h1>
-    <p class="intro">The Walton County Strategic Plan 2027&ndash;2032 identifies six Strategic Priority Areas that align County goals across local government, economy, environment, and quality of life. The FY2027 tentative budget uses that framework to connect resources with community needs.</p>
+    <p class="intro">The Walton County Strategic Plan 2027&ndash;2032 establishes six priority areas. For FY2027, the Board&rsquo;s direction is continuity, capital investment, and financial preparedness: maintain core services, address infrastructure needs, and avoid unnecessary recurring commitments while the revenue outlook remains uncertain.</p>
 
     <h2>Strategic Priority Areas, FY2027&ndash;FY2032</h2>
     <div class="area-grid">
-      ${PRIORITY_AREAS.map((a) => `<div class="area-card"><b>${a.t}</b><p>${a.d}</p><ul>${a.goals.map((g) => `<li>${g}</li>`).join("")}</ul></div>`).join("")}
+      ${PRIORITY_AREAS.map((a, i) => `<div class="area-card"><span class="num">${i + 1}</span><b>${a.t}</b><p>${a.d}</p></div>`).join("")}
     </div>
 
-    <h2>Growth Is the Common Thread</h2>
-    <p class="body">Walton County's population has grown 36.8% since 2010 to 75,305 residents, and the county hosts an estimated 4.7 million visitors annually &mdash; nearly 63 tourists for every resident. The Strategic Plan's priority areas, and nearly every department's stated challenge elsewhere in this book, trace back to the same root cause: service levels, staffing, and infrastructure all have to keep pace with a county that keeps growing.</p>
-    <div class="stat-strip">
-      <div class="stat-card"><b>+36.8%</b><span>Population Growth Since 2010</span></div>
-      <div class="stat-card"><b>75,305</b><span>Current Population</span></div>
-      <div class="stat-card"><b>~4.7M</b><span>Estimated Annual Visitors</span></div>
-      <div class="stat-card"><b>77.7%</b><span>Homeownership Rate</span></div>
+    <h2>What Is Creating Pressure</h2>
+    <div class="challenge-grid">
+      <div class="challenge-card"><small>Community challenge</small><b>Growth, mobility, and aging assets</b><p>Population has grown 36.8% since 2010, while development and visitation add demand to roads, drainage, facilities, parks, public-safety infrastructure, and coastal access.</p></div>
+      <div class="challenge-card"><small>Community challenge</small><b>Seasonal demand and coastal stewardship</b><p>Approximately 4.7 million annual visitors intensify peak-season transportation, lifeguard, tram, beach-access, maintenance, and natural-resource demands.</p></div>
+      <div class="challenge-card"><small>Community challenge</small><b>Housing affordability and access</b><p>Growth in housing cost and demand affects workforce stability and residents seeking rental assistance, attainable housing, and access to essential community services.</p></div>
+      <div class="challenge-card org"><small>Organizational challenge</small><b>Capacity, asset delivery, and coordination</b><p>The County must fill critical positions, coordinate work across departments, and deliver a large capital program without materially expanding core service commitments.</p></div>
+      <div class="challenge-card org"><small>Organizational challenge</small><b>Revenue uncertainty and recurring cost</b><p>Potential property-tax changes, grant uncertainty, and continuing personnel and operating costs require conservative assumptions and limits on new recurring obligations.</p></div>
+      <div class="challenge-card org"><small>Organizational challenge</small><b>Emergency readiness and financial flexibility</b><p>Hurricane exposure requires operating readiness and liquidity. The County seeks to preserve approximately $50 million as an informal emergency-recovery planning objective.</p></div>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <h2>FY2027 Challenge-to-Result Plan</h2>
+    <div class="conn-table">
+      <div class="crow head"><div>Challenge</div><div>FY2027 response</div><div>Funding signal</div><div>Expected FY2027 result</div><div>When reviewed</div></div>
+      <div class="crow"><div class="carea">Infrastructure demand</div><div class="cresp">Fund the FY2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money">$43.8M funded capital</div><div class="result">Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when">Letting schedule, project milestones, and year-end measures</div></div>
+      <div class="crow"><div class="carea">Seasonal coastal demand</div><div class="cresp">Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.</div><div class="money">+13 Beach Operations FTE</div><div class="result">Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.</div><div class="when">Peak-season monitoring and FY2027 year end</div></div>
+      <div class="crow"><div class="carea">Housing access</div><div class="cresp">Continue HUD rental-assistance and Housing Choice Voucher administration.</div><div class="money">$3.1M program budget</div><div class="result">Maintain assistance delivery and monitor families served and available voucher utilization.</div><div class="when">Program reporting throughout FY2027</div></div>
+      <div class="crow"><div class="carea">Capacity and continuity</div><div class="cresp">Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money">+15 net countywide FTE</div><div class="result">No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when">Budget monitoring and annual personnel review</div></div>
+      <div class="crow"><div class="carea">Fiscal uncertainty</div><div class="cresp">Assume no specific Amendment 3 reduction, protect reserves, limit new recurring commitments, and update forecasts as facts change.</div><div class="money">~$50M emergency objective</div><div class="result">Preserve response capacity and identify material revenue, reserve, or service impacts before future budget decisions.</div><div class="when">During FY2027 monitoring and the FY2028 cycle</div></div>
+    </div>
+    <p class="footnote">The strategic priority language comes from the Walton County Strategic Plan 2027&ndash;2032. Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this tentative budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
+
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 

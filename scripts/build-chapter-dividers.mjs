@@ -43,13 +43,15 @@ const otherAgenciesDivider = `
 // Description updated again now that Consolidated Budget, Revenue
 // Portfolio, Revenue, Expenditure, Fund Financial, Interfund Transfer, and
 // Debt ledgers all moved up into the Financial Overview subsection -- this
-// chapter now covers just contractual services and the long-term outlook.
+// chapter now focuses on the long-term outlook; contractual-service detail
+// is presented with the department profiles where readers can see purpose,
+// provider, and cost in context.
 const financialPlanDivider = `
   <section>
     <div class="divider">
       <span class="kicker2">Financial Plan</span>
       <h1b>Financial Plan</h1b>
-      <p>Countywide contractual services spending and the long-term financial outlook.</p>
+      <p>The County&rsquo;s long-term financial outlook, reserve planning, debt position, and capital trajectory.</p>
     </div>
   </section>
 `;
@@ -107,6 +109,16 @@ const workforcePlanDivider = `
   </section>
 `;
 
+const programServicesDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Program and<br/>Service Budget</h1b>
+      <p>Eight Board-administered service areas connect public purpose, contributing departments, full cost, funding sources, service-level decisions, and measurable FY2027 commitments. Constitutional Officers and independent agencies are presented separately.</p>
+    </div>
+  </section>
+`;
+
 // Promoted from a subsection inside Capital Budget to its own closing
 // chapter, same divider treatment as everything else.
 const glossaryDivider = `
@@ -115,6 +127,21 @@ const glossaryDivider = `
       <span class="kicker2">Budget Book</span>
       <h1b>Glossary, Statistical, and<br/>Supplemental Information</h1b>
       <p>Statistical context, the county's largest taxpayers, and a glossary of budget terms, acronyms, and frequently asked questions.</p>
+    </div>
+  </section>
+`;
+
+// Draft/parking-lot section for pages pulled out of the main narrative
+// while their framing is still being worked out (program/service-budget
+// framing, revenue strategy narrative, long-term decisions) -- kept in the
+// book so the work isn't lost, but moved to the very end and clearly
+// labeled as not-yet-finalized rather than mixed into reviewed chapters.
+const draftDivider = `
+  <section>
+    <div class="divider">
+      <span class="kicker2">Budget Book</span>
+      <h1b>Draft &mdash;<br/>Under Review</h1b>
+      <p>The pages that follow are drafts pulled from earlier sections while their framing and placement are still being decided. They are not part of the reviewed narrative and should not be cited as final.</p>
     </div>
   </section>
 `;
@@ -137,3 +164,5 @@ await render(financialOverviewDivider, process.argv[7] || "/private/tmp/divider-
 await render(budgetProcessDivider, process.argv[8] || "/private/tmp/divider-budget-process.pdf");
 await render(workforcePlanDivider, process.argv[9] || "/private/tmp/divider-workforce-plan.pdf");
 await render(glossaryDivider, process.argv[10] || "/private/tmp/divider-glossary.pdf");
+await render(draftDivider, process.argv[11] || "/private/tmp/divider-draft.pdf");
+await render(programServicesDivider, process.argv[12] || "/private/tmp/divider-program-services.pdf");

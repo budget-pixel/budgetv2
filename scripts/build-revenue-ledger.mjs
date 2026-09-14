@@ -243,7 +243,7 @@ const sharedCss = `
   .callout{ margin-top:.3in; padding:.2in .26in; border:1px solid #d1be78; border-radius:12px; background:#f9f8f2; }
   .callout h3{ margin:0 0 .06in; color:#003f28; font:800 9.5pt Georgia, serif; }
   .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.5; }
-  h1.continued{ font-size:16pt; margin-top:.05in; }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   p.footnote{ margin:.14in 0 0; color:#68786f; font-size:7.3pt; line-height:1.4; font-style:italic; }
   .dtable-head{ display:grid; grid-template-columns:1fr 1fr; gap:.34in; border-top:2px solid #d1be78; padding-top:.06in; }
   .dtable{ column-count:2; column-gap:.34in; column-rule:1px solid #eef1ee; }
@@ -302,7 +302,7 @@ const page1 = `
       <p>General Government Taxes includes Ad Valorem property taxes and the Tourist Development Tax, its two largest sources. Within the remaining categories, the largest single revenue is Indirect Administrative Fees for Charges for Services, Nonoperating Balance Brought Forward for Other Sources, the Short-Term Rental Certificate Fee for Permits Fees and Special Assessments, Interest for Miscellaneous Revenue, State Revenue Share Proceeds for Intergovernmental Revenues, and the Parking ordinance fine for Judgments, Fines and Forfeits.</p>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -316,7 +316,7 @@ const page2 = `
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_A)}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
@@ -328,7 +328,7 @@ const page3 = `
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_B)}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 
@@ -341,7 +341,7 @@ const page4 = `
       ${buildRevSections(REV_GROUPS_C)}
     </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DETAIL_TOTAL[1]}</div><div class="dnum">${DETAIL_TOTAL[2]}</div><div class="dnum"></div></div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 3}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 3}</b></footer>
   </section>
 `;
 

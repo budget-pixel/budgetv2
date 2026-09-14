@@ -8,7 +8,7 @@
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
 <link rel="stylesheet" href="assets/style.css?v=20260910-launch-review">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260910-launch-review">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260911-smaller-feature-card">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -54,7 +54,25 @@
       <div class="wc-explorer-intro-copy-row">
         <div class="wc-explorer-intro-copy">
           <h2 id="explore-categories-title">How the budget is organized</h2>
-          <p>Explore four spending views: <strong>Department and Services Budget</strong>, operating and personnel costs for Board departments; <strong>Constitutional Officers</strong>, the five independently elected constitutional offices and the Board of County Commissioners, including their staff, capital, and operating needs; <strong>Capital</strong>, capital outlay outside the Sheriff fund; and <strong>Independent Agencies</strong>, entities the County is required to fund or elects to support.</p>
+          <p class="wc-explorer-intro-lede">Four spending views connect every dollar to the services, staff, and projects behind it.</p>
+          <dl class="wc-explorer-intro-views">
+            <div>
+              <dt>Department and Services Budget</dt>
+              <dd>Operating and personnel costs for Board departments.</dd>
+            </div>
+            <div>
+              <dt>Constitutional Officers</dt>
+              <dd>The five independently elected offices and the Board of County Commissioners.</dd>
+            </div>
+            <div>
+              <dt>Capital</dt>
+              <dd>Capital funding for transportation, infrastructure, parks, machinery, and equipment.</dd>
+            </div>
+            <div>
+              <dt>Independent Agencies</dt>
+              <dd>Entities the County is required to fund or elects to support.</dd>
+            </div>
+          </dl>
         </div>
         <a class="wc-full-budget-feature" href="pages/budget-book.html?v=20260903-reorder-topspace" data-explorer-popup-trigger="Full Budget Document">
           <span class="wc-full-budget-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04A8.97 8.97 0 0 0 6 3.75c-1.05 0-2.06.18-3 .51v14.25A8.99 8.99 0 0 1 6 18c2.3 0 4.41.87 6 2.29m0-14.25a8.97 8.97 0 0 1 6-2.29c1.05 0 2.06.18 3 .51v14.25A8.99 8.99 0 0 0 18 18a8.97 8.97 0 0 0-6 2.29m0-14.25v14.25"></path></svg></span>
@@ -173,7 +191,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="assets/budget-data.js?v=20260910-launch-review"></script>
 <script src="assets/independent-agencies-data.js?v=20260910-launch-review"></script>
-<script src="assets/nav.js?v=20260910-launch-review"></script>
+<script src="assets/nav.js?v=20260911-unified-search-style"></script>
 <script>
 (function(){
   "use strict";
@@ -442,6 +460,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260911-budget-book-link-fix"></script>
+<script src="assets/home-explorer-modal.js?v=20260911-unified-search-style"></script>
 </body>
 </html>

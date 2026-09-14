@@ -167,7 +167,10 @@ const sharedCss = `
     display:block;
     width:.66in;
     height:.66in;
-    border-radius:4px;
+    box-sizing:border-box;
+    padding:.05in;
+    border:1.5px solid #d1be78;
+    border-radius:50%;
     background:#fff;
   }
   .policy-card-qr span{
@@ -215,7 +218,7 @@ const page1 = `
       <p>Each policy summarized on the following page has been formally adopted by the Board and is administered by the Office of Management and Budget. Full policy documents are available from Walton County at co.walton.fl.us.</p>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -230,7 +233,7 @@ const page2 = `
       ${POLICIES.map(([title, desc], i) => `<div class="policy-card"><div class="policy-card-body"><h3>${title}</h3><p>${desc}</p></div><div class="policy-card-qr"><img src="${POLICY_QRS[i]}" alt="QR code linking to the ${title} document"><span>Scan to View</span></div></div>`).join("")}
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

@@ -74,7 +74,7 @@ const html = `<!doctype html>
     display:flex;
     align-items:center;
     justify-content:center;
-    margin:.26in 0 0;
+    margin:.05in 0 0;
     padding:.28in;
     border:1px solid #e4ebe7;
     border-radius:16px;
@@ -114,7 +114,7 @@ const html = `<!doctype html>
     <div class="chart-card">
       <img src="${ORG_CHART}" alt="Walton County organizational chart">
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>11</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>11</b></footer>
   </section>
 </body></html>`;
 

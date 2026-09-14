@@ -156,6 +156,7 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   p.intro{
     max-width:7.3in;
     margin:0 0 .18in;
@@ -301,7 +302,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Other Agencies and Court-Related Functions</small>
     <h1>Independent Agencies Ledger</h1>
-    <p class="intro">Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
+    <p class="intro">Budget, revenue source, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <h2>Agency Summary</h2>
     <div class="ledger">
@@ -310,7 +311,7 @@ const overviewPage = `
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
     <p class="footnote">E911 Fund revenue is transferred to the Walton County Sheriff's Office budget.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;
@@ -322,10 +323,10 @@ const agencyPagesHtml = PAGE_GROUPS.map((idxs) => {
   const html = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <h1 style="font-size:16pt;">Independent Agencies Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
+    <h1 class="continued">Independent Agencies Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
     ${rowHead}
     ${cards}
-    <footer><span>FY 2027 Annual Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
   </section>
   `;
   pageCounter++;

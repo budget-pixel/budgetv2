@@ -33,15 +33,15 @@ const CONSOLIDATED_TOP = [
 ];
 const CONSOLIDATED_MID = [
   ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
-  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,615,667", "$488,887,492"]
+  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$488,887,492"]
 ];
 const CONSOLIDATED_MID2 = [
   ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
   ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$472,176,003", "$488,887,492"]
 ];
 const CONSOLIDATED_BOTTOM = [
-  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$4,439,664", "$0"],
-  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$440,378,906", "$431,812,854"]
+  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$4,119,664", "$0"],
+  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$440,058,906", "$431,812,854"]
 ];
 
 // [fund, FY22...FY27] -- Total Revenues only (not Total Revenue and
@@ -53,9 +53,10 @@ const REVENUE_BY_FUND = [
   ["Tourist Development Fund", "$66,975,578", "$66,999,372", "$70,236,908", "$65,403,419", "$51,500,000", "$58,965,950"],
   ["Solid Waste Fund", "$39,857,430", "$40,448,918", "$42,325,079", "$43,839,760", "$41,000,000", "$40,701,564"],
   ["Capital Projects Fund", "$1,034,410", "$1,819,434", "$5,218,763", "$2,160,857", "$306,000", "$0"],
-  ["Non-Major Funds", "$10,160,164", "$10,679,927", "$13,253,306", "$12,326,494", "$6,184,362", "$5,956,806"]
+  ["Mosquito Control Fund", "$676,546", "$849,759", "$1,504,254", "$1,761,459", "$1,407,773", "$1,426,937"],
+  ["Non-Major Funds", "$9,483,618", "$9,830,168", "$11,749,052", "$10,565,035", "$4,776,589", "$4,529,869"]
 ];
-const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$336,211,087", "$341,223,508"];
+const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$335,891,087", "$341,223,508"];
 
 // [fund, FY22...FY27] -- Total Expenditures only (not Total Expenditures
 // and Other Uses).
@@ -66,7 +67,8 @@ const EXPENDITURE_BY_FUND = [
   ["Tourist Development Fund", "$39,299,739", "$47,968,373", "$51,432,452", "$46,991,176", "$51,500,000", "$58,965,950"],
   ["Solid Waste Fund", "$14,918,353", "$15,747,341", "$17,181,725", "$19,282,584", "$22,110,673", "$23,119,567"],
   ["Capital Projects Fund", "$8,413,918", "$10,544,329", "$13,868,195", "$12,040,906", "$20,336,997", "$27,617,731"],
-  ["Non-Major Funds", "$7,592,215", "$6,922,290", "$14,930,076", "$9,178,983", "$9,802,977", "$9,496,806"]
+  ["Mosquito Control Fund", "$609,898", "$911,145", "$1,032,836", "$1,081,832", "$1,340,000", "$1,426,937"],
+  ["Non-Major Funds", "$6,982,317", "$6,011,145", "$13,897,240", "$8,097,151", "$8,462,977", "$8,069,869"]
 ];
 const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
 
@@ -141,7 +143,7 @@ const sharedCss = `
     font:800 21pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:16pt; margin-top:.14in; }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   h1 span.sub{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -280,7 +282,7 @@ const page1 = `
       ${cRow(CONSOLIDATED_BOTTOM[0], "grand")}
       ${cRow(CONSOLIDATED_BOTTOM[1], "grand")}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -297,7 +299,7 @@ const page2 = `
       ${NON_MAJOR_FUNDS.map(fRow).join("")}
     </div>
     <p class="footnote">*Building Fund's own schedule shows $0 in Total Revenue because a $4,000,000 "balance brought forward" line is intentionally excluded here to avoid double-counting against the Beginning Fund Balance shown above it. That $4,000,000 is included in the Consolidated Fund Financial Schedule's countywide totals on the previous page, which is why summing these 15 funds' revenue does not exactly reach the Consolidated total.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 

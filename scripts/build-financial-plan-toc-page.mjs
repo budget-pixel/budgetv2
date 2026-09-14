@@ -99,7 +99,7 @@ const html = `<!doctype html>
     <small class="kicker">Budget Book Guide</small>
     <h1>Financial Plan</h1>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    <footer><span>FY 2027 Annual Budget</span><b>9</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>9</b></footer>
   </section>
 </body></html>`;
 

@@ -21,8 +21,8 @@ import { chromium } from "playwright";
 
 const STATS = [
   ["$345.2M", "Total FY2027 Expenses"],
-  ["+$13.5M", "Net Change from FY2026"],
-  ["+4.1%", "Net Percent Change"],
+  ["+$17.3M", "Net Change from FY2026"],
+  ["+5.3%", "Net Percent Change"],
   ["$126.2M", "Largest Function: Public Safety"]
 ];
 
@@ -40,7 +40,8 @@ const ROWS = [
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
 ];
-const TOTAL = ["Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
+const INTERNAL_ALLOCATION_ELIMINATION = ["Less: FY2026 internal administrative allocations", "-", "-", "-", "-", "-$3,826,335", "$0"];
+const TOTAL = ["Net Expenditure Budget", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
 
 // Page 2: department-level detail grouped by function -- complements the
 // Budget Change Summary section elsewhere in this book (which groups by
@@ -138,7 +139,7 @@ const DEPT_GROUPS = [
     ["BCC Other Uses Contingency", "$500,000", "$400,000"]
   ]]
 ];
-const DEPT_TOTAL = ["Total", "$331,771,423", "$345,223,508"];
+const DEPT_TOTAL = ["Net Expenditure Budget", "$327,945,088", "$345,223,508"];
 
 // 65 rows across 9 function groups no longer fit a single two-column page
 // at the larger, more readable type size below -- split at a natural
@@ -289,6 +290,9 @@ const sharedCss = `
   }
   .lrow.grand .rlabel,
   .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:8.6pt; }
+  .lrow.adjustment{ background:#f9f8f2; }
+  .lrow.adjustment .rlabel{ color:#52665c; font-style:italic; }
+  .lrow.adjustment .rnum{ color:#52665c; }
   .callout{
     margin-top:.3in;
     padding:.2in .26in;
@@ -307,7 +311,7 @@ const sharedCss = `
     font-size:8.3pt;
     line-height:1.5;
   }
-  h1.continued{ font-size:16pt; margin-top:.05in; }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   p.footnote{
     margin:.14in 0 0;
     color:#68786f;
@@ -381,6 +385,8 @@ const sharedCss = `
   }
   .drow.grand .dlabel,
   .drow.grand .dnum{ color:#003f28; font-weight:800; font-size:9.5pt; }
+  .drow.adjustment{ column-span:all; margin-top:.09in; background:#f9f8f2; padding:.08in .06in; }
+  .drow.adjustment .dlabel{ color:#52665c; font-style:italic; }
   footer{
     position:absolute;
     left:.62in;
@@ -413,6 +419,7 @@ const page1 = `
     <div class="ledger">
       ${tableHead}
       ${ROWS.map((r) => row(r)).join("")}
+      ${row(INTERNAL_ALLOCATION_ELIMINATION, "adjustment")}
       ${row(TOTAL, "grand")}
     </div>
 
@@ -421,7 +428,7 @@ const page1 = `
       <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services' decline reflects a one-time FY2026 grant that did not recur.</p>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -435,7 +442,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
@@ -447,8 +454,9 @@ const page3 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
-    <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 2}</b></footer>
+    <div class="drow adjustment"><div class="dlabel">Less: FY2026 internal administrative allocations</div><div class="dnum">-$3,826,335</div><div class="dnum">$0</div><div class="dnum"></div></div>
+    <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 

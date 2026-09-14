@@ -59,7 +59,7 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:16pt; margin-top:0; }
+  h1.continued{ font-size:16pt; margin-top:.22in; }
   h1 span.sub{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -161,7 +161,7 @@ const sharedCss = `
 const startPage = Number(process.argv[3] || 108);
 
 const MILLAGE = [["FY2024", 3.6000], ["FY2025", 3.575], ["FY2026", 3.519], ["FY2027", 3.4347]];
-const CIP = [["FY27", 71.3, true], ["FY28", 49.9, false], ["FY29", 39.1, false], ["FY30", 46.2, false], ["FY31", 35.3, false]];
+const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
 
 const FORECAST_ROWS = [
   ["Total Revenue & Other Sources", "$476.6M", "$488.9M", "$488.5M", "$491.2M"],
@@ -191,7 +191,7 @@ const page1 = `
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a tentative 3.4347 mills in FY2027 &mdash; a reduction of 4.6% &mdash; while the tentative budget adds a net 15 FTE and proposes a $71.3M capital program.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a tentative 3.4347 mills in FY2027 &mdash; a reduction of 4.6% &mdash; while the tentative budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
     <p class="body">The consolidated Fund Financial Ledger extends two fiscal years beyond the tentative budget, while the online fund forecast and five-year Capital Improvement Plan carry the planning view through FY2031.</p>
@@ -201,7 +201,7 @@ const page1 = `
     </div>
     <p class="warn"><b>A Trend Worth Watching</b>After holding flat in FY2027, the countywide fund balance is projected to decline by $15.0M in FY2028 and a further $27.5M in FY2029 as capital spending and transfers outpace revenue growth in the out-years. This is a projection under current assumptions, not a funding shortfall today &mdash; but it is the reason the Chief Financial Officer's transmittal letter calls for "careful, ongoing monitoring" of revenue sources going into FY2027.</p>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -213,8 +213,14 @@ const page2 = `
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
     <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $431.8M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund Reserve Ratio</b><span>$81.9M in estimated FY2027 General Fund ending balance is equal to 39.6% of the Fund's $206.9M in total expenditures and other uses &mdash; roughly 4.75 months of General Fund operating costs held in reserve, well above the GFOA-recommended minimum of no less than two months (16.7%) of regular General Fund operating revenues or expenditures.</span></div>
+      <div class="info-card"><b>General Fund Planning Cushion</b><span>$81.9M in estimated FY2027 General Fund ending balance equals 39.6% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.75 months. The County informally uses GFOA guidance and seeks to preserve approximately $50M for hurricane response or another major emergency; this is a planning objective, not a formally adopted reserve requirement.</span></div>
       <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $431.8M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
+    </div>
+
+    <h2>Recurring Commitments and Annual Monitoring</h2>
+    <div class="two-col">
+      <div class="info-card"><b>What FY2027 Commits</b><span>The net 15-FTE increase, compensation and benefit assumptions, contracted services, and the operation of new or expanded assets continue beyond FY2027 unless changed through a future budget.</span></div>
+      <div class="info-card"><b>What OMB Will Monitor</b><span>Actual collections, operating results, capital timing, position fill rates, contractual obligations, and reserve trends will be reviewed during FY2027. Material variances will be carried into the next forecast and budget cycle.</span></div>
     </div>
 
     <h2>Debt: Minimal, and Scheduled to End in FY2030</h2>
@@ -229,17 +235,13 @@ const page2 = `
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY2027&ndash;FY2031 tentative plan, from the Capital Improvement Plan chapter</p>
-    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 71.3 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-    <p class="trend">FY2027 is the peak year of the tentative five-year plan at $71.3M; by FY2031 the plan steps down 51% to $35.3M as the current wave of road, drainage, and public safety facility projects completes.</p>
+    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
+    <p class="trend">Using the same funded/non-grant definition in every year, the plan moves from $43.8M in FY2027 to $35.3M in FY2031, with a temporary rise to $43.2M in FY2030. Grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years are excluded throughout.</p>
 
-    <h2>Risks to Monitor</h2>
-    <div class="quote-box">
-      <p>"As we move into Fiscal Year 2027, we remain mindful of the factors that could affect County operations in the year ahead, including legislative changes to sales and property tax policy and the broader uncertainty of economic conditions. Careful, ongoing monitoring of these revenue sources will remain essential to keeping the budget balanced."</p>
-      <cite>Melissa Thomason, Chief Financial Officer &mdash; Transmittal Letter</cite>
-    </div>
-    <p class="footnote">The draft Walton County Strategic Plan 2027&ndash;2032 remains subject to Board action. See the Community Priorities and Organizational Challenges chapter for its six Strategic Priority Areas and how the FY2027 tentative budget supports each one.</p>
+    <p class="warn"><b>Risks to Monitor</b>Legislative changes to sales and property-tax policy, grant timing, and broader economic conditions could affect the forecast. OMB will compare actual results with these assumptions and identify any material effect on services, capital delivery, or reserves.</p>
+    <p class="footnote">See the Community Priorities and Organizational Challenges chapter for the six Strategic Priority Areas and how the FY2027 tentative budget supports each one.</p>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 

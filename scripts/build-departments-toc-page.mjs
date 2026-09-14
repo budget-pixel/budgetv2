@@ -96,7 +96,7 @@ const html = `<!doctype html>
     <p class="intro">A statement of function, department goal, core services, performance measures, and budget summary for each Board department office and program, organized under the County's 15 Board departments. Tourism Administration and Tourism Beach Operations are not included pending a data verification issue on the live budget site.</p>
     <div class="ledger-row"><span>Department Operating Ledger (Summary by Department)</span><b>${DEPT_OP_LEDGER_PAGE}</b></div>
     ${groupsHtml}
-    <footer><span>FY 2027 Annual Budget</span><b>8</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>8</b></footer>
   </section>
 </body></html>`;
 

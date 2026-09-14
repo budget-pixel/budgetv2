@@ -145,7 +145,7 @@ const html = `<!doctype html>
     grid-template-columns:2.85in 1fr;
     gap:.32in;
     align-items:center;
-    margin:.16in 0 .26in;
+    margin:.14in 0 .22in;
   }
   .hero-photo-wrap{
     display:flex;
@@ -179,7 +179,7 @@ const html = `<!doctype html>
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:.14in;
-    margin:0 0 .28in;
+    margin:0 0 .22in;
   }
   .fact-card{
     padding:.16in .12in;
@@ -206,12 +206,15 @@ const html = `<!doctype html>
     display:grid;
     grid-template-columns:1.15fr 1fr;
     gap:.34in;
-    align-items:start;
+    align-items:stretch;
   }
+  .story-copy{ padding:.05in 0; }
+  .story-eyebrow{ display:block; margin-bottom:.07in; color:#b89521; font-size:7pt; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
   .quote-block{
     padding:.24in .26in .26in .28in;
     border-radius:12px;
     background:#f7fbf7;
+    border-top:3px solid #d1be78;
   }
   .quote-lead{
     margin:0 0 .12in;
@@ -248,7 +251,7 @@ const html = `<!doctype html>
   .feature-card img{
     display:block;
     width:100%;
-    height:1.35in;
+    height:1.28in;
     object-fit:cover;
   }
   .feature-card-body{
@@ -265,6 +268,7 @@ const html = `<!doctype html>
     font-size:8.6pt;
     line-height:1.5;
   }
+  .feature-caption{ display:block; margin-top:.08in; color:#b89521; font-size:6.4pt; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
   .video-qr{
     display:flex;
     align-items:center;
@@ -277,10 +281,26 @@ const html = `<!doctype html>
   }
   .video-qr img{
     display:block;
-    width:.95in;
-    height:.95in;
-    flex:0 0 .95in;
-    border-radius:6px;
+  }
+  .qr-medallion{
+    position:relative;
+    display:grid;
+    place-items:center;
+    width:1.12in;
+    height:1.12in;
+    flex:0 0 1.12in;
+    overflow:hidden;
+    border:2px solid #d1be78;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 3px 10px rgba(0,63,40,.10);
+  }
+  .qr-medallion .qr-code{
+    position:relative;
+    z-index:1;
+    width:.80in;
+    height:.80in;
+    padding:.025in;
     background:#fff;
   }
   .video-qr h3{
@@ -288,6 +308,7 @@ const html = `<!doctype html>
     color:#003f28;
     font:800 11.5pt/1.2 Georgia, serif;
   }
+  .qr-label{ display:inline-block; margin-bottom:.05in; color:#b89521; font-size:6.5pt; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
   .video-qr p{
     margin:0;
     max-width:5in;
@@ -323,7 +344,10 @@ const html = `<!doctype html>
     display:block;
     width:.62in;
     height:.62in;
-    border-radius:4px;
+    box-sizing:border-box;
+    padding:.045in;
+    border:1.5px solid #d1be78;
+    border-radius:50%;
     background:#fff;
   }
   .history-link span{
@@ -361,6 +385,7 @@ const html = `<!doctype html>
     background:#fff;
     text-align:center;
     padding-bottom:.1in;
+    border-top:3px solid #d1be78;
   }
   .person-card img{
     display:block;
@@ -388,6 +413,7 @@ const html = `<!doctype html>
     border-radius:14px;
     background:#f7fbf7;
   }
+  .section-deck{ max-width:6.7in; margin-bottom:.16in; color:#68786f; font-size:8.7pt; line-height:1.45; }
   .officer-grid{
     display:grid;
     grid-template-columns:repeat(5,1fr);
@@ -446,7 +472,8 @@ const html = `<!doctype html>
       <div class="fact-card"><b>$74,832</b><span>Median Household Income</span></div>
     </div>
     <div class="story-grid">
-      <div>
+      <div class="story-copy">
+        <span class="story-eyebrow">One county · many communities</span>
         <h2>A county with two connected stories.</h2>
         <p>Walton County includes both inland communities rooted in history, agriculture, public service, and small-town civic life, and coastal communities shaped by tourism, conservation, recreation, and the Gulf economy.</p>
         <p>The annual budget supports this broad service landscape by funding public safety, transportation, parks, libraries, environmental resources, constitutional offices, and countywide operations.</p>
@@ -457,7 +484,7 @@ const html = `<!doctype html>
         <p class="quote-cite">John L. McKinnon, <em>History of Walton County</em></p>
       </div>
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>8</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>8</b></footer>
   </section>
 
   <section>
@@ -470,6 +497,7 @@ const html = `<!doctype html>
         <div class="feature-card-body">
           <h3>Geographic Features</h3>
           <p>26 miles of Gulf coastline, coastal dune lakes, forests, wetlands, rivers, and Britton Hill &mdash; Florida&rsquo;s highest natural point.</p>
+          <span class="feature-caption">Landscape</span>
         </div>
       </div>
       <div class="feature-card">
@@ -477,6 +505,7 @@ const html = `<!doctype html>
         <div class="feature-card-body">
           <h3>Beach Communities</h3>
           <p>South Walton and Scenic Highway 30A include distinctive communities, state parks, and natural resources that require careful stewardship.</p>
+          <span class="feature-caption">Coast</span>
         </div>
       </div>
       <div class="feature-card">
@@ -484,13 +513,17 @@ const html = `<!doctype html>
         <div class="feature-card-body">
           <h3>Cultural Heritage</h3>
           <p>Native American communities, early settlement, timber and lumber industries, and the Chautauqua tradition in DeFuniak Springs.</p>
+          <span class="feature-caption">Heritage</span>
         </div>
       </div>
     </div>
 
     <div class="video-qr">
-      <img src="${VIDEO_QR}" alt="QR code linking to the Walton County overview video">
+      <div class="qr-medallion">
+        <img class="qr-code" src="${VIDEO_QR}" alt="QR code linking to the Walton County overview video">
+      </div>
       <div>
+        <span class="qr-label">Scan to watch</span>
         <h3>See Walton County in motion.</h3>
         <p>Scan to watch a short video with additional historical information about Walton County.</p>
       </div>
@@ -506,7 +539,7 @@ const html = `<!doctype html>
         <p>The Board establishes public policy through ordinances and resolutions, levies taxes and fees, adopts the annual budget, oversees infrastructure and services, approves expenditures, and appoints members to boards and commissions.</p>
       </div>
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>9</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>9</b></footer>
   </section>
 
   <section>
@@ -517,7 +550,7 @@ const html = `<!doctype html>
     </div>
 
     <h2>Constitutional Officers</h2>
-    <p style="max-width:6.6in">Constitutional Officer budgets are included in the annual budget, while each office operates independently under Florida Statutes and constitutional authority.</p>
+    <p class="section-deck">Constitutional Officer budgets are included in the annual budget, while each office operates independently under Florida Statutes and constitutional authority.</p>
     <div class="officer-panel" style="margin-top:.16in">
       <div class="officer-grid">
         ${officerRows}
@@ -525,12 +558,12 @@ const html = `<!doctype html>
     </div>
 
     <div class="history-links">
-      <h3>Walton County history and public information</h3>
+      <h3>Explore Walton County history <span style="color:#68786f;font:700 7pt Arial;text-transform:uppercase;letter-spacing:.08em">· Scan a code to continue</span></h3>
       <div class="history-links-grid">
         ${historyLinkCards}
       </div>
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>10</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>10</b></footer>
   </section>
 
 </body></html>`;

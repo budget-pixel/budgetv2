@@ -64,18 +64,20 @@ const html = `<!doctype html>
   }
   .intro{
     max-width:6.8in;
-    margin:0 0 .5in;
+    margin:0 0 .28in;
     color:#33453c;
     font-size:10pt;
     line-height:1.55;
   }
   .statement{
     max-width:6.9in;
-    margin:0 auto .58in;
-    padding-left:.3in;
-    border-left:4px solid #d1be78;
+    margin:0 auto .24in;
+    padding:.26in .3in;
+    border-left:5px solid #d1be78;
+    border-radius:0 14px 14px 0;
+    background:#f9f8f2;
   }
-  .statement.is-vision{ border-left-color:#0b5a3a; }
+  .statement.is-vision{ border-left-color:#0b5a3a; background:#f4faf6; }
   .statement-label{
     display:block;
     margin-bottom:.1in;
@@ -94,13 +96,16 @@ const html = `<!doctype html>
   .statement p{
     margin:0;
     color:#173229;
-    font:italic 400 17pt/1.45 Georgia, serif;
+    font:italic 400 15.5pt/1.42 Georgia, serif;
   }
   .values-block{
     max-width:6.9in;
     margin:0 auto;
-    padding-left:.3in;
-    border-left:4px solid #003f28;
+    padding:.22in .3in .25in;
+    border-top:3px solid #003f28;
+    border-radius:12px;
+    background:#ffffff;
+    box-shadow:0 3px 14px rgba(0,63,40,.08);
   }
   .values-label{
     display:block;
@@ -117,9 +122,9 @@ const html = `<!doctype html>
     font:800 14pt/1.2 Georgia, serif;
   }
   .values-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:.13in;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:.09in;
   }
   .value-pill{
     display:inline-flex;
@@ -131,6 +136,7 @@ const html = `<!doctype html>
     color:#003f28;
     font-size:10pt;
     font-weight:800;
+    justify-content:center;
   }
   footer{
     position:absolute;
@@ -149,7 +155,7 @@ const html = `<!doctype html>
   }
   .plan-note{
     max-width:6.9in;
-    margin:.34in auto 0;
+    margin:.22in auto 0;
     padding:.1in .3in;
     border-left:4px solid #b89521;
     color:#54665e;
@@ -184,7 +190,7 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>12</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>12</b></footer>
   </section>
 </body></html>`;
 

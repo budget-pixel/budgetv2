@@ -35,14 +35,31 @@ const EXPENSE_CATEGORIES = [
   ["Building Construction & Maintenance", 8.60],
   ["Planning", 6.84],
   ["Code Compliance", 4.81],
-  ["All Other Departments & Agencies", 21.31]
+  ["All Other Departments & Agencies", 23.09]
 ];
-const EXPENSE_TOTAL = EXPENSE_CATEGORIES.reduce((s, [, v]) => s + v, 0);
+const EXPENSE_TOTAL = 345.2;
 
-// The same twelve revenue sources, in the same order, shown on the
-// Revenue Portfolio table (see build-gfoa-enhancements.mjs's
-// revenueSources) -- together they're 89% of the FY2027 revenue budget,
-// so no separate "All Other Revenue" bucket is added here.
+// Convert the expense shares to whole cents while ensuring the displayed
+// allocation totals exactly $1.00. Largest-remainder allocation avoids the
+// confusing 99- or 101-cent totals produced by independently rounding rows.
+const allocateCents = (categories, total) => {
+  const exact = categories.map(([, value]) => (value / total) * 100);
+  const cents = exact.map(Math.floor);
+  let remaining = 100 - cents.reduce((sum, value) => sum + value, 0);
+  exact
+    .map((value, index) => ({ index, remainder: value - Math.floor(value) }))
+    .sort((a, b) => b.remainder - a.remainder)
+    .slice(0, remaining)
+    .forEach(({ index }) => { cents[index] += 1; });
+  return cents;
+};
+const expenseCents = allocateCents(EXPENSE_CATEGORIES, EXPENSE_TOTAL);
+
+// The same twelve highlighted revenue sources shown on the Revenue
+// Portfolio table (see build-gfoa-enhancements.mjs's revenueSources),
+// plus a reconciling All Other Revenue line. Percentages use the full
+// $345.2M revenue budget so this page and the Revenue Portfolio present
+// the same shares.
 const REVENUE_SOURCES = [
   ["Property Taxes", 161.07],
   ["Tourist Development Taxes", 58.97],
@@ -55,9 +72,10 @@ const REVENUE_SOURCES = [
   ["Housing Prisoners Revenue", 3.5],
   ["Federal Grant - Economic Environment", 3.06],
   ["Ambulance Fees", 3.0],
-  ["TDC Public Safety Reimbursements", 2.24]
+  ["All Other Revenue", 41.7]
 ];
-const REVENUE_TOTAL = REVENUE_SOURCES.reduce((s, [, v]) => s + v, 0);
+const REVENUE_TOTAL = 345.2;
+const revenueCents = allocateCents(REVENUE_SOURCES, REVENUE_TOTAL);
 
 const FUNDS = [
   ["General Fund", "$206.9M"],
@@ -68,12 +86,13 @@ const FUNDS = [
   ["Solid Waste", "$40.7M"]
 ];
 
-const barRow = (label, value, total, color) => {
+const barRow = (label, value, total, color, cents = null) => {
   const pct = (value / total) * 100;
+  const publicValue = cents === null ? `${pct.toFixed(0)}%` : `${cents}&cent; of every $1`;
   return `<div class="bar-row">
     <div class="bar-label">${label}</div>
     <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
-    <div class="bar-value">$${value.toFixed(1)}M<span>${pct.toFixed(0)}%</span></div>
+    <div class="bar-value">$${value.toFixed(1)}M<span>${publicValue}</span></div>
   </div>`;
 };
 
@@ -168,10 +187,10 @@ const html = `<!doctype html>
   }
   .bar-row{
     display:grid;
-    grid-template-columns:1.55in 1fr .68in;
+    grid-template-columns:1.45in 1fr 1.05in;
     align-items:center;
     gap:.1in;
-    margin:0 0 .1in;
+    margin:0 0 .082in;
   }
   .bar-label{
     color:#173229;
@@ -194,7 +213,7 @@ const html = `<!doctype html>
   .bar-value span{
     display:block;
     color:#68786f;
-    font-size:6.6pt;
+    font-size:6.1pt;
     font-weight:700;
   }
   .chart-total{
@@ -203,6 +222,16 @@ const html = `<!doctype html>
     font-size:7.3pt;
     font-style:italic;
   }
+  .dollar-callout{
+    display:flex;
+    align-items:baseline;
+    gap:.08in;
+    margin:-.03in 0 .12in;
+    color:#68786f;
+    font-size:7.2pt;
+    font-weight:700;
+  }
+  .dollar-callout b{ color:#b89521; font:800 13pt/1 Georgia,serif; }
   .fund-strip{
     display:grid;
     grid-template-columns:repeat(6,1fr);
@@ -275,7 +304,7 @@ const html = `<!doctype html>
     <p class="intro">A one-page look at how Walton County plans to raise and spend money in Fiscal Year 2027 &mdash; the full detail behind these figures follows throughout this document.</p>
 
     <div class="stat-strip">
-      <div class="stat-card"><b>$345.2M</b><span>Net Operating Budget</span></div>
+      <div class="stat-card"><b>$345.2M</b><span>Net Expenditure Budget</span></div>
       <div class="stat-card"><b>3.4347</b><span>County Millage Rate</span></div>
       <div class="stat-card"><b>667</b><span>Board Department FTE</span></div>
       <div class="stat-card"><b>848</b><span>Constitutional Officer FTE</span></div>
@@ -284,11 +313,15 @@ const html = `<!doctype html>
     <div class="charts-row">
       <div>
         <h2>Where the Money Comes From</h2>
-        ${REVENUE_SOURCES.map(([l, v]) => barRow(l, v, REVENUE_TOTAL, "#0b7741")).join("")}
+        <div class="dollar-callout"><b>$1.00</b><span>Every County revenue dollar, allocated by source</span></div>
+        ${REVENUE_SOURCES.map(([l, v], i) => barRow(l, v, REVENUE_TOTAL, "#0b7741", revenueCents[i])).join("")}
+        <p class="chart-total">Displayed cents are rounded using a balanced allocation so the sources total exactly $1.00.</p>
       </div>
       <div>
         <h2>Where the Money Goes</h2>
-        ${EXPENSE_CATEGORIES.map(([l, v]) => barRow(l, v, EXPENSE_TOTAL, "#003f28")).join("")}
+        <div class="dollar-callout"><b>$1.00</b><span>Every County budget dollar, allocated by service area</span></div>
+        ${EXPENSE_CATEGORIES.map(([l, v], i) => barRow(l, v, EXPENSE_TOTAL, "#003f28", expenseCents[i])).join("")}
+        <p class="chart-total">Displayed cents are rounded using a balanced allocation so the categories total exactly $1.00.</p>
       </div>
     </div>
 
@@ -304,7 +337,7 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
   </section>
 </body></html>`;
 

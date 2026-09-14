@@ -129,7 +129,7 @@ const sharedCss = `
     font:800 21pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:15pt; margin-top:.16in; }
+  h1.continued{ font-size:15pt; margin-top:.22in; }
   h1.continued span{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -250,8 +250,10 @@ const sharedCss = `
     width:.86in;
     height:.86in;
     margin:0 auto .055in;
-    padding:3px;
-    border-radius:4px;
+    box-sizing:border-box;
+    padding:.07in;
+    border:2px solid #d1be78;
+    border-radius:50%;
     background:#fff;
   }
   .tax-qr b{
@@ -349,7 +351,7 @@ const page1 = `
       ${row(CAPITAL_TOTAL, "total")}
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -391,7 +393,7 @@ const page2 = `
 
     <p class="footnote">This is an illustrative example of the County-government portion of a tax bill only; it excludes the separate levies of the School Board, Northwest Florida Water Management District, and the North Walton Mosquito Control District that also appear on an actual property tax bill. The County government&rsquo;s share is calculated as taxable value &times; millage &divide; 1,000, then apportioned by each entity&rsquo;s share of total Ad Valorem revenue.</p>
 
-    <footer><span>FY 2027 Annual Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

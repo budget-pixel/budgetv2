@@ -235,7 +235,7 @@ const html = `<!doctype html>
       ${topicCards}
     </div>
     <p class="source-note">Source: U.S. Census Bureau, ACS 5-Year Estimates. Data current as of August 2026.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>13</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>13</b></footer>
   </section>
 
   <section>
@@ -251,7 +251,7 @@ const html = `<!doctype html>
       </tbody>
     </table>
     <p class="source-note">Source: Walton County Property Appraiser.</p>
-    <footer><span>FY 2027 Annual Budget</span><b>14</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>14</b></footer>
   </section>
 
 </body></html>`;

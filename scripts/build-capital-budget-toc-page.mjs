@@ -50,7 +50,7 @@ const html = `<!doctype html>
     <div class="trailing">
       ${TRAILING.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
     </div>
-    <footer><span>FY 2027 Annual Budget</span><b>10</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>10</b></footer>
   </section>
 </body></html>`;
 

@@ -47,7 +47,7 @@ const html = `<!doctype html>
     <h1>Other Agencies and Court-Related Functions</h1>
     <p class="intro">Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    <footer><span>FY 2027 Annual Budget</span><b>7</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>7</b></footer>
   </section>
 </body></html>`;
 

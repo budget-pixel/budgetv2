@@ -97,19 +97,6 @@
     text-align:left !important;
   }
 
-  .wc-search-footer .wc-footer-search-copy h2{
-    font-size:30px !important;
-  }
-
-  .wc-search-footer .wc-footer-search-copy p{
-    font-size:14px !important;
-  }
-
-  .wc-search-footer .wc-footer-search-button{
-    width:100% !important;
-    max-width:320px !important;
-  }
-
   .wc-search-footer .wc-budget-footer-links{
     display:flex !important;
     flex-direction:column !important;

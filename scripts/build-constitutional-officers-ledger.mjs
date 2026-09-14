@@ -105,7 +105,6 @@ const OFFICES = [
       { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "ZIIC Outdoors, LLC", amount: 650000 },
       { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "Harper Landscaping, LLC", amount: 500000 },
       { service: "Comprehensive Annual Financial Audit Services", provider: "Carr, Riggs, &amp; Ingram", amount: 310000 },
-      { service: "State-Mandated Service (Other Services)", provider: "Not listed", amount: 250000 },
       { service: "Employee Benefits Consultant", provider: "The Gehring Group", amount: 95000 },
       { service: "State Lobbyist (75/25 split with Tourist Fund)", provider: "Heffley &amp; Associates, Inc.", amount: 66000 },
       { service: "Federal Lobbyist (50/50 split with Tourist Fund)", provider: "Not yet awarded", amount: 48000 },
@@ -151,7 +150,8 @@ const OFFICES = [
     personnel: 4123584, operating: 697382, capital: 133372,
     sof: "The Property Appraiser is a separately elected Constitutional Officer of the County, with a budget approved by the State Department of Revenue. Florida law requires the Board of County Commissioners to pay the municipalities' and school board's share of the Property Appraiser's budget. This office is responsible for determining the value of all property within the County, maintaining the records connected with that responsibility, determining the tax on taxable property after taxes have been levied, and distributing the Truth-in-Millage (TRIM) notices.",
     revenue: "General Government Taxes $5.0M, which under Florida law includes the municipalities' and school board's proportional share of this office's budget.",
-    newPositions: []
+    newPositions: [],
+    workforcePositionNote: "Position title not provided in the independently submitted budget."
   },
   {
     name: "Supervisor of Elections", fund: "General Fund",
@@ -231,6 +231,14 @@ function whoPaysFor(o) {
     "Supervisor of Elections": splitPropertyTax(1700000, "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations.")
   };
   return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
+}
+
+function compactFundingDetail(text) {
+  return String(text).replace(/\s+Estimated at[\s\S]*$/, "");
+}
+function householdEquivalent(text) {
+  const match = String(text).match(/(\$[\d,.]+ per household annually \(\$[\d,.]+ monthly\))/);
+  return match ? match[1] : "";
 }
 
 const sharedCss = `
@@ -330,7 +338,7 @@ const sharedCss = `
   .comm-card b{ display:block; color:#003f28; font:800 8.6pt Georgia, serif; }
   .comm-card span{ display:block; margin-top:.02in; color:#68786f; font-size:6pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
   .qr-wrap{ margin-top:.09in; padding-top:.09in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
-  .qr-wrap img.qr{ width:.72in; height:.72in; background:#fff; border-radius:4px; padding:3px; }
+  .qr-wrap img.qr{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:2px solid #d1be78; border-radius:50%; background:#fff; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .top-grid{ display:grid; grid-template-columns:1fr 1.9in; gap:.28in; margin-bottom:.14in; }
   section.profile-page h1,
@@ -350,35 +358,58 @@ const sharedCss = `
   .side-fund{ color:#e7c95f; font-size:6.2pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin-bottom:.07in; }
   .side-stats{ display:flex; flex-direction:column; gap:.06in; margin-bottom:.09in; }
   .side-stats div{ display:flex; justify-content:space-between; align-items:baseline; gap:.08in; }
-  .side-stats div b{ font:800 11pt Georgia, serif; white-space:nowrap; }
+  .side-stats div b{ font:800 9pt Georgia, serif; white-space:nowrap; }
+  .side-stats div.primary b{ color:#fff; font-size:14pt; }
+  .side-stats div.prior b{ color:#c5d7cd; }
   .side-stats div span{ color:#a9c4b3; font-size:5.8pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
-  .side-change{ text-align:center; padding:.06in 0; border-top:1px solid rgba(255,255,255,.2); border-bottom:1px solid rgba(255,255,255,.2); margin-bottom:.09in; }
-  .side-change b{ font-size:11pt; }
-  .side-change.up b{ color:#8fe0b0; }
-  .side-change.down b{ color:#f0b090; }
-  .side-change span{ display:block; color:#a9c4b3; font-size:5.8pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
+  .side-change{ padding:.065in 0; border-top:1px solid rgba(255,255,255,.2); border-bottom:1px solid rgba(255,255,255,.2); margin-bottom:.09in; }
+  .side-change-label{ display:block; margin-bottom:.025in; color:#a9c4b3; font-size:5.2pt; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+  .change-finance{ display:flex; justify-content:space-between; align-items:center; gap:.06in; }
+  .change-finance b{ color:#8fe0b0; font-size:10.5pt; }
+  .side-change.down .change-finance b{ color:#f0b090; }
+  .change-finance em{ padding:.018in .045in; border:1px solid rgba(255,255,255,.22); border-radius:99px; color:#dce9e2; font-size:5.5pt; font-style:normal; font-weight:800; }
+  .workforce-line{ display:grid; grid-template-columns:1fr auto; gap:.025in .08in; align-items:center; margin-top:.06in; padding-top:.055in; border-top:1px solid rgba(255,255,255,.14); }
+  .workforce-line span{ color:#a9c4b3; font-size:5.2pt; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+  .workforce-line b{ color:#fff; font-size:7pt; }
+  .workforce-line em{ grid-column:2; color:#a9c4b3; font-size:5.5pt; font-style:normal; text-align:right; }
+  .workforce-position-note{ margin:.045in 0 0; padding-top:.045in; border-top:1px solid rgba(255,255,255,.1); color:#dce9e2; font-size:5.35pt; line-height:1.3; }
+  .workforce-position-note b{ color:#d1be78; }
   .side-split{ font-size:6.7pt; line-height:1.55; }
   .side-split div{ display:flex; justify-content:space-between; }
+  .side-split div>span{ display:flex; align-items:center; gap:.045in; }
+  .side-split div>span:before{ content:""; width:5px; height:5px; flex:0 0 5px; border-radius:50%; background:#ffffff; }
+  .side-split .personnel>span:before{ background:#e7c95f; }
+  .side-split .contractual>span:before{ background:#85bea0; }
+  .side-split .operating>span:before{ background:#ffffff; }
+  .side-split .capital>span:before{ background:#c7d2cc; }
   .side-split b{ color:#e7c95f; }
-  .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin-bottom:.13in; }
+  .budget-mix{ display:flex; height:7px; margin:.075in 0 .07in; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.14); }
+  .budget-mix i{ display:block; height:100%; }
+  .budget-mix .personnel{ background:#e7c95f; }.budget-mix .contractual{ background:#85bea0; }.budget-mix .operating{ background:#ffffff; }.budget-mix .capital{ background:#c7d2cc; }
+  .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.08in 0 .13in; padding-top:.09in; border-top:1px solid #d7e2dc; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.45; }
-  .payer-row{ margin:0 0 .07in; color:#33453c; font-size:6.8pt; line-height:1.3; }
+  .payer-row{ margin:0 0 .045in; padding:.06in .075in; border:1px solid #e1e9e4; border-radius:6px; background:#f8faf8; color:#33453c; font-size:6.2pt; line-height:1.28; }
+  .payer-row:nth-child(odd){ background:#f2f6f3; }
   .payer-row .payer-head{ display:flex; justify-content:space-between; align-items:baseline; gap:.08in; }
-  .payer-row b{ color:#003f28; font-size:7pt; }
+  .payer-row b{ color:#003f28; font-size:6.6pt; }
   .payer-row .payer-amt{ flex:0 0 auto; color:#006231; font-size:7.3pt; font-weight:800; white-space:nowrap; }
-  .source-trace{ margin-top:.04in !important; color:#68786f !important; font-size:5.7pt !important; line-height:1.28 !important; font-style:italic; }
+  .payer-detail{ margin-top:.025in!important; font-size:5.9pt!important; line-height:1.28!important; }
+  .payer-equivalent{ display:inline-block; margin-top:.035in; padding:.018in .05in; border-radius:99px; background:#e4f1e8; color:#006231; font-size:5.7pt; font-weight:900; }
+  .source-trace{ margin-top:.05in !important; color:#68786f !important; font-size:5.55pt !important; line-height:1.28 !important; font-style:italic; }
   .fte-list{ margin:0; }
   .fte-row{ display:flex; justify-content:space-between; gap:.08in; padding:.035in 0; border-bottom:1px solid #f1f4f1; font-size:7.2pt; }
   .fte-row .fname{ color:#173229; }
   .fte-row b{ color:#003f28; white-space:nowrap; }
   .fte-empty{ color:#68786f; font-size:7.3pt; font-style:italic; }
   .lower-grid.three{ grid-template-columns:.95fr 1.05fr 1fr; }
-  .con-row{ display:flex; justify-content:space-between; gap:.06in; padding:.026in 0; border-bottom:1px solid #f1f4f1; font-size:6.5pt; line-height:1.28; }
+  .con-row{ display:flex; justify-content:space-between; gap:.06in; padding:.04in .055in; border-bottom:1px solid #edf1ee; font-size:6.35pt; line-height:1.28; }
+  .con-row:nth-child(even){ background:#f4f7f5; }
   .con-row .con-name{ color:#173229; }
   .con-row .con-name em{ display:block; color:#68786f; font-style:normal; font-size:5.9pt; }
   .con-row b{ color:#003f28; white-space:nowrap; }
   .con-more, .cap-more{ margin:.03in 0 0; color:#68786f; font-size:6.1pt; font-style:italic; }
-  .cap-row{ display:flex; justify-content:space-between; gap:.06in; padding:.026in 0; border-bottom:1px solid #f1f4f1; font-size:6.5pt; line-height:1.28; }
+  .cap-row{ display:flex; justify-content:space-between; gap:.06in; padding:.04in .055in; border-bottom:1px solid #edf1ee; font-size:6.35pt; line-height:1.28; }
+  .cap-row:nth-child(even){ background:#f4f7f5; }
   .cap-row span{ color:#173229; }
   .cap-row b{ color:#003f28; white-space:nowrap; }
   .cap-note{ margin:.04in 0 0; color:#68786f; font-size:6pt; font-style:italic; line-height:1.3; }
@@ -400,7 +431,13 @@ async function buildOfficerPage(o, pageNumber) {
   const delta = o.fy27 - o.fy26;
   const isDown = delta < 0;
   const dsign = delta >= 0 ? "+" : "&minus;";
-  const payerHtml = whoPaysFor(o).map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div>${detail}</div>`).join("");
+  const workforcePositionNote = o.fteDelta
+    ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote || "Position title not provided."}</p>`
+    : "";
+  const payerRows = whoPaysFor(o);
+  const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|34,362 households/.test(detail));
+  const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
+  const payerMethodHtml = usesPropertyMethod ? `<p class="source-trace">Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills.</p>` : "";
   const denseClass = o.name === "Property Appraiser" ? " class=\"dense-profile\"" : "";
 
   const officialHtml = o.commissioners
@@ -424,7 +461,7 @@ async function buildOfficerPage(o, pageNumber) {
     const sorted = [...o.contracts].sort((a, b) => b.amount - a.amount);
     const shown = sorted.slice(0, MAX_ROWS);
     const hidden = sorted.slice(MAX_ROWS);
-    conHtml = shown.map((c) => `<div class="con-row"><div class="con-name">${c.service}<em>${c.provider}</em></div><b>${money(c.amount)}</b></div>`).join("");
+    conHtml = shown.map((c) => `<div class="con-row"><div class="con-name">${c.service}${o.name === "Board of County Commissioners" ? "" : `<em>${c.provider}</em>`}</div><b>${money(c.amount)}</b></div>`).join("");
     if (hidden.length) conHtml += `<p class="con-more">+${hidden.length} more contract${hidden.length === 1 ? "" : "s"} &mdash; ${money(hidden.reduce((s, c) => s + c.amount, 0))} total</p>`;
   }
   let capHtml = "";
@@ -432,6 +469,10 @@ async function buildOfficerPage(o, pageNumber) {
     capHtml = o.capitalItems.map((c) => `<div class="cap-row"><span>${c.item}</span><b>${money(c.amount)}</b></div>`).join("");
     if (o.capitalNote) capHtml += `<p class="cap-note">${o.capitalNote}</p>`;
   }
+  const mixOperating = o.operating;
+  const mixCapital = o.capital;
+  const mixSegments = [["personnel",o.personnel],["contractual",o.contractual],["operating",mixOperating],["capital",mixCapital]]
+    .filter(([,amount]) => amount > 0).map(([name,amount]) => `<i class="${name}" style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i>`).join("");
 
   return `
   <section class="profile-page${denseClass ? " dense-profile" : ""}">
@@ -448,24 +489,27 @@ async function buildOfficerPage(o, pageNumber) {
       <div class="side-card">
         <div class="side-fund">${o.fund}</div>
         <div class="side-stats">
-          <div><b>${money(o.fy26)}</b><span>FY2026 Total</span></div>
-          <div><b>${money(o.fy27)}</b><span>FY2027 Total</span></div>
+          <div class="primary"><b>${money(o.fy27)}</b><span>FY2027 Total</span></div>
+          <div class="prior"><b>${money(o.fy26)}</b><span>FY2026 Total</span></div>
         </div>
-        <div class="side-change ${isDown ? "down" : "up"}">
-          <b>${dsign}${money(Math.abs(delta)).slice(1)}</b>
-          <span>${pct(delta, o.fy26)} &middot; ${fteChangeLabel(o.fteDelta)} &middot; ${o.fte} FTE</span>
+          <div class="side-change ${isDown ? "down" : "up"}">
+          <span class="side-change-label">Budget Change</span>
+          <div class="change-finance"><b>${dsign}${money(Math.abs(delta)).slice(1)}</b><em>${pct(delta, o.fy26)}</em></div>
+          <div class="workforce-line"><span>Workforce</span><b>${o.fte} FTE</b><em>${o.fteDelta ? `${o.fteDelta > 0 ? "+" : "&minus;"}${Math.abs(o.fteDelta)} FTE` : "No change"}</em></div>
+          ${workforcePositionNote}
         </div>
+        <div class="budget-mix" aria-label="Budget composition">${mixSegments}</div>
         <div class="side-split">
-          <div><span>Personnel</span><b>${money(o.personnel)}</b></div>
-          ${o.contractual ? `<div><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
-          <div><span>Operating</span><b>${money(o.operating)}</b></div>
-          <div><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
+          <div class="personnel"><span>Personnel</span><b>${money(o.personnel)}</b></div>
+          ${o.contractual ? `<div class="contractual"><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
+          <div class="operating"><span>Operating</span><b>${money(o.operating)}</b></div>
+          <div class="capital"><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
         </div>
         ${qrHtml}
       </div>
     </div>
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
-      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}</div>
+      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
       ${hasBreakouts
         ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY2027</h2>${fteHtml}</div>`}

@@ -193,7 +193,7 @@ const html = `<!doctype html>
       <p>Walton County funds the large majority of its capital program on a pay-as-you-go basis from current revenues and legally restricted funding sources rather than borrowing &mdash; see the Capital Improvement Plan chapter for how the County determines the level of capital spending and when debt is used. This conservative approach preserves borrowing capacity for future needs and keeps debt service to a small share of the annual budget.</p>
     </div>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 </body></html>`;
 

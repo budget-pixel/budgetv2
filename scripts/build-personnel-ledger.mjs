@@ -147,8 +147,10 @@ const sharedCss = `
     width:.72in;
     height:.72in;
     margin:0 auto .045in;
-    padding:3px;
-    border-radius:4px;
+    box-sizing:border-box;
+    padding:.06in;
+    border:2px solid #d1be78;
+    border-radius:50%;
     background:#fff;
   }
   .page-qr b{
@@ -308,7 +310,7 @@ const html = `<!doctype html>
 
     <p class="footnote">Board department totals reflect FY2027 salaries &amp; wages plus retirement, health insurance, and other benefits combined. Departments funded from more than one source are labeled "Multiple Funds."</p>
 
-    <footer><span>FY 2027 Annual Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
   </section>
 </body></html>`;
 
