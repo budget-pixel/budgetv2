@@ -59,7 +59,8 @@ const sharedCss = `
     font:800 22pt/1.05 Georgia, "Times New Roman", serif;
     letter-spacing:-.02em;
   }
-  h1.continued{ font-size:16pt; margin-top:.22in; }
+  h1.continued{ font-size:16pt; margin-top:.4in; }
+  .outlook-continuation h2{ margin-top:.08in; }
   h1 span.sub{ color:#68786f; font-size:9.5pt; font-weight:400; }
   p.intro{
     max-width:7.3in;
@@ -191,22 +192,22 @@ const page1 = `
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a tentative 3.4347 mills in FY2027 &mdash; a reduction of 4.6% &mdash; while the tentative budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.4347 mills in FY2027 &mdash; a reduction of 4.6% &mdash; while the final budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
-    <p class="body">The consolidated Fund Financial Ledger extends two fiscal years beyond the tentative budget, while the online fund forecast and five-year Capital Improvement Plan carry the planning view through FY2031.</p>
+    <p class="body">The consolidated Fund Financial Ledger extends two fiscal years beyond the final budget, while the online fund forecast and five-year Capital Improvement Plan carry the planning view through FY2031.</p>
     <div class="fcast-table">
-      <div class="frow head"><div>Consolidated, All Funds</div><div>FY2026 Budget</div><div>FY2027 Tentative</div><div>FY2028 Proj.</div><div>FY2029 Proj.</div></div>
+      <div class="frow head"><div>Consolidated, All Funds</div><div>FY2026 Budget</div><div>FY2027 Final</div><div>FY2028 Proj.</div><div>FY2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
     <p class="warn"><b>A Trend Worth Watching</b>After holding flat in FY2027, the countywide fund balance is projected to decline by $15.0M in FY2028 and a further $27.5M in FY2029 as capital spending and transfers outpace revenue growth in the out-years. This is a projection under current assumptions, not a funding shortfall today &mdash; but it is the reason the Chief Financial Officer's transmittal letter calls for "careful, ongoing monitoring" of revenue sources going into FY2027.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
 const page2 = `
-  <section>
+  <section class="outlook-continuation">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
@@ -234,14 +235,14 @@ const page2 = `
     <p class="body">This is a deliberate policy choice, not a lack of options: Walton County funds the large majority of its capital program pay-as-you-go from current revenues and legally restricted funding sources, preserving borrowing capacity for a future need rather than committing it now.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
-    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY2027&ndash;FY2031 tentative plan, from the Capital Improvement Plan chapter</p>
+    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY2027&ndash;FY2031 final plan, from the Capital Improvement Plan chapter</p>
     <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     <p class="trend">Using the same funded/non-grant definition in every year, the plan moves from $43.8M in FY2027 to $35.3M in FY2031, with a temporary rise to $43.2M in FY2030. Grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years are excluded throughout.</p>
 
     <p class="warn"><b>Risks to Monitor</b>Legislative changes to sales and property-tax policy, grant timing, and broader economic conditions could affect the forecast. OMB will compare actual results with these assumptions and identify any material effect on services, capital delivery, or reserves.</p>
-    <p class="footnote">See the Community Priorities and Organizational Challenges chapter for the six Strategic Priority Areas and how the FY2027 tentative budget supports each one.</p>
+    <p class="footnote">See the Community Priorities and Organizational Challenges chapter for the six Strategic Priority Areas and how the FY2027 final budget supports each one.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 

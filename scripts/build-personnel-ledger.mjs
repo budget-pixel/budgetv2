@@ -39,15 +39,15 @@ const STATS = [
 
 // [department, fund|null, FY26 FTE, FY27 FTE, FTE change, FY26 cost, FY27 cost, cost change]
 const CONSTITUTIONAL = [
-  ["Board of County Commissioners", null, "11", "11", "0", "$2,552,616", "$2,754,289", "+$201,673"],
-  ["Circuit Court", null, "1", "1", "0", "$36,114", "$73,887", "+$37,773"],
-  ["Circuit Court – Bailiff Services", null, "0", "0", "0", "$187,097", "$187,097", "$0"],
-  ["Clerk of Courts & County Comptroller", null, "77", "80", "+3", "$4,198,783", "$4,905,230", "+$706,447"],
-  ["County Court – Bailiff Services", null, "0", "0", "0", "$65,856", "$65,856", "$0"],
-  ["Property Appraiser", null, "38", "37", "−1", "$4,030,096", "$4,123,584", "+$93,488"],
-  ["Supervisor of Elections", null, "10", "10", "0", "$1,167,077", "$1,198,763", "+$31,686"],
-  ["Tax Collector", null, "40", "40", "0", "$7,725,000", "$7,512,920", "−$212,080"],
-  ["Walton County Sheriff's Office", null, "668", "669", "+1", "$78,826,289", "$83,607,042", "+$4,780,753"]
+  ["Board of County Commissioners", "General Fund", "11", "11", "0", "$2,552,616", "$2,754,289", "+$201,673"],
+  ["Circuit Court", "General Fund", "1", "1", "0", "$36,114", "$73,887", "+$37,773"],
+  ["Circuit Court – Bailiff Services", "General Fund", "0", "0", "0", "$187,097", "$187,097", "$0"],
+  ["Clerk of Courts & County Comptroller", "General Fund", "77", "80", "+3", "$4,198,783", "$4,905,230", "+$706,447"],
+  ["County Court – Bailiff Services", "General Fund", "0", "0", "0", "$65,856", "$65,856", "$0"],
+  ["Property Appraiser", "General Fund", "38", "37", "−1", "$4,030,096", "$4,123,584", "+$93,488"],
+  ["Supervisor of Elections", "General Fund", "10", "10", "0", "$1,167,077", "$1,198,763", "+$31,686"],
+  ["Tax Collector", "General Fund", "40", "40", "0", "$7,725,000", "$7,512,920", "−$212,080"],
+  ["Walton County Sheriff's Office", "Sheriff Fund", "668", "669", "+1", "$78,826,289", "$83,607,042", "+$4,780,753"]
 ];
 const CONSTITUTIONAL_TOTAL = ["Total", "", "845", "848", "+3", "$98,788,928", "$104,428,668", "+$5,639,740"];
 
@@ -296,7 +296,7 @@ const html = `<!doctype html>
     <h2>Constitutional Officers</h2>
     <p class="subnote">Only each office's total FTE and total personnel cost are shown; contact the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, or Sheriff's Office directly for line-item detail. Bailiff services amounts support court security provided by the Sheriff's Office.</p>
     <div class="ledger">
-      ${tableHead(false)}
+      ${tableHead(true)}
       ${CONSTITUTIONAL.map((r) => row(r)).join("")}
       ${row(CONSTITUTIONAL_TOTAL, "grand")}
     </div>
@@ -310,7 +310,7 @@ const html = `<!doctype html>
 
     <p class="footnote">Board department totals reflect FY2027 salaries &amp; wages plus retirement, health insurance, and other benefits combined. Departments funded from more than one source are labeled "Multiple Funds."</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 </body></html>`;
 

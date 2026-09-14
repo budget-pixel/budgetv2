@@ -223,7 +223,7 @@ const faqPageHtml = (faqs, pageNumber, isFirst) => `
     <div class="faq-list">
       ${faqs.map(([q, a]) => `<div class="faq-item"><h3>${q}</h3><p>${a}</p></div>`).join("")}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>
 `;
 
@@ -241,7 +241,7 @@ const glossaryPageHtml = (leftCol, rightCol, pageNumber, isFirst) => `
       <div class="glossary-col">${leftCol.map(glossaryItemHtml).join("")}</div>
       <div class="glossary-col">${rightCol.map(glossaryItemHtml).join("")}</div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>
 `;
 

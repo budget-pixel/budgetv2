@@ -83,7 +83,7 @@
       ["Monitor regulatory compliance","Tests, documents, and reports treatment performance under applicable requirements."]
     ],
     "office of management and budget":[
-      ["Build the annual budget","Coordinates department requests, revenue estimates, balancing, and the tentative county budget."],
+      ["Build the annual budget","Coordinates department requests, revenue estimates, balancing, and the final county budget."],
       ["Monitor public spending","Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions","Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],
@@ -424,7 +424,7 @@
       var canvasId='wc-snapshot-chart-'+Math.random().toString(36).slice(2);
       var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
         '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend"></div>'+
-        '<p class="wc-snapshot-chart-note">'+(showCombinedTotal?'Total spending by fiscal year.':'Personnel, operating, and capital spending by fiscal year.')+' Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the tentative budget.</p>';
+        '<p class="wc-snapshot-chart-note">'+(showCombinedTotal?'Total spending by fiscal year.':'Personnel, operating, and capital spending by fiscal year.')+' Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the final budget.</p>';
       var careerStat=SNAPSHOT_CAREER_STATS[deptKey];
       var careerHtml=careerStat?(
         '<aside class="wc-snapshot-career-fact">'+
@@ -592,7 +592,7 @@
     canvas.setAttribute('aria-label','Spending by fiscal year in dollars. The data table below provides the same values.');
     var table=document.createElement('details');
     table.className='wc-snapshot-chart-data';
-    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table"><caption>Spending in dollars; 2020–2025 actuals, 2026 adopted, 2027 tentative</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table"><caption>Spending in dollars; 2020–2025 actuals, 2026 adopted, 2027 final</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
     if(wrap)wrap.insertAdjacentElement('afterend',table);
     var chart=new window.Chart(canvas,{
       type:'line',

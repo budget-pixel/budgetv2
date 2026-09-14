@@ -87,7 +87,7 @@
       ["Monitor regulatory compliance", "Tests, documents, and reports treatment performance under applicable requirements."]
     ],
     "office of management and budget": [
-      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the tentative county budget."],
+      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the final county budget."],
       ["Monitor public spending", "Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions", "Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],

@@ -21,12 +21,12 @@ import { chromium } from "playwright";
 
 const STATS = [
   ["$345.2M", "Total FY2027 Expenses"],
-  ["+$17.3M", "Net Change from FY2026"],
-  ["+5.3%", "Net Percent Change"],
+  ["+$13.5M", "Change from FY2026"],
+  ["+4.1%", "Percent Change"],
   ["$126.2M", "Largest Function: Public Safety"]
 ];
 
-const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Tentative"];
+const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
 // [function, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
 const ROWS = [
@@ -40,8 +40,7 @@ const ROWS = [
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
 ];
-const INTERNAL_ALLOCATION_ELIMINATION = ["Less: FY2026 internal administrative allocations", "-", "-", "-", "-", "-$3,826,335", "$0"];
-const TOTAL = ["Net Expenditure Budget", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
+const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
 
 // Page 2: department-level detail grouped by function -- complements the
 // Budget Change Summary section elsewhere in this book (which groups by
@@ -139,7 +138,7 @@ const DEPT_GROUPS = [
     ["BCC Other Uses Contingency", "$500,000", "$400,000"]
   ]]
 ];
-const DEPT_TOTAL = ["Net Expenditure Budget", "$327,945,088", "$345,223,508"];
+const DEPT_TOTAL = ["Department Budget Total", "$331,771,423", "$345,223,508"];
 
 // 65 rows across 9 function groups no longer fit a single two-column page
 // at the larger, more readable type size below -- split at a natural
@@ -419,7 +418,6 @@ const page1 = `
     <div class="ledger">
       ${tableHead}
       ${ROWS.map((r) => row(r)).join("")}
-      ${row(INTERNAL_ALLOCATION_ELIMINATION, "adjustment")}
       ${row(TOTAL, "grand")}
     </div>
 
@@ -428,11 +426,11 @@ const page1 = `
       <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services' decline reflects a one-time FY2026 grant that did not recur.</p>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
-const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div></div>`;
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div></div>`;
 
 const page2 = `
   <section>
@@ -442,7 +440,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
@@ -454,9 +452,8 @@ const page3 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
-    <div class="drow adjustment"><div class="dlabel">Less: FY2026 internal administrative allocations</div><div class="dnum">-$3,826,335</div><div class="dnum">$0</div><div class="dnum"></div></div>
     <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 2}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 

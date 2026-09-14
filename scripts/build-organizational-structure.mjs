@@ -114,7 +114,7 @@ const html = `<!doctype html>
     <div class="chart-card">
       <img src="${ORG_CHART}" alt="Walton County organizational chart">
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>11</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>11</b></footer>
   </section>
 </body></html>`;
 

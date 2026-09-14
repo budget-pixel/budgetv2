@@ -290,8 +290,8 @@ function agencyCardHtml(a) {
 // several plain entries, so it anchors the first page while the rest
 // balance out evenly instead of leaving the first page mostly empty.
 const PAGE_GROUPS = [
-  [0, 1, 2, 3, 4, 5, 6],
-  [7, 8, 9, 10, 11, 12]
+  [0, 1, 2, 3, 4, 5],
+  [6, 7, 8, 9, 10, 11, 12]
 ];
 
 const startPage = Number(process.argv[3] || 189);
@@ -311,7 +311,7 @@ const overviewPage = `
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
     <p class="footnote">E911 Fund revenue is transferred to the Walton County Sheriff's Office budget.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;
@@ -326,7 +326,7 @@ const agencyPagesHtml = PAGE_GROUPS.map((idxs) => {
     <h1 class="continued">Independent Agencies Ledger <span style="color:#68786f;font-size:9.5pt;font-weight:400;">(continued)</span></h1>
     ${rowHead}
     ${cards}
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
   `;
   pageCounter++;

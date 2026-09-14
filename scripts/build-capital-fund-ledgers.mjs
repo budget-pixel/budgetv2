@@ -281,7 +281,7 @@ const machineryPage1 = `
     ${fundTable(MACHINERY_FUNDING, MACHINERY_TOTAL)}
     <h2>By Department</h2>
     ${deptTable(MACHINERY_BY_DEPT)}
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE1}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
 
@@ -302,7 +302,7 @@ const machineryPage2 = `
       ${itemTable(HUMAN_RESOURCES_ITEMS, "Human Resources &mdash; $31,000")}
       ${itemTable(MOSQUITO_CONTROL_ITEMS, "Mosquito Control &mdash; $91,000")}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE2}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE2}}"}</b></footer>
   </section>
 `;
 
@@ -320,7 +320,7 @@ const machineryPage3 = `
       ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
     </div>
     <p class="footnote">Requested but not included in the FY2027 budget: Environmental Resources' Vessel &amp; Trailer, $60,000 (Property Taxes) &mdash; shown on that department's own page in the Departments and Services chapter.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE3}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE3}}"}</b></footer>
   </section>
 `;
 
@@ -466,7 +466,7 @@ const transPage1 = `
     <h1>Transportation and Infrastructure Capital Ledger</h1>
     <p class="intro">This schedule presents the FY2027 transportation and infrastructure appropriations funded through the Capital Projects, Transportation, and General Funds. It is one component of the County's $43.8 million funded FY2027 capital program; Sheriff projects recorded in the 300-series capital funds remain included and are shown in the Sheriff ledger.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(TRANS_TOTAL)}</b><span>FY2027 Tentative Total</span></div>
+      <div class="stat-card"><b>${money(TRANS_TOTAL)}</b><span>FY2027 Final Total</span></div>
       <div class="stat-card"><b>30</b><span>Projects</span></div>
       <div class="stat-card"><b>${money(GRANT_LEDGER[0][2])}</b><span>Grant Project Shown Separately</span></div>
       <div class="stat-card"><b>Nonrecurring</b><span>FY2027 Project Appropriations</span></div>
@@ -476,7 +476,7 @@ const transPage1 = `
     <h2>FY2027 Project Profiles &mdash; Largest Investments</h2>
     <p class="intro">Each line identifies what FY2027 buys, the project's current delivery stage, its public benefit, and the expected operating effect. A funded FY2027 phase does not by itself mean every future phase of a multi-year project is fully funded.</p>
     ${projectProfileTable(TRANS_PROJECTS.slice(0, 13))}
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE1}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
 
@@ -487,7 +487,7 @@ const transPage2 = `
     <h2 style="margin-top:.1in;">FY2027 Project Profiles <span style="font-weight:400;color:#68786f;">(continued)</span></h2>
     ${projectProfileTable(TRANS_PROJECTS.slice(13).concat(GRANT_LEDGER))}
     <p class="note">These are nonrecurring FY2027 project appropriations. Multi-year delivery does not make an individual project a recurring operating program. Detailed schedules, locations, contracts, prior and future funding, and current milestones remain available in the online Capital Improvement Plan.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE2}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE2}}"}</b></footer>
   </section>
 `;
 
@@ -528,7 +528,7 @@ const touristPage = `
     <p class="intro">These projects were funded in prior years and remain visible in the live project inventory. They are presented separately for transparency and are not re-budgeted or counted in the $43.8 million funded FY2027 capital program.</p>
     ${decisionProfileTable(TOURIST_ADDITIONAL.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]))}
     <p class="note">Beach renourishment is an ongoing capital commitment because shoreline restoration is periodically required. Its FY2027 appropriation remains capital rather than operating spending; the other tourism projects above are carried for project transparency only.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE1}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
 
@@ -566,7 +566,7 @@ const sheriffPage = `
     <p class="intro">Additional public safety projects funded through the Sheriff/Fine and Forfeiture Fund or grants. They are shown separately for transparency and are excluded from the $43.8 million funded FY2027 capital program.</p>
     ${decisionProfileTable(SHERIFF_GRANT)}
     <p class="note">The separate-project total consists of $2,000,000 in the Sheriff/Fine and Forfeiture Fund and $11,076,335 of grant-funded projects. None of those amounts is counted in the funded FY2027 capital-program headline.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${"{{PAGE1}}"}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
 
@@ -589,8 +589,8 @@ function simpleFundPage(title, blurb, fund, revenueSource, amount, pageVar) {
     ${fundTable([[fund, revenueSource, "100.0%", amount]], amount)}
     <h2>FY2027 Project Ledger</h2>
     ${projTable([[`${fund} Project (Board-Directed, To Be Determined)`, `${fund} &middot; ${revenueSource}`, amount]], amount)}
-    <p class="note">This fund's FY2027 allocation is reserved for a project the Board will direct during the fiscal year; no specific project had been identified when this tentative budget publication was prepared.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageVar}</b></footer>
+    <p class="note">This fund's FY2027 allocation is reserved for a project the Board will direct during the fiscal year; no specific project had been identified when this final budget publication was prepared.</p>
+    <footer><span>FY 2027 Final Budget</span><b>${pageVar}</b></footer>
   </section>
 `;
 }

@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 // Agencies Ledger), not broken out as its own "Human Services" line.
 
 const STATS = [
-  ["$345.2M", "FY2027 Tentative Budget"],
+  ["$345.2M", "FY2027 Final Budget"],
   ["+$17.3M", "Net Dollar Change"],
   ["+5.3%", "Net Percent Change"],
   ["+$5.0M", "Largest Increase: Sheriff Capital"]
@@ -262,7 +262,7 @@ const page1 = `
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -286,7 +286,7 @@ const page2 = `
 
     ${row(GRAND_TOTAL, "grand")}
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

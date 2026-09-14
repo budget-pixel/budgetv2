@@ -1,4 +1,29 @@
 import { chromium } from "playwright";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..");
+const imageDataUri = (name) => {
+  const ext = path.extname(name).toLowerCase();
+  const mime = ext === ".png" ? "image/png" : "image/jpeg";
+  return `data:${mime};base64,${readFileSync(path.join(repoRoot, "assets/images/page-images", name)).toString("base64")}`;
+};
+
+const dividerImages = {
+  "divider-constitutional-officers.pdf": "board-budget-image.png",
+  "divider-other-agencies.pdf": "overview-walton-waterway.png",
+  "divider-financial-plan.pdf": "homepage-hero.jpg",
+  "divider-capital-budget.pdf": "cip-bridge-construction.jpg",
+  "divider-our-county.pdf": "overview-beach-community.png",
+  "divider-financial-overview.pdf": "homepage-hero.jpg",
+  "divider-budget-process.pdf": "overview-defuniak-historic-map.jpg",
+  "divider-workforce-plan.pdf": "cip-project-site.jpg",
+  "divider-glossary.pdf": "overview-defuniak-historic-map.jpg",
+  "divider-draft.pdf": "homepage-hero.jpg",
+  "divider-program-services.pdf": "overview-beach-community.png"
+};
 
 // Builds the chapter divider pages the flattened base book doesn't carry
 // on its own -- Constitutional Officers, Other Agencies and Court-Related
@@ -13,8 +38,11 @@ const css = `
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
   body{ font-family:Arial, Helvetica, sans-serif; }
-  section{ position:relative; width:8.5in; height:11in; background:#003f28; }
-  .divider{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; height:100%; padding:0 .8in; }
+  section{ position:relative; width:8.5in; height:11in; overflow:hidden; background:#003f28; }
+  .divider-photo{ position:absolute; inset:auto 0 0; width:100%; height:60%; object-fit:cover; filter:saturate(.72) contrast(1.05); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); }
+  .divider-shade{ position:absolute; inset:0; background:linear-gradient(180deg,#003f28 0%,rgba(0,63,40,.99) 43%,rgba(0,63,40,.82) 66%,rgba(0,42,27,.42) 100%); }
+  .divider-frame{ position:absolute; inset:.3in; border:1px solid rgba(255,255,255,.2); }
+  .divider{ position:relative; z-index:1; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:3.45in .8in 0; }
   .divider .kicker2{ color:#b89521; font-size:11pt; font-weight:900; letter-spacing:.18em; text-transform:uppercase; margin-bottom:.15in; }
   .divider h1b{ color:#ffffff; font:800 46pt/1.05 Georgia, "Times New Roman", serif; margin:0 0 .3in; }
   .divider p{ color:#cfe0d7; font-size:11pt; line-height:1.6; max-width:5in; }
@@ -94,7 +122,7 @@ const budgetProcessDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Budget<br/>Process</h1b>
-      <p>How a department request becomes Walton County's FY2027 tentative spending plan, and the key dates residents can follow before final adoption.</p>
+      <p>How a department request becomes Walton County's FY2027 final spending plan, and the key dates residents can follow before final adoption.</p>
     </div>
   </section>
 `;
@@ -147,9 +175,11 @@ const draftDivider = `
 `;
 
 async function render(html, outPath) {
+  const imageName = dividerImages[path.basename(outPath)] || "homepage-hero.jpg";
+  const decoratedHtml = html.replace("<section>", `<section><img class="divider-photo" src="${imageDataUri(imageName)}" alt=""><div class="divider-shade"></div><div class="divider-frame"></div>`);
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${html}</body></html>`, { waitUntil: "networkidle" });
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${decoratedHtml}</body></html>`, { waitUntil: "networkidle" });
   await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
   await browser.close();
   console.log("Wrote " + outPath);

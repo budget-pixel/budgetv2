@@ -149,7 +149,7 @@ var wcHiddenBudgetPageTitles = new Set([
     ],
 
     "Budget Process": [
-      "budget process", "budget development", "budget cycle", "budget preparation", "budget review", "workshops", "budget adoption", "public hearing", "tentative budget", "final budget", "omb", "department requests", "basis of budgeting", "gaap", "modified accrual", "encumbrance", "grant revenue", "budget amendment", "amendment process", "budget implementation", "budgetary control", "gfoa"
+      "budget process", "budget development", "budget cycle", "budget preparation", "budget review", "workshops", "budget adoption", "public hearing", "final budget", "final budget", "omb", "department requests", "basis of budgeting", "gaap", "modified accrual", "encumbrance", "grant revenue", "budget amendment", "amendment process", "budget implementation", "budgetary control", "gfoa"
     ],
 
     "Budget Calendar": [

@@ -38,7 +38,7 @@ const html = `<!doctype html>
     <h1>Constitutional Officers</h1>
     <p class="intro">A statement of function, elected official, revenue sources, and budget summary for each of Walton County's five independently elected offices and the Board of County Commissioners.</p>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    <footer><span>FY 2027 Tentative Budget</span><b>6</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>6</b></footer>
   </section>
 </body></html>`;
 

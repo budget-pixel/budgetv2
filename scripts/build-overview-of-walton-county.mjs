@@ -484,7 +484,7 @@ const html = `<!doctype html>
         <p class="quote-cite">John L. McKinnon, <em>History of Walton County</em></p>
       </div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>8</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>8</b></footer>
   </section>
 
   <section>
@@ -539,7 +539,7 @@ const html = `<!doctype html>
         <p>The Board establishes public policy through ordinances and resolutions, levies taxes and fees, adopts the annual budget, oversees infrastructure and services, approves expenditures, and appoints members to boards and commissions.</p>
       </div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>9</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>9</b></footer>
   </section>
 
   <section>
@@ -563,7 +563,7 @@ const html = `<!doctype html>
         ${historyLinkCards}
       </div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>10</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>10</b></footer>
   </section>
 
 </body></html>`;

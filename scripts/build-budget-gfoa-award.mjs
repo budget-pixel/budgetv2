@@ -103,16 +103,10 @@ const html = `<!doctype html>
     letter-spacing:-.02em;
     text-shadow:0 2px 20px rgba(0,0,0,.25);
   }
-  .rule{
-    width:.75in;
-    height:3px;
-    margin:.26in 0 .24in;
-    background:#e7c95f;
-  }
   .badges{
     display:flex;
     gap:9px;
-    margin:0 0 .26in;
+    margin:.2in 0 .26in;
   }
   .badge{
     display:inline-flex;
@@ -234,14 +228,13 @@ const html = `<!doctype html>
       <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
       <small class="kicker">Introduction and Budget Overview</small>
       <h1>Distinguished Budget Presentation Award</h1>
-      <div class="rule"></div>
       <div class="badges">
         <span class="badge"><b>Two-Time</b> Recipient</span>
         <span class="badge">FY2027 Submitted for Review</span>
       </div>
       <p>The Government Finance Officers Association of the United States and Canada presented Walton County, Florida with its second consecutive Distinguished Budget Presentation Award for the Annual Budget beginning October 1, 2025.</p>
       <p>To receive this award, a government must publish a budget document that meets program criteria as a policy document, a financial plan, an operations guide, and a communications device.</p>
-      <p>The certificates below recognize the prior-year publication. This FY2027 Tentative Budget has been submitted separately for review and consideration under the current program criteria.</p>
+      <p>The certificates below recognize the prior-year publication. This FY2027 Final Budget has been submitted separately for review and consideration under the current program criteria.</p>
       <div class="caption">
         <div class="caption-mark"><img src="${GFOA_MARK}" alt=""></div>
         <span>Government Finance<br>Officers Association</span>
@@ -252,7 +245,7 @@ const html = `<!doctype html>
       <div class="certificate-card">
         <img src="${CERTIFICATE}" alt="GFOA Distinguished Budget Presentation Award certificate for Walton County">
       </div>
-      <footer><span>FY 2027 Tentative Budget</span><b>2</b></footer>
+      <footer><span>FY 2027 Final Budget</span><b>2</b></footer>
     </div>
   </section>
 </body></html>`;

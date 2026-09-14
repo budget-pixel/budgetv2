@@ -2,8 +2,8 @@ import { chromium } from "playwright";
 
 // Rebuilds the book's main "Table of Contents" page (index 4, printed
 // page 5) to add the new "Community Priorities and Organizational
-// Challenges" chapter entry and renumber every entry after it by +3 --
-// the page count that new chapter adds ahead of them. Matches the exact
+// Challenges" chapter entry and account for its two-page print layout.
+// Matches the exact
 // styling of the two sibling guide pages (build-departments-toc-page.mjs,
 // build-financial-plan-toc-page.mjs), which this page precedes.
 
@@ -14,10 +14,10 @@ const ITEMS = [
   ["Organizational Structure", 14],
   ["Program Budget and Strategic Initiatives", 15],
   ["Community Priorities and Organizational Challenges", 16],
-  ["Budget in Brief", 19],
-  ["Budget Process", 20],
-  ["Budget Calendar", 21],
-  ["Statistical and Supplemental Information", 22]
+  ["Budget in Brief", 20],
+  ["Budget Process", 21],
+  ["Budget Calendar", 22],
+  ["Statistical and Supplemental Information", 23]
 ];
 
 const css = `
@@ -103,7 +103,7 @@ const html = `<!doctype html>
     <p class="intro">A complete guide to Walton County's community context, operating departments, financial plan, and capital program.</p>
     <h2 style="margin:0 0 .06in;color:#003f28;font:800 11pt Georgia, serif;">Introduction and Our County</h2>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    <footer><span>FY 2027 Tentative Budget</span><b>5</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>5</b></footer>
   </section>
 </body></html>`;
 

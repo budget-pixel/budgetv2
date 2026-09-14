@@ -221,7 +221,7 @@ const html = `<!doctype html>
     <div class="layout">
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
-        <p>In accordance with Florida Statute Chapter 129.03(3), I am pleased to transmit the tentative budget for Fiscal Year 2027. This tentative budget is balanced and provides the proposed operating framework for delivering County services for the coming year, with continued focus on public safety, infrastructure, and serving a growing county as efficiently and effectively as possible.</p>
+        <p>In accordance with Florida Statute Chapter 129.03(3), I am pleased to transmit the final budget for Fiscal Year 2027. This final budget is balanced and provides the proposed operating framework for delivering County services for the coming year, with continued focus on public safety, infrastructure, and serving a growing county as efficiently and effectively as possible.</p>
         <p>The FY 2027 budget has been developed with the following objectives:</p>
         <ul>
           <li>Maintaining existing service levels for residents</li>
@@ -260,13 +260,13 @@ const html = `<!doctype html>
         </div>
       </div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>3</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>3</b></footer>
   </section>
 
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The $345.2 million FY 2027 tentative budget maintains a reduced County operating millage rate of 3.4347 mills, down from 3.519 mills. Public Safety remains the largest expenditure function at $126.6 million. Ad Valorem property taxes of $161.1 million remain the County&rsquo;s largest revenue source.</p>
+    <p>The $345.2 million FY 2027 final budget maintains a reduced County operating millage rate of 3.4347 mills, down from 3.519 mills. Public Safety remains the largest expenditure function at $126.6 million. Ad Valorem property taxes of $161.1 million remain the County&rsquo;s largest revenue source.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">
@@ -285,13 +285,13 @@ const html = `<!doctype html>
     <p>The Board&rsquo;s formal direction is to maintain current service levels. No major core service is proposed to be added, eliminated, or materially reduced. The budget balances today&rsquo;s services, tomorrow&rsquo;s infrastructure, and financial flexibility.</p>
     <p>The funded FY2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years; those items remain visible separately in the project inventory. No major funded project was postponed. Engineering and Public Works will publish a letting schedule showing estimated phases and starts.</p>
     <p>Amendment 3 is not assumed as an enacted revenue reduction. The County will monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
-    <p>I thank the Board for its guidance and County staff for its work developing this tentative budget.</p>
+    <p>I thank the Board for its guidance and County staff for its work developing this final budget.</p>
 
     <div class="signature-block">
       <p class="signature-name">Melissa Thomason</p>
       <p class="signature-title">Chief Financial Officer, Office of Management and Budget</p>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>4</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>4</b></footer>
   </section>
 
 </body></html>`;

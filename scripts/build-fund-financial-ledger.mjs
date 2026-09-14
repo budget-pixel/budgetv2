@@ -21,9 +21,9 @@ import { chromium } from "playwright";
 
 // FY2028/FY2029 projections exist only at the countywide level -- the
 // live per-fund schedules stop at FY2027 -- so this table now runs
-// FY2022 Actual through FY2027 Tentative (6 years) instead of the
+// FY2022 Actual through FY2027 Final (6 years) instead of the
 // 8-year countywide-only range it used before.
-const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Tentative"];
+const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Final"];
 
 // [row, FY22...FY27] -- countywide rows only; Total Revenues and Total
 // Expenditures are shown broken out by fund instead (see REVENUE_BY_FUND
@@ -282,7 +282,7 @@ const page1 = `
       ${cRow(CONSOLIDATED_BOTTOM[0], "grand")}
       ${cRow(CONSOLIDATED_BOTTOM[1], "grand")}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -299,7 +299,7 @@ const page2 = `
       ${NON_MAJOR_FUNDS.map(fRow).join("")}
     </div>
     <p class="footnote">*Building Fund's own schedule shows $0 in Total Revenue because a $4,000,000 "balance brought forward" line is intentionally excluded here to avoid double-counting against the Beginning Fund Balance shown above it. That $4,000,000 is included in the Consolidated Fund Financial Schedule's countywide totals on the previous page, which is why summing these 15 funds' revenue does not exactly reach the Consolidated total.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 

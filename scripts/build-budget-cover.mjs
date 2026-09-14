@@ -131,14 +131,8 @@ const html = `<!doctype html>
     letter-spacing:.06em;
     text-transform:uppercase;
   }
-  .cover-rule{
-    width:.95in;
-    height:4px;
-    margin:.3in 0 .2in;
-    background:#e7c95f;
-  }
   .cover-tagline{
-    margin:0;
+    margin:.3in 0 0;
     max-width:5.6in;
     color:#eef4f0;
     font-size:12.5pt;
@@ -174,16 +168,15 @@ const html = `<!doctype html>
         <div class="cover-seal"></div>
       </div>
       <div class="cover-main">
-        <p class="cover-kicker">Fiscal Year 2027 &middot; Tentative Budget</p>
+        <p class="cover-kicker">Fiscal Year 2027 &middot; Final Budget</p>
         <h1 class="cover-title">Walton<br>County</h1>
         <p class="cover-subtitle">Annual Budget Book</p>
-        <div class="cover-rule"></div>
         <p class="cover-tagline">A financial plan for public services, infrastructure, and the future of the County.</p>
       </div>
       <div class="cover-bottom">
         <div class="cover-meta">
           <span>Board of County Commissioners</span>
-          <span>Tentative &bull; October 1, 2026 &ndash; September 30, 2027</span>
+          <span>Final &bull; October 1, 2026 &ndash; September 30, 2027</span>
         </div>
       </div>
     </div>
@@ -205,7 +198,7 @@ const coverBox = await page.locator(".cover").boundingBox();
 const flattened = await page.screenshot({ type: "jpeg", quality: 96, clip: coverBox });
 await page.close();
 const flatPage = await browser.newPage();
-await flatPage.setContent(`<!doctype html><html><head><style>@page{size:letter portrait;margin:0}html,body{margin:0;width:8.5in;height:11in;overflow:hidden}img{display:block;width:8.5in;height:11in}</style></head><body><img src="data:image/jpeg;base64,${flattened.toString("base64")}" alt="Walton County FY2027 Tentative Budget Book cover"></body></html>`, { waitUntil: "networkidle" });
+await flatPage.setContent(`<!doctype html><html><head><style>@page{size:letter portrait;margin:0}html,body{margin:0;width:8.5in;height:11in;overflow:hidden}img{display:block;width:8.5in;height:11in}</style></head><body><img src="data:image/jpeg;base64,${flattened.toString("base64")}" alt="Walton County FY2027 Final Budget Book cover"></body></html>`, { waitUntil: "networkidle" });
 await flatPage.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

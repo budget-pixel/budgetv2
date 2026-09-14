@@ -20,7 +20,7 @@ import QRCode from "qrcode";
 
 const STATS = [
   ["$159.6M", "Total Countywide Ad Valorem Revenue"],
-  ["3.4347", "Tentative FY2027 Millage Rate"],
+  ["3.4347", "Final FY2027 Millage Rate"],
   ["3.7782", "Two-Thirds Vote Maximum"],
   ["0.441", "Mosquito Control District (Separate)"]
 ];
@@ -351,7 +351,7 @@ const page1 = `
       ${row(CAPITAL_TOTAL, "total")}
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
 
@@ -377,7 +377,7 @@ const page2 = `
       <div class="example-head">
         <div>
           <h2>What This Means for a Homeowner</h2>
-          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 tentative millage of 3.4347 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
+          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 final millage of 3.4347 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
           <div class="example-total"><b>$686.94</b><span>Total County portion of the tax bill</span></div>
         </div>
         <div class="tax-qr">
@@ -393,7 +393,7 @@ const page2 = `
 
     <p class="footnote">This is an illustrative example of the County-government portion of a tax bill only; it excludes the separate levies of the School Board, Northwest Florida Water Management District, and the North Walton Mosquito Control District that also appear on an actual property tax bill. The County government&rsquo;s share is calculated as taxable value &times; millage &divide; 1,000, then apportioned by each entity&rsquo;s share of total Ad Valorem revenue.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 

@@ -39,7 +39,9 @@ const sharedCss = `
     padding:.56in .62in .5in;
     background:#ffffff;
     overflow:hidden;
+    page-break-after:always;
   }
+  section:last-child{ page-break-after:auto; }
   header{
     display:flex;
     justify-content:space-between;
@@ -90,18 +92,18 @@ const sharedCss = `
     font-size:8pt;
     line-height:1.4;
   }
-  .area-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.08in; margin:.05in 0 .08in; }
-  .area-card{ position:relative; min-height:.76in; padding:.1in .09in .08in .35in; border:1px solid #e4ebe7; border-radius:8px; background:#fbfcfa; }
+  .area-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:.14in; margin:.1in 0 .12in; }
+  .area-card{ position:relative; min-height:1.3in; padding:.16in .15in .14in .46in; border:1px solid #e4ebe7; border-radius:10px; background:#fbfcfa; }
   .area-card .num{ position:absolute; left:.08in; top:.09in; display:grid; place-items:center; width:.21in; height:.21in; border-radius:50%; background:#003f28; color:#e7c95f; font:800 7pt Georgia,serif; }
-  .area-card b{ display:block; color:#003f28; font:800 7.3pt Georgia, serif; margin-bottom:.025in; }
-  .area-card p{ margin:0; color:#33453c; font-size:5.65pt; line-height:1.27; }
-  .challenge-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.08in; margin:.05in 0 .08in; }
-  .challenge-card{ padding:.075in .1in; border-left:4px solid #d1be78; border-radius:0 7px 7px 0; background:#f9f8f2; }
+  .area-card b{ display:block; color:#003f28; font:800 9.2pt Georgia, serif; margin-bottom:.05in; }
+  .area-card p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.4; }
+  .challenge-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.12in; margin:.08in 0 .14in; }
+  .challenge-card{ padding:.12in .14in; border-left:4px solid #d1be78; border-radius:0 8px 8px 0; background:#f9f8f2; }
   .challenge-card.org{ border-left-color:#006231; background:#f3f8f5; }
-  .challenge-card small{ display:block; margin-bottom:.02in; color:#a88418; font-size:5.2pt; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+  .challenge-card small{ display:block; margin-bottom:.03in; color:#a88418; font-size:6.2pt; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
   .challenge-card.org small{ color:#006231; }
-  .challenge-card b{ display:block; color:#003f28; font:800 7.4pt Georgia,serif; }
-  .challenge-card p{ margin:.02in 0 0; color:#33453c; font-size:5.65pt; line-height:1.3; }
+  .challenge-card b{ display:block; color:#003f28; font:800 8.5pt Georgia,serif; }
+  .challenge-card p{ margin:.03in 0 0; color:#33453c; font-size:6.8pt; line-height:1.38; }
   .conn-table{ border-top:2px solid #d1be78; margin-top:.04in; }
   .crow{ display:grid; grid-template-columns:1.15in 1.65in .8in 1.65in 1fr; gap:.08in; padding:.055in 0; border-bottom:1px solid #eef1ee; }
   .crow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.3pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; }
@@ -145,19 +147,32 @@ const sharedCss = `
   }
 `;
 
-const startPage = Number(process.argv[3] || 13);
+const startPage = Number(process.argv[3] || 14);
 
 const page1 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
-    <h1>Community Priorities and Organizational Challenges</h1>
+    <h1>Community Priorities</h1>
     <p class="intro">The Walton County Strategic Plan 2027&ndash;2032 establishes six priority areas. For FY2027, the Board&rsquo;s direction is continuity, capital investment, and financial preparedness: maintain core services, address infrastructure needs, and avoid unnecessary recurring commitments while the revenue outlook remains uncertain.</p>
 
     <h2>Strategic Priority Areas, FY2027&ndash;FY2032</h2>
     <div class="area-grid">
       ${PRIORITY_AREAS.map((a, i) => `<div class="area-card"><span class="num">${i + 1}</span><b>${a.t}</b><p>${a.d}</p></div>`).join("")}
     </div>
+
+    <p class="footnote">The strategic priority language comes from the Walton County Strategic Plan 2027&ndash;2032.</p>
+
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
+  </section>
+`;
+
+const page2 = `
+  <section>
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <small class="kicker">Our County</small>
+    <h1>Organizational Challenges and FY2027 Response</h1>
+    <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. The FY2027 plan connects these pressures to specific actions, funding signals, expected results, and review points.</p>
 
     <h2>What Is Creating Pressure</h2>
     <div class="challenge-grid">
@@ -178,16 +193,16 @@ const page1 = `
       <div class="crow"><div class="carea">Capacity and continuity</div><div class="cresp">Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money">+15 net countywide FTE</div><div class="result">No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when">Budget monitoring and annual personnel review</div></div>
       <div class="crow"><div class="carea">Fiscal uncertainty</div><div class="cresp">Assume no specific Amendment 3 reduction, protect reserves, limit new recurring commitments, and update forecasts as facts change.</div><div class="money">~$50M emergency objective</div><div class="result">Preserve response capacity and identify material revenue, reserve, or service impacts before future budget decisions.</div><div class="when">During FY2027 monitoring and the FY2028 cycle</div></div>
     </div>
-    <p class="footnote">The strategic priority language comes from the Walton County Strategic Plan 2027&ndash;2032. Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this tentative budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
+    <p class="footnote">The strategic priority language comes from the Walton County Strategic Plan 2027&ndash;2032. Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this final budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Community Priorities and Organizational Challenges</title>
 <style>${sharedCss}</style></head>
-<body>${page1}</body></html>`;
+<body>${page1}${page2}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-community-priorities.pdf";
 const browser = await chromium.launch({ headless: true });

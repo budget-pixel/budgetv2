@@ -303,7 +303,7 @@ const page1 = `
       <div class="fin-card"><b>Debt</b><span>Where appropriate, the County issues debt for major projects using structures designed to manage cost and risk.</span></div>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
@@ -337,12 +337,12 @@ const page2 = `
     <h2>Is Capital Spending Going Up or Down?</h2>
     <div class="chart-wrap">
       <div class="chart">${CHART.map(([y, v, prior]) => `<div class="bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="bar ${prior ? "prior" : "adopted"}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-      <div class="legend"><span><i style="background:#c9d6cd"></i>Prior work plans (FY2025&ndash;FY2026)</span><span><i style="background:#0b7741"></i>Tentative five-year plan (FY2027&ndash;FY2031)</span></div>
+      <div class="legend"><span><i style="background:#c9d6cd"></i>Prior work plans (FY2025&ndash;FY2026)</span><span><i style="background:#0b7741"></i>Final five-year plan (FY2027&ndash;FY2031)</span></div>
     </div>
     <p class="trend">On a consistent funded/non-grant basis, the plan moves from $43.8M in FY2027 to $35.3M in FY2031, an $8.5M or 19% decrease, with a temporary rise to $43.2M in FY2030 as several major facility and infrastructure phases are scheduled.</p>
     <p class="footnote">FY2027-FY2031 exclude grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years. FY2025 and FY2026 figures come from earlier work plans and are shown only as historical context. All future-year amounts are planning estimates re-evaluated each budget cycle.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
@@ -380,7 +380,7 @@ const page3 = `
     <p class="footnote">No major project was postponed from the FY2027 program. Engineering and Public Works will publish a letting schedule identifying the estimated phase and start of applicable projects.</p>
     <div class="qr-strip"><img src="${cipQrDataUrl}" alt="QR"/><div><b>View Every Project Online</b><span>Every project in this chapter and the ledgers that follow has its own page on the County's budget website, with funding source, status, and location detail. Scan to browse the full Capital Improvement Plan.</span></div></div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 2}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 

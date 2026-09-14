@@ -337,7 +337,7 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 </body></html>`;
 

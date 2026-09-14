@@ -217,7 +217,7 @@ const DEPARTMENTS = [
     personnel: 1017276, contractual: 0, operating: 57750,
     fte26: 9, fte27: 9,
     services: [
-      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the tentative county budget."],
+      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the final county budget."],
       ["Monitor public spending", "Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions", "Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],
@@ -503,7 +503,7 @@ const overviewPage = `
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
     </div>
     <p class="intro" style="margin-top:.14in;">Accountability does not stop at organizational lines. Many community outcomes require several departments working together toward one result &mdash; the Program and Service Budget chapter groups these offices by the shared goal they fund, not just the org chart, and names every contributing department for each.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;

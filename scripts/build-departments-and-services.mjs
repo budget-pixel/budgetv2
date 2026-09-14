@@ -1,5 +1,12 @@
 import { chromium } from "playwright";
 import QRCode from "qrcode";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..");
+const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/homepage-hero.jpg")).toString("base64")}`;
 
 // Maps each office's name (DEPARTMENTS[].name) to its live page on the
 // budget site, so every department page can carry a QR code to the fuller
@@ -407,7 +414,7 @@ const DEPARTMENTS = [
     sof: "The Office of Management and Budget (OMB) provides comprehensive financial and administrative support to the Board of County Commissioners, overseeing all authorized funds, preparing and monitoring the annual operating and capital budget, overseeing grant budgets and reporting, and maintaining the inventory of capital assets.",
     goal: "Maintain Walton County's financial stability and integrity through effective planning, compliance, transparency, and innovation in budget management.",
     services: [
-      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the tentative county budget."],
+      ["Build the annual budget", "Coordinates department requests, revenue estimates, balancing, and the final county budget."],
       ["Monitor public spending", "Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions", "Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],
@@ -696,7 +703,7 @@ function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") 
 
 function serviceChangeFor(d) {
   if (d.serviceChange) return d.serviceChange;
-  return "No service addition or discontinuation; core services are maintained in the FY2027 tentative budget.";
+  return "No service addition or discontinuation; core services are maintained in the FY2027 final budget.";
 }
 
 const PRIMARY_SERVICE_TITLES = new Map([
@@ -1106,7 +1113,10 @@ const sharedCss = `
   }
 
   /* section divider */
-  .divider{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; height:100%; padding:0 .8in; }
+  .divider-photo{ position:absolute; inset:auto 0 0; width:100%; height:60%; object-fit:cover; filter:saturate(.72) contrast(1.05); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); }
+  .divider-shade{ position:absolute; inset:0; background:linear-gradient(180deg,#003f28 0%,rgba(0,63,40,.99) 43%,rgba(0,63,40,.82) 66%,rgba(0,42,27,.42) 100%); }
+  .divider-frame{ position:absolute; inset:.3in; border:1px solid rgba(255,255,255,.2); }
+  .divider{ position:relative; z-index:1; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:3.45in .8in 0; }
   .divider .kicker2{ color:#b89521; font-size:11pt; font-weight:900; letter-spacing:.18em; text-transform:uppercase; margin-bottom:.15in; }
   .divider h1b{ color:#ffffff; font:800 46pt/1.05 Georgia, serif; margin:0 0 .3in; }
   .divider p{ color:#cfe0d7; font-size:11pt; line-height:1.6; max-width:5in; }
@@ -1270,7 +1280,7 @@ async function buildDeptPage(d, pageNumber) {
       <div class="con-box"><h2>Contracts</h2>${conHtml}</div>
       <div class="cap-box"><h2>Capital Requests</h2>${capItems.length ? capHtml : (d.capital ? `<div class="empty-card"><b>${money(d.capital)} capital budget</b>No itemized capital-request schedule was available for this office.</div>` : `<div class="empty-card"><b>No FY2027 capital requests</b>No capital purchase or project request is budgeted for this office.</div>`)}</div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>`;
 }
 
@@ -1280,7 +1290,10 @@ async function main() {
   let pageCounter = startPage;
 
   const dividerHtml = `
-  <section style="background:#003f28;padding:0;">
+  <section style="position:relative;overflow:hidden;background:#003f28;padding:0;">
+    <img class="divider-photo" src="${DEPARTMENTS_DIVIDER_PHOTO}" alt="">
+    <div class="divider-shade"></div>
+    <div class="divider-frame"></div>
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Departments<br/>and Services</h1b>
@@ -1307,7 +1320,7 @@ async function main() {
       ${DEPARTMENTS.map((d) => `<div class="index-row"><span>${d.name}</span><b>${money(d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0))}</b></div>`).join("")}
     </div>
     <p class="sof" style="margin-top:.14in;">Accountability does not stop at organizational lines. Many community outcomes require several departments working together toward one result &mdash; the Program and Service Budget chapter groups these offices by the shared goal they fund, not just the org chart, and names every contributing department for each.</p>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>`;
   pageCounter++;
 

@@ -517,10 +517,10 @@ async function buildOfficerPage(o, pageNumber) {
     <div class="pos-summary">
       <div class="pnum"><b>${o.ftePrior}</b><span>Prior Year FTE</span></div>
       <div class="parrow">&rarr;</div>
-      <div class="pnum"><b>${o.fte}</b><span>Tentative FTE</span></div>
+      <div class="pnum"><b>${o.fte}</b><span>Final FTE</span></div>
     </div>
     ${o.footnote ? `<p class="footnote">*${o.footnote}</p>` : ""}
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>`;
 }
 
@@ -546,7 +546,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageCounter}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
 pageCounter++;

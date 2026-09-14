@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Budget Process" section as its own
-// two-page PDF -- a GFOA Distinguished Budget Presentation Award Policy
+// three-page PDF -- a GFOA Distinguished Budget Presentation Award Policy
 // Document requirement (a description of the budget process). Meant to be
 // inserted right after "Strategic Initiatives" and before "Statistical &
 // Supplemental Information". Shares the header/footer/kicker/h1 system the
@@ -15,7 +15,7 @@ import { chromium } from "playwright";
 const PHASES = [
   ["Phase 1", "Preparation", "Departments prepare operating and capital requests identifying service needs, staffing, projects, funding assumptions, and proposed service changes.", "February–April"],
   ["Phase 2", "Review", "OMB and County Administration evaluate requests, reduction options, revenue estimates, fund capacity, policy guidance, and the Board's strategic priorities on pages 13–14.", "April–June"],
-  ["Phase 3", "Workshops", "The tentative budget is reviewed publicly with the Board, including funding requests, service levels, alignment with strategic priorities, and the proposed millage rate.", "June–July"],
+  ["Phase 3", "Workshops", "The proposed budget is reviewed publicly with the Board, including funding requests, service levels, alignment with strategic priorities, and the proposed millage rate.", "June–July"],
   ["Phase 4", "Adoption", "Required public hearings are held before the Board adopts the final millage rate and annual operating budget.", "September"]
 ];
 
@@ -47,15 +47,15 @@ const CALENDAR = [
   ["April 6", "Operating and capital improvement budget requests are due from county departments."],
   ["May 1", "The Office of Management and Budget prepares preliminary revenue and fund balance estimates."],
   ["June 1", "The Property Appraiser delivers preliminary taxable value to the Board of County Commissioners."],
-  ["June 1", "Tentative budget submissions from Constitutional Officers are due to the Board of County Commissioners."],
+  ["June 1", "Proposed budget submissions from Constitutional Officers are due to the Board of County Commissioners."],
   ["June 10–11", "The Office of Management and Budget holds staff budget workshops with Administration."],
   ["July 1", "The Property Appraiser sends certification of taxable values, Form DR-420."],
-  ["July 7", "The first public budget workshop reviews the tentative budget, funding requests, and proposed millage rate.", true],
-  ["July 14, 21, 28", "Public budget workshops continue, including Board review of the tentative budget and required budget reduction exercise.", true],
+  ["July 7", "The first public budget workshop reviews the proposed budget, funding requests, and proposed millage rate.", true],
+  ["July 14, 21, 28", "Public budget workshops continue, including Board review of the proposed budget and required budget reduction exercise.", true],
   ["August 1", "The Tax Collector budget submission is due to the Department of Revenue and Board of County Commissioners."],
   ["August 4", "The Office of Management and Budget certifies the completed DR-420 form, including millage rates and hearing information."],
   ["August 24", "The Property Appraiser mails TRIM notices to taxpayers."],
-  ["September 14", "The tentative budget and proposed millage rate hearing is held.", true],
+  ["September 14", "The first statutory budget and proposed millage rate hearing is held.", true],
   ["September 23", "The Notice of Proposed Tax Increase and Budget Summary Advertisement is advertised."],
   ["September 28", "The final budget hearing is held to adopt the final millage rate and final budget.", true]
 ];
@@ -260,7 +260,7 @@ const sharedCss = `
     text-transform:uppercase;
   }
 
-  /* --- page 2: calendar --- */
+  /* --- page 3: calendar --- */
   .timeline-strip{
     display:grid;
     grid-template-columns:repeat(7,1fr);
@@ -329,7 +329,7 @@ const page1 = `
     ${pageHeader()}
     <small class="kicker">Budget Process</small>
     <h1>Budget Process</h1>
-    <p class="intro">See how a department request becomes Walton County&rsquo;s FY2027 tentative spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
+    <p class="intro">See how a department request becomes Walton County&rsquo;s FY2027 final spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
 
     <div class="section-block">
       <h2><span>Four Phases</span>One Public Plan</h2>
@@ -343,15 +343,26 @@ const page1 = `
       <div class="role-grid">
         ${ROLES.map(([title, desc]) => `<div class="role-item"><h3>${title}</h3><p>${desc}</p></div>`).join("")}
       </div>
-      <div class="public-card">
-        <h3>Public Input Is Part of the Process</h3>
-        <p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p>
-        <ul class="public-list">
-          <li>Attend Budget Workshops</li>
-          <li>Review the Tentative Budget</li>
-          <li>Comment at Public Hearings</li>
-        </ul>
-      </div>
+    </div>
+
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
+  </section>
+`;
+
+const page2 = `
+  <section>
+    ${pageHeader()}
+    <small class="kicker">Budget Process</small>
+    <h1>Budget Process <span style="color:#68786f;font-size:10pt;font-weight:400;">(continued)</span></h1>
+
+    <div class="public-card" style="margin-top:.1in;margin-bottom:.28in;padding:.22in .24in;">
+      <h3>Public Input Is Part of the Process</h3>
+      <p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p>
+      <ul class="public-list">
+        <li>Attend Budget Workshops</li>
+        <li>Review the Final Budget</li>
+        <li>Comment at Public Hearings</li>
+      </ul>
     </div>
 
     <div class="section-block">
@@ -366,11 +377,11 @@ const page1 = `
       <p class="intro" style="margin-bottom:0;line-height:1.2;font-size:7.5pt;">Departments were instructed to identify service needs, staffing, projects, funding assumptions, proposed service changes, and reduction options. OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13–14. Public comments and budget effects are documented on page 41.</p>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_A</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>
 `;
 
-const page2 = `
+const page3 = `
   <section>
     ${pageHeader()}
     <small class="kicker">Budget Process</small>
@@ -386,7 +397,7 @@ const page2 = `
     </div>
     <p class="cal-note"><strong>Budget Coordinator:</strong> Office of Management and Budget. All dates shown are estimates for planning purposes and may be adjusted as necessary during the budget development process.</p>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>PAGE_B</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_C</b></footer>
   </section>
 `;
 
@@ -394,7 +405,7 @@ const startPage = Number(process.argv[3] || 13);
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Budget Process</title>
 <style>${sharedCss}</style></head>
-<body>${page1.replace("PAGE_A", startPage)}${page2.replace("PAGE_B", startPage + 1)}</body></html>`;
+<body>${page1.replace("PAGE_A", startPage)}${page2.replace("PAGE_B", startPage + 1)}${page3.replace("PAGE_C", startPage + 2)}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-budget-process.pdf";
 const browser = await chromium.launch({ headless: true });

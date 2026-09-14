@@ -216,7 +216,7 @@ function buildPage(colIdx, pageNumber, isFirst) {
       ${otherUse}
       ${expGrand}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${pageNumber}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>
   `;
 }

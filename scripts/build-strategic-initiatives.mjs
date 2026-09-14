@@ -171,13 +171,13 @@ const html = `<!doctype html>
     <p class="intro">Walton County&rsquo;s annual budget is built around a shared mission, vision, and set of core values &mdash; the strategic foundation that connects every department&rsquo;s programs and services back to a common purpose. These statements reflect the Walton County Strategic Plan 2027&ndash;2032.</p>
 
     <div class="statement">
-      <span class="statement-label">Our Foundation &middot; Mission</span>
+      <span class="statement-label">Our Foundation</span>
       <h2>Mission</h2>
       <p>&ldquo;To provide leadership and exceptional public services that enhance quality of life, foster economic opportunity, and ensure a safe community for all who live, work, and visit our county.&rdquo;</p>
     </div>
 
     <div class="statement is-vision">
-      <span class="statement-label">Our Direction &middot; Vision</span>
+      <span class="statement-label">Our Direction</span>
       <h2>Vision</h2>
       <p>&ldquo;To be a community that inspires trust through excellence, honors our unique heritage, and empowers all residents to thrive.&rdquo;</p>
     </div>
@@ -190,7 +190,7 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>12</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>12</b></footer>
   </section>
 </body></html>`;
 

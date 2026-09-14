@@ -39,7 +39,7 @@ const STATS = [
   ["$159.6M", "Largest Source: Ad Valorem Taxes"]
 ];
 
-const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Tentative"];
+const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
 // [category, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
 const ROWS = [
@@ -302,11 +302,11 @@ const page1 = `
       <p>General Government Taxes includes Ad Valorem property taxes and the Tourist Development Tax, its two largest sources. Within the remaining categories, the largest single revenue is Indirect Administrative Fees for Charges for Services, Nonoperating Balance Brought Forward for Other Sources, the Short-Term Rental Certificate Fee for Permits Fees and Special Assessments, Interest for Miscellaneous Revenue, State Revenue Share Proceeds for Intergovernmental Revenues, and the Parking ordinance fine for Judgments, Fines and Forfeits.</p>
     </div>
 
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
-const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Tentative</div><div class="dnum">+/&minus;</div></div></div>`;
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div></div>`;
 
 const page2 = `
   <section>
@@ -316,7 +316,7 @@ const page2 = `
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_A)}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
@@ -328,7 +328,7 @@ const page3 = `
     <div class="dtable">
       ${buildRevSections(REV_GROUPS_B)}
     </div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 2}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 
@@ -341,7 +341,7 @@ const page4 = `
       ${buildRevSections(REV_GROUPS_C)}
     </div>
     <div class="drow grand"><div class="dlabel">Total</div><div class="dnum">${DETAIL_TOTAL[1]}</div><div class="dnum">${DETAIL_TOTAL[2]}</div><div class="dnum"></div></div>
-    <footer><span>FY 2027 Tentative Budget</span><b>${startPage + 3}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 3}</b></footer>
   </section>
 `;
 

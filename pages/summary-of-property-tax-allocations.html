@@ -626,7 +626,7 @@
               <tr>
                 <th scope="col">Department</th>
                 <th scope="col" class="wc-num">% of Total</th>
-                <th scope="col" class="wc-num">FY 2027 Tentative Estimate</th>
+                <th scope="col" class="wc-num">FY 2027 Final Estimate</th>
               </tr>
             </thead>
             <tbody id="personalTaxTableBody"></tbody>
@@ -641,8 +641,8 @@
           </div>
           <p><strong>Taxable value</strong> is the value the Property Appraiser uses to calculate your tax bill &mdash; it is usually lower than your home's market value because of the homestead exemption and other assessment limits. Your official taxable value is on your annual TRIM notice or the Property Appraiser's website.</p>
           <p><strong>What's included:</strong> this covers the County's own countywide portion of your property tax bill. <strong>What's NOT included:</strong> school district taxes, water management district taxes, special taxing districts (such as North Walton Mosquito Control), and any other independent taxing authorities on your bill &mdash; those are set and billed separately.</p>
-          <p><strong>What Your Property Tax Supports</strong> multiplies your taxable value by the FY2027 tentative countywide millage rate of 3.4347, divided by 1,000. The table allocates that estimate according to each service's share of the proposed countywide property-tax funding. It is an illustration of how the County portion supports services, not a parcel-specific allocation or official bill.</p>
-          <p>Department spending changes do not directly determine a property's tax increase. This calculator therefore does not add departmental budget-growth percentages to your estimated tax. The tentative rate remains subject to adoption; schools and other taxing authorities are excluded.</p>
+          <p><strong>What Your Property Tax Supports</strong> multiplies your taxable value by the FY2027 final countywide millage rate of 3.4347, divided by 1,000. The table allocates that estimate according to each service's share of the proposed countywide property-tax funding. It is an illustration of how the County portion supports services, not a parcel-specific allocation or official bill.</p>
+          <p>Department spending changes do not directly determine a property's tax increase. This calculator therefore does not add departmental budget-growth percentages to your estimated tax. The final rate remains subject to adoption; schools and other taxing authorities are excluded.</p>
           <p><strong class="wc-tax-info-warning">These estimates are provided for informational and educational purposes only and should not be considered an official determination of taxes.</strong> Actual tax amounts may vary based on property classification, exemptions, assessment limitations, taxable value determinations, millage rates, voter-approved levies, and other factors. Users should view official records from the Walton County Property Appraiser for parcel-specific tax information.</p>
           <p class="wc-tax-info-dialog-source">Parcel data is sourced from the Florida GIO statewide dataset.</p>
         </div>
@@ -1164,7 +1164,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       return "$" + (Number(value) || 0).toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
     }
 
-    // Allocate the tentative County tax estimate by proposed funding share.
+    // Allocate the final County tax estimate by proposed funding share.
     function renderCombinedBreakdown(countyTax){
       const requestId = ++breakdownRequestId;
       const tbody = $("#personalTaxTableBody");
