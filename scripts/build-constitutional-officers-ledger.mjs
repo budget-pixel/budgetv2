@@ -150,8 +150,7 @@ const OFFICES = [
     personnel: 4123584, operating: 697382, capital: 133372,
     sof: "The Property Appraiser is a separately elected Constitutional Officer of the County, with a budget approved by the State Department of Revenue. Florida law requires the Board of County Commissioners to pay the municipalities' and school board's share of the Property Appraiser's budget. This office is responsible for determining the value of all property within the County, maintaining the records connected with that responsibility, determining the tax on taxable property after taxes have been levied, and distributing the Truth-in-Millage (TRIM) notices.",
     revenue: "General Government Taxes $5.0M, which under Florida law includes the municipalities' and school board's proportional share of this office's budget.",
-    newPositions: [],
-    workforcePositionNote: "Position title not provided in the independently submitted budget."
+    newPositions: []
   },
   {
     name: "Supervisor of Elections", fund: "General Fund",
@@ -431,14 +430,14 @@ async function buildOfficerPage(o, pageNumber) {
   const delta = o.fy27 - o.fy26;
   const isDown = delta < 0;
   const dsign = delta >= 0 ? "+" : "&minus;";
-  const workforcePositionNote = o.fteDelta
-    ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote || "Position title not provided."}</p>`
+  const workforcePositionNote = o.fteDelta && (o.newPositions?.length || o.workforcePositionNote)
+    ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote}</p>`
     : "";
   const payerRows = whoPaysFor(o);
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|34,362 households/.test(detail));
   const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
   const payerMethodHtml = usesPropertyMethod ? `<p class="source-trace">Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills.</p>` : "";
-  const denseClass = o.name === "Property Appraiser" ? " class=\"dense-profile\"" : "";
+  const denseClass = "";
 
   const officialHtml = o.commissioners
     ? `<div class="comm-grid">${o.commissioners.map(([d, n, photo]) => `<div class="comm-card"><img src="${photoDataUrl(photo)}" alt="${n}"/><b>${n}</b><span>${d}</span></div>`).join("")}</div>`
@@ -477,7 +476,7 @@ async function buildOfficerPage(o, pageNumber) {
   return `
   <section class="profile-page${denseClass ? " dense-profile" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Constitutional Officers</small>
+    <small class="kicker">Constitutional Officer Budget</small>
     <h1>${o.name}</h1>
     ${officialHtml}
     <div class="top-grid">
@@ -535,7 +534,7 @@ let pageCounter = startPage;
 const overviewPage = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Constitutional Officers</small>
+    <small class="kicker">Constitutional Officer Budget</small>
     <h1>Constitutional Officers Ledger</h1>
     <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners budget a combined $148.9M and employ 847 FTE for FY2027. Each office's own page follows, with its Statement of Function, elected official, revenue sources, and any new positions requested for FY2027.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>

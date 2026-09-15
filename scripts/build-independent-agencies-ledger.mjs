@@ -300,7 +300,7 @@ let pageCounter = startPage;
 const overviewPage = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Other Agencies and Court-Related Functions</small>
+    <small class="kicker">Other Agencies and Court-Related Functions Budget</small>
     <h1>Independent Agencies Ledger</h1>
     <p class="intro">Budget, revenue source, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>

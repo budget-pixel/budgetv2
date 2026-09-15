@@ -32,22 +32,22 @@ const CONSOLIDATED_TOP = [
   ["Beginning Fund Balance", "$206,500,685", "$273,894,781", "$313,775,975", "$367,413,796", "$435,939,242", "$431,812,854"]
 ];
 const CONSOLIDATED_MID = [
-  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
-  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$488,887,492"]
+  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$148,350,579", "$135,079,422"],
+  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$480,302,930"]
 ];
 const CONSOLIDATED_MID2 = [
   ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
-  ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$472,176,003", "$488,887,492"]
+  ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$468,349,668", "$488,887,492"]
 ];
 const CONSOLIDATED_BOTTOM = [
-  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$4,119,664", "$0"],
-  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$440,058,906", "$431,812,854"]
+  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$7,945,999", "-$8,584,562"],
+  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$443,885,241", "$423,228,292"]
 ];
 
 // [fund, FY22...FY27] -- Total Revenues only (not Total Revenue and
 // Other Sources), matching each fund's own schedule on the live site.
 const REVENUE_BY_FUND = [
-  ["General Fund", "$78,461,600", "$85,605,447", "$176,479,967", "$201,872,576", "$209,010,222", "$204,279,098"],
+  ["General Fund", "$78,461,600", "$85,605,447", "$176,479,967", "$201,872,576", "$205,190,611", "$208,279,098"],
   ["Transportation Fund", "$23,662,086", "$17,491,134", "$17,011,653", "$12,997,868", "$11,132,143", "$15,668,118"],
   ["Fine & Forfeiture / Sheriff Fund", "$72,818,787", "$88,583,254", "$25,254,560", "$42,706,440", "$12,631,972", "$15,651,972"],
   ["Tourist Development Fund", "$66,975,578", "$66,999,372", "$70,236,908", "$65,403,419", "$51,500,000", "$58,965,950"],
@@ -56,12 +56,12 @@ const REVENUE_BY_FUND = [
   ["Mosquito Control Fund", "$676,546", "$849,759", "$1,504,254", "$1,761,459", "$1,407,773", "$1,426,937"],
   ["Non-Major Funds", "$9,483,618", "$9,830,168", "$11,749,052", "$10,565,035", "$4,776,589", "$4,529,869"]
 ];
-const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$335,891,087", "$341,223,508"];
+const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$327,945,088", "$345,223,508"];
 
 // [fund, FY22...FY27] -- Total Expenditures only (not Total Expenditures
 // and Other Uses).
 const EXPENDITURE_BY_FUND = [
-  ["General Fund", "$71,471,052", "$78,627,465", "$73,781,082", "$78,938,073", "$87,300,548", "$81,239,108"],
+  ["General Fund", "$71,471,052", "$78,627,465", "$73,781,082", "$78,938,073", "$83,474,213", "$81,239,108"],
   ["Transportation Fund", "$33,094,927", "$25,881,227", "$27,037,520", "$26,230,765", "$26,604,000", "$30,668,118"],
   ["Fine & Forfeiture / Sheriff Fund", "$66,006,876", "$80,296,105", "$100,876,080", "$123,069,284", "$114,116,228", "$114,116,228"],
   ["Tourist Development Fund", "$39,299,739", "$47,968,373", "$51,432,452", "$46,991,176", "$51,500,000", "$58,965,950"],
@@ -70,11 +70,11 @@ const EXPENDITURE_BY_FUND = [
   ["Mosquito Control Fund", "$609,898", "$911,145", "$1,032,836", "$1,081,832", "$1,340,000", "$1,426,937"],
   ["Non-Major Funds", "$6,982,317", "$6,011,145", "$13,897,240", "$8,097,151", "$8,462,977", "$8,069,869"]
 ];
-const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
+const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
 
 // [fund, beginning, totalRevOther, totalExpOther, change, ending]
 const MAJOR_FUNDS = [
-  ["General Fund", "$81,910,494", "$206,861,095", "$206,861,095", "$0", "$81,910,494"],
+  ["General Fund", "$81,910,494", "$198,276,533", "$206,861,095", "-$8,584,562", "$73,325,932"],
   ["Transportation Fund", "$41,124,267", "$30,668,118", "$30,668,118", "$0", "$41,124,267"],
   ["Fine & Forfeiture / Sheriff Fund", "$49,765,273", "$114,116,228", "$114,116,228", "$0", "$49,765,273"],
   ["Tourist Development Fund", "$166,535,869", "$58,965,950", "$58,965,950", "$0", "$166,535,869"],
@@ -298,7 +298,7 @@ const page2 = `
       <div class="fgroup">Non-Major Funds</div>
       ${NON_MAJOR_FUNDS.map(fRow).join("")}
     </div>
-    <p class="footnote">*Building Fund's own schedule shows $0 in Total Revenue because a $4,000,000 "balance brought forward" line is intentionally excluded here to avoid double-counting against the Beginning Fund Balance shown above it. That $4,000,000 is included in the Consolidated Fund Financial Schedule's countywide totals on the previous page, which is why summing these 15 funds' revenue does not exactly reach the Consolidated total.</p>
+    <p class="footnote">*The General Fund uses $8,584,562 of fund balance to maintain the adopted expenditure plan after the millage rate was reduced to 3.2500. The Building Fund's own schedule shows $0 in Total Revenue because a separate $4,000,000 balance brought forward is excluded here to avoid double-counting against its Beginning Fund Balance.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;

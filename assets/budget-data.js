@@ -6088,7 +6088,7 @@
     });
     if (!html) return html;
     const millageCells = CONSOLIDATED_REVENUE_FUND_COLUMNS.map((fund) => {
-      if (fund.code === "001") return "3.4347";
+      if (fund.code === "001") return "3.2500";
       if (fund.code === "105") return "0.4410";
       return "&ndash;";
     }).concat(["&ndash;", "&ndash;"]);
@@ -6144,7 +6144,8 @@
       { key: "building", label: "Building Fund", codes: ["103"] },
       { key: "mosquito", label: "Mosquito Control Fund", codes: ["105"] },
       { key: "msbu", label: "MSBU Fund", codes: ["102"] },
-      { key: "special", label: "Special Revenue Funds", codes: [] }
+      { key: "special", label: "Special Revenue Funds", codes: [] },
+      { key: "selfInsurance", label: "Self-Insurance Internal Service Fund", codes: ["503"] }
     ];
     const explicitlyPresentedCodes = new Set(["001", "111", "101", "107", "103", "105", "112", "102", "300", "503"]);
     directOperationalColumns.find((column) => column.key === "special").codes = (cache.funds || [])
@@ -6153,8 +6154,27 @@
     const capitalCodes = ["300"];
     const allowedCodes = new Set(directOperationalColumns.flatMap((column) => column.codes).concat(capitalCodes));
     const codeSets = directOperationalColumns.map((column) => new Set(column.codes));
-    const isRevenueTransfer = (row) => String(row.Revenue_Code || "").trim() === "381000";
-    const isExpenseTransfer = (row) => normalizeDeptName(activityForDeptCode(row.Dept_Code)) === "interfund transfers";
+    // Fund 503 (Internal Service / Self-Insurance Fund) is shown as its own
+    // column for transparency (matching the DOR TRIM Compliance Workbook's
+    // own sample Budget Summary ad), but it is an internal service fund: its
+    // revenue is mostly health-plan "premiums" collected from every other
+    // fund's own departments, already booked there under Object_Code 523000
+    // (Life & Health Insurance -- see PERSONNEL_COST_HEALTH_INSURANCE_CODE
+    // elsewhere in this file), and its expenditures are claims paid out
+    // against those same premiums. None of that is new money to the county,
+    // so -- consistent with how internal service funds are eliminated in a
+    // consolidated statement, and with build-consolidated-budget-ledger.mjs's
+    // own choice to exclude this fund entirely -- all of fund 503's revenue
+    // and expenditure rows are treated as transfers here, same as a formal
+    // interfund transfer, so the elimination row fully backs them out of the
+    // operational/all-funds totals (which reconcile back to the county's
+    // official $336,638,946 revenue / $345,223,508 expenditure totals used
+    // elsewhere on this site) while the fund's own column still shows its
+    // real recorded revenue/expenditure.
+    const isRevenueTransfer = (row) => String(row.Revenue_Code || "").trim() === "381000"
+      || fundCodeForRow(row) === "503";
+    const isExpenseTransfer = (row) => normalizeDeptName(activityForDeptCode(row.Dept_Code)) === "interfund transfers"
+      || fundCodeForRow(row) === "503";
 
     function paperValues(sourceRows, predicate, isTransfer) {
       const direct = directOperationalColumns.map(() => 0);
@@ -6173,9 +6193,19 @@
       return direct.concat([elimination, operational, capital, operational + capital]);
     }
 
+    // Fund 503 has no row in the fund-balances source, so fundBalanceForYear
+    // returns 0 for it; its actual FY2026 beginning balance is $2,890,000.
+    // That balance is real and shown in the fund's own column, but -- same as
+    // its revenue and expenditures above -- it's excluded from the
+    // operational/all-funds reserve totals so those keep reconciling to the
+    // county's official consolidated figures.
+    const SELF_INSURANCE_FUND_BALANCE = 2890000;
     function balanceValues() {
       const direct = directOperationalColumns.map((column) => fundBalanceForYear(column.codes, 2026));
-      const operational = direct.reduce((sum, value) => sum + value, 0);
+      const selfInsuranceIndex = directOperationalColumns.findIndex((column) => column.key === "selfInsurance");
+      if (selfInsuranceIndex >= 0) direct[selfInsuranceIndex] = SELF_INSURANCE_FUND_BALANCE;
+      const eliminatedBalance = selfInsuranceIndex >= 0 ? direct[selfInsuranceIndex] : 0;
+      const operational = direct.reduce((sum, value) => sum + value, 0) - eliminatedBalance;
       const capital = fundBalanceForYear(capitalCodes, 2026);
       return direct.concat([0, operational, capital, operational + capital]);
     }
@@ -6183,10 +6213,49 @@
     const allRevenue = (row) => allowedCodes.has(fundCodeForRow(row));
     const allExpense = (row) => allowedCodes.has(fundCodeForRow(row));
     const discountRevenue = (row) => String(row.Revenue_Code || "").trim() === "389001";
-    const currentRevenue = (row) => allRevenue(row) && !discountRevenue(row);
-    const sourceNetRevenueValues = paperValues(cache.revenues, currentRevenue, isRevenueTransfer);
+    // Revenue_Code 389000 ("Nonoperating Balance Brought Forward") is a fund
+    // appropriating its own existing beginning balance as budgeted revenue
+    // (Transportation, Building, and Fine & Forfeiture all do this). It isn't
+    // new money, so it's excluded from revenue entirely here rather than
+    // shown under "Other Sources" and counted in Total Estimated Revenues --
+    // that keeps the ordinary Reserves formula below (beginning balance +
+    // revenue - expenditure) correctly showing the real balance draw instead
+    // of needing a separate adjustment.
+    const balanceBroughtForwardRevenue = (row) => String(row.Revenue_Code || "").trim() === "389000";
+    const currentRevenue = (row) => allRevenue(row) && !discountRevenue(row) && !balanceBroughtForwardRevenue(row);
+    const sourceNetRevenueValues0 = paperValues(cache.revenues, currentRevenue, isRevenueTransfer);
     const propertyTaxPredicate = (row) => ["311000", "311001"].includes(String(row.Revenue_Code || "").trim());
-    const netPropertyTaxValues = paperValues(cache.revenues, propertyTaxPredicate, isRevenueTransfer);
+    const netPropertyTaxValues0 = paperValues(cache.revenues, propertyTaxPredicate, isRevenueTransfer);
+    // The connected budget source still carries the 3.4347 rolled-back rate
+    // used for the proposed budget. The Board's final adopted rate is 3.2500
+    // against a $49,098,663,848 General Fund taxable base, which grosses to
+    // $159,570,658 (base x 3.2500 / 1,000) and nets to $151,592,125 at the
+    // statutory 95-percent collection rate. The expenditure plan did not
+    // change, so the resulting shortfall is covered by appropriated General
+    // Fund balance and shows up below as a larger draw on Reserves.
+    function withCorrectedDirectValue(values, columnKey, correctedValue) {
+      const index = directOperationalColumns.findIndex((column) => column.key === columnKey);
+      const delta = correctedValue - values[index];
+      if (!delta) return values;
+      const result = values.slice();
+      result[index] = correctedValue;
+      const directCount = directOperationalColumns.length;
+      const elimination = result[directCount];
+      const capital = result[directCount + 2];
+      const operational = result.slice(0, directCount).reduce((sum, value) => sum + value, 0) + elimination;
+      result[directCount + 1] = operational;
+      result[directCount + 3] = operational + capital;
+      return result;
+    }
+    const FINAL_GENERAL_FUND_AD_VALOREM = 151592125;
+    const netPropertyTaxValues = withCorrectedDirectValue(netPropertyTaxValues0, "general", FINAL_GENERAL_FUND_AD_VALOREM);
+    const sourceNetRevenueValues = withCorrectedDirectValue(
+      sourceNetRevenueValues0,
+      "general",
+      sourceNetRevenueValues0[directOperationalColumns.findIndex((column) => column.key === "general")]
+        - netPropertyTaxValues0[directOperationalColumns.findIndex((column) => column.key === "general")]
+        + FINAL_GENERAL_FUND_AD_VALOREM
+    );
     // The FY2027 property-tax amounts in the budget source are already the
     // statutorily budgeted 95-percent collections. The newspaper summary
     // shows the corresponding 100-percent levy first, then displays the
@@ -6205,23 +6274,67 @@
     const expendituresAndReserves = expenditureValues.map((expense, index) => expense + endingReserves[index]);
 
     const headers = [""].concat(directOperationalColumns.map((column) => column.label)).concat([
-      "Less Interfund Transfers", "Total Operational Revenues / Expenditures", "Capital Project Fund", "Total All Funds"
+      "Less Interfund/Internal Service Transfers", "Total Operational Revenues / Expenditures", "Capital Project Fund", "Total All Funds"
     ]);
+    // Every fund-name column ends in "Fund"/"Funds"; forcing that last word
+    // onto its own wrapped line (by making every other space in the label
+    // non-breaking) keeps the header row visually consistent regardless of
+    // how narrow a given column ends up.
+    function wrapFundLabel(label) {
+      // A regular hyphen (e.g. "Self-Insurance") is itself a break
+      // opportunity, so it has to become a non-breaking hyphen too --
+      // otherwise a narrow column still splits mid-word at the hyphen.
+      const noBreakHyphens = label.replace(/-/g, "‑");
+      const match = /^(.*)\s(Funds?)$/.exec(noBreakHyphens);
+      if (!match) return noBreakHyphens;
+      return match[1].replace(/ /g, " ") + " " + match[2];
+    }
+    // These two headers are long enough that non-breaking spaces alone
+    // still read as too cramped at typical column widths, so they get
+    // explicit, one-phrase-per-line breaks instead of relying on the
+    // browser to wrap them.
+    const HEADER_LINE_BREAKS = {
+      "Self-Insurance Internal Service Fund": ["Self-", "Insurance", "Internal", "Service", "Fund"],
+      "Less Interfund/Internal Service Transfers": ["Less Interfund/", "Internal", "Service", "Transfers"]
+    };
+    function formatHeaderLabel(header) {
+      const lines = HEADER_LINE_BREAKS[header];
+      // <br> contributes no whitespace to textContent, so the "Download"
+      // button's canvas export (which re-wraps each header by reading
+      // cell.textContent and splitting on spaces) would otherwise see these
+      // words as one giant unbreakable run. The trailing space after each
+      // <br> is invisible in the live table (browsers trim leading
+      // whitespace at a line start) but keeps textContent word-splittable.
+      if (lines) return lines.map((line) => escapeHtml(line)).join("<br> ");
+      return escapeHtml(wrapFundLabel(header));
+    }
+    // The elimination/subtotal columns (starting with "Less Interfund/
+    // Internal Service Transfers") are a different kind of column than the
+    // individual funds above, so this index gets extra left spacing to set
+    // them apart visually.
+    const eliminationColumnIndex = directOperationalColumns.length;
+    const spacerStyle = ' style="border-left:3px solid #555;padding-left:16px"';
     const bodyRows = [];
     const paperCurrency = (value) => value < 0
       ? "($" + Math.abs(value).toLocaleString("en-US", { maximumFractionDigits: 0 }) + ")"
       : formatCurrency(value);
     const moneyRow = (label, values, className) => '<tr class="' + (className || "") + '"><td>' + escapeHtml(label) + '</td>' +
-      values.map((value) => '<td class="wc-num">' + (value ? paperCurrency(value) : "&ndash;") + '</td>').join("") + '</tr>';
-    const predicateForRevenueType = (key) => (row) => String(row.Revenue_Type || "").trim().toLowerCase() === key.toLowerCase() && !discountRevenue(row);
+      values.map((value, index) => '<td class="wc-num"' + (index === eliminationColumnIndex ? spacerStyle : "") + '>' + (value ? paperCurrency(value) : "&ndash;") + '</td>').join("") + '</tr>';
+    const predicateForRevenueType = (key) => (row) => String(row.Revenue_Type || "").trim().toLowerCase() === key.toLowerCase() && !discountRevenue(row) && !balanceBroughtForwardRevenue(row);
 
-    const millageValues = directOperationalColumns.map((column) => column.key === "general" ? "3.4347" : (column.key === "mosquito" ? "0.4410" : "&ndash;")).concat(["&ndash;", "&ndash;", "&ndash;", "&ndash;"]);
-    bodyRows.push('<tr class="wc-table-millage-row trim-table-gray-row"><td>Millage per $1,000</td>' + millageValues.map((value) => '<td class="wc-num">' + value + '</td>').join("") + '</tr>');
+    const millageValues = directOperationalColumns.map((column) => column.key === "general" ? "3.2500" : (column.key === "mosquito" ? "0.4410" : "&ndash;")).concat(["&ndash;", "&ndash;", "&ndash;", "&ndash;"]);
+    bodyRows.push('<tr class="wc-table-millage-row trim-table-gray-row"><td>Millage per $1,000</td>' + millageValues.map((value, index) => '<td class="wc-num"' + (index === eliminationColumnIndex ? spacerStyle : "") + '>' + value + '</td>').join("") + '</tr>');
     bodyRows.push(moneyRow("Property Taxes (Ad Valorem)", propertyTaxValues));
     bodyRows.push(moneyRow("General Government Taxes (excluding Property Taxes)", paperValues(cache.revenues, (row) => predicateForRevenueType("General Government Taxes")(row) && !["311000", "311001", "389001"].includes(String(row.Revenue_Code || "").trim()), isRevenueTransfer)));
+    // Only a formal Revenue_Code 381000 transfer-in gets pulled into "Other
+    // Sources" regardless of its own Revenue_Type -- using the broader
+    // isRevenueTransfer flag here would also recapture fund 503's own
+    // Charges for Services / Miscellaneous Revenue rows (flagged for the
+    // elimination above) and double-display them under "Other Sources" too.
+    const isFormalTransferIn = (row) => String(row.Revenue_Code || "").trim() === "381000";
     CONSOLIDATED_REVENUE_TYPE_ROWS.slice(2).forEach((spec) => {
       const predicate = spec.key === "Other Sources"
-        ? (row) => predicateForRevenueType(spec.key)(row) || isRevenueTransfer(row)
+        ? (row) => predicateForRevenueType(spec.key)(row) || isFormalTransferIn(row)
         : predicateForRevenueType(spec.key);
       bodyRows.push(moneyRow(spec.label, paperValues(cache.revenues, predicate, isRevenueTransfer)));
     });
@@ -6232,7 +6345,7 @@
     ["General Government", "Public Safety", "Physical Environment", "Transportation", "Economic Environment", "Human Services", "Culture and Recreation", "Court Related Cost", "Debt Service"].forEach((activity) => {
       bodyRows.push(moneyRow(activity, paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === activity && !isExpenseTransfer(row), isExpenseTransfer)));
     });
-    bodyRows.push(moneyRow("Other Uses", paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === "Other Uses" || isOtherFinancingExpenseRow(row), isExpenseTransfer)));
+    bodyRows.push(moneyRow("Other Uses", paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === "Other Uses" || isOtherFinancingExpenseRow(row) || isExpenseTransfer(row), isExpenseTransfer)));
     bodyRows.push(moneyRow("Total Expenditures", expenditureValues, "wc-table-total-row trim-table-gray-row"));
     bodyRows.push(moneyRow("Reserves", endingReserves, "wc-table-balance-row"));
     bodyRows.push(moneyRow("Total Expenditures & Reserves", expendituresAndReserves, "wc-table-total-row"));
@@ -6248,7 +6361,7 @@
       '<p>Walton County, Florida &mdash; Board of County Commissioners &mdash; Fiscal Year 2026&ndash;2027</p>' +
       operatingIncreaseHtml + '</div>' +
       '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns"><table class="wc-data-table wc-consolidated-financial-table">' +
-      '<thead><tr>' + headers.map((header) => '<th>' + escapeHtml(header) + '</th>').join("") + '</tr></thead>' +
+      '<thead><tr>' + headers.map((header, index) => '<th' + (index === eliminationColumnIndex + 1 ? spacerStyle : "") + '>' + formatHeaderLabel(header) + '</th>').join("") + '</tr></thead>' +
       '<tbody>' + bodyRows.join("") + '</tbody></table></div>' +
       '<p class="trim-budget-record-note">The final adopted, and/or final budgets are on file in the Office of the Walton County Board of County Commissioners as a public record.</p></div>';
   }

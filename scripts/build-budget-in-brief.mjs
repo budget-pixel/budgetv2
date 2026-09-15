@@ -19,14 +19,15 @@ import { chromium } from "playwright";
 // Agencies". Figures from the same live Budget Change Summary dataset
 // used to build that page (see build-budget-change-summary.mjs) -- Sheriff
 // $114,116,228; Total Constitutional Officers $147,191,886 (so "other"
-// Constitutional Officers = $33,075,658); Total Capital $53,684,150;
+// Constitutional Officers = $33,075,658); funded FY 2027 capital program
+// $43,795,734;
 // department totals from the Board Department Operating and Personnel
 // Budgets list, including Building Construction & Maintenance
 // ($8,596,305), Planning ($6,839,111), and Code Compliance ($4,811,854).
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
   ["Other Constitutional Officers", 33.08],
-  ["Capital Projects (All Funds)", 53.68],
+  ["Funded Capital Program", 43.80],
   ["Tourism Administration", 29.67],
   ["Environmental Services", 23.51],
   ["Public Works", 20.83],
@@ -35,7 +36,7 @@ const EXPENSE_CATEGORIES = [
   ["Building Construction & Maintenance", 8.60],
   ["Planning", 6.84],
   ["Code Compliance", 4.81],
-  ["All Other Departments & Agencies", 23.09]
+  ["All Other Departments & Agencies", 32.97]
 ];
 const EXPENSE_TOTAL = 345.2;
 
@@ -58,10 +59,10 @@ const expenseCents = allocateCents(EXPENSE_CATEGORIES, EXPENSE_TOTAL);
 // The same twelve highlighted revenue sources shown on the Revenue
 // Portfolio table (see build-gfoa-enhancements.mjs's revenueSources),
 // plus a reconciling All Other Revenue line. Percentages use the full
-// $345.2M revenue budget so this page and the Revenue Portfolio present
+// $345.2M funding plan so this page and the Revenue Portfolio present
 // the same shares.
 const REVENUE_SOURCES = [
-  ["Property Taxes", 161.07],
+  ["Property Taxes", 152.48],
   ["Tourist Development Taxes", 58.97],
   ["Discretionary Sales Surtax", 40.0],
   ["Local Government 1/2 Cent Sales Tax", 16.8],
@@ -71,8 +72,8 @@ const REVENUE_SOURCES = [
   ["State Revenue Share Proceeds", 3.73],
   ["Housing Prisoners Revenue", 3.5],
   ["Federal Grant - Economic Environment", 3.06],
-  ["Ambulance Fees", 3.0],
-  ["All Other Revenue", 41.7]
+  ["Appropriated Fund Balance", 8.584562, "$8,584,562"],
+  ["All Other Revenue", 44.705438]
 ];
 const REVENUE_TOTAL = 345.2;
 const revenueCents = allocateCents(REVENUE_SOURCES, REVENUE_TOTAL);
@@ -81,18 +82,27 @@ const FUNDS = [
   ["General Fund", "$206.9M"],
   ["Sheriff Fund", "$114.1M"],
   ["Tourist Development", "$59.0M"],
+  ["Solid Waste", "$40.7M"],
   ["Transportation", "$30.7M"],
   ["Capital Projects", "$27.6M"],
-  ["Solid Waste", "$40.7M"]
+  ["Building", "$4.0M"],
+  ["Housing & Urban Development", "$3.1M"],
+  ["Mosquito Control", "$1.4M"],
+  ["Recreation Plat Fee", "$600K"],
+  ["E911", "$460K"],
+  ["Sidewalk", "$300K"],
+  ["Mosquito State Aid", "$69.6K"],
+  ["Daughette MSBU", "$43.2K"],
+  ["Preservation", "$0"]
 ];
 
-const barRow = (label, value, total, color, cents = null) => {
+const barRow = (label, value, total, color, cents = null, exactDisplay = null) => {
   const pct = (value / total) * 100;
   const publicValue = cents === null ? `${pct.toFixed(0)}%` : `${cents}&cent; of every $1`;
   return `<div class="bar-row">
     <div class="bar-label">${label}</div>
     <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
-    <div class="bar-value">$${value.toFixed(1)}M<span>${publicValue}</span></div>
+    <div class="bar-value">${exactDisplay || `$${value.toFixed(1)}M`}<span>${publicValue}</span></div>
   </div>`;
 };
 
@@ -234,12 +244,13 @@ const html = `<!doctype html>
   .dollar-callout b{ color:#b89521; font:800 13pt/1 Georgia,serif; }
   .fund-strip{
     display:grid;
-    grid-template-columns:repeat(6,1fr);
-    gap:.1in;
+    grid-template-columns:repeat(5,1fr);
+    gap:.06in .1in;
     margin:0 0 .22in;
   }
   .fund-chip{
-    padding:.1in .08in;
+    min-height:.44in;
+    padding:.06in .07in;
     border:1px solid #e4ebe7;
     border-radius:10px;
     background:#fbfcfa;
@@ -254,31 +265,11 @@ const html = `<!doctype html>
     display:block;
     margin-top:.03in;
     color:#68786f;
-    font-size:6.3pt;
+    font-size:6pt;
     font-weight:700;
     letter-spacing:.02em;
     text-transform:uppercase;
     line-height:1.25;
-  }
-  .tax-example{
-    display:flex;
-    align-items:center;
-    gap:.26in;
-    padding:.18in .24in;
-    border:1px solid #d1be78;
-    border-radius:12px;
-    background:#f9f8f2;
-  }
-  .tax-example b{
-    flex:0 0 auto;
-    color:#003f28;
-    font:800 22pt/1 Georgia, serif;
-  }
-  .tax-example div p{
-    margin:0;
-    color:#33453c;
-    font-size:8.4pt;
-    line-height:1.42;
   }
   footer{
     position:absolute;
@@ -305,7 +296,7 @@ const html = `<!doctype html>
 
     <div class="stat-strip">
       <div class="stat-card"><b>$345.2M</b><span>Net Expenditure Budget</span></div>
-      <div class="stat-card"><b>3.4347</b><span>County Millage Rate</span></div>
+      <div class="stat-card"><b>3.2500</b><span>County Millage Rate</span></div>
       <div class="stat-card"><b>667</b><span>Board Department FTE</span></div>
       <div class="stat-card"><b>848</b><span>Constitutional Officer FTE</span></div>
     </div>
@@ -313,8 +304,8 @@ const html = `<!doctype html>
     <div class="charts-row">
       <div>
         <h2>Where the Money Comes From</h2>
-        <div class="dollar-callout"><b>$1.00</b><span>Every County revenue dollar, allocated by source</span></div>
-        ${REVENUE_SOURCES.map(([l, v], i) => barRow(l, v, REVENUE_TOTAL, "#0b7741", revenueCents[i])).join("")}
+        <div class="dollar-callout"><b>$1.00</b><span>Every County budget funding dollar, allocated by source</span></div>
+        ${REVENUE_SOURCES.map(([l, v, display], i) => barRow(l, v, REVENUE_TOTAL, "#0b7741", revenueCents[i], display)).join("")}
         <p class="chart-total">Displayed cents are rounded using a balanced allocation so the sources total exactly $1.00.</p>
       </div>
       <div>
@@ -325,16 +316,9 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <h2>Fund Highlights</h2>
+    <h2>Fund Highlights - Major and Smaller Funds</h2>
     <div class="fund-strip">
       ${FUNDS.map(([l, v]) => `<div class="fund-chip"><b>${v}</b><span>${l}</span></div>`).join("")}
-    </div>
-
-    <div class="tax-example">
-      <b>$687</b>
-      <div>
-        <p><strong>What a typical homeowner pays.</strong> On a $250,000 home with a $50,000 homestead exemption, the County&rsquo;s FY 2027 operating millage of 3.4347 generates approximately $687 in County property tax &mdash; one mill equals $1 for every $1,000 of taxable value.</p>
-      </div>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>

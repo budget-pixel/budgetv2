@@ -64,14 +64,14 @@ const html = `<!doctype html>
   .cover-scrim-top{
     position:absolute;
     top:0; left:0; right:0;
-    height:3.1in;
-    background:linear-gradient(180deg, rgba(4,28,20,.62) 0%, rgba(4,28,20,.28) 55%, rgba(4,28,20,0) 100%);
+    height:3.5in;
+    background:linear-gradient(180deg, rgba(4,28,20,.64) 0%, rgba(4,28,20,.48) 30%, rgba(4,28,20,.25) 62%, rgba(4,28,20,0) 100%);
   }
   .cover-scrim-bottom{
     position:absolute;
     bottom:0; left:0; right:0;
-    height:7.9in;
-    background:linear-gradient(180deg, rgba(3,23,16,0) 0%, rgba(3,20,14,.5) 22%, rgba(3,19,13,.78) 46%, rgba(2,15,11,.9) 70%, rgba(1,10,7,.95) 100%);
+    height:8.4in;
+    background:linear-gradient(180deg, rgba(3,23,16,0) 0%, rgba(3,22,15,.12) 16%, rgba(3,21,15,.38) 34%, rgba(3,19,13,.66) 52%, rgba(2,16,11,.84) 73%, rgba(1,10,7,.95) 100%);
   }
   .cover-frame{
     position:absolute;

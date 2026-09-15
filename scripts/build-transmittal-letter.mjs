@@ -221,7 +221,7 @@ const html = `<!doctype html>
     <div class="layout">
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
-        <p>In accordance with Florida Statute Chapter 129.03(3), I am pleased to transmit the final budget for Fiscal Year 2027. This final budget is balanced and provides the proposed operating framework for delivering County services for the coming year, with continued focus on public safety, infrastructure, and serving a growing county as efficiently and effectively as possible.</p>
+        <p>In accordance with Florida Statute Chapter 129.03(3), I am pleased to transmit the final budget for Fiscal Year 2027. This final budget is balanced and provides the adopted operating framework for delivering County services for the coming year, with continued focus on public safety, infrastructure, and serving a growing county as efficiently and effectively as possible.</p>
         <p>The FY 2027 budget has been developed with the following objectives:</p>
         <ul>
           <li>Maintaining existing service levels for residents</li>
@@ -246,7 +246,7 @@ const html = `<!doctype html>
             <span>General Fund <em>+5.7%</em></span>
           </div>
           <div class="stat">
-            <b>3.4347</b>
+            <b>3.2500</b>
             <span>County Millage Rate</span>
           </div>
           <div class="stat">
@@ -266,7 +266,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The $345.2 million FY 2027 final budget maintains a reduced County operating millage rate of 3.4347 mills, down from 3.519 mills. Public Safety remains the largest expenditure function at $126.6 million. Ad Valorem property taxes of $161.1 million remain the County&rsquo;s largest revenue source.</p>
+    <p>The $345.2 million FY 2027 final budget adopts a reduced County operating millage rate of 3.2500 mills, down from 3.519 mills. Public Safety remains the largest expenditure function at $126.6 million. Countywide Ad Valorem property taxes total $151.1 million, with $8.6 million of General Fund balance appropriated to keep the expenditure budget unchanged.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">

@@ -11,16 +11,16 @@ import QRCode from "qrcode";
 // for Organizational Structure's "View Full-Size Chart" button.
 //
 // Two totals appear in the source data and are NOT interchangeable:
-// $159,639,395 is the County government's own Ad Valorem allocation
+// $151,054,833 is the County government's own Ad Valorem allocation
 // (excludes the North Walton Mosquito Control District, which levies its
-// own separate 0.441-mill rate); $161,066,332 is the all-funds total
+// own separate 0.441-mill rate); $152,481,770 is the all-funds total
 // including Mosquito Control. This page uses and labels the County-only
 // figure throughout, consistent with the live page's own "Total
 // Countywide Ad Valorem Revenue" KPI.
 
 const STATS = [
-  ["$159.6M", "Total Countywide Ad Valorem Revenue"],
-  ["3.4347", "Final FY2027 Millage Rate"],
+  ["$151.1M", "Total Countywide Ad Valorem Revenue"],
+  ["3.2500", "Final FY2027 Millage Rate"],
   ["3.7782", "Two-Thirds Vote Maximum"],
   ["0.441", "Mosquito Control District (Separate)"]
 ];
@@ -35,51 +35,51 @@ const row = ([name, amount, pct], rowClass) => {
 const tableHead = `<div class="dept-row head"><div class="dept-name">Recipient</div><div class="num">FY 2027 Ad Valorem Revenue</div><div class="num">% of Total</div></div>`;
 
 const CONSTITUTIONAL = [
-  ["Sheriff's Office", "$98,004,256", "61.39%"],
-  ["Clerk of Court", "$6,871,175", "4.30%"],
-  ["Property Appraiser", "$4,954,338", "3.10%"],
-  ["Board of County Commissioners", "$4,491,053", "2.81%"],
-  ["Tax Collector", "$4,449,400", "2.79%"],
-  ["Supervisor of Elections", "$1,663,865", "1.04%"]
+  ["Sheriff's Office", "$98,004,256", "64.88%"],
+  ["Clerk of Court", "$6,871,175", "4.55%"],
+  ["Property Appraiser", "$4,954,338", "3.28%"],
+  ["Board of County Commissioners", "$4,491,053", "2.97%"],
+  ["Tax Collector", "$4,449,400", "2.95%"],
+  ["Supervisor of Elections", "$1,663,865", "1.10%"]
 ];
-const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,434,087", "75.44%"];
+const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,434,087", "79.73%"];
 
 const INDEPENDENT = [
-  ["Statutory & Other Agency Funding", "$3,247,957", "2.03%"],
-  ["Walton County Health Department", "$1,724,397", "1.08%"],
-  ["South Walton Fire", "$980,074", "0.61%"],
-  ["Medical Examiner", "$881,930", "0.55%"],
-  ["Non-Profit Funding Program", "$450,000", "0.28%"],
-  ["State Attorney", "$297,111", "0.19%"],
-  ["Public Defender", "$290,833", "0.18%"],
+  ["Statutory & Other Agency Funding", "$3,247,957", "2.15%"],
+  ["Walton County Health Department", "$1,724,397", "1.14%"],
+  ["South Walton Fire", "$980,074", "0.65%"],
+  ["Medical Examiner", "$881,930", "0.58%"],
+  ["Non-Profit Funding Program", "$450,000", "0.30%"],
+  ["State Attorney", "$297,111", "0.20%"],
+  ["Public Defender", "$290,833", "0.19%"],
   ["Circuit Court", "$111,493", "0.07%"],
-  ["County Court", "$70,056", "0.04%"]
+  ["County Court", "$70,056", "0.05%"]
 ];
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,053,851", "5.04%"];
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,053,851", "5.33%"];
 
-const CAPITAL = [["Capital Projects", "$25,035,734", "15.68%"]];
-const CAPITAL_TOTAL = ["Total Capital", "$25,035,734", "15.68%"];
+const CAPITAL = [["Capital Projects", "$16,451,172", "10.89%"]];
+const CAPITAL_TOTAL = ["Total Capital", "$16,451,172", "10.89%"];
 
 const BOARD_DEPTS = [
-  ["County Administration", "$1,847,203", "1.16%"],
-  ["Building Construction and Maintenance", "$1,426,130", "0.89%"],
-  ["Planning", "$1,195,917", "0.75%"],
-  ["Office of the County Attorney", "$674,542", "0.42%"],
-  ["Environmental Services", "$640,922", "0.40%"],
-  ["Code Compliance", "$331,009", "0.21%"]
+  ["County Administration", "$1,847,203", "1.22%"],
+  ["Building Construction and Maintenance", "$1,426,130", "0.94%"],
+  ["Planning", "$1,195,917", "0.79%"],
+  ["Office of the County Attorney", "$674,542", "0.45%"],
+  ["Environmental Services", "$640,922", "0.42%"],
+  ["Code Compliance", "$331,009", "0.22%"]
 ];
-const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "3.83%"];
+const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.05%"];
 
-const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$159,639,395", "100.00%"];
+const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$151,054,833", "100.00%"];
 
 const EXAMPLE_ROWS = [
-  ["Sheriff's Office", "61.39%", "$421.77"],
-  ["Capital Projects", "15.68%", "$107.71"],
-  ["Clerk of Court", "4.30%", "$29.54"],
-  ["Property Appraiser", "3.10%", "$21.30"],
-  ["Board of County Commissioners", "2.81%", "$19.30"],
-  ["Tax Collector", "2.79%", "$19.17"],
-  ["All Other Entities", "9.93%", "$68.21"]
+  ["Sheriff's Office", "64.88%", "$421.72"],
+  ["Capital Projects", "10.89%", "$70.79"],
+  ["Clerk of Court", "4.55%", "$29.57"],
+  ["Property Appraiser", "3.28%", "$21.32"],
+  ["Board of County Commissioners", "2.97%", "$19.33"],
+  ["Tax Collector", "2.95%", "$19.15"],
+  ["All Other Entities", "10.48%", "$68.12"]
 ];
 
 const PROPERTY_TAX_CALCULATOR_URL = "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator";
@@ -363,6 +363,7 @@ const page2 = `
     <h2 class="group" style="margin-top:.12in">Board Departments</h2>
     <div class="dept-table">
       ${tableHead}
+      ${BOARD_DEPTS.map((r) => row(r)).join("")}
       ${row(BOARD_TOTAL, "total")}
     </div>
 
@@ -370,15 +371,15 @@ const page2 = `
 
     <div class="dept-table" style="margin-top:.08in">
       ${row(["North Walton Mosquito Control District", "$1,426,937", "0.89%"])}
-      ${row(["Total Ad Valorem Revenue (All Funds)", "$161,066,332", "100.00%"], "grand")}
+      ${row(["Total Ad Valorem Revenue (All Funds)", "$152,481,770", "100.00%"], "grand")}
     </div>
 
     <div class="example-card">
       <div class="example-head">
         <div>
           <h2>What This Means for a Homeowner</h2>
-          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 final millage of 3.4347 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
-          <div class="example-total"><b>$686.94</b><span>Total County portion of the tax bill</span></div>
+          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 final millage of 3.2500 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
+          <div class="example-total"><b>$650.00</b><span>Total County portion of the tax bill</span></div>
         </div>
         <div class="tax-qr">
           <img src="${PROPERTY_TAX_QR}" alt="QR code for the Walton County personalized property tax calculator">

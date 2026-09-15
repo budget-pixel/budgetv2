@@ -44,7 +44,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Budget Book Guide</small>
-    <h1>Other Agencies and Court-Related Functions</h1>
+    <h1>Other Agencies and Court-Related Functions Budget</h1>
     <p class="intro">Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
     <footer><span>FY 2027 Final Budget</span><b>7</b></footer>

@@ -1816,7 +1816,7 @@
   .wc-search-footer .wc-budget-footer-inner{
     display:flex !important;
     align-items:center !important;
-    justify-content:space-between !important;
+    justify-content:flex-end !important;
     flex-wrap:wrap !important;
     gap:18px !important;
     margin:0 !important;
@@ -2599,7 +2599,16 @@
       if(typeof utilityDialog.close==='function') utilityDialog.close();else utilityDialog.removeAttribute('open');
       document.documentElement.classList.remove('wc-modal-open');
     }
+    // A page shown inside another page's own popup shell (the homepage's
+    // department-modal iframe, or this same dialog's own content iframe) is
+    // already wrapped in someone else's close button. Opening this page's
+    // own nested "Website Information" dialog on top of that would just
+    // stack a second, redundant close button next to the outer one, so
+    // footer utility links fall back to plain navigation (within this same
+    // embedded frame) instead of intercepting the click here.
+    var isEmbeddedPage = window.top !== window.self || new URLSearchParams(window.location.search).has('embed');
     footer.querySelectorAll('[data-wc-utility-popup]').forEach(function(link){
+      if(isEmbeddedPage) return;
       link.addEventListener('click',function(event){
         if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey) return;
         if(!utilityDialog||!utilityFrame||typeof utilityDialog.showModal!=='function') return;

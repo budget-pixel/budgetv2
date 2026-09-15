@@ -21,8 +21,8 @@ import { chromium } from "playwright";
 
 const STATS = [
   ["$345.2M", "Total FY2027 Expenses"],
-  ["+$13.5M", "Change from FY2026"],
-  ["+4.1%", "Percent Change"],
+  ["+$17.3M", "Change from FY2026"],
+  ["+5.3%", "Percent Change"],
   ["$126.2M", "Largest Function: Public Safety"]
 ];
 
@@ -30,7 +30,7 @@ const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Ac
 
 // [function, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
 const ROWS = [
-  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$62,789,397", "$62,603,479"],
+  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$62,603,479"],
   ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,221,918"],
   ["Physical Environment", "$15,448,028", "$17,139,861", "$20,480,144", "$20,797,576", "$23,738,840", "$24,559,033"],
   ["Transportation", "$41,530,734", "$36,422,624", "$42,302,193", "$39,852,608", "$48,143,047", "$58,121,849"],
@@ -40,7 +40,7 @@ const ROWS = [
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
 ];
-const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$331,771,423", "$345,223,508"];
+const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
 
 // Page 2: department-level detail grouped by function -- complements the
 // Budget Change Summary section elsewhere in this book (which groups by
@@ -138,7 +138,7 @@ const DEPT_GROUPS = [
     ["BCC Other Uses Contingency", "$500,000", "$400,000"]
   ]]
 ];
-const DEPT_TOTAL = ["Department Budget Total", "$331,771,423", "$345,223,508"];
+const DEPT_TOTAL = ["Department Budget Total", "$327,945,088", "$345,223,508"];
 
 // 65 rows across 9 function groups no longer fit a single two-column page
 // at the larger, more readable type size below -- split at a natural

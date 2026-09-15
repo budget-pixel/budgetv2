@@ -161,14 +161,14 @@ const sharedCss = `
 
 const startPage = Number(process.argv[3] || 108);
 
-const MILLAGE = [["FY2024", 3.6000], ["FY2025", 3.575], ["FY2026", 3.519], ["FY2027", 3.4347]];
+const MILLAGE = [["FY2024", 3.6000], ["FY2025", 3.575], ["FY2026", 3.519], ["FY2027", 3.2500]];
 const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
 
 const FORECAST_ROWS = [
-  ["Total Revenue & Other Sources", "$476.6M", "$488.9M", "$488.5M", "$491.2M"],
+  ["Total Revenue & Other Sources", "$476.6M", "$480.3M", "$488.5M", "$491.2M"],
   ["Total Expenditures & Other Uses", "$472.2M", "$488.9M", "$503.6M", "$518.7M"],
-  ["Change in Fund Balance", "$4.4M", "$0", "&minus;$15.0M", "&minus;$27.5M", [false, false, true, true]],
-  ["Estimated Ending Fund Balance", "$440.4M", "$431.8M", "$416.8M", "$389.3M"]
+  ["Change in Fund Balance", "$4.4M", "&minus;$8.6M", "&minus;$15.0M", "&minus;$27.5M", [false, true, true, true]],
+  ["Estimated Ending Fund Balance", "$440.4M", "$423.2M", "$408.2M", "$380.7M"]
 ];
 
 const page1 = `
@@ -192,7 +192,7 @@ const page1 = `
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.4347 mills in FY2027 &mdash; a reduction of 4.6% &mdash; while the final budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.2500 mills in FY2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M. The Board maintained the expenditure plan by appropriating $8.6M of General Fund balance.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
     <p class="body">The consolidated Fund Financial Ledger extends two fiscal years beyond the final budget, while the online fund forecast and five-year Capital Improvement Plan carry the planning view through FY2031.</p>
@@ -200,7 +200,7 @@ const page1 = `
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY2026 Budget</div><div>FY2027 Final</div><div>FY2028 Proj.</div><div>FY2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="warn"><b>A Trend Worth Watching</b>After holding flat in FY2027, the countywide fund balance is projected to decline by $15.0M in FY2028 and a further $27.5M in FY2029 as capital spending and transfers outpace revenue growth in the out-years. This is a projection under current assumptions, not a funding shortfall today &mdash; but it is the reason the Chief Financial Officer's transmittal letter calls for "careful, ongoing monitoring" of revenue sources going into FY2027.</p>
+    <p class="warn"><b>A Trend Worth Watching</b>The adopted 3.2500-mill rate produces an $8.6M planned use of fund balance in FY2027. Countywide fund balance is then projected to decline by $15.0M in FY2028 and a further $27.5M in FY2029 as capital spending and transfers outpace revenue growth in the out-years. These are projections under current assumptions, not funding shortfalls today.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -212,10 +212,10 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
-    <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $431.8M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
+    <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $423.2M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund Planning Cushion</b><span>$81.9M in estimated FY2027 General Fund ending balance equals 39.6% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.75 months. The County informally uses GFOA guidance and seeks to preserve approximately $50M for hurricane response or another major emergency; this is a planning objective, not a formally adopted reserve requirement.</span></div>
-      <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $431.8M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
+      <div class="info-card"><b>General Fund Planning Cushion</b><span>$73.3M in estimated FY2027 General Fund ending balance equals 35.5% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.25 months. The County informally uses GFOA guidance and seeks to preserve approximately $50M for hurricane response or another major emergency; this is a planning objective, not a formally adopted reserve requirement.</span></div>
+      <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $423.2M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
     </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>

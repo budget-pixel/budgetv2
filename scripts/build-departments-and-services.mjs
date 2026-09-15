@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
-const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/homepage-hero.jpg")).toString("base64")}`;
+const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/divider-bg-departments.jpg")).toString("base64")}`;
 
 // Maps each office's name (DEPARTMENTS[].name) to its live page on the
 // budget site, so every department page can carry a QR code to the fuller
@@ -23,7 +23,7 @@ const DEPARTMENT_PAGE_HREFS = new Map([
   ["Building Construction and Maintenance", "building-construction-and-maintenance.html"],
   ["Building Department", "building-department.html"],
   ["Code Compliance", "code-compliance.html"],
-  ["County Administration Offices", "county-administration.html"],
+  ["County Administration", "county-administration.html"],
   ["Eagle Springs Golf and Recreation Center", "eagle-springs-golf-and-recreation-center.html"],
   ["Eagle Springs Grill", "eagle-springs-grill.html"],
   ["Emergency Management", "emergency-management.html"],
@@ -164,7 +164,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "County Administration Offices", fte: 16, personnel: 2061039, operating: 134000, contractual: 0, capital: 65000,
+    name: "County Administration", fte: 16, personnel: 2061039, operating: 134000, contractual: 0, capital: 65000,
     deltaP: -26864, deltaO: 2000, deltaC: 0, video: null, fund: "General Fund",
     sof: "Administration is responsible for executing the directives and priorities set forth by the Board of County Commissioners (BCC), ensuring efficient and effective governance within Walton County. Acting as the central hub of communication and coordination, Administration serves as the primary interface for County citizens, and as a supportive backbone for all county departments and a liaison to the Constitutional offices and municipalities within Walton County.",
     goal: "Deliver effective and transparent administration to support County operations.",
@@ -1113,9 +1113,8 @@ const sharedCss = `
   }
 
   /* section divider */
-  .divider-photo{ position:absolute; inset:auto 0 0; width:100%; height:60%; object-fit:cover; filter:saturate(.72) contrast(1.05); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); }
-  .divider-shade{ position:absolute; inset:0; background:linear-gradient(180deg,#003f28 0%,rgba(0,63,40,.99) 43%,rgba(0,63,40,.82) 66%,rgba(0,42,27,.42) 100%); }
-  .divider-frame{ position:absolute; inset:.3in; border:1px solid rgba(255,255,255,.2); }
+  .divider-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .divider-frame{ position:absolute; inset:.3in; border:1px solid #577e6d; }
   .divider{ position:relative; z-index:1; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:3.45in .8in 0; }
   .divider .kicker2{ color:#b89521; font-size:11pt; font-weight:900; letter-spacing:.18em; text-transform:uppercase; margin-bottom:.15in; }
   .divider h1b{ color:#ffffff; font:800 46pt/1.05 Georgia, serif; margin:0 0 .3in; }
@@ -1292,11 +1291,10 @@ async function main() {
   const dividerHtml = `
   <section style="position:relative;overflow:hidden;background:#003f28;padding:0;">
     <img class="divider-photo" src="${DEPARTMENTS_DIVIDER_PHOTO}" alt="">
-    <div class="divider-shade"></div>
     <div class="divider-frame"></div>
     <div class="divider">
       <span class="kicker2">Budget Book</span>
-      <h1b>Departments<br/>and Services</h1b>
+      <h1b>Board Department<br/>Budgets</h1b>
       <p>A statement of function, department goal, FY2027 operating context, services, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board offices and programs.</p>
     </div>
   </section>`;
@@ -1308,7 +1306,7 @@ async function main() {
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
-    <h1 style="border-bottom:none;padding-bottom:0;">Departments and Services</h1>
+    <h1 style="border-bottom:none;padding-bottom:0;">Board Department Budgets</h1>
     <p class="sof">Each of the following ${DEPARTMENTS.length} pages presents one Board office or program in full: its statement of function, department goal, FY2027 operating context, services, funding sources, contracted services, budget by category (Personnel, Contractual, Operating, Capital), staffing, and verified performance measures where available. Each page carries a QR code linking to that office's live page online, which carries more detail than fits in print. Tourism Administration and Beach Operations are presented at the office level to match the online explorer hierarchy.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>${DEPARTMENTS.length}</b><span>Offices Profiled</span></div>
@@ -1331,7 +1329,7 @@ async function main() {
   }
 
   const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Departments and Services</title>
+<html><head><meta charset="utf-8"><title>Board Department Budgets</title>
 <style>${sharedCss}</style></head>
 <body>${dividerHtml}${overviewHtml}${deptPages.join("\n")}</body></html>`;
 

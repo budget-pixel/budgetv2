@@ -11,10 +11,10 @@ import { chromium } from "playwright";
 // expenditure line item repeats on both pages so each is readable on its
 // own, consistent with how this book handles other multi-page ledgers.
 //
-// Content is the same real, already-reconciled FY2027 data used in the
-// original landscape build (Total Revenue == Total Expenditure ==
-// $488,887,492 across governmental funds; excludes the Self-Insurance
-// Fund, an internal service fund not part of this schedule).
+// The final 3.2500-mill rate reduces recurring General Fund property-tax
+// revenue by $8,584,562. The expenditure plan remains unchanged and the
+// difference is shown explicitly as appropriated General Fund balance.
+// The schedule excludes the Self-Insurance Fund, an internal service fund.
 
 const FUND_COLUMNS = [
   "General Fund", "Transportation Fund", "Sheriff Fund", "Tourist Development Fund", "Solid Waste Fund",
@@ -22,10 +22,10 @@ const FUND_COLUMNS = [
 ];
 const PAGE_SPLITS = [[0, 1, 2, 3, 4], [5, 6, 7, 8]];
 
-const MILLAGE_ROW = ["Millage per $1,000", "3.4347", "–", "–", "–", "–", "–", "0.4410", "–", "–"];
+const MILLAGE_ROW = ["Millage per $1,000", "3.2500", "–", "–", "–", "–", "–", "0.4410", "–", "–"];
 
 const REVENUE_ROWS = [
-  ["Property Taxes (Ad Valorem)", "$159,639,395", "$0", "$0", "–", "–", "$0", "$1,426,937", "$0", "$161,066,332"],
+  ["Property Taxes (Ad Valorem)", "$151,054,833", "$0", "$0", "–", "–", "$0", "$1,426,937", "$0", "$152,481,770"],
   ["General Government Taxes (excl. Property)", "$350,000", "$4,810,212", "–", "$58,965,950", "$40,000,000", "–", "–", "–", "$104,126,162"],
   ["Permits, Fees, and Special Assessments", "$3,400,000", "$0", "–", "–", "$0", "–", "–", "$0", "$3,400,000"],
   ["Intergovernmental Revenues", "$20,992,331", "$3,365,000", "$1,380,000", "$0", "$0", "$0", "$0", "$3,586,644", "$29,323,975"],
@@ -34,9 +34,10 @@ const REVENUE_ROWS = [
   ["Miscellaneous Revenue", "$9,068,336", "$2,526,000", "$2,105,000", "$0", "$141,564", "$0", "$0", "$700,000", "$14,540,900"],
   ["Other Sources", "$4,050,600", "$4,881,906", "$4,130,000", "–", "–", "$0", "$0", "$4,200,000", "$17,262,506"]
 ];
-const REVENUE_TOTAL = ["Revenues Total", "$204,279,098", "$15,668,118", "$15,651,972", "$58,965,950", "$40,701,564", "$0", "$1,426,937", "$8,529,869", "$345,223,508"];
+const REVENUE_TOTAL = ["Revenues Total", "$195,694,536", "$15,668,118", "$15,651,972", "$58,965,950", "$40,701,564", "$0", "$1,426,937", "$8,529,869", "$336,638,946"];
 const OTHER_SOURCES = ["Other Financial Sources", "$2,581,997", "$15,000,000", "$98,464,256", "$0", "–", "$27,617,731", "–", "–", "$143,663,984"];
-const REVENUE_GRAND = ["Total Revenue and Other Financial Sources", "$206,861,095", "$30,668,118", "$114,116,228", "$58,965,950", "$40,701,564", "$27,617,731", "$1,426,937", "$8,529,869", "$488,887,492"];
+const FUND_BALANCE_USE = ["Appropriated Fund Balance", "$8,584,562", "$0", "$0", "$0", "$0", "$0", "$0", "$0", "$8,584,562"];
+const REVENUE_GRAND = ["Total Budget Funding", "$206,861,095", "$30,668,118", "$114,116,228", "$58,965,950", "$40,701,564", "$27,617,731", "$1,426,937", "$8,529,869", "$488,887,492"];
 
 const EXPENDITURE_ROWS = [
   ["General Government", "$58,764,754", "$464,000", "–", "–", "–", "–", "–", "–", "$59,228,754"],
@@ -188,6 +189,7 @@ function buildPage(colIdx, pageNumber, isFirst) {
   const revRows = REVENUE_ROWS.map((r) => dataRow(pick(r, colIdx), cls.trim()));
   const revTotal = dataRow(pick(REVENUE_TOTAL, colIdx), `subtotal${cls}`);
   const otherSrc = dataRow(pick(OTHER_SOURCES, colIdx), cls.trim());
+  const fundBalanceUse = dataRow(pick(FUND_BALANCE_USE, colIdx), cls.trim());
   const revGrand = dataRow(pick(REVENUE_GRAND, colIdx), `grand${cls}`);
   const expRows = EXPENDITURE_ROWS.map((r) => dataRow(pick(r, colIdx), cls.trim()));
   const expTotal = dataRow(pick(EXPENDITURE_TOTAL, colIdx), `subtotal${cls}`);
@@ -209,6 +211,7 @@ function buildPage(colIdx, pageNumber, isFirst) {
       ${revRows.join("")}
       ${revTotal}
       ${otherSrc}
+      ${fundBalanceUse}
       ${revGrand}
       <div class="lrow section${cls}"><div class="rlabel">Expenditure Budget</div></div>
       ${expRows.join("")}

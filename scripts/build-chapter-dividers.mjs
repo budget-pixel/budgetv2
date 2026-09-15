@@ -12,17 +12,17 @@ const imageDataUri = (name) => {
 };
 
 const dividerImages = {
-  "divider-constitutional-officers.pdf": "board-budget-image.png",
-  "divider-other-agencies.pdf": "overview-walton-waterway.png",
-  "divider-financial-plan.pdf": "homepage-hero.jpg",
-  "divider-capital-budget.pdf": "cip-bridge-construction.jpg",
-  "divider-our-county.pdf": "overview-beach-community.png",
-  "divider-financial-overview.pdf": "homepage-hero.jpg",
-  "divider-budget-process.pdf": "overview-defuniak-historic-map.jpg",
-  "divider-workforce-plan.pdf": "cip-project-site.jpg",
-  "divider-glossary.pdf": "overview-defuniak-historic-map.jpg",
-  "divider-draft.pdf": "homepage-hero.jpg",
-  "divider-program-services.pdf": "overview-beach-community.png"
+  "divider-constitutional-officers.pdf": "divider-bg-constitutional.jpg",
+  "divider-other-agencies.pdf": "divider-bg-other-agencies.jpg",
+  "divider-financial-plan.pdf": "divider-bg-financial.jpg",
+  "divider-capital-budget.pdf": "divider-bg-capital.jpg",
+  "divider-our-county.pdf": "divider-bg-our-county.jpg",
+  "divider-financial-overview.pdf": "divider-bg-financial.jpg",
+  "divider-budget-process.pdf": "divider-bg-budget-process.jpg",
+  "divider-workforce-plan.pdf": "divider-bg-workforce.jpg",
+  "divider-glossary.pdf": "divider-bg-glossary.jpg",
+  "divider-draft.pdf": "divider-bg-financial.jpg",
+  "divider-program-services.pdf": "divider-bg-program-services.jpg"
 };
 
 // Builds the chapter divider pages the flattened base book doesn't carry
@@ -39,9 +39,8 @@ const css = `
   html,body{ margin:0; padding:0; }
   body{ font-family:Arial, Helvetica, sans-serif; }
   section{ position:relative; width:8.5in; height:11in; overflow:hidden; background:#003f28; }
-  .divider-photo{ position:absolute; inset:auto 0 0; width:100%; height:60%; object-fit:cover; filter:saturate(.72) contrast(1.05); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.42) 25%,#000 47%); }
-  .divider-shade{ position:absolute; inset:0; background:linear-gradient(180deg,#003f28 0%,rgba(0,63,40,.99) 43%,rgba(0,63,40,.82) 66%,rgba(0,42,27,.42) 100%); }
-  .divider-frame{ position:absolute; inset:.3in; border:1px solid rgba(255,255,255,.2); }
+  .divider-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .divider-frame{ position:absolute; inset:.3in; border:1px solid #577e6d; }
   .divider{ position:relative; z-index:1; display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:3.45in .8in 0; }
   .divider .kicker2{ color:#b89521; font-size:11pt; font-weight:900; letter-spacing:.18em; text-transform:uppercase; margin-bottom:.15in; }
   .divider h1b{ color:#ffffff; font:800 46pt/1.05 Georgia, "Times New Roman", serif; margin:0 0 .3in; }
@@ -52,7 +51,7 @@ const constitutionalOfficersDivider = `
   <section>
     <div class="divider">
       <span class="kicker2">Budget Book</span>
-      <h1b>Constitutional<br/>Officers</h1b>
+      <h1b>Constitutional<br/>Officer Budget</h1b>
       <p>A statement of function, elected official, revenue sources, and budget summary for each of Walton County's five independently elected offices and the Board of County Commissioners.</p>
     </div>
   </section>
@@ -62,7 +61,7 @@ const otherAgenciesDivider = `
   <section>
     <div class="divider">
       <span class="kicker2">Budget Book</span>
-      <h1b>Other Agencies and<br/>Court-Related Functions</h1b>
+      <h1b>Other Agencies and<br/>Court-Related Functions<br/>Budget</h1b>
       <p>Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     </div>
   </section>
@@ -176,7 +175,7 @@ const draftDivider = `
 
 async function render(html, outPath) {
   const imageName = dividerImages[path.basename(outPath)] || "homepage-hero.jpg";
-  const decoratedHtml = html.replace("<section>", `<section><img class="divider-photo" src="${imageDataUri(imageName)}" alt=""><div class="divider-shade"></div><div class="divider-frame"></div>`);
+  const decoratedHtml = html.replace("<section>", `<section><img class="divider-photo" src="${imageDataUri(imageName)}" alt=""><div class="divider-frame"></div>`);
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${decoratedHtml}</body></html>`, { waitUntil: "networkidle" });

@@ -280,7 +280,7 @@
       });
       var machineryRows = data.machinery || [];
       var machinery = machineryRows.reduce(function (sum, row) { return sum + (Number(row.Amount) || 0); }, 0);
-      var activeProjects = projects.filter(function (project) {
+      var activeTransportationProjects = projects.filter(function (project) {
         if (!project || project.is_legacy_in_house_engineering_row) return false;
         var funding = String(project.funding || "").trim().toLowerCase();
         if (["transportation fund", "capital projects fund", "general fund"].indexOf(funding) === -1) return false;
@@ -288,9 +288,22 @@
         return (project.funding_by_year || []).some(function (year) {
           return year.year === "FY2027" && (Number(year.amount_value) || 0) > 0;
         });
-      }).length;
+      });
+      var activeProjects = activeTransportationProjects.length;
+      // Match the card to the Transportation and Infrastructure ledger's
+      // actual FY2027 project schedule. Adding whole accounting funds here
+      // pulled unrelated capital rows into the callout and produced $27.2M,
+      // even though the linked ledger totals $24,545,734.
+      var transportationInfrastructureTotal = activeTransportationProjects.reduce(function (sum, project) {
+        var amount = (project.funding_by_year || []).filter(function (year) {
+          return year.year === "FY2027";
+        }).reduce(function (yearSum, year) {
+          return yearSum + (Number(year.amount_value) || 0);
+        }, 0);
+        return sum + amount;
+      }, 0);
       var cards = [
-        { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: (byFund["101"] || 0) + (byFund["300"] || 0) + (byFund["001"] || 0), badge: activeProjects + " active projects" },
+        { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: transportationInfrastructureTotal, badge: activeProjects + " active projects" },
         { title: "Tourist Development Fund Capital Ledger", href: "pages/cip-tourist-development.html", amount: byFund["111"] || 0 },
         { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: (data.expenditures || []).filter(function (row) { return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) === "107"; }).reduce(function (sum, row) { return sum + (Number(row.FY2027_Proposed) || 0); }, 0) },
         { title: "Machinery, Vehicles, & Equipment Ledger", href: "pages/summary-of-machinery-vehicles-and-equipment.html", amount: machinery, badge: machineryRows.length + " items" },
@@ -593,7 +606,7 @@
       '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
       '<section class="wc-home-department-modal-panel">' +
         '<header class="wc-home-department-modal-head">' +
-        '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Ledger Directory</button>' +
+        '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
@@ -601,7 +614,13 @@
     document.body.appendChild(departmentModal);
     departmentFrame = departmentModal.querySelector("iframe");
     departmentModal.querySelector("[data-department-popup-back]").addEventListener("click", function () {
-      openDepartmentModal(LEDGER_DIRECTORY_HREF, "Budget Ledgers", departmentTrigger);
+      // A plain link clicked inside this popup (Supporting Documentation's
+      // "TRIM Newspaper Advertisements" card, budget-overview.html's Ledger
+      // Directory, etc.) just navigates this same iframe like any other
+      // link -- so going back to whatever was showing before is a normal
+      // same-document history navigation, not a fresh openDepartmentModal()
+      // call (which would reset this popup's loading/reveal chrome).
+      departmentFrame.contentWindow.history.back();
     });
     departmentFrame.addEventListener("load", function () {
       // openDepartmentModal already set the modal's title from the trigger
@@ -614,6 +633,12 @@
       // showing the popup's original title over a totally different page.
       // Re-derive the title from whatever page just loaded instead, except
       // on this very first load where the caller's title should win.
+      // closeDepartmentModal() blanks this iframe's src to tear it down,
+      // which still fires this same 'load' event a moment later -- without
+      // this guard, that fires the follow-on-navigation branch below (wrong
+      // title, and syncPopupUrlState writing a bogus "?popup=blank" over
+      // the removal closeDepartmentModal just made).
+      if (departmentFrame.src === "about:blank" || departmentModal.hidden) return;
       var isFollowOnNavigation = !departmentFrameAwaitingInitialLoad;
       departmentFrameAwaitingInitialLoad = false;
       try {
@@ -664,13 +689,19 @@
             departmentFrame.title = derivedTitle + " budget page";
           }
           // A same-iframe link click (handled below, or a plain in-page
-          // link this handler doesn't specially intercept) lands here too
-          // -- re-evaluate the back button against wherever we actually
-          // ended up, or it would otherwise keep showing on every later
-          // page just because the popup started out on a ledger page.
-          var followOnFilename = loadedUrl ? loadedUrl.pathname.split("/").pop() : "";
+          // link this handler doesn't specially intercept) lands here too.
+          // isFollowOnNavigation means the iframe's own history now has
+          // somewhere to go back to -- show the back button for any such
+          // page, not just the Ledger Directory flow this used to be
+          // limited to. That flow still works the same way: "back" from a
+          // ledger page just calls history.back(), landing on
+          // budget-overview.html either way.
           var followOnBackButton = departmentModal.querySelector("[data-department-popup-back]");
-          if (followOnBackButton) followOnBackButton.hidden = !openedFromLedgerDirectory || followOnFilename === "budget-overview.html" || !LEDGER_DIRECTORY_PAGES.has(followOnFilename);
+          if (followOnBackButton) followOnBackButton.hidden = false;
+          // Keep the address bar's ?popup= in sync with wherever this
+          // in-popup navigation actually landed, so a refresh reopens here
+          // rather than back at the page this popup originally opened to.
+          if (loadedUrl) syncPopupUrlState(loadedUrl);
         }
         // Any link inside this popup that points back at home.html (the
         // CIP hero's "Back to Capital Projects"/"Search Projects", a
@@ -802,6 +833,24 @@
 
   var UTILITY_POPUP_PAGE_PATTERN = /\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions)\.html$/i;
 
+  // Keeps the homepage's own address bar's ?popup= param pointed at whatever
+  // page this popup is currently showing, so refreshing the browser (or
+  // sharing/bookmarking the link) reopens the same popup on the same page
+  // instead of landing back on the plain homepage. Called both when a popup
+  // is first opened and again on every same-iframe follow-on navigation
+  // inside it (a plain link click, or the "back" button's history.back()).
+  function syncPopupUrlState(targetUrl) {
+    try {
+      var query = new URLSearchParams(targetUrl.search);
+      query.delete("embed");
+      var queryString = query.toString();
+      var popupValue = targetUrl.pathname.replace(/^.*(\/pages\/)/, "$1").replace(/^\//, "") + (queryString ? "?" + queryString : "");
+      var stateUrl = new URL(window.location.href);
+      stateUrl.searchParams.set("popup", popupValue);
+      history.replaceState(history.state, "", stateUrl.href);
+    } catch (error) {}
+  }
+
   function openDepartmentModal(href, title, trigger) {
     ensureDepartmentModal();
     departmentTrigger = trigger;
@@ -866,6 +915,7 @@
     departmentModalOpenedAt = Date.now();
     departmentFrameAwaitingInitialLoad = true;
     departmentFrame.src = url.href;
+    syncPopupUrlState(url);
     departmentModal.hidden = false;
     modal.inert = true;
     modal.classList.add("is-department-popup-open");
@@ -893,6 +943,15 @@
     departmentFrame.src = "about:blank";
     openedFromLedgerDirectory = false;
     modal.classList.remove("is-department-popup-open");
+    // Drop ?popup= now that nothing is open -- otherwise a refresh right
+    // after closing would reopen the popup the user just dismissed.
+    try {
+      var stateUrlAfterClose = new URL(window.location.href);
+      if (stateUrlAfterClose.searchParams.has("popup")) {
+        stateUrlAfterClose.searchParams.delete("popup");
+        history.replaceState(history.state, "", stateUrlAfterClose.href);
+      }
+    } catch (error) {}
     if (!openedWithoutExplorer) {
       var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
       if (explorerWave) {
