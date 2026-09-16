@@ -55,7 +55,7 @@ const sections = [
   },
   { title: "Workforce Budget", subtitle: "Personnel cost and capacity across Walton County government -- the number and mix of positions, and the cost of maintaining the existing workforce.", items: [["Workforce Budget",100],["Personnel Ledger",101]] },
   { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [
-    ["Capital Budget Chapter",102],["Capital Improvement Plan",103],["Machinery, Vehicles and Equipment Ledger",106],["Transportation and Infrastructure Capital Ledger",109],["Tourist Development Fund Capital Ledger",111],["Sheriff Capital Project Ledger",112],["Recreation Plat Fee Fund Capital Ledger",113],["Sidewalk Fund Capital Ledger",114]
+    ["Capital Budget Chapter",102],["Capital Improvement Plan",103],["Transportation and Infrastructure Capital Ledger",106],["Tourist Development Fund Capital Ledger",108],["Sheriff Capital Project Ledger",109],["Recreation Plat Fee Fund Capital Ledger",110],["Sidewalk Fund Capital Ledger",111],["Machinery, Vehicles and Equipment Ledger",112]
   ] },
   { title: "Glossary, Statistical, and Supplemental Information", subtitle: "Statistical context, the county's largest taxpayers, and a glossary of budget terms, acronyms, and frequently asked questions.", items: [
     ["Glossary Chapter",115],["Glossary, Acronyms and Frequently Asked Questions",116],["Statistical and Supplemental Information",125],["Principal Property Taxpayers",126]

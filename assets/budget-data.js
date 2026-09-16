@@ -8232,17 +8232,13 @@
     }
 
     const isOtherFinancingRevenue = (r) => String(r.Revenue_Code || "").trim() === "381000";
-    // Only excluded from the Building Fund's own single-fund schedule (see
-    // that predicate's use below) -- there, Revenue_Code 389000 would
-    // double-count the balance already shown on the Beginning Fund Balance
-    // row above. But a multi-fund call (the Consolidated Fund Financial
-    // Schedule's allKnownFundCodes(), or any other combined view) needs
-    // every fund's real revenue included, so the exclusion must not apply
-    // there -- otherwise Consolidated's Total Revenues comes up short by
-    // this amount (caught as a FY2026 Budget mismatch of $4,126,388).
-    const isBuildingFundOnlyView = fundCodes.length === 1 && fundCodes[0] === "103";
-    const isBuildingFundBalanceBroughtForwardRevenue = (r) =>
-      isBuildingFundOnlyView && fundCodeForRow(r) === "103" && String(r.Revenue_Code || "").trim() === "389000";
+    // Balance brought forward is accumulated fund balance, not current-year
+    // revenue. It is already represented by Beginning Fund Balance and must
+    // therefore be excluded from both individual and consolidated revenue
+    // totals so each schedule visibly reports the planned draw and reduced
+    // ending balance instead of appearing artificially balanced.
+    const isFundBalanceBroughtForwardRevenue = (r) =>
+      String(r.Revenue_Code || "").trim() === "389000";
     const isOtherFinancingExpense = isOtherFinancingExpenseRow;
 
     // Each activity/type row's own breakdown -- by revenue source for a
@@ -8359,11 +8355,11 @@
         predicate: (r) =>
           r.Revenue_Type === spec.key &&
           !isOtherFinancingRevenue(r) &&
-          !isBuildingFundBalanceBroughtForwardRevenue(r),
+          !isFundBalanceBroughtForwardRevenue(r),
         values: rowValues((r) =>
           r.Revenue_Type === spec.key &&
           !isOtherFinancingRevenue(r) &&
-          !isBuildingFundBalanceBroughtForwardRevenue(r), revenueRows)
+          !isFundBalanceBroughtForwardRevenue(r), revenueRows)
       }));
     const generalGovTaxesRow = revenueTypeRows.find((row) => row.label === "General Government Taxes");
     if (generalGovTaxesRow) {

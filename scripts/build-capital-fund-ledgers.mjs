@@ -609,7 +609,7 @@ const sidewalkPage = simpleFundPage(
 // ============================== ASSEMBLE ==============================
 
 const startPage = Number(process.argv[3] || 100);
-const pages = [machineryPage1, machineryPage2, machineryPage3, transPage1, transPage2, touristPage, sheriffPage, recreationPage, sidewalkPage];
+const pages = [transPage1, transPage2, touristPage, sheriffPage, recreationPage, sidewalkPage, machineryPage1, machineryPage2, machineryPage3];
 let html = pages.join("\n");
 let n = startPage;
 html = html.replace(/\{\{PAGE1\}\}|\{\{PAGE2\}\}|\{\{PAGE3\}\}|\{\{PAGE4\}\}/g, () => String(n++));

@@ -185,7 +185,7 @@ const html = `<!doctype html>
     padding:.16in .12in;
     border:1px solid #e4ebe7;
     border-radius:10px;
-    background:#f9f8f2;
+    background:#ffffff;
     text-align:center;
   }
   .fact-card b{
@@ -293,14 +293,13 @@ const html = `<!doctype html>
     border:2px solid #d1be78;
     border-radius:50%;
     background:#fff;
-    box-shadow:0 3px 10px rgba(0,63,40,.10);
   }
   .qr-medallion .qr-code{
     position:relative;
     z-index:1;
     width:.80in;
     height:.80in;
-    padding:.025in;
+    padding:0;
     background:#fff;
   }
   .video-qr h3{

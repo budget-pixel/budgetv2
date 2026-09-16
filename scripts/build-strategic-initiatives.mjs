@@ -102,10 +102,10 @@ const html = `<!doctype html>
     max-width:6.9in;
     margin:0 auto;
     padding:.22in .3in .25in;
+    border:1px solid #d1be78;
     border-top:3px solid #003f28;
-    border-radius:12px;
-    background:#ffffff;
-    box-shadow:0 3px 14px rgba(0,63,40,.08);
+    border-radius:14px;
+    background:#f9f8f2;
   }
   .values-label{
     display:block;
@@ -132,7 +132,7 @@ const html = `<!doctype html>
     padding:.1in .22in;
     border:1px solid #d1be78;
     border-radius:999px;
-    background:#f9f8f2;
+    background:#ffffff;
     color:#003f28;
     font-size:10pt;
     font-weight:800;

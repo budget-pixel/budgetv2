@@ -32,16 +32,16 @@ const CONSOLIDATED_TOP = [
   ["Beginning Fund Balance", "$206,500,685", "$273,894,781", "$313,775,975", "$367,413,796", "$435,939,242", "$431,812,854"]
 ];
 const CONSOLIDATED_MID = [
-  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$148,350,579", "$135,079,422"],
-  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$480,302,930"]
+  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$148,350,579", "$121,867,516"],
+  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$467,091,024"]
 ];
 const CONSOLIDATED_MID2 = [
   ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
   ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$468,349,668", "$488,887,492"]
 ];
 const CONSOLIDATED_BOTTOM = [
-  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$7,945,999", "-$8,584,562"],
-  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$443,885,241", "$423,228,292"]
+  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$7,945,999", "-$21,796,468"],
+  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$443,885,241", "$410,016,386"]
 ];
 
 // [fund, FY22...FY27] -- Total Revenues only (not Total Revenue and
@@ -75,22 +75,22 @@ const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,33
 // [fund, beginning, totalRevOther, totalExpOther, change, ending]
 const MAJOR_FUNDS = [
   ["General Fund", "$81,910,494", "$198,276,533", "$206,861,095", "-$8,584,562", "$73,325,932"],
-  ["Transportation Fund", "$41,124,267", "$30,668,118", "$30,668,118", "$0", "$41,124,267"],
-  ["Fine & Forfeiture / Sheriff Fund", "$49,765,273", "$114,116,228", "$114,116,228", "$0", "$49,765,273"],
+  ["Transportation Fund", "$41,124,267", "$25,786,212", "$30,668,118", "-$4,881,906", "$36,242,361"],
+  ["Fine & Forfeiture / Sheriff Fund", "$49,765,273", "$109,986,228", "$114,116,228", "-$4,130,000", "$45,635,273"],
   ["Tourist Development Fund", "$166,535,869", "$58,965,950", "$58,965,950", "$0", "$166,535,869"],
   ["Solid Waste Fund", "$50,601,216", "$40,701,564", "$40,701,564", "$0", "$50,601,216"],
   ["Capital Projects Fund", "$26,965,592", "$27,617,731", "$27,617,731", "$0", "$26,965,592"]
 ];
 const NON_MAJOR_FUNDS = [
   ["Daughette MSBU Fund", "$0", "$43,225", "$43,225", "$0", "$0"],
-  ["Building Fund*", "$6,594,402", "$0", "$4,000,000", "-$4,000,000", "$2,594,402"],
+  ["Building Fund", "$6,594,402", "$0", "$4,000,000", "-$4,000,000", "$2,594,402"],
   ["E911 Fund", "$223,763", "$460,000", "$460,000", "$0", "$223,763"],
   ["Housing & Urban Development Fund", "$93,502", "$3,057,056", "$3,057,056", "$0", "$93,502"],
   ["Mosquito Control Fund", "$1,621,059", "$1,426,937", "$1,426,937", "$0", "$1,621,059"],
   ["Mosquito Control State Aid Fund", "$0", "$69,588", "$69,588", "$0", "$0"],
   ["Recreation Plat Fee Fund", "$4,417,138", "$600,000", "$600,000", "$0", "$4,417,138"],
   ["Preservation Fund", "$1,111,100", "$0", "$0", "$0", "$1,111,100"],
-  ["Sidewalk Fund", "$849,179", "$300,000", "$300,000", "$0", "$849,179"]
+  ["Sidewalk Fund", "$849,179", "$100,000", "$300,000", "-$200,000", "$649,179"]
 ];
 
 const cRow = (cells, cls) => `<div class="crow${cls ? " " + cls : ""}"><div class="clabel">${cells[0]}</div>${cells.slice(1).map((c) => `<div class="cnum">${c}</div>`).join("")}</div>`;
@@ -298,7 +298,6 @@ const page2 = `
       <div class="fgroup">Non-Major Funds</div>
       ${NON_MAJOR_FUNDS.map(fRow).join("")}
     </div>
-    <p class="footnote">*The General Fund uses $8,584,562 of fund balance to maintain the adopted expenditure plan after the millage rate was reduced to 3.2500. The Building Fund's own schedule shows $0 in Total Revenue because a separate $4,000,000 balance brought forward is excluded here to avoid double-counting against its Beginning Fund Balance.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;

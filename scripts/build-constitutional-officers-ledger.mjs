@@ -385,7 +385,7 @@ const sharedCss = `
   .budget-mix{ display:flex; height:7px; margin:.075in 0 .07in; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.14); }
   .budget-mix i{ display:block; height:100%; }
   .budget-mix .personnel{ background:#e7c95f; }.budget-mix .contractual{ background:#85bea0; }.budget-mix .operating{ background:#ffffff; }.budget-mix .capital{ background:#c7d2cc; }
-  .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.08in 0 .13in; padding-top:.09in; border-top:1px solid #d7e2dc; }
+  .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.32in 0 .13in; padding-top:.15in; border-top:1px solid #d7e2dc; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.45; }
   .payer-row{ margin:0 0 .045in; padding:.06in .075in; border:1px solid #e1e9e4; border-radius:6px; background:#f8faf8; color:#33453c; font-size:6.2pt; line-height:1.28; }
   .payer-row:nth-child(odd){ background:#f2f6f3; }

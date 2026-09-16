@@ -33,9 +33,9 @@ import { chromium } from "playwright";
 // $345,223,508) -- see TOTAL below.
 
 const STATS = [
-  ["$336.6M", "Total FY2027 Revenue"],
-  ["+$8.7M", "Net Change from FY2026"],
-  ["+2.7%", "Net Percent Change"],
+  ["$345.2M", "Total FY2027 Budget Funding"],
+  ["+$17.3M", "Net Change from FY2026"],
+  ["+5.3%", "Net Percent Change"],
   ["$151.1M", "Largest Source: Ad Valorem Taxes"]
 ];
 
@@ -45,13 +45,13 @@ const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Ac
 const ROWS = [
   ["General Government Taxes", "$218,598,479", "$236,486,085", "$257,566,876", "$277,454,100", "$272,677,953", "$276,626,929"],
   ["Charges for Services", "$14,601,788", "$15,616,872", "$14,403,343", "$15,251,527", "$19,414,205", "$19,985,657"],
-  ["Other Sources", "$4,187,992", "$5,229,704", "$5,905,994", "$6,043,333", "$14,848,284", "$17,262,506"],
+  ["Other Sources", "$4,187,992", "$5,229,704", "$5,905,994", "$6,043,333", "$14,848,284", "$25,847,068"],
   ["Permits Fees and Special Assessments", "$3,620,226", "$4,265,672", "$5,974,512", "$7,032,365", "$6,004,785", "$7,783,225"],
   ["Miscellaneous Revenue", "$4,876,217", "$9,049,742", "$14,414,808", "$13,398,132", "$7,862,612", "$7,448,151"],
   ["Intergovernmental Revenues", "$6,686,791", "$7,336,263", "$11,070,692", "$9,427,484", "$6,896,622", "$7,304,978"],
   ["Judgments, Fines and Forfeits", "$170,388", "$350,704", "$280,208", "$287,597", "$240,627", "$227,500"]
 ];
-const TOTAL = ["Total", "$252,741,882", "$278,335,039", "$309,616,429", "$328,894,534", "$327,945,088", "$336,638,946"];
+const TOTAL = ["Total Budget Funding", "$252,741,882", "$278,335,039", "$309,616,429", "$328,894,534", "$327,945,088", "$345,223,508"];
 
 // Page 2: every individual FY2027 revenue source, grouped by category,
 // FY2026 vs FY2027, laid out as two print-style columns (89 sources
@@ -108,15 +108,15 @@ const REV_GROUPS = [
     ["Animal Shelter Fees", "$18,000", "$18,000"],
     ["Library Fines &amp; Fees", "$15,000", "$18,000"],
     ["Library Rentals", "$2,000", "$3,000"],
-    ["Sales &amp; Promotions*", "$255,000", "$0"],
-    ["Sales &amp; Promotions Out of State*", "$5,000", "$0"]
+    ["Sales &amp; Promotions", "$255,000", "$0"],
+    ["Sales &amp; Promotions Out of State", "$5,000", "$0"]
   ]],
   ["Other Sources", [
-    ["Nonoperating Balance Brought Forward", "$10,460,192", "$13,211,906"],
+    ["Nonoperating Balance Brought Forward", "$10,460,192", "$21,796,468"],
     ["Surplus Budget Tax Collector", "$3,563,092", "$4,050,600"],
-    ["Surplus Budget Clerk of Court*", "$700,000", "$0"],
-    ["Surplus Budget Property Appraiser*", "$75,000", "$0"],
-    ["Surplus Budget Supervisor of Elections*", "$50,000", "$0"]
+    ["Surplus Budget Clerk of Court", "$700,000", "$0"],
+    ["Surplus Budget Property Appraiser", "$75,000", "$0"],
+    ["Surplus Budget Supervisor of Elections", "$50,000", "$0"]
   ]],
   ["Permits Fees and Special Assessments", [
     ["Beach Vending Permits", "$1,850,000", "$1,880,000"],
@@ -132,9 +132,9 @@ const REV_GROUPS = [
     ["Mobile Home Licenses", "$38,000", "$40,000"],
     ["E-911 Plat Fee", "$20,000", "$22,000"],
     ["Coastal Armoring Fees", "$8,000", "$8,000"],
-    ["Sewer Impact Fees*", "$164,560", "$0"],
-    ["Contractor Registration*", "$30,000", "$0"],
-    ["White Sands Fee*", "$1,000", "$0"]
+    ["Sewer Impact Fees", "$164,560", "$0"],
+    ["Contractor Registration", "$30,000", "$0"],
+    ["White Sands Fee", "$1,000", "$0"]
   ]],
   ["Miscellaneous Revenue", [
     ["Interest", "$5,311,326", "$4,501,564"],
@@ -170,7 +170,7 @@ const REV_GROUPS = [
     ["Ordinance Fine (Animal Control)", "$2,500", "$2,500"]
   ]]
 ];
-const DETAIL_TOTAL = ["Total", "$327,945,088", "$336,638,946"];
+const DETAIL_TOTAL = ["Total Budget Funding", "$327,945,088", "$345,223,508"];
 
 // 97 rows across 7 groups no longer fit two continuation pages at the
 // larger, more readable type size below, and Charges for Services' 38

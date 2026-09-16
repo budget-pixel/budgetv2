@@ -351,6 +351,11 @@ const page1 = `
       ${row(CAPITAL_TOTAL, "total")}
     </div>
 
+    <h2 class="group">Board Departments</h2>
+    <div class="dept-table">
+      ${row(["Board Departments", BOARD_TOTAL[1], BOARD_TOTAL[2]], "total")}
+    </div>
+
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
@@ -359,13 +364,6 @@ const page2 = `
   <section>
     ${pageHeader()}
     <h1 class="continued">Property Tax Allocation <span>(continued)</span></h1>
-
-    <h2 class="group" style="margin-top:.12in">Board Departments</h2>
-    <div class="dept-table">
-      ${tableHead}
-      ${BOARD_DEPTS.map((r) => row(r)).join("")}
-      ${row(BOARD_TOTAL, "total")}
-    </div>
 
     ${row(GRAND_TOTAL, "grand")}
 

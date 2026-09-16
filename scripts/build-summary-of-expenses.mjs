@@ -112,7 +112,7 @@ const DEPT_GROUPS = [
     ["Veteran Services", "$236,100", "$316,650"]
   ]],
   ["Human Services", [
-    ["Human Services", "$4,072,199", "$186,119"],
+    ["Human Services", "$235,864", "$186,119"],
     ["Mosquito Control", "$1,340,000", "$1,426,937"],
     ["Mosquito Control State Aid", "$61,856", "$69,588"],
     ["Non-Profit Funding Program", "$477,820", "$450,000"],
@@ -423,7 +423,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services' decline reflects a one-time FY2026 grant that did not recur.</p>
+      <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services is shown on a comparable basis after separating Health Department and statutory-agency allocations that share its accounting code.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
