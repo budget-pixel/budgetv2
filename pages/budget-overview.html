@@ -342,9 +342,8 @@
     function renderContractualServicesTotal(){
       var element = document.querySelector("[data-budget-overview-total='contractualServices']");
       if(!element || !window.WCBudgetData) return;
-      Promise.all([window.WCBudgetData.loadBudgetData(), window.wcCipProjectsReady || Promise.resolve([])])
-        .then(function(results){
-          var data = results[0];
+      window.WCBudgetData.loadBudgetData()
+        .then(function(data){
           var total = window.WCBudgetData.getContractualServicesBudgetTotal(data);
           element.querySelector("strong").textContent = "$" + Math.round(total / 1000000).toLocaleString("en-US") + "M";
         }).catch(function(){

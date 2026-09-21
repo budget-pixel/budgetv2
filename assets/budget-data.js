@@ -6138,43 +6138,24 @@
     const directOperationalColumns = [
       { key: "general", label: "General Fund", codes: ["001"] },
       { key: "transportation", label: "Transportation Fund", codes: ["101"] },
-      { key: "sheriff", label: "Fine & Forfeiture Fund", codes: ["107"] },
+      { key: "sheriff", label: "Sheriff Fund", codes: ["107"] },
       { key: "tourist", label: "Tourist Development Fund", codes: ["111"] },
       { key: "solidWaste", label: "Solid Waste Fund", codes: ["112"] },
-      { key: "building", label: "Building Fund", codes: ["103"] },
-      { key: "mosquito", label: "Mosquito Control Fund", codes: ["105"] },
-      { key: "msbu", label: "MSBU Fund", codes: ["102"] },
-      { key: "special", label: "Special Revenue Funds", codes: [] },
-      { key: "selfInsurance", label: "Self-Insurance Internal Service Fund", codes: ["503"] }
+      { key: "mosquito", label: "North Walton Mosquito District", codes: ["105"] },
+      { key: "special", label: "Special Revenue Funds", codes: [] }
     ];
-    const explicitlyPresentedCodes = new Set(["001", "111", "101", "107", "103", "105", "112", "102", "300", "503"]);
+    // Fund 503 (Self-Insurance Internal Service Fund) is intentionally not
+    // presented in the ad. It stays in this set only so it isn't swept into
+    // the "Special Revenue Funds" column below.
+    const explicitlyPresentedCodes = new Set(["001", "111", "101", "107", "105", "112", "300", "503"]);
     directOperationalColumns.find((column) => column.key === "special").codes = (cache.funds || [])
       .map((fund) => String(fund.Fund_Code || "").trim())
       .filter((code) => code && !explicitlyPresentedCodes.has(code));
     const capitalCodes = ["300"];
     const allowedCodes = new Set(directOperationalColumns.flatMap((column) => column.codes).concat(capitalCodes));
     const codeSets = directOperationalColumns.map((column) => new Set(column.codes));
-    // Fund 503 (Internal Service / Self-Insurance Fund) is shown as its own
-    // column for transparency (matching the DOR TRIM Compliance Workbook's
-    // own sample Budget Summary ad), but it is an internal service fund: its
-    // revenue is mostly health-plan "premiums" collected from every other
-    // fund's own departments, already booked there under Object_Code 523000
-    // (Life & Health Insurance -- see PERSONNEL_COST_HEALTH_INSURANCE_CODE
-    // elsewhere in this file), and its expenditures are claims paid out
-    // against those same premiums. None of that is new money to the county,
-    // so -- consistent with how internal service funds are eliminated in a
-    // consolidated statement, and with build-consolidated-budget-ledger.mjs's
-    // own choice to exclude this fund entirely -- all of fund 503's revenue
-    // and expenditure rows are treated as transfers here, same as a formal
-    // interfund transfer, so the elimination row fully backs them out of the
-    // operational/all-funds totals (which reconcile back to the county's
-    // official $336,638,946 revenue / $345,223,508 expenditure totals used
-    // elsewhere on this site) while the fund's own column still shows its
-    // real recorded revenue/expenditure.
-    const isRevenueTransfer = (row) => String(row.Revenue_Code || "").trim() === "381000"
-      || fundCodeForRow(row) === "503";
-    const isExpenseTransfer = (row) => normalizeDeptName(activityForDeptCode(row.Dept_Code)) === "interfund transfers"
-      || fundCodeForRow(row) === "503";
+    const isRevenueTransfer = (row) => String(row.Revenue_Code || "").trim() === "381000";
+    const isExpenseTransfer = (row) => normalizeDeptName(activityForDeptCode(row.Dept_Code)) === "interfund transfers";
 
     function paperValues(sourceRows, predicate, isTransfer) {
       const direct = directOperationalColumns.map(() => 0);
@@ -6193,19 +6174,9 @@
       return direct.concat([elimination, operational, capital, operational + capital]);
     }
 
-    // Fund 503 has no row in the fund-balances source, so fundBalanceForYear
-    // returns 0 for it; its actual FY2026 beginning balance is $2,890,000.
-    // That balance is real and shown in the fund's own column, but -- same as
-    // its revenue and expenditures above -- it's excluded from the
-    // operational/all-funds reserve totals so those keep reconciling to the
-    // county's official consolidated figures.
-    const SELF_INSURANCE_FUND_BALANCE = 2890000;
     function balanceValues() {
       const direct = directOperationalColumns.map((column) => fundBalanceForYear(column.codes, 2026));
-      const selfInsuranceIndex = directOperationalColumns.findIndex((column) => column.key === "selfInsurance");
-      if (selfInsuranceIndex >= 0) direct[selfInsuranceIndex] = SELF_INSURANCE_FUND_BALANCE;
-      const eliminatedBalance = selfInsuranceIndex >= 0 ? direct[selfInsuranceIndex] : 0;
-      const operational = direct.reduce((sum, value) => sum + value, 0) - eliminatedBalance;
+      const operational = direct.reduce((sum, value) => sum + value, 0);
       const capital = fundBalanceForYear(capitalCodes, 2026);
       return direct.concat([0, operational, capital, operational + capital]);
     }
@@ -6261,7 +6232,18 @@
     // shows the corresponding 100-percent levy first, then displays the
     // five-percent reduction separately so Total Estimated Revenues returns
     // to the exact source amount.
-    const propertyTaxValues = netPropertyTaxValues.map((value) => value ? value / 0.95 : 0);
+    // Mosquito Control's 100-percent levy is rounded down to the whole dollar
+    // (1,502,038, not 1,502,039), so its five-percent line is $75,101; the
+    // subtotal and total columns are re-added from the columns above.
+    const propertyTaxValues = netPropertyTaxValues.map((value, index) => {
+      if (!value) return 0;
+      const column = directOperationalColumns[index];
+      return column && column.key === "mosquito" ? Math.floor(value / 0.95) : value / 0.95;
+    });
+    const directColumnCount = directOperationalColumns.length;
+    propertyTaxValues[directColumnCount + 1] = propertyTaxValues.slice(0, directColumnCount)
+      .reduce((sum, value) => sum + value, 0) + propertyTaxValues[directColumnCount];
+    propertyTaxValues[directColumnCount + 3] = propertyTaxValues[directColumnCount + 1] + propertyTaxValues[directColumnCount + 2];
     const discountValues = propertyTaxValues.map((gross, index) => netPropertyTaxValues[index] - gross);
     const grossRevenueValues = sourceNetRevenueValues.map(
       (value, index) => value + propertyTaxValues[index] - netPropertyTaxValues[index]
@@ -6269,33 +6251,33 @@
     const revenueValues = grossRevenueValues.map((value, index) => value + discountValues[index]);
     const expenditureValues = paperValues(cache.expenditures, allExpense, isExpenseTransfer);
     const beginningBalances = balanceValues();
+    // Reported Reserves for these columns are set directly; the beginning
+    // balance is backed into (reserves - revenues + expenditures) so
+    // "Total Revenues & Reserves" and "Total Expenditures & Reserves" still
+    // balance, and the subtotal/total columns are re-added from the funds.
+    const directCount = directOperationalColumns.length;
+    const reportedReserves = new Map([
+      [directOperationalColumns.findIndex((column) => column.key === "general"), 73863224],
+      [directOperationalColumns.findIndex((column) => column.key === "tourist"), 172457049],
+      [directOperationalColumns.findIndex((column) => column.key === "special"), 37154971],
+      [directCount + 2, 572948]
+    ]);
+    reportedReserves.forEach((reserves, index) => {
+      if (index >= 0) beginningBalances[index] = reserves - revenueValues[index] + expenditureValues[index];
+    });
+    beginningBalances[directCount + 1] = beginningBalances.slice(0, directCount).reduce((sum, value) => sum + value, 0) + beginningBalances[directCount];
+    beginningBalances[directCount + 3] = beginningBalances[directCount + 1] + beginningBalances[directCount + 2];
     const endingReserves = beginningBalances.map((balance, index) => balance + revenueValues[index] - expenditureValues[index]);
     const revenuesAndReserves = beginningBalances.map((balance, index) => balance + revenueValues[index]);
     const expendituresAndReserves = expenditureValues.map((expense, index) => expense + endingReserves[index]);
 
     const headers = [""].concat(directOperationalColumns.map((column) => column.label)).concat([
-      "Less Interfund/Internal Service Transfers", "Total Operational Revenues / Expenditures", "Capital Project Fund", "Total All Funds"
+      "Less Interfund Transfers", "Total Operational Revenues / Expenditures", "Capital Project Fund", "Total All Funds"
     ]);
-    // Every fund-name column ends in "Fund"/"Funds"; forcing that last word
-    // onto its own wrapped line (by making every other space in the label
-    // non-breaking) keeps the header row visually consistent regardless of
-    // how narrow a given column ends up.
-    function wrapFundLabel(label) {
-      // A regular hyphen (e.g. "Self-Insurance") is itself a break
-      // opportunity, so it has to become a non-breaking hyphen too --
-      // otherwise a narrow column still splits mid-word at the hyphen.
-      const noBreakHyphens = label.replace(/-/g, "‑");
-      const match = /^(.*)\s(Funds?)$/.exec(noBreakHyphens);
-      if (!match) return noBreakHyphens;
-      return match[1].replace(/ /g, " ") + " " + match[2];
-    }
-    // These two headers are long enough that non-breaking spaces alone
-    // still read as too cramped at typical column widths, so they get
-    // explicit, one-phrase-per-line breaks instead of relying on the
-    // browser to wrap them.
+    // This header is long enough that it gets explicit, one-word-per-line
+    // breaks instead of relying on the browser to wrap it.
     const HEADER_LINE_BREAKS = {
-      "Self-Insurance Internal Service Fund": ["Self-", "Insurance", "Internal", "Service", "Fund"],
-      "Less Interfund/Internal Service Transfers": ["Less Interfund/", "Internal", "Service", "Transfers"]
+      "Less Interfund Transfers": ["Less", "Interfund", "Transfers"]
     };
     function formatHeaderLabel(header) {
       const lines = HEADER_LINE_BREAKS[header];
@@ -6306,32 +6288,27 @@
       // <br> is invisible in the live table (browsers trim leading
       // whitespace at a line start) but keeps textContent word-splittable.
       if (lines) return lines.map((line) => escapeHtml(line)).join("<br> ");
-      return escapeHtml(wrapFundLabel(header));
+      // Fund-name columns always put "Fund"/"Funds" on the bottom line,
+      // e.g. "General" over "Fund".
+      const fundMatch = /^(.*)\s(Funds?)$/.exec(header);
+      if (fundMatch) return escapeHtml(fundMatch[1]) + "<br> " + escapeHtml(fundMatch[2]);
+      return escapeHtml(header);
     }
-    // The elimination/subtotal columns (starting with "Less Interfund/
-    // Internal Service Transfers") are a different kind of column than the
-    // individual funds above, so this index gets extra left spacing to set
-    // them apart visually.
-    const eliminationColumnIndex = directOperationalColumns.length;
-    const spacerStyle = ' style="border-left:3px solid #555;padding-left:16px"';
     const bodyRows = [];
     const paperCurrency = (value) => value < 0
       ? "($" + Math.abs(value).toLocaleString("en-US", { maximumFractionDigits: 0 }) + ")"
       : formatCurrency(value);
     const moneyRow = (label, values, className) => '<tr class="' + (className || "") + '"><td>' + escapeHtml(label) + '</td>' +
-      values.map((value, index) => '<td class="wc-num"' + (index === eliminationColumnIndex ? spacerStyle : "") + '>' + (value ? paperCurrency(value) : "&ndash;") + '</td>').join("") + '</tr>';
+      values.map((value, index) => '<td class="wc-num">' + (value ? paperCurrency(value) : "&ndash;") + '</td>').join("") + '</tr>';
     const predicateForRevenueType = (key) => (row) => String(row.Revenue_Type || "").trim().toLowerCase() === key.toLowerCase() && !discountRevenue(row) && !balanceBroughtForwardRevenue(row);
 
     const millageValues = directOperationalColumns.map((column) => column.key === "general" ? "3.2500" : (column.key === "mosquito" ? "0.4410" : "&ndash;")).concat(["&ndash;", "&ndash;", "&ndash;", "&ndash;"]);
-    bodyRows.push('<tr class="wc-table-millage-row trim-table-gray-row"><td>Millage per $1,000</td>' + millageValues.map((value, index) => '<td class="wc-num"' + (index === eliminationColumnIndex ? spacerStyle : "") + '>' + value + '</td>').join("") + '</tr>');
+    bodyRows.push('<tr class="wc-table-millage-row trim-table-gray-row"><td>Millage per $1,000</td>' + millageValues.map((value, index) => '<td class="wc-num">' + value + '</td>').join("") + '</tr>');
     bodyRows.push(moneyRow("Property Taxes (Ad Valorem)", propertyTaxValues));
     bodyRows.push(moneyRow("General Government Taxes (excluding Property Taxes)", paperValues(cache.revenues, (row) => predicateForRevenueType("General Government Taxes")(row) && !["311000", "311001", "389001"].includes(String(row.Revenue_Code || "").trim()), isRevenueTransfer)));
-    // Only a formal Revenue_Code 381000 transfer-in gets pulled into "Other
-    // Sources" regardless of its own Revenue_Type -- using the broader
-    // isRevenueTransfer flag here would also recapture fund 503's own
-    // Charges for Services / Miscellaneous Revenue rows (flagged for the
-    // elimination above) and double-display them under "Other Sources" too.
-    const isFormalTransferIn = (row) => String(row.Revenue_Code || "").trim() === "381000";
+    // A formal Revenue_Code 381000 transfer-in gets pulled into "Other
+    // Sources" regardless of its own Revenue_Type.
+    const isFormalTransferIn = isRevenueTransfer;
     CONSOLIDATED_REVENUE_TYPE_ROWS.slice(2).forEach((spec) => {
       const predicate = spec.key === "Other Sources"
         ? (row) => predicateForRevenueType(spec.key)(row) || isFormalTransferIn(row)
@@ -6361,7 +6338,7 @@
       '<p>Walton County, Florida &mdash; Board of County Commissioners &mdash; Fiscal Year 2026&ndash;2027</p>' +
       operatingIncreaseHtml + '</div>' +
       '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns"><table class="wc-data-table wc-consolidated-financial-table">' +
-      '<thead><tr>' + headers.map((header, index) => '<th' + (index === eliminationColumnIndex + 1 ? spacerStyle : "") + '>' + formatHeaderLabel(header) + '</th>').join("") + '</tr></thead>' +
+      '<thead><tr>' + headers.map((header, index) => '<th>' + formatHeaderLabel(header) + '</th>').join("") + '</tr></thead>' +
       '<tbody>' + bodyRows.join("") + '</tbody></table></div>' +
       '<p class="trim-budget-record-note">The final adopted, and/or final budgets are on file in the Office of the Walton County Board of County Commissioners as a public record.</p></div>';
   }
@@ -7470,7 +7447,11 @@
         const annualCommitment = annualBeachRenourishmentCommitment ? annualBeachRenourishmentCommitment[year] || 0 : 0;
         const revenues = sumForecastCategories(revenueCategories, year);
         const expenditures = sumForecastCategories(expenseCategories, year);
-        const netChange = revenues - expenditures;
+        // Source accounts carry fractional-dollar precision, so a balanced
+        // year can come out a dollar or less off; treat that as no change,
+        // same as the Fund Financial Schedule's Change in Fund Balance.
+        const rawNetChange = revenues - expenditures;
+        const netChange = Math.abs(rawNetChange) <= 1 ? 0 : rawNetChange;
         const availableNetChange = netChange - annualCommitment;
         const endingBalance = beginningBalance + netChange;
         const committedBeachRenourishmentBalance = beginningCommittedBalance + annualCommitment;
@@ -8349,18 +8330,25 @@
     bodyRows.push(rowHtml("Beginning Fund Balance", beginningValues, "wc-table-subtotal-row"));
 
     bodyRows.push(groupHeaderHtml("Revenues", "revenue"));
+    // Ad valorem revenue is booked under the "General Government Taxes"
+    // type, so the Property Taxes line and the "excluding Property Taxes"
+    // line are split by each spec's own predicate rather than by type alone.
     const revenueTypeRows = CONSOLIDATED_REVENUE_TYPE_ROWS
-      .map((spec) => ({
-        label: spec.label,
-        predicate: (r) =>
-          r.Revenue_Type === spec.key &&
+      .map((spec) => {
+        const inGroup = (r) => {
+          if (spec.key === "Property Taxes") {
+            return r.Revenue_Type === "Property Taxes" ||
+              (r.Revenue_Type === "General Government Taxes" && spec.predicate(r));
+          }
+          if (spec.predicate) return spec.predicate(r);
+          return r.Revenue_Type === spec.key;
+        };
+        const predicate = (r) =>
+          inGroup(r) &&
           !isOtherFinancingRevenue(r) &&
-          !isFundBalanceBroughtForwardRevenue(r),
-        values: rowValues((r) =>
-          r.Revenue_Type === spec.key &&
-          !isOtherFinancingRevenue(r) &&
-          !isFundBalanceBroughtForwardRevenue(r), revenueRows)
-      }));
+          !isFundBalanceBroughtForwardRevenue(r);
+        return { label: spec.label, predicate, values: rowValues(predicate, revenueRows) };
+      });
     const generalGovTaxesRow = revenueTypeRows.find((row) => row.label === "General Government Taxes");
     if (generalGovTaxesRow) {
       const fy2026Index = FUND_SCHEDULE_YEAR_COLUMNS.findIndex((c) => c.field === "FY2026_Original_Budget");
@@ -14186,102 +14174,19 @@
       return;
     }
 
-    const departmentServiceRows = rows.filter((r) => !r.Is_Cip);
-    const cipRows = rows.filter((r) => r.Is_Cip);
-
     container.innerHTML =
       '<section class="wc-contract-ledger-section">' +
       "<h2>Department Services</h2>" +
       '<p class="wc-contract-ledger-section-note">Contracted operating services procured by Board departments -- professional services, maintenance, technology, and similar agreements.</p>' +
       '<div id="wcContractualServicesDeptLedger"></div>' +
-      "</section>" +
-      '<section class="wc-contract-ledger-section">' +
-      "<h2>Capital Improvement Projects</h2>" +
-      '<p class="wc-contract-ledger-section-note">Anticipated procurements for FY 2027-funded Capital Improvement Plan projects -- engineering, design, construction engineering and inspection (CEI), and construction. See the <a href="capital-improvement-plan.html">Capital Improvement Plan</a> for full project detail.</p>' +
-      '<div id="wcContractualServicesCipLedger"></div>' +
       "</section>";
 
     renderContractualServicesLedger(
-      departmentServiceRows,
+      rows,
       container.querySelector("#wcContractualServicesDeptLedger"),
       "wcContractualServicesDept",
       "No department services data is available."
     );
-    renderContractualServicesLedger(
-      cipRows,
-      container.querySelector("#wcContractualServicesCipLedger"),
-      "wcContractualServicesCip",
-      "No Capital Improvement Plan procurement data is available."
-    );
-  }
-
-  // Capital Improvement Plan projects are folded into the same schedule as
-  // renderContractualServicesSummary's awarded-vendor rows -- each FY2027-
-  // funded CIP project becomes a row for its own "Capital Improvement Plan"
-  // fund group, flagged as a future/unawarded procurement (no vendor/contract
-  // number yet, since these haven't been procured). A single generic label is
-  // used instead of naming every service type (engineering, design, CEI,
-  // construction) -- not every project needs all of them, and some are
-  // designed in-house rather than contracted, so listing them all per row
-  // would overstate what's actually being procured for a given project.
-  const CIP_PROCUREMENT_SCOPE = "Capital Project Services (as applicable)";
-
-  // Matches a CIP project's raw "Budget Fund(s)" text to the same Fund_Name
-  // string used by the awarded-vendor rows (cache.funds), so a project falls
-  // into -- and subtotals with -- its actual fund rather than a synthetic
-  // "Capital Improvement Plan" bucket.
-  function fundNameForCipProject(project) {
-    const raw = String(project.funding || "").trim();
-    if (!raw) return "Capital Improvement Plan";
-    const match = (cache.funds || []).find((f) => String(f.Fund_Name || "").trim().toLowerCase() === raw.toLowerCase());
-    return match ? match.Fund_Name : raw;
-  }
-
-  function buildCipContractualServiceRows() {
-    return (window.wcCipProjects || [])
-      // Sheriff CIP projects are excluded, same as the awarded-vendor rows
-      // above -- this page doesn't cover Constitutional Officer contracts.
-      .filter((project) => project.department !== "Sheriff")
-      // Legacy placeholder rows exist solely to carry an in-house
-      // engineering dollar amount -- they're not a real capital project and
-      // don't belong on a contractual services page.
-      .filter((project) => !project.is_legacy_in_house_engineering_row)
-      // US 331 Bridge Lighting is a state (FDOT) project, not a County
-      // contracted service.
-      .filter((project) => project.title !== "US 331 Bridge Lighting")
-      // Grant-funded projects are excluded -- their procurement/vendor
-      // requirements are driven by the granting agency, not this page's
-      // Board-managed contractual services.
-      .filter((project) => String(project.funding || "").trim().toLowerCase() !== "grant funded")
-      .map((project) => ({
-        project: project,
-        fy2027: (project.funding_by_year || []).find((item) => item.year === "FY2027")
-      }))
-      .filter((entry) => entry.fy2027 && entry.fy2027.amount_value)
-      .map(({ project, fy2027 }) => {
-        // Net out the portion of the project done by County staff
-        // in-house -- that work isn't a contracted service, so it
-        // shouldn't count toward the amount shown here even when the rest
-        // of the project (design, CEI, construction) is contracted out.
-        const inHouseValue = project.has_in_house_engineering ? project.in_house_engineering_value : 0;
-        const amount = Math.max(0, fy2027.amount_value - inHouseValue);
-        return {
-          project: project,
-          amount: amount
-        };
-      })
-      .filter((entry) => entry.amount)
-      .map(({ project, amount }) => ({
-        Dept_Name: tourismDeptLabel(project.department, fundNameForCipProject(project)),
-        Fund_Name: fundNameForCipProject(project),
-        Item_Description: project.title + " — " + CIP_PROCUREMENT_SCOPE,
-        Vendor: "",
-        Contract_No: "N/A",
-        Budget2026: 0,
-        Amount: amount,
-        Contract_Status: "New Procurement",
-        Is_Cip: true
-      }));
   }
 
   function initContractualServicesSummaryPage() {
@@ -14290,13 +14195,12 @@
 
     container.innerHTML = '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>";
 
-    Promise.all([loadBudgetData(), window.wcCipProjectsReady || Promise.resolve([])])
-      .then(([data]) => {
+    loadBudgetData()
+      .then((data) => {
         if (Object.keys(data.errors || {}).length >= data.datasetCount) {
           container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
           return;
         }
-        cache.contractualServices = (cache.contractualServices || []).concat(buildCipContractualServiceRows());
         renderContractualServicesSummary(container);
       })
       .catch((err) => {
@@ -18273,17 +18177,71 @@
     return { proposed, prior, change: proposed - prior };
   }
 
-  // Combined FY2027 total for the Contractual Services Ledger's two
-  // sections (Department Services + Capital Improvement Projects) --
-  // reuses the exact same row builders that ledger page itself renders
-  // from, so this callout always reconciles with what that page shows.
+  // FY2027 total for the Contractual Services Ledger -- reuses the exact
+  // same row builder that ledger page itself renders from, so this callout
+  // always reconciles with what that page shows.
   function getContractualServicesBudgetTotal(data) {
     const deptRows = buildContractualServicesRowsFromExpenditures((data && data.expenditures) || []);
-    const cipRows = buildCipContractualServiceRows();
-    return deptRows.concat(cipRows).reduce((sum, r) => sum + (r.Amount || 0), 0);
+    return deptRows.reduce((sum, r) => sum + (r.Amount || 0), 0);
+  }
+
+  // "Budget CSV Export": the FY2027 proposed budget as the pipe-delimited
+  // import file, laid out as the cleaned OpenGov export -- Org, Object and
+  // Project in columns A-C, four empty columns, then the amount in column H
+  // as a plain number (no thousands separator). Fund is not part of the
+  // import. Rows are one per account string (Org + Object + Project), so
+  // repeated source rows are summed, and $0 accounts are left out. A blank
+  // project code is written as a single space.
+  function buildBudgetImportCsv(data) {
+    const source = data || cache || {};
+    function accountLines(rows, objectField) {
+      const totals = new Map();
+      (rows || []).forEach((row) => {
+        const org = String(row.Dept_Code || "").trim();
+        const object = String(row[objectField] || "").trim();
+        if (!org && !object) return;
+        // A few revenue rows carry the project number in the Project Name
+        // column with Project Code left empty; a purely numeric name is
+        // that project number.
+        let project = String(row.Project_Code || "").trim();
+        if (!project && /^\d+$/.test(String(row.Project_Name || "").trim())) project = String(row.Project_Name).trim();
+        // Project numbers are five digits, but the sheet drops leading zeros
+        // (1040 for 01040); a project that isn't a number (e.g. BEACH) is
+        // not exported and is written as blank.
+        project = /^\d+$/.test(project) ? project.padStart(5, "0") : "";
+        const key = [org, object, project].join("\u0000");
+        const entry = totals.get(key) || { org, object, project, amount: 0 };
+        entry.amount += Number(row.FY2027_Proposed) || 0;
+        totals.set(key, entry);
+      });
+      return Array.from(totals.values())
+        .map((entry) => Object.assign(entry, { amount: Math.round(entry.amount * 100) / 100 }))
+        .filter((entry) => entry.amount !== 0)
+        .sort((a, b) => (a.org < b.org ? -1 : a.org > b.org ? 1 : a.object < b.object ? -1 : a.object > b.object ? 1 : a.project < b.project ? -1 : a.project > b.project ? 1 : 0))
+        .map((entry) => [entry.org, entry.object, entry.project || " ", "", "", "", "", entry.amount.toFixed(2)].join("|"));
+    }
+    const lines = accountLines(source.revenues, "Revenue_Code").concat(accountLines(source.expenditures, "Object_Code"));
+    return lines.length ? lines.join("\r\n") + "\r\n" : "";
+  }
+
+  function downloadBudgetImportCsv() {
+    return loadBudgetData().then((data) => {
+      const csv = buildBudgetImportCsv(data);
+      if (!csv) throw new Error("No budget rows are available to export.");
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Budget-CSV-Export-FY2027.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
   }
 
   window.WCBudgetData = {
+    buildBudgetImportCsv,
+    downloadBudgetImportCsv,
     getDepartmentBudgetTotal,
     getContractualServicesBudgetTotal,
     getDepartmentBudgetBreakdown,

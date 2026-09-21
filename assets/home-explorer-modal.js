@@ -26,6 +26,7 @@
   var LEDGER_DIRECTORY_HREF = "pages/budget-overview.html";
 
   var activeCard = null;
+  var activeExplorerType = "";
   var modal = null;
   var modalBody = null;
   var modalTitle = null;
@@ -33,6 +34,10 @@
   var departmentFrame = null;
   var openedFromLedgerDirectory = false;
   var departmentTrigger = null;
+  // Set when a utility page (Glossary & FAQ, Accessibility, ...) is opened
+  // from a page that is already showing in the popup, so closing the utility
+  // page returns to that page instead of dismissing the whole popup.
+  var departmentReturnTo = null;
   var departmentFrameAwaitingInitialLoad = false;
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
@@ -51,11 +56,10 @@
   // (capped at the viewport) instead of always opening at near-full
   // height -- a short page like State Attorney or Public Defender no
   // longer leaves a block of empty space below its footer. Utility pages
-  // (Glossary, Transaction Search, Accessibility, Privacy) deliberately
-  // stay full-screen instead (see the is-utility-page bailout below) --
-  // they're meant to feel like standalone pages, not a compact card, and
-  // some of them (Privacy in particular) are long enough to want the full
-  // viewport rather than a shrink-to-fit box.
+  // (Glossary, Transaction Search, Accessibility, Privacy) skip this (see
+  // the is-utility-page bailout below) and keep the popup's full-height
+  // panel, since some of them (Privacy in particular) are long enough to
+  // want it rather than a shrink-to-fit box.
   function sizeIframePopupPanel(panel, frame, headEl, isUtilityPage) {
     if (!panel || !frame || isUtilityPage || window.innerWidth <= 700) {
       if (panel) panel.style.height = "";
@@ -733,7 +737,13 @@
           openedFromLedgerDirectory = currentEmbeddedFilename === "budget-overview.html" && LEDGER_DIRECTORY_PAGES.has(resolvedFilename);
           if (/\/(?:transaction-search|glossary-acronyms-and-frequently-asked-questions|accessibility|privacy)\.html$/i.test(resolvedUrl.pathname)) {
             event.preventDefault();
-            openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger);
+            var returnTo = departmentReturnTo;
+            if (!returnTo) {
+              var returnUrl = new URL(embeddedDocument.location.href);
+              returnUrl.searchParams.delete("embed");
+              returnTo = { href: returnUrl.href, title: departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent };
+            }
+            openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger, returnTo);
             return;
           }
           // The budget book supplies its own transparent, chromeless layout
@@ -826,12 +836,12 @@
       departmentPanelResizeObserver = watchIframePopupHeight(departmentFrame, updateDepartmentModalHeight);
     });
     departmentModal.addEventListener("click", function (event) {
-      if (event.target.closest("[data-department-popup-close]")) closeDepartmentModal();
+      if (event.target.closest("[data-department-popup-close]")) dismissDepartmentModal();
     });
     return departmentModal;
   }
 
-  var UTILITY_POPUP_PAGE_PATTERN = /\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions)\.html$/i;
+  var UTILITY_POPUP_PAGE_PATTERN = /\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions|supporting-budget-documentation)\.html$/i;
 
   // Keeps the homepage's own address bar's ?popup= param pointed at whatever
   // page this popup is currently showing, so refreshing the browser (or
@@ -851,9 +861,10 @@
     } catch (error) {}
   }
 
-  function openDepartmentModal(href, title, trigger) {
+  function openDepartmentModal(href, title, trigger, returnTo) {
     ensureDepartmentModal();
     departmentTrigger = trigger;
+    departmentReturnTo = returnTo || null;
     var openedWithoutExplorer = modal.hidden;
     var url = new URL(href, window.location.href);
     // Every explicit popup open begins a new navigation path. Only a later
@@ -925,8 +936,20 @@
     else departmentModal.querySelector(".wc-home-department-modal-close").focus();
   }
 
+  // The popup's own close controls (X, backdrop, Escape): step back to the
+  // page a utility page was opened from when there is one, otherwise close.
+  function dismissDepartmentModal() {
+    if (departmentReturnTo && departmentModal && !departmentModal.hidden) {
+      var returnTo = departmentReturnTo;
+      openDepartmentModal(returnTo.href, returnTo.title, departmentTrigger);
+      return;
+    }
+    closeDepartmentModal();
+  }
+
   function closeDepartmentModal() {
     if (!departmentModal || departmentModal.hidden) return;
+    departmentReturnTo = null;
     var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
     departmentModal.hidden = true;
     if(modal) modal.inert = false;
@@ -965,6 +988,17 @@
     departmentTrigger = null;
   }
 
+  // The explorer popup's own close controls (X, backdrop, Escape): when a
+  // footer page (Glossary & FAQ, Accessibility, ...) is showing, go back to
+  // the explorer it was opened from instead of closing the whole popup.
+  function dismissModal() {
+    if (modal && !modal.hidden && modal.classList.contains("is-utility-page") && EXPLORERS[activeExplorerType]) {
+      openModal(activeExplorerType, activeCard);
+      return;
+    }
+    closeModal();
+  }
+
   function closeModal() {
     if (!modal || modal.hidden) return;
     closeDepartmentModal();
@@ -995,7 +1029,14 @@
     var config = EXPLORERS[type];
     if (!config) return;
     activeCard = card;
+    activeExplorerType = type;
     modal.classList.remove("is-utility-page");
+    var panelToUnsize = modal.querySelector(".wc-home-explorer-modal-panel");
+    if (panelToUnsize) panelToUnsize.style.height = "";
+    if (explorerUtilityPanelResizeObserver) {
+      explorerUtilityPanelResizeObserver.disconnect();
+      explorerUtilityPanelResizeObserver = null;
+    }
     modalTitle.textContent = config.title;
     modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close explorer");
     modal.hidden = false;
@@ -1101,7 +1142,7 @@
       var departmentTitle = filename === "environmental-resources.html" ? "Environmental Resources" : page.title;
       openDepartmentModal(departmentHref.href, departmentTitle, link);
     }, true);
-    modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", closeModal);
+    modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", dismissModal);
     modal.querySelector(".wc-home-explorer-modal-footer").addEventListener("click", function (event) {
       var actionButton = event.target.closest("[data-explorer-footer-action]");
       if (!actionButton) return;
@@ -1139,17 +1180,17 @@
         modal.querySelector(".wc-home-explorer-modal-close").focus();
       }
     });
-    modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
+    modal.addEventListener("click", function (event) { if (event.target === modal) dismissModal(); });
     document.addEventListener("keydown", function (event) {
       if (modal.hidden && (!departmentModal || departmentModal.hidden)) return;
       var nestedDialog = modal.querySelector("dialog[open]");
       if (event.key === "Escape") {
         if (departmentModal && !departmentModal.hidden) {
-          closeDepartmentModal();
+          dismissDepartmentModal();
           return;
         }
         if (nestedDialog) return;
-        closeModal();
+        dismissModal();
         return;
       }
       if (departmentModal && !departmentModal.hidden && event.key === "Tab") {

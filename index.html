@@ -1713,8 +1713,20 @@
           animationTimer = window.setTimeout(finishClose, 720);
         }
       }
-      closeButton.addEventListener('click', closeDialog);
-      dialog.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeDialog(); });
+      // A footer link inside the embedded homepage (Glossary & FAQ,
+      // Accessibility, ...) loads its page into this same frame in place of
+      // the homepage, so closing from there steps back to the homepage
+      // instead of dismissing the whole popup.
+      function closeOrGoBack(){
+        var path = "";
+        try{ path = frame.contentWindow.location.pathname; }catch(error){}
+        if(/\/pages\/[^/]+\.html$/i.test(path)){
+          try{ frame.contentWindow.history.back(); return; }catch(error){}
+        }
+        closeDialog();
+      }
+      closeButton.addEventListener('click', closeOrGoBack);
+      dialog.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeOrGoBack(); });
 
       function openDialog(event){
         if(event) event.preventDefault();
@@ -1769,7 +1781,7 @@
               !embeddedDocument.body.classList.contains('wc-home-explorer-open') &&
               !embeddedDocument.body.classList.contains('wc-global-search-open') &&
               !embeddedDocument.querySelector('dialog[open]')){
-              event.preventDefault(); closeDialog();
+              event.preventDefault(); closeOrGoBack();
             }
           }, true);
           function syncInnerPopupState(){

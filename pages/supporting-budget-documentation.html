@@ -94,6 +94,7 @@
     <li><a class="wc-doc-card" href="https://www.mywaltonfl.gov/" target="_blank" rel="noopener noreferrer"><strong>County Website</strong><span>Official Walton County Board of County Commissioners website.</span><em>Open website</em></a></li>
     <li><a class="wc-doc-card" href="https://www.mywaltonfl.gov/260/Budget-Publications" target="_blank" rel="noopener noreferrer"><strong>Prior Budgets</strong><span>Adopted budget documents from previous fiscal years.</span><em>Open website</em></a></li>
     <li><a class="wc-doc-card" href="transaction-search.html"><strong>Transaction Search</strong><span>Search individual check register and disbursement transactions.</span><em>Open document</em></a></li>
+    <li><a class="wc-doc-card" href="#budget-csv-export" data-budget-csv-export><strong>Budget CSV Export</strong><span>FY 2027 proposed budget import file, one line per account (Org, Object, Project, amount), separated by pipes.</span><em>Download file</em></a></li>
   </ul>
 </section>
 
@@ -181,5 +182,35 @@ window.wcBudgetPages = [
 <script src="../assets/search-data.js?v=20260910-remove-dark-mode"></script>
 <script src="../assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script>
+(function(){
+  var card=document.querySelector("[data-budget-csv-export]");
+  if(!card) return;
+  var label=card.querySelector("em");
+  var idleText=label.textContent;
+  var busy=false;
+  function loadBudgetData(){
+    if(window.WCBudgetData) return Promise.resolve();
+    return new Promise(function(resolve,reject){
+      var script=document.createElement("script");
+      script.src="../assets/budget-data.js?v=20260921-budget-csv-export";
+      script.onload=resolve;
+      script.onerror=reject;
+      document.head.appendChild(script);
+    });
+  }
+  card.addEventListener("click",function(event){
+    event.preventDefault();
+    if(busy) return;
+    busy=true;
+    label.textContent="Preparing file\u2026";
+    loadBudgetData()
+      .then(function(){return window.WCBudgetData.downloadBudgetImportCsv();})
+      .then(function(){label.textContent=idleText;})
+      .catch(function(){label.textContent="Unavailable \u2014 try again";})
+      .then(function(){busy=false;});
+  });
+})();
+</script>
 </body>
 </html>

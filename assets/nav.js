@@ -2,11 +2,10 @@
   // Detail and utility documents are designed to appear inside the homepage
   // popup shell. If one is opened directly in the top-level browser, return
   // to the homepage and ask it to reopen the same URL in that shell. Embedded
-  // requests and the intentionally standalone accessible budget remain intact.
+  // requests remain intact.
   (function redirectStandalonePopupPage(){
     if(window.top !== window.self) return;
     if(!/\/pages\/[^/]+\.html$/i.test(window.location.pathname)) return;
-    if(/\/pages\/full-budget-document\.html$/i.test(window.location.pathname)) return;
     var directParams;
     try { directParams = new URLSearchParams(window.location.search); }
     catch(error) { return; }
@@ -15,6 +14,16 @@
     var homepage = new URL("../home.html", window.location.href);
     homepage.searchParams.set("popup", popupPath);
     window.location.replace(homepage.href);
+  })();
+
+  // Footer pages (Glossary & FAQ, Supporting Documentation, Accessibility,
+  // Privacy) that load into an embedded frame in place of the page that
+  // linked them get no ?embed flag, so mark them as chromeless right away.
+  // Otherwise the sitewide header flashes until the outer page catches up.
+  (function markEmbeddedUtilityPage(){
+    if(window.top === window.self) return;
+    if(!/\/(accessibility|privacy|glossary-acronyms-and-frequently-asked-questions|supporting-budget-documentation)\.html$/i.test(window.location.pathname)) return;
+    document.documentElement.classList.add("wc-embedded-utility");
   })();
 
   var wcBudgetNavStarted = false;
@@ -2363,81 +2372,12 @@
     document.body.insertBefore(header, document.body.firstChild);
     equalizeWaltonSplitLogo(header);
   }
-  function ensureWcBreadcrumb(){
-    var eyebrow = document.querySelector(".page-eyebrow");
-    var title = document.querySelector(".page-title");
-    if(!eyebrow || !title){
-      return;
-    }
-    var content = document.getElementById("content");
-    var anchor = content || document.querySelector("nav#nav-menu.nav-menu") || document.querySelector(".wc-standalone-budget-nav");
-    if(!anchor || !anchor.parentNode){
-      return;
-    }
-    var eyebrowText = eyebrow.textContent.trim();
-    var titleText = title.textContent.trim();
-    var currentPage = (window.location.pathname.split("/").pop() || "").toLowerCase();
-    var explorerPages = new Set();
-    var sectionCrumb = "";
-    if(explorerPages.has(currentPage)){
-      sectionCrumb = '<a href="../home.html">Budget Explorer</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === titleText){
-      sectionCrumb = "";
-    }else if(titleText === "Overview of Walton County" || titleText === "Organizational Structure" || titleText === "Statistical & Supplemental Information" || titleText === "Glossary, Acronyms, and Frequently Asked Questions"){
-      sectionCrumb = '<a href="our-county.html">Our County</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Departments"){
-      sectionCrumb = '<a href="../home.html?explorer=departments">Department Budgets</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Constitutional Officers"){
-      sectionCrumb = '<a href="../home.html?explorer=constitutional">Constitutional Officers</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Autonomous Entities"){
-      sectionCrumb = '<a href="independent-agencies-ledger.html">Independent Agencies</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Financial Overview" || eyebrowText === "Introduction and Overview" || eyebrowText === "Financial Structure, Policies, and Process"){
-      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(currentPage === "debt-overview.html"){
-      // Debt Ledger is listed in the Financial Overview directory, not the
-      // Financials directory -- other "Debt and Financial Forecast"
-      // eyebrow pages (e.g. Financial Forecast) still fall through to the
-      // Financials branch below.
-      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Financials" || eyebrowText === "Financial Summaries" || eyebrowText === "Debt and Financial Forecast" || eyebrowText === "Glossary, Statistical, and Supplemental Information"){
-      sectionCrumb = '<a href="budget-overview.html">Budget Ledgers</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText === "Supporting Budget Documentation"){
-      sectionCrumb = '<a href="supporting-budget-documentation.html">Supporting Budget Documentation</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(currentPage === "cip-project.html" || eyebrowText === "Capital Projects" || eyebrowText === "Capital Budget" || eyebrowText === "Capital Improvement Plan"){
-      sectionCrumb = '<a href="../home.html?explorer=capital">Capital Budget</a><span class="wc-breadcrumb-sep">/</span>';
-    }else if(eyebrowText){
-      sectionCrumb = '<span>' + eyebrowText + '</span><span class="wc-breadcrumb-sep">/</span>';
-    }
-    var html = '<a href="../index.html">Home</a><span class="wc-breadcrumb-sep">/</span>' +
-      sectionCrumb +
-      '<span class="wc-breadcrumb-current">' + titleText + '</span>';
-    var crumb = document.querySelector(".wc-breadcrumb");
-    if(!crumb){
-      crumb = document.createElement("nav");
-      crumb.className = "wc-breadcrumb";
-      crumb.setAttribute("aria-label", "Breadcrumb");
-      if(content){
-        content.insertBefore(crumb, content.firstChild);
-      }else{
-        anchor.parentNode.insertBefore(crumb, anchor.nextSibling);
-      }
-    }
-    // The trail lives in its own element so a page can park an action
-    // (e.g. the Capital Budget page's Project Search button) inline with the
-    // breadcrumbs without the repair pass wiping it out.
-    var trail = crumb.querySelector(".wc-breadcrumb-trail");
-    if(!trail){
-      trail = document.createElement("span");
-      trail.className = "wc-breadcrumb-trail";
-      crumb.insertBefore(trail, crumb.firstChild);
-    }
-    if(trail.innerHTML !== html){
-      trail.innerHTML = html;
-    }
-    var breadcrumbAction = document.querySelector("[data-wc-breadcrumb-action]");
-    if(breadcrumbAction && breadcrumbAction.parentNode !== crumb){
-      crumb.appendChild(breadcrumbAction);
-    }
+  // Breadcrumbs are intentionally not shown on any page; this also clears
+  // any that a page ships in its own markup.
+  function removeWcBreadcrumb(){
+    document.querySelectorAll(".wc-breadcrumb").forEach(function(crumb){
+      crumb.remove();
+    });
   }
   function openWaltonBudgetFooterSearch(){
     // Department, officer, and ledger pages are displayed inside the homepage
@@ -2608,9 +2548,19 @@
     // embedded frame) instead of intercepting the click here.
     var isEmbeddedPage = window.top !== window.self || new URLSearchParams(window.location.search).has('embed');
     footer.querySelectorAll('[data-wc-utility-popup]').forEach(function(link){
-      if(isEmbeddedPage) return;
+      // The homepage shown inside the start page's popup owns the same
+      // popup system as every other explorer page, so its footer links open
+      // there (title bar, close button, wave backdrop) rather than loading
+      // over the homepage inside the frame.
       link.addEventListener('click',function(event){
         if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey) return;
+        var hostsHomePopups = isEmbeddedPage && window.WCHomeExplorer && typeof window.WCHomeExplorer.openDepartmentModal === 'function';
+        if(isEmbeddedPage && !hostsHomePopups) return;
+        if(hostsHomePopups){
+          event.preventDefault();
+          window.WCHomeExplorer.openDepartmentModal(link.href,link.getAttribute('data-wc-utility-popup')||link.textContent.trim(),link);
+          return;
+        }
         if(!utilityDialog||!utilityFrame||typeof utilityDialog.showModal!=='function') return;
         event.preventDefault();
         var title=link.getAttribute('data-wc-utility-popup')||link.textContent.trim();
@@ -2667,7 +2617,7 @@
     if(wcBudgetNavStarted){
       initWcNavSearch();
       ensureWcNavChrome();
-      ensureWcBreadcrumb();
+      removeWcBreadcrumb();
       renderWaltonBudgetFooter();
       lockHorizontalPageScroll();
       return;
@@ -2680,11 +2630,11 @@
       loadWaltonPerformanceMobile();
       loadWaltonBudgetPdfPrintHelper();
       ensureWcNavChrome();
-      ensureWcBreadcrumb();
+      removeWcBreadcrumb();
       setTimeout(initWcNavSearch, 800);
       setTimeout(initWcNavSearch, 2000);
-      setTimeout(ensureWcBreadcrumb, 800);
-      setTimeout(ensureWcBreadcrumb, 2000);
+      setTimeout(removeWcBreadcrumb, 800);
+      setTimeout(removeWcBreadcrumb, 2000);
       renderWaltonBudgetFooter();
       setTimeout(renderWaltonBudgetFooter, 500);
       setTimeout(renderWaltonBudgetFooter, 1500);
@@ -2693,9 +2643,9 @@
     renderStandaloneBudgetNav();
     loadWaltonPerformanceMobile();
     loadWaltonBudgetPdfPrintHelper();
-    ensureWcBreadcrumb();
-    setTimeout(ensureWcBreadcrumb, 800);
-    setTimeout(ensureWcBreadcrumb, 2000);
+    removeWcBreadcrumb();
+    setTimeout(removeWcBreadcrumb, 800);
+    setTimeout(removeWcBreadcrumb, 2000);
     if(document.getElementById('app')){
       renderWaltonBudgetFooter();
     }else{
@@ -2769,7 +2719,7 @@
         }
         ensureWcNavChrome();
       }
-      ensureWcBreadcrumb();
+      removeWcBreadcrumb();
     }catch(error){
       if(window.console && typeof window.console.error === "function"){
         window.console.error("Walton County budget nav repair failed:", error);

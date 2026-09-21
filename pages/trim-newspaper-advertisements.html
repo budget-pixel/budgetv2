@@ -146,6 +146,7 @@
     }
 
     var headerCells=Array.prototype.map.call(table.querySelectorAll("thead th"),function(cell){return cell.textContent.trim();});
+    var headerParts=Array.prototype.map.call(table.querySelectorAll("thead th"),function(cell){return cell.innerHTML.split(/<br\s*\/?>/i).map(function(part){return part.replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/\s+/g," ").trim();}).filter(Boolean);});
     var rows=Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
     var recordNote=source.querySelector(".trim-budget-record-note");
     var noteHeight=105;
@@ -166,7 +167,8 @@
     headerCells.forEach(function(text,index){
       var cellWidth=index===0?firstWidth:numberWidth;
       var center=columnX[index]+cellWidth/2;
-      var lines=textLines(context,text,cellWidth-18);
+      var lines=[];
+      headerParts[index].forEach(function(part){textLines(context,part,cellWidth-18).forEach(function(line){lines.push(line);});});
       var lineHeight=30;
       drawLines(context,lines,center,y+(headerHeight-lines.length*lineHeight)/2+24,lineHeight,"center");
     });
