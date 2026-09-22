@@ -36,7 +36,6 @@ const sections = [
     ["State Attorney",58], ["Public Defender",58], ["Circuit Court",58], ["Court Technology & Innovations",58], ["County Court",58], ["Daughette MSBU Fund",58], ["Guardian Ad Litem",58]
   ] },
   { title: "Program and Service Budget", subtitle: "Board-administered purpose, full cost, funding, contributing services, service-level decisions, and measurable FY2027 targets; Constitutional Officers and independent agencies are excluded.", items: [
-    ["Program and Service Budget Chapter",59,{overview:true}],
     ["Public Value",60],["Safety, Justice and Effective Government",61],["Visitors, Mobility and Infrastructure",62],["Environment, Growth and Community Development",63],["Quality of Life and Community Wellbeing",64]
   ] },
   { title: "Board Department Budgets", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",66,{overview:true}]],
@@ -53,12 +52,12 @@ const sections = [
       ["Tourism Administration",null,[["Tourism Administration",93],["Sales and Visitors Center",94],["Communications",95],["Marketing",96]]]
     ]
   },
-  { title: "Workforce Budget", subtitle: "Personnel cost and capacity across Walton County government -- the number and mix of positions, and the cost of maintaining the existing workforce.", items: [["Workforce Budget",100],["Personnel Ledger",101]] },
+  { title: "Workforce Budget", subtitle: "Personnel cost and capacity across Walton County government, including staffing, benefit costs, and the reserve position of the employee health plan.", items: [["Workforce Budget",100],["Personnel Ledger",101],["Self-Insurance Fund",102]] },
   { title: "Capital Budget", subtitle: "The Capital Improvement Plan and fund-specific ledgers for equipment, infrastructure, tourism, public safety, recreation, and sidewalks.", items: [
-    ["Capital Budget Chapter",102],["Capital Improvement Plan",103],["Transportation and Infrastructure Capital Ledger",106],["Tourist Development Fund Capital Ledger",108],["Sheriff Capital Project Ledger",109],["Recreation Plat Fee Fund Capital Ledger",110],["Sidewalk Fund Capital Ledger",111],["Machinery, Vehicles and Equipment Ledger",112]
+    ["Capital Improvement Plan",104],["Transportation and Infrastructure Capital Ledger",107],["Tourist Development Fund Capital Ledger",109],["Sheriff Capital Project Ledger",110],["Recreation Plat Fee Fund Capital Ledger",111],["Sidewalk Fund Capital Ledger",112],["Machinery, Vehicles and Equipment Ledger",113]
   ] },
   { title: "Glossary, Statistical, and Supplemental Information", subtitle: "Statistical context, the county's largest taxpayers, and a glossary of budget terms, acronyms, and frequently asked questions.", items: [
-    ["Glossary Chapter",115],["Glossary, Acronyms and Frequently Asked Questions",116],["Statistical and Supplemental Information",125],["Principal Property Taxpayers",126]
+    ["Glossary, Acronyms and Frequently Asked Questions",117],["Statistical and Supplemental Information",126],["Principal Property Taxpayers",127]
   ] }
 ];
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });

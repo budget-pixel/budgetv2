@@ -198,6 +198,7 @@ revenue = reader("budget-book-revenue-ledger.pdf")
 property_tax = reader("budget-book-property-tax-allocation.pdf")
 expenses = reader("budget-book-summary-of-expenses.pdf")
 personnel = reader("budget-book-personnel-ledger.pdf")
+self_insurance = reader("budget-book-self-insurance-fund.pdf")
 funds = reader("budget-book-fund-financial-ledger.pdf")
 transfers = reader("budget-book-interfund-transfer-ledger.pdf")
 debt = reader("budget-book-debt-ledger.pdf")
@@ -325,6 +326,7 @@ add_range(writer, departments, 3, 34)
 writer.add_page(divider_workforce_plan.pages[0])
 writer.add_page(enh.pages[9])
 writer.add_page(personnel.pages[0])
+writer.add_page(self_insurance.pages[0])
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
 add_range(writer, capital_ledgers, 1, 9)
@@ -339,12 +341,12 @@ add_range(writer, base, 22, 23)
 
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 127
+EXPECTED_PAGES = 128
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 8, 16, 40, 47, 55, 59, 65, 99, 102, 115, 127}
+skip_number = {1, 2, 8, 16, 40, 47, 55, 59, 65, 99, 103, 116, 128}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         remove_source_footer_text(page, writer)
@@ -400,12 +402,13 @@ outline = [
     ("Beach Tram", 98, "Beach Operations"),
     ("Workforce Budget", 99, None),
     ("Personnel Ledger", 101, "Workforce Budget"),
-    ("Capital Budget", 102, None),
-    ("Capital Improvement Plan", 103, "Capital Budget"),
-    ("Glossary, Statistical, and Supplemental Information", 115, None),
-    ("Glossary and Frequently Asked Questions", 116, "Glossary, Statistical, and Supplemental Information"),
-    ("Statistical and Supplemental Information", 125, "Glossary, Statistical, and Supplemental Information"),
-    ("Principal Property Taxpayers", 126, "Glossary, Statistical, and Supplemental Information"),
+    ("Self-Insurance Fund", 102, "Workforce Budget"),
+    ("Capital Budget", 103, None),
+    ("Capital Improvement Plan", 104, "Capital Budget"),
+    ("Glossary, Statistical, and Supplemental Information", 116, None),
+    ("Glossary and Frequently Asked Questions", 117, "Glossary, Statistical, and Supplemental Information"),
+    ("Statistical and Supplemental Information", 126, "Glossary, Statistical, and Supplemental Information"),
+    ("Principal Property Taxpayers", 127, "Glossary, Statistical, and Supplemental Information"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -423,7 +426,7 @@ def shift_page_index(page_index):
     if 67 <= page_index <= 98:
         return page_index - 1
     if page_index >= 102:
-        return page_index + 2
+        return page_index + 3
     if page_index >= 39:
         return page_index + 2
     return page_index + (1 if page_index >= 14 else 0)

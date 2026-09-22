@@ -266,7 +266,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The $345.2 million FY 2027 final budget adopts a reduced County operating millage rate of 3.2500 mills, down from 3.519 mills. Public Safety remains the largest expenditure function at $126.6 million. Countywide Ad Valorem property taxes total $151.1 million, with $8.6 million of General Fund balance appropriated to keep the expenditure budget unchanged.</p>
+    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, continuing a downward trend from 3.6000 mills in FY 2024 and 3.519 mills in FY 2026. Countywide Ad Valorem property taxes remain the County&rsquo;s largest revenue source at $151.1 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">
@@ -279,12 +279,12 @@ const html = `<!doctype html>
     </div>
 
     <h2>Investing in Our Workforce</h2>
-    <p>The budget includes 1,515 positions: 1,508 full-time and 7 part-time, a net increase of 15. The largest change is in Tourism Beach Operations, supporting continued Beach Operations and Beach Tram service. The additions maintain existing services rather than create new core programs; no requested positions were rejected.</p>
+    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 Constitutional Officer positions (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations, supporting continued Beach Operations and Beach Tram service. The additions maintain existing services rather than create new core programs; no requested positions were rejected.</p>
 
     <h2>Continuity, Capital Investment and Preparedness</h2>
-    <p>The Board&rsquo;s formal direction is to maintain current service levels. No major core service is proposed to be added, eliminated, or materially reduced. The budget balances today&rsquo;s services, tomorrow&rsquo;s infrastructure, and financial flexibility.</p>
-    <p>The funded FY2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years; those items remain visible separately in the project inventory. No major funded project was postponed. Engineering and Public Works will publish a letting schedule showing estimated phases and starts.</p>
-    <p>Amendment 3 is not assumed as an enacted revenue reduction. The County will monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
+    <p><strong>Service continuity.</strong> The Board&rsquo;s formal direction for FY 2027 is to maintain current service levels: no major core service is added, eliminated, or materially reduced. Within that direction, the budget balances today&rsquo;s services, tomorrow&rsquo;s infrastructure, and the County&rsquo;s financial flexibility.</p>
+    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years, which remain visible separately in the project inventory; no major funded project was postponed. Engineering and Public Works will publish a letting schedule showing estimated phases and starts.</p>
+    <p><strong>Financial preparedness.</strong> Florida voters are scheduled to consider Amendment 3 in November 2026, which could materially change the countywide taxable base; this budget does not assume it as an enacted revenue reduction. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
     <p>I thank the Board for its guidance and County staff for its work developing this final budget.</p>
 
     <div class="signature-block">

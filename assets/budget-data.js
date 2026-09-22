@@ -6319,10 +6319,12 @@
     bodyRows.push(moneyRow("Less 5%", discountValues));
     bodyRows.push(moneyRow("Total Estimated Revenues", revenueValues, "wc-table-total-row"));
     bodyRows.push(moneyRow("Total Revenues & Reserves", revenuesAndReserves, "wc-table-total-row"));
-    ["General Government", "Public Safety", "Physical Environment", "Transportation", "Economic Environment", "Human Services", "Culture and Recreation", "Court Related Cost", "Debt Service"].forEach((activity) => {
+    ["General Government", "Public Safety", "Physical Environment", "Transportation", "Economic Environment", "Human Services", "Culture and Recreation", "Court Related Cost"].forEach((activity) => {
       bodyRows.push(moneyRow(activity, paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === activity && !isExpenseTransfer(row), isExpenseTransfer)));
     });
-    bodyRows.push(moneyRow("Other Uses", paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === "Other Uses" || isOtherFinancingExpenseRow(row) || isExpenseTransfer(row), isExpenseTransfer)));
+    // Debt Service is folded into Other Uses rather than broken out on its
+    // own line, same as the other financing-type activities below.
+    bodyRows.push(moneyRow("Other Uses", paperValues(cache.expenditures, (row) => expenseActivityForRow(row) === "Other Uses" || expenseActivityForRow(row) === "Debt Service" || isOtherFinancingExpenseRow(row) || isExpenseTransfer(row), isExpenseTransfer)));
     bodyRows.push(moneyRow("Total Expenditures", expenditureValues, "wc-table-total-row trim-table-gray-row"));
     bodyRows.push(moneyRow("Reserves", endingReserves, "wc-table-balance-row"));
     bodyRows.push(moneyRow("Total Expenditures & Reserves", expendituresAndReserves, "wc-table-total-row"));
