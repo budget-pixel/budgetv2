@@ -80,9 +80,7 @@ const DEPT_GROUPS = [
     ["Probation Services", "$364,655", "$370,577"],
     ["South Walton Fire", "$919,693", "$947,284"],
     ["State Fire", "$32,790", "$32,790"],
-    ["Walton County Sheriff's Office", "$114,116,228", "$114,116,228"],
-    ["E911 Fund", "$0", "$0"],
-    ["Law Enforcement Trust Fund", "$0", "$0"]
+    ["Walton County Sheriff's Office", "$114,116,228", "$114,116,228"]
   ]],
   ["Physical Environment", [
     ["Environmental Services", "$840,902", "$648,922"],

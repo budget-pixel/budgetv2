@@ -220,7 +220,7 @@ const sharedCss = `
   .process-card b{ display:block; color:#fff; font-size:7.4pt; margin:.03in 0; }
   .process-card span{ display:block; color:#cfe0d7; font-size:6.6pt; line-height:1.32; }
   .qr-strip{ display:flex; align-items:center; gap:.18in; margin:.1in 0 .14in; padding:.1in .16in; border-left:4px solid #d1be78; background:#f9f8f2; border-radius:0 9px 9px 0; }
-  .qr-strip img{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:1.5px solid #d1be78; border-radius:50%; background:#fff; flex:0 0 auto; }
+  .qr-strip img{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:1.5px solid #d1be78; border-radius:9px; background:#fff; flex:0 0 auto; }
   .qr-strip b{ display:block; color:#003f28; font:800 8.4pt Georgia, serif; margin-bottom:.03in; }
   .qr-strip span{ display:block; color:#33453c; font-size:7.3pt; line-height:1.4; }
 `;
@@ -346,7 +346,7 @@ const page2 = `
   </section>
 `;
 
-const cipUrl = "https://budget-waltoncountyfl.com/pages/capital-improvement-plan.html";
+const cipUrl = "https://final2027.budget-waltoncountyfl.com/pages/capital-improvement-plan.html";
 const cipQrDataUrl = await QRCode.toDataURL(cipUrl, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
 
 const page3 = `

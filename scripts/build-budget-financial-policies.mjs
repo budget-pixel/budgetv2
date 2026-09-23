@@ -170,7 +170,7 @@ const sharedCss = `
     box-sizing:border-box;
     padding:.05in;
     border:1.5px solid #d1be78;
-    border-radius:50%;
+    border-radius:8px;
     background:#fff;
   }
   .policy-card-qr span{

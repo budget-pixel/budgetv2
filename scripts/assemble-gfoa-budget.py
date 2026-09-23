@@ -435,7 +435,7 @@ def shift_page_index(page_index):
 writer.add_uri(shift_page_index(28), "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)
 writer.add_uri(shift_page_index(41), "https://walton.civicweb.net/filepro/documents/523125/", (455, 65, 575, 185), border=no_border)
 writer.add_uri(shift_page_index(124), "https://www.waltoncountyfl.gov", (438, 44, 575, 64), border=no_border)
-writer.add_uri(shift_page_index(124), "https://budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
+writer.add_uri(shift_page_index(124), "https://final2027.budget-waltoncountyfl.com/pages/full-budget-document.html", (393, 27, 575, 44), border=no_border)
 
 # Every QR code in the book gets a matching clickable link over the same
 # spot, so a reader viewing the PDF on-screen can click straight through
@@ -470,7 +470,7 @@ _uri(10, "https://waltoncountyheritage.org/", (383.2, 559.5, 428.2, 603.8))
 _uri(10, "https://walton200.com/", (483.8, 559.5, 528.0, 603.8))
 
 # Property Tax Allocation: property-tax calculator QR
-_uri(27, "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator", (477.0, 288.0, 534.0, 345.8))
+_uri(27, "https://final2027.budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator", (477.0, 288.0, 534.0, 345.8))
 
 # Summary of Financial Policies: nine policy QR codes, reading top-to-bottom
 # then left-to-right (matches the two-column layout)
@@ -485,7 +485,7 @@ _uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/9816", (506.2, 514.5, 
 _uri(43, "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy", (234.0, 623.2, 281.2, 670.5))
 
 # Personnel Ledger QR
-_uri(46, "https://budget-waltoncountyfl.com/pages/personnel-ledger.html", (502.5, 82.5, 549.8, 130.5))
+_uri(46, "https://final2027.budget-waltoncountyfl.com/pages/personnel-ledger.html", (502.5, 82.5, 549.8, 130.5))
 
 # Constitutional Officers: each officer's own budget-certification QR
 _uri(49, "https://www.mywaltonfl.gov/DocumentCenter/View/45225/Sheriff-Budget-Certification", (475.5, 233.2, 522.8, 280.5))
@@ -497,38 +497,38 @@ _uri(54, "https://www.mywaltonfl.gov/DocumentCenter/View/45234/Supervisor-of-Ele
 # Departments and Services: each department's own "View Online" QR,
 # page index -> (url, rect)
 DEPARTMENT_QR = {
-    61: ("https://budget-waltoncountyfl.com/pages/building-construction-and-maintenance.html", (474.0, 219.75, 527.25, 272.25)),
-    62: ("https://budget-waltoncountyfl.com/pages/building-department.html", (474.0, 228.75, 527.25, 282.0)),
-    63: ("https://budget-waltoncountyfl.com/pages/code-compliance.html", (474.0, 198.75, 527.25, 252.0)),
-    64: ("https://budget-waltoncountyfl.com/pages/county-administration.html", (474.0, 219.75, 527.25, 272.25)),
-    65: ("https://budget-waltoncountyfl.com/pages/eagle-springs-golf-and-recreation-center.html", (474.0, 219.75, 527.25, 272.25)),
-    66: ("https://budget-waltoncountyfl.com/pages/eagle-springs-grill.html", (474.0, 219.75, 527.25, 272.25)),
-    67: ("https://budget-waltoncountyfl.com/pages/emergency-management.html", (474.0, 216.75, 527.25, 270.0)),
-    68: ("https://budget-waltoncountyfl.com/pages/engineering-department.html", (474.0, 198.75, 527.25, 252.0)),
-    69: ("https://budget-waltoncountyfl.com/pages/environmental-resources.html", (474.0, 219.75, 527.25, 272.25)),
-    70: ("https://budget-waltoncountyfl.com/pages/extension-office.html", (474.0, 219.75, 527.25, 272.25)),
-    71: ("https://budget-waltoncountyfl.com/pages/geographic-info-systems.html", (474.0, 198.75, 527.25, 252.0)),
-    72: ("https://budget-waltoncountyfl.com/pages/housing-and-urban-development.html", (474.0, 226.5, 527.25, 279.0)),
-    73: ("https://budget-waltoncountyfl.com/pages/human-resources.html", (474.0, 198.75, 527.25, 252.0)),
-    74: ("https://budget-waltoncountyfl.com/pages/libraries.html", (474.0, 198.75, 527.25, 252.0)),
-    75: ("https://budget-waltoncountyfl.com/pages/mosquito-control.html", (474.0, 228.75, 527.25, 282.0)),
-    76: ("https://budget-waltoncountyfl.com/pages/mossy-head-wastewater-treatment-facility.html", (474.0, 219.75, 527.25, 272.25)),
-    77: ("https://budget-waltoncountyfl.com/pages/office-of-management-and-budget.html", (474.0, 227.25, 527.25, 280.5)),
-    78: ("https://budget-waltoncountyfl.com/pages/office-of-the-county-attorney.html", (474.0, 216.75, 527.25, 270.0)),
-    79: ("https://budget-waltoncountyfl.com/pages/planning.html", (474.0, 224.25, 527.25, 277.5)),
-    80: ("https://budget-waltoncountyfl.com/pages/probation.html", (474.0, 198.75, 527.25, 252.0)),
-    81: ("https://budget-waltoncountyfl.com/pages/public-works.html", (474.0, 219.75, 527.25, 272.25)),
-    82: ("https://budget-waltoncountyfl.com/pages/purchasing.html", (474.0, 227.25, 527.25, 280.5)),
-    83: ("https://budget-waltoncountyfl.com/pages/recreation.html", (474.0, 219.75, 527.25, 272.25)),
-    84: ("https://budget-waltoncountyfl.com/pages/soil-conservation.html", (474.0, 198.75, 527.25, 252.0)),
-    85: ("https://budget-waltoncountyfl.com/pages/solid-waste.html", (474.0, 228.75, 527.25, 282.0)),
-    86: ("https://budget-waltoncountyfl.com/pages/veteran-services.html", (474.0, 198.75, 527.25, 252.0)),
-    87: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html", (474.0, 228.75, 527.25, 282.0)),
-    88: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#sales-and-visitor-center", (474.0, 228.75, 527.25, 282.0)),
-    89: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#communications", (474.0, 228.75, 527.25, 282.0)),
-    90: ("https://budget-waltoncountyfl.com/pages/tourism-administration.html#marketing", (474.0, 228.75, 527.25, 282.0)),
-    91: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
-    92: ("https://budget-waltoncountyfl.com/pages/tourism-beach-operations.html#beach-tram", (474.0, 228.75, 527.25, 282.0)),
+    61: ("https://final2027.budget-waltoncountyfl.com/pages/building-construction-and-maintenance.html", (474.0, 219.75, 527.25, 272.25)),
+    62: ("https://final2027.budget-waltoncountyfl.com/pages/building-department.html", (474.0, 228.75, 527.25, 282.0)),
+    63: ("https://final2027.budget-waltoncountyfl.com/pages/code-compliance.html", (474.0, 198.75, 527.25, 252.0)),
+    64: ("https://final2027.budget-waltoncountyfl.com/pages/county-administration.html", (474.0, 219.75, 527.25, 272.25)),
+    65: ("https://final2027.budget-waltoncountyfl.com/pages/eagle-springs-golf-and-recreation-center.html", (474.0, 219.75, 527.25, 272.25)),
+    66: ("https://final2027.budget-waltoncountyfl.com/pages/eagle-springs-grill.html", (474.0, 219.75, 527.25, 272.25)),
+    67: ("https://final2027.budget-waltoncountyfl.com/pages/emergency-management.html", (474.0, 216.75, 527.25, 270.0)),
+    68: ("https://final2027.budget-waltoncountyfl.com/pages/engineering-department.html", (474.0, 198.75, 527.25, 252.0)),
+    69: ("https://final2027.budget-waltoncountyfl.com/pages/environmental-resources.html", (474.0, 219.75, 527.25, 272.25)),
+    70: ("https://final2027.budget-waltoncountyfl.com/pages/extension-office.html", (474.0, 219.75, 527.25, 272.25)),
+    71: ("https://final2027.budget-waltoncountyfl.com/pages/geographic-info-systems.html", (474.0, 198.75, 527.25, 252.0)),
+    72: ("https://final2027.budget-waltoncountyfl.com/pages/housing-and-urban-development.html", (474.0, 226.5, 527.25, 279.0)),
+    73: ("https://final2027.budget-waltoncountyfl.com/pages/human-resources.html", (474.0, 198.75, 527.25, 252.0)),
+    74: ("https://final2027.budget-waltoncountyfl.com/pages/libraries.html", (474.0, 198.75, 527.25, 252.0)),
+    75: ("https://final2027.budget-waltoncountyfl.com/pages/mosquito-control.html", (474.0, 228.75, 527.25, 282.0)),
+    76: ("https://final2027.budget-waltoncountyfl.com/pages/mossy-head-wastewater-treatment-facility.html", (474.0, 219.75, 527.25, 272.25)),
+    77: ("https://final2027.budget-waltoncountyfl.com/pages/office-of-management-and-budget.html", (474.0, 227.25, 527.25, 280.5)),
+    78: ("https://final2027.budget-waltoncountyfl.com/pages/office-of-the-county-attorney.html", (474.0, 216.75, 527.25, 270.0)),
+    79: ("https://final2027.budget-waltoncountyfl.com/pages/planning.html", (474.0, 224.25, 527.25, 277.5)),
+    80: ("https://final2027.budget-waltoncountyfl.com/pages/probation.html", (474.0, 198.75, 527.25, 252.0)),
+    81: ("https://final2027.budget-waltoncountyfl.com/pages/public-works.html", (474.0, 219.75, 527.25, 272.25)),
+    82: ("https://final2027.budget-waltoncountyfl.com/pages/purchasing.html", (474.0, 227.25, 527.25, 280.5)),
+    83: ("https://final2027.budget-waltoncountyfl.com/pages/recreation.html", (474.0, 219.75, 527.25, 272.25)),
+    84: ("https://final2027.budget-waltoncountyfl.com/pages/soil-conservation.html", (474.0, 198.75, 527.25, 252.0)),
+    85: ("https://final2027.budget-waltoncountyfl.com/pages/solid-waste.html", (474.0, 228.75, 527.25, 282.0)),
+    86: ("https://final2027.budget-waltoncountyfl.com/pages/veteran-services.html", (474.0, 198.75, 527.25, 252.0)),
+    87: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-administration.html", (474.0, 228.75, 527.25, 282.0)),
+    88: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-administration.html#sales-and-visitor-center", (474.0, 228.75, 527.25, 282.0)),
+    89: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-administration.html#communications", (474.0, 228.75, 527.25, 282.0)),
+    90: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-administration.html#marketing", (474.0, 228.75, 527.25, 282.0)),
+    91: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-beach-operations.html", (474.0, 228.75, 527.25, 282.0)),
+    92: ("https://final2027.budget-waltoncountyfl.com/pages/tourism-beach-operations.html#beach-tram", (474.0, 228.75, 527.25, 282.0)),
 }
 for _page_idx, (_url, _rect) in DEPARTMENT_QR.items():
     # Program and Service Budget adds five pages immediately before the
@@ -536,7 +536,7 @@ for _page_idx, (_url, _rect) in DEPARTMENT_QR.items():
     _uri(_page_idx + 6, _url, _rect)
 
 # Capital Improvement Plan QR
-_uri(102, "https://budget-waltoncountyfl.com/pages/capital-improvement-plan.html", (59.25, 521.25, 111.0, 573.75))
+_uri(102, "https://final2027.budget-waltoncountyfl.com/pages/capital-improvement-plan.html", (59.25, 521.25, 111.0, 573.75))
 
 add_baseline_structure(writer)
 OUT.parent.mkdir(parents=True, exist_ok=True)

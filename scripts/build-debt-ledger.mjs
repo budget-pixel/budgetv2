@@ -1,11 +1,11 @@
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Debt Ledger" -- Walton County's only
-// outstanding long-term debt: a $27,000,000 Note Payable (2015) and a
-// $2,500,000 Revenue Promissory Note (2020), both used for public
-// improvements (most notably the Broadband project), repaid exclusively
-// from the County's half-cent sales tax (not property taxes), scheduled
-// to be fully repaid by FY2030. Source: an already-complete, internally
+// long-term debt: a $27,000,000 Note Payable (2015) and a $2,500,000
+// Revenue Promissory Note (2020), both used for public improvements
+// (most notably the Broadband project), repaid exclusively from the
+// County's half-cent sales tax (not property taxes), scheduled to be
+// fully repaid by FY2030. Source: an already-complete, internally
 // consistent raw capture (Principal + Interest reconciles to Total for
 // every year and in aggregate) -- no research pass needed.
 
@@ -177,7 +177,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Debt and Financial Forecast</small>
     <h1>Debt Ledger</h1>
-    <p class="intro">Walton County's only outstanding long-term debt is a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020, both used to fund public improvements &mdash; most notably the Broadband project. Both notes are repaid exclusively from the County's half-cent sales tax, not property taxes, and are scheduled to be fully repaid by FY2030.</p>
+    <p class="intro">Walton County's only long-term debt is a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020, both used to fund public improvements &mdash; most notably the Broadband project. Together, $8.5M in principal remains outstanding. Both notes are repaid exclusively from the County's half-cent sales tax, not property taxes, and are scheduled to be fully repaid by FY2030.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 

@@ -119,8 +119,7 @@ const OFFICES = [
       { item: "Board-Approved Capital Improvements (Managed Vendor Program Revenue)", amount: 1530000 },
       { item: "Boating Improvements (Vessel Registration Fees)", amount: 100000 },
       { item: "Board-Approved Capital Improvements", amount: 75000 }
-    ],
-    capitalNote: "The remaining $405,000 of Capital &amp; Other is $400,000 in Other Uses Contingency reserve and $5,000 in Grants and Aid, neither of which is a capital project."
+    ]
   },
   {
     name: "Tax Collector", fund: "General Fund (State Approved)",
@@ -337,7 +336,7 @@ const sharedCss = `
   .comm-card b{ display:block; color:#003f28; font:800 8.6pt Georgia, serif; }
   .comm-card span{ display:block; margin-top:.02in; color:#68786f; font-size:6pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
   .qr-wrap{ margin-top:.09in; padding-top:.09in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
-  .qr-wrap img.qr{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:2px solid #d1be78; border-radius:50%; background:#fff; }
+  .qr-wrap img.qr{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:2px solid #d1be78; border-radius:9px; background:#fff; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .top-grid{ display:grid; grid-template-columns:1fr 1.9in; gap:.28in; margin-bottom:.14in; }
   section.profile-page h1,
@@ -435,8 +434,13 @@ async function buildOfficerPage(o, pageNumber) {
     : "";
   const payerRows = whoPaysFor(o);
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|34,362 households/.test(detail));
+  const hasHouseholdEquivalent = payerRows.some(([, , detail]) => householdEquivalent(detail));
   const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
-  const payerMethodHtml = usesPropertyMethod ? `<p class="source-trace">Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills.</p>` : "";
+  const methodNotes = [
+    usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills." : "",
+    hasHouseholdEquivalent ? "Per-household figures are based on an estimated 34,362 Walton County households (U.S. Census Bureau)." : ""
+  ].filter(Boolean).join(" ");
+  const payerMethodHtml = methodNotes ? `<p class="source-trace">${methodNotes}</p>` : "";
   const denseClass = "";
 
   const officialHtml = o.commissioners

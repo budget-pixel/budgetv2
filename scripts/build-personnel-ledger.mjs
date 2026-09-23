@@ -23,7 +23,7 @@ import QRCode from "qrcode";
 // print page (e.g. per-department FY26/FY27 breakdowns are the same, but
 // the live ledger stays current and links out to each department's own
 // profile) -- so this page carries a QR code pointing readers there.
-const PERSONNEL_LEDGER_URL = "https://budget-waltoncountyfl.com/pages/personnel-ledger.html";
+const PERSONNEL_LEDGER_URL = "https://final2027.budget-waltoncountyfl.com/pages/personnel-ledger.html";
 const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
   margin: 1,
   width: 200,
@@ -150,7 +150,7 @@ const sharedCss = `
     box-sizing:border-box;
     padding:.06in;
     border:2px solid #d1be78;
-    border-radius:50%;
+    border-radius:9px;
     background:#fff;
   }
   .page-qr b{

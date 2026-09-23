@@ -350,7 +350,7 @@ const sharedCss = `
   .change{ color:#0b7741; font-weight:700; }
   .change.is-down{ color:#a24b1e; }
   .qr-box{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .qr-box img{ box-sizing:border-box; width:.85in; height:.85in; padding:.07in; border:2px solid #d1be78; border-radius:50%; background:#fff; }
+  .qr-box img{ box-sizing:border-box; width:.85in; height:.85in; padding:.07in; border:2px solid #d1be78; border-radius:10px; background:#fff; }
   .qr-box span{ margin-top:.03in; color:#68786f; font-size:5.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
 `;
 

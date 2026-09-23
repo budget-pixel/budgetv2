@@ -346,7 +346,7 @@ const html = `<!doctype html>
     box-sizing:border-box;
     padding:.045in;
     border:1.5px solid #d1be78;
-    border-radius:50%;
+    border-radius:8px;
     background:#fff;
   }
   .history-link span{

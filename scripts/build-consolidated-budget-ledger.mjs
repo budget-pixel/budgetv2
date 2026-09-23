@@ -12,9 +12,15 @@ import { chromium } from "playwright";
 // own, consistent with how this book handles other multi-page ledgers.
 //
 // The final 3.2500-mill rate reduces recurring General Fund property-tax
-// revenue by $8,584,562. The expenditure plan remains unchanged and the
-// difference is shown explicitly as appropriated General Fund balance.
-// The schedule excludes the Self-Insurance Fund, an internal service fund.
+// revenue by $8,584,562, covered by appropriated fund balance. The
+// "Balance Brought Forward" row shows this General Fund draw alongside
+// each other fund's own beginning-balance appropriation -- Transportation
+// ($4,881,906), Sheriff ($4,130,000), and Non-Major Governmental Funds
+// ($4,200,000, combining the Building and Sidewalk Funds) -- pulled out of
+// the "Other Sources" revenue row they were previously folded into so the
+// beginning-balance draw for every fund is visible on its own line, not
+// just the General Fund's. The schedule excludes the Self-Insurance Fund,
+// an internal service fund.
 
 const FUND_COLUMNS = [
   "General Fund", "Transportation Fund", "Sheriff Fund", "Tourist Development Fund", "Solid Waste Fund",
@@ -32,11 +38,11 @@ const REVENUE_ROWS = [
   ["Charges for Services", "$6,550,936", "$85,000", "$7,976,972", "$0", "$560,000", "–", "$0", "$43,225", "$15,216,133"],
   ["Judgments, Fines and Forfeits", "$227,500", "–", "$60,000", "–", "–", "–", "–", "$0", "$287,500"],
   ["Miscellaneous Revenue", "$9,068,336", "$2,526,000", "$2,105,000", "$0", "$141,564", "$0", "$0", "$700,000", "$14,540,900"],
-  ["Other Sources", "$4,050,600", "$4,881,906", "$4,130,000", "–", "–", "$0", "$0", "$4,200,000", "$17,262,506"]
+  ["Other Sources", "$4,050,600", "$0", "$0", "–", "–", "$0", "$0", "$0", "$4,050,600"]
 ];
-const REVENUE_TOTAL = ["Revenues Total", "$195,694,536", "$15,668,118", "$15,651,972", "$58,965,950", "$40,701,564", "$0", "$1,426,937", "$8,529,869", "$336,638,946"];
+const REVENUE_TOTAL = ["Revenues Total", "$195,694,536", "$10,786,212", "$11,521,972", "$58,965,950", "$40,701,564", "$0", "$1,426,937", "$4,329,869", "$323,427,040"];
 const OTHER_SOURCES = ["Other Financial Sources", "$2,581,997", "$15,000,000", "$98,464,256", "$0", "–", "$27,617,731", "–", "–", "$143,663,984"];
-const FUND_BALANCE_USE = ["Appropriated Fund Balance", "$8,584,562", "$0", "$0", "$0", "$0", "$0", "$0", "$0", "$8,584,562"];
+const FUND_BALANCE_USE = ["Balance Brought Forward", "$8,584,562", "$4,881,906", "$4,130,000", "$0", "$0", "$0", "$0", "$4,200,000", "$21,796,468"];
 const REVENUE_GRAND = ["Total Budget Funding", "$206,861,095", "$30,668,118", "$114,116,228", "$58,965,950", "$40,701,564", "$27,617,731", "$1,426,937", "$8,529,869", "$488,887,492"];
 
 const EXPENDITURE_ROWS = [

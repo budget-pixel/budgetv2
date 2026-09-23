@@ -136,7 +136,7 @@ const MACHINERY_TOTAL = 7120300;
 const MACHINERY_BY_DEPT = [
   ["Building Construction &amp; Maintenance", 7, 316000],
   ["Code Compliance", 6, 148800],
-  ["County Administration Offices", 1, 65000],
+  ["County Administration", 1, 65000],
   ["Eagle Springs Golf and Recreation Center", 2, 81000],
   ["Emergency Management", 2, 25000],
   ["Engineering Department", 1, 45000],
@@ -293,7 +293,7 @@ const machineryPage2 = `
     <div class="item-cols">
       ${itemTable(BUILDING_CM_ITEMS, "Building Construction &amp; Maintenance &mdash; $316,000")}
       ${itemTable(CODE_COMPLIANCE_ITEMS, "Code Compliance &mdash; $148,800")}
-      ${itemTable(COUNTY_ADMIN_ITEMS, "County Administration Offices &mdash; $65,000")}
+      ${itemTable(COUNTY_ADMIN_ITEMS, "County Administration &mdash; $65,000")}
       ${itemTable(EAGLE_SPRINGS_GOLF_ITEMS, "Eagle Springs Golf and Recreation Center &mdash; $81,000")}
       ${itemTable(EMERGENCY_MANAGEMENT_ITEMS, "Emergency Management &mdash; $25,000")}
       ${itemTable(ENGINEERING_ITEMS, "Engineering Department &mdash; $45,000")}

@@ -103,7 +103,7 @@ const DEPARTMENTS = [
     ],
     challenges: "Balance growing facility demands and aging assets with available staffing, funding, and construction schedules.",
     changeNote: "Infrastructure decreasing by $855,000.",
-    revenue: "Intergovernmental Revenues $7.1M &middot; General Government Taxes $1.4M &middot; Miscellaneous Revenue $343K",
+    revenue: "Intergovernmental Revenues $7.1M &middot; General Government Taxes $1.4M &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $278K &middot; Miscellaneous Revenue &mdash; Morrison Springs Entry Fee $65K",
     capitalItems: [
       { item: "Crew Cab Truck (Replacement) &times;2", amount: 136000 },
       { item: "Van (Replacement) &times;2", amount: 90000 },
@@ -150,7 +150,7 @@ const DEPARTMENTS = [
       ["Support neighborhood standards", "Conducts field activity and case follow-up that protect community health, safety, and appearance."]
     ],
     challenges: "Address increasing complaint and enforcement workloads while promoting voluntary compliance and maintaining consistent, timely case resolution.",
-    revenue: "Miscellaneous Revenue $2.2M &middot; Permits, Fees & Special Assessments $1.8M &middot; Charges for Services $400K &middot; General Government Taxes $331K",
+    revenue: "Tourist Development Tax Reimbursement $2.2M &middot; Permits, Fees & Special Assessments $1.8M &middot; Charges for Services $400K &middot; General Government Taxes $331K",
     capitalItems: [
       { item: "SUV (Replacement) &times;2", amount: 72000 },
       { item: "UTV (New) &times;4", amount: 76800 }
@@ -587,7 +587,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Solid Waste", fte: 28, personnel: 2377275, operating: 1055100, indirect: 697192, contractual: 200000, capital: 1800000,
+    name: "Solid Waste", fte: 28, personnel: 2377275, operating: 1055100, indirect: 697192, contractual: 17200000, capital: 1800000,
     deltaP: 42984, deltaO: -59614, deltaC: 1140000, video: "iz8DOXLQ8yU", fund: "Solid Waste Fund",
     sof: "Walton County Solid Waste manages the Franchise Agreement with Waste Management Inc. for municipal waste collection and disposal, and oversees daily operations of the Walton County Central Landfill — a Class I Transfer Station, Class III Landfills, recycling facilities, a yard waste facility, a waste tire collection center, and a groundwater monitoring system, all permitted by FDEP.",
     goal: "Ensure regulatory compliance, operational efficiency, and protection of natural resources across all waste streams.",
@@ -595,11 +595,10 @@ const DEPARTMENTS = [
     changeNote: "Machinery & Equipment increasing by $1,140,000.",
     revenue: "General Government Taxes &mdash; Discretionary Sales Surtax $40.0M &middot; Charges for Services &mdash; Landfill Fees $560K",
     contracts: [
-      { service: "Waste Collection and Disposal Franchise Services", provider: "Waste Management Inc of Florida", amount: 17000000, separate: true },
+      { service: "Waste Collection and Disposal Franchise Services", provider: "Waste Management Inc of Florida", amount: 17000000 },
       { service: "Iron Remediation System Remedial Action Plan Modifications", provider: "Not listed", amount: 100000 },
       { service: "Annual Compliance Monitoring Services", provider: "Not listed", amount: 100000 }
     ],
-    contractsNote: "The $17.0M franchise agreement is tracked separately from the operating total above, not folded into it.",
     capitalItems: [
       { item: "Compactor (New)", amount: 1150000 },
       { item: "10,000 lb Lull & Attachments (New)", amount: 200000 },
@@ -833,10 +832,12 @@ function whoPaysFor(d) {
     ];
   }
   if (/planning|code compliance/.test(n)) {
-    const fees = sumRevenueMatching(d.revenue, /charges for services|permits|fees|fines|special assessment/i);
+    const fees = sumRevenueMatching(d.revenue, /charges for services|permits|fees|fines|special assessment/i) - sumRevenueMatching(d.revenue, /tourist development tax/i);
     const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
+    const tdt = sumRevenueMatching(d.revenue, /tourist development tax/i);
     return [
       ["Applicants, property owners, businesses and regulated users", fees || null, "Permits, certificates, service charges and fines are paid when the related activity or service occurs."],
+      ...(tdt ? [["Overnight visitors", tdt, "Tourist Development Tax reimbursement for eligible tourism-related public-safety enforcement, collected on eligible short-term lodging stays."]] : []),
       ...splitPropertyTax(taxes, "General Fund or property-tax support covers services not recovered through fees.")
     ];
   }
@@ -1059,7 +1060,7 @@ const sharedCss = `
   .budget-mix i{ display:block; height:100%; }
   .budget-mix .personnel{ background:#e7c95f; }.budget-mix .contractual{ background:#85bea0; }.budget-mix .operating{ background:#ffffff; }.budget-mix .capital{ background:#c7d2cc; }
   .qr-wrap{ margin-top:.08in; padding-top:.08in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
-  .qr-wrap img{ box-sizing:border-box; width:.8in; height:.8in; padding:.065in; border:2px solid #d1be78; border-radius:50%; background:#fff; }
+  .qr-wrap img{ box-sizing:border-box; width:.8in; height:.8in; padding:.065in; border:2px solid #d1be78; border-radius:10px; background:#fff; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .rev-con-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.06in 0 .1in; padding-top:.08in; border-top:1px solid #d7e2dc; }
   .rev-con-grid.three{ grid-template-columns:1.05fr 1fr 1fr; }
@@ -1154,7 +1155,7 @@ async function buildDeptPage(d, pageNumber) {
   let qrHtml = "";
   const pageHref = DEPARTMENT_PAGE_HREFS.get(d.name);
   if (pageHref) {
-    const url = `https://budget-waltoncountyfl.com/pages/${pageHref}`;
+    const url = `https://final2027.budget-waltoncountyfl.com/pages/${pageHref}`;
     const dataUrl = await QRCode.toDataURL(url, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
     qrHtml = `<div class="qr-wrap"><img src="${dataUrl}" alt="QR"/><span>View Online</span></div>`;
   }

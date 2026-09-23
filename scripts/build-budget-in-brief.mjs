@@ -317,7 +317,7 @@ const html = `<!doctype html>
       </div>
     </div>
 
-    <h2>Fund Highlights - Major and Smaller Funds</h2>
+    <h2>Fund Highlights - Major and Minor Funds</h2>
     <div class="fund-strip">
       ${FUNDS.map(([l, v]) => `<div class="fund-chip"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>

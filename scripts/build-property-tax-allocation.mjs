@@ -82,7 +82,7 @@ const EXAMPLE_ROWS = [
   ["All Other Entities", "10.48%", "$68.12"]
 ];
 
-const PROPERTY_TAX_CALCULATOR_URL = "https://budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator";
+const PROPERTY_TAX_CALCULATOR_URL = "https://final2027.budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator";
 const PROPERTY_TAX_QR = await QRCode.toDataURL(PROPERTY_TAX_CALCULATOR_URL, {
   margin: 1,
   width: 260,
@@ -253,7 +253,7 @@ const sharedCss = `
     box-sizing:border-box;
     padding:.07in;
     border:2px solid #d1be78;
-    border-radius:50%;
+    border-radius:11px;
     background:#fff;
   }
   .tax-qr b{
@@ -327,7 +327,7 @@ const page1 = `
     ${pageHeader()}
     <small class="kicker">Financial Overview</small>
     <h1>Property Tax Allocation</h1>
-    <p class="intro">How Walton County&rsquo;s share of a property tax bill is distributed across Constitutional Officers, Independent Agencies, Capital projects, and Board Departments. Figures exclude the North Walton Mosquito Control District, a separate taxing district with its own millage rate.</p>
+    <p class="intro">How Walton County&rsquo;s share of a property tax bill is distributed across Constitutional Officers, Independent Agencies, Capital projects, and Board Departments. The North Walton Mosquito Control District, a separate taxing district with its own millage rate, is stated separately.</p>
     <div class="stat-strip">
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>

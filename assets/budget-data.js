@@ -11034,7 +11034,7 @@
     const evidence = String(name || "");
     const explicitlyUnrestricted = /short-term rental certificate|beach vending permit|beach bonfire permit/i;
     if (explicitlyUnrestricted.test(evidence)) return "Unrestricted";
-    const dedicatedPattern = /(?:fuel tax|federal grant|state grant|tourist development|\btdc\b|\bmsbu\b|e-?911|boating improvement|recreation plat|sidewalk|sewer|wastewater|court|law library|juvenile justice|legal aid|innovative programs|building permits|beach (?:dog|vehicle)|coastal armoring|landfill|resource officer|opioid|miscellaneous revenue|supplemental fire|planning fees|development order inspection|code enforcement fees|\$2 recording fee)/i;
+    const dedicatedPattern = /(?:fuel tax|federal grant|state grant|tourist development|\btdc\b|\bmsbu\b|e-?911|boating improvement|recreation plat|sidewalk|sewer|wastewater|court|law library|juvenile justice|legal aid|innovative programs|building permits|beach (?:dog|vehicle)|coastal armoring|landfill|resource officer|opioid|miscellaneous revenue|supplemental fire|planning fees|development order inspection|code enforcement fees|\$2 recording fee|housing prisoners|ambulance)/i;
     return dedicatedPattern.test(evidence) ? "Restricted" : "Unrestricted";
   }
 

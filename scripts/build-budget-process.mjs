@@ -22,8 +22,8 @@ const PHASES = [
 const ROLES = [
   ["Departments & Constitutional Offices", "Define service needs and submit operating, personnel, and capital requests."],
   ["Office of Management & Budget", "Coordinates the cycle, reviews submissions, balances resources, and prepares recommendations."],
-  ["County Administration", "Mr. Kellenberger, County Administrator, aligns OMB's recommendations with Board priorities and capacity."],
-  ["Board of County Commissioners", "Five elected commissioners, chaired by Brad Drake (District 3), set direction, weigh public input, and adopt the final budget and millage rate."]
+  ["County Administration", "The County Administrator aligns OMB's recommendations with Board priorities and capacity."],
+  ["Board of County Commissioners", "Five elected commissioners set direction, weigh public input, and adopt the final budget and millage rate."]
 ];
 
 const AFTER = [
@@ -56,7 +56,7 @@ const CALENDAR = [
   ["August 4", "The Office of Management and Budget certifies the completed DR-420 form, including millage rates and hearing information."],
   ["August 24", "The Property Appraiser mails TRIM notices to taxpayers."],
   ["September 14", "The first statutory budget and proposed millage rate hearing is held.", true],
-  ["September 23", "The Notice of Proposed Tax Increase and Budget Summary Advertisement is advertised."],
+  ["September 23", "The Notice of Budget Hearing and Budget Summary Advertisement is advertised."],
   ["September 28", "The final budget hearing is held to adopt the final millage rate and final budget.", true]
 ];
 
@@ -374,7 +374,7 @@ const page2 = `
 
     <div class="section-block" style="margin-bottom:0;">
       <h2><span>Request Guidance</span>What Departments Were Asked to Provide</h2>
-      <p class="intro" style="margin-bottom:0;line-height:1.2;font-size:7.5pt;">Departments were instructed to identify service needs, staffing, projects, funding assumptions, proposed service changes, and reduction options. OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13–14. Public comments and budget effects are documented on page 41.</p>
+      <p class="intro" style="margin-bottom:0;line-height:1.2;font-size:7.5pt;">Departments were instructed to identify service needs, staffing, projects, funding assumptions, proposed service changes, and reduction options. OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13–14. Public comments and budget effects are documented on page 44.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
