@@ -949,6 +949,14 @@
 
   function closeDepartmentModal() {
     if (!departmentModal || departmentModal.hidden) return;
+    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fullscreenElement === departmentModal) {
+      var exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exitFullscreen) {
+        var exitPromise = exitFullscreen.call(document);
+        if (exitPromise && typeof exitPromise.catch === "function") exitPromise.catch(function () {});
+      }
+    }
     departmentReturnTo = null;
     var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
     departmentModal.hidden = true;
@@ -1270,6 +1278,48 @@
     }, 0);
   }
 
+  // The budget book is rendered inside this modal's iframe. Fullscreening the
+  // iframe document leaves the surrounding viewer behind in some browsers, so
+  // let the embedded toolbar fullscreen the complete modal instead.
+  function toggleDepartmentFullscreen() {
+    if (!departmentModal || departmentModal.hidden) return false;
+    var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fullscreenElement) {
+      var exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exitFullscreen) exitFullscreen.call(document);
+      return true;
+    }
+    var requestFullscreen = departmentModal.requestFullscreen || departmentModal.webkitRequestFullscreen;
+    if (!requestFullscreen) return false;
+    requestFullscreen.call(departmentModal);
+    return true;
+  }
+
+  function syncDepartmentFullscreen() {
+    if (!departmentModal) return;
+    var isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === departmentModal;
+    departmentModal.classList.toggle("is-native-fullscreen", isFullscreen);
+    try {
+      var frameWindow = departmentFrame && departmentFrame.contentWindow;
+      var frameBody = departmentFrame && departmentFrame.contentDocument && departmentFrame.contentDocument.body;
+      if (frameBody) frameBody.classList.toggle("wc-book-is-fullscreen", isFullscreen);
+      var fullscreenButton = frameBody && frameBody.querySelector("#budgetBookEmbedFullscreen");
+      if (fullscreenButton) {
+        var fullscreenLabel = isFullscreen ? "Exit fullscreen" : "Enter fullscreen";
+        fullscreenButton.setAttribute("aria-label", fullscreenLabel);
+        fullscreenButton.setAttribute("title", fullscreenLabel);
+        var fullscreenPath = fullscreenButton.querySelector("path");
+        if (fullscreenPath) fullscreenPath.setAttribute("d", isFullscreen
+          ? "M9 4v5H4M15 4v5h5M4 15h5v5M20 15h-5v5"
+          : "M9 4H4v5M15 4h5v5M4 15v5h5M20 15v5h-5");
+      }
+      if (frameWindow) frameWindow.dispatchEvent(new frameWindow.Event("resize"));
+    } catch (fullscreenSyncError) {}
+  }
+
+  document.addEventListener("fullscreenchange", syncDepartmentFullscreen);
+  document.addEventListener("webkitfullscreenchange", syncDepartmentFullscreen);
+
   // The budget book's own iframe-embedded close (X) button uses this API too.
   // openDepartmentModal is exposed so nav.js's own footer utility-popup
   // dialog (a separate, simpler modal that doesn't know about the budget
@@ -1279,7 +1329,8 @@
   window.WCHomeExplorer = {
     closeDepartmentModal: closeDepartmentModal,
     openDepartmentModal: openDepartmentModal,
-    openGlobalSearch: openGlobalSearch
+    openGlobalSearch: openGlobalSearch,
+    toggleDepartmentFullscreen: toggleDepartmentFullscreen
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

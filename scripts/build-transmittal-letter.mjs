@@ -221,18 +221,16 @@ const html = `<!doctype html>
     <div class="layout">
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
-        <p>In accordance with Florida Statute Chapter 129.03(3), I am pleased to transmit the final budget for Fiscal Year 2027. This final budget is balanced and provides the adopted operating framework for delivering County services for the coming year, with continued focus on public safety, infrastructure, and serving a growing county as efficiently and effectively as possible.</p>
-        <p>The FY 2027 budget has been developed with the following objectives:</p>
+        <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million and maintains current services while funding public safety, infrastructure, and the staffing needed to serve a growing county.</p>
+        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, lowering projected property-tax revenue by $8,584,562. The Board kept the expenditure plan unchanged and appropriated the same amount of General Fund balance. That choice lowers the rate paid on taxable value in FY 2027, while making reserve use and future recurring costs important measures to monitor.</p>
+        <p>The final budget carries out that decision through four principal commitments:</p>
         <ul>
-          <li>Maintaining existing service levels for residents</li>
-          <li>Following the Board of County Commissioners&rsquo; policy direction</li>
-          <li>Fully funding the Sheriff, other Constitutional Officers, and statutory requirements</li>
-          <li>Addressing the needs of aging infrastructure and County facilities</li>
-          <li>Investing in our employees</li>
-          <li>Maintaining a sound self-insurance fund for health insurance</li>
-          <li>Maintaining healthy reserves</li>
+          <li>Maintain current services and fund the Sheriff, other Constitutional Officers, and statutory obligations</li>
+          <li>Provide $43.8 million for funded capital projects, including roads, drainage, facilities, and other public assets</li>
+          <li>Add a net 15 positions where the adopted workload plan requires capacity, while funding a 3% cost-of-living adjustment</li>
+          <li>Preserve a General Fund emergency cushion after the planned use of fund balance</li>
         </ul>
-        <p>This budget reflects a deliberate balance between the near-term needs of a growing county and the long-term discipline required to keep Walton County&rsquo;s finances on sound footing &mdash; the same standard that earned this office its second consecutive GFOA Distinguished Budget Presentation Award.</p>
+        <p>The pages that follow show the revenue assumptions, reserve effects, staffing changes, capital projects, and performance measures behind those commitments.</p>
       </div>
       <div class="col-side">
         <div class="stat-card">
@@ -242,8 +240,8 @@ const html = `<!doctype html>
             <span>Net Expenditure Budget</span>
           </div>
           <div class="stat">
-            <b>$206.9M</b>
-            <span>General Fund <em>+5.7%</em></span>
+            <b>$81.2M</b>
+            <span>General Fund Expense <em class="is-down">&minus;2.7%</em></span>
           </div>
           <div class="stat">
             <b>3.2500</b>
@@ -266,24 +264,24 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, continuing a downward trend from 3.6000 mills in FY 2024 and 3.519 mills in FY 2026. Countywide Ad Valorem property taxes remain the County&rsquo;s largest revenue source at $151.1 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
+    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. Countywide Ad Valorem property taxes remain the County&rsquo;s largest revenue source at $151.1 million. Public Safety remains the largest expenditure function at $126.2 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">
-      <div class="fund-card"><strong>General Fund</strong><b>$206.9M</b><em>+5.7%</em></div>
-      <div class="fund-card"><strong>Transportation Fund</strong><b>$30.7M</b><em>+28.9%</em></div>
-      <div class="fund-card"><strong>Sheriff (Fine &amp; Forfeiture) Fund</strong><b>$114.1M</b><em>+2.7%</em></div>
-      <div class="fund-card"><strong>Tourist Development Fund</strong><b>$59.0M</b><em>+15.9%</em></div>
-      <div class="fund-card"><strong>Solid Waste Fund</strong><b>$40.7M</b><em class="is-down">&minus;0.7%</em></div>
-      <div class="fund-card"><strong>Capital Projects Fund</strong><b>$27.6M</b></div>
+      <div class="fund-card"><strong>General Fund</strong><b>$81.2M</b><em class="is-down">&minus;2.7%</em></div>
+      <div class="fund-card"><strong>Transportation Fund</strong><b>$30.7M</b><em>+15.3%</em></div>
+      <div class="fund-card"><strong>Sheriff (Fine &amp; Forfeiture) Fund</strong><b>$114.1M</b><em>0.0%</em></div>
+      <div class="fund-card"><strong>Tourist Development Fund</strong><b>$59.0M</b><em>+14.5%</em></div>
+      <div class="fund-card"><strong>Solid Waste Fund</strong><b>$23.1M</b><em>+4.6%</em></div>
+      <div class="fund-card"><strong>Capital Projects Fund</strong><b>$27.6M</b><em>+35.8%</em></div>
     </div>
 
     <h2>Investing in Our Workforce</h2>
-    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 Constitutional Officer positions (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations, supporting continued Beach Operations and Beach Tram service. The additions maintain existing services rather than create new core programs; no requested positions were rejected.</p>
+    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 Constitutional Officer positions (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The additions maintain existing services rather than create new core programs; no requested positions were rejected.</p>
 
     <h2>Continuity, Capital Investment and Preparedness</h2>
     <p><strong>Service continuity.</strong> The Board&rsquo;s formal direction for FY 2027 is to maintain current service levels: no major core service is added, eliminated, or materially reduced. Within that direction, the budget balances today&rsquo;s services, tomorrow&rsquo;s infrastructure, and the County&rsquo;s financial flexibility.</p>
-    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years, which remain visible separately in the project inventory; no major funded project was postponed. Engineering and Public Works will publish a letting schedule showing estimated phases and starts.</p>
+    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years, which remain visible separately in the project inventory; no major funded project was postponed.</p>
     <p><strong>Financial preparedness.</strong> Florida voters are scheduled to consider Amendment 3 in November 2026, which could materially change the countywide taxable base; this budget does not assume it as an enacted revenue reduction. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
     <p>I thank the Board for its guidance and County staff for its work developing this final budget.</p>
 

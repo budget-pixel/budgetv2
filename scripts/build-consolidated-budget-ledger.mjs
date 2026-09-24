@@ -209,7 +209,7 @@ function buildPage(colIdx, pageNumber, isFirst) {
     <h1>Consolidated Budget Ledger${isFirst ? "" : ` <span class="sub">(continued)</span>`}</h1>
     <p class="intro">${isFirst
       ? "FY2027 revenue and expenditures across Walton County's governmental funds, by category. Continued on the next page with the remaining funds and the countywide total."
-      : "Continued from the previous page, in the same row order &mdash; the remaining Capital Projects, Mosquito Control, and Non-Major Governmental Funds, plus the countywide Total All Funds column."}</p>
+      : "Continued from the previous page, in the same row order &mdash; the remaining Capital Projects, Mosquito Control, and Non-Major Governmental Funds, plus the countywide Total All Funds column. These fund-schedule categories preserve fund reporting; the Revenue Ledger is the control for countywide Uniform Accounting System category totals."}</p>
     <div class="ledger">
       ${head}
       ${millage}

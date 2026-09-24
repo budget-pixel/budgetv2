@@ -13,11 +13,16 @@ const imageDir = path.join(repoRoot, "assets/images/page-images");
 const backgrounds = [
   ["divider-bg-our-county.jpg", "overview-cultural-heritage.jpg", "center 70%"],
   ["divider-bg-financial.jpg", "opengov-defuniak-lake-aerial.jpg", "center 58%"],
-  ["divider-bg-budget-process.jpg", "board-budget-image.png", "center 65%"],
+  // Budget Process uses a separately art-directed spring-water cover.
+  // Do not regenerate it from board-budget-image.png; that would replace
+  // the approved cover with the commissioners photograph.
   ["divider-bg-constitutional.jpg", "opengov-defuniak-water-tower.jpg", "center 60%"],
   ["divider-bg-other-agencies.jpg", "overview-walton-waterway.png", "center 65%"],
   ["divider-bg-program-services.jpg", "overview-beach-community.png", "center 55%"],
-  ["divider-bg-departments.jpg", "overview-county-districts.jpg", "center 62%"],
+  // Board Department Budgets uses the approved bridge cover committed in
+  // divider-bg-departments.jpg. Do not regenerate it from
+  // overview-county-districts.jpg; that would replace the approved cover
+  // with the commissioner district map.
   ["divider-bg-workforce.jpg", "opengov-workforce-grayton.jpg", "center 55%"],
   ["divider-bg-capital.jpg", "cip-bridge-construction.jpg", "center 62%"],
   ["divider-bg-glossary.jpg", "overview-defuniak-historic-map.jpg", "center 63%"]

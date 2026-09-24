@@ -1,7 +1,8 @@
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
-const REVENUE_LEDGER_QR = await QRCode.toDataURL("https://final2027.budget-waltoncountyfl.com/pages/revenue-ledger.html", { margin: 1, width: 160, color: { dark: "#003f28", light: "#ffffff" } });
+const REVENUE_LEDGER_URL = "https://final2027.budget-waltoncountyfl.com/pages/revenue-ledger.html";
+const REVENUE_LEDGER_QR = await QRCode.toDataURL(REVENUE_LEDGER_URL, { margin: 4, width: 180, color: { dark: "#003f28", light: "#ffffff" } });
 
 // Builds the FY 2027 Budget Book's "Revenue Ledger" -- rebuilt to match
 // the Expenditure Ledger's exact two-page layout: a page 1 summary by
@@ -247,7 +248,7 @@ const sharedCss = `
   .callout h3{ margin:0 0 .06in; color:#003f28; font:800 9.5pt Georgia, serif; }
   .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.5; }
   .revenue-qr{ display:flex; align-items:center; gap:.2in; margin-top:.18in; padding:.16in .22in; border-left:4px solid #d1be78; background:#f9f8f2; border-radius:0 9px 9px 0; }
-  .revenue-qr img{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:1.5px solid #d1be78; border-radius:9px; background:#fff; flex:0 0 auto; }
+  .revenue-qr img{ box-sizing:border-box; width:.78in; height:.78in; border:1px solid #d1be78; border-radius:0; background:#fff; flex:0 0 auto; }
   .revenue-qr b{ display:block; color:#003f28; font:800 8.6pt Georgia, serif; margin-bottom:.03in; }
   .revenue-qr span{ display:block; color:#33453c; font-size:7.4pt; line-height:1.4; }
   h1.continued{ font-size:16pt; margin-top:.22in; }
@@ -306,11 +307,11 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>General Government Taxes includes Ad Valorem property taxes ($151.1M) and the Tourist Development Tax ($59.0M), its two largest sources. Within the remaining categories, the largest single revenue is Indirect Administrative Fees ($4.11M) for Charges for Services, Nonoperating Balance Brought Forward ($21.8M) for Other Sources, the Short-Term Rental Certificate Fee ($2.2M) for Permits Fees and Special Assessments, Interest ($4.50M) for Miscellaneous Revenue, State Revenue Share Proceeds ($3.73M) for Intergovernmental Revenues, and the Parking ordinance fine ($190K) for Judgments, Fines and Forfeits.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes Ad Valorem, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios; the Consolidated Budget Ledger also presents fund-level categories before selected countywide reclassifications.</p>
     </div>
 
     <div class="revenue-qr">
-      <img src="${REVENUE_LEDGER_QR}" alt="QR code linking to the online Revenue Ledger">
+      <a href="${REVENUE_LEDGER_URL}"><img src="${REVENUE_LEDGER_QR}" alt="QR code linking to the online Revenue Ledger"></a>
       <div><b>See every revenue source in detail</b><span>Scan to open the online Revenue Ledger, with year-over-year detail, restriction, and control information for each of the 89 individual sources summarized here.</span></div>
     </div>
 

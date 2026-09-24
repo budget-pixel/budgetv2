@@ -41,7 +41,6 @@ const sections = [
   { title: "Board Department Budgets", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",66,{overview:true}]],
     groupsSplit: 7,
     groups: [
-      ["Beach Operations",null,[["Beach Operations",97],["Beach Tram",98]]],
       ["Building Construction and Maintenance",67,[]],["Building Department",68,[]],["Code Compliance",69,[]],
       ["County Administration Offices",null,[["County Administration",70],["Extension Office",76],["Geographic Information Systems",77],["Housing & Urban Development",78],["Human Resources",79],["Libraries",80],["Probation",86],["Soil Conservation",90],["Veteran Services",92]]],
       ["Emergency Management",73,[]],["Engineering Department",74,[]],
@@ -49,7 +48,8 @@ const sections = [
       ["Office of Management and Budget",83,[]],["Office of the County Attorney",84,[]],
       ["Parks & Recreation",null,[["Eagle Springs Golf and Recreation Center",71],["Eagle Springs Grill",72],["Recreation",89]]],
       ["Planning",85,[]],["Public Works",87,[]],["Purchasing",88,[]],
-      ["Tourism Administration",null,[["Tourism Administration",93],["Sales and Visitors Center",94],["Communications",95],["Marketing",96]]]
+      ["Tourism Administration",null,[["Tourism Administration",93],["Sales and Visitors Center",94],["Communications",95],["Marketing",96]]],
+      ["Beach Operations",null,[["Beach Operations",97],["Beach Tram",98]]]
     ]
   },
   { title: "Workforce Budget", subtitle: "Personnel cost and capacity across Walton County government, including staffing, benefit costs, and the reserve position of the employee health plan.", items: [["Workforce Budget",100],["Personnel Ledger",101],["Self-Insurance Fund",102]] },
@@ -61,6 +61,9 @@ const sections = [
   ] }
 ];
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
+// List department groups in the order their first page appears in the book.
+const firstPage = (g) => g[1] ?? Math.min(...g[2].map((c) => c[1]));
+sections.forEach((section) => { if (section.groups) section.groups.sort((x, y) => firstPage(x) - firstPage(y)); });
 
 // Chapters distributed across three printed pages instead of two, now
 // that Introduction and Our County, Financial Overview, Budget Process,

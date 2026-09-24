@@ -27,7 +27,7 @@ const POLICIES = [
   ["Investment Policy", "Establishes guidelines for investing County funds with emphasis on safety, liquidity, diversification, and yield while preserving principal.", "https://www.co.walton.fl.us/DocumentCenter/View/9816"],
   ["Indirect Administrative Cost Allocation Policy", "Provides a methodology for allocating indirect administrative costs among County programs, ensuring equitable cost recovery.", "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy"]
 ];
-const POLICY_QRS = await Promise.all(POLICIES.map(([, , url]) => QRCode.toDataURL(url, { margin: 1, width: 140, color: { dark: "#003f28", light: "#ffffff" } })));
+const POLICY_QRS = await Promise.all(POLICIES.map(([, , url]) => QRCode.toDataURL(url, { margin: 4, width: 160, color: { dark: "#003f28", light: "#ffffff" } })));
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -168,9 +168,8 @@ const sharedCss = `
     width:.66in;
     height:.66in;
     box-sizing:border-box;
-    padding:.05in;
-    border:1.5px solid #d1be78;
-    border-radius:8px;
+    border:1px solid #d1be78;
+    border-radius:0;
     background:#fff;
   }
   .policy-card-qr span{

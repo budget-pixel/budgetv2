@@ -61,7 +61,7 @@ const otherAgenciesDivider = `
   <section>
     <div class="divider">
       <span class="kicker2">Budget Book</span>
-      <h1b>Other Agencies and<br/>Court-Related Functions<br/>Budget</h1b>
+      <h1b>Other Agencies<br/>and Courts</h1b>
       <p>Budget, fund, and year-over-year change for the Courts, Health Department, and other independent and autonomous entities Walton County funds outside its own Board departments and Constitutional Officers.</p>
     </div>
   </section>
@@ -111,7 +111,7 @@ const financialOverviewDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Financial<br/>Overview</h1b>
-      <p>A one-page look at the whole budget, the year-over-year change by department and fund, how a resident's property tax dollar is allocated, and the countywide revenue, expenditure, fund, transfer, and debt ledgers behind it.</p>
+      <p>The County's final financial plan at a glance, followed by the year-over-year changes, revenue and expenditure portfolios, property-tax allocation, fund schedules, transfers, debt, and long-term outlook behind it.</p>
     </div>
   </section>
 `;
@@ -121,7 +121,7 @@ const budgetProcessDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Budget<br/>Process</h1b>
-      <p>How a department request becomes Walton County's FY2027 final spending plan, and the key dates residents can follow before final adoption.</p>
+      <p>How department requests became Walton County's FY2027 final spending plan, including the public workshops, tentative hearing, final hearing, and Board decisions that shaped adoption.</p>
     </div>
   </section>
 `;
@@ -131,7 +131,7 @@ const workforcePlanDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Workforce<br/>Budget</h1b>
-      <p>Personnel cost and capacity across Walton County government &mdash; the number and mix of positions, and the cost of maintaining the existing workforce.</p>
+      <p>Personnel cost and capacity across Walton County government &mdash; the number and mix of positions, the cost of maintaining the workforce, and the Self-Insurance Fund reserve supporting employee health benefits.</p>
     </div>
   </section>
 `;

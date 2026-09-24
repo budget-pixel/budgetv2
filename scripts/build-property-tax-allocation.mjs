@@ -72,19 +72,28 @@ const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.05%"];
 
 const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$151,054,833", "100.00%"];
 
-const EXAMPLE_ROWS = [
-  ["Sheriff's Office", "64.88%", "$421.72"],
-  ["Capital Projects", "10.89%", "$70.79"],
-  ["Clerk of Court", "4.55%", "$29.57"],
-  ["Property Appraiser", "3.28%", "$21.32"],
-  ["Board of County Commissioners", "2.97%", "$19.33"],
-  ["Tax Collector", "2.95%", "$19.15"],
-  ["All Other Entities", "10.48%", "$68.12"]
+const EXAMPLE_TAX = (250000 - 51411) * 3.25 / 1000;
+const EXAMPLE_SHARES = [
+  ["Sheriff's Office", 64.88],
+  ["Capital Projects", 10.89],
+  ["Clerk of Court", 4.55],
+  ["Property Appraiser", 3.28],
+  ["Board of County Commissioners", 2.97],
+  ["Tax Collector", 2.95],
+  ["All Other Entities", 10.48]
 ];
+let allocatedCents = 0;
+const EXAMPLE_ROWS = EXAMPLE_SHARES.map(([name, share], index) => {
+  const cents = index === EXAMPLE_SHARES.length - 1
+    ? Math.round(EXAMPLE_TAX * 100) - allocatedCents
+    : Math.round(EXAMPLE_TAX * share);
+  allocatedCents += cents;
+  return [name, `${share.toFixed(2)}%`, `$${(cents / 100).toFixed(2)}`];
+});
 
 const PROPERTY_TAX_CALCULATOR_URL = "https://final2027.budget-waltoncountyfl.com/pages/summary-of-property-tax-allocations.html?embed=calculator";
 const PROPERTY_TAX_QR = await QRCode.toDataURL(PROPERTY_TAX_CALCULATOR_URL, {
-  margin: 1,
+  margin: 4,
   width: 260,
   color: { dark: "#003f28", light: "#ffffff" }
 });
@@ -251,9 +260,8 @@ const sharedCss = `
     height:.86in;
     margin:0 auto .055in;
     box-sizing:border-box;
-    padding:.07in;
-    border:2px solid #d1be78;
-    border-radius:11px;
+    border:1px solid #d1be78;
+    border-radius:0;
     background:#fff;
   }
   .tax-qr b{
@@ -376,8 +384,8 @@ const page2 = `
       <div class="example-head">
         <div>
           <h2>What This Means for a Homeowner</h2>
-          <p>On a $250,000 home with a $50,000 homestead exemption ($200,000 in taxable value), the County&rsquo;s FY 2027 final millage of 3.2500 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
-          <div class="example-total"><b>$650.00</b><span>Total County portion of the tax bill</span></div>
+          <p>On a home assessed at $250,000 with the maximum standard 2026 non-school homestead exemption of $51,411 ($198,589 in taxable value), the County&rsquo;s FY 2027 final millage of 3.2500 generates the County portion of the tax bill below, split across recipients in the same proportions as above:</p>
+          <div class="example-total"><b>$645.41</b><span>Total County portion of the tax bill</span></div>
         </div>
         <div class="tax-qr">
           <img src="${PROPERTY_TAX_QR}" alt="QR code for the Walton County personalized property tax calculator">
@@ -390,7 +398,7 @@ const page2 = `
       </div>
     </div>
 
-    <p class="footnote">This is an illustrative example of the County-government portion of a tax bill only; it excludes the separate levies of the School Board, Northwest Florida Water Management District, and the North Walton Mosquito Control District that also appear on an actual property tax bill. The County government&rsquo;s share is calculated as taxable value &times; millage &divide; 1,000, then apportioned by each entity&rsquo;s share of total Ad Valorem revenue.</p>
+    <p class="footnote">2026 homestead amount: Florida Department of Revenue, 2026 NAL exemption codes. Allocations use displayed shares, with rounding assigned to All Other Entities. This is an illustrative example of the County-government portion of a tax bill only; it excludes the separate levies of the School Board, Northwest Florida Water Management District, and the North Walton Mosquito Control District that also appear on an actual property tax bill. The County government&rsquo;s share is calculated as taxable value &times; millage &divide; 1,000, then apportioned by each entity&rsquo;s share of total Ad Valorem revenue.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>

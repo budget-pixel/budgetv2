@@ -172,7 +172,7 @@ const page2 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Organizational Challenges and FY2027 Response</h1>
-    <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. The FY2027 plan connects these pressures to specific actions, funding signals, expected results, and review points.</p>
+    <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. The FY2027 plan connects these pressures to specific actions, funding sources, expected results, and review dates.</p>
 
     <h2>What Is Creating Pressure</h2>
     <div class="challenge-grid">
@@ -186,8 +186,8 @@ const page2 = `
 
     <h2>FY2027 Challenge-to-Result Plan</h2>
     <div class="conn-table">
-      <div class="crow head"><div>Challenge</div><div>FY2027 response</div><div>Funding signal</div><div>Expected FY2027 result</div><div>When reviewed</div></div>
-      <div class="crow"><div class="carea">Infrastructure demand</div><div class="cresp">Fund the FY2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money">$43.8M funded capital</div><div class="result">Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when">Letting schedule, project milestones, and year-end measures</div></div>
+      <div class="crow head"><div>Challenge</div><div>FY2027 response</div><div>Funding source</div><div>Expected FY2027 result</div><div>Review date</div></div>
+      <div class="crow"><div class="carea">Infrastructure demand</div><div class="cresp">Fund the FY2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money">$43.8M funded capital</div><div class="result">Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when">Project milestones and year-end measures</div></div>
       <div class="crow"><div class="carea">Seasonal coastal demand</div><div class="cresp">Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.</div><div class="money">+13 Beach Operations FTE</div><div class="result">Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.</div><div class="when">Peak-season monitoring and FY2027 year end</div></div>
       <div class="crow"><div class="carea">Housing access</div><div class="cresp">Continue HUD rental-assistance and Housing Choice Voucher administration.</div><div class="money">$3.1M program budget</div><div class="result">Maintain assistance delivery and monitor families served and available voucher utilization.</div><div class="when">Program reporting throughout FY2027</div></div>
       <div class="crow"><div class="carea">Capacity and continuity</div><div class="cresp">Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money">+15 net countywide FTE</div><div class="result">No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when">Budget monitoring and annual personnel review</div></div>

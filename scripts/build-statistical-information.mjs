@@ -17,13 +17,13 @@ import { chromium } from "playwright";
 const TOPICS = [
   {
     title: "Age and Sex",
-    stats: [["75,305", "Population, +36.8% since 2010"], ["44.4", "Median Age"]],
-    summary: "Walton County's population grew 36.8% since 2010, reaching 75,305 residents with a median age of 44.4 &mdash; older than Florida's 42.4, reflecting the county's appeal as a retirement and vacation destination. Veterans make up 11.9% of residents, compared to 7.9% statewide."
+    stats: [["90,547", "Population estimate, April 1, 2025"], ["44.4", "Median Age"]],
+    summary: "BEBR estimates 90,547 residents on April 1, 2025, up 20.2% from the 2020 Census count of 75,305. The 2018–2022 ACS reports a median age of 44.4 &mdash; older than Florida's 42.4, reflecting the county's appeal as a retirement and vacation destination. Veterans make up 11.9% of residents, compared to 7.9% statewide."
   },
   {
     title: "Income and Earnings",
-    stats: [["$74,832", "Median Household Income"], ["$101,823", "Married-Couple Family Income"]],
-    summary: "Walton County's median household income of $74,832 is above Florida's state median of $67,917. Families report a median income of $91,969, with married-couple families earning $101,823 on average."
+    stats: [["$74,832", "Median Household Income"], ["$101,823", "Median Married-Couple Family Income"]],
+    summary: "Walton County's median household income of $74,832 is above Florida's state median of $67,917. Families report a median income of $91,969, with married-couple families reporting median income of $101,823."
   },
   {
     title: "Educational Attainment",
@@ -54,12 +54,12 @@ const TAXPAYERS = [
   ["San Destin Hilton, LTD", "$88,281,993", "0.19%"],
   ["San Destin Hotel LLC", "$79,623,812", "0.17%"],
   ["HC Ariza Owner LLC", "$60,661,400", "0.13%"],
-  ["15 Blue Cover Drive Partners LLC", "$59,389,315", "0.13%"],
+  ["15 Blue Cove Drive Partners LLC", "$59,389,315", "0.13%"],
   ["Sandestin Investments LLC", "$51,546,748", "0.11%"],
   ["Origins Crossings LLC", "$50,345,789", "0.11%"],
   ["SJRBH LLC", "$49,752,395", "0.11%"]
 ];
-const TAXPAYERS_TOTAL = ["$932,394,393", "2.01%"];
+const TAXPAYERS_TOTAL = ["$932,394,393", "2.00%"];
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -230,19 +230,19 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Statistical &amp; Supplemental Information</h1>
-    <p class="intro">The following data, provided by the U.S. Census Bureau, offers a statistical profile of Walton County&rsquo;s population and economy, supplementing the financial information presented throughout this budget document.</p>
+    <p class="intro">The following data, provided by BEBR and the U.S. Census Bureau, offers a statistical profile of Walton County&rsquo;s population and economy, supplementing the financial information presented throughout this budget document.</p>
     <div class="topic-grid">
       ${topicCards}
     </div>
-    <p class="source-note">Source: U.S. Census Bureau, ACS 5-Year Estimates. Data current as of August 2026.</p>
+    <p class="source-note">Sources: University of Florida BEBR, Florida Estimates of Population 2025 (April 1); U.S. Census Bureau, 2020 Census and 2018–2022 ACS 5-Year Estimates. Income is in 2022 inflation-adjusted dollars.</p>
     <footer><span>FY 2027 Final Budget</span><b>13</b></footer>
   </section>
 
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
-    <h1>Principal Property Tax Payers</h1>
-    <p class="intro">The table below lists the top taxpayers in Walton County, highlighting their assessed property values and contributions to the total net assessed value. Collectively, these ten taxpayers account for 2.01% of the County&rsquo;s total net assessed value &mdash; a reminder that Walton County&rsquo;s tax base is broad, not concentrated in a handful of major property owners.</p>
+    <h1>Principal Property Taxpayers</h1>
+    <p class="intro">The table below lists the top taxpayers reported for the 2025 tax roll in Walton County, highlighting their assessed property values and contributions to the total net assessed value. Collectively, these ten taxpayers account for 2.00% of the County&rsquo;s total net assessed value &mdash; a reminder that Walton County&rsquo;s tax base is broad, not concentrated in a handful of major property owners.</p>
     <table>
       <thead><tr><th>Taxpayer</th><th class="num">Assessed Value</th><th class="num">% of Total Net Assessed Value</th></tr></thead>
       <tbody>
@@ -250,7 +250,7 @@ const html = `<!doctype html>
         <tr class="total"><td>Total</td><td class="num">${TAXPAYERS_TOTAL[0]}</td><td class="num">${TAXPAYERS_TOTAL[1]}</td></tr>
       </tbody>
     </table>
-    <p class="source-note">Source: Walton County Property Appraiser.</p>
+    <p class="source-note">Source: Walton County Property Appraiser data reported in the FY2025 ACFR, p. 155 (2025 tax roll). Total share recalculated using $46,564,251,989 in total taxable assessed value; rounded rows may not sum.</p>
     <footer><span>FY 2027 Final Budget</span><b>14</b></footer>
   </section>
 

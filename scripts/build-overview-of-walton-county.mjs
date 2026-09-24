@@ -51,7 +51,7 @@ const officerRows = OFFICERS.map(([src, role, name]) =>
 // Same video the live overview page embeds (pages/overview-of-walton-county.html) --
 // a QR code linking to it stands in for the video in print, since a PDF can't autoplay one.
 const VIDEO_WATCH_URL = "https://www.youtube.com/watch?v=SIDgNn9c1q0";
-const VIDEO_QR = await QRCode.toDataURL(VIDEO_WATCH_URL, { margin: 1, width: 240, color: { dark: "#003f28", light: "#ffffff" } });
+const VIDEO_QR = await QRCode.toDataURL(VIDEO_WATCH_URL, { margin: 4, width: 240, color: { dark: "#003f28", light: "#ffffff" } });
 
 // Same five history/public-information links the live overview page lists
 // (pages/overview-of-walton-county.html) -- each gets its own QR code here
@@ -64,7 +64,7 @@ const HISTORY_LINKS = [
   ["Walton County Bicentennial", "https://walton200.com/"]
 ];
 const historyLinkCards = (await Promise.all(HISTORY_LINKS.map(async ([label, url]) => {
-  const qr = await QRCode.toDataURL(url, { margin: 1, width: 160, color: { dark: "#003f28", light: "#ffffff" } });
+  const qr = await QRCode.toDataURL(url, { margin: 4, width: 160, color: { dark: "#003f28", light: "#ffffff" } });
   return `<div class="history-link"><img src="${qr}" alt="QR code linking to ${label}"><span>${label}</span></div>`;
 }))).join("");
 
@@ -289,16 +289,15 @@ const html = `<!doctype html>
     width:1.12in;
     height:1.12in;
     flex:0 0 1.12in;
-    overflow:hidden;
     border:2px solid #d1be78;
-    border-radius:50%;
+    border-radius:0;
     background:#fff;
   }
   .qr-medallion .qr-code{
     position:relative;
     z-index:1;
-    width:.80in;
-    height:.80in;
+    width:1.02in;
+    height:1.02in;
     padding:0;
     background:#fff;
   }
@@ -344,9 +343,8 @@ const html = `<!doctype html>
     width:.62in;
     height:.62in;
     box-sizing:border-box;
-    padding:.045in;
     border:1.5px solid #d1be78;
-    border-radius:8px;
+    border-radius:0;
     background:#fff;
   }
   .history-link span{
@@ -465,10 +463,10 @@ const html = `<!doctype html>
       </div>
     </div>
     <div class="fact-grid">
-      <div class="fact-card"><b>75,305</b><span>Population</span></div>
-      <div class="fact-card"><b>44.4</b><span>Median Age</span></div>
-      <div class="fact-card"><b>77.7%</b><span>Homeownership</span></div>
-      <div class="fact-card"><b>$74,832</b><span>Median Household Income</span></div>
+      <div class="fact-card"><b>90,547</b><span>Population · BEBR, Apr. 1, 2025</span></div>
+      <div class="fact-card"><b>44.4</b><span>Median Age · 2018–2022 ACS</span></div>
+      <div class="fact-card"><b>77.7%</b><span>Homeownership · 2018–2022 ACS</span></div>
+      <div class="fact-card"><b>$74,832</b><span>Median Household Income · 2022 ACS</span></div>
     </div>
     <div class="story-grid">
       <div class="story-copy">

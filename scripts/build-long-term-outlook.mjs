@@ -176,31 +176,31 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Long-Term Outlook</h1>
-    <p class="intro">The chapters before this one detail Walton County's finances one year, one fund, or one project at a time. This closing chapter pulls the forward-looking signal already built into those chapters &mdash; the County's own multi-year forecast, five-year capital plan, and debt schedule &mdash; into one place, alongside the economic conditions driving them.</p>
+    <p class="intro">This chapter brings together Walton County's multi-year forecast, five-year capital plan, debt schedule, and the economic conditions that affect them.</p>
 
     <h2>Economic Conditions Driving the Outlook</h2>
     <p class="body">Walton County's budget planning happens against a backdrop of sustained population and visitor growth, detailed further in the Statistical &amp; Supplemental Information section of this book.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>+36.8%</b><span>Population Growth Since 2010</span></div>
-      <div class="stat-card"><b>75,305</b><span>Current Population (Census ACS)</span></div>
-      <div class="stat-card"><b>44.4</b><span>Median Age vs. 42.4 Statewide</span></div>
+      <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
+      <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
+      <div class="stat-card"><b>44.4</b><span>Median Age vs. 42.4 Statewide (2018–2022 ACS)</span></div>
       <div class="stat-card"><b>+15.9%</b><span>FY2027 Tourist Development Fund Growth</span></div>
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>
-    <p class="body">The Board has reduced the countywide operating millage rate for four consecutive years, even as population, visitation, and service demand have all risen &mdash; a sign the tax base itself is growing faster than the rate needed to fund it.</p>
+    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY2024 to 3.2500 mills in FY2027. Taxable-value growth helped offset the lower rate, but recurring revenue does not cover all adopted FY2027 expenditures and transfers.</p>
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.2500 mills in FY2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and the funded FY2027 capital program totals $43.8M. The Board maintained the expenditure plan by drawing $21.8M in fund balance across the affected funds.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.2500 mills in FY2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. Reducing the tentative rate from 3.4347 to 3.2500 lowered projected property-tax revenue by $8.6M; the Board appropriated the same amount of General Fund balance to keep the expenditure plan unchanged.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
-    <p class="body">The consolidated Fund Financial Ledger extends two fiscal years beyond the final budget, while the online fund forecast and five-year Capital Improvement Plan carry the planning view through FY2031.</p>
+    <p class="body">The Fund Financial Ledger presents history through the FY2027 final budget. The online fund forecast extends through FY2029, while the five-year Capital Improvement Plan carries the capital planning view through FY2031.</p>
     <div class="fcast-table">
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY2026 Budget</div><div>FY2027 Final</div><div>FY2028 Proj.</div><div>FY2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="warn"><b>A Trend Worth Watching</b>The adopted 3.2500-mill rate produces a $21.8M planned countywide use of fund balance in FY2027. Countywide fund balance is then projected to decline by $15.0M in FY2028 and a further $27.5M in FY2029 as capital spending and transfers outpace revenue growth in the out-years. These are projections under current assumptions, not funding shortfalls today.</p>
+    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.8M countywide use of fund balance in FY2027 across operating, capital, and restricted funds. The millage decision accounts for $8.6M of the General Fund appropriation. Countywide fund balance is projected to decline by another $15.0M in FY2028 and $27.5M in FY2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -214,7 +214,7 @@ const page2 = `
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
     <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $410.0M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund Planning Cushion</b><span>$73.3M in estimated FY2027 General Fund ending balance equals 35.5% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.25 months. The County informally uses GFOA guidance and seeks to preserve approximately $50M for hurricane response or another major emergency; this is a planning objective, not a formally adopted reserve requirement.</span></div>
+      <div class="info-card"><b>General Fund Planning Cushion</b><span>$73.3M in estimated FY2027 General Fund ending balance equals 35.5% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.25 months. The County has an adopted Fund Balance Policy. The approximately $50M hurricane-response amount used in this forecast is an informal management objective within that policy framework, not a formally adopted numeric reserve requirement.</span></div>
       <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $410.0M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
     </div>
 
@@ -225,14 +225,14 @@ const page2 = `
     </div>
 
     <h2>Debt: Minimal, and Scheduled to End in FY2030</h2>
-    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $8.5M in principal remaining. Both are repaid exclusively from the half-cent sales tax rather than property taxes, and both are scheduled to be fully repaid by FY2030 &mdash; see the Debt Ledger for the complete payment schedule.</p>
+    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $9.1M in remaining debt service, including principal and interest. FY2027 payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax rather than property taxes, and the schedule ends in FY2030 &mdash; see the Debt Ledger for the payment schedule and terminology.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>$29.5M</b><span>Total Debt Issued</span></div>
       <div class="stat-card"><b>$9.1M</b><span>Remaining Debt Service</span></div>
       <div class="stat-card"><b>$2.51M</b><span>FY2027 Debt Service</span></div>
       <div class="stat-card"><b>FY2030</b><span>Scheduled Payoff</span></div>
     </div>
-    <p class="body">This is a deliberate policy choice, not a lack of options: Walton County funds the large majority of its capital program pay-as-you-go from current revenues and legally restricted funding sources, preserving borrowing capacity for a future need rather than committing it now.</p>
+    <p class="body">The County funds most capital work from current revenues and legally restricted sources. Existing debt is limited to two notes; FY2027 payments are funded through the Small County Surtax transfer shown in the Interfund Transfer Ledger.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY2027&ndash;FY2031 final plan, from the Capital Improvement Plan chapter</p>

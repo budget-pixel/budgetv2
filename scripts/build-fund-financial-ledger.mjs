@@ -265,7 +265,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. Total Revenues and Total Expenditures are broken out by fund below; the next page details each of the 15 individual funds' full schedules.</p>
+    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY2026 ending balance is an estimate produced by the FY2026 budget schedule; FY2027 beginning balance is the separately adopted opening estimate based on newer information, so the two are not expected to roll forward unchanged. The next page details each fund's FY2027 schedule.</p>
     <div class="cledger">
       ${cHead}
       ${cRow(CONSOLIDATED_TOP[0])}

@@ -79,7 +79,7 @@ const SUMMARY_TOTAL = ["Total Constitutional Officers", 847, 147335597, 14889688
 const OFFICES = [
   {
     name: "Walton County Sheriff's Office", fund: "Sheriff (Fine & Forfeiture) Fund",
-    official: "Michael Adkinson", title: "Sheriff", photo: "sheriff-mike-adkinson.jpg",
+    official: "Michael A. Adkinson, Jr.", title: "Sheriff", photo: "sheriff-mike-adkinson.jpg",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45225/Sheriff-Budget-Certification",
     fte: 669, ftePrior: 668, fteDelta: 1, fy26: 114116228, fy27: 114116228,
     personnel: 83607042, operating: 21348864, capital: 9160322,
@@ -102,15 +102,13 @@ const OFFICES = [
     revenue: "General Government Taxes $4.5M &middot; Miscellaneous Revenue $4.3M &middot; Intergovernmental Revenues $2.4M &middot; Permits, Fees &amp; Special Assessments $1.5M",
     contracts: [
       { service: "Board ERP Finance, HR, Planning &amp; Permit Software", provider: "Tyler Technologies", amount: 420000 },
-      { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "ZIIC Outdoors, LLC", amount: 650000 },
-      { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "Harper Landscaping, LLC", amount: 500000 },
+      { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "ZIIC Outdoors, LLC; Harper Landscaping, LLC", amount: 1175000 },
       { service: "Comprehensive Annual Financial Audit Services", provider: "Carr, Riggs, &amp; Ingram", amount: 310000 },
       { service: "Employee Benefits Consultant", provider: "The Gehring Group", amount: 95000 },
       { service: "State Lobbyist (75/25 split with Tourist Fund)", provider: "Heffley &amp; Associates, Inc.", amount: 66000 },
       { service: "Federal Lobbyist (50/50 split with Tourist Fund)", provider: "Not yet awarded", amount: 48000 },
       { service: "County Website, ADA Compliance &amp; Archive Services", provider: "CivicPlus", amount: 50000 },
       { service: "Commissioner &amp; Board Agenda Management Software", provider: "iCompass", amount: 30000 },
-      { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "ZIIC Outdoors, LLC", amount: 25000 },
       { service: "Financial Advisor Services for Debt Issuance", provider: "PFM Financial Advisors LLC", amount: 10000 },
       { service: "Cost Allocation Service Study", provider: "Maximus US Services, Inc", amount: 11100 },
       { service: "OPEB/GASB 75 Valuation", provider: "McGriff Insurance Services", amount: 8000 }
@@ -143,7 +141,7 @@ const OFFICES = [
   },
   {
     name: "Property Appraiser", fund: "General Fund (State Approved)",
-    official: "Gary Gregor", title: "Property Appraiser", photo: "property-appraiser-gary-gregor.png",
+    official: "Gary J. Gregor", title: "Property Appraiser", photo: "property-appraiser-gary-gregor.png",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45269/Property-Appraiser-Submission",
     fte: 37, ftePrior: 38, fteDelta: -1, fy26: 4829596, fy27: 4954338,
     personnel: 4123584, operating: 697382, capital: 133372,
@@ -166,11 +164,9 @@ const OFFICES = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
-// Household equivalents (34,362 Walton County households, per U.S.
-// Census Bureau statistics) match the same figure used by the live
-// site's Who Pays Ledger, so a resident-facing dollar amount can be
-// expressed as an annual/monthly household cost the same way there.
-const HOUSEHOLDS = 34362;
+// Household equivalents use the same 31,491 occupied housing units reported
+// in this book's 2018-2022 ACS statistical profile.
+const HOUSEHOLDS = 31491;
 function householdCost(amount) {
   const annual = amount / HOUSEHOLDS;
   const monthly = annual / 12;
@@ -187,7 +183,7 @@ function splitPropertyTax(amount, detail) {
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 34,362 households &mdash; a planning proxy, not an individual household's tax bill.`],
+    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 31,491 occupied housing units &mdash; a planning proxy, not an individual household's tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }
@@ -336,7 +332,7 @@ const sharedCss = `
   .comm-card b{ display:block; color:#003f28; font:800 8.6pt Georgia, serif; }
   .comm-card span{ display:block; margin-top:.02in; color:#68786f; font-size:6pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
   .qr-wrap{ margin-top:.09in; padding-top:.09in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
-  .qr-wrap img.qr{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:2px solid #d1be78; border-radius:9px; background:#fff; }
+  .qr-wrap img.qr{ box-sizing:border-box; width:.72in; height:.72in; border:1px solid #d1be78; border-radius:0; background:#fff; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .top-grid{ display:grid; grid-template-columns:1fr 1.9in; gap:.28in; margin-bottom:.14in; }
   section.profile-page h1,
@@ -432,13 +428,14 @@ async function buildOfficerPage(o, pageNumber) {
   const workforcePositionNote = o.fteDelta && (o.newPositions?.length || o.workforcePositionNote)
     ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote}</p>`
     : "";
-  const payerRows = whoPaysFor(o);
-  const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|34,362 households/.test(detail));
+  // Rows without a dollar amount are omitted rather than printed unquantified.
+  const payerRows = whoPaysFor(o).filter(([, amount]) => amount);
+  const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|31,491 occupied/.test(detail));
   const hasHouseholdEquivalent = payerRows.some(([, , detail]) => householdEquivalent(detail));
   const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
   const methodNotes = [
     usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills." : "",
-    hasHouseholdEquivalent ? "Per-household figures are based on an estimated 34,362 Walton County households (U.S. Census Bureau)." : ""
+    hasHouseholdEquivalent ? "Household cost equivalents divide the office's residential funding share by 31,491 occupied housing units from the 2018-2022 ACS. They measure budget scale and are not comparable to the $645 illustrative tax bill, which applies one home's taxable value and millage." : ""
   ].filter(Boolean).join(" ");
   const payerMethodHtml = methodNotes ? `<p class="source-trace">${methodNotes}</p>` : "";
   const denseClass = "";
@@ -449,7 +446,7 @@ async function buildOfficerPage(o, pageNumber) {
 
   let qrHtml = "";
   if (o.docUrl) {
-    const dataUrl = await QRCode.toDataURL(o.docUrl, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
+    const dataUrl = await QRCode.toDataURL(o.docUrl, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
     qrHtml = `<div class="qr-wrap"><img class="qr" src="${dataUrl}" alt="QR"/><span>View Submitted Budget Request</span></div>`;
   }
 
@@ -497,7 +494,7 @@ async function buildOfficerPage(o, pageNumber) {
         </div>
           <div class="side-change ${isDown ? "down" : "up"}">
           <span class="side-change-label">Budget Change</span>
-          <div class="change-finance"><b>${dsign}${money(Math.abs(delta)).slice(1)}</b><em>${pct(delta, o.fy26)}</em></div>
+          <div class="change-finance"><b>${delta === 0 ? "$0" : dsign + money(Math.abs(delta))}</b><em>${pct(delta, o.fy26)}</em></div>
           <div class="workforce-line"><span>Workforce</span><b>${o.fte} FTE</b><em>${o.fteDelta ? `${o.fteDelta > 0 ? "+" : "&minus;"}${Math.abs(o.fteDelta)} FTE` : "No change"}</em></div>
           ${workforcePositionNote}
         </div>
@@ -540,7 +537,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
     <h1>Constitutional Officers Ledger</h1>
-    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners budget a combined $148.9M and employ 847 FTE for FY2027. Each office's own page follows, with its Statement of Function, elected official, revenue sources, and any new positions requested for FY2027.</p>
+    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners budget a combined $148.9M and employ 847 FTE for FY2027. Totals include the Board's capital and contingency. The Personnel Ledger shows 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Office Summary</h2>

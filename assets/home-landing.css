@@ -90,6 +90,8 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-explorer-card-grid-categories{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 .wc-explorer-card-grid-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:14px}
 .wc-explorer-card{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:22px 22px 18px;border:1px solid var(--home-line);border-radius:18px;background:var(--home-surface);color:var(--home-ink);text-decoration:none;box-shadow:0 5px 16px rgba(28,56,43,.035);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.wc-explorer-card-grid-secondary .wc-explorer-card{border-color:#b9d8c6;background:#eaf4ee;box-shadow:0 5px 16px rgba(18,70,45,.055)}
+.wc-explorer-card-grid-secondary .wc-explorer-card:hover{border-color:#6da988;background:#e2f1e8}
 .wc-explorer-card:hover{transform:translateY(-3px);border-color:#77b192;box-shadow:0 15px 30px rgba(18,70,45,.09)}
 .wc-explorer-card:focus-visible{outline:3px solid var(--home-gold);outline-offset:3px}
 .wc-explorer-card-heading{display:block}
@@ -243,6 +245,8 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-department-modal.is-budget-book .wc-home-department-modal-head{display:none}
 .wc-home-department-modal.is-budget-book .wc-home-department-modal-panel{width:min(2000px,100%);height:calc(100vh - 8px);height:calc(100dvh - 8px);max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px);border:0;border-radius:0;background:transparent;box-shadow:none}
 .wc-home-department-modal.is-budget-book .wc-home-department-modal-frame{background:transparent}
+.wc-home-department-modal.is-budget-book.is-native-fullscreen{width:100%;height:100%;padding:0}
+.wc-home-department-modal.is-budget-book.is-native-fullscreen .wc-home-department-modal-panel{width:100%;height:100%;max-height:none}
 .wc-home-department-modal.is-budget-book.is-loading .wc-home-department-modal-panel::after{inset:0;background:rgba(3,38,28,.4);color:#fff}
 .wc-home-explorer-modal-body .wc-department-budget-cards{margin-top:18px}
 .wc-home-explorer-modal-body .wc-revenue-view-actions,.wc-home-explorer-modal-body .wc-department-ledger-actions{gap:12px;margin-top:12px}

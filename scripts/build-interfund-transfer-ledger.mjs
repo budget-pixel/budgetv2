@@ -10,9 +10,9 @@ import { chromium } from "playwright";
 const OUT_ROWS = [
   ["E911 Fund", "E911 Revenue to Sheriff", "$460,000"],
   ["General Fund", "Property Tax (Sheriff)", "$98,004,256"],
-  ["General Fund", "Debt Payment", "$2,581,997"],
+  ["General Fund", "Small County Surtax Debt Payment", "$2,581,997"],
   ["General Fund", "Property Tax (Capital)", "$25,035,734"],
-  ["Solid Waste Fund", "Small County Surtax", "$2,581,997"],
+  ["Solid Waste Fund", "Small County Surtax - Debt Service", "$2,581,997"],
   ["Solid Waste Fund", "Small County Surtax (Mossy Head Wastewater Treatment)", "$379,000"],
   ["Solid Waste Fund", "Small County Surtax (Transportation)", "$14,621,000"]
 ];
@@ -20,8 +20,8 @@ const OUT_TOTAL = "$143,663,984";
 
 const IN_ROWS = [
   ["Capital Projects Fund", "Property Tax", "$25,035,734"],
-  ["Capital Projects Fund", "Interfund Group Transfer In", "$2,581,997"],
-  ["General Fund", "Small County Surtax", "$2,581,997"],
+  ["Capital Projects Fund", "Small County Surtax Debt Payment", "$2,581,997"],
+  ["General Fund", "Small County Surtax - Debt Service", "$2,581,997"],
   ["Sheriff Fund", "Property Tax", "$98,004,256"],
   ["Sheriff Fund", "E911", "$460,000"],
   ["Transportation Fund", "Small County Surtax", "$379,000"],
@@ -161,7 +161,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Interfund Transfer Ledger</h1>
-    <p class="intro">Both sides of each planned FY2027 budget transfer between County funds &mdash; which fund provides the resources and which fund receives them. Every dollar transferred out is matched by a dollar transferred in; the two tables below total the same $143,663,984.</p>
+    <p class="intro">Both sides of each planned FY2027 budget transfer between County funds &mdash; which fund provides the resources and which fund receives them. Every dollar transferred out is matched by a dollar transferred in; the two tables below total the same $143,663,984. The $2,581,997 debt-service path moves Small County Surtax revenue from the Solid Waste Fund to the General Fund, then to the Capital Projects Fund for payment.</p>
 
     <h2>Interfund Transfers Out</h2>
     <div class="ledger">

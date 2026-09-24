@@ -261,6 +261,7 @@ const page1 = `
       ${INDEPENDENT.map(row).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
+    <p class="footnote">Scope notes: the Sheriff comparison uses the FY2026 amended fund budget; its personnel component rises $4.78M while operating and capital components offset that increase. The BCC amount here excludes $1.705M of capital. The $6.93M agency subtotal is the General Fund comparison set; the comprehensive agency ledger also includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
@@ -283,6 +284,7 @@ const page2 = `
       ${CAPITAL.map(row).join("")}
       ${row(CAPITAL_TOTAL, "total")}
     </div>
+    <p class="footnote">Capital crosswalk: the $53.50M Total Capital equals the $43.80M funded Capital Improvement Plan, plus $7.12M of machinery, vehicles, and equipment, plus $2.58M of debt service budgeted in the Capital Projects Fund. See the Capital Improvement Plan for project-level scope and exclusions.</p>
 
     ${row(GRAND_TOTAL, "grand")}
 

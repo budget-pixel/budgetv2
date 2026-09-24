@@ -93,13 +93,16 @@ function projectHistoricalTotal(project){
     .reduce((sum, item) => sum + (Number(item.amount_value) || 0), 0);
 }
 
-// Planned capital by fiscal year, used by the "is capital spending going up
-// or down" section. FY2022/FY2023/FY2024/FY2025/FY2026 come from the
-// historical work-plan supplement rather than the adopted five-year plan,
-// so they're flagged and labelled separately instead of being presented as
-// the same series.
+// Capital by fiscal year, used by the "is capital spending going up or down"
+// section. Historical totals are fixed to the County's confirmed annual
+// figures; future years continue to come from the adopted five-year plan.
+const CIP_HISTORICAL_TREND_TOTALS = {
+  FY2023: 31300000,
+  FY2024: 54600000,
+  FY2025: 37600000,
+  FY2026: 49100000
+};
 const CIP_TREND_YEARS = [
-  { year: "FY2022", label: "FY 2022", historical: true },
   { year: "FY2023", label: "FY 2023", historical: true },
   { year: "FY2024", label: "FY 2024", historical: true },
   { year: "FY2025", label: "FY 2025", historical: true },
@@ -114,10 +117,12 @@ const CIP_TREND_YEARS = [
 function getCipYearTotals(projects){
   return CIP_TREND_YEARS.map(entry => ({
     ...entry,
-    total: (projects || []).reduce((sum, project) =>
-      sum + (project.funding_by_year || [])
-        .filter(item => item.year === entry.year)
-        .reduce((yearSum, item) => yearSum + Number(item.amount_value || 0), 0), 0)
+    total: entry.historical && CIP_HISTORICAL_TREND_TOTALS[entry.year]
+      ? CIP_HISTORICAL_TREND_TOTALS[entry.year]
+      : (projects || []).reduce((sum, project) =>
+          sum + (project.funding_by_year || [])
+            .filter(item => item.year === entry.year)
+            .reduce((yearSum, item) => yearSum + Number(item.amount_value || 0), 0), 0)
   })).filter(entry => entry.total > 0);
 }
 
@@ -2814,7 +2819,7 @@ function renderProjects(){
         <section class="wc-cip-story-section" id="wc-cip-why-new-projects" aria-label="Why new capital projects are necessary">
           <div class="wc-cip-story-header">
             <h2>Why are new projects necessary?</h2>
-            <p>Capital work is not optional spending that can simply be deferred. Walton County is one of the fastest-growing counties in Florida, and its infrastructure has to keep pace with the demand placed on it &mdash; while the assets already built continue to age.</p>
+            <p>The capital plan addresses two recurring needs: adding capacity as Walton County grows and replacing roads, facilities, and equipment as they age.</p>
           </div>
           <div class="wc-cip-factor-grid">
             <article class="wc-cip-factor-card">
@@ -2893,7 +2898,7 @@ function renderProjects(){
             </article>
             <article class="wc-cip-factor-card">
               <h3>Debt capacity</h3>
-              <p>Debt is used sparingly and only where it fits County financial policy. Existing obligations are repaid from the half-cent sales tax rather than property taxes, which preserves capacity for future needs.</p>
+              <p>Debt is used sparingly and only where it fits County financial policy. FY2027 payments are budgeted from the infrastructure portion of the Small County Surtax rather than property taxes.</p>
             </article>
             <article class="wc-cip-factor-card">
               <h3>Project readiness</h3>
@@ -2922,10 +2927,10 @@ function renderProjects(){
             `).join("")}
           </div>
           <div class="wc-cip-trend-legend">
-            <span class="is-historical">Prior work plans (FY 2025&ndash;FY 2026)</span>
+            <span class="is-historical">Historical capital spending (FY 2023&ndash;FY 2026)</span>
             <span>Final five-year plan (FY 2027&ndash;FY 2031)</span>
           </div>
-          <p class="wc-cip-section-note">FY 2025 and FY 2026 figures come from the County&rsquo;s earlier five-year work plans and are shown for context; they are not part of the current final plan. Later plan years are estimates that are re-evaluated every budget cycle, so out-year totals typically grow as projects are identified and scheduled.</p>
+          <p class="wc-cip-section-note">FY 2023 through FY 2026 are historical annual capital totals and are shown for context; they are not part of the current final plan. Later plan years are estimates that are re-evaluated every budget cycle, so out-year totals typically grow as projects are identified and scheduled.</p>
         </section>
         ` : ""}
 

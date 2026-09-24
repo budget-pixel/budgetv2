@@ -493,7 +493,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1>Department Operating Ledger</h1>
-    <p class="intro">Walton County's 15 Board departments budget a combined $135.6M in operating and personnel spending and employ 667 FTE for FY2027. Capital outlay is budgeted separately &mdash; see the Capital Budget chapter. Each department's statement of function, core services, challenges, and full budget detail appears on its own page in the Departments and Services chapter that follows.</p>
+    <p class="intro">Walton County's 15 Board departments budget a combined $135.6M in operating and personnel spending and employ 667 FTE for FY2027. Capital outlay is budgeted separately &mdash; see the Capital Budget chapter. Each department's statement of function, core services, challenges, and full budget detail appears on its own page in the pages that follow.</p>
     <div class="stat-strip">${OVERVIEW_STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Department Summary</h2>

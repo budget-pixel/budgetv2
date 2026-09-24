@@ -45,7 +45,7 @@ const OFFICES = [
     name: "Building Department", fte: 21, personnel: 2312201, operating: 1687799, capital: 0,
     deltaP: 198043, deltaO: -233043, deltaC: -165000,
     video: "3n4ns8jANzQ",
-    narrative: "Plays a pivotal role in ensuring the safety, compliance, and integrity of construction projects within the community, reviewing plans, issuing permits, and inspecting permitted work."
+    narrative: "Administers construction permitting and building-code compliance by reviewing plans, issuing permits, and inspecting permitted work."
   },
   {
     name: "Code Compliance", fte: 43, personnel: 4260744, operating: 551110, capital: 149000,
@@ -87,7 +87,7 @@ const OFFICES = [
     name: "Environmental Resources", fte: 4, personnel: 451831, operating: 177091, capital: 20000,
     deltaP: 1304, deltaO: -168284, deltaC: -25000,
     video: null,
-    narrative: "Serves as the cornerstone for environmental stewardship within the county, overseeing natural resource protection and related environmental programs.",
+    narrative: "Manages water-quality monitoring, environmental compliance, habitat restoration, conservation projects, and related environmental programs.",
     footnote: "env"
   },
   {
@@ -155,7 +155,7 @@ const OFFICES = [
     name: "Probation", fte: 4, personnel: 329527, operating: 41050, capital: 0,
     deltaP: 5072, deltaO: 850, deltaC: 0,
     video: null,
-    narrative: "Fulfills a vital role collaborating with the judicial system to enforce court-ordered obligations for probationers."
+    narrative: "Supervises county probation cases, monitors court-ordered conditions, reports compliance, and connects probationers with required services."
   },
   {
     name: "Public Works", fte: 148, personnel: 13083100, operating: 7742900, capital: 7000000,
@@ -173,7 +173,7 @@ const OFFICES = [
     name: "Recreation", fte: 6, personnel: 591658, operating: 211735, capital: 30000,
     deltaP: 4949, deltaO: -865, deltaC: -30000,
     video: "ODzfUR4KX2o",
-    narrative: "Essential to improving the community's quality of life, operating public parks, fields, courts, and recreation programs for residents of all ages."
+    narrative: "Operates public parks, fields, courts, and recreation programs for residents of all ages."
   },
   {
     name: "Soil Conservation", fte: 2, personnel: 148520, operating: 1480, capital: 0,
@@ -215,7 +215,7 @@ async function buildOffice(o) {
   let qrImg = "";
   if (o.video) {
     const url = `https://www.youtube.com/watch?v=${o.video}`;
-    const dataUrl = await QRCode.toDataURL(url, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
+    const dataUrl = await QRCode.toDataURL(url, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
     qrImg = `<div class="qr-box"><img src="${dataUrl}" alt="QR code"/><span>Watch Video</span></div>`;
   }
   const footnoteMark = o.footnote ? (o.footnote === "env" ? "&dagger;" : "*") : "";
@@ -350,7 +350,7 @@ const sharedCss = `
   .change{ color:#0b7741; font-weight:700; }
   .change.is-down{ color:#a24b1e; }
   .qr-box{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .qr-box img{ box-sizing:border-box; width:.85in; height:.85in; padding:.07in; border:2px solid #d1be78; border-radius:10px; background:#fff; }
+  .qr-box img{ box-sizing:border-box; width:.85in; height:.85in; border:1px solid #d1be78; border-radius:0; background:#fff; }
   .qr-box span{ margin-top:.03in; color:#68786f; font-size:5.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
 `;
 

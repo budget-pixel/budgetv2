@@ -264,9 +264,9 @@
         // was missing from the Tourist Development ledger entirely. No
         // individual renourishment project has been identified yet, so it
         // carries no slug and therefore no project detail page.
-        title: "Beach Renourishment (Additional Fund for Future Project)",
+        title: "Beach Renourishment (Additional Funds for Future Project)",
         slug: "",
-        proposal_name: "Beach Renourishment (Additional Fund for Future Project)",
+        proposal_name: "Beach Renourishment (Additional Funds for Future Project)",
         dept: "Beach Renourishment", department: "Beach Renourishment",
         department_filter: "beach operations",
         project_code: "", project_manager: "",

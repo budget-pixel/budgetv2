@@ -32,6 +32,18 @@ const AFTER = [
   ["Amend", "Respond to Change", "The Board may amend the budget by resolution for grants, carry-forward funding, contingencies, or unforeseen needs."]
 ];
 
+const REQUEST = [
+  ["Department Overview", "Function and Goals", "A description of what the department does and the goals it is working toward."],
+  ["Performance", "Performance Measures", "Workload and service-level measures that show what the department delivers."],
+  ["Context", "Challenges and Accomplishments", "Challenges, issues, and opportunities facing the department, along with its accomplishments."],
+  ["Proposed Budget", "Expenditure Changes", "An explanation of any change in expenditures from the prior year."],
+  ["Proposed Budget", "Staffing Changes", "Any requested additions, reductions, or changes to positions."],
+  ["Proposed Budget", "Revenue Changes", "Any change expected in revenues the department generates or receives."],
+  ["Equipment", "Machinery and Equipment", "Requested vehicles and equipment, with confirmation that Fleet Maintenance reviewed the request."],
+  ["Additional Information", "Pertinent Information and Documents", "Any other information relevant to the request, plus supporting documents."],
+  ["Budget Direction", "Keep Services Constant; Identify Reductions", "Departments were told to hold services at current levels and to point out any area that could be reduced, so reviewers could weigh options.", true]
+];
+
 const TIMELINE = [
   ["March", "Budget requests distributed"],
   ["April", "Department submissions due"],
@@ -244,6 +256,39 @@ const sharedCss = `
     font-size:8pt;
     line-height:1.32;
   }
+  .request-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.12in;
+  }
+  .request-card{
+    padding:.11in .13in;
+    border:1px solid #e4ebe7;
+    border-radius:12px;
+  }
+  .request-card.note{
+    border-color:#d1be78;
+    background:#f9f8f2;
+  }
+  .request-card span{
+    color:#b89521;
+    font-size:7pt;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .request-card h3{
+    margin:.05in 0;
+    color:#003f28;
+    font-size:9.2pt;
+    font-weight:800;
+  }
+  .request-card p{
+    margin:0;
+    color:#33453c;
+    font-size:7.8pt;
+    line-height:1.3;
+  }
   footer{
     position:absolute;
     left:.62in;
@@ -332,7 +377,7 @@ const page1 = `
     <p class="intro">See how a department request becomes Walton County&rsquo;s FY2027 final spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
 
     <div class="section-block">
-      <h2><span>Four Phases</span>One Public Plan</h2>
+      <h2><span>Four Phases</span>From Department Requests to Adoption</h2>
       <div class="phase-grid">
         ${PHASES.map(([num, title, desc, when]) => `<div class="phase-card"><span class="num">${num}</span><h3>${title}</h3><p>${desc}</p><small>${when}</small></div>`).join("")}
       </div>
@@ -345,6 +390,16 @@ const page1 = `
       </div>
     </div>
 
+    <div class="public-card" style="margin-top:.16in;padding:.16in .22in;">
+      <h3>Public Input Is Part of the Process</h3>
+      <p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p>
+      <ul class="public-list">
+        <li>Attend Budget Workshops</li>
+        <li>Review the Final Budget</li>
+        <li>Comment at Public Hearings</li>
+      </ul>
+    </div>
+
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 `;
@@ -355,26 +410,21 @@ const page2 = `
     <small class="kicker">Budget Process</small>
     <h1>Budget Process <span style="color:#68786f;font-size:10pt;font-weight:400;">(continued)</span></h1>
 
-    <div class="public-card" style="margin-top:.1in;margin-bottom:.28in;padding:.22in .24in;">
-      <h3>Public Input Is Part of the Process</h3>
-      <p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p>
-      <ul class="public-list">
-        <li>Attend Budget Workshops</li>
-        <li>Review the Final Budget</li>
-        <li>Comment at Public Hearings</li>
-      </ul>
-    </div>
 
     <div class="section-block">
+      <h2><span>Request Guidance</span>What Departments Were Asked to Provide</h2>
+      <p class="intro" style="margin:0 0 .12in;font-size:8.6pt;">Each department completed the same budget request form. Departments were also directed to keep services at their current level and to identify any area where spending could be reduced.</p>
+      <div class="request-grid">
+        ${REQUEST.map(([tag, title, desc, note]) => `<div class="request-card${note ? " note" : ""}"><span>${tag}</span><h3>${title}</h3><p>${desc}</p></div>`).join("")}
+      </div>
+      <p class="intro" style="margin:.12in 0 0;font-size:8pt;line-height:1.35;">OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13&ndash;14. Public comments and budget effects are documented on page 44.</p>
+    </div>
+
+    <div class="section-block" style="margin-bottom:0;">
       <h2><span>After Adoption</span>The Work Continues All Year</h2>
       <div class="after-grid">
         ${AFTER.map(([tag, title, desc]) => `<div class="after-card"><span>${tag}</span><h3>${title}</h3><p>${desc}</p></div>`).join("")}
       </div>
-    </div>
-
-    <div class="section-block" style="margin-bottom:0;">
-      <h2><span>Request Guidance</span>What Departments Were Asked to Provide</h2>
-      <p class="intro" style="margin-bottom:0;line-height:1.2;font-size:7.5pt;">Departments were instructed to identify service needs, staffing, projects, funding assumptions, proposed service changes, and reduction options. OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13–14. Public comments and budget effects are documented on page 44.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
@@ -395,7 +445,7 @@ const page3 = `
     <div class="cal-table">
       ${CALENDAR.map(([date, event, featured]) => `<div class="cal-row${featured ? " featured" : ""}"><div class="cal-date">${date}</div><div class="cal-event">${event}</div></div>`).join("")}
     </div>
-    <p class="cal-note"><strong>Budget Coordinator:</strong> Office of Management and Budget. All dates shown are estimates for planning purposes and may be adjusted as necessary during the budget development process.</p>
+    <p class="cal-note"><strong>Budget Coordinator:</strong> Office of Management and Budget.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_C</b></footer>
   </section>

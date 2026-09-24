@@ -25,7 +25,7 @@ import QRCode from "qrcode";
 // profile) -- so this page carries a QR code pointing readers there.
 const PERSONNEL_LEDGER_URL = "https://final2027.budget-waltoncountyfl.com/pages/personnel-ledger.html";
 const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
-  margin: 1,
+  margin: 4,
   width: 200,
   color: { dark: "#003f28", light: "#ffffff" }
 });
@@ -148,9 +148,8 @@ const sharedCss = `
     height:.72in;
     margin:0 auto .045in;
     box-sizing:border-box;
-    padding:.06in;
-    border:2px solid #d1be78;
-    border-radius:9px;
+    border:1px solid #d1be78;
+    border-radius:0;
     background:#fff;
   }
   .page-qr b{
@@ -294,7 +293,6 @@ const html = `<!doctype html>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
     <h2>Constitutional Officers</h2>
-    <p class="subnote">Only each office's total FTE and total personnel cost are shown; contact the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, or Sheriff's Office directly for line-item detail. Bailiff services amounts support court security provided by the Sheriff's Office.</p>
     <div class="ledger">
       ${tableHead(true)}
       ${CONSTITUTIONAL.map((r) => row(r)).join("")}

@@ -66,7 +66,7 @@ const DEPT_GROUPS = [
     ["Office of Management and Budget", "$1,524,708", "$1,075,026"],
     ["Office of the County Attorney", "$1,993,475", "$1,802,925"],
     ["Planning", "$6,689,864", "$7,048,111"],
-    ["Procurement", "$1,188,795", "$1,076,499"],
+    ["Purchasing", "$1,188,795", "$1,076,499"],
     ["Property Appraiser", "$4,829,596", "$4,954,338"],
     ["Statutory & Other", "$2,873,779", "$3,274,725"],
     ["Supervisor of Elections", "$1,615,107", "$1,663,865"],
@@ -406,7 +406,7 @@ const startPage = Number(process.argv[3] || 174);
 const page1 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Financial Summaries</small>
+    <small class="kicker">Financial Overview</small>
     <h1>Expenditure Ledger</h1>
     <p class="intro">Walton County's expenditures are organized into nine functional classifications reflecting the full range of services provided to residents and visitors &mdash; from general government operations and public safety to infrastructure, tourism, and community programs. Figures below span six fiscal years to show the trend behind each FY2027 total.</p>
 

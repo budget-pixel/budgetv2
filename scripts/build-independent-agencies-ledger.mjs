@@ -310,7 +310,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
-    <p class="footnote">E911 Fund revenue is transferred to the Walton County Sheriff's Office budget.</p>
+    <p class="footnote">Scope: this comprehensive $9.20M total includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem. The $6.93M Budget Change Summary uses a narrower General Fund comparison set; the $8.05M Property Tax Allocation includes only agency support funded by the County operating levy. E911 revenue is transferred to the Sheriff's Office budget.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

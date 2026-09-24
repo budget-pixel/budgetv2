@@ -1,4 +1,12 @@
 import { chromium } from "playwright";
+import QRCode from "qrcode";
+
+const BUDGET_EXPLORER_URL = "https://final2027.budget-waltoncountyfl.com/";
+const BUDGET_EXPLORER_QR = await QRCode.toDataURL(BUDGET_EXPLORER_URL, {
+  margin: 4,
+  width: 220,
+  color: { dark: "#003f28", light: "#ffffff" }
+});
 
 // Builds the FY 2027 Budget Book's "Budget in Brief" -- a single-page,
 // at-a-glance infographic summarizing the whole budget for residents, the
@@ -118,7 +126,7 @@ const html = `<!doctype html>
     position:relative;
     width:8.5in;
     height:11in;
-    padding:.56in .62in .5in;
+    padding:.46in .62in .5in;
     background:#ffffff;
     overflow:hidden;
   }
@@ -136,7 +144,7 @@ const html = `<!doctype html>
   header em{ font-style:normal; }
   .kicker{
     display:block;
-    margin-top:.26in;
+    margin-top:.18in;
     color:#b89521;
     font-size:8pt;
     font-weight:900;
@@ -156,14 +164,55 @@ const html = `<!doctype html>
     font-size:9.3pt;
     line-height:1.45;
   }
+  .message-panel{
+    display:grid;
+    grid-template-columns:1fr .95in;
+    gap:.18in;
+    align-items:center;
+    margin:0 0 .11in;
+    padding:.1in .15in;
+    border-left:4px solid #d1be78;
+    border-radius:0 12px 12px 0;
+    background:#f6f4eb;
+  }
+  .message-panel p{
+    margin:0;
+    color:#263d32;
+    font-size:8.1pt;
+    line-height:1.36;
+  }
+  .message-panel strong{ color:#003f28; }
+  .explorer-link{
+    display:block;
+    color:#003f28;
+    text-align:center;
+    text-decoration:none;
+  }
+  .explorer-link img{
+    display:block;
+    width:.7in;
+    height:.7in;
+    margin:0 auto .035in;
+    border:1px solid #d1be78;
+    border-radius:0;
+    background:#fff;
+    image-rendering:pixelated;
+  }
+  .explorer-link b{
+    display:block;
+    font-size:5.9pt;
+    line-height:1.18;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+  }
   .stat-strip{
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:.13in;
-    margin:0 0 .22in;
+    margin:0 0 .12in;
   }
   .stat-card{
-    padding:.14in .1in;
+    padding:.1in .08in;
     border-radius:12px;
     background:#003f28;
     text-align:center;
@@ -184,7 +233,7 @@ const html = `<!doctype html>
     line-height:1.3;
   }
   h2{
-    margin:0 0 .12in;
+    margin:0 0 .08in;
     color:#003f28;
     font:800 11.5pt/1.2 Georgia, serif;
     padding-bottom:.05in;
@@ -194,18 +243,18 @@ const html = `<!doctype html>
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:.32in;
-    margin:0 0 .22in;
+    margin:0 0 .12in;
   }
   .bar-row{
     display:grid;
     grid-template-columns:1.45in 1fr 1.05in;
     align-items:center;
     gap:.1in;
-    margin:0 0 .082in;
+    margin:0 0 .05in;
   }
   .bar-label{
     color:#173229;
-    font-size:7.9pt;
+    font-size:7.5pt;
     font-weight:700;
   }
   .bar-track{
@@ -218,7 +267,7 @@ const html = `<!doctype html>
   .bar-value{
     text-align:right;
     color:#003f28;
-    font-size:8pt;
+    font-size:7.5pt;
     font-weight:800;
   }
   .bar-value span{
@@ -246,12 +295,19 @@ const html = `<!doctype html>
   .fund-strip{
     display:grid;
     grid-template-columns:repeat(5,1fr);
-    gap:.06in .1in;
-    margin:0 0 .22in;
+    gap:.04in .1in;
+    margin:0 0 .08in;
+  }
+  .fund-note{
+    margin:0;
+    color:#68786f;
+    font-size:6.3pt;
+    line-height:1.35;
+    font-style:italic;
   }
   .fund-chip{
-    min-height:.44in;
-    padding:.06in .07in;
+    min-height:.34in;
+    padding:.04in .06in;
     border:1px solid #e4ebe7;
     border-radius:10px;
     background:#fbfcfa;
@@ -260,13 +316,13 @@ const html = `<!doctype html>
   .fund-chip b{
     display:block;
     color:#003f28;
-    font:800 10.5pt/1.1 Georgia, serif;
+    font:800 9.8pt/1.05 Georgia, serif;
   }
   .fund-chip span{
     display:block;
-    margin-top:.03in;
+    margin-top:.02in;
     color:#68786f;
-    font-size:6pt;
+    font-size:5.7pt;
     font-weight:700;
     letter-spacing:.02em;
     text-transform:uppercase;
@@ -293,7 +349,10 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Budget in Brief</h1>
-    <p class="intro">A one-page look at how Walton County plans to raise and spend money in Fiscal Year 2027 &mdash; the full detail behind these figures follows throughout this document.</p>
+    <div class="message-panel">
+      <p><strong>Walton County&rsquo;s FY2027 final budget maintains core services while lowering the County operating millage to 3.2500, investing $43.8 million in funded capital improvements, and adding targeted workforce capacity.</strong> The $345.2 million plan prioritizes public safety, infrastructure, and dependable service in a growing community while preserving long-term financial preparedness.</p>
+      <a class="explorer-link" href="${BUDGET_EXPLORER_URL}"><img src="${BUDGET_EXPLORER_QR}" alt="QR code to the Walton County Budget Explorer"><b>Explore the<br>Budget Online</b></a>
+    </div>
 
     <div class="stat-strip">
       <div class="stat-card"><b>$345.2M</b><span>Net Expenditure Budget</span></div>
@@ -307,13 +366,13 @@ const html = `<!doctype html>
         <h2>Where the Money Comes From</h2>
         <div class="dollar-callout"><b>$1.00</b><span>Every County budget funding dollar, allocated by source</span></div>
         ${REVENUE_SOURCES.map(([l, v, display], i) => barRow(l, v, REVENUE_TOTAL, "#0b7741", revenueCents[i], display)).join("")}
-        <p class="chart-total">Displayed cents are rounded using a balanced allocation so the sources total exactly $1.00.</p>
+        <p class="chart-total">Displayed cents use the largest-remainder rounding method so the shown amounts add to exactly $1.00.</p>
       </div>
       <div>
         <h2>Where the Money Goes</h2>
         <div class="dollar-callout"><b>$1.00</b><span>Every County budget dollar, allocated by service area</span></div>
         ${EXPENSE_CATEGORIES.map(([l, v], i) => barRow(l, v, EXPENSE_TOTAL, "#003f28", expenseCents[i])).join("")}
-        <p class="chart-total">Displayed cents are rounded using a balanced allocation so the categories total exactly $1.00.</p>
+        <p class="chart-total">Displayed cents use the largest-remainder rounding method so the shown amounts add to exactly $1.00.</p>
       </div>
     </div>
 
@@ -321,6 +380,7 @@ const html = `<!doctype html>
     <div class="fund-strip">
       ${FUNDS.map(([l, v]) => `<div class="fund-chip"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
+    <p class="fund-note">Fund highlights present gross fund budgets and are not additive to the $345.2 million net expenditure budget. Interfund transfers appear in more than one fund and are eliminated from the net total. This Budget in Brief was distributed at the tentative and final budget hearings and posted online.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
@@ -328,9 +388,18 @@ const html = `<!doctype html>
 
 const startPage = Number(process.argv[3] || 15);
 const outPath = process.argv[2] || "/private/tmp/budget-book-budget-in-brief.pdf";
+const handoutPath = process.argv[4] || "output/pdf/walton-county-fy2027-budget-in-brief.pdf";
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
-await page.setContent(html.replace("PAGE_A", startPage), { waitUntil: "networkidle" });
+const bookHtml = html.replace("PAGE_A", startPage);
+await page.setContent(bookHtml, { waitUntil: "networkidle" });
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+const handoutHtml = bookHtml.replace(
+  `<footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>`,
+  `<footer><span>FY 2027 Final Budget</span><b>Budget in Brief</b></footer>`
+);
+await page.setContent(handoutHtml, { waitUntil: "networkidle" });
+await page.pdf({ path: handoutPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);
+console.log("Wrote " + handoutPath);

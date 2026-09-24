@@ -204,6 +204,7 @@ const sharedCss = `
   .prow .plabel{ color:#173229; font-size:7.6pt; }
   .prow .pfund{ color:#68786f; font-size:7.1pt; }
   .prow .pnum{ text-align:right; color:#003f28; font-weight:800; font-size:8pt; font-variant-numeric:tabular-nums; }
+  .proj-table.reconciliation .prow{ grid-template-columns:1fr .9in; }
   .process-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -220,7 +221,7 @@ const sharedCss = `
   .process-card b{ display:block; color:#fff; font-size:7.4pt; margin:.03in 0; }
   .process-card span{ display:block; color:#cfe0d7; font-size:6.6pt; line-height:1.32; }
   .qr-strip{ display:flex; align-items:center; gap:.18in; margin:.1in 0 .14in; padding:.1in .16in; border-left:4px solid #d1be78; background:#f9f8f2; border-radius:0 9px 9px 0; }
-  .qr-strip img{ box-sizing:border-box; width:.72in; height:.72in; padding:.06in; border:1.5px solid #d1be78; border-radius:9px; background:#fff; flex:0 0 auto; }
+  .qr-strip img{ box-sizing:border-box; width:.78in; height:.78in; border:1px solid #d1be78; border-radius:0; background:#fff; flex:0 0 auto; }
   .qr-strip b{ display:block; color:#003f28; font:800 8.4pt Georgia, serif; margin-bottom:.03in; }
   .qr-strip span{ display:block; color:#33453c; font-size:7.3pt; line-height:1.4; }
 `;
@@ -228,17 +229,18 @@ const sharedCss = `
 const startPage = Number(process.argv[3] || 194);
 
 const CHART = [
-  ["FY23", 5.0, true], ["FY24", 16.5, true], ["FY25", 22.6, true], ["FY26", 41.9, true],
+  ["FY23", 31.3, true], ["FY24", 54.6, true], ["FY25", 37.6, true], ["FY26", 49.1, true],
   ["FY27", 43.8, false], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]
 ];
+const CHART_MAX = Math.max(...CHART.map(([, value]) => value));
 
 const TOP_PROJECTS = [
-  ["Beach Renourishment (Additional Fund for Future Project)", "Tourist Development Fund · Beach Renourishment", "$10.8M"],
+  ["Beach Renourishment (Additional Funds for Future Project)", "Tourist Development Fund · Beach Renourishment", "$10.8M"],
   ["Hewett Bayou Connector Rd (E Lamb Drive Extension)", "Capital Projects Fund · Public Works/Engineering", "$4.6M"],
   ["Holiday Shores Drainage & Pedestrian Improvements Phase IIB", "Transportation Fund · Public Works/Engineering", "$4.0M"],
   ["Freeport 3280/Bear Creek Fire Station", "Capital Projects Fund · Sheriff", "$3.5M"],
   ["Pleasant Ridge Fire Station", "Capital Projects Fund · Sheriff", "$3.5M"],
-  ["Holiday Shores Drainage & Pedestrian Improvements Phase I", "Capital Projects Fund · Public Works/Engineering", "$3.0M"],
+  ["Holiday Shores Drainage & Pedestrian Improvements Phase IIA", "Capital Projects Fund · Public Works/Engineering", "$3.0M"],
   ["Recreational Infrastructure", "Capital Projects Fund · Administration", "$3.0M"],
   ["Board-Approved Capital Improvements", "General Fund · Managed Vendor Program Revenue", "$1.5M"]
 ];
@@ -255,7 +257,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Program</small>
     <h1>Capital Improvement Plan</h1>
-    <p class="intro">The funded FY2027 capital program totals $43.8 million. It includes projects budgeted in FY2027 and excludes all grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years. Those excluded projects remain visible in the detailed ledgers and online explorer, but are not counted as FY2027 capital appropriations.</p>
+    <p class="intro">The funded FY2027 Capital Improvement Plan totals $43.8 million. The Budget Change Summary's $53.5 million Total Capital adds $7.1 million of machinery, vehicles, and equipment and $2.6 million of debt service budgeted in the Capital Projects Fund. This CIP excludes grant-funded projects, the $2.0 million Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years.</p>
 
     <h2>What Is a Capital Project?</h2>
     <p class="body">Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not. A request is capital when it meets all four tests:</p>
@@ -313,9 +315,9 @@ const page2 = `
     <h1 class="continued">Capital Improvement Plan <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Why Are New Projects Necessary?</h2>
-    <p class="body">Capital work is not optional spending that can simply be deferred. Walton County is one of the fastest-growing counties in Florida, and its infrastructure has to keep pace with the demand placed on it &mdash; while the assets already built continue to age.</p>
+    <p class="body">The capital plan addresses two recurring needs: adding capacity as Walton County grows and replacing roads, facilities, and equipment as they age.</p>
     <div class="card-grid cols3">
-      <div class="info-card"><b>Growth Arrives Before the Infrastructure</b><span>Florida's concurrency requirement is that infrastructure supporting development be available as that development occurs, not years afterward.</span></div>
+      <div class="info-card"><b>Growth Arrives Before the Infrastructure</b><span>Under s. 163.3180, Florida Statutes, statewide concurrency applies to sanitary sewer, solid waste, drainage, and potable water, available by occupancy. Local governments may apply concurrency to additional facilities through their comprehensive plans.</span></div>
       <div class="info-card"><b>Assets Wear Out</b><span>Replacing roads, bridges, and mechanical systems on schedule costs less than rebuilding them after failure.</span></div>
       <div class="info-card"><b>Deferral Is More Expensive</b><span>Construction costs and land prices generally rise over time; emergency repairs cost more than planned replacement.</span></div>
       <div class="info-card"><b>Service Levels Must Be Maintained</b><span>Holding response times, drainage capacity, and road conditions steady as the county grows requires adding capacity.</span></div>
@@ -329,25 +331,25 @@ const page2 = `
       <div class="info-card"><b>Available Cash</b><span>The County funds capital primarily pay-as-you-go, so spending is limited by what each fund can support the year the work is scheduled.</span></div>
       <div class="info-card"><b>Revenue Restrictions</b><span>Fuel taxes, tourist development taxes, and impact fees are legally restricted and cannot be redirected to an unrelated project.</span></div>
       <div class="info-card"><b>Grant Awards and Match</b><span>State and federal awards raise what the County can deliver, but each carries a local match and reporting obligation.</span></div>
-      <div class="info-card"><b>Debt Capacity</b><span>Debt is used sparingly; existing obligations are repaid from the half-cent sales tax rather than property taxes.</span></div>
+      <div class="info-card"><b>Debt Capacity</b><span>Debt is used sparingly; FY2027 payments are budgeted from the infrastructure portion of the Small County Surtax rather than property taxes.</span></div>
       <div class="info-card"><b>Project Readiness</b><span>Design, permitting, right-of-way, and procurement all have to line up before a project can realistically be delivered.</span></div>
       <div class="info-card"><b>Operating Impact</b><span>Every new facility, road, or vehicle adds ongoing cost to maintain, staff, and insure &mdash; weighed before a project is added.</span></div>
     </div>
 
     <h2>Is Capital Spending Going Up or Down?</h2>
     <div class="chart-wrap">
-      <div class="chart">${CHART.map(([y, v, prior]) => `<div class="bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="bar ${prior ? "prior" : "adopted"}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-      <div class="legend"><span><i style="background:#c9d6cd"></i>Prior work plans (FY2025&ndash;FY2026)</span><span><i style="background:#0b7741"></i>Final five-year plan (FY2027&ndash;FY2031)</span></div>
+      <div class="chart">${CHART.map(([y, v, prior]) => `<div class="bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="bar ${prior ? "prior" : "adopted"}" style="height:${(v / CHART_MAX * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
+      <div class="legend"><span><i style="background:#c9d6cd"></i>Historical capital spending (FY2023&ndash;FY2026)</span><span><i style="background:#0b7741"></i>Final five-year plan (FY2027&ndash;FY2031)</span></div>
     </div>
-    <p class="trend">On a consistent funded/non-grant basis, the plan moves from $43.8M in FY2027 to $35.3M in FY2031, an $8.5M or 19% decrease, with a temporary rise to $43.2M in FY2030 as several major facility and infrastructure phases are scheduled.</p>
-    <p class="footnote">FY2027-FY2031 exclude grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years. FY2025 and FY2026 figures come from earlier work plans and are shown only as historical context. All future-year amounts are planning estimates re-evaluated each budget cycle.</p>
+    <p class="trend">The five-year work plan moves from $43.8M in FY2027 to $35.3M in FY2031, an $8.5M or 19% decrease, with a temporary rise to $43.2M in FY2030 as several major facility and infrastructure phases are scheduled.</p>
+    <p class="footnote">FY2027-FY2031 exclude grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years. FY2023-FY2026 are historical annual capital totals shown for context. All future-year amounts are planning estimates re-evaluated each budget cycle.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
 const cipUrl = "https://final2027.budget-waltoncountyfl.com/pages/capital-improvement-plan.html";
-const cipQrDataUrl = await QRCode.toDataURL(cipUrl, { margin: 0, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
+const cipQrDataUrl = await QRCode.toDataURL(cipUrl, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
 
 const page3 = `
   <section>
@@ -357,17 +359,17 @@ const page3 = `
     <h2 style="margin-top:.08in;">What Benefit Will They Provide?</h2>
     <p class="body">FY2027 investments preserve existing assets, improve travel and pedestrian safety, reduce drainage and storm risk, strengthen emergency response, and add capacity where growth requires it. Project-specific benefits and expected operating effects are identified in the detailed profiles that follow.</p>
 
-    <h2>FY2027 Capital Program Reconciliation</h2>
-    <div class="proj-table">
-      <div class="prow head"><div class="plabel">Included component</div><div class="pfund">Treatment</div><div class="pnum">Amount</div></div>
+    <h2>FY2027 Capital Program to Fund Reconciliation</h2>
+    <div class="proj-table reconciliation">
+      <div class="prow head"><div class="plabel">Fund Name</div><div class="pnum">Amount</div></div>
       ${[
-        ["Capital Projects Fund", "Included, including Sheriff projects recorded in the 300-series fund", "$25,035,734"],
-        ["Transportation Fund capital projects", "Included", "$4,500,000"],
-        ["General Fund capital projects", "Included", "$2,010,000"],
-        ["Tourist Development Fund: beach renourishment and 30A Gateway", "Included in FY2027", "$11,350,000"],
-        ["Recreation Plat Fee and Sidewalk allocations", "Included", "$900,000"],
-        ["Funded FY2027 Capital Program", "Exact total; headline rounded to $43.8M", "$43,795,734"]
-      ].map(([n, f, a]) => `<div class="prow"><div class="plabel">${n}</div><div class="pfund">${f}</div><div class="pnum">${a}</div></div>`).join("")}
+        ["Capital Projects Fund", "$25,035,734"],
+        ["Transportation Fund", "$4,500,000"],
+        ["General Fund", "$2,010,000"],
+        ["Tourist Development Fund", "$11,350,000"],
+        ["Recreation Plat Fee and Sidewalk Funds", "$900,000"],
+        ["Funded FY2027 Capital Program", "$43,795,734"]
+      ].map(([name, amount]) => `<div class="prow"><div class="plabel">${name}</div><div class="pnum">${amount}</div></div>`).join("")}
     </div>
     <p class="footnote"><b>Presented separately and excluded from the funded FY2027 program:</b> $15,299,176 of grant-funded projects; $2,000,000 in the Sheriff/Fine and Forfeiture Fund; and $10,250,000 of tourism projects funded in prior years. Including those items produces a broader identified project inventory of $71,344,910.</p>
 
@@ -377,7 +379,7 @@ const page3 = `
       <div class="prow head"><div class="plabel">Project</div><div class="pfund">Fund &middot; Department</div><div class="pnum">Amount</div></div>
       ${TOP_PROJECTS.map(([n, f, a]) => `<div class="prow"><div class="plabel">${n}</div><div class="pfund">${f}</div><div class="pnum">${a}</div></div>`).join("")}
     </div>
-    <p class="footnote">No major project was postponed from the FY2027 program. Engineering and Public Works will publish a letting schedule identifying the estimated phase and start of applicable projects.</p>
+    <p class="footnote">No major project was postponed from the FY2027 program.</p>
     <div class="qr-strip"><img src="${cipQrDataUrl}" alt="QR"/><div><b>View Every Project Online</b><span>Every project in this chapter and the ledgers that follow has its own page on the County's budget website, with funding source, status, and location detail. Scan to browse the full Capital Improvement Plan.</span></div></div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
