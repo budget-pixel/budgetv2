@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Interfund Transfer Ledger" -- both
-// sides of every planned FY2027 transfer between County funds. Source:
+// sides of every planned FY 2027 transfer between County funds. Source:
 // an already-complete, internally consistent raw capture (Transfers Out
 // total exactly equals Transfers In total, $143,663,984, matching the
 // "Other Financial Sources/Uses" figures used throughout this book's
@@ -30,7 +30,7 @@ const IN_ROWS = [
 const IN_TOTAL = "$143,663,984";
 
 const STATS = [
-  ["$143.7M", "Total Transfers, FY2027"],
+  ["$143.7M", "Total Transfers, FY 2027"],
   ["7", "Transfers Out"],
   ["7", "Transfers In"],
   ["3", "Funds Providing Resources"]
@@ -111,6 +111,8 @@ const html = `<!doctype html>
     padding-bottom:.06in;
     border-bottom:2px solid #d1be78;
   }
+  .transfer-map{display:grid;grid-template-columns:1fr .35in 1fr;gap:.08in;align-items:center;margin:0 0 .2in;padding:.12in;border:1px solid #d1be78;border-radius:11px;background:#faf9f3}
+  .transfer-side{display:flex;flex-direction:column;gap:.055in}.transfer-node{display:flex;justify-content:space-between;gap:.08in;padding:.065in .08in;border-radius:7px;background:white;border-left:4px solid #0b7741;font-size:6.7pt}.transfer-node b{color:#003f28}.transfer-arrow{text-align:center;color:#b89521;font-size:24pt;font-weight:900}.transfer-caption{grid-column:1/-1;color:#53665d;font-size:6.4pt;line-height:1.3;text-align:center}
   .ledger{ border-top:2px solid #d1be78; margin-bottom:.28in; }
   .lrow{
     display:grid;
@@ -161,7 +163,9 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Interfund Transfer Ledger</h1>
-    <p class="intro">Both sides of each planned FY2027 budget transfer between County funds &mdash; which fund provides the resources and which fund receives them. Every dollar transferred out is matched by a dollar transferred in; the two tables below total the same $143,663,984. The $2,581,997 debt-service path moves Small County Surtax revenue from the Solid Waste Fund to the General Fund, then to the Capital Projects Fund for payment.</p>
+    <p class="intro">Both sides of each planned FY 2027 budget transfer between County funds &mdash; which fund provides the resources and which fund receives them. Every dollar transferred out is matched by a dollar transferred in; the two tables below total the same $143,663,984. The $2,581,997 debt-service path moves Small County Surtax revenue from the Solid Waste Fund to the General Fund, then to the Capital Projects Fund for payment.</p>
+
+    <div class="transfer-map"><div class="transfer-side"><div class="transfer-node"><span>General Fund</span><b>$125.6M</b></div><div class="transfer-node"><span>Solid Waste Fund</span><b>$17.6M</b></div><div class="transfer-node"><span>E911 Fund</span><b>$0.46M</b></div></div><div class="transfer-arrow">›</div><div class="transfer-side"><div class="transfer-node"><span>Sheriff Fund</span><b>$98.5M</b></div><div class="transfer-node"><span>Capital Projects Fund</span><b>$27.6M</b></div><div class="transfer-node"><span>Transportation Fund</span><b>$15.0M</b></div><div class="transfer-node"><span>General Fund</span><b>$2.6M</b></div></div><div class="transfer-caption">Arrows summarize the direction of internal support. The ledgers below remain the controlling detail and show every matching transfer-out and transfer-in entry.</div></div>
 
     <h2>Interfund Transfers Out</h2>
     <div class="ledger">

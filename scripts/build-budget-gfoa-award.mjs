@@ -230,11 +230,11 @@ const html = `<!doctype html>
       <h1>Distinguished Budget Presentation Award</h1>
       <div class="badges">
         <span class="badge"><b>Two-Time</b> Recipient</span>
-        <span class="badge">FY2027 Submitted for Review</span>
+        <span class="badge">FY 2027 Submitted for Review</span>
       </div>
       <p>The Government Finance Officers Association of the United States and Canada presented Walton County, Florida with its second consecutive Distinguished Budget Presentation Award for the Annual Budget beginning October 1, 2025.</p>
       <p>To receive this award, a government must publish a budget document that meets program criteria as a policy document, a financial plan, an operations guide, and a communications device.</p>
-      <p>The certificates below recognize the prior-year publication. This FY2027 Final Budget has been submitted separately for review and consideration under the current program criteria.</p>
+      <p>The certificates below recognize the prior-year publication. This FY 2027 Final Budget has been submitted separately for review and consideration under the current program criteria.</p>
       <div class="caption">
         <div class="caption-mark"><img src="${GFOA_MARK}" alt=""></div>
         <span>Government Finance<br>Officers Association</span>

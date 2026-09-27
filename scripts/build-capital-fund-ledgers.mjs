@@ -258,7 +258,7 @@ const EMERGENCY_MANAGEMENT_ITEMS = [
 ];
 
 function deptTable(rows) {
-  return `<table class="dept-table"><thead><tr><th>Department</th><th>Items</th><th>FY2027 Amount</th></tr></thead><tbody>
+  return `<table class="dept-table"><thead><tr><th>Department</th><th>Items</th><th>FY 2027 Amount</th></tr></thead><tbody>
     ${rows.map((r) => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${money(r[2])}</td></tr>`).join("")}
     <tr class="grand"><td>All Departments</td><td class="num">77</td><td class="num">${money(MACHINERY_TOTAL)}</td></tr>
   </tbody></table>`;
@@ -275,9 +275,9 @@ const machineryPage1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Budget</small>
     <h1>Machinery, Vehicles, &amp; Equipment Ledger</h1>
-    <p class="intro">Budgeted machinery, vehicles, and equipment by department for FY2027, funded from ten revenue sources across six funds.</p>
+    <p class="intro">Budgeted machinery, vehicles, and equipment by department for FY 2027, funded from ten revenue sources across six funds.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(MACHINERY_TOTAL)}</b><span>Total FY2027 Funding</span></div>
+      <div class="stat-card"><b>${money(MACHINERY_TOTAL)}</b><span>Total FY 2027 Funding</span></div>
       <div class="stat-card"><b>77</b><span>Items, All Departments</span></div>
       <div class="stat-card"><b>16</b><span>Departments Represented</span></div>
       <div class="stat-card"><b>6</b><span>Funds</span></div>
@@ -294,7 +294,7 @@ const machineryPage2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Machinery, Vehicles, &amp; Equipment Ledger <span class="sub">(continued)</span></h1>
-    <p class="intro">Itemized FY2027 requests follow the same department order as the overview ledger.</p>
+    <p class="intro">Funded FY 2027 items follow the same department order as the overview ledger.</p>
     <div class="item-cols">
       ${itemTable(BUILDING_CM_ITEMS, "Building Construction &amp; Maintenance &mdash; $316,000")}
       ${itemTable(CODE_COMPLIANCE_ITEMS, "Code Compliance &mdash; $148,800")}
@@ -317,14 +317,13 @@ const machineryPage3 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Machinery, Vehicles, &amp; Equipment Ledger <span class="sub">(continued)</span></h1>
-    <p class="intro">The remaining itemized FY2027 requests, in the same department order as the overview ledger. Tourism Administration, Beach Operations, and Beach Tram are funded by Tourist Development Taxes.</p>
+    <p class="intro">The remaining funded FY 2027 items follow the same department order as the overview ledger. Tourism Administration, Beach Operations, and Beach Tram are funded by Tourist Development Taxes.</p>
     <div class="item-cols">
       ${itemTable(PUBLIC_WORKS_ITEMS, "Public Works &mdash; $2,499,000")}
       ${itemTable(TOURISM_ADMIN_ITEMS, "Tourism Administration &mdash; $50,000")}
       ${itemTable(BEACH_TRAM_ITEMS, "Beach Tram &mdash; $507,000")}
       ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
     </div>
-    <p class="footnote">Requested but not included in the FY2027 budget: Environmental Resources' Vessel &amp; Trailer, $60,000 (Property Taxes) &mdash; shown on that department's own page in the Board Department Budgets chapter.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE3}}"}</b></footer>
   </section>
 `;
@@ -428,16 +427,16 @@ const PROJECT_DETAILS = {
   "Recreation Building Improvements": ["Rehabilitation", "Project development", "No material new operating cost anticipated.", "Preserves County recreation facilities."],
   "Procurement Building Improvements": ["Rehabilitation", "Project development", "No material new operating cost anticipated.", "Preserves the facility supporting County procurement operations."],
   "CR 280 Bob Sikes Roadway Resurfacing Project Phase 1": ["Rehabilitation", "Construction anticipated in 2027", "No material new operating cost; rehabilitation may reduce near-term repairs.", "Adds safety and drainage improvements while extending pavement life."]
-  ,"Beach Renourishment (Additional Funds for Future Project)": ["Recurring capital commitment", "Future project reserve", "No new FY2027 operating cost; future project costs will be defined with scope.", "Preserves shoreline, storm protection, public beaches, and the tourism asset.", "Funded in FY2027"]
-  ,"30A Gateway Improvements": ["Improvement", "Project development", "Operating impact will be evaluated with the final scope.", "Improves a major visitor gateway and supporting public infrastructure.", "Funded in FY2027"]
+  ,"Beach Renourishment (Additional Funds for Future Project)": ["Recurring capital commitment", "Future project reserve", "No new FY 2027 operating cost; future project costs will be defined with scope.", "Preserves shoreline, storm protection, public beaches, and the tourism asset.", "Funded in FY 2027"]
+  ,"30A Gateway Improvements": ["Improvement", "Project development", "Operating impact will be evaluated with the final scope.", "Improves a major visitor gateway and supporting public infrastructure.", "Funded in FY 2027"]
   ,"US 331 Bridge Lighting": ["Improvement", "Previously funded", "Future energy and maintenance responsibilities should be confirmed before activation.", "Improves nighttime visibility and the appearance of a major gateway.", "Funded in a prior year"]
   ,"Boardwalk Dune Walkover Repair/Replacement": ["Rehabilitation", "Previously funded", "Replacement may reduce near-term repair exposure.", "Preserves safe public beach access and protects sensitive dunes.", "Funded in a prior year"]
   ,"Multi-use Path, 30A Rebuild 83 to 393": ["Rehabilitation", "Previously funded", "Path maintenance remains within the existing tourism infrastructure program.", "Preserves a heavily used pedestrian and bicycle connection.", "Funded in a prior year"]
   ,"Transit Program, Gulfview &amp; Blue Mountain": ["Service infrastructure", "Previously funded", "Any continuing service cost is managed through the applicable tourism program.", "Supports visitor mobility and reduces parking and roadway pressure.", "Funded in a prior year"]
   ,"Dune Allen Hardscaping Project": ["Improvement", "Previously funded", "Operating impact will follow the final project scope.", "Improves durability and function of public visitor infrastructure.", "Funded in a prior year"]
   ,"Deer Lake Path Realignment": ["Rehabilitation", "Previously funded", "Maintenance remains within the existing tourism infrastructure program.", "Improves access and protects the surrounding natural resource.", "Funded in a prior year"]
-  ,"Freeport 3280/Bear Creek Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in the Freeport service area.", "Funded in FY2027"]
-  ,"Pleasant Ridge Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in the service area.", "Funded in FY2027"]
+  ,"Freeport 3280/Bear Creek Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in the Freeport service area.", "Funded in FY 2027"]
+  ,"Pleasant Ridge Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in the service area.", "Funded in FY 2027"]
   ,"Sheriff Triumph Radio Project": ["Public-safety system", "Implementation", "Ongoing system maintenance and technology replacement will continue after completion.", "Improves countywide coverage, reliability, and interoperability for first responders.", "Grant funded"]
   ,"Bruce Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire protection and emergency-response coverage.", "Sheriff/Fine and Forfeiture Fund"]
   ,"Mossy Head Fire Station": ["New facility", "Funding pending", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Would improve fire and emergency-response coverage in Mossy Head.", "Grant funded"]
@@ -451,7 +450,7 @@ function projectProfileRow(r) {
 // separate: optional rows shown below the total but excluded from it (e.g. a
 // grant-funded project), introduced by a one-line label row.
 function projectProfileTable(rows, total, separate) {
-  return `<table class="profile-table"><thead><tr><th>Project, funding &amp; public benefit</th><th>Investment</th><th>FY2027 delivery &amp; operating impact</th><th>Amount</th></tr></thead><tbody>
+  return `<table class="profile-table"><thead><tr><th>Project, funding &amp; public benefit</th><th>Investment</th><th>FY 2027 delivery &amp; operating impact</th><th>Amount</th></tr></thead><tbody>
     ${rows.map(projectProfileRow).join("")}
     ${total == null ? "" : `<tr class="grand"><td colspan="3">Total</td><td class="num">${money(total)}</td></tr>`}
     ${separate ? `<tr class="subhead"><td colspan="4">Grant-Funded Project &mdash; shown separately from the total above</td></tr>${separate.map(projectProfileRow).join("")}` : ""}
@@ -480,17 +479,17 @@ const transPage1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Transportation and Infrastructure Capital Ledger</h1>
-    <p class="intro">This schedule presents the FY2027 transportation and infrastructure appropriations funded through the Capital Projects, Transportation, and General Funds. It is one component of the County's $43.8 million funded FY2027 capital program; Sheriff projects recorded in the 300-series capital funds remain included and are shown in the Sheriff ledger.</p>
+    <p class="intro">This schedule presents the FY 2027 transportation and infrastructure appropriations funded through the Capital Projects, Transportation, and General Funds. It is one component of the County's $43.8 million funded FY 2027 capital program. Sheriff projects are excluded from this ledger subtotal but remain included in the countywide program and are presented separately in the Sheriff Capital Project Ledger.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(TRANS_TOTAL)}</b><span>FY2027 Final Total</span></div>
+      <div class="stat-card"><b>${money(TRANS_TOTAL)}</b><span>FY 2027 Final Total</span></div>
       <div class="stat-card"><b>30</b><span>Projects</span></div>
       <div class="stat-card"><b>${money(GRANT_LEDGER[0][2])}</b><span>Grant Project Shown Separately</span></div>
-      <div class="stat-card"><b>Nonrecurring</b><span>FY2027 Project Appropriations</span></div>
+      <div class="stat-card"><b>Nonrecurring</b><span>FY 2027 Project Appropriations</span></div>
     </div>
     <h2>Funding by Revenue Source</h2>
     ${fundTable(TRANS_FUNDING, TRANS_TOTAL)}
-    <h2>FY2027 Funded Projects</h2>
-    <p class="intro">Listed from largest to smallest, each line identifies what FY2027 buys, the project's current delivery stage, its public benefit, and the expected operating effect. A funded FY2027 phase does not by itself mean every future phase of a multi-year project is fully funded.</p>
+    <h2>FY 2027 Funded Projects</h2>
+    <p class="intro">Listed from largest to smallest, each line identifies what FY 2027 buys, the project's current delivery stage, its public benefit, and the expected operating effect. A funded FY 2027 phase does not by itself mean every future phase of a multi-year project is fully funded.</p>
     ${projectProfileTable(TRANS_PROJECTS.slice(0, 11))}
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
@@ -500,9 +499,9 @@ const transPage2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Transportation and Infrastructure Capital Ledger <span class="sub">(continued)</span></h1>
-    <h2 style="margin-top:.1in;">FY2027 Funded Projects <span style="font-weight:400;color:#68786f;">(continued)</span></h2>
+    <h2 style="margin-top:.1in;">FY 2027 Funded Projects <span style="font-weight:400;color:#68786f;">(continued)</span></h2>
     ${projectProfileTable(TRANS_PROJECTS.slice(11), TRANS_TOTAL, GRANT_LEDGER)}
-    <p class="note">These are nonrecurring FY2027 project appropriations. Multi-year delivery does not make an individual project a recurring operating program. Detailed schedules, locations, contracts, prior and future funding, and current milestones remain available in the online Capital Improvement Plan.</p>
+    <p class="note">These are nonrecurring FY 2027 project appropriations. Multi-year delivery does not make an individual project a recurring operating program. Detailed schedules, locations, contracts, prior and future funding, and current milestones remain available in the online Capital Improvement Plan.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE2}}"}</b></footer>
   </section>
 `;
@@ -529,21 +528,21 @@ const touristPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Tourist Development Fund Capital Ledger</h1>
-    <p class="intro">The funded FY2027 tourism capital program contains only beach renourishment and the 30A Gateway project. Other active projects, funded in prior years, are listed below for reference.</p>
+    <p class="intro">The funded FY 2027 tourism capital program contains only beach renourishment and the 30A Gateway project. Other active projects, funded in prior years, are listed below for reference.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(TOURIST_ADOPTED_TOTAL)}</b><span>FY2027 Funded</span></div>
-      <div class="stat-card"><b>2</b><span>FY2027 Funded Projects</span></div>
+      <div class="stat-card"><b>${money(TOURIST_ADOPTED_TOTAL)}</b><span>FY 2027 Funded</span></div>
+      <div class="stat-card"><b>2</b><span>FY 2027 Funded Projects</span></div>
       <div class="stat-card"><b>${money(TOURIST_ADDITIONAL_TOTAL)}</b><span>Previously Funded</span></div>
       <div class="stat-card"><b>100%</b><span>Tourist Development Taxes</span></div>
     </div>
     <h2>Funding by Revenue Source</h2>
     ${fundTable([["Tourist Development Fund", "Tourist Development Taxes", "100.0%", TOURIST_ADOPTED_TOTAL]], TOURIST_ADOPTED_TOTAL)}
-    <h2>FY2027 Funded Projects</h2>
+    <h2>FY 2027 Funded Projects</h2>
     ${decisionProfileTable(TOURIST_ADOPTED.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADOPTED_TOTAL)}
     <h2>Previously Funded Projects</h2>
-    <p class="intro">These projects received funding in prior years and remain active in the County's project inventory. They are shown here for reference and are not part of the $43.8 million funded FY2027 capital program.</p>
+    <p class="intro">These projects received funding in prior years and remain active in the County's project inventory. They are shown here for reference and are not part of the $43.8 million funded FY 2027 capital program.</p>
     ${decisionProfileTable(TOURIST_ADDITIONAL.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADDITIONAL_TOTAL)}
-    <p class="note">Beach renourishment is an ongoing capital commitment because shoreline restoration is periodically required. Its FY2027 appropriation remains capital rather than operating spending; the previously funded projects above are shown for reference.</p>
+    <p class="note">Beach renourishment is an ongoing capital commitment because shoreline restoration is periodically required. Its FY 2027 appropriation remains capital rather than operating spending; the previously funded projects above are shown for reference.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
@@ -567,21 +566,21 @@ const sheriffPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Sheriff Capital Project Ledger</h1>
-    <p class="intro">The two fire stations funded through the Capital Projects Fund make up the FY2027 Sheriff capital program and are part of the County&rsquo;s $43.8 million funded capital program. Grant-funded projects and one Sheriff/Fine and Forfeiture Fund project are shown separately below.</p>
+    <p class="intro">The two fire stations funded through the Capital Projects Fund make up the FY 2027 Sheriff capital program and are part of the County&rsquo;s $43.8 million funded capital program. Grant-funded projects and one Sheriff/Fine and Forfeiture Fund project are shown separately below.</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(SHERIFF_ADOPTED_TOTAL)}</b><span>FY2027 Funded</span></div>
+      <div class="stat-card"><b>${money(SHERIFF_ADOPTED_TOTAL)}</b><span>FY 2027 Funded</span></div>
       <div class="stat-card"><b>2</b><span>Funded Fire Stations</span></div>
       <div class="stat-card"><b>${money(SHERIFF_GRANT_TOTAL - 2000000)}</b><span>Grant-Funded Projects</span></div>
       <div class="stat-card"><b>${money(2000000)}</b><span>Sheriff/Fine &amp; Forfeiture Fund Project</span></div>
     </div>
     <h2>Funding by Revenue Source</h2>
     ${fundTable([["Capital Projects Fund", "Property Taxes", "100.0%", SHERIFF_ADOPTED_TOTAL]], SHERIFF_ADOPTED_TOTAL)}
-    <h2>FY2027 Funded Projects</h2>
+    <h2>FY 2027 Funded Projects</h2>
     ${decisionProfileTable(SHERIFF_ADOPTED, SHERIFF_ADOPTED_TOTAL)}
     <h2>Grant-Funded and Other Projects</h2>
-    <p class="intro">Additional public safety projects supported by grants or the Sheriff/Fine and Forfeiture Fund. They are shown here for transparency and are separate from the funded FY2027 capital program.</p>
+    <p class="intro">Additional public safety projects supported by grants or the Sheriff/Fine and Forfeiture Fund. They are shown here for transparency and are separate from the funded FY 2027 capital program.</p>
     ${decisionProfileTable(SHERIFF_GRANT, SHERIFF_GRANT_TOTAL)}
-    <p class="note">The projects in this section total $13,076,335: $11,076,335 in grant-funded projects and $2,000,000 in the Sheriff/Fine and Forfeiture Fund. They are not part of the County&rsquo;s $43.8 million funded FY2027 capital program.</p>
+    <p class="note">The projects in this section total $13,076,335: $11,076,335 in grant-funded projects and $2,000,000 in the Sheriff/Fine and Forfeiture Fund. They are not part of the County&rsquo;s $43.8 million funded FY 2027 capital program.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
@@ -596,16 +595,16 @@ function simpleFundPage(title, blurb, fund, revenueSource, amount, pageVar) {
     <h1>${title}</h1>
     <p class="intro">${blurb}</p>
     <div class="stat-strip">
-      <div class="stat-card"><b>${money(amount)}</b><span>FY2027 Total</span></div>
+      <div class="stat-card"><b>${money(amount)}</b><span>FY 2027 Total</span></div>
       <div class="stat-card"><b>100%</b><span>${revenueSource}</span></div>
       <div class="stat-card"><b>1</b><span>Project</span></div>
       <div class="stat-card"><b>TBD</b><span>Board-Directed</span></div>
     </div>
     <h2>Funding by Revenue Source</h2>
     ${fundTable([[fund, revenueSource, "100.0%", amount]], amount)}
-    <h2>FY2027 Funded Projects</h2>
+    <h2>FY 2027 Funded Projects</h2>
     ${projTable([[`${fund} Project (Board-Directed, To Be Determined)`, `${fund} &middot; ${revenueSource}`, amount]], amount)}
-    <p class="note">This fund's FY2027 allocation is reserved for a project the Board will direct during the fiscal year; no specific project had been identified when this final budget publication was prepared.</p>
+    <p class="note">This fund's FY 2027 allocation is reserved for a project the Board will direct during the fiscal year; no specific project had been identified when this final budget publication was prepared.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageVar}</b></footer>
   </section>
 `;

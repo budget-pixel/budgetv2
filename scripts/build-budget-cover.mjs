@@ -198,7 +198,7 @@ const coverBox = await page.locator(".cover").boundingBox();
 const flattened = await page.screenshot({ type: "jpeg", quality: 96, clip: coverBox });
 await page.close();
 const flatPage = await browser.newPage();
-await flatPage.setContent(`<!doctype html><html><head><style>@page{size:letter portrait;margin:0}html,body{margin:0;width:8.5in;height:11in;overflow:hidden}img{display:block;width:8.5in;height:11in}</style></head><body><img src="data:image/jpeg;base64,${flattened.toString("base64")}" alt="Walton County FY2027 Final Budget Book cover"></body></html>`, { waitUntil: "networkidle" });
+await flatPage.setContent(`<!doctype html><html><head><style>@page{size:letter portrait;margin:0}html,body{margin:0;width:8.5in;height:11in;overflow:hidden}img{display:block;width:8.5in;height:11in}</style></head><body><img src="data:image/jpeg;base64,${flattened.toString("base64")}" alt="Walton County FY 2027 Final Budget Book cover"></body></html>`, { waitUntil: "networkidle" });
 await flatPage.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

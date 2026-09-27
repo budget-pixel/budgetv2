@@ -81,7 +81,7 @@ const OFFICES = [
     name: "Engineering Department", fte: 14, personnel: 2083118, operating: 251000, capital: 45000,
     deltaP: -95460, deltaO: 0, deltaC: 0,
     video: null,
-    narrative: "Manages the design and construction of Walton County infrastructure projects. In-house design work is estimated to save the County $1,660,880 in FY2027 versus outside consultants."
+    narrative: "Manages the design and construction of Walton County infrastructure projects. In-house design work is estimated to save the County $1,660,880 in FY 2027 versus outside consultants."
   },
   {
     name: "Environmental Resources", fte: 4, personnel: 451831, operating: 177091, capital: 20000,
@@ -137,7 +137,7 @@ const OFFICES = [
     name: "Office of Management and Budget", fte: 9, personnel: 1017276, operating: 57750, capital: 0,
     deltaP: -24682, deltaO: -275000, deltaC: -150000,
     video: null,
-    narrative: "Provides comprehensive financial planning, the annual budget process, and public budget information for the County. Recipient of the GFOA Distinguished Budget Presentation Award for FY2025 and FY2026."
+    narrative: "Provides comprehensive financial planning, the annual budget process, and public budget information for the County. Recipient of the GFOA Distinguished Budget Presentation Award for FY 2025 and FY 2026."
   },
   {
     name: "Office of the County Attorney", fte: 9, personnel: 1052925, operating: 100000, capital: 0,
@@ -228,8 +228,8 @@ async function buildOffice(o) {
     <div class="off-body">
       <div class="off-main">
         <div class="off-stats">
-          <div><b>${money(fy26)}</b><span>FY2026 Total</span></div>
-          <div><b>${money(fy27)}</b><span>FY2027 Total</span></div>
+          <div><b>${money(fy26)}</b><span>FY 2026 Total</span></div>
+          <div><b>${money(fy27)}</b><span>FY 2027 Total</span></div>
           <div><b class="${isDown ? "change is-down" : "change"}">${dsign}${money(Math.abs(deltaTotal)).slice(1)}</b><span>Dollar Change</span></div>
           <div><b class="${isDown ? "change is-down" : "change"}">${pct(deltaTotal, fy26)}</b><span>Percent Change</span></div>
         </div>
@@ -369,7 +369,7 @@ const indexPage = `
     <p class="intro">A closer look at ${OFFICES.length} individual Board offices and programs &mdash; the working units behind the 15 departments summarized in the Department Operating Ledger. Where an office has a public video overview, a QR code links to it. Tourism Administration and Tourism Beach Operations are not yet included pending a data verification issue on the live budget site.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>${OFFICES.length}</b><span>Offices Profiled</span></div>
-      <div class="stat-card"><b>${money(totalFy27)}</b><span>Combined FY2027 Budget</span></div>
+      <div class="stat-card"><b>${money(totalFy27)}</b><span>Combined FY 2027 Budget</span></div>
       <div class="stat-card"><b>${totalFte}</b><span>Combined FTE</span></div>
       <div class="stat-card"><b>${withVideo}</b><span>Offices With a Video</span></div>
     </div>

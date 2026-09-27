@@ -12,7 +12,7 @@ import { chromium } from "playwright";
 //
 // Updated to the Mission, Vision, and Core Values from the Walton County
 // Strategic Plan 2027-2032, adopted by the Board of County Commissioners
-// on September 8, 2026 -- the first strategic plan cycle this FY2027
+// on September 8, 2026 -- the first strategic plan cycle this FY 2027
 // budget falls under, superseding the prior mission/vision/values that
 // had been sourced from the live site's program-budget.html. See the
 // "Community Priorities and Organizational Challenges" chapter for the

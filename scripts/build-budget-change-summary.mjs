@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Budget Change Summary" as its own
-// multi-page PDF. Content is the real FY2026-vs-FY2027 comparison from
+// multi-page PDF. Content is the real FY 2026-vs-FY 2027 comparison from
 // the live site's Consolidated Budget Changes table (assets/budget-
 // data.js's renderConsolidatedBudgetChangesTable), verified against the
 // live Google Sheet + Supabase data sources rather than retyped from a
@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 // Agencies Ledger), not broken out as its own "Human Services" line.
 
 const STATS = [
-  ["$345.2M", "FY2027 Final Budget"],
+  ["$345.2M", "FY 2027 Final Budget"],
   ["+$17.3M", "Net Dollar Change"],
   ["+5.3%", "Net Percent Change"],
   ["+$5.0M", "Largest Increase: Sheriff Capital"]
@@ -261,7 +261,7 @@ const page1 = `
       ${INDEPENDENT.map(row).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
-    <p class="footnote">Scope notes: the Sheriff comparison uses the FY2026 amended fund budget; its personnel component rises $4.78M while operating and capital components offset that increase. The BCC amount here excludes $1.705M of capital. The $6.93M agency subtotal is the General Fund comparison set; the comprehensive agency ledger also includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem.</p>
+    <p class="footnote">Scope notes: the Sheriff comparison uses the FY 2026 amended fund budget; its personnel component rises $4.78M while operating and capital components offset that increase. The BCC amount here excludes $1.705M of capital. The $6.93M agency subtotal is the General Fund comparison set; the comprehensive agency ledger also includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>

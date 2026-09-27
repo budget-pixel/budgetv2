@@ -101,7 +101,7 @@ const ourCountyDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Our<br/>County</h1b>
-      <p>A look at Walton County's people, geography, and governance &mdash; the organizational structure, strategic priorities, and community context behind the FY2027 budget.</p>
+      <p>A look at Walton County's people, geography, and governance &mdash; the organizational structure, strategic priorities, and community context behind the FY 2027 budget.</p>
     </div>
   </section>
 `;
@@ -121,7 +121,7 @@ const budgetProcessDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Budget<br/>Process</h1b>
-      <p>How department requests became Walton County's FY2027 final spending plan, including the public workshops, tentative hearing, final hearing, and Board decisions that shaped adoption.</p>
+      <p>How department requests became Walton County's FY 2027 final spending plan, including the public workshops, tentative hearing, final hearing, and Board decisions that shaped adoption.</p>
     </div>
   </section>
 `;
@@ -141,7 +141,7 @@ const programServicesDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Program and<br/>Service Budget</h1b>
-      <p>Eight Board-administered service areas connect public purpose, contributing departments, full cost, funding sources, service-level decisions, and measurable FY2027 commitments. Constitutional Officers and independent agencies are presented separately.</p>
+      <p>Eight Board-administered service areas connect public purpose, contributing departments, full cost, funding sources, service-level decisions, and measurable FY 2027 commitments. Constitutional Officers and independent agencies are presented separately.</p>
     </div>
   </section>
 `;

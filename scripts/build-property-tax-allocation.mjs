@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import QRCode from "qrcode";
 
 // Builds the FY 2027 Budget Book's "Property Tax Allocation" section as
-// its own multi-page PDF. Content is the real FY2027 Ad Valorem allocation
+// its own multi-page PDF. Content is the real FY 2027 Ad Valorem allocation
 // from the live site's Property Tax Allocation Ledger (pages/summary-of-
 // property-tax-allocations.html), verified against the live revenues CSV
 // (DATA_SOURCES.revenues in assets/budget-data.js) rather than attempting
@@ -20,7 +20,7 @@ import QRCode from "qrcode";
 
 const STATS = [
   ["$151.1M", "Total Countywide Ad Valorem Revenue"],
-  ["3.2500", "Final FY2027 Millage Rate"],
+  ["3.2500", "Final FY 2027 Millage Rate"],
   ["3.7782", "Two-Thirds Vote Maximum"],
   ["0.441", "Mosquito Control District (Separate)"]
 ];

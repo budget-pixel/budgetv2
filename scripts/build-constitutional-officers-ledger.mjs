@@ -54,8 +54,8 @@ function photoDataUrl(filename) {
 // implying a funding gap, each office's revenue line notes this plainly.
 
 const STATS = [
-  ["$148.9M", "Total FY2027 Budget"],
-  ["+$1.6M", "Net Change from FY2026"],
+  ["$148.9M", "Total FY 2027 Budget"],
+  ["+$1.6M", "Net Change from FY 2026"],
   ["+1.1%", "Net Percent Change"],
   ["847", "Total FTE, 6 Offices"]
 ];
@@ -74,7 +74,7 @@ const SUMMARY_ROWS = [
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
   ["Supervisor of Elections", 10, 1615107, 1663865, 1198763, 348682, 116420]
 ];
-const SUMMARY_TOTAL = ["Total Constitutional Officers", 847, 147335597, 148896886, 104138719, 33118053, 11640114];
+const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 148896886, 104138719, 33118053, 11640114];
 
 const OFFICES = [
   {
@@ -171,7 +171,7 @@ function householdCost(amount) {
   const annual = amount / HOUSEHOLDS;
   const monthly = annual / 12;
   const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${fmt(annual)} per household annually (${fmt(monthly)} monthly)`;
+  return `Residential funding scale: ${fmt(annual)} annually (${fmt(monthly)} monthly) per occupied household`;
 }
 
 // Splits a property-tax-funded amount into a residential and a
@@ -231,7 +231,7 @@ function compactFundingDetail(text) {
   return String(text).replace(/\s+Estimated at[\s\S]*$/, "");
 }
 function householdEquivalent(text) {
-  const match = String(text).match(/(\$[\d,.]+ per household annually \(\$[\d,.]+ monthly\))/);
+  const match = String(text).match(/(Residential funding scale: \$[\d,.]+ annually \(\$[\d,.]+ monthly\) per occupied household)/);
   return match ? match[1] : "";
 }
 
@@ -435,7 +435,7 @@ async function buildOfficerPage(o, pageNumber) {
   const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
   const methodNotes = [
     usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills." : "",
-    hasHouseholdEquivalent ? "Household cost equivalents divide the office's residential funding share by 31,491 occupied housing units from the 2018-2022 ACS. They measure budget scale and are not comparable to the $645 illustrative tax bill, which applies one home's taxable value and millage." : ""
+    hasHouseholdEquivalent ? "Residential funding-scale figures divide the office's residential funding share by 31,491 occupied housing units from the 2018-2022 ACS. They are not estimated tax bills and are not comparable to the $645.41 illustration, which applies one home's taxable value and millage." : ""
   ].filter(Boolean).join(" ");
   const payerMethodHtml = methodNotes ? `<p class="source-trace">${methodNotes}</p>` : "";
   const denseClass = "";
@@ -452,7 +452,7 @@ async function buildOfficerPage(o, pageNumber) {
 
   const fteHtml = (o.newPositions && o.newPositions.length)
     ? `<div class="fte-list">${o.newPositions.map((p) => `<div class="fte-row"><div class="fname">${p.title}</div><b>+${p.n} FTE</b></div>`).join("")}</div>`
-    : `<p class="fte-empty">No new positions requested for FY2027.</p>`;
+    : `<p class="fte-empty">No new positions requested for FY 2027.</p>`;
 
   const hasBreakouts = (o.contracts && o.contracts.length) || (o.capitalItems && o.capitalItems.length);
   const MAX_ROWS = 6;
@@ -489,8 +489,8 @@ async function buildOfficerPage(o, pageNumber) {
       <div class="side-card">
         <div class="side-fund">${o.fund}</div>
         <div class="side-stats">
-          <div class="primary"><b>${money(o.fy27)}</b><span>FY2027 Total</span></div>
-          <div class="prior"><b>${money(o.fy26)}</b><span>FY2026 Total</span></div>
+          <div class="primary"><b>${money(o.fy27)}</b><span>FY 2027 Total</span></div>
+          <div class="prior"><b>${money(o.fy26)}</b><span>FY 2026 Total</span></div>
         </div>
           <div class="side-change ${isDown ? "down" : "up"}">
           <span class="side-change-label">Budget Change</span>
@@ -511,8 +511,8 @@ async function buildOfficerPage(o, pageNumber) {
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
       <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
       ${hasBreakouts
-        ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY2027.</p>`}</div>`
-        : `<div class="fte-box"><h2>FTE Changes, FY2027</h2>${fteHtml}</div>`}
+        ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY 2027.</p>`}</div>`
+        : `<div class="fte-box"><h2>FTE Changes, FY 2027</h2>${fteHtml}</div>`}
     </div>
     <div class="pos-summary">
       <div class="pnum"><b>${o.ftePrior}</b><span>Prior Year FTE</span></div>
@@ -536,8 +536,8 @@ const overviewPage = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
-    <h1>Constitutional Officers Ledger</h1>
-    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners budget a combined $148.9M and employ 847 FTE for FY2027. Totals include the Board's capital and contingency. The Personnel Ledger shows 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
+    <h1>Constitutional Officers and Board Office Ledger</h1>
+    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $148.9M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Office Summary</h2>

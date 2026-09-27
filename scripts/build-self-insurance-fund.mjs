@@ -19,7 +19,7 @@ const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>
 <small class="kicker">Workforce Budget</small><h1>Self-Insurance Fund</h1>
 <p class="intro">Walton County uses an internal service fund to finance employee and retiree health benefits. Contributions are collected in the fund and used to pay health claims and plan-administration costs. The required reserve is 60 days of projected claims; the current allocation provides approximately 74 days of coverage.</p>
 <div class="stats">
-  <div class="stat"><b>$22.9M</b><span>FY2027 Fund Budget</span></div>
+  <div class="stat"><b>$22.9M</b><span>FY 2027 Fund Budget</span></div>
   <div class="stat"><b>60 days</b><span>Required Reserve</span></div>
   <div class="stat"><b>$3.668M</b><span>Current Reserve Allocation</span></div>
   <div class="stat"><b>${currentDays.toFixed(0)} days</b><span>Current Coverage</span></div>
@@ -31,10 +31,10 @@ const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>
 </div>
 <div class="grid">
   <div class="section"><h2>How the Fund Is Financed</h2><p>Employer, employee, retiree, and COBRA health contributions support the plan.</p>
-    <div class="row"><span>Employee Health Fees</span><b>$22,331,947</b></div><div class="row"><span>Retiree Health Fees</span><b>$500,000</b></div><div class="row"><span>COBRA Health Fees</span><b>$50,000</b></div><div class="row"><span>Interest</span><b>$45,000</b></div><div class="row total"><span>Total FY2027 Revenue</span><b>$22,926,947</b></div>
+    <div class="row"><span>Employee Health Fees</span><b>$22,331,947</b></div><div class="row"><span>Retiree Health Fees</span><b>$500,000</b></div><div class="row"><span>COBRA Health Fees</span><b>$50,000</b></div><div class="row"><span>Interest</span><b>$45,000</b></div><div class="row total"><span>Total FY 2027 Revenue</span><b>$22,926,947</b></div>
   </div>
   <div class="section"><h2>How the Fund Is Used</h2><p>The budget supports claims, administration, and other costs of the self-funded plan.</p>
-    <div class="row"><span>Health Insurance Claims</span><b>$20,626,947</b></div><div class="row"><span>Administrative Plan Fees</span><b>$2,300,000</b></div><div class="row total"><span>Total FY2027 Expenditures</span><b>$22,926,947</b></div>
+    <div class="row"><span>Health Insurance Claims</span><b>$20,626,947</b></div><div class="row"><span>Administrative Plan Fees</span><b>$2,300,000</b></div><div class="row total"><span>Total FY 2027 Expenditures</span><b>$22,926,947</b></div>
   </div>
 </div>
 <div class="why"><h2>How Self-Insurance Protects Taxpayers</h2><ul><li>The County pays actual health claims and administrative fees rather than transferring all claims risk and insurer pricing into a fixed premium.</li><li>The reserve absorbs uneven claim timing and short-term volatility, reducing pressure for abrupt contribution increases after a high-claim period.</li><li>Transparent claims and fee experience gives the County a stronger basis for managing plan design, vendors, and future funding.</li></ul></div>

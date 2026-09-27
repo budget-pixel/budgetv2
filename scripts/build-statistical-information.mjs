@@ -250,7 +250,7 @@ const html = `<!doctype html>
         <tr class="total"><td>Total</td><td class="num">${TAXPAYERS_TOTAL[0]}</td><td class="num">${TAXPAYERS_TOTAL[1]}</td></tr>
       </tbody>
     </table>
-    <p class="source-note">Source: Walton County Property Appraiser data reported in the FY2025 ACFR, p. 155 (2025 tax roll). Total share recalculated using $46,564,251,989 in total taxable assessed value; rounded rows may not sum.</p>
+    <p class="source-note">Source: Walton County Property Appraiser data reported in the FY 2025 ACFR, p. 155 (2025 tax roll). Total share recalculated using $46,564,251,989 in total taxable assessed value; rounded rows may not sum.</p>
     <footer><span>FY 2027 Final Budget</span><b>14</b></footer>
   </section>
 

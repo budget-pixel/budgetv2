@@ -203,6 +203,7 @@ funds = reader("budget-book-fund-financial-ledger.pdf")
 transfers = reader("budget-book-interfund-transfer-ledger.pdf")
 debt = reader("budget-book-debt-ledger.pdf")
 long_term = reader("budget-book-long-term-outlook.pdf")
+visual_story = reader("budget-book-visual-storytelling.pdf")
 cip = reader("budget-book-cip.pdf")
 capital_ledgers = reader("budget-book-capital-fund-ledgers.pdf")
 glossary = reader("budget-book-glossary.pdf")
@@ -255,6 +256,8 @@ add_range(writer, community, 1, 2)
 # only Contractual Services Ledger and Long-Term Outlook remain there.
 writer.add_page(divider_financial_overview.pages[0])
 writer.add_page(brief.pages[0])
+# Two-page orientation spread: sources -> funds -> transfers -> public uses.
+add_range(writer, visual_story, 1, 2)
 add_range(writer, consolidated, 1, 2)
 add_range(writer, change, 1, 2)
 writer.add_page(enh.pages[7])
@@ -266,6 +269,9 @@ add_range(writer, expenses, 1, 3)
 add_range(writer, funds, 1, 2)
 writer.add_page(transfers.pages[0])
 writer.add_page(debt.pages[0])
+# Dedicated reserve comparison separates audited unassigned balance, GFOA's
+# two-month reference, and the County's informal six-month planning aim.
+writer.add_page(visual_story.pages[2])
 # Long-Term Outlook joins its former siblings here in Financial Overview
 # instead of sitting alone in its own "Financial Plan" chapter later in the
 # book -- its own kicker already reads "Financial Overview", confirming
@@ -331,6 +337,9 @@ writer.add_page(personnel.pages[0])
 writer.add_page(self_insurance.pages[0])
 writer.add_page(divider_capital_budget.pages[0])
 add_range(writer, cip, 1, 3)
+# Countywide service-area map and capital funding/delivery dashboard provide
+# the visual overview before readers enter the detailed project ledgers.
+add_range(writer, visual_story, 4, 5)
 add_range(writer, capital_ledgers, 1, 9)
 
 # Glossary, Statistical, and Supplemental Information is the book's
@@ -343,12 +352,12 @@ add_range(writer, statistical, 1, 2)
 
 writer.add_page(back_cover())
 
-EXPECTED_PAGES = 128
+EXPECTED_PAGES = 133
 if len(writer.pages) != EXPECTED_PAGES:
     raise RuntimeError(f"Expected {EXPECTED_PAGES} pages, assembled {len(writer.pages)}")
 
 # Renumber normal editorial pages. Full-bleed covers/dividers carry no footer.
-skip_number = {1, 2, 8, 16, 40, 47, 55, 59, 65, 99, 103, 116, 128}
+skip_number = {1, 2, 8, 16, 43, 50, 58, 62, 68, 102, 106, 121, 133}
 for number, page in enumerate(writer.pages, start=1):
     if number not in skip_number:
         remove_source_footer_text(page, writer)
@@ -372,45 +381,48 @@ outline = [
     ("Community Priorities and Challenges", 14, "Introduction and Our County"),
     ("Financial Overview", 16, None),
     ("Budget in Brief", 17, "Financial Overview"),
-    ("Consolidated Budget Ledger", 18, "Financial Overview"),
-    ("Budget Change Summary", 20, "Financial Overview"),
-    ("Revenue Portfolio", 22, "Financial Overview"),
-    ("Revenue Strategy", 23, "Financial Overview"),
-    ("Revenue Ledger", 24, "Financial Overview"),
-    ("Property Tax Allocation Ledger", 28, "Financial Overview"),
-    ("Florida Amendment 3 Risk", 30, "Financial Overview"),
-    ("Expenditure Ledger", 31, "Financial Overview"),
-    ("Fund Financial Ledger", 34, "Financial Overview"),
-    ("Interfund Transfer Ledger", 36, "Financial Overview"),
-    ("Debt Ledger", 37, "Financial Overview"),
-    ("Long-Term Outlook", 38, "Financial Overview"),
-    ("Budget Process", 40, None),
-    ("Public Participation", 44, "Budget Process"),
-    ("Financial Policies", 45, "Budget Process"),
-    ("Constitutional Officer Budget", 47, None),
-    ("Other Agencies and Court-Related Functions Budget", 55, None),
-    ("Program and Service Budget", 59, None),
-    ("Public Value", 60, "Program and Service Budget"),
-    ("Safety, Justice and Effective Government", 61, "Program and Service Budget"),
-    ("Visitors, Mobility and Infrastructure", 62, "Program and Service Budget"),
-    ("Environment, Growth and Community Development", 63, "Program and Service Budget"),
-    ("Quality of Life and Community Wellbeing", 64, "Program and Service Budget"),
-    ("Board Department Budgets", 65, None),
-    ("Tourism Administration", 93, "Board Department Budgets"),
-    ("Sales and Visitors Center", 94, "Tourism Administration"),
-    ("Communications", 95, "Tourism Administration"),
-    ("Marketing", 96, "Tourism Administration"),
-    ("Beach Operations", 97, "Board Department Budgets"),
-    ("Beach Tram", 98, "Beach Operations"),
-    ("Workforce Budget", 99, None),
-    ("Personnel Ledger", 101, "Workforce Budget"),
-    ("Self-Insurance Fund", 102, "Workforce Budget"),
-    ("Capital Budget", 103, None),
-    ("Capital Improvement Plan", 104, "Capital Budget"),
-    ("Glossary, Statistical, and Supplemental Information", 116, None),
-    ("Glossary and Frequently Asked Questions", 117, "Glossary, Statistical, and Supplemental Information"),
-    ("Statistical and Supplemental Information", 126, "Glossary, Statistical, and Supplemental Information"),
-    ("Principal Property Taxpayers", 127, "Glossary, Statistical, and Supplemental Information"),
+    ("How the Budget Works", 18, "Financial Overview"),
+    ("Consolidated Budget Ledger", 20, "Financial Overview"),
+    ("Budget Change Summary", 22, "Financial Overview"),
+    ("Revenue Portfolio", 24, "Financial Overview"),
+    ("Revenue Strategy", 25, "Financial Overview"),
+    ("Revenue Ledger", 26, "Financial Overview"),
+    ("Property Tax Allocation Ledger", 30, "Financial Overview"),
+    ("Florida Amendment 3 Risk", 32, "Financial Overview"),
+    ("Expenditure Ledger", 33, "Financial Overview"),
+    ("Fund Financial Ledger", 36, "Financial Overview"),
+    ("Interfund Transfer Ledger", 38, "Financial Overview"),
+    ("Debt Ledger", 39, "Financial Overview"),
+    ("General Fund Reserve Position", 40, "Financial Overview"),
+    ("Long-Term Outlook", 41, "Financial Overview"),
+    ("Budget Process", 43, None),
+    ("Public Participation", 47, "Budget Process"),
+    ("Financial Policies", 48, "Budget Process"),
+    ("Constitutional Officer Budget", 50, None),
+    ("Other Agencies and Court-Related Functions Budget", 58, None),
+    ("Program and Service Budget", 62, None),
+    ("Public Value", 63, "Program and Service Budget"),
+    ("Safety, Justice and Effective Government", 64, "Program and Service Budget"),
+    ("Visitors, Mobility and Infrastructure", 65, "Program and Service Budget"),
+    ("Environment, Growth and Community Development", 66, "Program and Service Budget"),
+    ("Quality of Life and Community Wellbeing", 67, "Program and Service Budget"),
+    ("Board Department Budgets", 68, None),
+    ("Tourism Administration", 96, "Board Department Budgets"),
+    ("Sales and Visitors Center", 97, "Tourism Administration"),
+    ("Communications", 98, "Tourism Administration"),
+    ("Marketing", 99, "Tourism Administration"),
+    ("Beach Operations", 100, "Board Department Budgets"),
+    ("Beach Tram", 101, "Beach Operations"),
+    ("Workforce Budget", 102, None),
+    ("Personnel Ledger", 104, "Workforce Budget"),
+    ("Self-Insurance Fund", 105, "Workforce Budget"),
+    ("Capital Budget", 106, None),
+    ("Capital Improvement Plan", 107, "Capital Budget"),
+    ("Capital Investment Map", 110, "Capital Budget"),
+    ("Glossary, Statistical, and Supplemental Information", 121, None),
+    ("Glossary and Frequently Asked Questions", 122, "Glossary, Statistical, and Supplemental Information"),
+    ("Statistical and Supplemental Information", 131, "Glossary, Statistical, and Supplemental Information"),
+    ("Principal Property Taxpayers", 132, "Glossary, Statistical, and Supplemental Information"),
 ]
 parents = {}
 for title, page_number, parent_title in outline:
@@ -422,16 +434,20 @@ no_border = ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)])
 def shift_page_index(page_index):
     """Map legacy link coordinates to the revised assembled page order."""
     if page_index == 46:
-        return 100
-    if 49 <= page_index <= 54:
-        return page_index - 1
-    if 67 <= page_index <= 98:
-        return page_index - 1
-    if page_index >= 102:
-        return page_index + 3
-    if page_index >= 39:
-        return page_index + 2
-    return page_index + (1 if page_index >= 14 else 0)
+        base_index = 100
+    elif 49 <= page_index <= 54:
+        base_index = page_index - 1
+    elif 67 <= page_index <= 98:
+        base_index = page_index - 1
+    elif page_index >= 102:
+        base_index = page_index + 3
+    elif page_index >= 39:
+        base_index = page_index + 2
+    else:
+        base_index = page_index + (1 if page_index >= 14 else 0)
+    # New visual-storytelling pages are inserted after old final page 17,
+    # before old page 38, and after old page 106 respectively.
+    return base_index + (2 if base_index >= 17 else 0) + (1 if base_index >= 37 else 0) + (2 if base_index >= 106 else 0)
 
 
 writer.add_uri(shift_page_index(28), "https://constitutionalinitiatives.dos.fl.gov/Home/InitDetail?account=10&seqnum=110", (455, 65, 575, 185), border=no_border)

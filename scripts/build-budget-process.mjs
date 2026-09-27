@@ -15,7 +15,7 @@ import { chromium } from "playwright";
 const PHASES = [
   ["Phase 1", "Preparation", "Departments prepare operating and capital requests identifying service needs, staffing, projects, funding assumptions, and proposed service changes.", "February–April"],
   ["Phase 2", "Review", "OMB and County Administration evaluate requests, reduction options, revenue estimates, fund capacity, policy guidance, and the Board's strategic priorities on pages 13–14.", "April–June"],
-  ["Phase 3", "Workshops", "The proposed budget is reviewed publicly with the Board, including funding requests, service levels, alignment with strategic priorities, and the proposed millage rate.", "June–July"],
+  ["Phase 3", "Review & Workshops", "Staff review continues in June; public Board workshops in July address funding requests, service levels, strategic priorities, and the proposed millage rate.", "June–July"],
   ["Phase 4", "Adoption", "Required public hearings are held before the Board adopts the final millage rate and annual operating budget.", "September"]
 ];
 
@@ -374,7 +374,7 @@ const page1 = `
     ${pageHeader()}
     <small class="kicker">Budget Process</small>
     <h1>Budget Process</h1>
-    <p class="intro">See how a department request becomes Walton County&rsquo;s FY2027 final spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
+    <p class="intro">See how a department request becomes Walton County&rsquo;s FY 2027 final spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
 
     <div class="section-block">
       <h2><span>Four Phases</span>From Department Requests to Adoption</h2>
@@ -395,7 +395,7 @@ const page1 = `
       <p>Residents can review proposals and speak before final decisions are made. Meeting notices and agendas provide the most current participation details.</p>
       <ul class="public-list">
         <li>Attend Budget Workshops</li>
-        <li>Review the Final Budget</li>
+        <li>Review the Proposed Budget</li>
         <li>Comment at Public Hearings</li>
       </ul>
     </div>
@@ -436,7 +436,7 @@ const page3 = `
     ${pageHeader()}
     <small class="kicker">Budget Process</small>
     <h1>Budget Calendar</h1>
-    <p class="intro">Key budget development dates, public workshops, notices, hearings, and adoption milestones for Fiscal Year 2027.</p>
+    <p class="intro">All dates below are in 2026 and develop the budget for Fiscal Year 2027, which runs October 1, 2026 through September 30, 2027.</p>
 
     <div class="timeline-strip">
       ${TIMELINE.map(([month, label, featured]) => `<div class="timeline-month${featured ? " featured" : ""}"><strong>${month}</strong><span>${label}</span></div>`).join("")}

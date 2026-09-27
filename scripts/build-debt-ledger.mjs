@@ -3,17 +3,17 @@ import { chromium } from "playwright";
 // Builds the FY 2027 Budget Book's "Debt Ledger" -- Walton County's only
 // long-term debt: a $27,000,000 Note Payable (2015) and a $2,500,000
 // Revenue Promissory Note (2020), both used for public improvements
-// (most notably the Broadband project). FY2027 debt service is budgeted
+// (most notably the Broadband project). FY 2027 debt service is budgeted
 // from the infrastructure portion of the County's Small County Surtax,
-// fully repaid by FY2030. Source: an already-complete, internally
+// fully repaid by FY 2030. Source: an already-complete, internally
 // consistent raw capture (Principal + Interest reconciles to Total for
 // every year and in aggregate) -- no research pass needed.
 
 const STATS = [
   ["$29.5M", "Total Debt Issued"],
   ["$9.1M", "Remaining Debt Service"],
-  ["$2.51M", "FY2027 Debt Service"],
-  ["FY2030", "Scheduled Payoff"]
+  ["$2.51M", "FY 2027 Debt Service"],
+  ["FY 2030", "Scheduled Payoff"]
 ];
 
 const NOTES = [
@@ -154,6 +154,7 @@ const html = `<!doctype html>
     border-radius:12px;
     background:#f9f8f2;
   }
+  .maturity{display:grid;grid-template-columns:repeat(4,1fr);gap:.12in;align-items:end;height:1.42in;margin:.08in 0 .22in;padding:0 .1in;border-bottom:1.5px solid #003f28}.maturity-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.maturity-col b{color:#003f28;font-size:7pt}.maturity-col .bar{width:55%;margin-top:.04in;border-radius:4px 4px 0 0;background:#0b7741}.maturity-col span{margin-top:.045in;color:#63736b;font-size:6.5pt;font-weight:800}.maturity-col small{color:#a88418;font-size:5.8pt;font-weight:800}
   .callout h3{ margin:0 0 .06in; color:#003f28; font:800 9.5pt Georgia, serif; }
   .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.5; }
   footer{
@@ -177,9 +178,12 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Debt Ledger</h1>
-    <p class="intro">Walton County's only long-term debt is a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020, both used to fund public improvements &mdash; most notably the Broadband project. Together, $9.1M in remaining debt service, including principal and interest, is outstanding. FY2027 debt payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax and are scheduled to end in FY2030.</p>
+    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.1M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax and are scheduled to end in FY 2030.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+
+    <h2>Debt Service Declines to Final Payoff</h2>
+    <div class="maturity">${SCHEDULE.map((r)=>{const total=Number(r[3].replace(/[$,]/g,''));return `<div class="maturity-col"><b>${r[3]}</b><div class="bar" style="height:${Math.round(total/2522786*86)}%"></div><span>${r[0]}</span>${r[0]==='2030'?'<small>FINAL PAYMENT</small>':''}</div>`}).join('')}</div>
 
     <h2>Debt Ledger &mdash; Capital Projects Fund</h2>
     <div class="ledger">

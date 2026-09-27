@@ -4,31 +4,31 @@ import { chromium } from "playwright";
 // Consolidated Expense Summary by functional classification (General
 // Government, Public Safety, Physical Environment, Transportation,
 // Economic Environment, Human Services, Culture and Recreation,
-// Court-Related Cost, Other Uses), FY2022 Actual through FY2027 Proposed.
+// Court-Related Cost, Other Uses), FY 2022 Actual through FY 2027 Proposed.
 // Source: pages/summary-of-expenses.html's consolidated-expense-summary-
 // table, cross-checked live by a research pass.
 //
 // Two things the research pass confirmed and this build deliberately
-// reflects: (1) the site's own "FY2028/FY2029 Projected" columns are
+// reflects: (1) the site's own "FY 2028/FY 2029 Projected" columns are
 // unpopulated placeholders (hardcoded $0, no such field exists anywhere
 // in the data model) -- omitted here rather than reproduced as fake
 // zeroes; (2) this section intentionally does NOT reproduce the site's
 // department-level breakdown table -- that data (FY26 vs FY27 by
 // department) already exists in this book's Budget Change Summary
 // section, and duplicating it here added no value. What this page adds
-// instead is the multi-year (FY2022-FY2027) trend by functional
+// instead is the multi-year (FY 2022-FY 2027) trend by functional
 // classification, which Budget Change Summary does not show.
 
 const STATS = [
-  ["$345.2M", "Total FY2027 Expenses"],
-  ["+$17.3M", "Change from FY2026"],
+  ["$345.2M", "Total FY 2027 Expenses"],
+  ["+$17.3M", "Change from FY 2026"],
   ["+5.3%", "Percent Change"],
   ["$126.2M", "Largest Function: Public Safety"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
-// [function, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
+// [function, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
   ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$62,603,479"],
   ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,221,918"],
@@ -45,9 +45,9 @@ const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,
 // Page 2: department-level detail grouped by function -- complements the
 // Budget Change Summary section elsewhere in this book (which groups by
 // Constitutional Officers / Independent Agencies / Board Departments /
-// Capital) by showing the same FY2026-vs-FY2027 department figures
+// Capital) by showing the same FY 2026-vs-FY 2027 department figures
 // organized instead by functional classification, matching page 1's
-// groupings one-to-one. FY2026/FY2027 only (not all six years). Laid out
+// groupings one-to-one. FY 2026/FY 2027 only (not all six years). Laid out
 // as two print-style columns (65 department rows across 9 function
 // groups don't fit a single column at readable type size) with no
 // per-group subtotal row -- the page 1 Consolidated Expense Summary is
@@ -408,7 +408,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Expenditure Ledger</h1>
-    <p class="intro">Walton County's expenditures are organized into nine functional classifications reflecting the full range of services provided to residents and visitors &mdash; from general government operations and public safety to infrastructure, tourism, and community programs. Figures below span six fiscal years to show the trend behind each FY2027 total.</p>
+    <p class="intro">Walton County's expenditures are organized into nine functional classifications reflecting the full range of services provided to residents and visitors &mdash; from general government operations and public safety to infrastructure, tourism, and community programs. Figures below span six fiscal years to show the trend behind each FY 2027 total.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
@@ -421,7 +421,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>Transportation and Economic Environment show the largest year-over-year growth in FY2027, driven by capital road projects and tourism-funded initiatives. Human Services is shown on a comparable basis after separating Health Department and statutory-agency allocations that share its accounting code.</p>
+      <p>Transportation and Economic Environment show the largest year-over-year growth in FY 2027, driven by capital road projects and tourism-funded initiatives. Human Services is shown on a comparable basis after separating Health Department and statutory-agency allocations that share its accounting code.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>

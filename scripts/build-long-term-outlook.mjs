@@ -7,7 +7,7 @@ import { chromium } from "playwright";
 //
 // Every number here already exists elsewhere in this book and is
 // reproduced, not recomputed from a new source: the FY22-FY29
-// consolidated Fund Financial Ledger forecast, the FY2027-FY2031
+// consolidated Fund Financial Ledger forecast, the FY 2027-FY 2031
 // five-year Capital Improvement Plan trend, the Debt Ledger's payoff
 // schedule and pay-as-you-go policy statement, the Statistical &
 // Supplemental Information page's Census figures, and the Transmittal
@@ -15,8 +15,8 @@ import { chromium } from "playwright";
 // two derived ratios computed directly from numbers already in the book
 // (General Fund reserve as a share of General Fund spending, and a
 // month-equivalent), and a 4-year countywide operating millage rate
-// history (FY2024-FY2027) confirmed via public reporting (Walton County
-// did not have a citable, confirmed FY2023 rate, so that year is
+// history (FY 2024-FY 2027) confirmed via public reporting (Walton County
+// did not have a citable, confirmed FY 2023 rate, so that year is
 // intentionally omitted rather than guessed).
 
 const sharedCss = `
@@ -132,6 +132,16 @@ const sharedCss = `
   .info-card{ padding:.1in .12in; border:1px solid #e4ebe7; border-radius:9px; background:#fbfcfa; }
   .info-card b{ display:block; color:#003f28; font:800 7.8pt Georgia, serif; margin-bottom:.02in; }
   .info-card span{ display:block; color:#33453c; font-size:6.9pt; line-height:1.36; }
+  .outlook-continuation h2{ margin:.055in 0 .04in; }
+  .outlook-continuation p.body{ margin-bottom:.065in; font-size:7.8pt; line-height:1.32; }
+  .outlook-continuation .two-col{ gap:.2in; margin:.04in 0 .065in; }
+  .outlook-continuation .info-card{ padding:.075in .1in; }
+  .outlook-continuation .info-card span{ font-size:6.45pt; line-height:1.29; }
+  .outlook-continuation p.warn{ margin:.05in 0; padding:.075in .12in; font-size:7.35pt; line-height:1.32; }
+  .outlook-continuation .stat-strip{ margin:.04in 0 .075in; }
+  .outlook-continuation .stat-card{ padding:.08in .08in; }
+  .outlook-continuation .cip-chart{ height:.75in; }
+  .outlook-continuation p.trend{ margin:.05in 0; padding:.075in .12in; font-size:7.5pt; line-height:1.32; }
   .quote-box{ margin:.08in 0; padding:.12in .16in; background:#003f28; border-radius:9px; }
   .quote-box p{ margin:0; color:#e4ede8; font-size:7.6pt; font-style:italic; line-height:1.45; }
   .quote-box cite{ display:block; margin-top:.06in; color:#e7c95f; font-size:6.4pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; font-style:normal; }
@@ -161,7 +171,7 @@ const sharedCss = `
 
 const startPage = Number(process.argv[3] || 108);
 
-const MILLAGE = [["FY2024", 3.6000], ["FY2025", 3.575], ["FY2026", 3.519], ["FY2027", 3.2500]];
+const MILLAGE = [["FY 2024", 3.6000], ["FY 2025", 3.575], ["FY 2026", 3.519], ["FY 2027", 3.2500]];
 const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
 
 const FORECAST_ROWS = [
@@ -184,23 +194,23 @@ const page1 = `
       <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
       <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
       <div class="stat-card"><b>44.4</b><span>Median Age vs. 42.4 Statewide (2018–2022 ACS)</span></div>
-      <div class="stat-card"><b>+15.9%</b><span>FY2027 Tourist Development Fund Growth</span></div>
+      <div class="stat-card"><b>+15.9%</b><span>FY 2027 Tourist Development Fund Growth</span></div>
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>
-    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY2024 to 3.2500 mills in FY2027. Taxable-value growth helped offset the lower rate, but recurring revenue does not cover all adopted FY2027 expenditures and transfers.</p>
+    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Taxable-value growth helped offset the lower rate, but recurring revenue does not cover all adopted FY 2027 expenditures and transfers.</p>
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY2024 to a final 3.2500 mills in FY2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. Reducing the tentative rate from 3.4347 to 3.2500 lowered projected property-tax revenue by $8.6M; the Board appropriated the same amount of General Fund balance to keep the expenditure plan unchanged.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY 2024 to a final 3.2500 mills in FY 2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. Reducing the tentative rate from 3.4347 to 3.2500 lowered projected property-tax revenue by $8.6M; the Board appropriated the same amount of General Fund balance to keep the expenditure plan unchanged.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
-    <p class="body">The Fund Financial Ledger presents history through the FY2027 final budget. The online fund forecast extends through FY2029, while the five-year Capital Improvement Plan carries the capital planning view through FY2031.</p>
+    <p class="body">The Fund Financial Ledger presents history through the FY 2027 final budget. The online fund forecast extends through FY 2029, while the five-year Capital Improvement Plan carries the capital planning view through FY 2031.</p>
     <div class="fcast-table">
-      <div class="frow head"><div>Consolidated, All Funds</div><div>FY2026 Budget</div><div>FY2027 Final</div><div>FY2028 Proj.</div><div>FY2029 Proj.</div></div>
+      <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.8M countywide use of fund balance in FY2027 across operating, capital, and restricted funds. The millage decision accounts for $8.6M of the General Fund appropriation. Countywide fund balance is projected to decline by another $15.0M in FY2028 and $27.5M in FY2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
+    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.8M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds. The millage decision accounts for $8.6M of the General Fund appropriation. Countywide fund balance is projected to decline by another $15.0M in FY 2028 and $27.5M in FY 2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -212,35 +222,36 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
-    <p class="body">The General Fund &mdash; the County's primary, least-restricted operating fund &mdash; is the most meaningful measure of financial cushion, since most of the $410.0M countywide ending balance sits in funds legally restricted to a specific purpose (for example, $166.5M in the Tourist Development Fund, usable only for tourism-related purposes).</p>
+    <p class="body">The General Fund is the County's primary, least-restricted operating fund. Countywide balance is not interchangeable: $166.5M in the Tourist Development Fund and $41.1M in the Transportation Fund are legally restricted, while the $3.668M self-insurance reserve exceeds its separate 60-day requirement by $693,946.</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund Planning Cushion</b><span>$73.3M in estimated FY2027 General Fund ending balance equals 35.5% of the Fund's $206.9M in total expenditures and other uses, or roughly 4.25 months. The County has an adopted Fund Balance Policy. The approximately $50M hurricane-response amount used in this forecast is an informal management objective within that policy framework, not a formally adopted numeric reserve requirement.</span></div>
-      <div class="info-card"><b>Countywide Balance Is Mostly Restricted</b><span>Of the $410.0M countywide estimated ending balance, the largest single share sits in the Tourist Development Fund ($166.5M) and Transportation Fund ($41.1M) &mdash; both legally restricted and not available to fund general operations.</span></div>
+      <div class="info-card"><b>Audited FY 2025 GFOA Comparison</b><span>GFOA recommends at least two months of unrestricted budgetary General Fund operating revenues or expenditures. The FY 2025 ACFR reports $58.394M as <i>unassigned</i> General Fund balance and $185.853M of expenditures and other uses. Two months of that audited base is $30.976M. The unassigned balance equals about 3.77 months and exceeds the illustrative minimum by $27.418M. Using unassigned balance is conservative; committed, assigned, and unassigned together are the broader unrestricted categories.</span></div>
+      <div class="info-card"><b>FY 2027 County Planning Benchmark</b><span>The Board has not adopted a numeric minimum. Management informally uses six months of the full FY 2027 General Fund budget, including interfund transfers and other uses: $103.4M. The projected $73.3M total ending balance equals 35.5%, or about 4.25 months, and is $30.1M below that benchmark. Because the FY 2027 projection is not classified as restricted, committed, assigned, and unassigned, it should not be presented as a direct update of the audited FY 2025 unassigned balance.</span></div>
     </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">
-      <div class="info-card"><b>What FY2027 Commits</b><span>The net 15-FTE increase, compensation and benefit assumptions, contracted services, and the operation of new or expanded assets continue beyond FY2027 unless changed through a future budget.</span></div>
-      <div class="info-card"><b>What OMB Will Monitor</b><span>Actual collections, operating results, capital timing, position fill rates, contractual obligations, and reserve trends will be reviewed during FY2027. Material variances will be carried into the next forecast and budget cycle.</span></div>
+      <div class="info-card"><b>What FY 2027 Commits</b><span>Countywide personnel cost rises $8.49M. Drivers include a net 15-FTE increase, a 3% cost-of-living adjustment ($1.19M Board wage impact), a 5% health-premium increase ($423,319 County impact), and other pay and benefit changes. These costs, contracts, and operation of new or expanded assets continue unless changed through a later budget.</span></div>
+      <div class="info-card"><b>What Remains to Be Estimated</b><span>Capital ledgers identify whether operating effects are absorbed, immaterial, ongoing, or pending. Maintenance and operating costs marked pending &mdash; especially for future phases or newly selected projects &mdash; must be estimated before later funding decisions.</span></div>
     </div>
 
-    <h2>Debt: Minimal, and Scheduled to End in FY2030</h2>
-    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $9.1M in remaining debt service, including principal and interest. FY2027 payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax rather than property taxes, and the schedule ends in FY2030 &mdash; see the Debt Ledger for the payment schedule and terminology.</p>
+    <p class="warn"><b>Deferred and Contingent Items</b>No major project in the funded $43.8M FY 2027 capital program was postponed. Outside that total are $15.3M of grant-dependent projects, $2.0M of Sheriff projects funded separately, and $10.25M of prior-funded tourism work that remains active. A $600,000 recreational-plat allocation and $300,000 sidewalk allocation await project selection. Future phases and costs shown as pending are not assumed funded.</p>
+
+    <h2>Debt: Minimal, and Scheduled to End in FY 2030</h2>
+    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $9.1M in remaining debt service, including principal and interest. FY 2027 payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax rather than property taxes, and the schedule ends in FY 2030 &mdash; see the Debt Ledger for the payment schedule and terminology.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>$29.5M</b><span>Total Debt Issued</span></div>
       <div class="stat-card"><b>$9.1M</b><span>Remaining Debt Service</span></div>
-      <div class="stat-card"><b>$2.51M</b><span>FY2027 Debt Service</span></div>
-      <div class="stat-card"><b>FY2030</b><span>Scheduled Payoff</span></div>
+      <div class="stat-card"><b>$2.51M</b><span>FY 2027 Debt Service</span></div>
+      <div class="stat-card"><b>FY 2030</b><span>Scheduled Payoff</span></div>
     </div>
-    <p class="body">The County funds most capital work from current revenues and legally restricted sources. Existing debt is limited to two notes; FY2027 payments are funded through the Small County Surtax transfer shown in the Interfund Transfer Ledger.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
-    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY2027&ndash;FY2031 final plan, from the Capital Improvement Plan chapter</p>
+    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>
     <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-    <p class="trend">The plan moves from $43.8M in FY2027 to $35.3M in FY2031, with a temporary rise to $43.2M in FY2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
+    <p class="trend">The plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
 
-    <p class="warn"><b>Risks to Monitor</b>Legislative changes to sales and property-tax policy, grant timing, and broader economic conditions could affect the forecast. OMB will compare actual results with these assumptions and identify any material effect on services, capital delivery, or reserves.</p>
-    <p class="footnote">See the Community Priorities and Organizational Challenges chapter for the six Strategic Priority Areas and how the FY2027 final budget supports each one.</p>
+    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. If conditions change, OMB will reforecast service, capital, reserve, and millage options. Beginning with FY 2027, OMB will compare actual revenue, expenditures, capital timing, and ending balances with the forecast and report material variances in the next cycle; the current book has no historical forecast-accuracy series.</p>
+    <p class="footnote">Sources: GFOA, <i>Fund Balance Guidelines for the General Fund</i> (2015); Walton County FY 2025 ACFR, Management's Discussion and Analysis and governmental fund-balance schedules.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>

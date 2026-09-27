@@ -9,14 +9,14 @@ const REVENUE_LEDGER_QR = await QRCode.toDataURL(REVENUE_LEDGER_URL, { margin: 4
 // broad revenue category (General Government Taxes, Charges for
 // Services, etc.) with a six-year trend, and a page 2 two-column detail
 // of all 89 individual revenue sources grouped under those same seven
-// categories, FY2026 vs. FY2027.
+// categories, FY 2026 vs. FY 2027.
 //
-// Every dollar figure (all 89 sources, all years FY2020-FY2029) comes
+// Every dollar figure (all 89 sources, all years FY 2020-FY 2029) comes
 // directly from this book's live source (pages/revenue-ledger.html's
 // own rendered table), re-fetched fresh for this rebuild -- which
 // resolved a defect in the prior version of this file: 8 discontinued
-// FY2027 sources whose individual names could not previously be
-// recovered (only their combined $1,280,560 FY2026 total was known) are
+// FY 2027 sources whose individual names could not previously be
+// recovered (only their combined $1,280,560 FY 2026 total was known) are
 // now identified by name: Surplus Budget Clerk of Court ($700,000),
 // Contractor Registration ($30,000), Sewer Impact Fees ($164,560), White
 // Sands Fee ($1,000), Sales & Promotions ($255,000), Sales & Promotions
@@ -33,19 +33,19 @@ const REVENUE_LEDGER_QR = await QRCode.toDataURL(REVENUE_LEDGER_URL, { margin: 4
 // source name and county-finance convention. Every category subtotal and
 // the six-year category trend were computed directly from these
 // classifications and verified to reconcile exactly to this book's own
-// published FY2022-FY2027 grand totals ($252,741,882 through
+// published FY 2022-FY 2027 grand totals ($252,741,882 through
 // $345,223,508) -- see TOTAL below.
 
 const STATS = [
-  ["$345.2M", "Total FY2027 Budget Funding"],
-  ["+$17.3M", "Net Change from FY2026"],
+  ["$345.2M", "Total FY 2027 Budget Funding"],
+  ["+$17.3M", "Net Change from FY 2026"],
   ["+5.3%", "Net Percent Change"],
-  ["$151.1M", "Largest Source: Ad Valorem Taxes"]
+  ["$151.1M", "Main Ad Valorem Levy"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
-// [category, FY2022, FY2023, FY2024, FY2025, FY2026, FY2027]
+// [category, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
   ["General Government Taxes", "$218,598,479", "$236,486,085", "$257,566,876", "$277,454,100", "$272,677,953", "$276,626,929"],
   ["Charges for Services", "$14,601,788", "$15,616,872", "$14,403,343", "$15,251,527", "$19,414,205", "$19,985,657"],
@@ -57,8 +57,8 @@ const ROWS = [
 ];
 const TOTAL = ["Total Budget Funding", "$252,741,882", "$278,335,039", "$309,616,429", "$328,894,534", "$327,945,088", "$345,223,508"];
 
-// Page 2: every individual FY2027 revenue source, grouped by category,
-// FY2026 vs FY2027, laid out as two print-style columns (89 sources
+// Page 2: every individual FY 2027 revenue source, grouped by category,
+// FY 2026 vs FY 2027, laid out as two print-style columns (89 sources
 // don't fit a single column at readable type size) -- matching the
 // Expenditure Ledger's department-detail page one-to-one.
 const REV_GROUPS = [
@@ -294,7 +294,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Revenue Ledger</h1>
-    <p class="intro">Walton County's revenue is organized into seven categories under Florida's Uniform Accounting System &mdash; from locally levied taxes and charges for services to state and federal intergovernmental revenue. Figures below span six fiscal years to show the trend behind each FY2027 total; the following page details every individual revenue source within each category.</p>
+    <p class="intro">Walton County's revenue is organized into seven categories under Florida's Uniform Accounting System &mdash; from locally levied taxes and charges for services to state and federal intergovernmental revenue. Figures below span six fiscal years to show the trend behind each FY 2027 total; the following page details every individual revenue source within each category.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
@@ -307,7 +307,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes Ad Valorem, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios; the Consolidated Budget Ledger also presents fund-level categories before selected countywide reclassifications.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.1M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $152.5M. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios.</p>
     </div>
 
     <div class="revenue-qr">

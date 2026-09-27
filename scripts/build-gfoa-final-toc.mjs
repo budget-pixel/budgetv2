@@ -26,7 +26,7 @@ const sections = [
   { title: "Financial Overview", subtitle: "A one-page look at the whole budget, the year-over-year change by department and fund, how a resident's property tax dollar is allocated, and the countywide revenue, expenditure, fund, transfer, and debt ledgers behind it.", items: [
     ["Budget in Brief",17],["Consolidated Budget Ledger",18],["Budget Change Summary",20],["Revenue Portfolio",22],["Revenue Strategy",23],["Revenue Ledger",24],["Property Tax Allocation Ledger",28],["Florida Amendment 3 Risk",30],["Expenditure Ledger",31],["Fund Financial Ledger",34],["Interfund Transfer Ledger",36],["Debt Ledger",37],["Long-Term Outlook",38]
   ]},
-  { title: "Budget Process", subtitle: "How a department request becomes Walton County's FY2027 final spending plan, and the key dates residents can follow before final adoption.", items: [
+  { title: "Budget Process", subtitle: "How a department request becomes Walton County's FY 2027 final spending plan, and the key dates residents can follow before final adoption.", items: [
     ["Budget Process",41],["Budget Process (continued)",42],["Budget Calendar",43],["Public Participation and Decision Record",44],["Financial Policies",45],["Summary of Financial Policies",46]
   ]},
   { title: "Constitutional Officer Budget", subtitle: "Function, elected leadership, revenue sources, staffing, and budget summary for independently elected offices and the Board.", items: [["Constitutional Officers Ledger",48,{overview:true}],["Walton County Sheriff's Office",49],["Board of County Commissioners",50],["Tax Collector",51],["Clerk of Courts & County Comptroller",52],["Property Appraiser",53],["Supervisor of Elections",54]] },
@@ -35,7 +35,7 @@ const sections = [
     ["Statutory & Other Agency Funding",57], ["Walton County Health Department",57], ["South Walton Fire & State Control",57], ["Medical Examiner",57], ["E911 Fund",57], ["Non-Profit Funding Program",57],
     ["State Attorney",58], ["Public Defender",58], ["Circuit Court",58], ["Court Technology & Innovations",58], ["County Court",58], ["Daughette MSBU Fund",58], ["Guardian Ad Litem",58]
   ] },
-  { title: "Program and Service Budget", subtitle: "Board-administered purpose, full cost, funding, contributing services, service-level decisions, and measurable FY2027 targets; Constitutional Officers and independent agencies are excluded.", items: [
+  { title: "Program and Service Budget", subtitle: "Board-administered purpose, full cost, funding, contributing services, service-level decisions, and measurable FY 2027 targets; Constitutional Officers and independent agencies are excluded.", items: [
     ["Public Value",60],["Safety, Justice and Effective Government",61],["Visitors, Mobility and Infrastructure",62],["Environment, Growth and Community Development",63],["Quality of Life and Community Wellbeing",64]
   ] },
   { title: "Board Department Budgets", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",66,{overview:true}]],
@@ -60,6 +60,18 @@ const sections = [
     ["Glossary, Acronyms and Frequently Asked Questions",117],["Statistical and Supplemental Information",126],["Principal Property Taxpayers",127]
   ] }
 ];
+// Five visual-storytelling pages were added after Budget in Brief, before
+// Long-Term Outlook, and after the Capital Improvement Plan overview.
+const shiftedPage = (n) => n + (n >= 18 ? 2 : 0) + (n >= 38 ? 1 : 0) + (n >= 107 ? 2 : 0);
+for (const section of sections) {
+  if (section.items) section.items = section.items.map((item) => Array.isArray(item) ? [item[0], shiftedPage(item[1]), item[2]] : item);
+  if (section.groups) section.groups = section.groups.map(([label, number, children]) => [label, number == null ? null : shiftedPage(number), children.map(([child, page]) => [child, shiftedPage(page)])]);
+}
+const financialOverview = sections.find((s) => s.title === "Financial Overview");
+financialOverview.items.splice(1, 0, ["How the Budget Works", 18], ["How to Read the Financial Schedules", 19]);
+financialOverview.items.splice(financialOverview.items.findIndex(([label]) => label === "Long-Term Outlook"), 0, ["General Fund Reserve Position", 40]);
+const capitalBudget = sections.find((s) => s.title === "Capital Budget");
+capitalBudget.items.splice(1, 0, ["Capital Investment Map", 110], ["Capital Funding and Delivery Dashboard", 111]);
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.
 const firstPage = (g) => g[1] ?? Math.min(...g[2].map((c) => c[1]));

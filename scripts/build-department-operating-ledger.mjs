@@ -23,15 +23,15 @@ import { chromium } from "playwright";
 // already shown in each department's own header stat.
 
 const OVERVIEW_STATS = [
-  ["$135.6M", "Total FY2027 Operating Budget"],
-  ["+$5.6M", "Net Change from FY2026"],
+  ["$135.8M", "Total FY 2027 Department Rollups"],
+  ["+$5.6M", "Net Change from FY 2026"],
   ["+4.3%", "Net Percent Change"],
   ["667", "Total FTE, 15 Departments"]
 ];
 const SPLIT = [
   ["Personnel", "$59.75M", "44.1%"],
   ["Contractual Services", "$39.33M", "29.0%"],
-  ["Operating", "$36.57M", "27.0%"]
+  ["Operating", "$36.72M", "27.0%"]
 ];
 
 // [name, fy26, fy27, fte26, fte27]
@@ -40,7 +40,7 @@ const SUMMARY_ROWS = [
   ["Beach Operations", 12971943, 16082721, 114, 127],
   ["Public Works", 20850672, 20826000, 148, 148],
   ["Environmental Services", 23695761, 23514014, 42, 42],
-  ["County Administration Offices", 10368035, 10737378, 76, 76],
+  ["County Administration Offices", 10488035, 10887378, 76, 76],
   ["Building Construction & Maintenance", 8639168, 8596305, 68, 68],
   ["Planning", 6570086, 6839111, 45, 47],
   ["Code Compliance", 4459159, 4811854, 43, 43],
@@ -52,7 +52,7 @@ const SUMMARY_ROWS = [
   ["Office of Management and Budget", 1374708, 1075026, 9, 9],
   ["Emergency Management", 804151, 887455, 5.5, 6]
 ];
-const SUMMARY_TOTAL = ["Total Board Departments", 130038972, 135644083, 655, 667];
+const SUMMARY_TOTAL = ["Total Board Departments", 130148972, 135794083, 655, 667];
 
 // Per-department profiles
 const DEPARTMENTS = [
@@ -462,8 +462,8 @@ function deptCardHtml(d) {
       <div class="dept-fte">${fte(d.fte26)} &rarr; ${fte(d.fte27)} FTE</div>
     </div>
     <div class="dept-stats">
-      <div><b>${money(d.fy26)}</b><span>FY2026 Total</span></div>
-      <div><b>${money(d.fy27)}</b><span>FY2027 Total</span></div>
+      <div><b>${money(d.fy26)}</b><span>FY 2026 Total</span></div>
+      <div><b>${money(d.fy27)}</b><span>FY 2027 Total</span></div>
       <div><b class="${isDown ? "change is-down" : "change"}">${dsign}${money(Math.abs(delta)).slice(1)}</b><span>Dollar Change</span></div>
       <div><b class="${isDown ? "change is-down" : "change"}">${pct(delta, d.fy26)}</b><span>Percent Change</span></div>
     </div>
@@ -475,7 +475,7 @@ function deptCardHtml(d) {
     <h4 class="services-h">Services</h4>
     ${d.services.map(([t, s]) => `<div class="service-item"><b>${t}.</b> <span>${s}</span></div>`).join("")}
     <div class="dept-note"><b>Challenges:</b> ${d.challenges}</div>
-    <div class="dept-note"><b>FY2027 Changes:</b> ${d.changes}</div>
+    <div class="dept-note"><b>FY 2027 Changes:</b> ${d.changes}</div>
   </div>`;
 }
 
@@ -493,7 +493,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1>Department Operating Ledger</h1>
-    <p class="intro">Walton County's 15 Board departments budget a combined $135.6M in operating and personnel spending and employ 667 FTE for FY2027. Capital outlay is budgeted separately &mdash; see the Capital Budget chapter. Each department's statement of function, core services, challenges, and full budget detail appears on its own page in the pages that follow.</p>
+    <p class="intro">Walton County's 15 Board department rollups budget a combined $135.8M and employ 667 FTE for FY 2027. This total matches the Department Rollup Budgets on page 21. The office and program profiles that follow show funded capital items on the responsible department page; those profile totals therefore include capital and should not be added again to the countywide Capital Budget.</p>
     <div class="stat-strip">${OVERVIEW_STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Department Summary</h2>
@@ -502,6 +502,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
     </div>
+    <p class="dept-note"><b>How to read the two views:</b> This table is the County's 15-department accounting rollup. The pages that follow expand those rollups into 32 offices and programs. Each profile total reconciles to the categories printed on that page: Personnel + Contractual + Operating + Indirect, when applicable + Capital.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

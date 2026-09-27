@@ -54,6 +54,44 @@ const DEPARTMENT_PAGE_HREFS = new Map([
   ["Beach Tram", "tourism-beach-operations.html"]
 ]);
 
+// Maps each detailed office/program to the accounting rollup used on the
+// department ledger and to one of the adopted Strategic Plan 2027-2032
+// priority areas.
+const PROFILE_CONTEXT = new Map([
+  ["Building Construction and Maintenance", ["Building Construction & Maintenance", "Planned Growth and Infrastructure"]],
+  ["Building Department", ["Building", "Planned Growth and Infrastructure"]],
+  ["Code Compliance", ["Code Compliance", "Government and Operational Performance"]],
+  ["County Administration", ["County Administration Offices", "Government and Operational Performance"]],
+  ["Eagle Springs Golf and Recreation Center", ["Parks & Recreation", "Quality of Life"]],
+  ["Eagle Springs Grill", ["Parks & Recreation", "Quality of Life"]],
+  ["Emergency Management", ["Emergency Management", "Public Safety and Health"]],
+  ["Engineering Department", ["Engineering Department", "Planned Growth and Infrastructure"]],
+  ["Environmental Resources", ["Environmental Services", "Environment and Natural Resources"]],
+  ["Extension Office", ["County Administration Offices", "Quality of Life"]],
+  ["Geographic Info Systems", ["County Administration Offices", "Government and Operational Performance"]],
+  ["Housing & Urban Development", ["County Administration Offices", "Quality of Life"]],
+  ["Human Resources", ["County Administration Offices", "Government and Operational Performance"]],
+  ["Libraries", ["County Administration Offices", "Quality of Life"]],
+  ["Mosquito Control", ["Environmental Services", "Public Safety and Health"]],
+  ["Mossy Head Wastewater Treatment Facility", ["Engineering Department", "Planned Growth and Infrastructure"]],
+  ["Office of Management and Budget", ["Office of Management and Budget", "Government and Operational Performance"]],
+  ["Office of the County Attorney", ["Office of the County Attorney", "Government and Operational Performance"]],
+  ["Planning", ["Planning", "Planned Growth and Infrastructure"]],
+  ["Probation", ["County Administration Offices", "Public Safety and Health"]],
+  ["Public Works", ["Public Works", "Planned Growth and Infrastructure"]],
+  ["Purchasing", ["Purchasing", "Government and Operational Performance"]],
+  ["Recreation", ["Parks & Recreation", "Quality of Life"]],
+  ["Soil Conservation", ["Environmental Services", "Environment and Natural Resources"]],
+  ["Solid Waste", ["Environmental Services", "Environment and Natural Resources"]],
+  ["Veteran Services", ["County Administration Offices", "Quality of Life"]],
+  ["Tourism Administration", ["Tourism Administration", "Economic Development and Tourism"]],
+  ["Sales and Visitors Center", ["Tourism Administration", "Economic Development and Tourism"]],
+  ["Communications", ["Tourism Administration", "Economic Development and Tourism"]],
+  ["Marketing", ["Tourism Administration", "Economic Development and Tourism"]],
+  ["Beach Operations", ["Beach Operations", "Economic Development and Tourism"]],
+  ["Beach Tram", ["Beach Operations", "Economic Development and Tourism"]],
+]);
+
 // Rebuilds the FY 2027 Budget Book's "Departments and Services" chapter
 // -- one full magazine-quality page per department, addressing GFOA
 // Distinguished Budget Presentation departmental-section criteria:
@@ -62,7 +100,7 @@ const DEPARTMENT_PAGE_HREFS = new Map([
 // (revenues), major contracts, expenditures by category (Personnel /
 // Contractual / Operating / Capital, shown separately per explicit
 // request), staffing, and performance measures with multi-year actual
-// results and an FY2027 target.
+// results and an FY 2027 target.
 //
 // Source: this book's own raw capture of pages/[department].html for
 // each office plus two research passes -- the first for Statement of
@@ -259,7 +297,7 @@ const DEPARTMENTS = [
       ["Oversee traffic and right-of-way", "Coordinates traffic operations, right-of-way permitting, and surveying for county roadways."],
       ["Administer transportation grants", "Manages FDOT grant administration and engineering oversight for the Mossy Head sewer system."]
     ],
-    achievement: { label: "In-House Engineering Savings", detail: "Performing capital improvement design and construction management in-house, rather than through outside consultants, is estimated to save the County $1,660,880 in FY2027." },
+    achievement: { label: "In-House Engineering Savings", detail: "Performing capital improvement design and construction management in-house, rather than through outside consultants, is estimated to save the County $1,660,880 in FY 2027." },
     challenges: "Fourteen positions, down two, provide in-house design and construction management for 30 funded transportation and infrastructure projects.",
     revenue: "General Government Taxes &mdash; Local Option Fuel Tax $2.4M",
     capitalItems: [
@@ -284,7 +322,6 @@ const DEPARTMENTS = [
     capitalItems: [
       { item: "ATV Side-by-side (New)", amount: 17500 },
       { item: "ATV Trailer (New)", amount: 2500 },
-      { item: "Vessel & Trailer (New) &mdash; requested, not funded", amount: 60000, notFunded: true }
     ],
     contracts: [
       { service: "Choctawhatchee Bay Water Quality Contract", provider: "Choctawhatchee Basin Alliance", amount: 36000 },
@@ -422,8 +459,8 @@ const DEPARTMENTS = [
       ["Monitor public spending", "Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions", "Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],
-    achievement: { label: "GFOA Distinguished Budget Presentation Award", detail: "Walton County has received the Government Finance Officers Association's Distinguished Budget Presentation Award for FY2025 and FY2026, recognizing the County's budget document as a policy document, financial plan, operations guide, and communications device." },
-    challenges: "Nine positions prepare the budget and manage grant spending, projected at $10M in FY2027 compared with $15.6M in 2025.",
+    achievement: { label: "GFOA Distinguished Budget Presentation Award", detail: "Walton County has received the Government Finance Officers Association's Distinguished Budget Presentation Award for FY 2025 and FY 2026, recognizing the County's budget document as a policy document, financial plan, operations guide, and communications device." },
+    challenges: "Nine positions prepare the budget and manage grant spending, projected at $10M in FY 2027 compared with $15.6M in 2025.",
     changeNote: "Books, Publications, Subscriptions or Memberships decreasing by $260,000.",
     revenue: "Miscellaneous Revenue &mdash; Indirect Administrative Fees $619,356 &middot; Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $440,670 &middot; Charges for Services &mdash; Cremation Fees $15,000",
     contracts: [],
@@ -563,7 +600,7 @@ const DEPARTMENTS = [
     deltaP: 4949, deltaO: -865, deltaC: -30000, video: "ODzfUR4KX2o", fund: "General Fund",
     sof: "The Recreation Department operates youth and adult programs and maintains fields, courts, buildings, and equipment used for community recreation.",
     goal: "Provide diverse recreational programs that enhance community health, engagement, and quality of life.",
-    challenges: "Six positions maintain facilities and schedules while the program target rises from 4,105 participants in 2025 to 4,500 in FY2027.",
+    challenges: "Six positions maintain facilities and schedules while the program target rises from 4,105 participants in 2025 to 4,500 in FY 2027.",
     changeNote: "Machinery & Equipment decreasing by $30,000.",
     revenue: "Intergovernmental Revenues $653K &middot; Charges for Services &mdash; Program & Sports Fees $135K",
     capitalItems: [
@@ -695,7 +732,7 @@ const DEPARTMENTS = [
     sof:"The Beach Tram Program provides free shuttle service between designated parking locations and key beach access points. The service improves access to popular beach areas, reduces parking demand and congestion, and supports a more convenient and sustainable visitor experience.",
     goal:"Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
     services:[["Operate beach shuttles","Transports passengers between designated parking and beach access locations."],["Maintain fleet readiness","Coordinates drivers, mechanics, dispatch, inspections, and vehicle availability."],["Improve coastal mobility","Reduces parking demand and expands access for residents and visitors."]],
-    serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY2027 ridership target.",
+    serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY 2027 ridership target.",
     challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, up from 200,000 in 2025.", changeNote:"Regular Salaries & Wages increasing by $601,594.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Tram vehicles and transportation equipment",amount:507000}], contracts:[],
     pms:[{q:"Passengers transported annually by the shuttle service",obj:"Transport at least 200,000 passengers annually",y:["77,282","193,725","168,203","200,000"],target:"250,000",svc:0}]
@@ -705,9 +742,9 @@ const DEPARTMENTS = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
-// States the FY2027 service-level decision. Offices with an explicit
+// States the FY 2027 service-level decision. Offices with an explicit
 // serviceChange (Beach Operations, Beach Tram) say what expands; every
-// other office maintains current services under the Board's FY2027
+// other office maintains current services under the Board's FY 2027
 // direction, with the staffing change named so the line carries
 // information rather than repeating the side panel's primary change.
 function serviceChangeFor(d) {
@@ -719,7 +756,7 @@ function serviceChangeFor(d) {
     : delta < 0
       ? `staffing decreases by ${Math.abs(delta)} FTE${positions} to ${d.fte}`
       : `staffing holds at ${d.fte} FTE`;
-  return `Current services continue at FY2026 levels with no service added or discontinued; ${staffing}.`;
+  return `Current services continue at FY 2026 levels with no service added or discontinued; ${staffing}.`;
 }
 
 const PRIMARY_SERVICE_TITLES = new Map([
@@ -787,16 +824,14 @@ function sumRevenueExcluding(html, includeRe, excludeRe) {
 // Splits a property-tax-funded amount into a residential and a
 // commercial/other row using the same 87.9% / 12.1% real-property
 // just-value shares the live site's Who Pays Ledger uses.
-// Household equivalents (34,362 Walton County households, per U.S.
-// Census Bureau statistics) match the same figure used by the live
-// site's Who Pays Ledger, so a resident-facing dollar amount can be
-// expressed as an annual/monthly household cost the same way there.
-const HOUSEHOLDS = 34362;
+// Residential funding-scale figures use the same 31,491 occupied housing
+// units reported in this book's 2018-2022 ACS statistical profile.
+const HOUSEHOLDS = 31491;
 function householdCost(amount) {
   const annual = amount / HOUSEHOLDS;
   const monthly = annual / 12;
   const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${fmt(annual)} per household annually (${fmt(monthly)} monthly)`;
+  return `Residential funding scale: ${fmt(annual)} annually (${fmt(monthly)} monthly) per occupied household`;
 }
 
 function splitPropertyTax(amount, detail) {
@@ -804,7 +839,7 @@ function splitPropertyTax(amount, detail) {
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 34,362 households &mdash; a planning proxy, not an individual household's tax bill.`],
+    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 31,491 occupied housing units &mdash; a planning proxy, not an individual household's tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }
@@ -817,7 +852,7 @@ function splitSalesTax(amount, detail) {
   const resident = amount - nonResident;
   return [
     ["Non-residents", nonResident, `${detail} Estimated using the County's tourism visitor study, which found visitors account for 68% of local retail spending.`],
-    ["Residents", resident, `${detail} The remaining 32% resident share reflects the same visitor-spending study, equal to ${householdCost(resident)} across 34,362 households.`]
+    ["Residents", resident, `${detail} The remaining 32% resident share reflects the same visitor-spending study, equal to ${householdCost(resident)}.`]
   ];
 }
 
@@ -825,7 +860,7 @@ function whoPaysFor(d) {
   const n = d.name.toLowerCase();
   const total = sumRevenue(d.revenue);
   // Tourism offices are funded entirely by Tourist Development Tax, so the
-  // office's own FY2027 total is the amount paid by overnight visitors.
+  // office's own FY 2027 total is the amount paid by overnight visitors.
   const officeTotal = d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0);
   if (d.fund.includes("Tourist Development")) return [["Overnight visitors", total || officeTotal, "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."]];
   if (/tourism lifeguard/.test(n)) return [["Overnight visitors", total || null, "Tourist Development Tax supports the service agreement; it is collected on eligible short-term lodging stays."]];
@@ -925,7 +960,7 @@ function compactFundingDetail(text) {
     .replace(/\s+The remaining 32%[\s\S]*$/, "");
 }
 function householdEquivalent(text) {
-  const match = String(text).match(/(\$[\d,.]+ per household annually \(\$[\d,.]+ monthly\))/);
+  const match = String(text).match(/(Residential funding scale: \$[\d,.]+ annually \(\$[\d,.]+ monthly\) per occupied household)/);
   return match ? match[1] : "";
 }
 
@@ -993,6 +1028,9 @@ const sharedCss = `
   }
   .responsibility-tags{ display:flex; flex-wrap:wrap; gap:.04in; margin:.055in 0 0; }
   .responsibility-tags span{ padding:.025in .065in; border-radius:99px; background:#edf3ef; color:#315245; font-size:5.6pt; font-weight:800; }
+  .profile-context{ display:flex; flex-wrap:wrap; gap:.045in .14in; margin:.045in 0 0; color:#52665c; font-size:5.55pt; line-height:1.3; }
+  .profile-context span{ display:inline-flex; gap:.035in; }
+  .profile-context b{ color:#9a7610; font-weight:900; letter-spacing:.03em; text-transform:uppercase; }
   .editorial-cards{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -1128,7 +1166,10 @@ const sharedCss = `
   .goal-chain-inline{ margin-top:.14in; margin-bottom:0; }
   .pm-item{ padding:.06in 0; border-bottom:1px solid #eef2ef; }
   .pm-item:last-child{ border-bottom:0; }
-  .pm-item .pm-q{ margin:0 0 .045in; color:#003f28; font-size:7.4pt; font-weight:800; line-height:1.25; }
+  .pm-title-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:.08in; margin:0 0 .045in; }
+  .pm-item .pm-q{ margin:0; color:#003f28; font-size:7.4pt; font-weight:800; line-height:1.25; }
+  .trend-pill{ flex:0 0 auto; padding:.018in .05in; border:1px solid #c8d7cf; border-radius:99px; background:#f1f6f3; color:#365a49; font-size:5.05pt; font-weight:900; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; }
+  .trend-pill.rising,.trend-pill.falling{ border-color:#c8d7cf; color:#365a49; }
   .pm-trend{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)) auto; align-items:baseline; gap:.1in .3in; }
   .pm-trend span{ color:#8b988f; font-size:5.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.02em; }
   .pm-trend span b{ display:block; margin-bottom:.015in; color:#173229; font:800 9.5pt Georgia, serif; font-variant-numeric:tabular-nums; }
@@ -1168,7 +1209,7 @@ const sharedCss = `
   .index-list{ column-count:2; column-gap:.4in; }
   .index-row{ break-inside:avoid; display:flex; justify-content:space-between; gap:.1in; padding:.05in 0; border-bottom:1px solid #f1f4f1; font-size:7.8pt; }
   .index-row b{ color:#003f28; }
-  .stat-strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:.13in; margin:0 0 .22in; }
+  .stat-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:.1in; margin:0 0 .22in; }
   .stat-card{ padding:.13in .1in; border-radius:10px; background:#003f28; text-align:center; }
   .stat-card b{ display:block; color:#fff; font:800 13pt/1.1 Georgia, serif; }
   .stat-card span{ display:block; margin-top:.03in; color:#e7c95f; font-size:6.2pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; line-height:1.25; }
@@ -1186,7 +1227,7 @@ async function buildDeptPage(d, pageNumber) {
     ? `<p class="workforce-position-note"><b>${fteDelta > 0 ? "Added" : "Reduced"}:</b> ${d.ftePositions.join("; ")}</p>`
     : "";
   const ftePositionText = d.ftePositions && d.ftePositions.length ? ` (${d.ftePositions.join("; ")})` : "";
-  const fteDeltaHtml = fteDelta ? `<p class="fte-change-note ${fteDelta > 0 ? "up" : "down"}">${fteDelta > 0 ? "+" : "&minus;"}${Math.abs(fteDelta)} FTE ${fteDelta > 0 ? "requested" : "reduced"}${ftePositionText} from FY2026 (${d.ftePrior} &rarr; ${d.fte})</p>` : "";
+  const fteDeltaHtml = fteDelta ? `<p class="fte-change-note ${fteDelta > 0 ? "up" : "down"}">${fteDelta > 0 ? "+" : "&minus;"}${Math.abs(fteDelta)} FTE ${fteDelta > 0 ? "requested" : "reduced"}${ftePositionText} from FY 2026 (${d.ftePrior} &rarr; ${d.fte})</p>` : "";
   // Rows without a dollar amount are omitted rather than printed unquantified.
   const payerRows = whoPaysFor(d).filter(([, amount]) => amount);
   const usesPropertyMethod = payerRows.some(([, , explanation]) => /87\.9%|34,362 households/.test(explanation));
@@ -1211,9 +1252,22 @@ async function buildDeptPage(d, pageNumber) {
     const parts = String(v).split(/\s*\/\s*/);
     return parts.length === 2 ? `${parts[0]}<small class="pm-pair">/ ${parts[1]}</small>` : v;
   };
-  const pmBlock = (pm) => `
+  const trendFor = (pm) => {
+    const numeric = (value) => {
+      const match = String(value).replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+      return match ? Number(match[0]) : null;
+    };
+    const prior = numeric(pm.y[2]);
+    const latest = numeric(pm.y[3]);
+    if (prior == null || latest == null) return ["2024-25 trend unavailable", ""];
+    if (latest === prior) return ["2024-25 stable", "stable"];
+    return latest > prior ? ["2024-25 rising", "rising"] : ["2024-25 falling", "falling"];
+  };
+  const pmBlock = (pm) => {
+    const [trendLabel, trendClass] = trendFor(pm);
+    return `
     <div class="pm-item">
-      <p class="pm-q">${pm.q}</p>
+      <div class="pm-title-row"><p class="pm-q">${pm.q}</p><span class="trend-pill ${trendClass}">${trendLabel}</span></div>
       <div class="pm-trend${[...pm.y, pm.target].some((v) => String(v).split("/").pop().trim().length > 6) ? " compact" : ""}">
         <span><b>${pmVal(pm.y[0])}</b>2022</span>
         <span><b>${pmVal(pm.y[1])}</b>2023</span>
@@ -1222,6 +1276,7 @@ async function buildDeptPage(d, pageNumber) {
         <span class="target"><b>${pmVal(pm.target)}</b>FY27 Target</span>
       </div>
     </div>`;
+  };
 
   // Pairs each core service with the performance measure(s) that track it
   // (via each pm's optional svc index into d.services), so the page reads
@@ -1234,6 +1289,7 @@ async function buildDeptPage(d, pageNumber) {
   const hasExplicitServices = !!d.services;
   const serviceList = d.services || [[PRIMARY_SERVICE_TITLES.get(d.name) || `Deliver ${d.name} services`, PRIMARY_SERVICE_DESCRIPTIONS.get(d.name) || `Carries out the responsibilities and tracks the activity measures shown for ${d.name}.`]];
   const responsibilityTags = serviceList.slice(0, 3).map(([title]) => `<span>${title}</span>`).join("");
+  const [accountingRollup, strategicPriority] = PROFILE_CONTEXT.get(d.name) || [d.name, "Government and Operational Performance"];
   const matchedPms = new Set();
   const svcBlocks = serviceList.map(([t, desc], i) => {
     const linked = hasExplicitServices ? d.pms.filter((pm) => pm.svc === i) : d.pms;
@@ -1247,8 +1303,8 @@ async function buildDeptPage(d, pageNumber) {
     : "";
 
   const conHtml = d.contracts.length
-    ? `<div class="con-list">${d.contracts.map((c) => `<div class="con-row"><div class="con-name">${c.service}${c.separate ? `<em>Tracked separately</em>` : ""}</div><b>${c.amountLabel || money(c.amount)}</b></div>`).join("")}</div>${d.contractsNote ? `<p class="con-note">${d.contractsNote}</p>` : ""}`
-    : `<div class="empty-card"><b>No FY2027 contracted services</b>No separately identified contractual-service request is budgeted for this office.</div>`;
+    ? `<div class="con-list">${d.contracts.map((c) => `<div class="con-row"><div class="con-name">${c.service}${c.separate ? `<em>Tracked separately</em>` : ""}</div><b>${c.amountLabel || money(c.amount)}</b></div>`).join("")}</div>${d.contractsNote ? `<p class="con-note">${d.contractsNote}</p>` : ""}<p class="con-note">Amounts identify contracted services; vendor names are not presented.</p>`
+    : `<div class="empty-card"><b>No FY 2027 contracted services</b>No separately identified contracted-service amount is budgeted for this office.</div>`;
 
   const sideCardsHtml = (d.sideCards || []).map((s) => `
     <div class="side-card sub">
@@ -1290,11 +1346,12 @@ async function buildDeptPage(d, pageNumber) {
         <h2>Statement of Function</h2>
         <p class="sof">${d.sof}</p>
         <div class="responsibility-tags">${responsibilityTags}</div>
+        <div class="profile-context"><span><b>Accounting rollup</b> ${accountingRollup}</span><span><b>Strategic priority</b> ${strategicPriority}</span></div>
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
-        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY2027 Workload and Constraints</span><p>${d.challenges}</p></div>` : ""}</div>` : ""}
+        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}</p></div>` : ""}</div>` : ""}
         <div class="goal-chain goal-chain-inline">
           <h2>Core Services &amp; Performance</h2>
-          <p class="svc-change-note"><b>FY2027 Service Outlook</b><br>${serviceChangeFor(d)}</p>
+          <p class="svc-change-note"><b>FY 2027 Service Outlook</b><br>${serviceChangeFor(d)}</p>
           <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
           ${d.pms.length ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
         </div>
@@ -1303,8 +1360,8 @@ async function buildDeptPage(d, pageNumber) {
         <div class="side-card">
           <div class="side-fund">${d.fund}</div>
           <div class="side-stats">
-            <div class="primary"><b>${money(fy27)}</b><span>FY2027 Total</span></div>
-            <div class="prior"><b>${money(fy26)}</b><span>FY2026 Total</span></div>
+            <div class="primary"><b>${money(fy27)}</b><span>FY 2027 Total</span></div>
+            <div class="prior"><b>${money(fy26)}</b><span>FY 2026 Total</span></div>
           </div>
           <div class="side-change ${isDown ? "down" : "up"}">
             <span class="side-change-label">Budget Change</span>
@@ -1329,8 +1386,8 @@ async function buildDeptPage(d, pageNumber) {
     </div>
     <div class="rev-con-grid three">
       <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
-      <div class="con-box"><h2>Contracts</h2>${conHtml}</div>
-      <div class="cap-box"><h2>Capital Requests</h2>${capItems.length ? capHtml : (d.capital ? `<div class="empty-card"><b>${money(d.capital)} capital budget</b>No itemized capital-request schedule was available for this office.</div>` : `<div class="empty-card"><b>No FY2027 capital requests</b>No capital purchase or project request is budgeted for this office.</div>`)}</div>
+      <div class="con-box"><h2>Contracted Services</h2>${conHtml}</div>
+      <div class="cap-box"><h2>Funded Capital Items</h2>${capItems.length ? capHtml : (d.capital ? `<div class="empty-card"><b>${money(d.capital)} capital budget</b>No itemized funded-capital schedule was available for this office.</div>` : `<div class="empty-card"><b>No FY 2027 funded capital items</b>No capital purchase or project is budgeted for this office.</div>`)}</div>
     </div>
     <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>`;
@@ -1348,11 +1405,12 @@ async function main() {
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Board Department<br/>Budgets</h1b>
-      <p>A statement of function, department goal, FY2027 operating context, services, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board offices and programs.</p>
+      <p>A statement of function, department goal, FY 2027 operating context, services, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board offices and programs.</p>
     </div>
   </section>`;
 
   const totalFy27 = DEPARTMENTS.reduce((s, d) => s + d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0), 0);
+  const totalCapital = DEPARTMENTS.reduce((s, d) => s + d.capital, 0);
   const totalFte = DEPARTMENTS.reduce((s, d) => s + d.fte, 0);
 
   const overviewHtml = `
@@ -1360,10 +1418,11 @@ async function main() {
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1 style="border-bottom:none;padding-bottom:0;">Board Department Budgets</h1>
-    <p class="sof">Each of the following ${DEPARTMENTS.length} pages presents one Board office or program in full: its statement of function, department goal, FY2027 operating context, services, funding sources, contracted services, budget by category (Personnel, Contractual, Operating, Capital), staffing, and verified performance measures where available. Each page carries a QR code linking to that office's live page online, which carries more detail than fits in print. Tourism Administration and Beach Operations are presented at the office level to match the online explorer hierarchy.</p>
+    <p class="sof">Each of the following ${DEPARTMENTS.length} pages presents one Board office or program in full: its statement of function, department goal, FY 2027 operating context, services, funding sources, contracted services, budget by category, staffing, and verified performance measures where available. The FY 2027 total on every profile equals Personnel + Contractual + Operating + Indirect, when applicable + Capital. Capital requests remain on the responsible department page and are included in that page's total; they are not additional appropriations beyond the countywide Capital Budget.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>${DEPARTMENTS.length}</b><span>Offices Profiled</span></div>
-      <div class="stat-card"><b>${money(totalFy27)}</b><span>Combined FY2027 Budget</span></div>
+      <div class="stat-card"><b>${money(totalFy27)}</b><span>Sum of Profile Totals</span></div>
+      <div class="stat-card"><b>${money(totalCapital)}</b><span>Capital Included in Profiles</span></div>
       <div class="stat-card"><b>${totalFte}</b><span>Combined FTE</span></div>
     </div>
     <h2 style="margin-top:.1in;">Offices in This Chapter</h2>

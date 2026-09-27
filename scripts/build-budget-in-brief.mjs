@@ -12,7 +12,7 @@ const BUDGET_EXPLORER_QR = await QRCode.toDataURL(BUDGET_EXPLORER_URL, {
 // at-a-glance infographic summarizing the whole budget for residents, the
 // way GFOA award-winning budget books typically pair a detailed
 // transmittal letter with a condensed one-page citizen summary. All
-// figures are the same real, verified FY2027 numbers used in the
+// figures are the same real, verified FY 2027 numbers used in the
 // Transmittal Letter (see build-transmittal-letter.mjs) and Fund
 // Highlights.
 
@@ -350,7 +350,7 @@ const html = `<!doctype html>
     <small class="kicker">Financial Overview</small>
     <h1>Budget in Brief</h1>
     <div class="message-panel">
-      <p><strong>Walton County&rsquo;s FY2027 final budget maintains core services while lowering the County operating millage to 3.2500, investing $43.8 million in funded capital improvements, and adding targeted workforce capacity.</strong> The $345.2 million plan prioritizes public safety, infrastructure, and dependable service in a growing community while preserving long-term financial preparedness.</p>
+      <p><strong>Walton County&rsquo;s FY 2027 final budget maintains core services while lowering the County operating millage to 3.2500, investing $43.8 million in funded capital improvements, and adding targeted workforce capacity.</strong> The $345.2 million plan prioritizes public safety, infrastructure, and dependable service in a growing community while preserving long-term financial preparedness.</p>
       <a class="explorer-link" href="${BUDGET_EXPLORER_URL}"><img src="${BUDGET_EXPLORER_QR}" alt="QR code to the Walton County Budget Explorer"><b>Explore the<br>Budget Online</b></a>
     </div>
 
@@ -358,7 +358,7 @@ const html = `<!doctype html>
       <div class="stat-card"><b>$345.2M</b><span>Net Expenditure Budget</span></div>
       <div class="stat-card"><b>3.2500</b><span>County Millage Rate</span></div>
       <div class="stat-card"><b>667</b><span>Board Department FTE</span></div>
-      <div class="stat-card"><b>848</b><span>Constitutional Officer FTE</span></div>
+      <div class="stat-card"><b>848</b><span>Constitutional Officers and Court Position</span></div>
     </div>
 
     <div class="charts-row">

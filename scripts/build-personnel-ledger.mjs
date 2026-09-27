@@ -2,8 +2,8 @@ import { chromium } from "playwright";
 import QRCode from "qrcode";
 
 // Builds the FY 2027 Budget Book's "Personnel Ledger" -- FTE staffing and
-// personnel cost by Constitutional Officer and by Board department, FY2026
-// vs FY2027. Source: pages/personnel-ledger.html, rendered live and
+// personnel cost by Constitutional Officer and by Board department, FY 2026
+// vs FY 2027. Source: pages/personnel-ledger.html, rendered live and
 // cross-checked against a prior working PDF capture. The capture had
 // three Board department rows with a dropped department name (a
 // department listed alone in its own row, not split across multiple
@@ -13,10 +13,10 @@ import QRCode from "qrcode";
 // tables matched the live source exactly, with zero discrepancies found
 // across all 24 department rows.
 //
-// The live Board Departments table also breaks FY2027 personnel cost
+// The live Board Departments table also breaks FY 2027 personnel cost
 // into Salaries & Wages vs. Retirement/Health/Other Benefits; that split
 // is omitted here to match the Constitutional Officers table's cleaner
-// FY2026/FY2027 Total Personnel Cost format and keep both tables to one
+// FY 2026/FY 2027 Total Personnel Cost format and keep both tables to one
 // page -- the total ties out either way.
 
 // The live Personnel Ledger page carries more detail than fits on this
@@ -31,9 +31,9 @@ const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
 });
 
 const STATS = [
-  ["1,515", "Total FY2027 Positions"],
+  ["1,515", "Total FY 2027 Positions"],
   ["+15", "Net FTE Change"],
-  ["$164.2M", "Total FY2027 Personnel Cost"],
+  ["$164.2M", "Total FY 2027 Personnel Cost"],
   ["+5.4%", "Net Percent Change"]
 ];
 
@@ -282,7 +282,7 @@ const html = `<!doctype html>
       <div class="title-copy">
         <small class="kicker">Workforce Budget</small>
         <h1>Personnel Ledger</h1>
-        <p class="intro">FY2027 staffing and personnel cost by Constitutional Officer and by Board department, compared to FY2026.</p>
+        <p class="intro">FY 2027 staffing and personnel cost for constitutional officers and the County-funded court position, and for Board departments, compared to FY 2026.</p>
       </div>
       <div class="page-qr">
         <img src="${PERSONNEL_LEDGER_QR}" alt="QR code to the Personnel Ledger online">
@@ -292,7 +292,7 @@ const html = `<!doctype html>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
-    <h2>Constitutional Officers</h2>
+    <h2>Constitutional Officers, Board Office, and Court Positions</h2>
     <div class="ledger">
       ${tableHead(true)}
       ${CONSTITUTIONAL.map((r) => row(r)).join("")}
@@ -306,7 +306,7 @@ const html = `<!doctype html>
       ${row(BOARD_TOTAL, "grand")}
     </div>
 
-    <p class="footnote">Board department totals reflect FY2027 salaries &amp; wages plus retirement, health insurance, and other benefits combined. Departments funded from more than one source are labeled "Multiple Funds."</p>
+    <p class="footnote">FTE is a budgeted position equivalent, not filled headcount. Board department totals include salaries and wages plus retirement, health insurance, and other benefits. Rollups combine Solid Waste and Mosquito Control within Environmental Services, Veteran Services within County Administration Offices, and Eagle Springs Grill within Parks &amp; Recreation. Departments funded from more than one source are labeled "Multiple Funds."</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>

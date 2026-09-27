@@ -20,8 +20,8 @@ import { chromium } from "playwright";
 // funding anywhere in this section.
 
 const STATS = [
-  ["$9.20M", "Total FY2027 Budget"],
-  ["-$96K", "Net Change from FY2026"],
+  ["$9.20M", "Total FY 2027 Budget"],
+  ["-$96K", "Net Change from FY 2026"],
   ["-1.0%", "Net Percent Change"]
 ];
 

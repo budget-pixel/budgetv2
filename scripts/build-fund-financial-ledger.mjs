@@ -7,10 +7,10 @@ import { chromium } from "playwright";
 // cross-checked by a research pass.
 //
 // Two things the research pass confirmed and this build reflects: (1)
-// this book's original raw capture had stale FY2028/FY2029 Consolidated
+// this book's original raw capture had stale FY 2028/FY 2029 Consolidated
 // figures (likely captured before the live sheet's forecast was
 // recalculated) -- the live-verified values are used here instead. (2)
-// Summing all 15 individual funds' FY2027 revenue does not quite reach
+// Summing all 15 individual funds' FY 2027 revenue does not quite reach
 // the Consolidated schedule's total -- a real, intentional $4,000,000
 // gap, not a missing fund or a data error. The Building Fund's own
 // single-fund schedule suppresses a $4M "balance brought forward" line
@@ -19,9 +19,9 @@ import { chromium } from "playwright";
 // balance genuinely flows through the countywide roll-forward. Flagged
 // in a footnote below rather than left as an unexplained discrepancy.
 
-// FY2028/FY2029 projections exist only at the countywide level -- the
-// live per-fund schedules stop at FY2027 -- so this table now runs
-// FY2022 Actual through FY2027 Final (6 years) instead of the
+// FY 2028/FY 2029 projections exist only at the countywide level -- the
+// live per-fund schedules stop at FY 2027 -- so this table now runs
+// FY 2022 Actual through FY 2027 Final (6 years) instead of the
 // 8-year countywide-only range it used before.
 const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Final"];
 
@@ -265,7 +265,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY2026 ending balance is an estimate produced by the FY2026 budget schedule; FY2027 beginning balance is the separately adopted opening estimate based on newer information, so the two are not expected to roll forward unchanged. The next page details each fund's FY2027 schedule.</p>
+    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY 2026 ending balance is an estimate produced by the FY 2026 budget schedule; FY 2027 beginning balance is the separately adopted opening estimate based on newer information, so the two are not expected to roll forward unchanged. The next page details each fund's FY 2027 schedule.</p>
     <div class="cledger">
       ${cHead}
       ${cRow(CONSOLIDATED_TOP[0])}
@@ -290,7 +290,7 @@ const page2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Fund Financial Ledger <span class="sub">(continued)</span></h1>
-    <h2 style="margin-top:.1in;">Individual Fund Summary, FY2027</h2>
+    <h2 style="margin-top:.1in;">Individual Fund Summary, FY 2027</h2>
     <div class="fledger">
       ${fHead}
       <div class="fgroup">Major Funds</div>

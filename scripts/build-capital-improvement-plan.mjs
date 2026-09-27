@@ -6,7 +6,7 @@ import QRCode from "qrcode";
 // Source: pages/capital-improvement-plan.html (live-rendered), a concept/
 // explainer page -- what counts as a capital project, what goes into one,
 // why new projects are necessary, how the spending level is set, the
-// five-year spending trend, the largest FY2027 commitments, and how a
+// five-year spending trend, the largest FY 2027 commitments, and how a
 // project moves into the adopted plan. It intentionally does not
 // duplicate the six capital ledgers that already exist later in this
 // book (Machinery/Vehicles/Equipment, Transportation and Infrastructure,
@@ -257,7 +257,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Program</small>
     <h1>Capital Improvement Plan</h1>
-    <p class="intro">The funded FY2027 Capital Improvement Plan totals $43.8 million. The Budget Change Summary's $53.5 million Total Capital adds $7.1 million of machinery, vehicles, and equipment and $2.6 million of debt service budgeted in the Capital Projects Fund. This CIP excludes grant-funded projects, the $2.0 million Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years.</p>
+    <p class="intro">The funded FY 2027 Capital Improvement Plan totals $43.8 million. The Budget Change Summary's $53.5 million Total Capital adds $7.1 million of machinery, vehicles, and equipment and $2.6 million of debt service budgeted in the Capital Projects Fund. This CIP excludes grant-funded projects, the $2.0 million Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years.</p>
 
     <h2>What Is a Capital Project?</h2>
     <p class="body">Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not. A request is capital when it meets all four tests:</p>
@@ -331,7 +331,7 @@ const page2 = `
       <div class="info-card"><b>Available Cash</b><span>The County funds capital primarily pay-as-you-go, so spending is limited by what each fund can support the year the work is scheduled.</span></div>
       <div class="info-card"><b>Revenue Restrictions</b><span>Fuel taxes, tourist development taxes, and impact fees are legally restricted and cannot be redirected to an unrelated project.</span></div>
       <div class="info-card"><b>Grant Awards and Match</b><span>State and federal awards raise what the County can deliver, but each carries a local match and reporting obligation.</span></div>
-      <div class="info-card"><b>Debt Capacity</b><span>Debt is used sparingly; FY2027 payments are budgeted from the infrastructure portion of the Small County Surtax rather than property taxes.</span></div>
+      <div class="info-card"><b>Debt Capacity</b><span>Debt is used sparingly; FY 2027 payments are budgeted from the infrastructure portion of the Small County Surtax rather than property taxes.</span></div>
       <div class="info-card"><b>Project Readiness</b><span>Design, permitting, right-of-way, and procurement all have to line up before a project can realistically be delivered.</span></div>
       <div class="info-card"><b>Operating Impact</b><span>Every new facility, road, or vehicle adds ongoing cost to maintain, staff, and insure &mdash; weighed before a project is added.</span></div>
     </div>
@@ -339,10 +339,10 @@ const page2 = `
     <h2>Is Capital Spending Going Up or Down?</h2>
     <div class="chart-wrap">
       <div class="chart">${CHART.map(([y, v, prior]) => `<div class="bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="bar ${prior ? "prior" : "adopted"}" style="height:${(v / CHART_MAX * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-      <div class="legend"><span><i style="background:#c9d6cd"></i>Historical capital spending (FY2023&ndash;FY2026)</span><span><i style="background:#0b7741"></i>Final five-year plan (FY2027&ndash;FY2031)</span></div>
+      <div class="legend"><span><i style="background:#c9d6cd"></i>Historical capital spending (FY 2023&ndash;FY 2026)</span><span><i style="background:#0b7741"></i>Final five-year plan (FY 2027&ndash;FY 2031)</span></div>
     </div>
-    <p class="trend">The five-year work plan moves from $43.8M in FY2027 to $35.3M in FY2031, an $8.5M or 19% decrease, with a temporary rise to $43.2M in FY2030 as several major facility and infrastructure phases are scheduled.</p>
-    <p class="footnote">FY2027-FY2031 exclude grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years. FY2023-FY2026 are historical annual capital totals shown for context. All future-year amounts are planning estimates re-evaluated each budget cycle.</p>
+    <p class="trend">The five-year work plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, an $8.5M or 19% decrease, with a temporary rise to $43.2M in FY 2030 as several major facility and infrastructure phases are scheduled.</p>
+    <p class="footnote">FY 2027-FY 2031 exclude grant-funded projects, Sheriff/Fine and Forfeiture Fund projects, and tourism projects already funded in prior years. FY 2023-FY 2026 are historical annual capital totals shown for context. All future-year amounts are planning estimates re-evaluated each budget cycle.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
@@ -357,9 +357,9 @@ const page3 = `
     <h1 class="continued">Capital Improvement Plan <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">What Benefit Will They Provide?</h2>
-    <p class="body">FY2027 investments preserve existing assets, improve travel and pedestrian safety, reduce drainage and storm risk, strengthen emergency response, and add capacity where growth requires it. Project-specific benefits and expected operating effects are identified in the detailed profiles that follow.</p>
+    <p class="body">FY 2027 investments preserve existing assets, improve travel and pedestrian safety, reduce drainage and storm risk, strengthen emergency response, and add capacity where growth requires it. Project-specific benefits and expected operating effects are identified in the detailed profiles that follow.</p>
 
-    <h2>FY2027 Capital Program to Fund Reconciliation</h2>
+    <h2>FY 2027 Capital Program to Fund Reconciliation</h2>
     <div class="proj-table reconciliation">
       <div class="prow head"><div class="plabel">Fund Name</div><div class="pnum">Amount</div></div>
       ${[
@@ -368,18 +368,18 @@ const page3 = `
         ["General Fund", "$2,010,000"],
         ["Tourist Development Fund", "$11,350,000"],
         ["Recreation Plat Fee and Sidewalk Funds", "$900,000"],
-        ["Funded FY2027 Capital Program", "$43,795,734"]
+        ["Funded FY 2027 Capital Program", "$43,795,734"]
       ].map(([name, amount]) => `<div class="prow"><div class="plabel">${name}</div><div class="pnum">${amount}</div></div>`).join("")}
     </div>
-    <p class="footnote"><b>Presented separately and excluded from the funded FY2027 program:</b> $15,299,176 of grant-funded projects; $2,000,000 in the Sheriff/Fine and Forfeiture Fund; and $10,250,000 of tourism projects funded in prior years. Including those items produces a broader identified project inventory of $71,344,910.</p>
+    <p class="footnote"><b>Presented separately and excluded from the funded FY 2027 program:</b> $15,299,176 of grant-funded projects; $2,000,000 in the Sheriff/Fine and Forfeiture Fund; and $10,250,000 of tourism projects funded in prior years. Including those items produces a broader identified project inventory of $71,344,910.</p>
 
-    <h2>The Largest Commitments in FY2027</h2>
-    <p class="body">The largest funded FY2027 commitments are shown first. Grant-funded projects, the Sheriff/Fine and Forfeiture project, and tourism projects funded in prior years are excluded from this ranking.</p>
+    <h2>The Largest Commitments in FY 2027</h2>
+    <p class="body">The largest funded FY 2027 commitments are shown first. Grant-funded projects, the Sheriff/Fine and Forfeiture project, and tourism projects funded in prior years are excluded from this ranking.</p>
     <div class="proj-table">
       <div class="prow head"><div class="plabel">Project</div><div class="pfund">Fund &middot; Department</div><div class="pnum">Amount</div></div>
       ${TOP_PROJECTS.map(([n, f, a]) => `<div class="prow"><div class="plabel">${n}</div><div class="pfund">${f}</div><div class="pnum">${a}</div></div>`).join("")}
     </div>
-    <p class="footnote">No major project was postponed from the FY2027 program.</p>
+    <p class="footnote">No major project was postponed from the FY 2027 program.</p>
     <div class="qr-strip"><img src="${cipQrDataUrl}" alt="QR"/><div><b>View Every Project Online</b><span>Every project in this chapter and the ledgers that follow has its own page on the County's budget website, with funding source, status, and location detail. Scan to browse the full Capital Improvement Plan.</span></div></div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
