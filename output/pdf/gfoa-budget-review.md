@@ -1,6 +1,6 @@
 # Walton County FY2027 budget: GFOA review
 
-Reviewed September 8, 2026 against the user's attached **Distinguished Budget Presentation Award - REVISED, updated 8/1/2025**. Budget reviewed: the 133-page `walton-county-fy2027-budget-book-gfoa-ready.pdf` linked by the local website's Download PDF button. A removable checklist is now PDF page 134. References below are PDF page positions, which match the current stamped footers on normal editorial pages.
+Reviewed September 8, 2026 against the user's attached **Distinguished Budget Presentation Award - REVISED, updated 8/1/2025**. The website links to the single 133-page `walton-county-fy2027-budget-book.pdf`. This review is a historical snapshot; its page references reflect the book at the time of review.
 
 ## Overall assessment
 
@@ -71,6 +71,6 @@ Some older footer text remains underneath the current page stamps in extracted t
 
 ## File handling
 
-The website-linked PDF was updated in place to avoid creating another competing final budget. Its original 133 pages were retained, and the checklist was appended as page 134 after the back cover, with its own bookmark. Remove the last page to detach the checklist. A pre-edit recovery copy is stored in `tmp/pdfs/review/budget-before-checklist.pdf`.
+The website links to the single 133-page budget book. Any future revisions should update that file and refresh this review against the revised pages.
 
-The other existing budget PDF is an input referenced by `scripts/assemble-gfoa-budget.py`; deleting it would break that build path. No input file or unrelated source changes were removed. The checklist is a review snapshot and should be refreshed after budget revisions; the existing assembly script does not automatically recreate it.
+There is one published budget-book PDF. The former assembly input and assembly script were removed to prevent competing book versions. The checklist is a review snapshot and should be refreshed after budget revisions.

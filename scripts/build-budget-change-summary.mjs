@@ -26,7 +26,7 @@ const row = ([name, fy26, fy27, change, pct], rowClass) => {
 const tableHead = `<div class="dept-row head"><div class="dept-name">Department</div><div class="num">FY 2026 Budget</div><div class="num">FY 2027 Budget</div><div class="num">Change</div><div class="num">%</div></div>`;
 
 const CONSTITUTIONAL = [
-  ["Board of County Commissioners", "$11,340,758", "$11,086,280", "-$254,478", "-2.2%"],
+  ["Board of County Commissioners*", "$11,340,758", "$11,086,280", "-$254,478", "-2.2%"],
   ["Clerk of Court", "$5,984,728", "$6,871,175", "+$886,447", "+14.8%"],
   ["Property Appraiser", "$4,829,596", "$4,954,338", "+$124,742", "+2.6%"],
   ["Supervisor of Elections", "$1,615,107", "$1,663,865", "+$48,758", "+3.0%"],
@@ -261,7 +261,7 @@ const page1 = `
       ${INDEPENDENT.map(row).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
-    <p class="footnote">Scope notes: the Sheriff comparison uses the FY 2026 amended fund budget; its personnel component rises $4.78M while operating and capital components offset that increase. The BCC amount here excludes $1.705M of capital. The $6.93M agency subtotal is the General Fund comparison set; the comprehensive agency ledger also includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem.</p>
+    <p class="footnote">* Board figures: $11,086,280 here excludes $1,705,000 of capital; the Expenditure Ledger's $12,391,280 includes capital but reports $400,000 of contingency under Other Uses; the full Board office total is $12,791,280. Other scope notes: the Sheriff comparison uses the amended FY 2026 fund budget. The $6.93M agency subtotal is the General Fund comparison set; the comprehensive agency ledger includes additional funds and agencies.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>

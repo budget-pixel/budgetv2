@@ -68,7 +68,7 @@ const SPLIT = [
 // [office, fte, fy26, fy27, personnel, operating, capitalOther]
 const SUMMARY_ROWS = [
   ["Walton County Sheriff's Office", 669, 114116228, 114116228, 83607042, 21348864, 9160322],
-  ["Board of County Commissioners", 11, 12889938, 12791280, 2791180, 7890100, 2110000],
+  ["Board of County Commissioners*", 11, 12889938, 12791280, 2791180, 7890100, 2110000],
   ["Tax Collector", 40, 7900000, 8500000, 7512920, 987080, 0],
   ["Clerk of Courts & County Comptroller", 80, 5984728, 6871175, 4905230, 1845945, 120000],
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
@@ -546,6 +546,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
+    <p class="footnote">* Full Board office total: $12,791,280, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,086,280 before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

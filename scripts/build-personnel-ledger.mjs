@@ -32,7 +32,7 @@ const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
 
 const STATS = [
   ["1,515", "Total FY 2027 Positions"],
-  ["+15", "Net FTE Change"],
+  ["+15", "Net Change in Position Equivalents"],
   ["$164.2M", "Total FY 2027 Personnel Cost"],
   ["+5.4%", "Net Percent Change"]
 ];
@@ -77,7 +77,7 @@ function row(cells, cls) {
   return `<div class="lrow${cl}"><div class="rlabel">${cells[0]}</div>${fundCell}<div class="rnum">${cells[2]}</div><div class="rnum">${cells[3]}</div><div class="rnum">${cells[4]}</div><div class="rnum">${cells[5]}</div><div class="rnum">${cells[6]}</div><div class="rnum change${isDown ? " is-down" : ""}">${cells[7]}</div></div>`;
 }
 
-const tableHead = (withFund) => `<div class="lrow head"><div class="rlabel">Department</div><div class="rfund">${withFund ? "Fund" : ""}</div><div class="rnum">FY26 FTE</div><div class="rnum">FY27 FTE</div><div class="rnum">+/&minus;</div><div class="rnum">FY26 Cost</div><div class="rnum">FY27 Cost</div><div class="rnum">+/&minus;</div></div>`;
+const tableHead = (withFund) => `<div class="lrow head"><div class="rlabel">Department</div><div class="rfund">${withFund ? "Fund" : ""}</div><div class="rnum">FY26 Equiv.</div><div class="rnum">FY27 Equiv.</div><div class="rnum">+/&minus;</div><div class="rnum">FY26 Cost</div><div class="rnum">FY27 Cost</div><div class="rnum">+/&minus;</div></div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -306,7 +306,7 @@ const html = `<!doctype html>
       ${row(BOARD_TOTAL, "grand")}
     </div>
 
-    <p class="footnote">FTE is a budgeted position equivalent, not filled headcount. Board department totals include salaries and wages plus retirement, health insurance, and other benefits. Rollups combine Solid Waste and Mosquito Control within Environmental Services, Veteran Services within County Administration Offices, and Eagle Springs Grill within Parks &amp; Recreation. Departments funded from more than one source are labeled "Multiple Funds."</p>
+    <p class="footnote">The 1,515 headline counts authorized positions, including seven part-time slots. Department changes use budgeted position equivalents, not filled headcount; hours-adjusted FTE cannot be calculated without part-time schedules. Board totals include salaries, wages, retirement, health insurance, and other benefits. Rollups combine Solid Waste and Mosquito Control within Environmental Services, Veteran Services within County Administration Offices, and Eagle Springs Grill within Parks &amp; Recreation. Departments funded from more than one source are labeled "Multiple Funds."</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>

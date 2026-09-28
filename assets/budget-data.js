@@ -609,6 +609,42 @@
     });
   }
 
+  // The published FY 2027 print budget is the final control for these four
+  // office/agency totals. The currently published expenditures sheet moves
+  // $222,541 into BCC from the Non-Profit and Statutory & Other lines while
+  // leaving the $345,223,508 countywide total unchanged. Keep the source
+  // rows visible and add named reconciliation lines so the site matches the
+  // final print book without inventing account or project allocations.
+  function reconcilePublishedFinalExpenseTotals(rows) {
+    const totalFor = (name) => rows.filter((row) => normalizeDeptName(row.Dept_Name) === name)
+      .reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0);
+    const bcc = totalFor("board of county commissioners") + totalFor("bcc other uses contingency");
+    const nonprofit = totalFor("non profit funding program");
+    const statutory = totalFor("statutory and other");
+    if (bcc !== 13013821 || nonprofit !== 268500 || statutory !== 3461803) {
+      console.warn("FY 2027 print-budget reconciliation was not applied: source totals changed.", { bcc, nonprofit, statutory });
+      return rows;
+    }
+    const adjustment = (dept, code, type, amount) => ({
+      Dept_Code: code,
+      Dept_Name: dept,
+      Project_Code: "",
+      Object_Code: "999997",
+      Object_Name: "Published final budget reconciliation",
+      Object_Type: type,
+      Note: "Reconciles the live expenditures sheet with the published FY 2027 final budget; project allocation is not specified in the print book.",
+      FY2026_Budget: 0,
+      FY2026_Original_Budget: 0,
+      FY2027_Proposed: amount
+    });
+    return rows.concat([
+      adjustment("Board of County Commissioners", "00101000", "Personnel Services", -197541),
+      adjustment("Board of County Commissioners", "00101000", "Operating Expenditures", -25000),
+      adjustment("Non-Profit Funding Program", "00102014", "Grants and Aid", 181500),
+      adjustment("Statutory & Other", "00102012", "Grants and Aid", 41041)
+    ]);
+  }
+
   // Specific (Dept_Code, Revenue_Code) revenue rows relabeled to a
   // different Revenue_Name so they merge into the right category on
   // county-wide summaries (combineByName groups revenue rows by name).
@@ -3302,6 +3338,7 @@
         cache.revenues = applyOriginalBudgetToRows(cache.revenues, actuals.originalBudgetRows);
       }
       cache.expenditures = mergePtoBuybackIntoRegularSalaries(cache.expenditures);
+      cache.expenditures = reconcilePublishedFinalExpenseTotals(cache.expenditures);
 
       // Computed once per load from the now-finalized cache.expenditures,
       // and shared by the Consolidated Expense Summary and
@@ -5678,22 +5715,6 @@
     ["113", "Culture and Recreation"]
   ]);
 
-  const EXPENSE_ACTIVITY_OVERRIDE_BY_DEPT_NAME = new Map([
-    ["engineering department", "Transportation"],
-    ["public works engineering services", "Transportation"],
-    ["engineering services", "Transportation"],
-    ["sheriff", "Public Safety"],
-    ["walton county sheriffs office", "Public Safety"],
-    ["clerk of circuit court", "Court Related Cost"],
-    ["clerk of court", "Court Related Cost"],
-    ["circuit court", "Court Related Cost"],
-    ["property appraiser", "General Government"],
-    ["supervisor of elections", "General Government"],
-    ["tax collector", "General Government"],
-    ["mosquito control", "Physical Environment"],
-    ["veteran services", "Human Services"]
-  ]);
-
   // BCC Other Uses Contingency is budgeted appropriation authority, not a
   // transfer or financing item. Show only that specific org/object as its
   // own Other Uses line; other 599000 rows keep their regular activity.
@@ -5722,8 +5743,9 @@
 
   function expenseActivityForRow(r) {
     if (isBccOtherUsesContingencyRow(r)) return "Other Uses";
-    const deptOverride = EXPENSE_ACTIVITY_OVERRIDE_BY_DEPT_NAME.get(normalizeDeptName(r && r.Dept_Name));
-    if (deptOverride) return deptOverride;
+    // Use the published activity sheet for every department. Name-based
+    // overrides previously moved entire offices between functions, causing
+    // this site's totals to disagree with the print consolidated ledger.
     return activityForDeptCode(r.Dept_Code) || EXPENSE_ACTIVITY_FALLBACK_BY_FUND.get(fundCodeForRow(r)) || "";
   }
 
@@ -9762,6 +9784,7 @@
             if (href) deptLabel = '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(dept) + "</a>";
           }
         }
+        if (normalizeDeptName(dept) === "board of county commissioners") deptLabel += '<sup aria-label="See Board budget scope note">*</sup>';
         return (
           "<tr><td>" + deptLabel + "</td>" +
           '<td class="wc-num">' + formatCurrency(prior) + "</td>" +
@@ -11343,7 +11366,7 @@
         ? " The FY 2026 comparison is normalized to the FY 2027 rolled-back-rate planning basis because the separate 95% presentation changed between years; the Revenue Ledger retains the reported accounting amounts."
         : "";
       const adValoremStatusHtml = topic.title === "Property Taxes"
-        ? '<div class="wc-revenue-control-profile wc-revenue-policy-context"><div><strong>Current policy context</strong><span class="is-varied">Policy update</span></div><p>Walton County is utilizing the 3.4347 rolled-back countywide millage rate for the FY 2027 proposal. Florida voters are scheduled to consider a property-tax constitutional amendment in November 2026. If approved, it would increase the non-school homestead exemption to $150,000 in 2027 and $250,000 in 2028. Because voter approval and the local revenue effect remain uncertain, the two planning years are held flat. <a href="https://www.flsenate.gov/Session/Bill/2026F/2F/BillText/c1/HTML" target="_blank" rel="noopener noreferrer">Review the proposed amendment</a>.</p></div>'
+        ? '<div class="wc-revenue-control-profile wc-revenue-policy-context"><div><strong>Current policy context</strong><span class="is-varied">Policy update</span></div><p>Walton County adopted a 3.2500 countywide millage rate for FY 2027; 3.4347 was the rolled-back rate used during the proposal stage. Florida voters are scheduled to consider a property-tax constitutional amendment in November 2026. If approved, it would increase the non-school homestead exemption to $150,000 in 2027 and $250,000 in 2028. Because voter approval and the local revenue effect remain uncertain, the two planning years are held flat. <a href="https://www.flsenate.gov/Session/Bill/2026F/2F/BillText/c1/HTML" target="_blank" rel="noopener noreferrer">Review the proposed amendment</a>.</p></div>'
         : "";
       const assumptionBadgeLabel = projectionRate ? "Growing" : "Flat";
       // Same wc-revenue-control-profile look as "County ability to increase
@@ -11424,10 +11447,10 @@
             const taxable = Number(parcel.taxableValue) || 0;
             return sum + Math.max(0, assessed - taxable);
           }, 0);
-          const proposedMillage = 3.4347;
-          const foregoneLevy = exemptValue * proposedMillage / 1000;
+          const finalMillage = 3.2500;
+          const foregoneLevy = exemptValue * finalMillage / 1000;
           homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong></div>' +
-            '<p><b>' + escapeHtml(formatCurrency(exemptValue)) + '</b> of assessed value is removed from the taxable base across <b>' + escapeHtml(formatNumber(homesteadParcels.length)) + '</b> homestead-designated parcels, forgoing an estimated <b>' + escapeHtml(formatCurrency(foregoneLevy)) + '</b> in county levy. The estimate applies the FY 2027 proposed countywide rate of <b>3.4347 mills</b>. It reflects all exemptions recorded on homestead-designated parcels and is not a parcel-level tax calculation.</p>';
+            '<p><b>' + escapeHtml(formatCurrency(exemptValue)) + '</b> of assessed value is removed from the taxable base across <b>' + escapeHtml(formatNumber(homesteadParcels.length)) + '</b> homestead-designated parcels, forgoing an estimated <b>' + escapeHtml(formatCurrency(foregoneLevy)) + '</b> in county levy. The estimate applies the FY 2027 final countywide rate of <b>3.2500 mills</b>. It reflects all exemptions recorded on homestead-designated parcels and is not a parcel-level tax calculation.</p>';
         })
         .catch(() => {
           homesteadForegone.innerHTML = '<div><strong>Homestead-related revenue forgone</strong></div><p>The parcel-based estimate could not be calculated.</p>';
@@ -17953,7 +17976,7 @@
       }
       const ledgerRows = offices.map((office) => {
         const change = office.current - office.prior;
-        return '<tr><td><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-constitutional-key="' + office.key + '">' + escapeHtml(office.name) + '</button></td><td class="wc-num">' + formatNumber(office.fte) + '</td><td class="wc-num">' + formatCurrency(office.prior) + '</td><td class="wc-num">' + formatCurrency(office.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(office.personnel) + '</td><td class="wc-num">' + formatCurrency(office.operating) + '</td><td class="wc-num">' + formatCurrency(office.capital + office.other) + '</td></tr>';
+        return '<tr><td><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-constitutional-key="' + office.key + '">' + escapeHtml(office.name) + '</button>' + (office.key === "board of county commissioners" ? '<sup aria-label="See Board budget scope note">*</sup>' : "") + '</td><td class="wc-num">' + formatNumber(office.fte) + '</td><td class="wc-num">' + formatCurrency(office.prior) + '</td><td class="wc-num">' + formatCurrency(office.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(office.personnel) + '</td><td class="wc-num">' + formatCurrency(office.operating) + '</td><td class="wc-num">' + formatCurrency(office.capital + office.other) + '</td></tr>';
       });
       ledgerRows.push('<tr class="wc-table-total-row"><td>Total Constitutional Officers</td><td class="wc-num">' + formatNumber(offices.reduce((sum, office) => sum + office.fte, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(total) + '</td><td class="wc-num">' + formatCurrency(total - offices.reduce((sum, office) => sum + office.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.operating, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.capital + office.other, 0)) + '</td></tr>');
       const ledger = renderTable({ caption: "Constitutional Officers Budget Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Office" }, { label: "FTE", num: true }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerRows });
@@ -17989,7 +18012,7 @@
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
         return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total proposed budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note">* The Board office total is $12,791,280, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,086,280 for the Board before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");

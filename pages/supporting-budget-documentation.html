@@ -193,7 +193,7 @@ window.wcBudgetPages = [
     if(window.WCBudgetData) return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement("script");
-      script.src="../assets/budget-data.js?v=20260921-budget-csv-export";
+      script.src="../assets/budget-data.js?v=20260928-activity-source";
       script.onload=resolve;
       script.onerror=reject;
       document.head.appendChild(script);

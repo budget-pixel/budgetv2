@@ -436,6 +436,86 @@ function renderFundSchedule(config){
         line-height:1.65;
       }
 
+      .wc-cip-control-actions{
+        display:flex;
+        align-items:center;
+        gap:16px;
+      }
+
+      .wc-cip-export-pdf{
+        flex:none;
+        padding:10px 16px;
+        border:1px solid #003f28;
+        border-radius:999px;
+        background:#003f28;
+        color:#ffffff;
+        font:800 13px/1.2 Arial, Helvetica, sans-serif;
+        cursor:pointer;
+      }
+
+      .wc-cip-export-pdf:hover,
+      .wc-cip-export-pdf:focus-visible{
+        background:#006231;
+      }
+
+      @page{
+        size:letter landscape;
+        margin:.45in;
+      }
+
+      @media print{
+        body.wc-cip-print #nav-menu,
+        body.wc-cip-print footer,
+        body.wc-cip-print .wc-asset-back,
+        body.wc-cip-print #content > .statement-of-function,
+        body.wc-cip-print #content > .page-text,
+        body.wc-cip-print .wc-filter-bar,
+        body.wc-cip-print .wc-cip-year-picker,
+        body.wc-cip-print .wc-cip-sort-field,
+        body.wc-cip-print .wc-cip-export-pdf{
+          display:none !important;
+        }
+
+        body.wc-cip-print #layout,
+        body.wc-cip-print #content{
+          display:block !important;
+          width:100% !important;
+          max-width:none !important;
+          margin:0 !important;
+          padding:0 !important;
+          overflow:visible !important;
+        }
+
+        body.wc-cip-print .wc-cip-schedule-controls{
+          padding:0;
+          border:0;
+          background:none;
+        }
+
+        body.wc-cip-print .wc-cip-year-body,
+        body.wc-cip-print .wc-cip-year-table,
+        body.wc-cip-print .wc-data-table-scroll{
+          display:block !important;
+          width:100% !important;
+          max-width:none !important;
+          overflow:visible !important;
+        }
+
+        body.wc-cip-print .wc-data-table{
+          width:100% !important;
+          min-width:0 !important;
+          font-size:8pt !important;
+        }
+
+        body.wc-cip-print .wc-data-table thead{
+          display:table-header-group;
+        }
+
+        body.wc-cip-print .wc-data-table tr{
+          break-inside:avoid;
+        }
+      }
+
       .wc-cip-active-total{
         min-width:190px;
         text-align:right;
@@ -725,6 +805,10 @@ function renderFundSchedule(config){
 
         .wc-cip-active-total{
           text-align:left;
+        }
+
+        .wc-cip-control-actions{
+          flex-wrap:wrap;
         }
 
         .wc-cip-year-picker,
@@ -1075,10 +1159,13 @@ function renderFundSchedule(config){
                 <h2>${isHistoricalYear ? "Past CIP Project List" : escapeHtml(yearLabel) + " Ledger"}</h2>
                 ${isHistoricalYear ? "" : "<p>Use the year controls to review planned future-year capital projects.</p>"}
               </div>
-              ${isHistoricalYear ? "" : `<div class="wc-cip-active-total">
-                <strong>${money(data.total)}</strong>
-                <span>${escapeHtml(yearLabel)} Total</span>
-              </div>`}
+              <div class="wc-cip-control-actions">
+                ${config.pdfExport ? `<button type="button" class="wc-cip-export-pdf" id="wcCipExportPdf" aria-label="Export ${escapeHtml(yearLabel)} ${escapeHtml(config.label)} ledger as PDF">Export PDF</button>` : ""}
+                ${isHistoricalYear ? "" : `<div class="wc-cip-active-total">
+                  <strong>${money(data.total)}</strong>
+                  <span>${escapeHtml(yearLabel)} Total</span>
+                </div>`}
+              </div>
             </div>
             <div class="wc-cip-year-picker" role="tablist" aria-label="Select capital schedule year">
               ${availableYears.map(year => `
@@ -1089,7 +1176,7 @@ function renderFundSchedule(config){
             </div>
           </div>
           <div class="wc-cip-year-body">
-            ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This combined list includes projects from the County&rsquo;s FY 2022 through FY 2026 capital work plans. The CIP Year(s) column identifies when each amount was budgeted.</p>` : ""}
+            ${isHistoricalYear ? `<p class="wc-cip-historical-notice">This combined list includes projects from the County&rsquo;s FY 2022 through FY 2026 capital work plans. Project information will be reviewed and updated as project statuses change.</p>` : ""}
             ${isHistoricalYear ? "" : (() => {
               const budgetedElsewhereTotal = data.budgetedElsewhereProjects.reduce((sum, project) => sum + project.year_amount_value, 0);
               const statCount = 2 + (data.inHouseTotal > 0 ? 1 : 0) + (budgetedElsewhereTotal > 0 ? 1 : 0);
@@ -1145,6 +1232,17 @@ function renderFundSchedule(config){
         historicalSortSelect.addEventListener("change", () => {
           historicalSort = historicalSortSelect.value;
           renderActiveYear();
+        });
+      }
+
+      const exportPdfButton = mount.querySelector("#wcCipExportPdf");
+      if(exportPdfButton){
+        exportPdfButton.addEventListener("click", () => {
+          document.body.classList.add("wc-cip-print");
+          window.addEventListener("afterprint", () => {
+            document.body.classList.remove("wc-cip-print");
+          }, { once:true });
+          window.print();
         });
       }
 

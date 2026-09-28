@@ -40,16 +40,16 @@ const STATS = [
   ["$345.2M", "Total FY 2027 Budget Funding"],
   ["+$17.3M", "Net Change from FY 2026"],
   ["+5.3%", "Net Percent Change"],
-  ["$151.1M", "Main Ad Valorem Levy"]
+  ["$151.6M", "Main Ad Valorem Levy"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
 // [category, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
-  ["General Government Taxes", "$218,598,479", "$236,486,085", "$257,566,876", "$277,454,100", "$272,677,953", "$276,626,929"],
+  ["General Government Taxes", "$218,598,479", "$236,486,085", "$257,566,876", "$277,454,100", "$272,677,953", "$277,164,221"],
   ["Charges for Services", "$14,601,788", "$15,616,872", "$14,403,343", "$15,251,527", "$19,414,205", "$19,985,657"],
-  ["Other Sources", "$4,187,992", "$5,229,704", "$5,905,994", "$6,043,333", "$14,848,284", "$25,847,068"],
+  ["Other Sources", "$4,187,992", "$5,229,704", "$5,905,994", "$6,043,333", "$14,848,284", "$25,309,776"],
   ["Permits Fees and Special Assessments", "$3,620,226", "$4,265,672", "$5,974,512", "$7,032,365", "$6,004,785", "$7,783,225"],
   ["Miscellaneous Revenue", "$4,876,217", "$9,049,742", "$14,414,808", "$13,398,132", "$7,862,612", "$7,448,151"],
   ["Intergovernmental Revenues", "$6,686,791", "$7,336,263", "$11,070,692", "$9,427,484", "$6,896,622", "$7,304,978"],
@@ -63,7 +63,7 @@ const TOTAL = ["Total Budget Funding", "$252,741,882", "$278,335,039", "$309,616
 // Expenditure Ledger's department-detail page one-to-one.
 const REV_GROUPS = [
   ["General Government Taxes", [
-    ["Ad Valorem Taxes", "$155,698,523", "$151,054,833"],
+    ["Ad Valorem Taxes", "$155,698,523", "$151,592,125"],
     ["Tourist Development Tax", "$50,843,000", "$58,965,950"],
     ["Discretionary Sales Surtax", "$39,688,937", "$40,000,000"],
     ["Local Government 1/2 Cent Sales Tax", "$17,000,000", "$16,768,997"],
@@ -116,7 +116,7 @@ const REV_GROUPS = [
     ["Sales &amp; Promotions Out of State", "$5,000", "$0"]
   ]],
   ["Other Sources", [
-    ["Nonoperating Balance Brought Forward", "$10,460,192", "$21,796,468"],
+    ["Nonoperating Balance Brought Forward", "$10,460,192", "$21,259,176"],
     ["Surplus Budget Tax Collector", "$3,563,092", "$4,050,600"],
     ["Surplus Budget Clerk of Court", "$700,000", "$0"],
     ["Surplus Budget Property Appraiser", "$75,000", "$0"],
@@ -307,7 +307,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.1M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $152.5M. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios.</p>
     </div>
 
     <div class="revenue-qr">

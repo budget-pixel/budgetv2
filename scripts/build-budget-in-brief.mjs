@@ -66,12 +66,11 @@ const expenseCents = allocateCents(EXPENSE_CATEGORIES, EXPENSE_TOTAL);
 
 // The same eleven highlighted revenue sources shown on the Revenue
 // Portfolio table (see build-gfoa-enhancements.mjs's revenueSources),
-// plus a reconciling All Other Revenue line. Appropriated Fund Balance is
-// a draw on reserves, not revenue, so it is not listed as a source. The
-// next-largest revenue source, Ambulance Fees, takes its place so this
-// page and the Revenue Portfolio show the same major sources.
+// plus a reconciling other-sources line. The source sheet budgets $21.259M
+// of beginning balance separately; this compact chart includes it in the
+// final source line so the displayed cents still total exactly $1.00.
 const REVENUE_SOURCES = [
-  ["Property Taxes", 152.48],
+  ["Property Taxes", 153.02],
   ["Tourist Development Taxes", 58.97],
   ["Discretionary Sales Surtax", 40.0],
   ["Local Government 1/2 Cent Sales Tax", 16.8],
@@ -82,7 +81,7 @@ const REVENUE_SOURCES = [
   ["Housing Prisoners Revenue", 3.5],
   ["Federal Grant - Economic Environment", 3.06],
   ["Ambulance Fees", 3.0],
-  ["All Other Revenue", 50.29]
+  ["All Other Sources", 49.75]
 ];
 const REVENUE_TOTAL = 345.2;
 const revenueCents = allocateCents(REVENUE_SOURCES, REVENUE_TOTAL);

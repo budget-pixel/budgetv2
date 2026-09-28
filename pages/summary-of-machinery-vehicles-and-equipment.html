@@ -34,6 +34,9 @@
   <button class="wc-cip-year-button is-active" type="button" data-machinery-year="FY2027" role="tab" aria-selected="true">FY 2027</button>
 </div>
 
+<button id="machineryExportPdf" class="wc-cip-export-pdf" type="button" aria-label="Export selected machinery, vehicles, and equipment ledger as PDF">Export PDF</button>
+<h2 id="machineryPrintYear" hidden>FY 2027 Machinery, Vehicles &amp; Equipment</h2>
+
 <div id="machinery-summary"></div>
 <div id="machinery-historical-body" hidden></div>
 <style>
@@ -43,6 +46,25 @@
   .wc-cip-year-button:hover{ transform: translateY(-1px); }
   .wc-cip-year-button-tag{ display: block; margin-top: 2px; color: inherit; font-size: 11px; font-weight: 800; font-style: normal; letter-spacing: .06em; text-transform: uppercase; opacity: 1; }
   #machinery-historical-body{ margin-top: 6px; }
+  .wc-cip-export-pdf{ margin:0 0 16px; padding:10px 16px; border:1px solid #003f28; border-radius:999px; background:#003f28; color:#fff; font:800 13px/1.2 Arial,Helvetica,sans-serif; cursor:pointer; }
+  .wc-cip-export-pdf:hover,.wc-cip-export-pdf:focus-visible{ background:#006231; }
+  @page{ size:letter landscape; margin:.45in; }
+  @media print{
+    body.wc-machinery-print #nav-menu,
+    body.wc-machinery-print footer,
+    body.wc-machinery-print .wc-asset-back,
+    body.wc-machinery-print .wc-equipment-narrative,
+    body.wc-machinery-print #machineryYearPicker,
+    body.wc-machinery-print #machineryExportPdf,
+    body.wc-machinery-print .wc-filter-bar{ display:none !important; }
+    body.wc-machinery-print #layout,
+    body.wc-machinery-print #content,
+    body.wc-machinery-print .wc-data-table-scroll{ display:block !important; width:100% !important; max-width:none !important; margin:0 !important; padding:0 !important; overflow:visible !important; }
+    body.wc-machinery-print #machineryPrintYear{ display:block !important; }
+    body.wc-machinery-print .wc-data-table{ width:100% !important; min-width:0 !important; font-size:8pt !important; }
+    body.wc-machinery-print .wc-data-table thead{ display:table-header-group; }
+    body.wc-machinery-print .wc-data-table tr{ break-inside:avoid; }
+  }
 </style>
 
 </main>
@@ -133,7 +155,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 ];
 </script>
 <script src="../assets/machinery-fy2025-2026-supplement.js?v=20260806-fund-overrides"></script>
-<script src="../assets/budget-data.js?v=20260915-exclude-brought-forward-revenue"></script>
+<script src="../assets/budget-data.js?v=20260928-activity-source"></script>
 <script src="../assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
 <script>
 (function(){
@@ -141,7 +163,19 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     const picker = document.getElementById("machineryYearPicker");
     const liveEl = document.getElementById("machinery-summary");
     const historicalEl = document.getElementById("machinery-historical-body");
+    const exportButton = document.getElementById("machineryExportPdf");
+    const printYear = document.getElementById("machineryPrintYear");
     if(!picker || !liveEl || !historicalEl) return;
+    exportButton.addEventListener("click", function(){
+      const selected = picker.querySelector('[data-machinery-year][aria-selected="true"]');
+      const year = selected ? selected.getAttribute("data-machinery-year") : "FY2027";
+      printYear.textContent = year.replace("FY", "FY ") + " Machinery, Vehicles & Equipment";
+      document.body.classList.add("wc-machinery-print");
+      window.addEventListener("afterprint", function(){
+        document.body.classList.remove("wc-machinery-print");
+      }, { once:true });
+      window.print();
+    });
     picker.querySelectorAll("[data-machinery-year]").forEach(function(button){
       button.addEventListener("click", function(){
         const year = button.getAttribute("data-machinery-year");

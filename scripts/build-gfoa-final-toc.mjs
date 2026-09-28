@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 // Builds the FY 2027 Budget Book's Table of Contents as a three-page PDF.
 // Introduction and Our County, Financial Overview, Budget Process, and
 // Workforce Budget are each their own chapter box now (matching their own
-// divider pages in the assembled book -- see assemble-gfoa-budget.py)
+// divider pages in the budget book)
 // instead of being lumped as sub-headers inside one big "Introduction and
 // Our County" listing. Capital Portfolio, Major Project Decision Record,
 // and Capital Accountability moved from Workforce Budget into Capital

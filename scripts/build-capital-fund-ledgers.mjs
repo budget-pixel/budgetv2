@@ -84,6 +84,16 @@ const sharedCss = `
   .profile-table .project-funding{ display:block; margin-top:1px; color:#68786f; font-size:5.6pt; }
   .profile-table .project-benefit{ display:block; margin-top:1px; color:#33453c; font-size:5.65pt; line-height:1.2; }
   .profile-table .type{ color:#795f0c; font-weight:800; }
+  .transport-page .profile-table{ font-size:6.9pt; line-height:1.2; }
+  .transport-page .profile-table th{ font-size:6.6pt; }
+  .transport-page .profile-table td{ padding:2.2px 5px; }
+  .transport-page .profile-table th:nth-child(1){ width:45%; }
+  .transport-page .profile-table th:nth-child(2){ width:13%; }
+  .transport-page .profile-table th:nth-child(3){ width:29%; }
+  .transport-page .profile-table th:nth-child(4){ width:13%; }
+  .transport-page .profile-table .project-name{ font-size:7.2pt; }
+  .transport-page .profile-table .project-funding{ font-size:6.2pt; }
+  .transport-page .profile-table .project-benefit{ font-size:6.2pt; line-height:1.22; }
   .impact-key{ display:grid; grid-template-columns:repeat(3,1fr); gap:.08in; margin:.08in 0 .1in; }
   .impact-key div{ padding:.07in .08in; border:1px solid #dce5e0; border-radius:7px; background:#f7f9f8; }
   .impact-key b{ display:block; color:#003f28; font-size:6.4pt; }
@@ -475,7 +485,7 @@ function projTable(rows, total, cols) {
 }
 
 const transPage1 = `
-  <section>
+  <section class="transport-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Transportation and Infrastructure Capital Ledger</h1>
@@ -496,12 +506,11 @@ const transPage1 = `
 `;
 
 const transPage2 = `
-  <section>
+  <section class="transport-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Transportation and Infrastructure Capital Ledger <span class="sub">(continued)</span></h1>
     <h2 style="margin-top:.1in;">FY 2027 Funded Projects <span style="font-weight:400;color:#68786f;">(continued)</span></h2>
     ${projectProfileTable(TRANS_PROJECTS.slice(11), TRANS_TOTAL, GRANT_LEDGER)}
-    <p class="note">These are nonrecurring FY 2027 project appropriations. Multi-year delivery does not make an individual project a recurring operating program. Detailed schedules, locations, contracts, prior and future funding, and current milestones remain available in the online Capital Improvement Plan.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE2}}"}</b></footer>
   </section>
 `;

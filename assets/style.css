@@ -48,60 +48,21 @@ body {
   font-family: var(--font-editorial);
 }
 
-/* Branded, accessible poster shown before embedded videos are intentionally
-   started. This avoids an unstyled black rectangle when YouTube is delayed. */
-.wc-video-poster-host { position: relative; background: linear-gradient(145deg, #003f28 0%, #006231 72%, #2f8f5b 100%) !important; }
-.wc-video-poster-host iframe { opacity: 0; transition: opacity .25s ease; }
-.wc-video-poster-host.is-video-started iframe { opacity: 1; }
-.wc-video-poster {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  padding: 24px;
-  border: 0;
-  background: linear-gradient(145deg, rgba(0,63,40,.94), rgba(0,98,49,.88));
-  color: #fff;
-  cursor: pointer;
-  font: 800 .9rem/1.35 Arial, Helvetica, sans-serif;
-  text-align: center;
-}
-.wc-video-poster::before {
-  content: "\25B6";
-  display: grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  padding-left: 4px;
-  border: 2px solid rgba(255,255,255,.72);
-  border-radius: 50%;
-  background: rgba(255,255,255,.12);
-  color: #fff;
-  font-size: 1.25rem;
-  box-shadow: 0 10px 26px rgba(0,0,0,.18);
-}
-.wc-video-poster::after {
-  content: "WALTON COUNTY  •  FY 2027 BUDGET";
-  color: #eadb9f;
-  font-size: .7rem;
-  font-weight: 900;
-  letter-spacing: .11em;
-}
-.wc-video-poster:hover::before { background: rgba(255,255,255,.22); transform: scale(1.04); }
-.wc-video-poster:focus-visible { outline: 4px solid var(--gold); outline-offset: -7px; }
-.wc-video-poster-host.is-video-started .wc-video-poster { display: none; }
-
 a {
   color: var(--green);
 }
 
 a:where(:visited) {
   color: var(--green);
+}
+
+.wc-budget-reconcile-note {
+  margin: 14px 0 24px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--gold);
+  background: #faf8ef;
+  color: #33453c;
+  font: 14px/1.5 Arial, Helvetica, sans-serif;
 }
 
 /* ── layout shell ── */

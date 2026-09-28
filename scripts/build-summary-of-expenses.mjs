@@ -23,120 +23,121 @@ const STATS = [
   ["$345.2M", "Total FY 2027 Expenses"],
   ["+$17.3M", "Change from FY 2026"],
   ["+5.3%", "Percent Change"],
-  ["$126.2M", "Largest Function: Public Safety"]
+  ["$126.6M", "Largest Function: Public Safety"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
 // [function, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
-  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$62,603,479"],
-  ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,221,918"],
+  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$59,228,754"],
+  ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,571,918"],
   ["Physical Environment", "$15,448,028", "$17,139,861", "$20,480,144", "$20,797,576", "$23,738,840", "$24,559,033"],
   ["Transportation", "$41,530,734", "$36,422,624", "$42,302,193", "$39,852,608", "$48,143,047", "$58,121,849"],
-  ["Economic Environment", "$41,878,146", "$51,789,996", "$55,678,766", "$51,137,982", "$54,818,996", "$62,339,656"],
-  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$3,857,041"],
-  ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,953,833", "$5,476,961", "$6,306,200", "$6,006,603"],
+  ["Economic Environment", "$41,878,146", "$51,789,996", "$55,678,766", "$51,137,982", "$54,818,996", "$62,761,100"],
+  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$6,360,322"],
+  ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,953,833", "$5,476,961", "$6,306,200", "$6,106,603"],
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
 ];
 const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
 
-// Page 2: department-level detail grouped by function -- complements the
-// Budget Change Summary section elsewhere in this book (which groups by
-// Constitutional Officers / Independent Agencies / Board Departments /
-// Capital) by showing the same FY 2026-vs-FY 2027 department figures
-// organized instead by functional classification, matching page 1's
-// groupings one-to-one. FY 2026/FY 2027 only (not all six years). Laid out
-// as two print-style columns (65 department rows across 9 function
-// groups don't fit a single column at readable type size) with no
-// per-group subtotal row -- the page 1 Consolidated Expense Summary is
-// the authoritative function-level total, which this page's department
-// groups sum to exactly (each department belongs to exactly one function).
+// Pages 2–3: FY 2027 department detail grouped by the published activity
+// sheet. The final-budget reconciliation moves $222,541 out of the Board,
+// $181,500 into Non-Profit Funding, and $41,041 into Statutory & Other.
+// Each function below now sums to the consolidated budget ledger.
 const DEPT_GROUPS = [
   ["General Government", [
-    ["Board of County Commissioners", "$12,389,938", "$12,391,280"],
-    ["Building Construction and Maintenance", "$9,986,168", "$8,912,305"],
-    ["Clerk of Court", "$5,984,728", "$6,871,175"],
-    ["County Administration", "$2,219,903", "$2,260,039"],
-    ["Court Innovations", "$50,000", "$43,109"],
-    ["Geographic Info Systems", "$801,815", "$839,146"],
-    ["Human Resources", "$1,338,993", "$1,426,936"],
-    ["Mossy Head Wastewater Treatment Facility", "$1,402,528", "$464,000"],
-    ["Office of Management and Budget", "$1,524,708", "$1,075,026"],
-    ["Office of the County Attorney", "$1,993,475", "$1,802,925"],
-    ["Planning", "$6,689,864", "$7,048,111"],
-    ["Purchasing", "$1,188,795", "$1,076,499"],
-    ["Property Appraiser", "$4,829,596", "$4,954,338"],
-    ["Statutory & Other", "$2,873,779", "$3,274,725"],
-    ["Supervisor of Elections", "$1,615,107", "$1,663,865"],
-    ["Tax Collector", "$7,900,000", "$8,500,000"]
+    ["Board of County Commissioners", "$12,291,280"],
+    ["Building Construction and Maintenance", "$8,912,305"],
+    ["Tax Collector", "$8,500,000"],
+    ["Clerk of Court", "$6,871,175"],
+    ["Planning", "$5,463,634"],
+    ["Property Appraiser", "$4,954,338"],
+    ["County Administration", "$2,260,039"],
+    ["Office of the County Attorney", "$1,802,925"],
+    ["Supervisor of Elections", "$1,663,865"],
+    ["Planning Short-Term Rental", "$1,584,477"],
+    ["Human Resources", "$1,426,936"],
+    ["Procurement", "$1,076,499"],
+    ["Office of Management and Budget", "$1,075,026"],
+    ["Geographic Info Systems", "$839,146"],
+    ["Mossy Head Wastewater Treatment Facility", "$464,000"],
+    ["Court Innovations", "$43,109"],
   ]],
   ["Public Safety", [
-    ["Building Department", "$4,200,000", "$4,000,000"],
-    ["Code Compliance", "$4,863,159", "$4,960,654"],
-    ["Emergency Management", "$804,151", "$912,455"],
-    ["Medical Examiner", "$1,351,698", "$881,930"],
-    ["Probation Services", "$364,655", "$370,577"],
-    ["South Walton Fire", "$919,693", "$947,284"],
-    ["State Fire", "$32,790", "$32,790"],
-    ["Walton County Sheriff's Office", "$114,116,228", "$114,116,228"]
+    ["Walton County Sheriff's Office", "$114,116,228"],
+    ["Building Department", "$4,000,000"],
+    ["Code Compliance Beach", "$2,848,111"],
+    ["Code Compliance", "$2,112,543"],
+    ["South Walton Fire", "$947,284"],
+    ["Emergency Management", "$912,455"],
+    ["Medical Examiner", "$881,930"],
+    ["Probation Services", "$370,577"],
+    ["Volunteer Fire", "$350,000"],
+    ["State Fire", "$32,790"],
   ]],
   ["Physical Environment", [
-    ["Environmental Services", "$840,902", "$648,922"],
-    ["Extension Office", "$600,710", "$597,319"],
-    ["Daughette MSBU", "$43,225", "$43,225"],
-    ["Soil Conservation", "$143,330", "$150,000"],
-    ["Solid Waste", "$22,110,673", "$23,119,567"]
+    ["Solid Waste", "$23,119,567"],
+    ["Environmental Services", "$648,922"],
+    ["Extension Office", "$597,319"],
+    ["Soil Conservation", "$150,000"],
+    ["MSBU", "$43,225"],
   ]],
   ["Transportation", [
-    ["Capital Projects", "$20,391,997", "$27,617,731"],
-    ["Engineering Services", "$2,474,578", "$2,379,118"],
-    ["Public Works", "$25,201,472", "$27,825,000"],
-    ["Sidewalk", "$75,000", "$300,000"]
+    ["Public Works", "$27,825,000"],
+    ["Capital Projects", "$27,617,731"],
+    ["Engineering Services", "$2,379,118"],
+    ["Sidewalk", "$300,000"],
   ]],
   ["Economic Environment", [
-    ["Beach Operations", "$10,471,698", "$13,000,000"],
-    ["Beach Renourishment", "$10,000,000", "$11,000,000"],
-    ["Beach Tram", "$3,516,126", "$5,242,221"],
-    ["Communications", "$894,445", "$950,000"],
-    ["Housing & Urban Development", "$3,082,896", "$3,057,056"],
-    ["Marketing", "$13,834,592", "$14,502,450"],
-    ["Sales and Visitors Center", "$1,790,723", "$1,950,000"],
-    ["South Walton Fire Lifeguard Services", "$3,250,749", "$3,380,779"],
-    ["Tourism Administration", "$2,998,667", "$3,290,000"],
-    ["Tourism North Walton", "$323,000", "$355,500"],
-    ["Tourism Public Safety", "$4,420,000", "$5,295,000"],
-    ["Veteran Services", "$236,100", "$316,650"]
+    ["Marketing", "$14,502,450"],
+    ["Beach Operations", "$13,000,000"],
+    ["Beach Renourishment", "$11,000,000"],
+    ["Tourism Public Safety", "$5,295,000"],
+    ["Beach Tram", "$5,242,221"],
+    ["South Walton Fire Lifeguard Services", "$3,380,779"],
+    ["Tourism Administration", "$3,290,000"],
+    ["Housing & Urban Development", "$3,057,056"],
+    ["Sales and Visitors Center", "$1,950,000"],
+    ["Communications", "$950,000"],
+    ["Economic Development Alliance", "$421,444"],
+    ["North Walton Tourist Development Tax", "$355,500"],
+    ["Veteran Services", "$316,650"],
   ]],
   ["Human Services", [
-    ["Human Services", "$235,864", "$186,119"],
-    ["Mosquito Control", "$1,340,000", "$1,426,937"],
-    ["Mosquito Control State Aid", "$61,856", "$69,588"],
-    ["Non-Profit Funding Program", "$477,820", "$450,000"],
-    ["Walton County Health Department", "$1,724,397", "$1,724,397"]
+    ["Human Services", "$2,325,259"],
+    ["Walton County Health Department", "$1,724,397"],
+    ["Mosquito Control", "$1,426,937"],
+    ["Non-Profit Funding Program", "$450,000"],
+    ["Lakeview", "$175,000"],
+    ["Gulf Coast Kid's House", "$98,100"],
+    ["Mosquito Control State Aid", "$69,588"],
+    ["Indigent Cremation Program", "$50,000"],
+    ["Statutory & Other reconciliation", "$41,041"],
   ]],
   ["Culture and Recreation", [
-    ["Culture and Recreation (Senior Centers & Mainstreet)", "$0", "$42,000"],
-    ["Eagle Springs Golf and Recreation Center", "$1,974,044", "$1,805,555"],
-    ["Eagle Springs Grill", "$577,884", "$570,000"],
-    ["Libraries", "$1,894,963", "$2,155,655"],
-    ["Recreation", "$859,309", "$833,393"],
-    ["Recreation Plat Fee", "$1,000,000", "$600,000"]
+    ["Libraries", "$2,155,655"],
+    ["Eagle Springs Golf and Recreation Center", "$1,805,555"],
+    ["Recreation", "$833,393"],
+    ["Recreation Plat Fee", "$600,000"],
+    ["Eagle Springs Grill", "$570,000"],
+    ["Board of County Commissioners", "$100,000"],
+    ["Culture and Recreation (Senior Centers & Mainstreet)", "$42,000"],
   ]],
-  ["Court-Related Cost", [
-    ["Circuit Court", "$260,511", "$261,493"],
-    ["County Court", "$69,956", "$70,056"],
-    ["Court Technology - Court Administration", "$393,758", "$185,436"],
-    ["Guardian Ad Litem", "$9,000", "$9,000"],
-    ["Public Defender", "$152,439", "$290,833"],
-    ["State Attorney", "$260,633", "$297,111"]
+  ["Court Related Cost", [
+    ["State Attorney", "$297,111"],
+    ["Public Defender", "$290,833"],
+    ["Circuit Court", "$261,493"],
+    ["Court Technology - Court Administration", "$185,436"],
+    ["County Court", "$70,056"],
+    ["Guardian Ad Litem", "$9,000"],
   ]],
   ["Other Uses", [
-    ["BCC Other Uses Contingency", "$500,000", "$400,000"]
-  ]]
+    ["BCC Other Uses Contingency", "$400,000"],
+  ]],
 ];
-const DEPT_TOTAL = ["Department Budget Total", "$327,945,088", "$345,223,508"];
+const DEPT_TOTAL = ["Department Budget Total", "$345,223,508"];
 
 // 65 rows across 9 function groups no longer fit a single two-column page
 // at the larger, more readable type size below -- split at a natural
@@ -145,16 +146,8 @@ const DEPT_TOTAL = ["Department Budget Total", "$327,945,088", "$345,223,508"];
 const DEPT_GROUPS_A = DEPT_GROUPS.slice(0, 4);
 const DEPT_GROUPS_B = DEPT_GROUPS.slice(4);
 
-function money(s) { return Number(s.replace(/[$,]/g, "")) || 0; }
-function fmt(n) { return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US"); }
-function deptChange(cells) {
-  const d = money(cells[2]) - money(cells[1]);
-  return d === 0 ? "$0" : fmt(d);
-}
 function deptRow(cells) {
-  const c = deptChange(cells);
-  const isDown = c.startsWith("-");
-  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${cells[1]}</div><div class="dnum">${cells[2]}</div><div class="dnum change${isDown ? " is-down" : ""}">${c}</div></div>`;
+  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${cells[1]}</div></div>`;
 }
 function buildDeptSections(groups) {
   return groups.map(([fn, rows]) => `
@@ -350,8 +343,7 @@ const sharedCss = `
   }
   .drow>*{ min-width:0; }
   .drow>*:nth-child(1){ flex:1 1 auto; }
-  .drow>*:nth-child(2), .drow>*:nth-child(3){ flex:0 0 .88in; }
-  .drow>*:nth-child(4){ flex:0 0 .74in; }
+  .drow>*:nth-child(2){ flex:0 0 .9in; }
   .drow .dlabel{ color:#173229; font-size:7.6pt; line-height:1.2; }
   .drow .dnum{
     text-align:right;
@@ -421,14 +413,14 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>Transportation and Economic Environment show the largest year-over-year growth in FY 2027, driven by capital road projects and tourism-funded initiatives. Human Services is shown on a comparable basis after separating Health Department and statutory-agency allocations that share its accounting code.</p>
+      <p>FY 2027 functions follow the published activity sheet and match the Consolidated Budget Ledger. Prior-year figures retain their originally reported classifications, so a category change may affect a year-over-year comparison.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
-const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Department</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div></div>`;
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department / Function</div><div class="dnum">FY27 Final</div></div><div class="drow dhead"><div class="dlabel">Department / Function</div><div class="dnum">FY27 Final</div></div></div>`;
 
 const page2 = `
   <section>
@@ -438,6 +430,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
+    <p class="footnote">The Board's $12,791,280 total is classified as $12,291,280 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
@@ -450,7 +443,7 @@ const page3 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
-    <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${DEPT_TOTAL[1]}</div><div class="dnum">${DEPT_TOTAL[2]}</div><div class="dnum"></div></div>
+    <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${DEPT_TOTAL[1]}</div></div>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;

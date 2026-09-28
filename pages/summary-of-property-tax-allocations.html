@@ -567,8 +567,8 @@
       <span>Millage Rate</span>
       <div class="wc-ptax-kpi-split">
         <div class="wc-ptax-kpi-split-item">
-          <strong>3.4347</strong>
-          <small>Proposed</small>
+          <strong>3.2500</strong>
+          <small>Final adopted</small>
         </div>
         <div class="wc-ptax-kpi-split-item">
           <strong>3.4347</strong>
@@ -641,8 +641,8 @@
           </div>
           <p><strong>Taxable value</strong> is the value the Property Appraiser uses to calculate your tax bill &mdash; it is usually lower than your home's market value because of the homestead exemption and other assessment limits. Your official taxable value is on your annual TRIM notice or the Property Appraiser's website.</p>
           <p><strong>What's included:</strong> this covers the County's own countywide portion of your property tax bill. <strong>What's NOT included:</strong> school district taxes, water management district taxes, special taxing districts (such as North Walton Mosquito Control), and any other independent taxing authorities on your bill &mdash; those are set and billed separately.</p>
-          <p><strong>What Your Property Tax Supports</strong> multiplies your taxable value by the FY2027 final countywide millage rate of 3.4347, divided by 1,000. The table allocates that estimate according to each service's share of the proposed countywide property-tax funding. It is an illustration of how the County portion supports services, not a parcel-specific allocation or official bill.</p>
-          <p>Department spending changes do not directly determine a property's tax increase. This calculator therefore does not add departmental budget-growth percentages to your estimated tax. The final rate remains subject to adoption; schools and other taxing authorities are excluded.</p>
+          <p><strong>What Your Property Tax Supports</strong> multiplies your taxable value by the FY2027 final countywide millage rate of 3.2500, divided by 1,000. The table allocates that estimate according to each service's share of the countywide property-tax funding. It is an illustration of how the County portion supports services, not a parcel-specific allocation or official bill.</p>
+          <p>Department spending changes do not directly determine a property's tax increase. This calculator therefore does not add departmental budget-growth percentages to your estimated tax. Schools and other taxing authorities are excluded.</p>
           <p><strong class="wc-tax-info-warning">These estimates are provided for informational and educational purposes only and should not be considered an official determination of taxes.</strong> Actual tax amounts may vary based on property classification, exemptions, assessment limitations, taxable value determinations, millage rates, voter-approved levies, and other factors. Users should view official records from the Walton County Property Appraiser for parcel-specific tax information.</p>
           <p class="wc-tax-info-dialog-source">Parcel data is sourced from the Florida GIO statewide dataset.</p>
         </div>
@@ -737,7 +737,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20260915-exclude-brought-forward-revenue"></script>
+<script src="../assets/budget-data.js?v=20260928-activity-source"></script>
 <script>
 (function(){
   function $(selector){
@@ -1150,7 +1150,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     const propertySearchInput = $("#propertyAddressSearch");
     const propertySearchResults = $("#propertyAddressResults");
     const propertySearchStatus = $("#propertyAddressStatus");
-    const COUNTYWIDE_MILLAGE = 3.4347;
+    const COUNTYWIDE_MILLAGE = 3.2500;
     const BREAKDOWN_PREVIEW_COUNT = 7;
     // Departments with a real FY2027 increase worth surfacing even
     // though their ad valorem dollar share falls outside the default
@@ -1264,7 +1264,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       }
 
       const countywideAmount = taxableValue * COUNTYWIDE_MILLAGE / 1000;
-      $("#personalTaxTotal").textContent = "Estimated FY2027 County tax: " + moneyWithCents(countywideAmount) + " at 3.4347 mills. Excludes schools and other taxing authorities.";
+      $("#personalTaxTotal").textContent = "Estimated FY2027 County tax: " + moneyWithCents(countywideAmount) + " at 3.2500 mills. Excludes schools and other taxing authorities.";
 
       lastCountyTax = countywideAmount;
       renderCombinedBreakdown(countywideAmount);

@@ -11,15 +11,15 @@ import QRCode from "qrcode";
 // for Organizational Structure's "View Full-Size Chart" button.
 //
 // Two totals appear in the source data and are NOT interchangeable:
-// $151,054,833 is the County government's own Ad Valorem allocation
+// $151,592,125 is the County government's own Ad Valorem allocation
 // (excludes the North Walton Mosquito Control District, which levies its
-// own separate 0.441-mill rate); $152,481,770 is the all-funds total
+// own separate 0.441-mill rate); $153,019,062 is the all-funds total
 // including Mosquito Control. This page uses and labels the County-only
 // figure throughout, consistent with the live page's own "Total
 // Countywide Ad Valorem Revenue" KPI.
 
 const STATS = [
-  ["$151.1M", "Total Countywide Ad Valorem Revenue"],
+  ["$151.6M", "Total Countywide Ad Valorem Revenue"],
   ["3.2500", "Final FY 2027 Millage Rate"],
   ["3.7782", "Two-Thirds Vote Maximum"],
   ["0.441", "Mosquito Control District (Separate)"]
@@ -35,17 +35,17 @@ const row = ([name, amount, pct], rowClass) => {
 const tableHead = `<div class="dept-row head"><div class="dept-name">Recipient</div><div class="num">FY 2027 Ad Valorem Revenue</div><div class="num">% of Total</div></div>`;
 
 const CONSTITUTIONAL = [
-  ["Sheriff's Office", "$98,004,256", "64.88%"],
-  ["Clerk of Court", "$6,871,175", "4.55%"],
-  ["Property Appraiser", "$4,954,338", "3.28%"],
-  ["Board of County Commissioners", "$4,491,053", "2.97%"],
-  ["Tax Collector", "$4,449,400", "2.95%"],
+  ["Sheriff's Office", "$98,004,256", "64.65%"],
+  ["Clerk of Court", "$6,871,175", "4.53%"],
+  ["Property Appraiser", "$4,954,338", "3.27%"],
+  ["Board of County Commissioners", "$4,491,053", "2.96%"],
+  ["Tax Collector", "$4,449,400", "2.94%"],
   ["Supervisor of Elections", "$1,663,865", "1.10%"]
 ];
-const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,434,087", "79.73%"];
+const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,434,087", "79.45%"];
 
 const INDEPENDENT = [
-  ["Statutory & Other Agency Funding", "$3,247,957", "2.15%"],
+  ["Statutory & Other Agency Funding", "$3,247,957", "2.14%"],
   ["Walton County Health Department", "$1,724,397", "1.14%"],
   ["South Walton Fire", "$980,074", "0.65%"],
   ["Medical Examiner", "$881,930", "0.58%"],
@@ -55,32 +55,32 @@ const INDEPENDENT = [
   ["Circuit Court", "$111,493", "0.07%"],
   ["County Court", "$70,056", "0.05%"]
 ];
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,053,851", "5.33%"];
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,053,851", "5.31%"];
 
-const CAPITAL = [["Capital Projects", "$16,451,172", "10.89%"]];
-const CAPITAL_TOTAL = ["Total Capital", "$16,451,172", "10.89%"];
+const CAPITAL = [["Capital Projects", "$16,988,464", "11.21%"]];
+const CAPITAL_TOTAL = ["Total Capital", "$16,988,464", "11.21%"];
 
 const BOARD_DEPTS = [
   ["County Administration", "$1,847,203", "1.22%"],
   ["Building Construction and Maintenance", "$1,426,130", "0.94%"],
   ["Planning", "$1,195,917", "0.79%"],
-  ["Office of the County Attorney", "$674,542", "0.45%"],
+  ["Office of the County Attorney", "$674,542", "0.44%"],
   ["Environmental Services", "$640,922", "0.42%"],
   ["Code Compliance", "$331,009", "0.22%"]
 ];
-const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.05%"];
+const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.03%"];
 
-const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$151,054,833", "100.00%"];
+const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$151,592,125", "100.00%"];
 
 const EXAMPLE_TAX = (250000 - 51411) * 3.25 / 1000;
 const EXAMPLE_SHARES = [
-  ["Sheriff's Office", 64.88],
-  ["Capital Projects", 10.89],
-  ["Clerk of Court", 4.55],
-  ["Property Appraiser", 3.28],
-  ["Board of County Commissioners", 2.97],
-  ["Tax Collector", 2.95],
-  ["All Other Entities", 10.48]
+  ["Sheriff's Office", 64.65],
+  ["Capital Projects", 11.21],
+  ["Clerk of Court", 4.53],
+  ["Property Appraiser", 3.27],
+  ["Board of County Commissioners", 2.96],
+  ["Tax Collector", 2.94],
+  ["All Other Entities", 10.44]
 ];
 let allocatedCents = 0;
 const EXAMPLE_ROWS = EXAMPLE_SHARES.map(([name, share], index) => {
@@ -377,7 +377,7 @@ const page2 = `
 
     <div class="dept-table" style="margin-top:.08in">
       ${row(["North Walton Mosquito Control District", "$1,426,937", "0.89%"])}
-      ${row(["Total Ad Valorem Revenue (All Funds)", "$152,481,770", "100.00%"], "grand")}
+      ${row(["Total Ad Valorem Revenue (All Funds)", "$153,019,062", "100.00%"], "grand")}
     </div>
 
     <div class="example-card">

@@ -171,7 +171,7 @@ const html = `<!doctype html>
         <p class="cover-kicker">Fiscal Year 2027 &middot; Final Budget</p>
         <h1 class="cover-title">Walton<br>County</h1>
         <p class="cover-subtitle">Annual Budget Book</p>
-        <p class="cover-tagline">A financial plan for public services, infrastructure, and the future of the County.</p>
+        <p class="cover-tagline">A financial plan for public services, infrastructure, and the funding for the County.</p>
       </div>
       <div class="cover-bottom">
         <div class="cover-meta">

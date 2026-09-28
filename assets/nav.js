@@ -2667,31 +2667,6 @@
     enhanceBudgetTables();
     watchForBudgetTables();
   }
-  function enhanceEmbeddedBudgetVideos(){
-    document.querySelectorAll('iframe[src*="youtube.com/embed/"]').forEach(function(iframe){
-      var host = iframe.parentElement;
-      if(!host || host.classList.contains('wc-video-poster-host')) return;
-      var title = (iframe.getAttribute('title') || 'Walton County budget video').replace(/\s+video(?:\s+\d+)?$/i, '');
-      var poster = document.createElement('button');
-      poster.type = 'button';
-      poster.className = 'wc-video-poster';
-      poster.setAttribute('aria-label', 'Play ' + title);
-      poster.appendChild(document.createTextNode('Watch ' + title));
-      host.classList.add('wc-video-poster-host');
-      host.appendChild(poster);
-      poster.addEventListener('click', function(){
-        host.classList.add('is-video-started');
-        iframe.setAttribute('tabindex', '0');
-        iframe.focus();
-      });
-      iframe.setAttribute('tabindex', '-1');
-    });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', enhanceEmbeddedBudgetVideos, { once:true });
-  }else{
-    enhanceEmbeddedBudgetVideos();
-  }
   loadWaltonSplitLogo(safelyStartWcBudgetNav);
   function lockHorizontalPageScroll(){
     document.documentElement.style.setProperty('overflow-x','hidden','important');

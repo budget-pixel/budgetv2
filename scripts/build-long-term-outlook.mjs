@@ -175,10 +175,10 @@ const MILLAGE = [["FY 2024", 3.6000], ["FY 2025", 3.575], ["FY 2026", 3.519], ["
 const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
 
 const FORECAST_ROWS = [
-  ["Total Revenue & Other Sources", "$476.3M", "$467.1M", "$488.5M", "$491.2M"],
+  ["Total Revenue & Other Sources", "$476.3M", "$467.6M", "$488.5M", "$491.2M"],
   ["Total Expenditures & Other Uses", "$468.3M", "$488.9M", "$503.6M", "$518.7M"],
-  ["Change in Fund Balance", "$7.9M", "&minus;$21.8M", "&minus;$15.0M", "&minus;$27.5M", [false, true, true, true]],
-  ["Estimated Ending Fund Balance", "$443.9M", "$410.0M", "$395.0M", "$367.5M"]
+  ["Change in Fund Balance", "$7.9M", "&minus;$21.3M", "&minus;$15.0M", "&minus;$27.5M", [false, true, true, true]],
+  ["Estimated Ending Fund Balance", "$443.9M", "$410.5M", "$395.5M", "$368.0M"]
 ];
 
 const page1 = `
@@ -202,7 +202,7 @@ const page1 = `
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
-    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY 2024 to a final 3.2500 mills in FY 2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. Reducing the tentative rate from 3.4347 to 3.2500 lowered projected property-tax revenue by $8.6M; the Board appropriated the same amount of General Fund balance to keep the expenditure plan unchanged.</p>
+    <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY 2024 to a final 3.2500 mills in FY 2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. The tentative-hearing comparison estimated an $8.6M revenue effect from lowering the rate; the final funding schedule budgets $8.0M of General Fund balance brought forward after all revenue updates.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
     <p class="body">The Fund Financial Ledger presents history through the FY 2027 final budget. The online fund forecast extends through FY 2029, while the five-year Capital Improvement Plan carries the capital planning view through FY 2031.</p>
@@ -210,7 +210,7 @@ const page1 = `
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.8M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds. The millage decision accounts for $8.6M of the General Fund appropriation. Countywide fund balance is projected to decline by another $15.0M in FY 2028 and $27.5M in FY 2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
+    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. Countywide fund balance is projected to decline by another $15.0M in FY 2028 and $27.5M in FY 2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -225,7 +225,7 @@ const page2 = `
     <p class="body">The General Fund is the County's primary, least-restricted operating fund. Countywide balance is not interchangeable: $166.5M in the Tourist Development Fund and $41.1M in the Transportation Fund are legally restricted, while the $3.668M self-insurance reserve exceeds its separate 60-day requirement by $693,946.</p>
     <div class="two-col">
       <div class="info-card"><b>Audited FY 2025 GFOA Comparison</b><span>GFOA recommends at least two months of unrestricted budgetary General Fund operating revenues or expenditures. The FY 2025 ACFR reports $58.394M as <i>unassigned</i> General Fund balance and $185.853M of expenditures and other uses. Two months of that audited base is $30.976M. The unassigned balance equals about 3.77 months and exceeds the illustrative minimum by $27.418M. Using unassigned balance is conservative; committed, assigned, and unassigned together are the broader unrestricted categories.</span></div>
-      <div class="info-card"><b>FY 2027 County Planning Benchmark</b><span>The Board has not adopted a numeric minimum. Management informally uses six months of the full FY 2027 General Fund budget, including interfund transfers and other uses: $103.4M. The projected $73.3M total ending balance equals 35.5%, or about 4.25 months, and is $30.1M below that benchmark. Because the FY 2027 projection is not classified as restricted, committed, assigned, and unassigned, it should not be presented as a direct update of the audited FY 2025 unassigned balance.</span></div>
+      <div class="info-card"><b>Six-Month Reference From the Audited FY 2025 Base</b><span>The Board has not adopted a numeric minimum. The audited General Fund expenditure and other-use base is $185.853M (about $186M); six months is $92.927M (about $93M). The projected FY 2027 total ending balance of $73.3M is numerically about $20M below that reference and equals about five months on the historical base. Because the projection is not classified as restricted, committed, assigned, and unassigned, it is not a direct update of the audited FY 2025 unassigned balance.</span></div>
     </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
