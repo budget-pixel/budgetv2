@@ -1,0 +1,162 @@
+{
+  "title": "FY 2027 Funded Capital Projects for Funds 300, 101, and 111",
+  "source": "FY 2027 funded projects from the published Transportation and Infrastructure, Sheriff, and Tourist Development capital ledgers. Prior-year funded projects, grants, General Fund projects, and machinery requests are excluded.",
+  "funds": [
+    {
+      "code": "300",
+      "name": "Capital Projects Fund",
+      "projects": [
+        {
+          "name": "Hewett Bayou Connector Rd (E Lamb Drive Extension)",
+          "program": "Transportation and infrastructure",
+          "amount": 4571536
+        },
+        {
+          "name": "Holiday Shores Drainage & Pedestrian Improvements Phase IIA",
+          "program": "Transportation and infrastructure",
+          "amount": 3000000
+        },
+        {
+          "name": "Recreational Infrastructure",
+          "program": "Transportation and infrastructure",
+          "amount": 2983198
+        },
+        {
+          "name": "Cook Road Reconstruction",
+          "program": "Transportation and infrastructure",
+          "amount": 442500
+        },
+        {
+          "name": "Driftwood & US 98 Intersection Signalization",
+          "program": "Transportation and infrastructure",
+          "amount": 1400000
+        },
+        {
+          "name": "Pavement Management (PCI)",
+          "program": "Transportation and infrastructure",
+          "amount": 900000
+        },
+        {
+          "name": "Poinciana Blvd & Scenic Hwy 98 Intersection Signalization",
+          "program": "Transportation and infrastructure",
+          "amount": 900000
+        },
+        {
+          "name": "Roof Replacement, Fire Station 4 DeFuniak Springs",
+          "program": "Transportation and infrastructure",
+          "amount": 515000
+        },
+        {
+          "name": "Sugar Drive Connector Rd",
+          "program": "Transportation and infrastructure",
+          "amount": 600000
+        },
+        {
+          "name": "E Bay Loop (CR 83A E) Northbound Right Turn Lane",
+          "program": "Transportation and infrastructure",
+          "amount": 300000
+        },
+        {
+          "name": "Long Road Bridge Replacement #604130",
+          "program": "Transportation and infrastructure",
+          "amount": 400000
+        },
+        {
+          "name": "N Orange Street Pedestrian Improvements",
+          "program": "Transportation and infrastructure",
+          "amount": 340000
+        },
+        {
+          "name": "Holiday Rd & CR 2378 (Scenic Gulf Drive) Intersection Improvements",
+          "program": "Transportation and infrastructure",
+          "amount": 225000
+        },
+        {
+          "name": "CR 83 N (Blue Mountain Rd) Extension from US 98 To Chat Holley",
+          "program": "Transportation and infrastructure",
+          "amount": 250000
+        },
+        {
+          "name": "Chat Holley & US 331 Intersection Improvements (Long Term Option)",
+          "program": "Transportation and infrastructure",
+          "amount": 260000
+        },
+        {
+          "name": "South Orange Street Pedestrian Improvements",
+          "program": "Transportation and infrastructure",
+          "amount": 200000
+        },
+        {
+          "name": "CR 30A Sidewalk From Ventana Blvd To Blue Gulf Drive",
+          "program": "Transportation and infrastructure",
+          "amount": 174000
+        },
+        {
+          "name": "Seven Oaks Road Paving (Resurfacing)",
+          "program": "Transportation and infrastructure",
+          "amount": 154500
+        },
+        {
+          "name": "County Line Road Paving (Resurfacing)",
+          "program": "Transportation and infrastructure",
+          "amount": 141000
+        },
+        {
+          "name": "Watson Road Paving (Resurfacing)",
+          "program": "Transportation and infrastructure",
+          "amount": 279000
+        },
+        {
+          "name": "Freeport 3280/Bear Creek Fire Station",
+          "program": "Sheriff fire stations",
+          "amount": 3500000
+        },
+        {
+          "name": "Pleasant Ridge Fire Station",
+          "program": "Sheriff fire stations",
+          "amount": 3500000
+        }
+      ],
+      "fy2027Total": 25035734
+    },
+    {
+      "code": "101",
+      "name": "Transportation Fund",
+      "projects": [
+        {
+          "name": "Holiday Shores Drainage & Pedestrian Improvements Phase IIB",
+          "program": "Transportation and infrastructure",
+          "amount": 4000000
+        },
+        {
+          "name": "Madge Lane & Sally Lane Roadway & Drainage Improvements",
+          "program": "Transportation and infrastructure",
+          "amount": 450000
+        },
+        {
+          "name": "Oakwood Lakes @ Hwy 331 South Turn Lane",
+          "program": "Transportation and infrastructure",
+          "amount": 50000
+        }
+      ],
+      "fy2027Total": 4500000
+    },
+    {
+      "code": "111",
+      "name": "Tourist Development Fund",
+      "projects": [
+        {
+          "name": "Beach Renourishment (Additional Funds for Future Project)",
+          "program": "Tourism capital",
+          "amount": 10750000
+        },
+        {
+          "name": "30A Gateway Improvements",
+          "program": "Tourism capital",
+          "amount": 600000
+        }
+      ],
+      "fy2027Total": 11350000
+    }
+  ]
+}
