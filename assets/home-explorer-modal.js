@@ -675,6 +675,7 @@
             '#layout{display:block!important;min-height:0!important}' +
             '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
             '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
+            '.wc-budget-process-back{display:none!important}' +
             '[data-constitutional-ledger-close]{display:none!important}' +
             '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:-34px!important}');
         embeddedDocument.head.appendChild(embeddedStyle);
@@ -707,10 +708,10 @@
           // rather than back at the page this popup originally opened to.
           if (loadedUrl) syncPopupUrlState(loadedUrl);
         }
-        // Any link inside this popup that points back at home.html (the
+        // Any link inside this popup that points back at index.html (the
         // CIP hero's "Back to Capital Projects"/"Search Projects", a
         // project's "Back to Project Search"/"Back to Capital Explorer",
-        // etc.) would otherwise navigate this iframe TO home.html -- which
+        // etc.) would otherwise navigate this iframe TO index.html -- which
         // boots up a whole second copy of the site's own popup system
         // nested inside this one, stacking shell inside shell every time
         // (see screenshot). None of these links need a real navigation:
@@ -782,7 +783,7 @@
             openDepartmentModal(resolvedUrl.href, linkedTitle, departmentTrigger);
             return;
           }
-          if (!/\/(search|home)\.html$/i.test(resolvedUrl.pathname)) {
+          if (!/\/(search|index)\.html$/i.test(resolvedUrl.pathname)) {
             // Ordinary same-site links navigate this iframe directly. Hide
             // it before navigation so the destination's legacy nav cannot
             // flash for a frame while the load handler installs the popup-

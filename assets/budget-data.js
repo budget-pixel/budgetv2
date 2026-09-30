@@ -127,16 +127,10 @@
     return map;
   })();
 
-  // Object codes pulled out into their own supplemental Expenditure Summary
-  // table on certain department pages (see render*SupplementalTables below)
-  // and therefore excluded from that department's main summary table so
-  // amounts aren't counted twice.
-  const EXPENSE_OBJECT_CODES_BROKEN_OUT = {
-    "building construction and maintenance": ["543000"],
-    "board of county commissioners": ["531001", "531002", "531003", "531004"],
-    "office of the county attorney": ["531000"],
-    "office of county attorney": ["531000"]
-  };
+  // All object codes now remain in their department's main Budget Ledger.
+  // This map remains as the shared extension point for any future,
+  // intentionally separated presentation.
+  const EXPENSE_OBJECT_CODES_BROKEN_OUT = {};
 
   // Friendlier display captions for sub-group tables whose raw Dept_Name
   // in the sheet reads awkwardly on its own.
@@ -1930,7 +1924,7 @@
   // that DO have real data.  That makes the grand revenue total equal the
   // actual expense for that year, which is exactly "what revenue was needed."
   // When there are multiple zero-actual rows they share the gap proportionally
-  // to their FY 2027 Proposed budget weights (or equally if all are $0).
+  // to their FY 2027 Final budget weights (or equally if all are $0).
   //
   // The underlying cache.revenues data is never modified, so Summary of
   // Revenue and every other aggregate table are unaffected.
@@ -2444,7 +2438,7 @@
   // General Fund org code (00120000) to a Transportation Fund org code
   // (10116002) between FY2026 and FY2027. The old org code's FY2026
   // budget and prior-year actuals still surface as their own row (see
-  // synthesizeMissingExpenseRows) with $0 FY2027 proposed, which would
+  // synthesizeMissingExpenseRows) with $0 FY2027 final, which would
   // otherwise show up as a second, misleadingly-General-Fund "Engineering
   // Services" line -- combined into the one real (Transportation Fund)
   // row instead, so its FY2026 budget lines up with the FY2027 amount.
@@ -3840,7 +3834,7 @@
     // the machinery-ledger renderer.
     const showRevenueSource = isExpense && !!(renderOptions && renderOptions.showRevenueSource);
     // Opt-in (see buildCostCell's Operating Accounts popup on the Board
-    // Department Operating Ledger) -- groups this table's own rows by
+    // Department Budget Ledger) -- groups this table's own rows by
     // office instead of leaving the department's several offices (e.g.
     // Tourism Administration's Administration/Marketing/Sales/
     // Communications/North Walton divisions) merged into one flat list, by
@@ -4208,9 +4202,10 @@
 
     function budgetLineRowHtml(r, rowClass, suppressDescription) {
       const isZeroCurrent = (r.FY2027_Proposed || 0) === 0;
+      const isZeroPriorBudget = (budgetLineVisibleColumnAmount(r, fy2026BudgetColumn) || 0) === 0;
       const drilldownFields = { categoryField, codeField, nameField, kind: isExpense ? "expense" : "revenue", combineByName, detailId };
       return (
-        '<tr class="' + rowClass + (isZeroCurrent ? " wc-budget-line-zero-current" : "") + '">' +
+        '<tr class="' + rowClass + (isZeroCurrent ? " wc-budget-line-zero-current" : "") + (isZeroPriorBudget ? " wc-budget-line-zero-prior-budget" : "") + '">' +
         '<td class="wc-category-column">' + escapeHtml(r[categoryField] || "") + "</td>" +
         (isExpense ? '<td class="wc-object-code-column">' + escapeHtml(objectCodeColumnValue(r)) + "</td>" : "") +
         "<td>" + escapeHtml(r[nameField] || "") + "</td>" +
@@ -4242,17 +4237,19 @@
       // Object Code are hidden, instead of one more -- a mismatched cell
       // count per row is what was throwing off column alignment.
       const subtotalLabel = escapeHtml(category) + " Subtotal";
+      const currentSubtotal = categoryRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0);
+      const priorBudgetSubtotal = categoryRows.reduce((sum, row) => sum + (budgetLineVisibleColumnAmount(row, fy2026BudgetColumn) || 0), 0);
       const labelCells =
         '<td class="wc-category-column">' + subtotalLabel + "</td>" +
         (isExpense ? '<td class="wc-object-code-column"></td>' : "") +
         '<td data-wc-mobile-label="' + subtotalLabel + '"></td>' +
         '<td class="wc-itemized-description-column"></td>';
       return (
-        '<tr class="' + rowClass + ' wc-table-subtotal-row">' + labelCells +
+        '<tr class="' + rowClass + ' wc-table-subtotal-row' + (currentSubtotal === 0 ? ' wc-budget-line-zero-current' : '') + (priorBudgetSubtotal === 0 ? ' wc-budget-line-zero-prior-budget' : '') + '">' + labelCells +
           priorYearColumns.map((c) =>
             '<td class="wc-num wc-prior-year wc-fy-' + c.year + '">' + formatCurrency(categoryRows.reduce((sum, row) => sum + (budgetLineVisibleColumnAmount(row, c) || 0), 0)) + "</td>"
           ).join("") +
-          '<td class="wc-num wc-fy-2027 wc-revenue-budget-year">' + formatCurrency(categoryRows.reduce((sum, r) => sum + (r.FY2027_Proposed || 0), 0)) + "</td>" +
+          '<td class="wc-num wc-fy-2027 wc-revenue-budget-year">' + formatCurrency(currentSubtotal) + "</td>" +
           (usesRevenueYearPicker ? '<td class="wc-num wc-fy-2028 wc-revenue-projected">' + formatCurrency(projectedRevenueRowsAmount(categoryRows, 2028)) + '</td><td class="wc-num wc-fy-2029 wc-revenue-projected">' + formatCurrency(projectedRevenueRowsAmount(categoryRows, 2029)) + '</td>' : '') +
           "</tr>"
       );
@@ -4386,7 +4383,7 @@
         ])
         .concat(
           priorYearColumns.map((c) => ({ label: c.label, num: true, classes: ["wc-prior-year", "wc-fy-" + c.year] })),
-          [{ label: "FY 2027 Proposed", num: true, classes: ["wc-fy-2027", "wc-revenue-budget-year"] }].concat(usesRevenueYearPicker ? [
+          [{ label: "FY 2027 Final", num: true, classes: ["wc-fy-2027", "wc-revenue-budget-year"] }].concat(usesRevenueYearPicker ? [
             { label: "FY 2028 Projected", num: true, classes: ["wc-fy-2028", "wc-revenue-projected"] },
             { label: "FY 2029 Projected", num: true, classes: ["wc-fy-2029", "wc-revenue-projected"] }
           ] : [])
@@ -4471,13 +4468,13 @@
     const printDetailTable = renderTable({
       columns: [{ label: isExpense ? "Object Name" : "Revenue Name" }]
         .concat(printYearColumns.map((c) => ({ label: printColumnLabel(c.label), num: true, classes: ["wc-prior-year", "wc-fy-" + c.year] })))
-        .concat([{ label: "FY 2027\nProposed", num: true }]),
+        .concat([{ label: "FY 2027\nFinal", num: true }]),
       bodyRows: printBodyRows,
       hideVisualCaption: true
     });
 
     const revenueYearOptions = priorYearColumns.map((c) => ({ year: c.year, label: c.label })).concat(usesRevenueYearPicker ? [
-      { year: 2027, label: "FY 2027 Proposed" },
+      { year: 2027, label: "FY 2027 Final" },
       { year: 2028, label: "FY 2028 Projected" },
       { year: 2029, label: "FY 2029 Projected" }
     ] : []);
@@ -5081,7 +5078,7 @@
 
     const columns = []
       .concat(showDept ? [{ label: "Department" }] : [])
-      .concat([{ label: typeLabel }, { label: codeLabel }, { label: nameLabel }, { label: "FY 2027 Proposed", num: true }]);
+      .concat([{ label: typeLabel }, { label: codeLabel }, { label: nameLabel }, { label: "FY 2027 Final", num: true }]);
     const colCount = columns.length;
 
     const sorted = rows.slice().sort((a, b) => {
@@ -5188,7 +5185,7 @@
     const showPrior = !!options.showPrior;
     const detail = options.detail || { button: "", detail: "" };
     const zeroClass = total === 0 ? " is-zero" : "";
-    const currentLabel = kind === "revenue" ? "FY 2027 Proposed Revenue" : "FY 2027 Proposed Budget";
+    const currentLabel = kind === "revenue" ? "FY 2027 Final Revenue" : "FY 2027 Final Budget";
     // Secondary sub-program cards (e.g. Code Compliance Beach) pass
     // showChange: false -- their FY2026 figures share the same per-account
     // dedup unreliability as their "View Prior Years" toggle (already
@@ -6371,7 +6368,7 @@
   // (by the same categories as the Consolidated Revenue Budget) ->
   // Expenditures (by the same activities as the Consolidated Expenditure
   // Budget) -> Change in Fund Balance -> Estimated Ending Fund Balance
-  // roll-forward, either for one fund (a single "FY 2027 Proposed" column)
+  // roll-forward, either for one fund (a single "FY 2027 Final" column)
   // or several funds combined into side-by-side columns (the consolidated
   // schedule at the top of the page).
   const FUND_SCHEDULE_MAJOR_FUNDS = [
@@ -8024,7 +8021,7 @@
   // fallback when a row is not present in that cache.
   const FUND_SCHEDULE_YEAR_COLUMNS = BUDGET_LINE_PRIOR_YEAR_COLUMNS
     .concat([
-      { field: "FY2027_Proposed", label: "FY 2027 Proposed" },
+      { field: "FY2027_Proposed", label: "FY 2027 Final" },
       { field: "FY2028_Projected", label: "FY 2028 Projected", projected: true },
       { field: "FY2029_Projected", label: "FY 2029 Projected", projected: true }
     ]);
@@ -8634,7 +8631,7 @@
     { field: "FY2024_Actual", label: "FY 2024 Actuals" },
     { field: "FY2025_Actual", label: "FY 2025 Actuals" },
     { field: "FY2026_Original_Budget", label: "FY 2026 Budget" },
-    { field: "FY2027_Proposed", label: "FY 2027 Proposed" },
+    { field: "FY2027_Proposed", label: "FY 2027 Final" },
     { field: "FY2028_Projected", label: "FY 2028 Projected", projected: true },
     { field: "FY2029_Projected", label: "FY 2029 Projected", projected: true }
   ];
@@ -9625,7 +9622,7 @@
 
       executiveEl.innerHTML =
         '<div class="wc-budget-kpi-grid">' +
-          kpiCard("Total FY2027 proposed budget", compactCurrency(totalProposed), formatCurrency(totalProposed), "neutral") +
+          kpiCard("Total FY2027 final budget", compactCurrency(totalProposed), formatCurrency(totalProposed), "neutral") +
           kpiCard("Net dollar change", compactCurrency(netChange), netChange >= 0 ? "Increase from FY2026" : "Reduction from FY2026", netChange >= 0 ? "increase" : "decrease") +
           kpiCard("Net percent change", (netPct >= 0 ? "+" : "") + (netPct * 100).toFixed(1) + "%", "Countywide change", netPct >= 0 ? "increase" : "decrease") +
           kpiCard("Largest budget increase", largestIncrease ? compactCurrency(largestIncrease.change) : "None", largestIncrease ? largestIncrease.dept : "No department increase", "increase") +
@@ -10122,7 +10119,7 @@
     const detailTable = renderTable({
       columns: [{ label: "Category" }, { label: "Department" }].concat(
         BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) => ({ label: c.label, num: true, classes: ["wc-prior-year"] })),
-        [{ label: "FY 2027 Proposed", num: true }]
+        [{ label: "FY 2027 Final", num: true }]
       ),
       bodyRows: bodyRows
     });
@@ -10817,7 +10814,7 @@
     // empty. See BUDGET_LINE_PRIOR_YEAR_COLUMNS for the same field used
     // everywhere else FY2026 is shown.
     { field: "FY2026_Original_Budget", label: "FY 2026 Budget" },
-    { field: "FY2027_Proposed", label: "FY 2027 Proposed" },
+    { field: "FY2027_Proposed", label: "FY 2027 Final" },
     { field: "FY2028_Projected", label: "FY 2028 Projected", projectedYear: 2028 },
     { field: "FY2029_Projected", label: "FY 2029 Projected", projectedYear: 2029 }
   ];
@@ -11292,7 +11289,7 @@
           '<dialog class="wc-property-tax-support-dialog" id="wc-property-tax-support-dialog" aria-labelledby="wc-property-tax-support-title"><div><header><div><span>Personalized property-tax estimate</span><h3 id="wc-property-tax-support-title">What does your property tax support?</h3></div><button type="button" class="wc-property-tax-support-close" aria-label="Close personalized property-tax estimate">&times;</button></header><iframe title="Walton County personalized property-tax support calculator" data-src="' + escapeHtml(propertyTaxSupportPage) + '"></iframe></div></dialog>'
         : '';
       const homesteadForegoneHtml = topic.title === "Property Taxes"
-        ? '<div class="wc-revenue-control-profile wc-homestead-foregone" data-homestead-foregone aria-live="polite"><div><strong>Homestead-related revenue forgone</strong></div><p>Calculating from the County parcel roll and FY 2027 proposed millage rate.</p></div>'
+        ? '<div class="wc-revenue-control-profile wc-homestead-foregone" data-homestead-foregone aria-live="polite"><div><strong>Homestead-related revenue forgone</strong></div><p>Calculating from the County parcel roll and FY 2027 final millage rate.</p></div>'
         : '';
       const isSalesTaxBurdenTopic = topicRows.some((row) => ["312600", "335180"].includes(String(row.Revenue_Code || "").trim())) ||
         /(?:sales surtax|half.?cent sales tax|1\s*\/\s*2 cent sales tax)/i.test(topic.title);
@@ -11304,7 +11301,7 @@
           '<div class="wc-property-tax-burden-row"><div><span>Visitor-supported</span></div><strong>68%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.68)) + '</em></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Local-supported</span></div><strong>32%</strong><em>' + escapeHtml(formatCurrency(salesTaxCurrentAmount * 0.32)) + '</em></div>' +
           '<div class="wc-property-tax-burden-bar"><i style="width:68%"></i></div>' +
-          '<p>This planning estimate applies Walton County&rsquo;s visitor study finding that visitors account for 68% of retail spending to FY 2027 proposed revenue -- the same estimate used on each department&rsquo;s own Who Pays Ledger -- and is not an audited classification of individual tax payments.</p></div>'
+          '<p>This planning estimate applies Walton County&rsquo;s visitor study finding that visitors account for 68% of retail spending to FY 2027 final revenue -- the same estimate used on each department&rsquo;s own Who Pays Ledger -- and is not an audited classification of individual tax payments.</p></div>'
         : '';
       const touristTaxCurrentAmount = topic.title === "Tourist Development Taxes"
         ? topicRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0)
@@ -11334,12 +11331,12 @@
       const topicType = matchingTopicRows.length ? matchingTopicRows[0].Revenue_Type : "";
       const projectionRate = revenueProjectionRate(topicType, topic);
       const projectionNote = topic.isAllOtherRevenue
-        ? "FY 2028 and FY 2029 apply each source's revenue-category assumption to its FY 2027 proposed amount."
+        ? "FY 2028 and FY 2029 apply each source's revenue-category assumption to its FY 2027 final amount."
         : (/housing prisoners revenue/i.test(topic.title)
           ? "FY 2028 and FY 2029 return to the latest actual collection level of " + formatAbbreviatedCurrency(revenueProjectionBase(topicRows, topic)) + " and hold it flat rather than carrying forward the unusually high FY 2027 proposal."
           : (projectionRate
-            ? "FY 2028 and FY 2029 apply " + (projectionRate * 100).toFixed(1).replace(/\.0$/, "") + "% annual growth to the FY 2027 proposed amount."
-            : "FY 2028 and FY 2029 hold the FY 2027 proposed amount level because no recurring growth assumption is applied."));
+            ? "FY 2028 and FY 2029 apply " + (projectionRate * 100).toFixed(1).replace(/\.0$/, "") + "% annual growth to the FY 2027 final amount."
+            : "FY 2028 and FY 2029 hold the FY 2027 final amount level because no recurring growth assumption is applied."));
       // Historical compound annual growth rate across the actual years the
       // chart already plots (FY2022-FY2025), so the forward assumption can be
       // read against what collections actually did. Skipped when either
@@ -12314,30 +12311,6 @@
   }
 
 
-  function renderBuildingConstructionSupplementalTables() {
-    const rows = rowsForExactDepartment(cache.expenditures, "Building Construction and Maintenance");
-    const utilityRows = rows.filter((r) => String(r.Object_Code || "").trim() === "543000");
-    const piece = renderTypeSummaryTable(utilityRows, "expense", "County-Wide Utilities", "Building Construction and Maintenance");
-
-    if (!piece) return "";
-    return '<section class="building-construction-supplemental-tables">' + piece + "</section>";
-  }
-
-  function renderBoardOfCountyCommissionersSupplementalTables() {
-    const rows = rowsForExactDepartment(cache.expenditures, "BCC Other Uses Contingency");
-    const piece = renderTypeSummaryTable(rows, "expense", "Reserves for Contingency", "BCC Other Uses Contingency");
-    if (!piece) return "";
-    return '<section class="bcc-supplemental-tables">' + piece + "</section>";
-  }
-
-  function renderCountyAttorneySupplementalTables(deptName, deptCode) {
-    const rows = getDepartmentExpenses(deptName, deptCode)
-      .filter((r) => String(r.Object_Code || "").trim() === "531000");
-    const piece = renderTypeSummaryTable(rows, "expense", "County Attorney Legal Services", deptName);
-    if (!piece) return "";
-    return '<section class="county-attorney-supplemental-tables">' + piece + "</section>";
-  }
-
   // The Court Innovation FTE (Project 1040) is budgeted under the Board of
   // County Commissioners' Dept_Code rather than its own Dept_Name, and the
   // court-ordinance distributions (Law Library, Juvenile Justice, Legal
@@ -13251,7 +13224,6 @@
           // the Court Innovations rollup instead, so it's excluded here to
           // avoid double-counting it on the BCC page.
           const isBcc = normalizeDeptName(deptName) === "board of county commissioners";
-          const isBuildingConstruction = normalizeDeptName(deptName) === "building construction and maintenance";
           const isSolidWaste = normalizeDeptName(deptName) === "solid waste";
           let expenseRows = filterAllZeroRowsForSelectedDepartments(getDepartmentExpenses(deptName, deptCode).filter(
             (r) =>
@@ -13268,19 +13240,16 @@
               rowsForExactDepartment(cache.expenditures, "Solid Waste Transfer").map((r) => ({ ...r, Dept_Name: deptName }))
             );
           }
-          // Some pages display supplemental expense cards below the main
-          // Expenditure Summary. The revenue plug should balance to the
-          // same combined total a reader sees across those cards.
+          // The Board's contingency is booked under its own Dept_Name in
+          // the source sheet. Fold it into the Board's primary budget so it
+          // appears under Other Uses / Contingency in the same ledger.
           if (isBcc) {
-            expenseRowsForRevenuePlug = expenseRows.concat(rowsForExactDepartment(cache.expenditures, "BCC Other Uses Contingency"));
-          } else if (isBuildingConstruction) {
-            expenseRowsForRevenuePlug = expenseRows.concat(
-              rowsForExactDepartment(cache.expenditures, "Building Construction and Maintenance")
-                .filter((r) => String(r.Object_Code || "").trim() === "543000")
+            expenseRows = expenseRows.concat(
+              rowsForExactDepartment(cache.expenditures, "BCC Other Uses Contingency")
+                .map((r) => ({ ...r, Dept_Name: deptName }))
             );
-          } else {
-            expenseRowsForRevenuePlug = expenseRows;
           }
+          expenseRowsForRevenuePlug = expenseRows;
           expenseHtml = renderTypeSummaryTable(expenseRows, "expense", "Expenditure Summary", deptName);
         }
         mountOrHide(expenseEl, expenseHtml);
@@ -13391,33 +13360,6 @@
         mountOrHide(solidWasteEl, "");
 
         mountOrHide(
-          buildingConstructionEl,
-          normalizeDeptName(deptName) === "building construction and maintenance"
-            ? renderBuildingConstructionSupplementalTables()
-            : ""
-        );
-        bindTooltipAnchors(buildingConstructionEl);
-        bindPriorYearsToggle(buildingConstructionEl);
-
-        mountOrHide(
-          bccEl,
-          normalizeDeptName(deptName) === "board of county commissioners"
-            ? renderBoardOfCountyCommissionersSupplementalTables()
-            : ""
-        );
-        bindTooltipAnchors(bccEl);
-        bindPriorYearsToggle(bccEl);
-
-        mountOrHide(
-          countyAttorneyEl,
-          normalizeDeptName(deptName) === "office of the county attorney"
-            ? renderCountyAttorneySupplementalTables(deptName, deptCode)
-            : ""
-        );
-        bindTooltipAnchors(countyAttorneyEl);
-        bindPriorYearsToggle(countyAttorneyEl);
-
-        mountOrHide(
           courtInnovationsEl,
           normalizeDeptName(deptName) === "court technology and innovations"
             ? renderCourtInnovationsSupplementalTables()
@@ -13434,10 +13376,7 @@
         bindPriorYearsToggle(fundScheduleEl);
 
         arrangeDepartmentFinancialDashboard(expenseEl, revenueEl, staffingEl, [
-          solidWasteEl,
-          buildingConstructionEl,
-          bccEl,
-          countyAttorneyEl
+          solidWasteEl
         ], deptName);
 
         // A combined page's per-division sections (e.g. Tourism
@@ -13620,7 +13559,7 @@
       const total = filtered.reduce((s, r) => s + (r.FY2027_Proposed || 0), 0);
       summaryEl.innerHTML =
         '<p class="wc-filter-result-count">Showing ' + filtered.length.toLocaleString() + " of " + rows.length.toLocaleString() +
-        " rows &mdash; FY 2027 Proposed Total: " + formatCurrency(total) + "</p>";
+        " rows &mdash; FY 2027 Final Total: " + formatCurrency(total) + "</p>";
     }
 
     renderFilterControls(
@@ -14868,7 +14807,7 @@
       const boardCostRows = costRows.filter((r) => !isConstitutionalPersonnelDept(r.Dept_Name));
       const costChange = totalCost2027 - totalCostPrior;
       const costChangePct = totalCostPrior ? (costChange / totalCostPrior) * 100 : 0;
-      // Countywide FY2027 proposed expenditures across every department,
+      // Countywide FY2027 final expenditures across every department,
       // office, and fund -- the same source rows personnel cost itself is
       // drawn from -- so "personnel is X% of the total budget" reconciles
       // with the underlying data rather than an unrelated total pulled from
@@ -15240,7 +15179,7 @@
     // Historical expense values are sometimes repeated across display rows
     // that share the same true accounting key (notably Code Compliance's
     // Street/Beach split). Consume each deduplicated prior-year total once;
-    // FY 2027 proposed amounts remain itemized and are still summed from the
+    // FY 2027 final amounts remain itemized and are still summed from the
     // current budget rows.
     const priorPersonnelByAccountingKey = new Map();
     (cache.dedupedExpenseRows || []).forEach((row) => {
@@ -17077,7 +17016,7 @@
       return (
         '<details class="wc-alignment-department">' +
           '<summary><span class="wc-alignment-department-summary-copy"><strong>' + escapeHtml(department.name) + '</strong><small>' + summaryDetail + '</small></span>' +
-          '<span class="wc-alignment-department-heading"><span>FY 2027 proposed department budget</span><strong>' + formatCurrency(department.amount) + "</strong></span></summary>" +
+          '<span class="wc-alignment-department-heading"><span>FY 2027 final department budget</span><strong>' + formatCurrency(department.amount) + "</strong></span></summary>" +
           '<p>Department budget: ' + heading + '</p>' + goalGroupHtml +
         "</details>"
       );
@@ -17602,13 +17541,10 @@
       const ledgerPopupDetails = [];
       const deptRowIdByKey = new Map();
       const ledgerBody = departments.map((dept) => {
-        // FY 2026/FY 2027 totals here (and the Total Board Departments row
-        // below) exclude Capital -- it's shown on each department's own
-        // Capital Improvement Plan pages instead, same scope the explorer
-        // card headline above already uses (totalExcludingCapital).
-        const deptPriorExcludingCapital = dept.prior - dept.priorCapital;
-        const deptCurrentExcludingCapital = dept.current - dept.capital;
-        const change = deptCurrentExcludingCapital - deptPriorExcludingCapital;
+        // The department ledger is a complete budget view. Its totals and
+        // category columns include capital alongside personnel and
+        // operating expenditures.
+        const change = dept.current - dept.prior;
         const deptOperatingTotal = dept.internal + dept.operating;
         const rowId = "wc-department-ledger-row-" + slugifyId(dept.key);
         deptRowIdByKey.set(dept.key, rowId);
@@ -17633,17 +17569,18 @@
         }
 
         return (
-          '<tr id="' + rowId + '" class="wc-department-ledger-group-row"><td>' + deptNameHtml + '</td><td class="wc-num">' + formatCurrency(deptPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(deptCurrentExcludingCapital) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
+          '<tr id="' + rowId + '" class="wc-department-ledger-group-row"><td>' + deptNameHtml + '</td><td class="wc-num">' + formatCurrency(dept.prior) + '</td><td class="wc-num">' + formatCurrency(dept.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td>' +
           buildCostCell(dept.rows, dept.personnel, dept.name, true, ledgerPopupDetails) +
           buildCostCell(contractRowsFor(dept.rows), dept.contracts, dept.name + " Contractual Services Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
           buildCostCell(operatingRowsFor(dept.rows), deptOperatingTotal, dept.name + " Operating Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
+          buildCostCell(dept.rows.filter((row) => String(row.Object_Type || "").toLowerCase().indexOf("capital") >= 0), dept.capital, dept.name + " Capital Accounts", false, ledgerPopupDetails, false, offices.length > 1) +
           '</tr>'
         );
       });
-      const ledgerPriorExcludingCapital = departments.reduce((sum, dept) => sum + (dept.prior - dept.priorCapital), 0);
-      const ledgerCurrentExcludingCapital = departments.reduce((sum, dept) => sum + (dept.current - dept.capital), 0);
-      ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrentExcludingCapital - ledgerPriorExcludingCapital) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.internal + dept.operating, 0)) + '</td></tr>');
-      const ledgerTable = renderTable({ caption: "Board Department Operating Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Contractual Services", num: true }, { label: "Operating", num: true }], bodyRows: ledgerBody });
+      const ledgerPrior = departments.reduce((sum, dept) => sum + dept.prior, 0);
+      const ledgerCurrent = departments.reduce((sum, dept) => sum + dept.current, 0);
+      ledgerBody.push('<tr class="wc-table-total-row"><td>Total Board Departments</td><td class="wc-num">' + formatCurrency(ledgerPrior) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrent) + '</td><td class="wc-num">' + formatCurrency(ledgerCurrent - ledgerPrior) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.contracts, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.internal + dept.operating, 0)) + '</td><td class="wc-num">' + formatCurrency(departments.reduce((sum, dept) => sum + dept.capital, 0)) + '</td></tr>');
+      const ledgerTable = renderTable({ caption: "Board Department Budget Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Department" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Final", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Contractual Services", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerBody });
 
       const totalCapital = departments.reduce((sum, dept) => sum + dept.capital, 0);
       const totalPriorCapital = departments.reduce((sum, dept) => sum + dept.priorCapital, 0);
@@ -17653,7 +17590,7 @@
       const totalExcludingCapital = total - totalCapital;
       const totalPriorExcludingCapital = departments.reduce((sum, dept) => sum + dept.prior, 0) - totalPriorCapital;
       const totalFte = Array.from(staffingByDept.values()).reduce((sum, fte) => sum + fte, 0);
-      // Countywide FY2027 proposed expenditures, same exclusions the
+      // Countywide FY2027 final expenditures, same exclusions the
       // Personnel Explorer/Capital Explorer use for "Total All Funds": the
       // Self-Insurance Fund (503) and interfund transfers/other financing
       // sources are internal pass-throughs, not real county spending.
@@ -17767,7 +17704,7 @@
           filterComboFieldHtml({ idPrefix: "wcDepartmentLedgerDepartment", label: "Department", options: departmentLedgerDepartments, initialLabel: departmentLedgerSelectedDepartment || "All" }) +
           '</div>'
         : "";
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><div class="wc-department-ledger-actions"><a class="wc-department-ledger-trigger" href="department-ledger.html" data-explorer-popup-trigger="Department Operating Ledger">View Department Operating Ledger</a><a class="wc-department-ledger-trigger" href="summary-of-contractual-services.html" data-explorer-popup-trigger="Contractual Services Ledger">View Contractual Services Ledger</a></div></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Operating Ledger</h2><p>Compare proposed operating and personnel spending across Board departments. Select a department name to view its own page. Capital spending is on the <a href="../home.html?explorer=capital">Capital Explorer</a>.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Department Operating Budget Explorer</h2><p>Walton County&rsquo;s ' + departments.length + ' Board departments budget a combined ' + escapeHtml(compactCurrency(totalExcludingCapital)) + ' in operating and personnel spending and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Capital outlay is shown separately on each department&rsquo;s own Capital Improvement Plan pages. Select any department below to connect its spending plan to services and performance.</p></div><div class="wc-department-explorer-total"><span>Total Board Department Operating Budget</span><strong>' + formatCurrency(totalExcludingCapital) + '</strong><div class="wc-department-ledger-actions"><a class="wc-department-ledger-trigger" href="department-ledger.html" data-explorer-popup-trigger="Department Budget Ledger">View Department Budget Ledger</a><a class="wc-department-ledger-trigger" href="summary-of-contractual-services.html" data-explorer-popup-trigger="Contractual Services Ledger">View Contractual Services Ledger</a></div></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + deptCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-department-ledger hidden>' + (isLedgerOnly ? departmentLedgerFiltersHtml : '<h2>Board Department Budget Ledger</h2><p>Compare final personnel, operating, contractual-services, and capital spending across Board departments. Select a department name to view its own page.</p>') + ledgerTable + '</section>' + ledgerPopupDetails.join("");
       if (isLedgerOnly) {
         setupFilterCombo({
           input: explorer.querySelector("#wcDepartmentLedgerFundInput"),
@@ -17960,8 +17897,8 @@
           return '<tr><td>' + escapeHtml(line.name) + '</td><td>' + escapeHtml(line.type) + '</td><td class="wc-num">' + formatCurrency(line.prior) + '</td><td class="wc-num">' + formatCurrency(line.current) + '</td><td class="wc-num ' + (lineChange > 0 ? "is-increase" : lineChange < 0 ? "is-decrease" : "") + '">' + (lineChange > 0 ? "+" : lineChange < 0 ? "−" : "") + formatCurrency(Math.abs(lineChange)) + '</td></tr>';
         });
         lineItemRows.push('<tr class="wc-table-total-row"><td>Total ' + escapeHtml(office.name) + '</td><td>Office total</td><td class="wc-num">' + formatCurrency(office.prior) + '</td><td class="wc-num">' + formatCurrency(office.current) + '</td><td class="wc-num">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td></tr>');
-        const officeLedger = renderTable({ caption: office.name + " Budget Ledger", columns: [{ label: "Budget Line Item" }, { label: "Type" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "Budget +/−", num: true }], bodyRows: lineItemRows });
-        detail.innerHTML = '<button type="button" class="wc-department-detail-close" data-constitutional-detail-close>Close Officer Detail</button><div class="wc-department-detail-head"><div><span>FY 2027 proposed office budget</span><h3>' + escapeHtml(office.name) + '</h3>' + functionStatementHtml + '</div><div><strong>' + formatCurrency(office.current) + '</strong><small>' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + ' from FY 2026</small></div></div><div class="wc-department-office-ledger">' + officeLedger + '</div>';
+        const officeLedger = renderTable({ caption: office.name + " Budget Ledger", columns: [{ label: "Budget Line Item" }, { label: "Type" }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Final", num: true }, { label: "Budget +/−", num: true }], bodyRows: lineItemRows });
+        detail.innerHTML = '<button type="button" class="wc-department-detail-close" data-constitutional-detail-close>Close Officer Detail</button><div class="wc-department-detail-head"><div><span>FY 2027 final office budget</span><h3>' + escapeHtml(office.name) + '</h3>' + functionStatementHtml + '</div><div><strong>' + formatCurrency(office.current) + '</strong><small>' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + ' from FY 2026</small></div></div><div class="wc-department-office-ledger">' + officeLedger + '</div>';
         detail.hidden = false;
         detail.querySelector("[data-constitutional-detail-close]").addEventListener("click", () => {
           detail.hidden = true;
@@ -17979,13 +17916,13 @@
         return '<tr><td><button type="button" class="wc-view-budget-lines-toggle wc-table-row-link" data-constitutional-key="' + office.key + '">' + escapeHtml(office.name) + '</button>' + (office.key === "board of county commissioners" ? '<sup aria-label="See Board budget scope note">*</sup>' : "") + '</td><td class="wc-num">' + formatNumber(office.fte) + '</td><td class="wc-num">' + formatCurrency(office.prior) + '</td><td class="wc-num">' + formatCurrency(office.current) + '</td><td class="wc-num ' + (change > 0 ? "is-increase" : change < 0 ? "is-decrease" : "") + '">' + (change > 0 ? "+" : change < 0 ? "−" : "") + formatCurrency(Math.abs(change)) + '</td><td class="wc-num">' + formatCurrency(office.personnel) + '</td><td class="wc-num">' + formatCurrency(office.operating) + '</td><td class="wc-num">' + formatCurrency(office.capital + office.other) + '</td></tr>';
       });
       ledgerRows.push('<tr class="wc-table-total-row"><td>Total Constitutional Officers</td><td class="wc-num">' + formatNumber(offices.reduce((sum, office) => sum + office.fte, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(total) + '</td><td class="wc-num">' + formatCurrency(total - offices.reduce((sum, office) => sum + office.prior, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.personnel, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.operating, 0)) + '</td><td class="wc-num">' + formatCurrency(offices.reduce((sum, office) => sum + office.capital + office.other, 0)) + '</td></tr>');
-      const ledger = renderTable({ caption: "Constitutional Officers Budget Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Office" }, { label: "FTE", num: true }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Proposed", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerRows });
+      const ledger = renderTable({ caption: "Constitutional Officers Budget Ledger", hideVisualCaption: isLedgerOnly, columns: [{ label: "Office" }, { label: "FTE", num: true }, { label: "FY 2026 Budget", num: true }, { label: "FY 2027 Final", num: true }, { label: "+/−", num: true }, { label: "Personnel", num: true }, { label: "Operating", num: true }, { label: "Capital", num: true }], bodyRows: ledgerRows });
       const totalPersonnel = offices.reduce((sum, office) => sum + office.personnel, 0);
       const totalOperating = offices.reduce((sum, office) => sum + office.operating, 0);
       const totalCapital = offices.reduce((sum, office) => sum + office.capital, 0);
       const totalFte = offices.reduce((sum, office) => sum + office.fte, 0);
       const officePages = { "board of county commissioners": "board-of-county-commissioners.html", "clerk of court": "clerk-of-courts-and-county-comptroller.html", "property appraiser": "property-appraiser.html", "supervisor of elections": "supervisor-of-elections.html", "tax collector": "tax-collector.html", "walton county sheriffs office": "sheriffs-office.html" };
-      // Countywide FY2027 proposed expenditures, same exclusions the
+      // Countywide FY2027 final expenditures, same exclusions the
       // Department Explorer/Personnel Explorer use for "Total All Funds":
       // the Self-Insurance Fund (503) and interfund transfers/other
       // financing sources are internal pass-throughs, not real spending.
@@ -18043,7 +17980,7 @@
         const constitutionalLedgerCloseButton = explorer.querySelector("[data-constitutional-ledger-close]");
         if (constitutionalLedgerCloseButton) {
           constitutionalLedgerCloseButton.textContent = "Back to Officers & Agencies";
-          constitutionalLedgerCloseButton.addEventListener("click", () => { window.location.href = "../home.html?explorer=constitutional"; });
+          constitutionalLedgerCloseButton.addEventListener("click", () => { window.location.href = "../index.html?explorer=constitutional"; });
         }
       }
     }).catch((error) => {
@@ -18083,7 +18020,7 @@
     return Array.from(groups.values()).filter((entry) => entry.amount > 0).sort((a, b) => b.amount - a.amount);
   }
 
-  // Countywide FY2027 proposed expenditures, same exclusions the
+  // Countywide FY2027 final expenditures, same exclusions the
   // Department/Personnel/Capital Explorers use for their own "X% of total
   // expenditure budget" callouts: the Self-Insurance Fund (503) and
   // interfund transfers/other financing sources are internal pass-
@@ -18210,7 +18147,7 @@
     return deptRows.reduce((sum, r) => sum + (r.Amount || 0), 0);
   }
 
-  // "Budget CSV Export": the FY2027 proposed budget as the pipe-delimited
+  // "Budget CSV Export": the FY2027 final budget as the pipe-delimited
   // import file, laid out as the cleaned OpenGov export -- Org, Object and
   // Project in columns A-C, four empty columns, then the amount in column H
   // as a plain number (no thousands separator). Fund is not part of the

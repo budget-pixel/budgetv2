@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // This document is the popup's internal content, not a standalone page.
+  // Preserve deep links while sending direct visits through the landing shell.
+  (function(){
+    if(window.top !== window.self) return;
+    var params = new URLSearchParams(window.location.search);
+    if(params.has("embed")) return;
+    var landing = new URL("index.html", window.location.href);
+    ["explorer", "popup"].forEach(function(name){
+      if(params.has(name)) landing.searchParams.set(name, params.get(name));
+    });
+    window.location.replace(landing.href);
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Explore Walton County's FY 2027 final budget: public services, revenue, workforce, capital projects, and how to participate.">
 <link rel="icon" type="image/png" href="assets/images/page-images/walton-county-logo-no-background.png">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20260910-launch-review">
-<link rel="stylesheet" href="assets/home-landing.css?v=20260929-wide-popup-search">
+<link rel="stylesheet" href="assets/style.css?v=20260929-final-budget-ledgers-v2">
+<link rel="stylesheet" href="assets/home-landing.css?v=20260929-white-cards-gold-accent">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -54,7 +68,7 @@
       <div class="wc-explorer-intro-copy-row">
         <div class="wc-explorer-intro-copy">
           <h2 id="explore-categories-title">How the budget is organized</h2>
-          <p class="wc-explorer-intro-lede">Four spending views connect every dollar to the services, staff, and projects behind it.</p>
+          <p class="wc-explorer-intro-lede">Explore spending by department, elected office, capital project, and independent agency.</p>
           <dl class="wc-explorer-intro-views">
             <div>
               <dt>Board Department Budgets</dt>
@@ -78,32 +92,6 @@
           <span class="wc-full-budget-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04A8.97 8.97 0 0 0 6 3.75c-1.05 0-2.06.18-3 .51v14.25A8.99 8.99 0 0 1 6 18c2.3 0 4.41.87 6 2.29m0-14.25a8.97 8.97 0 0 1 6-2.29c1.05 0 2.06.18 3 .51v14.25A8.99 8.99 0 0 0 18 18a8.97 8.97 0 0 0-6 2.29m0-14.25v14.25"></path></svg></span>
           <span class="wc-full-budget-feature-copy"><small>FY 2027 Budget Book</small><strong>Explore the Print Budget</strong><em>Open the complete interactive budget document</em></span>
           <b aria-hidden="true">&rarr;</b>
-        </a>
-      </div>
-      <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
-        <a class="wc-explorer-intro-icon-link" href="pages/budget-overview.html" data-explorer-popup-trigger="Ledger Directory">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></span>
-          <span>Ledger Directory</span>
-        </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/overview-of-walton-county.html" data-explorer-popup-trigger="Overview of Walton County">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span>
-          <span>Overview of Walton County</span>
-        </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/organizational-structure.html" data-explorer-popup-trigger="Organizational Structure">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4M12 7H6a2 2 0 0 0-2 2v3M12 7h6a2 2 0 0 1 2 2v3M4 15h4v4H4zM10 15h4v4h-4zM16 15h4v4h-4z"></path></svg></span>
-          <span>Organizational Structure</span>
-        </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/gfoa-distinguished-budget-presentation-award.html" data-explorer-popup-trigger="GFOA Distinguished Budget Presentation Award">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5 7 21l5-2.5L17 21l-1.5-8.5"></path></svg></span>
-          <span>GFOA Award</span>
-        </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/summary-of-budget-changes-and-adjustments.html" data-explorer-popup-trigger="Budget Change Summary">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg></span>
-          <span>Budget Change Summary</span>
-        </a>
-        <a class="wc-explorer-intro-icon-link" href="pages/budget-process.html" data-explorer-popup-trigger="Budget Process">
-          <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2"></path></svg></span>
-          <span>Budget Process</span>
         </a>
       </div>
     </div>
@@ -157,14 +145,43 @@
 
   </section>
 
+  <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
+    <a class="wc-explorer-intro-icon-link" href="pages/budget-overview.html" data-explorer-popup-trigger="Ledger Directory">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></span>
+      <span>Ledger Directory</span>
+    </a>
+    <a class="wc-explorer-intro-icon-link" href="pages/overview-of-walton-county.html" data-explorer-popup-trigger="Overview of Walton County">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span>
+      <span>Overview of Walton County</span>
+    </a>
+    <a class="wc-explorer-intro-icon-link" href="pages/organizational-structure.html" data-explorer-popup-trigger="Organizational Structure">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v4M12 7H6a2 2 0 0 0-2 2v3M12 7h6a2 2 0 0 1 2 2v3M4 15h4v4H4zM10 15h4v4h-4zM16 15h4v4h-4z"></path></svg></span>
+      <span>Organizational Structure</span>
+    </a>
+    <a class="wc-explorer-intro-icon-link" href="pages/gfoa-distinguished-budget-presentation-award.html" data-explorer-popup-trigger="GFOA Distinguished Budget Presentation Award">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M8.5 12.5 7 21l5-2.5L17 21l-1.5-8.5"></path></svg></span>
+      <span>GFOA Award</span>
+    </a>
+    <a class="wc-explorer-intro-icon-link" href="pages/summary-of-budget-changes-and-adjustments.html" data-explorer-popup-trigger="Budget Change Summary">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg></span>
+      <span>Budget Change Summary</span>
+    </a>
+    <a class="wc-explorer-intro-icon-link" href="pages/budget-process.html" data-explorer-popup-trigger="Budget Process">
+      <span class="wc-explorer-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"></circle><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2"></path></svg></span>
+      <span>Budget Process</span>
+    </a>
+  </div>
+
   <section class="wc-explorer-card-grid wc-explorer-card-grid-secondary" aria-label="Revenue and personnel explorers">
+
+    <h2 class="wc-explorer-secondary-title">Additional budget views</h2>
 
     <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
       <div class="wc-explorer-card-heading">
         <div><h3>Revenue Budget</h3></div>
       </div>
       <div class="wc-explorer-card-body">
-        <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 proposed</small></div>
+        <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 final</small></div>
         <div class="wc-dollar-mark" role="img" aria-label="Revenue budget"><i></i><i></i><i></i></div>
       </div>
       <span class="wc-explorer-card-action">Explore Revenue <b aria-hidden="true">→</b></span>
@@ -189,7 +206,7 @@
 <script src="assets/search-data.js?v=20260910-remove-dark-mode"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20260928-final-budget-reconciliation"></script>
+<script src="assets/budget-data.js?v=20260929-final-budget-ledgers-v2"></script>
 <script src="assets/independent-agencies-data.js?v=20260910-launch-review"></script>
 <script src="assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
 <script>
@@ -460,6 +477,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20260924-fullscreen-close"></script>
+<script src="assets/home-explorer-modal.js?v=20260929-popup-back-controls"></script>
 </body>
 </html>

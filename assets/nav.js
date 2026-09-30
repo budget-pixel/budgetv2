@@ -1,4 +1,15 @@
 (function(){
+  // Department pages opened with the popup embed flag should be
+  // chromeless immediately, even before the outer popup's iframe load
+  // handler adds the same class. This also keeps direct preview and
+  // screenshot URLs faithful to the real popup presentation.
+  (function markEmbeddedDepartmentPage(){
+    var embedMode;
+    try { embedMode = new URLSearchParams(window.location.search).get("embed"); }
+    catch(error) { return; }
+    if(embedMode === "department-popup") document.documentElement.classList.add("wc-embedded-department");
+  })();
+
   // Detail and utility documents are designed to appear inside the homepage
   // popup shell. If one is opened directly in the top-level browser, return
   // to the homepage and ask it to reopen the same URL in that shell. Embedded
@@ -11,7 +22,7 @@
     catch(error) { return; }
     if(directParams.has("embed")) return;
     var popupPath = window.location.pathname + window.location.search + window.location.hash;
-    var homepage = new URL("../home.html", window.location.href);
+    var homepage = new URL("../index.html", window.location.href);
     homepage.searchParams.set("popup", popupPath);
     window.location.replace(homepage.href);
   })();
@@ -501,7 +512,6 @@
   var WC_PDF_EXCLUDED_PAGE_NAMES = {
     "": true,
     "index.html": true,
-    "home.html": true,
     "our-county.html": true,
     "budget-overview.html": true,
     "departments.html": true,
@@ -1964,7 +1974,7 @@
   // nav -- the same look and behavior as the search bar on the homepage
   // popup's own header, just driven from window.wcBudgetPages (the same
   // sitewide page index search-data.js already merges into every page) so
-  // it works consistently everywhere nav.js runs, not just on home.html.
+  // it works consistently everywhere nav.js runs, not just on index.html.
   function initNavSearchBar(wrap){
     if(!wrap || wrap.getAttribute("data-wc-nav-search-bound") === "true"){
       return;
@@ -2309,7 +2319,7 @@
     var logoContainer = nav.querySelector(".logo-container");
     if(logoContainer && !logoContainer.querySelector(".wc-split-brand")){
       logoContainer.innerHTML = getWaltonSplitBrandHtml(
-        "../home.html",
+        "../index.html",
         "Walton County Board of County Commissioners Home"
       );
       if(window.WaltonSplitLogo && typeof window.WaltonSplitLogo.equalizeAll === "function"){

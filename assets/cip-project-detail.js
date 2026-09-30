@@ -93,8 +93,8 @@ function buildBackHref(){
   }
 
   // pages/search.html no longer exists as a page -- capital project search
-  // now lives inline on the Capital Explorer (home.html?explorer=capital).
-  return "../home.html?explorer=capital";
+  // now lives inline on the Capital Explorer (index.html?explorer=capital).
+  return "../index.html?explorer=capital";
 }
 
 function buildBackLabel(backHref){

@@ -3017,7 +3017,7 @@ function renderProjects(){
 
         ${!isFullView ? `
           <div class="wc-project-full-search-row">
-            <a class="wc-project-full-search-link" href="../home.html?explorer=capital">Open Full Project Search</a>
+            <a class="wc-project-full-search-link" href="../index.html?explorer=capital">Open Full Project Search</a>
           </div>
         ` : ""}
 

@@ -15,7 +15,7 @@
       typeof getWaltonSplitBrandHtml === "function"
     ){
       logoContainer.innerHTML = getWaltonSplitBrandHtml(
-        "../home.html",
+        "../index.html",
         "Walton County Board of County Commissioners Home"
       );
       if(window.WaltonSplitLogo && typeof window.WaltonSplitLogo.equalizeAll === "function"){
@@ -106,7 +106,7 @@
 
     var links = [];
     var seenHrefs = {};
-    var wcProjectSearchBaseUrl = window.wcProjectSearchBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "../home.html?explorer=capital" : "home.html?explorer=capital");
+    var wcProjectSearchBaseUrl = window.wcProjectSearchBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "../index.html?explorer=capital" : "index.html?explorer=capital");
     var wcCipAssetBaseUrl = window.wcBudgetAssetBaseUrl || window.wcCipAssetBaseUrl || (window.location.pathname.indexOf("/pages/") !== -1 ? "../assets/" : "assets/");
 
     function getLocalProjectHref(projectSlug){
