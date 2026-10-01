@@ -39,6 +39,7 @@
   // page returns to that page instead of dismissing the whole popup.
   var departmentReturnTo = null;
   var departmentFrameAwaitingInitialLoad = false;
+  var departmentNavigationStack = [];
   var lockedPageScrollY = 0;
   var savedBodyStyles = null;
   var backgroundElements = [];
@@ -570,7 +571,7 @@
       }).join("");
       var change = total - prior;
       var pct = prior ? change / Math.abs(prior) * 100 : null;
-      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
     });
@@ -612,19 +613,40 @@
         '<header class="wc-home-department-modal-head">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
     document.body.appendChild(departmentModal);
+    if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
+      window.WCBudgetNav.initNavSearchBar(departmentModal.querySelector(".wc-nav-search-bar-wrap"));
+    }
     departmentFrame = departmentModal.querySelector("iframe");
     departmentModal.querySelector("[data-department-popup-back]").addEventListener("click", function () {
-      // A plain link clicked inside this popup (Supporting Documentation's
-      // "TRIM Newspaper Advertisements" card, budget-overview.html's Ledger
-      // Directory, etc.) just navigates this same iframe like any other
-      // link -- so going back to whatever was showing before is a normal
-      // same-document history navigation, not a fresh openDepartmentModal()
-      // call (which would reset this popup's loading/reveal chrome).
-      departmentFrame.contentWindow.history.back();
+      var target = departmentNavigationStack.pop();
+      if (!target) {
+        // A scripted iframe navigation can bypass the link listener that
+        // records an explicit return target. Closing is safer than sending
+        // the iframe into its initial blank history entry.
+        closeDepartmentModal();
+        return;
+      }
+      var targetUrl = new URL(target.href, window.location.href);
+      targetUrl.searchParams.set("embed", "department-popup");
+      departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = target.title;
+      departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + target.title);
+      departmentFrame.title = target.title + " budget page";
+      var backButton = departmentModal.querySelector("[data-department-popup-back]");
+      if (backButton) backButton.hidden = departmentNavigationStack.length === 0;
+      departmentModal.classList.add("is-loading");
+      departmentModalOpenedAt = Date.now();
+      departmentFrameAwaitingInitialLoad = true;
+      if (departmentPanelResizeObserver) {
+        departmentPanelResizeObserver.disconnect();
+        departmentPanelResizeObserver = null;
+      }
+      departmentFrame.src = targetUrl.href;
+      syncPopupUrlState(targetUrl);
     });
     departmentFrame.addEventListener("load", function () {
       // openDepartmentModal already set the modal's title from the trigger
@@ -643,8 +665,8 @@
       // title, and syncPopupUrlState writing a bogus "?popup=blank" over
       // the removal closeDepartmentModal just made).
       if (departmentFrame.src === "about:blank" || departmentModal.hidden) return;
-      var isFollowOnNavigation = !departmentFrameAwaitingInitialLoad;
-      departmentFrameAwaitingInitialLoad = false;
+        var isFollowOnNavigation = !departmentFrameAwaitingInitialLoad;
+        departmentFrameAwaitingInitialLoad = false;
       try {
         var embeddedDocument = departmentFrame.contentDocument;
         embeddedDocument.documentElement.classList.add("wc-embedded-department");
@@ -695,12 +717,9 @@
           }
           // A same-iframe link click (handled below, or a plain in-page
           // link this handler doesn't specially intercept) lands here too.
-          // isFollowOnNavigation means the iframe's own history now has
-          // somewhere to go back to -- show the back button for any such
-          // page, not just the Ledger Directory flow this used to be
-          // limited to. That flow still works the same way: "back" from a
-          // ledger page just calls history.back(), landing on
-          // budget-overview.html either way.
+          // Follow-on links normally record an explicit return target in
+          // departmentNavigationStack. Show the shared Back control for
+          // those pages instead of relying on the iframe's browser history.
           var followOnBackButton = departmentModal.querySelector("[data-department-popup-back]");
           if (followOnBackButton) followOnBackButton.hidden = false;
           // Keep the address bar's ?popup= in sync with wherever this
@@ -794,6 +813,12 @@
             catch (currentUrlError) { currentEmbeddedUrl = null; }
             var isSamePageAnchor = currentEmbeddedUrl && resolvedUrl.pathname === currentEmbeddedUrl.pathname && resolvedUrl.search === currentEmbeddedUrl.search && resolvedUrl.hash;
             if (resolvedUrl.origin === window.location.origin && /\.html$/i.test(resolvedUrl.pathname) && !isSamePageAnchor && !link.hasAttribute("download") && (!link.target || link.target === "_self")) {
+              var currentReturnUrl = currentEmbeddedUrl ? new URL(currentEmbeddedUrl.href) : null;
+              if (currentReturnUrl) currentReturnUrl.searchParams.delete("embed");
+              departmentNavigationStack.push({
+                href: currentReturnUrl ? currentReturnUrl.href : embeddedDocument.location.href,
+                title: departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent || "Budget Page"
+              });
               departmentModal.classList.add("is-loading");
               var navigatingPanel = departmentModal.querySelector(".wc-home-department-modal-panel");
               if (navigatingPanel) navigatingPanel.style.height = "360px";
@@ -849,7 +874,7 @@
   // sharing/bookmarking the link) reopens the same popup on the same page
   // instead of landing back on the plain homepage. Called both when a popup
   // is first opened and again on every same-iframe follow-on navigation
-  // inside it (a plain link click, or the "back" button's history.back()).
+  // inside it, including an explicit return through the popup Back button.
   function syncPopupUrlState(targetUrl) {
     try {
       var query = new URLSearchParams(targetUrl.search);
@@ -864,6 +889,7 @@
 
   function openDepartmentModal(href, title, trigger, returnTo) {
     ensureDepartmentModal();
+    departmentNavigationStack = [];
     departmentTrigger = trigger;
     departmentReturnTo = returnTo || null;
     var openedWithoutExplorer = modal.hidden;
@@ -919,7 +945,7 @@
     // static page with no async data step (Overview of Walton County, Org
     // Chart, GFOA Award) should still open at this small "loading" size
     // and visibly expand a beat later, the same reveal a data-driven page
-    // like Budget Change Summary naturally gets. See the matching
+    // like Budget Adjustments naturally gets. See the matching
     // MIN_POPUP_REVEAL_MS gate in updateDepartmentModalHeight.
     var panelToReset = departmentModal.querySelector(".wc-home-department-modal-panel");
     if (panelToReset && !isUtilityPage && !isBudgetBook) panelToReset.style.height = "360px";
@@ -959,6 +985,7 @@
       }
     }
     departmentReturnTo = null;
+    departmentNavigationStack = [];
     var openedWithoutExplorer = departmentModal.dataset.standalone === "true";
     departmentModal.hidden = true;
     if(modal) modal.inert = false;

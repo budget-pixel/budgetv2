@@ -509,12 +509,14 @@
       if(detail){
         var operatingDetail=detail.cloneNode(true);
         // The Budget Ledger is the complete expenditure view. Keep every
-        // category assigned to the department, including personnel,
-        // operating, capital, debt service, grants and other uses.
+        // category assigned to the department. Capital is represented by
+        // one total here because its itemized requests already have a
+        // dedicated Capital Investments popup beside this ledger.
         addBudgetTotals(operatingDetail);
+        consolidateCapitalBudgetRows(operatingDetail);
         html=officeSubtotalsHtml(expenses)+operatingDetail.innerHTML;
       }
-      window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Ledger',kicker:departmentLabel||'',html:html});
+      window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Ledger',kicker:departmentLabel||'',bodyClassName:'wc-department-budget-ledger-body',html:html});
     });
   }
   function bindSnapshotInformationSheet(button,sheetTitle,html,departmentLabel,bodyClassName){
@@ -919,6 +921,38 @@
         return '<td class="'+escapeHtml(header&&header.className?header.className:'wc-num')+'">'+money(total)+'</td>';
       }).join('');
       body.appendChild(tr);
+    });
+  }
+  function consolidateCapitalBudgetRows(root){
+    root.querySelectorAll('table').forEach(function(table){
+      var body=table.tBodies[0];
+      if(!body) return;
+      var capitalRows=Array.prototype.slice.call(body.rows).filter(function(row){
+        if(row.classList.contains('wc-table-total-row')) return false;
+        var categoryCell=row.querySelector('.wc-category-column')||row.cells[0];
+        return /^capital outlay(?:\s+subtotal)?$/i.test(String(categoryCell&&categoryCell.textContent||'').trim());
+      });
+      if(!capitalRows.length) return;
+      var totalRow=capitalRows.find(function(row){return row.classList.contains('wc-table-subtotal-row')&&row.classList.contains('wc-budget-line-detail-row');});
+      if(!totalRow){
+        var sourceRows=capitalRows.filter(function(row){return row.classList.contains('wc-budget-line-summary-row');});
+        if(!sourceRows.length) sourceRows=capitalRows.filter(function(row){return row.classList.contains('wc-budget-line-detail-row');});
+        if(!sourceRows.length) return;
+        totalRow=sourceRows[0].cloneNode(true);
+        function cellAmount(cell){var text=String(cell&&cell.textContent||'').trim();var negative=/^\(.*\)$/.test(text)||text.charAt(0)==='-';var value=Number(text.replace(/[^0-9.]/g,''))||0;return negative?-value:value;}
+        Array.prototype.slice.call(totalRow.cells).forEach(function(cell,index){
+          if(!cell.classList.contains('wc-num')) return;
+          cell.textContent=money(sourceRows.reduce(function(total,row){return total+cellAmount(row.cells[index]);},0));
+        });
+        body.insertBefore(totalRow,capitalRows[0]);
+      }
+      totalRow.classList.remove('wc-budget-line-detail-row','wc-budget-line-summary-row','wc-table-subtotal-row','wc-budget-line-zero-current','wc-budget-line-zero-prior-budget');
+      totalRow.classList.add('wc-profile-capital-total-row');
+      var categoryCell=totalRow.querySelector('.wc-category-column')||totalRow.cells[0];
+      if(categoryCell) categoryCell.textContent='Capital Outlay Total';
+      var mobileLabel=totalRow.querySelector('[data-wc-mobile-label]');
+      if(mobileLabel) mobileLabel.setAttribute('data-wc-mobile-label','Capital Outlay Total');
+      capitalRows.forEach(function(row){if(row!==totalRow) row.remove();});
     });
   }
   function enhanceFinanceSheets(expenseQuestion,revenueQuestion,capitalQuestion,attempt){
@@ -1583,9 +1617,21 @@
     if(key==='code compliance'){
       var codePersonnel=snapshotExpenseGroups.find(function(item){return item.label==='Personnel Services';});
       if(codePersonnel){var codeSides={};expenses.filter(function(row){return row.Object_Type==='Personnel Services';}).forEach(function(row){var deptName=normalize(row.Dept_Name);var side=deptName==='code compliance beach'?'Beach':'Street';codeSides[side]=(codeSides[side]||0)+(Number(row.FY2027_Proposed)||0);});codePersonnel.sublines=Object.keys(codeSides).map(function(side){return {label:side,amount:codeSides[side]};}).filter(function(item){return item.amount!==0;});}
-      if(snapshotExpenseGroups.length&&snapshotExpenseGroups.every(function(item){return item.renderedChange;})){
-        budgetChange=snapshotExpenseGroups.reduce(function(total,item){var match=item.renderedChange.text.match(/([+\-−])?\$([0-9,]+)/);if(!match)return total;var amount=Number(match[2].replace(/,/g,''))||0;return total+(match[1]==='-'||match[1]==='−'?-amount:amount);},0);
-        priorBudget=budget-budgetChange;
+      // Street and Beach share the same accounting code, so the raw rows
+      // repeat the full FY 2026 personnel baseline under both display
+      // names. The source Expenditure Summary has already deduped that
+      // shared baseline and exposes the correct combined personnel change.
+      // Use it to restore the one true prior-year personnel amount before
+      // calculating the department-wide and recurring-budget comparisons.
+      if(codePersonnel&&codePersonnel.renderedChange){
+        var codePersonnelMatch=codePersonnel.renderedChange.text.match(/([+\-−])?\$([0-9,]+)/);
+        if(codePersonnelMatch){
+          var codePersonnelDelta=Number(codePersonnelMatch[2].replace(/,/g,''))||0;
+          if(codePersonnelMatch[1]==='-'||codePersonnelMatch[1]==='−') codePersonnelDelta=-codePersonnelDelta;
+          codePersonnel.prior=codePersonnel.amount-codePersonnelDelta;
+          priorBudget=snapshotExpenseGroups.reduce(function(total,item){return total+(Number(item.prior)||0);},0);
+          budgetChange=budget-priorBudget;
+        }
       }
     }
     var snapshotRevenueGroups=[];

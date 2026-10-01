@@ -1466,6 +1466,65 @@ html.wc-embedded-utility #content{width:min(1380px,100%);max-width:none;margin:0
   line-height:1.25;
 }
 
+/* Compact ledger-directory cards used for primary explorer actions. */
+a.wc-ledger-card-button{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) 18px;
+  align-items:center;
+  gap:10px;
+  width:220px;
+  min-width:220px;
+  max-width:220px;
+  min-height:60px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  border:1px solid var(--border)!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  box-shadow:0 3px 10px rgba(0,63,40,.05);
+  color:var(--navy)!important;
+  font-size:.72rem!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  text-align:left!important;
+  text-decoration:none!important;
+  white-space:normal!important;
+  transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+a.wc-ledger-card-button::before{
+  content:"▤";
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--light);
+  color:var(--green);
+  font-size:1.05rem;
+  line-height:1;
+}
+a.wc-ledger-card-button::after{
+  content:"→";
+  color:var(--green);
+  font-size:1rem;
+  font-weight:800;
+  text-align:right;
+}
+a.wc-ledger-card-button:hover{
+  border-color:var(--green)!important;
+  background:#fff!important;
+  box-shadow:0 7px 18px rgba(0,63,40,.11);
+  transform:translateY(-1px);
+}
+a.wc-ledger-card-button:focus-visible{
+  outline:3px solid rgba(121,185,154,.5);
+  outline-offset:2px;
+}
+@media(max-width:650px){
+  a.wc-ledger-card-button{width:100%;min-width:0;max-width:none}
+}
+
 @media(max-width:1050px){
   .wc-department-explorer-head{
     flex-direction:column;
@@ -3018,6 +3077,16 @@ main#content > .recreation-parks-section {
   background: rgba(255,255,255,.86);
   backdrop-filter: blur(18px);
 }
+.wc-budget-detail-heading { min-width: 0; flex: 1 1 auto; }
+.wc-budget-detail-heading h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wc-budget-detail-header .wc-nav-search-bar-wrap {
+  width: min(600px, 48vw) !important;
+  flex: 0 0 min(600px, 48vw) !important;
+}
+.wc-budget-detail-header .wc-nav-search-bar-form { padding: 3px 4px 3px 13px !important; box-shadow: none !important; }
+.wc-budget-detail-header .wc-nav-search-bar-form svg { width: 19px !important; height: 19px !important; }
+.wc-budget-detail-header .wc-nav-search-bar-form input { padding: 7px 9px !important; font-size: .8rem !important; }
+.wc-budget-detail-header .wc-nav-search-bar-form button { padding: 9px 17px !important; font-size: .7rem !important; font-weight: 850 !important; text-transform: none !important; }
 .wc-budget-detail-kicker {
   margin: 0 0 6px;
   color: #003f28;
@@ -3136,6 +3205,13 @@ main#content > .recreation-parks-section {
 .wc-budget-detail-body .wc-budget-lines-detail.show-prior-years .wc-data-table td {
   white-space: nowrap;
 }
+.wc-department-budget-ledger-body .wc-data-table { table-layout: fixed; }
+.wc-department-budget-ledger-body .wc-category-column { width: 21%; }
+.wc-department-budget-ledger-body .wc-object-code-column { width: 10%; }
+.wc-department-budget-ledger-body .wc-object-code-column + th,
+.wc-department-budget-ledger-body .wc-object-code-column + td { width: 25%; }
+.wc-department-budget-ledger-body .wc-itemized-description-column { width: 14%; }
+.wc-department-budget-ledger-body .wc-profile-capital-total-row td { font-weight: 800; background: rgba(0,63,40,.05); }
 
 .wc-data-table-wrap { margin: 24px 0; }
 .wc-data-table-wrap:has(+ .wc-table-footer-row) { margin-bottom: 8px; }
@@ -4719,7 +4795,15 @@ html.wc-embedded-utility .wc-budget-process-back { display: none !important; }
     height: 82vh;
   }
   .wc-budget-detail-header {
+    flex-wrap: wrap;
     padding: 18px 18px 14px;
+  }
+  .wc-budget-detail-heading { order: 1; }
+  .wc-budget-detail-close { order: 2; }
+  .wc-budget-detail-header .wc-nav-search-bar-wrap {
+    order: 3;
+    width: 100% !important;
+    flex: 1 0 100% !important;
   }
   .wc-budget-detail-body {
     max-height: calc(82vh - 82px);

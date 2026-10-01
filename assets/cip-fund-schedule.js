@@ -352,8 +352,8 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               ${showDistrictColumn ? "<th>Commissioner District</th>" : ""}
               ${showFundingColumn ? "<th>Fund</th>" : ""}
               ${showRevenueSourceColumn ? "<th>Revenue Source</th>" : ""}
-              ${showPhaseColumn ? "<th>Phase</th>" : ""}
-              ${showStatusColumn ? "<th>Status</th>" : ""}
+              ${showPhaseColumn ? "<th>Current Phase</th>" : ""}
+              ${showStatusColumn ? "<th>Current Status</th>" : ""}
               ${showDateColumns ? "<th>Started</th><th>Completed</th>" : ""}
               ${showBudgetColumn ? `<th class="wc-num">Budget/Actual</th>` : ""}
               ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
@@ -1102,9 +1102,9 @@ function renderFundSchedule(config){
         <label class="wc-cip-sort-field">
           <span>Sort by</span>
           <select id="wcCipHistoricalSort">
-            <option value="status"${historicalSort === "status" ? " selected" : ""}>Status</option>
+            <option value="status"${historicalSort === "status" ? " selected" : ""}>Current Status</option>
             <option value=""${historicalSort === "" ? " selected" : ""}>Project Name</option>
-            <option value="phase"${historicalSort === "phase" ? " selected" : ""}>Phase</option>
+            <option value="phase"${historicalSort === "phase" ? " selected" : ""}>Current Phase</option>
           </select>
         </label>
       `;

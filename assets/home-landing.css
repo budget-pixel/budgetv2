@@ -249,11 +249,16 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 @media(prefers-reduced-motion:reduce){.wc-home-department-modal-panel{transition:none}}
 .wc-home-department-modal.is-loading .wc-home-department-modal-panel::after{content:"Loading budget page…";position:absolute;inset:62px 0 0;display:grid;place-items:center;background:var(--light);color:var(--green);font-size:.8rem;font-weight:800;letter-spacing:.04em}
 .wc-home-department-modal-head{display:flex;align-items:center;gap:16px;padding:13px 24px;border-bottom:1px solid var(--border);background:var(--light)}
-.wc-home-department-modal-head h2{margin:0;color:var(--navy);font-size:1.2rem}
+.wc-home-department-modal-head h2{min-width:0;flex:1 1 auto;margin:0;overflow:hidden;color:var(--navy);font-size:1.2rem;text-overflow:ellipsis;white-space:nowrap}
+.wc-home-department-modal-head .wc-nav-search-bar-wrap{width:min(600px,48vw)!important;flex:0 0 min(600px,48vw)!important}
+.wc-home-department-modal-head .wc-nav-search-bar-form{padding:3px 4px 3px 13px!important;box-shadow:none!important}
+.wc-home-department-modal-head .wc-nav-search-bar-form svg{width:19px!important;height:19px!important}
+.wc-home-department-modal-head .wc-nav-search-bar-form input{padding:7px 9px!important;font-size:.8rem!important}
+.wc-home-department-modal-head .wc-nav-search-bar-form button{padding:9px 17px!important;font-size:.7rem!important;font-weight:850!important;text-transform:none!important}
 .wc-home-department-modal-back{display:inline-flex;align-items:center;flex:0 0 auto;height:32px;padding:0 12px;border:1px solid rgba(0,98,49,.14);border-radius:999px;background:#fff;color:var(--green);font:inherit;font-size:.78rem;font-weight:800;white-space:nowrap;cursor:pointer}
 .wc-home-department-modal-back[hidden]{display:none}
 .wc-home-department-modal-back:hover{border-color:var(--green)}
-.wc-home-department-modal-close{display:grid;width:38px;height:38px;margin-left:auto;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
+.wc-home-department-modal-close{display:grid;width:38px;height:38px;margin-left:0;padding:0;place-items:center;border:1px solid var(--border);border-radius:50%;background:#f5f8f6;color:var(--navy);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
 .wc-home-department-modal-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:var(--light);overscroll-behavior:contain}
 .wc-home-department-modal.is-loading .wc-home-department-modal-frame{visibility:hidden}
 /* Interactive budget book: it draws its own minimal, floating chrome (page
@@ -273,6 +278,6 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
 .wc-home-explorer-modal-body .wc-revenue-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-ledger-trigger,.wc-home-explorer-modal-body .wc-personnel-explainer-link,.wc-home-explorer-modal-body .wc-department-ledger-trigger{min-height:44px;padding:10px 16px;line-height:1.2}
 .wc-home-capital-summary{margin-bottom:18px}
 .wc-home-capital-summary p{max-width:850px}
-@media(max-width:700px){.wc-home-explorer-modal{padding:0}.wc-home-explorer-modal-panel{width:100%;height:100vh;height:100dvh;max-height:none;margin:0;border:0;border-radius:0}.wc-home-explorer-modal-head{padding:11px 16px;border-radius:0}.wc-home-explorer-modal-body{padding:16px}.wc-home-explorer-modal-heading h2{font-size:1.05rem}.wc-home-explorer-modal-footer{align-items:flex-start;flex-direction:column;padding:14px 16px;border-radius:0}.wc-home-explorer-modal-footer nav{justify-content:flex-start;flex-wrap:wrap}.wc-home-department-modal{padding:0}.wc-home-department-modal-panel{width:100%;height:100vh;height:100dvh;margin:0;border:0;border-radius:0}.wc-home-department-modal-head{padding:11px 16px}}
+@media(max-width:700px){.wc-home-explorer-modal{padding:0}.wc-home-explorer-modal-panel{width:100%;height:100vh;height:100dvh;max-height:none;margin:0;border:0;border-radius:0}.wc-home-explorer-modal-head{padding:11px 16px;border-radius:0}.wc-home-explorer-modal-body{padding:16px}.wc-home-explorer-modal-heading h2{font-size:1.05rem}.wc-home-explorer-modal-footer{align-items:flex-start;flex-direction:column;padding:14px 16px;border-radius:0}.wc-home-explorer-modal-footer nav{justify-content:flex-start;flex-wrap:wrap}.wc-home-department-modal{padding:0}.wc-home-department-modal-panel{width:100%;height:100vh;height:100dvh;margin:0;border:0;border-radius:0}.wc-home-department-modal-head{flex-wrap:wrap;padding:11px 16px}.wc-home-department-modal-back{order:1}.wc-home-department-modal-head h2{order:2;font-size:1rem}.wc-home-department-modal-close{order:3}.wc-home-department-modal-head .wc-nav-search-bar-wrap{order:4;width:100%!important;flex:1 0 100%!important}}
 @media(prefers-reduced-motion:reduce){.wc-home-explorer-modal-wave,.wc-home-department-modal-wave{display:none!important}}
 @media print{.wc-home-explorer-modal{display:none!important}}

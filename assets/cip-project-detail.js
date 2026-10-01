@@ -84,31 +84,6 @@ function getProjectValue(project, keys, fallback = "Not specified"){
   return fallback;
 }
 
-function buildBackHref(){
-  const params = new URLSearchParams(window.location.search);
-  const returnHref = params.get("return");
-
-  if(returnHref && /^[a-z0-9-]+\.html(?:#[a-z0-9_-]+)?$/i.test(returnHref)){
-    return returnHref;
-  }
-
-  // pages/search.html no longer exists as a page -- capital project search
-  // now lives inline on the Capital Explorer (index.html?explorer=capital).
-  return "../index.html?explorer=capital";
-}
-
-function buildBackLabel(backHref){
-  if(/^cip-/.test(String(backHref || ""))){
-    return "Back to Schedule";
-  }
-
-  if(/explorer=capital/.test(String(backHref || ""))){
-    return "Back to Capital Explorer";
-  }
-
-  return "Back to Project Search";
-}
-
 function normalizeProjectSlug(value){
   return String(value ?? "")
     .trim()
@@ -569,16 +544,12 @@ function renderProjectPage(){
   const projects = Array.isArray(window.wcCipProjects) ? window.wcCipProjects : [];
   const matchedProject = projects.find(p => projectMatchesRequestedSlug(p, slug));
   const project = matchedProject ? mergeSameProjectRecords(matchedProject, projects) : null;
-  const backHref = buildBackHref();
-  const backLabel = buildBackLabel(backHref);
-
   if(!project){
 
     app.innerHTML = `
       <div class="wc-project-not-found">
         <h1>Project Not Found</h1>
         <p>The requested project could not be located.</p>
-        <p><a class="wc-project-back" href="${backHref}">&larr; ${backLabel}</a></p>
       </div>
     `;
 
@@ -613,10 +584,6 @@ function renderProjectPage(){
   app.innerHTML = `
 
     <main class="wc-project-page">
-
-      <div class="wc-project-actions">
-        <a class="wc-project-back" href="${backHref}">&larr; ${backLabel}</a>
-      </div>
 
       <section class="wc-project-hero">
         <div class="page-eyebrow">${displayValue(category, "Capital Projects")}</div>

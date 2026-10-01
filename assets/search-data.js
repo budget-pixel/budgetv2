@@ -28,7 +28,7 @@ var wcCoreBudgetPages = [
   { title:"Department Budget Explorer", section:"Financial Overview", href:"../index.html?explorer=departments" },
   { title:"Independent Agencies Budget Explorer", section:"Financial Overview", href:"../index.html?explorer=independent" },
   { title:"Expenditure Ledger", section:"Financial Summaries", href:"summary-of-expenses.html" },
-  { title:"Budget Change Summary", section:"Financial Overview", href:"summary-of-budget-changes-and-adjustments.html" },
+  { title:"Budget Adjustments", section:"Financial Overview", href:"summary-of-budget-changes-and-adjustments.html" },
   { title:"Interfund Transfer Ledger", section:"Financial Overview", href:"summary-of-interfund-transfers.html" },
   { title:"Personnel Budget", section:"Financial Overview", href:"../index.html?explorer=personnel" },
   { title:"Machinery, Vehicles, & Equipment Ledger", section:"Capital Budget", href:"summary-of-machinery-vehicles-and-equipment.html" },
