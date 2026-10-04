@@ -333,6 +333,7 @@ const machineryPage3 = `
       ${itemTable(TOURISM_ADMIN_ITEMS, "Tourism Administration &mdash; $50,000")}
       ${itemTable(BEACH_TRAM_ITEMS, "Beach Tram &mdash; $507,000")}
       ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
+      <p class="note"><b>Truck Wash System:</b> $200,000 is a new Beach Operations equipment appropriation funded by Tourist Development Taxes, not an annual operating charge. The item schedule does not quantify utilization, ongoing costs, or savings; an operating justification requires department confirmation. No savings estimate is included here.</p>
     </div>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE3}}"}</b></footer>
   </section>
@@ -549,7 +550,7 @@ const touristPage = `
     <h2>FY 2027 Funded Projects</h2>
     ${decisionProfileTable(TOURIST_ADOPTED.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADOPTED_TOTAL)}
     <h2>Previously Funded Projects</h2>
-    <p class="intro">These projects received funding in prior years and remain active in the County's project inventory. They are shown here for reference and are not part of the $43.8 million funded FY 2027 capital program.</p>
+    <p class="intro">These projects received funding in prior years and remain active in the County's project inventory. They are shown for reference, not as new FY 2027 appropriations. In particular, the $6,000,000 US 331 Bridge Lighting amount is previously funded and is excluded from both the $11,350,000 FY 2027 tourism project total and the $43.8 million FY 2027 capital program.</p>
     ${decisionProfileTable(TOURIST_ADDITIONAL.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADDITIONAL_TOTAL)}
     <p class="note">Beach renourishment is an ongoing capital commitment because shoreline restoration is periodically required. Its FY 2027 appropriation remains capital rather than operating spending; the previously funded projects above are shown for reference.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>

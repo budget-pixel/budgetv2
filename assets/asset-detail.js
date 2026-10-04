@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1951375493&single=true&output=csv";
+  const DATA_URL = "../assets/static-data/asset-detail.csv?v=20261004-static-final";
   const container = document.getElementById("asset-record");
   // Temporary display fallback until the Fleet Note column is included in
   // the published machinery-request CSV. A nonblank request note passed in
@@ -108,7 +108,7 @@
   }
 
   // Response cache + one retry + stale-cache fallback around the published
-  // Google Sheet fetch -- see budget-data.js's fetchText for the full
+  // static publication dataset fetch -- see budget-data.js's fetchText for the full
   // rationale (this page's sheet was previously re-fetched from scratch on
   // every view with no retry, and a single failed/timed-out fetch fell
   // straight through to the error state below).
@@ -142,7 +142,7 @@
     }
     function fetchOnce() {
       return fetch(url).then((response) => {
-        if (!response.ok) throw new Error("Equipment sheet request failed");
+        if (!response.ok) throw new Error("Equipment publication request failed");
         return response.text();
       });
     }
@@ -163,7 +163,7 @@
   function loadAssetRecord() {
     const requestedAsset = new URLSearchParams(window.location.search).get("asset");
     if (!requestedAsset) {
-      container.innerHTML = '<div class="wc-data-empty"><strong>No asset number was provided.</strong><br>Return to the machinery summary and select a BCC replacement number.</div>';
+      container.innerHTML = '<h1 class="page-title">Equipment Record</h1><div class="wc-data-empty"><strong>No asset number was provided.</strong><br>Return to the machinery summary and select a BCC replacement number.</div>';
       return;
     }
 
@@ -172,14 +172,14 @@
       .then((records) => {
         const record = records.find((item) => String(item["Equip Code"] || "").trim() === String(requestedAsset).trim());
         if (!record) {
-          container.innerHTML = '<div class="wc-data-empty"><strong>No equipment record was found for BCC asset ' + escapeHtml(requestedAsset) + '.</strong><br>The asset may not yet be included in the published equipment history.</div>';
+          container.innerHTML = '<h1 class="page-title">Equipment Record</h1><div class="wc-data-empty"><strong>No equipment record was found for BCC asset ' + escapeHtml(requestedAsset) + '.</strong><br>The asset may not yet be included in the published equipment history.</div>';
           return;
         }
         render(record);
       })
       .catch((error) => {
         console.error("Asset detail failed to load", error);
-        container.innerHTML = '<div class="wc-data-error">The equipment record could not be loaded right now. Please return to the machinery summary and try again.</div>';
+        container.innerHTML = '<h1 class="page-title">Equipment Record</h1><div class="wc-data-error">The equipment record could not be loaded right now. Please return to the machinery summary and try again.</div>';
       });
   }
 

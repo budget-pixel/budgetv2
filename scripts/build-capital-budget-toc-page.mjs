@@ -9,9 +9,11 @@ import { chromium } from "playwright";
 const ITEMS = [
   ["Capital Improvement Plan", 93],
   ["Machinery, Vehicles, and Equipment Ledger", 96],
-  ["Transportation and Infrastructure Capital Ledger", 98],
+  { category: "Transportation and Infrastructure Projects" },
+  ["Transportation and Infrastructure Capital Ledger", 98, true],
   ["Tourist Development Fund Capital Ledger", 100],
-  ["Sheriff Capital Project Ledger", 101],
+  { category: "Sheriff Projects" },
+  ["Sheriff Capital Project Ledger", 101, true],
   ["Recreation Plat Fee Fund Capital Ledger", 102],
   ["Sidewalk Fund Capital Ledger", 103]
 ];
@@ -33,6 +35,8 @@ const css = `
   p.intro{ max-width:6.6in; margin:0 0 .22in; color:#54665e; font-size:9pt; line-height:1.45; }
   .row{ display:flex; justify-content:space-between; align-items:baseline; padding:7.5px 0; border-bottom:1px solid #e4ebe7; font-size:9.2pt; }
   .row span{ color:#173229; font-weight:700; }
+  .row.is-subitem span{padding-left:.2in;font-weight:600;}
+  .category{margin:.12in 0 .01in;color:#006231;font-size:7.5pt;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
   .row b{ color:#006231; font-weight:700; font-size:9pt; }
   .trailing{ margin-top:.3in; padding-top:.06in; border-top:2px solid #d1be78; }
   footer{ position:absolute; left:.625in; right:.625in; bottom:.3in; display:flex; justify-content:space-between; border-top:1px solid #cbd8d1; padding-top:7px; color:#68786f; font-size:7.5pt; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
@@ -46,7 +50,9 @@ const html = `<!doctype html>
     <small class="kicker">Budget Book Guide</small>
     <h1>Capital Budget</h1>
     <p class="intro">Walton County's Capital Improvement Plan and the fund-specific ledgers that finance it &mdash; machinery, vehicles and equipment, transportation and infrastructure, tourist development, Sheriff facilities, recreation plat fees, and sidewalks.</p>
-    ${ITEMS.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
+    ${ITEMS.map((item) => item.category
+      ? `<div class="category">${item.category}</div>`
+      : `<div class="row${item[2] ? " is-subitem" : ""}"><span>${item[0]}</span><b>${item[1]}</b></div>`).join("")}
     <div class="trailing">
       ${TRAILING.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
     </div>

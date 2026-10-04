@@ -3197,7 +3197,7 @@ function initProjects(){
     return;
   }
 
-  app.innerHTML = '<div class="wc-data-loading">Loading capital project data...</div>';
+  app.innerHTML = '<h1 class="page-title">Capital Improvement Plan</h1><div class="wc-data-loading">Loading capital project data...</div>';
 
   const ready = window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || []);
 
@@ -3205,7 +3205,7 @@ function initProjects(){
     renderProjects();
   }).catch(error => {
     console.error("Walton CIP: failed to initialize project search", error);
-    app.innerHTML = '<div class="wc-project-empty">Capital project data could not be loaded.</div>';
+    app.innerHTML = '<h1 class="page-title">Capital Improvement Plan</h1><div class="wc-project-empty">Capital project data could not be loaded.</div>';
   });
 }
 

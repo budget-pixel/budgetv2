@@ -211,7 +211,7 @@ const row = (cells, cls) => {
   return `<div class="lrow${cl}"><div class="rlabel">${cells[0]}</div>${cells.slice(1).map((c) => `<div class="rnum">${c}</div>`).join("")}</div>`;
 };
 
-const tableHead = `<div class="lrow head"><div class="rlabel">Revenue Category</div>${YEARS.map((y) => `<div class="rnum">${y}</div>`).join("")}</div>`;
+const tableHead = `<div class="lrow head"><div class="rlabel">Revenue Category</div>${YEARS.map((y) => `<div class="rnum">${y.replace(/ (Actual|Budget|Final)$/, "<br>$1")}</div>`).join("")}</div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -319,7 +319,7 @@ const page1 = `
   </section>
 `;
 
-const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY26 Budget</div><div class="dnum">FY27 Final</div><div class="dnum">+/&minus;</div></div></div>`;
+const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY 2026<br>Budget</div><div class="dnum">FY 2027<br>Final</div><div class="dnum">+/&minus;</div></div><div class="drow dhead"><div class="dlabel">Revenue Source</div><div class="dnum">FY 2026<br>Budget</div><div class="dnum">FY 2027<br>Final</div><div class="dnum">+/&minus;</div></div></div>`;
 
 const page2 = `
   <section>

@@ -10,16 +10,12 @@ import QRCode from "qrcode";
 // dropped here as a web-only tool with no print equivalent, same call made
 // for Organizational Structure's "View Full-Size Chart" button.
 //
-// Two totals appear in the source data and are NOT interchangeable:
-// $151,592,125 is the County government's own Ad Valorem allocation
-// (excludes the North Walton Mosquito Control District, which levies its
-// own separate 0.441-mill rate); $153,019,062 is the all-funds total
-// including Mosquito Control. This page uses and labels the County-only
-// figure throughout, consistent with the live page's own "Total
-// Countywide Ad Valorem Revenue" KPI.
+// The approved Non-Profit allocation is $268,500; the $181,500 difference
+// is reassigned to BCC. County-only allocation remains $151,592,125;
+// including the separate Mosquito Control levy it is $153,019,062.
 
 const STATS = [
-  ["$151.6M", "Total Countywide Ad Valorem Revenue"],
+  ["$151.6M", "Total Countywide Ad Valorem Allocation"],
   ["3.2500", "Final FY 2027 Millage Rate"],
   ["3.7782", "Two-Thirds Vote Maximum"],
   ["0.441", "Mosquito Control District (Separate)"]
@@ -32,32 +28,48 @@ const row = ([name, amount, pct], rowClass) => {
   return `<div class="dept-row${cls}"><div class="dept-name">${name}</div><div class="num">${amount}</div><div class="num pct">${pctDisplay}</div></div>`;
 };
 
-const tableHead = `<div class="dept-row head"><div class="dept-name">Recipient</div><div class="num">FY 2027 Ad Valorem Revenue</div><div class="num">% of Total</div></div>`;
+const tableHead = `<div class="dept-row head"><div class="dept-name">Recipient</div><div class="num">FY 2027 Ad Valorem Allocation</div><div class="num">% of Total</div></div>`;
 
 const CONSTITUTIONAL = [
   ["Sheriff's Office", "$98,004,256", "64.65%"],
   ["Clerk of Court", "$6,871,175", "4.53%"],
   ["Property Appraiser", "$4,954,338", "3.27%"],
-  ["Board of County Commissioners", "$4,491,053", "2.96%"],
+  ["Board of County Commissioners", "$4,672,553", "2.96%"],
   ["Tax Collector", "$4,449,400", "2.94%"],
   ["Supervisor of Elections", "$1,663,865", "1.10%"]
 ];
-const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,434,087", "79.45%"];
+const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,615,587", "79.45%"];
 
 const INDEPENDENT = [
   ["Statutory & Other Agency Funding", "$3,247,957", "2.14%"],
   ["Walton County Health Department", "$1,724,397", "1.14%"],
   ["South Walton Fire", "$980,074", "0.65%"],
   ["Medical Examiner", "$881,930", "0.58%"],
-  ["Non-Profit Funding Program", "$450,000", "0.30%"],
+  ["Non-Profit Funding Program", "$268,500", "0.18%"],
   ["State Attorney", "$297,111", "0.20%"],
   ["Public Defender", "$290,833", "0.19%"],
   ["Circuit Court", "$111,493", "0.07%"],
   ["County Court", "$70,056", "0.05%"]
 ];
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,053,851", "5.31%"];
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$7,872,351", "5.20%"];
 
-const CAPITAL = [["Capital Projects", "$16,988,464", "11.21%"]];
+// These are the named recipients in the published expenditure sheet's
+// Statutory & Other rollup. The revenue sheet assigns property tax to the
+// parent category, not to the individual recipients.
+const STATUTORY_RECIPIENTS = [
+  "Medicaid Services", "Health Care Response (HCRA)",
+  "DeFuniak Community Redevelopment Agency", "Liberty Volunteer Fire Department",
+  "Argyle Volunteer Fire Department", "Opioid Settlement Year 4",
+  "15% Opioid Settlement Year 4", "Economic Development Alliance",
+  "Gulf Coast Kid's House", "DeFuniak Springs Interlocal (Life Enrichment Center)",
+  "Indigent Cremation Program", "Lakeview Center (Women & Children)",
+  "Lakeview Center (Mental Health)", "Lakeview Center (Baker Act)"
+];
+
+const CAPITAL = [
+  ["Sheriff Projects", "$7,000,000", ""],
+  ["Transportation and Infrastructure", "$9,988,464", ""]
+];
 const CAPITAL_TOTAL = ["Total Capital", "$16,988,464", "11.21%"];
 
 const BOARD_DEPTS = [
@@ -70,20 +82,29 @@ const BOARD_DEPTS = [
 ];
 const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.03%"];
 
-const GRAND_TOTAL = ["Total Countywide Ad Valorem Revenue", "$151,592,125", "100.00%"];
+const GRAND_TOTAL = ["Total Countywide Ad Valorem Allocation", "$151,592,125", "100.00%"];
+const COUNTY_ALLOCATION_TOTAL = 151592125;
+const currencyAmount = (value) => Number(String(value).replace(/[^0-9.-]/g, ""));
+// Recompute every share after the authorized Non-Profit allocation reduction.
+[...CONSTITUTIONAL, CONSTITUTIONAL_TOTAL, ...INDEPENDENT, INDEPENDENT_TOTAL,
+ ...CAPITAL, CAPITAL_TOTAL, ...BOARD_DEPTS, BOARD_TOTAL].forEach((entry) => {
+  entry[2] = (currencyAmount(entry[1]) / COUNTY_ALLOCATION_TOTAL * 100).toFixed(2) + "%";
+});
 
 const EXAMPLE_TAX = (250000 - 51411) * 3.25 / 1000;
 const EXAMPLE_SHARES = [
-  ["Sheriff's Office", 64.65],
-  ["Capital Projects", 11.21],
-  ["Clerk of Court", 4.53],
-  ["Property Appraiser", 3.27],
-  ["Board of County Commissioners", 2.96],
-  ["Tax Collector", 2.94],
-  ["All Other Entities", 10.44]
+  ["Sheriff's Office", 98004256],
+  ["Sheriff Projects", 7000000],
+  ["Transportation and Infrastructure", 9988464],
+  ["Clerk of Court", 6871175],
+  ["Property Appraiser", 4954338],
+  ["Board of County Commissioners", 4672553],
+  ["Tax Collector", 4449400],
+  ["All Other Entities", COUNTY_ALLOCATION_TOTAL - 98004256 - 16988464 - 6871175 - 4954338 - 4672553 - 4449400]
 ];
 let allocatedCents = 0;
-const EXAMPLE_ROWS = EXAMPLE_SHARES.map(([name, share], index) => {
+const EXAMPLE_ROWS = EXAMPLE_SHARES.map(([name, amount], index) => {
+  const share = amount / COUNTY_ALLOCATION_TOTAL * 100;
   const cents = index === EXAMPLE_SHARES.length - 1
     ? Math.round(EXAMPLE_TAX * 100) - allocatedCents
     : Math.round(EXAMPLE_TAX * share);
@@ -217,6 +238,13 @@ const sharedCss = `
   }
   .dept-row.total .dept-name{ color:#003f28; font-weight:800; }
   .dept-row.total .num{ color:#003f28; font-weight:800; }
+  .dept-row.detail{padding:.035in 0 .035in .14in;border-bottom:0;}
+  .dept-row.detail .dept-name{font-size:7.2pt;color:#52665b;}
+  .dept-row.detail .num{font-size:7pt;color:#68786f;}
+  .dept-row.detail .dept-name::before{content:"↳ ";color:#006231;}
+  .recipient-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:.18in;row-gap:.025in;padding:.045in 0 .035in .14in;}
+  .recipient-grid span{color:#52665b;font-size:7pt;line-height:1.2;}
+  .recipient-grid span::before{content:"↳ ";color:#006231;}
   .dept-row.grand{
     margin-top:.12in;
     border-top:2.5px solid #003f28;
@@ -311,6 +339,7 @@ const sharedCss = `
     line-height:1.4;
     font-style:italic;
   }
+  .category-note{margin:.045in 0 .065in .14in;color:#68786f;font-size:6.7pt;line-height:1.3;font-style:italic;}
   footer{
     position:absolute;
     left:.62in;
@@ -349,9 +378,20 @@ const page1 = `
 
     <h2 class="group">Independent Agencies</h2>
     <div class="dept-table">
-      ${INDEPENDENT.map((r) => row(r)).join("")}
+      ${INDEPENDENT.map((r, index) => row(r) + (index === 0
+        ? '<div class="recipient-grid">' + STATUTORY_RECIPIENTS.map((name) => '<span>' + name.replace(/&/g, "&amp;") + '</span>').join("") + '</div>'
+        : "")).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
+
+    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
+  </section>
+`;
+
+const page2 = `
+  <section>
+    ${pageHeader()}
+    <h1 class="continued">Property Tax Allocation <span>(continued)</span></h1>
 
     <h2 class="group">Capital</h2>
     <div class="dept-table">
@@ -364,20 +404,11 @@ const page1 = `
       ${row(["Board Departments", BOARD_TOTAL[1], BOARD_TOTAL[2]], "total")}
     </div>
 
-    <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
-  </section>
-`;
-
-const page2 = `
-  <section>
-    ${pageHeader()}
-    <h1 class="continued">Property Tax Allocation <span>(continued)</span></h1>
-
     ${row(GRAND_TOTAL, "grand")}
 
     <div class="dept-table" style="margin-top:.08in">
-      ${row(["North Walton Mosquito Control District", "$1,426,937", "0.89%"])}
-      ${row(["Total Ad Valorem Revenue (All Funds)", "$153,019,062", "100.00%"], "grand")}
+      ${row(["North Walton Mosquito Control District", "$1,426,937", "0.93%"])}
+      ${row(["Total Ad Valorem Allocation (All Funds)", "$153,019,062", "100.00%"], "grand")}
     </div>
 
     <div class="example-card">
@@ -399,6 +430,7 @@ const page2 = `
     </div>
 
     <p class="footnote">2026 homestead amount: Florida Department of Revenue, 2026 NAL exemption codes. Allocations use displayed shares, with rounding assigned to All Other Entities. This is an illustrative example of the County-government portion of a tax bill only; it excludes the separate levies of the School Board, Northwest Florida Water Management District, and the North Walton Mosquito Control District that also appear on an actual property tax bill. The County government&rsquo;s share is calculated as taxable value &times; millage &divide; 1,000, then apportioned by each entity&rsquo;s share of total Ad Valorem revenue.</p>
+
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>

@@ -35,5 +35,31 @@ for (const file of files) {
     }
   } catch (error) { failures.push(error.message); }
 }
+const searchData = fs.readFileSync(path.join(root, 'assets/search-data.js'), 'utf8');
+let searchIndexes = 0;
+for (const file of files.filter((item) => item.endsWith('.html'))) {
+  const source = fs.readFileSync(file, 'utf8');
+  const pageIndex = source.match(/window\.wcBudgetPages = \[[\s\S]*?\];/);
+  if (!pageIndex) continue;
+  const pagePath = '/' + path.relative(root, file).replaceAll(path.sep, '/');
+  const context = { window: { location: { pathname: pagePath } } };
+  try {
+    vm.createContext(context);
+    vm.runInContext(pageIndex[0], context, { filename: file + ':page-index' });
+    vm.runInContext(searchData, context, { filename: 'assets/search-data.js' });
+    searchIndexes++;
+    for (const page of context.window.wcBudgetPages) {
+      if (!page.href) continue;
+      const url = new URL(page.href, 'https://budget-pixel.github.io/budget-fy2027' + pagePath);
+      if (url.hostname !== 'budget-pixel.github.io') continue;
+      if (!url.pathname.startsWith('/budget-fy2027/')) {
+        failures.push(path.relative(root, file) + ': search result escapes site: ' + page.title);
+        continue;
+      }
+      const target = path.join(root, url.pathname.slice('/budget-fy2027/'.length));
+      if (!fs.existsSync(target)) failures.push(path.relative(root, file) + ': missing search result: ' + page.title);
+    }
+  } catch (error) { failures.push(path.relative(root, file) + ': search index: ' + error.message); }
+}
 if (failures.length) { console.error(failures.join('\n')); process.exitCode = 1; }
-else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, and local HTML resource links.`);
+else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, local HTML resource links, and ${searchIndexes} page search indexes.`);

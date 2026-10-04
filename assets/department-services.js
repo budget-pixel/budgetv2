@@ -774,111 +774,11 @@
     return {label:'Fees and charges for this department',payer:'Paid by the residents, businesses, applicants, customers, or other users receiving the specific fee-supported service.'};
   }
   function fundingPayerSummary(rows,key){
-    var householdCount=34362;
-    function totalWhere(test){return (rows||[]).reduce(function(total,row){return test(String(row.Revenue_Name||''),String(row.Revenue_Type||''),row)?total+Math.abs(Number(row.FY2027_Proposed)||0):total;},0);}
-    var sheriffPropertyTransfer=key==='sheriff'||key==='sheriff s office';
-    var isSheriffE911=function(name,type,row){return sheriffPropertyTransfer&&/interfund group transfer/i.test(name)&&/e911/i.test(String(row&&row.Note||''));};
-    var isPropertyTax=function(name,type,row){return /ad valorem taxes/i.test(name)||(sheriffPropertyTransfer&&/interfund group transfer/i.test(name)&&!isSheriffE911(name,type,row)&&/property tax/i.test(String(row&&row.Note||'')));};
-    var isTouristTax=function(name){return /tourist development|tdc public safety/i.test(name);};
-    var isSalesTax=function(name){return /local government 1\/2 cent sales tax|discretionary sales surtax|local option sales tax/i.test(name);};
-    var isIndirectAdmin=function(name){return /indirect administrative fees/i.test(name);};
-    var isFee=function(name,type){return !isIndirectAdmin(name)&&(/permits fees|charges for services|fines and forfeits/i.test(type)||/fees?|charges?|fines?|rentals?|admissions?|sales revenue|pro shop|food|beverage/i.test(name));};
-    var isFuelTax=function(name){return /fuel tax/i.test(name);};
-    var isStateFederal=function(name,type){return !/tourist development|tdc public safety|fuel tax|local government 1\/2 cent sales tax|discretionary sales surtax|local option sales tax|fees?|charges?|fines?|rentals?/i.test(name)&&(/grant|state revenue share|state shared/i.test(name)||/intergovernmental revenues/i.test(type));};
-    var isInternalFunding=function(name,type,row){return !isPropertyTax(name,type,row)&&!isSheriffE911(name,type,row)&&!isIndirectAdmin(name)&&(/interfund group transfer|balance brought forward/i.test(name)||/other sources/i.test(type));};
-    var propertyTax=totalWhere(isPropertyTax);
-    var touristTax=totalWhere(isTouristTax);
-    var salesTax=totalWhere(isSalesTax);
-    var fees=totalWhere(isFee);
-    var fuelTax=totalWhere(isFuelTax);
-    var stateFederal=totalWhere(isStateFederal);
-    var sheriffE911=totalWhere(isSheriffE911);
-    var indirectAdmin=totalWhere(isIndirectAdmin);
-    var internalFunding=totalWhere(isInternalFunding);
-    var totalRevenue=(rows||[]).reduce(function(total,row){return total+Math.abs(Number(row.FY2027_Proposed)||0);},0);
-    var otherFunding=Math.max(0,totalRevenue-propertyTax-touristTax-salesTax-fees-fuelTax-stateFederal-sheriffE911-indirectAdmin-internalFunding);
-    var payerRows=[];
-    function precise(value){return Number(value||0).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});}
-    function addPayer(payer,source,amount,impact,explanation){payerRows.push({payer:payer,source:source,amount:amount,impact:impact,explanation:explanation});}
-    if(propertyTax){
-      var propertyTaxSource=sheriffPropertyTransfer?'Ad valorem property taxes and property-tax transfer':'Ad valorem property taxes';
-      var residentialPropertyTax=propertyTax*.879;
-      var commercialPropertyTax=propertyTax-residentialPropertyTax;
-      var residentialAnnual=residentialPropertyTax/householdCount;
-      addPayer('Residential property owners',propertyTaxSource,residentialPropertyTax,precise(residentialAnnual)+' per household annually ('+precise(residentialAnnual/12)+' monthly)','Estimated using residential property’s 87.9% share of Walton County real-property just value. This is a value-based planning proxy, not an audited allocation or an individual household tax bill.');
-      addPayer('Commercial and other property owners',propertyTaxSource,commercialPropertyTax,'Estimated 12.1% commercial and other-property share','Combines commercial and industrial property with government, institutional, agricultural, vacant-acreage, and other real-property classifications. This is a value-based planning proxy, not a direct measure of taxes collected by sector.');
-    }
-    if(salesTax){
-      var nonResidentShare=salesTax*.68;
-      var residentShare=salesTax-nonResidentShare;
-      var residentHouseholdAnnual=residentShare/householdCount;
-      addPayer('Non-residents','Sales-tax revenue',nonResidentShare,'Estimated 68% non-resident share',"Walton County's visitor study found visitors account for 68% of retail spending. That share is used as a planning estimate, not an audited allocation of this specific sales-tax account.");
-      addPayer('Residents','Sales-tax revenue',residentShare,precise(residentHouseholdAnnual)+' per household annually ('+precise(residentHouseholdAnnual/12)+' monthly)','The estimated 32% resident share is divided by 34,362 Walton County households. This household equivalent is a planning estimate, not an audited allocation or an individual household tax bill.');
-    }
-    if(touristTax){addPayer('Overnight visitors','Tourist Development Tax and reimbursements',touristTax,'Primarily paid by visitors and other non-residents','Tourist Development Tax is charged on eligible short-term lodging in Walton County.');}
-    if(fees&&key==='eagle springs golf and recreation center'){
-      var membershipFees=totalWhere(function(name){return /membership fees/i.test(name);});
-      var greenFees=totalWhere(function(name){return /green fees/i.test(name);});
-      var cartFees=totalWhere(function(name){return /cart fees/i.test(name);});
-      var proShopSales=totalWhere(function(name){return /pro shop sales/i.test(name);});
-      var golfNonTaxable=totalWhere(function(name){return /golf course non-taxable/i.test(name);});
-      var poolEntryFees=totalWhere(function(name){return /pool entry fees/i.test(name);});
-      var identifiedGolfFees=membershipFees+greenFees+cartFees+proShopSales+golfNonTaxable+poolEntryFees;
-      if(membershipFees) addPayer('Golf members','Membership fees',membershipFees,'Paid through annual or recurring memberships','Membership revenue is paid by customers choosing ongoing access to eligible golf-course services.');
-      if(greenFees) addPayer('Golfers','Green fees',greenFees,'Paid when a round of golf is played','Green fees are paid directly by golfers using the course.');
-      if(cartFees) addPayer('Golf-cart users','Cart fees',cartFees,'Paid when a golf cart is rented','Cart revenue is paid by customers choosing or requiring cart use during play.');
-      if(proShopSales) addPayer('Pro shop customers','Pro shop sales',proShopSales,'Paid through merchandise and related purchases','This revenue comes from voluntary purchases made at the golf-course pro shop.');
-      if(golfNonTaxable) addPayer('Other golf-course customers','Other non-taxable golf-course revenue',golfNonTaxable,'Paid through applicable golf-course transactions','This line records eligible golf-course customer revenue classified as non-taxable in the budget records.');
-      if(poolEntryFees) addPayer('Pool visitors','Pool entry fees',poolEntryFees,'Paid when the pool is used','Pool entry revenue is paid by customers choosing to use the facility.');
-      if(fees>identifiedGolfFees) addPayer('Other facility users','Other golf and recreation charges',fees-identifiedGolfFees,'Paid when the related activity or service is used','This amount includes remaining user-supported facility revenue not shown separately above.');
-    }else if(fees&&sheriffPropertyTransfer){
-      var ambulanceFees=totalWhere(function(name){return /ambulance fees/i.test(name);});
-      var prisonerHousing=totalWhere(function(name){return /housing prisoners/i.test(name);});
-      var prisonerWorkDetail=totalWhere(function(name){return /prisoner work detail/i.test(name);});
-      var msbuFees=totalWhere(function(name){return /msbu fees/i.test(name);});
-      var animalShelterFees=totalWhere(function(name){return /animal shelter fees/i.test(name);});
-      var civilProcessFees=totalWhere(function(name){return /civil process fees/i.test(name);});
-      var identifiedSheriffFees=ambulanceFees+prisonerHousing+prisonerWorkDetail+msbuFees+animalShelterFees+civilProcessFees;
-      if(ambulanceFees) addPayer('Patients and insurers','Ambulance fees',ambulanceFees,'Paid when emergency medical transport is provided','Collections may be paid by patients, private insurers, Medicare, Medicaid, or other responsible coverage sources.');
-      if(prisonerHousing) addPayer('Governments and agencies housing prisoners','Housing prisoners revenue',prisonerHousing,'Paid for detention space and related services','Revenue is received when another government or responsible agency pays Walton County to house prisoners.');
-      if(msbuFees) addPayer('Property owners in the applicable benefit area','MSBU fees',msbuFees,'Paid through the Municipal Services Benefit Unit','These assessments support services provided to property within the designated benefit area rather than being allocated equally countywide.');
-      if(prisonerWorkDetail) addPayer('Organizations using prisoner work details','Prisoner work detail charges',prisonerWorkDetail,'Paid when an eligible work detail is used','The charge is paid by the organization receiving the authorized work-detail service.');
-      if(animalShelterFees) addPayer('Animal-shelter customers','Animal shelter fees',animalShelterFees,'Paid when a fee-supported shelter service is used','These charges are paid by customers receiving the applicable shelter or animal-service transaction.');
-      if(civilProcessFees) addPayer('People and organizations requesting civil process','Civil process fees',civilProcessFees,'Paid when legal documents are served or processed','The requesting party pays the applicable statutory or service charge for civil-process work.');
-      if(fees>identifiedSheriffFees) addPayer('Other service users','Other Sheriff service charges',fees-identifiedSheriffFees,'Paid when the related service is used','This amount includes remaining fee-supported Sheriff services not shown separately above.');
-    }else if(fees){
-      var feeCopy=departmentFeePayerCopy(key);
-      var feeGroups=[];
-      (rows||[]).filter(function(row){return (Number(row.FY2027_Proposed)||0)!==0&&isFee(String(row.Revenue_Name||''),String(row.Revenue_Type||''),row);}).forEach(function(row){
-        var feeName=String(row.Revenue_Name||feeCopy.label).trim()||feeCopy.label;
-        var feeGroup=feeGroups.find(function(item){return item.name===feeName;});
-        if(!feeGroup){feeGroup={name:feeName,amount:0,note:''};feeGroups.push(feeGroup);}
-        feeGroup.amount+=Math.abs(Number(row.FY2027_Proposed)||0);
-        if(!feeGroup.note&&String(row.Note||'').trim()) feeGroup.note=String(row.Note).trim();
-      });
-      feeGroups.sort(function(a,b){return b.amount-a.amount;}).forEach(function(item){
-        var payer='Service users';
-        var impact='Paid when the related service or activity is used';
-        if(/entry|admission/i.test(item.name)){payer='Facility visitors';impact='Paid when entering or using the facility';}
-        else if(/permit/i.test(item.name)){payer='Permit applicants';impact='Paid when applying for the related permit';}
-        else if(/fine|forfeit/i.test(item.name)){payer='People or businesses assessed the charge';impact='Paid when the applicable fine or forfeiture is assessed';}
-        else if(/short-term rental certificate/i.test(item.name)){payer='Short-term rental owners';impact='Paid when a short-term rental certificate is obtained or renewed';}
-        else if(/rental|lease/i.test(item.name)){payer='Renters and lessees';impact='Paid when County property or equipment is rented';}
-        else if(/library/i.test(item.name)){payer='Library users incurring the charge';impact='Paid only when the applicable library charge occurs';}
-        addPayer(payer,item.name,item.amount,impact,item.note||feeCopy.payer);
-      });
-    }
-    if(fuelTax){addPayer('Fuel purchasers','Fuel-tax revenue',fuelTax,'Paid by residents and non-residents purchasing taxable fuel','Fuel-tax support follows fuel purchases rather than being allocated evenly to Walton County households.');}
-    if(stateFederal){addPayer('State and federal taxpayers','State, federal, and shared public revenue',stateFederal,'Supported through broader government collections','These dollars come through grants or shared-government revenue instead of a department-specific bill to Walton County households.');}
-    if(sheriffE911){addPayer('Phone-service customers','Dedicated E911 support',sheriffE911,'Transferred from the E911 Fund','This support comes from dedicated 911 service charges collected through eligible phone services, not from the Sheriff’s property-tax transfer.');}
-    if(indirectAdmin){addPayer('County funds receiving administrative support','General Fund administrative cost allocation',indirectAdmin,'Allocated from the Tourist Development, Building, Mosquito Control, and Solid Waste funds','Indirect Administrative Fees reimburse the General Fund for countywide administrative support provided to these funds. They are an internal cost allocation—not a fee charged to an individual service user.');}
-    if(internalFunding){addPayer('Other County funding sources','Transfers, internal charges, and prior resources',internalFunding,'Allocated from another County funding source','These resources carry the payer mix of the originating fund rather than creating a separate department charge.');}
-    if(otherFunding){addPayer('Other funding sources','Other assigned funding',otherFunding,'Reimbursements, earnings, or other public resources','This amount is not presented as an equal charge to every Walton County household.');}
-    var sources=[];
-    if(salesTax) sources.push('The non-resident estimate uses the <a href="https://www.waltoncountyfltourism.com/userfiles/Walton_County_Tourism_2025_Annual_Visitor_Tracking_Report_2.pdf" target="_blank" rel="noopener noreferrer">Walton County Tourism 2025 Annual Visitor Tracking Report</a> finding that visitors account for 68% of retail spending.');
-    if(propertyTax) sources.push('Property-tax sector estimates use the <a href="https://floridarevenue.com/property/Documents/2024_County_Profiles.pdf" target="_blank" rel="noopener noreferrer">Florida Department of Revenue&rsquo;s 2024 Walton County Property Tax Overview</a>: 87.9% residential and 12.1% commercial/industrial and other real-property just value. Household equivalents use 34,362 households from U.S. Census Bureau statistics.');
-    if(!payerRows.length) return '';
-    return '<div class="wc-data-table-scroll wc-profile-who-pays-sheet"><table class="wc-data-table"><thead><tr><th>Who Pays</th><th>Funding Source</th><th class="wc-num">Amount</th><th>Estimated Impact</th><th>How to Read This</th></tr></thead><tbody>'+payerRows.map(function(item){return '<tr><td><strong>'+escapeHtml(item.payer)+'</strong></td><td>'+escapeHtml(item.source)+'</td><td class="wc-num"><strong>'+money(item.amount)+'</strong></td><td>'+escapeHtml(item.impact)+'</td><td>'+escapeHtml(item.explanation)+'</td></tr>';}).join('')+'<tr class="wc-table-total-row"><td colspan="2"><strong>Total Department Revenue</strong></td><td class="wc-num"><strong>'+money(totalRevenue)+'</strong></td><td colspan="2"></td></tr></tbody></table></div>'+(sources.length?'<p class="wc-profile-payer-source">'+sources.join(' ')+'</p>':'');
+    var summary=WCFundingSources.summarize(rows,key);
+    if(!summary.rows.length)return '';
+    var property=summary.rows.filter(function(r){return /^(Property taxes|Property-tax transfer)$/.test(r.source);}).reduce(function(s,r){return s+r.amount;},0);
+    var example=property>0&&key!=='mosquito control'?'<p class="wc-profile-payer-source"><strong>Illustrative homeowner contribution:</strong> '+(((250000-51411)*3.25/1000)*property/151592125).toLocaleString('en-US',{style:'currency',currency:'USD'})+' of an example home’s $645.41 annual County operating tax is allocated here. Example: $250,000 assessed value less $51,411 homestead exemption; $198,589 taxable at 3.2500 County mills. Not an average bill or full service cost; excludes other taxing authorities. See Property Tax Allocation.</p>':'';
+    return '<div class="wc-data-table-scroll wc-profile-who-pays-sheet"><table class="wc-data-table"><thead><tr><th>Funding Source</th><th class="wc-num">FY 2027 Final</th><th>Who Contributes</th><th>How to Read This</th></tr></thead><tbody>'+summary.rows.map(function(item){return '<tr><td><strong>'+escapeHtml(item.source)+'</strong></td><td class="wc-num">'+money(item.amount)+'</td><td>'+escapeHtml(item.payer)+'</td><td>'+escapeHtml(item.detail)+'</td></tr>';}).join('')+'<tr class="wc-table-total-row"><td>Total Assigned Revenue and Other Resources</td><td class="wc-num">'+money(summary.total)+'</td><td colspan="2"></td></tr></tbody></table></div>'+example;
   }
   function retainBudgetRows(root,allowed){
     root.querySelectorAll('tbody tr').forEach(function(row){
@@ -1041,6 +941,11 @@
       {label:'Indirect Admin Allocation',amount:sum(expenses.filter(isInternalServiceChargeRow),'FY2027_Proposed'),prior:sum(expenses.filter(isInternalServiceChargeRow),'FY2026_Original_Budget')},
       {label:'Capital Outlay',amount:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2027_Proposed'),prior:sum(expenses.filter(function(row){return row.Object_Type==='Capital Outlay';}),'FY2026_Original_Budget')}
     ].filter(function(item){return item.amount!==0||item.prior!==0;});
+    if(isBoardCommissioners){
+      var boardPersonnelGroup=snapshotExpenseGroups.find(function(item){return item.label==='Personnel Services';});
+      var courtInnovationPersonnel=sum(expenses.filter(function(row){return row.Object_Type==='Personnel Services'&&/^0*1040$/.test(String(row.Project_Code||'').trim());}),'FY2027_Proposed');
+      if(boardPersonnelGroup&&courtInnovationPersonnel){boardPersonnelGroup.sublines=[{label:'Board personnel',amount:boardPersonnelGroup.amount-courtInnovationPersonnel},{label:'Court Innovation (Circuit Court in Personnel Ledger)',amount:courtInnovationPersonnel}];}
+    }
     if(isCapitalCombinedOfficer||isBoardCommissioners||isAutonomousEntity){
       var additionalExpenseGroups={};
       expenses.filter(function(row){return !isBoardGrantRow(row)&&!/^(personnel services|operating expenditures|capital outlay)$/i.test(String(row.Object_Type||''));}).forEach(function(row){
@@ -1093,12 +998,12 @@
     var expenseActions=capitalAction+contractsAction;
     var personnelLedgerAction=(isSheriffOffice||isTaxCollector||isCapitalCombinedOfficer||isAutonomousEntity)?'':'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-personnel-ledger-trigger>View Personnel Ledger</button></div>';
 
-    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+personnelLedgerAction+'</article>':'';
+    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+personnelLedgerAction+'</article>':'';
 
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile wc-independent-office-snapshot';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
-      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div></div></div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,item.renderedChange);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button>'+expenseActions+'</div></article>'+
+      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong><small class="'+(budgetChange>0?'is-up':budgetChange<0?'is-down':'')+'">'+(budgetChange===0?'Unchanged':(budgetChange>0?'+':'−')+compactMoney(Math.abs(budgetChange))+(priorBudget?' ('+Math.abs(budgetChange/priorBudget*100).toFixed(1)+'%)':''))+'</small></div></div></div><div class="wc-profile-snapshot-table">'+snapshotExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,item.sublines,item.renderedChange);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-graph-trigger>View Budget Graph</button>'+expenseActions+'</div></article>'+
       '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal,null,false,null,item.renderedChange);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-independent-who-pays>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-independent-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
       staffingCardHtml+'</div>';
 
@@ -1147,7 +1052,7 @@
         if(row.Project_Code) details.push('Project '+row.Project_Code);
         if(row.BCC_Replacement) details.push('Replaces asset '+row.BCC_Replacement);
         return '<tr><td>'+escapeHtml(category)+'</td><td>'+escapeHtml(description)+'</td><td>'+(details.length?details.map(escapeHtml).join(' &middot; '):'&mdash;')+'</td><td class="wc-num">'+money(row.FY2027_Proposed)+'</td></tr>';
-      }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capitalTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is proposed for this department.</p>';
+      }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capitalTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is budgeted for this department.</p>';
       bindSnapshotInformationSheet(capitalButton,'Capital Investments',capitalItems,title.textContent.trim(),'wc-capital-sheet-body');
     }
     var contractsButton=snapshot.querySelector('[data-independent-contracts-trigger]');
@@ -1223,7 +1128,7 @@
       var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
       var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
       var showStaffingCard=fte>0;
-      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
+      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
 
       var snapshot=document.createElement('section');
       snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
@@ -1285,7 +1190,7 @@
         if(row.Project_Code) details.push('Project '+row.Project_Code);
         if(row.BCC_Replacement) details.push('Replaces asset '+row.BCC_Replacement);
         return '<tr><td>'+escapeHtml(category)+'</td><td>'+escapeHtml(description)+'</td><td>'+(details.length?details.map(escapeHtml).join(' &middot; '):'&mdash;')+'</td><td class="wc-num">'+money(row.FY2027_Proposed)+'</td></tr>';
-      }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capitalTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is proposed for this office.</p>';
+      }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capitalTotal)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is budgeted for this office.</p>';
       var capitalButton=snapshot.querySelector('[data-office-capital-trigger]');
       if(capitalButton) bindSnapshotInformationSheet(capitalButton,'Capital Investments',capitalItems,office.label,'wc-capital-sheet-body');
 
@@ -1520,6 +1425,7 @@
       return '<article class="wc-dept-measure-item">'+
         '<p class="wc-dept-measure-name">'+escapeHtml(row.Measure||'Performance measure')+'</p>'+
         '<div class="wc-dept-measure-trend">'+trend+'<span class="is-target"><b>'+escapeHtml(target)+'</b>FY27 Target</span></div>'+
+        (row.ContextNote?'<p class="wc-performance-note">'+escapeHtml(row.ContextNote)+'</p>':'')+
         '</article>';
     }
     var matchedPerformanceRows=[];
@@ -1561,6 +1467,10 @@
     if(statementCallout&&servicesLabel){
       statementCallout.classList.add('wc-dept-statement-callout');
       servicesLabel.insertAdjacentElement('beforebegin',statementCallout);
+      if(key==='mosquito control'){
+        var mosquitoReconcileNote=document.getElementById('mosquito-budget-reconcile-note');
+        if(mosquitoReconcileNote) statementCallout.insertAdjacentElement('afterend',mosquitoReconcileNote);
+      }
     }
 
     var budget=sum(expenses,'FY2027_Proposed');
@@ -1679,7 +1589,7 @@
       cardBudgetChange=lifeguardSummary.change;
     }
     var showStaffingCard=!isLifeguardProgram&&fte>0;
-    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>Proposed</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
+    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
     var additionalExpenseActions=isLifeguardProgram?'':'<button type="button" class="wc-profile-snapshot-sheet" data-profile-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-contracts-trigger>View Contractual Services</button>';
     var revenueCardHtml=isLifeguardProgram?'':'<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>';
     var lifeguardMapHtml=isLifeguardProgram?'<a class="wc-lifeguard-summary-map" href="https://www.google.com/maps/d/viewer?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw" target="_blank" rel="noopener noreferrer" aria-label="Open Walton County lifeguard map"><iframe src="https://www.google.com/maps/d/embed?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw&amp;ehbc=2E312F" title="Walton County Lifeguard Locations Map" loading="lazy" tabindex="-1"></iframe><span>Open Walton County Map</span></a>':'';
@@ -1770,10 +1680,10 @@
         var propertyTaxHousehold=householdCount?propertyTaxRevenue/householdCount:0;
         contextHtml='<section class="wc-profile-cost-context"><h3>Putting the cost in context</h3><div class="wc-profile-context-grid">'+
           costContextValue('Annual operating cost',money(recurringTotal),'wcAnnualOperatingTip','Personnel and operating expenditures are added together. One-time capital outlay is excluded.')+
-          costContextValue('Fees and fines',money(feeRevenue),'wcCodeFeesTip','Proposed permit fees, service charges, code-enforcement fees, and ordinance fines assigned to Code Compliance are added together. These revenues are paid by the people or businesses using a regulated activity or receiving the related service—not evenly by every household.')+
+          costContextValue('Fees and fines',money(feeRevenue),'wcCodeFeesTip','FY 2027 permit fees, service charges, code-enforcement fees, and ordinance fines assigned to Code Compliance are added together. These revenues are paid by the people or businesses using a regulated activity or receiving the related service—not evenly by every household.')+
           costContextValue('Visitor-funded reimbursement',money(visitorRevenue),'wcCodeVisitorTip','Tourist Development Tax public-safety reimbursement budgeted for Code Compliance. Tourist Development Tax is collected from short-term lodging stays and is therefore visitor-funded.')+
-          costContextValue('Property-tax support per household',preciseMoney(propertyTaxHousehold),'wcCodeHouseholdTip','The '+money(propertyTaxRevenue)+' in proposed ad valorem revenue assigned to Code Compliance is divided by 34,362 Walton County households. This is a cost equivalent, not an individual household tax bill.')+
-          '</div><p>Code Compliance is funded primarily through permits, service charges, fines, and visitor-funded Tourist Development Tax reimbursement. The household figure therefore uses only the department’s proposed property-tax support—not its entire operating budget.</p></section>';
+          costContextValue('Property-tax support per household',preciseMoney(propertyTaxHousehold),'wcCodeHouseholdTip','The '+money(propertyTaxRevenue)+' in FY 2027 ad valorem revenue assigned to Code Compliance is divided by 34,362 Walton County households. This is a cost equivalent, not an individual household tax bill.')+
+          '</div><p>Code Compliance is funded primarily through permits, service charges, fines, and visitor-funded Tourist Development Tax reimbursement. The household figure therefore uses only the department’s FY 2027 property-tax support—not its entire operating budget.</p></section>';
       }else{
         var assignedPropertyTax=sum(revenues.filter(function(row){return /ad valorem taxes/i.test(String(row.Revenue_Name||''));}),'FY2027_Proposed');
         var fundingBuckets=departmentFundingBuckets(revenues);
@@ -1786,7 +1696,7 @@
           contextHtml='<section class="wc-profile-cost-context"><h3>Putting the cost in context</h3><div class="wc-profile-context-grid">'+
             costContextValue('Annual operating cost',money(recurringTotal),'wcAnnualOperatingTip','Personnel, operating, and any separately displayed recurring utility costs are added together. One-time capital outlay is excluded.')+
             costContextValue(primaryFunding.label,money(primaryFunding.amount),'wcPrimaryFundingTip',primaryFunding.explanation)+
-            costContextValue('Assigned property-tax support',money(assignedPropertyTax),'wcPropertyTaxSupportTip',assignedPropertyTax?'Ad valorem property-tax revenue assigned to this department in the proposed budget. Other funding sources are not included in this amount.':'No ad valorem property-tax revenue is assigned directly to this department in the proposed budget.')+
+            costContextValue('Assigned property-tax support',money(assignedPropertyTax),'wcPropertyTaxSupportTip',assignedPropertyTax?'Ad valorem property-tax revenue assigned to this department in the FY 2027 budget. Other funding sources are not included in this amount.':'No ad valorem property-tax revenue is assigned directly to this department in the FY 2027 budget.')+
             costContextValue('Property-tax support per household',preciseMoney(propertyTaxHousehold),'wcPropertyHouseholdTip','Assigned property-tax support is divided by 34,362 Walton County households. This is a cost equivalent, not an estimate of an individual household tax bill.')+
             '</div></section>';
         }else{
@@ -1815,7 +1725,7 @@
       if(row.Project_Code) details.push('Project '+row.Project_Code);
       if(row.BCC_Replacement) details.push('Replaces asset '+row.BCC_Replacement);
       return '<tr><td>'+escapeHtml(category)+'</td><td>'+escapeHtml(description)+'</td><td>'+(details.length?details.map(escapeHtml).join(' &middot; '):'&mdash;')+'</td><td class="wc-num">'+money(row.FY2027_Proposed)+'</td></tr>';
-    }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capital)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is proposed for this department.</p>';
+    }).join('')+'<tr class="wc-table-total-row"><td colspan="3">Total</td><td class="wc-num">'+money(capital)+'</td></tr></tbody></table></div>':'<p class="wc-profile-finance-note">No capital outlay is budgeted for this department.</p>';
     var capitalButton=snapshot.querySelector('[data-profile-capital-trigger]');
     if(capitalButton) bindSnapshotInformationSheet(capitalButton,'Capital Investments',capitalItems,title.textContent.trim(),'wc-capital-sheet-body');
     var contracts=expenses.filter(function(row){return String(row.Contract_Status||'').trim()&&(Number(row.FY2027_Proposed)||0)!==0;});

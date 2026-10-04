@@ -3,9 +3,13 @@ import QRCode from "qrcode";
 import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { homeownerValueExample } from "./homeowner-value-example.mjs";
+import "../assets/funding-sources.js";
+import "../assets/performance-context.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
+const revenueSnapshot = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-revenue-snapshot.json"), "utf8")).departments;
 const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/divider-bg-departments.jpg")).toString("base64")}`;
 
 // Maps each office's name (DEPARTMENTS[].name) to its live page on the
@@ -168,7 +172,7 @@ const DEPARTMENTS = [
       ["Issue permits", "Processes permits that authorize eligible construction, alteration, and related work."],
       ["Inspect construction", "Verifies permitted work at required stages before completion or occupancy."]
     ],
-    challenges: "Twenty-one Building Fund positions plan for 28,000 inspections and 1,700 contractor licenses, funded by permit fees rather than property taxes.",
+    challenges: "Twenty-one Building Fund positions plan for 28,000 inspections and 1,700 contractor licenses. The FY 2027 allocation uses $4,000,000 of accumulated Building Fund reserves rather than current permit collections or property taxes.",
     changeNote: "Operating Supplies decreasing by $214,429.",
     revenue: "Other Sources &mdash; Nonoperating Balance Brought Forward $4.0M",
     contracts: [],
@@ -229,9 +233,11 @@ const DEPARTMENTS = [
     deltaP: 33511, deltaO: 23500, deltaC: -225500, video: "d4o7JNx6o4s", fund: "General Fund",
     sof: "Walton County owns one golf course, Eagle Springs Golf and Recreation Center, purchased by the Board of County Commissioners in 2019 to provide economic development and enhance quality of life through sports and recreation. Eagle Springs consists of 190 acres containing an 18-hole golf course and four spring-fed lakes, with more than 30,000 rounds played annually, a driving range, pro shop, pickleball courts, a public swimming pool, and a walking path.",
     goal: "Provide high-quality and accessible recreational opportunities for all residents and visitors.",
-    challenges: "Twelve positions support a target of 43,000 rounds, up from 38,514 in 2025, with user fees covering about $1.4M of the $1.8M budget.",
+    challenges: "Twelve positions support a target of 43,000 rounds, up from 38,514 in 2025. Budgeted customer revenue covers 77.0% of the full FY 2027 budget, including capital.",
     changeNote: "Buildings decreasing by $250,000.",
-    revenue: "Charges for Services &mdash; Membership, Green & Cart Fees $1.4M &middot; Intergovernmental Revenues $416K",
+    revenue: "Charges for Services &mdash; Customer Revenue $1,390,000 &middot; Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $415,555",
+    customerRevenue: 1390000, sharedSalesTax: 415555,
+    valueExplanation: `<h3>Customer revenue and public funding</h3><p>The $1,805,555 FY 2027 budget is funded by $1,390,000 in customer charges (77.0%) and $415,555 in state-distributed local-government half-cent sales tax (23.0%). Customer revenue does not cover the full budget. Shared sales-tax funding is public revenue, not facility earnings or a separate property-tax allocation.</p><p>The total includes $206,000 of capital for course and grounds infrastructure, a reel grinder, and a golf lift. Those items are already included in the budget, not added to the funding requirement. This is a budgeted cost-recovery comparison, not an actual profit or loss statement.</p>`,
     capitalItems: [
       { item: "Course & Grounds Infrastructure (New)", amount: 125000 },
       { item: "Reel Grinder (New)", amount: 68000 },
@@ -253,6 +259,8 @@ const DEPARTMENTS = [
     challenges: "The Grill plans for 60,000 guest checks and 65 events while food, supply, and labor costs remain variable.",
     changeNote: "Operating Supplies decreasing by $35,800.",
     revenue: "Charges for Services &mdash; Grill Food & Beverage Revenue $440K &middot; Intergovernmental Revenues $130K",
+    customerRevenue: 440000, sharedSalesTax: 130000,
+    valueExplanation: `<h3>Customer revenue and public funding</h3><p>The $570,000 FY 2027 budget is funded by $440,000 in customer revenue (77.2%) and $130,000 in state-distributed local-government half-cent sales tax (22.8%). Customer revenue alone does not cover the full cost of personnel, supplies, and contracted services. The $130,000 is public funding, not restaurant sales or a separate property-tax allocation.</p><p>No capital expense is budgeted for FY 2027. These figures compare planned revenue with planned expense; they do not establish actual operating profit, loss, or future self-sufficiency.</p>`,
     contracts: [
       { service: "Dishwasher Maintenance Agreement", provider: "Auto-Chlor Services, LLC", amount: 8000 }
     ],
@@ -297,7 +305,7 @@ const DEPARTMENTS = [
       ["Oversee traffic and right-of-way", "Coordinates traffic operations, right-of-way permitting, and surveying for county roadways."],
       ["Administer transportation grants", "Manages FDOT grant administration and engineering oversight for the Mossy Head sewer system."]
     ],
-    achievement: { label: "In-House Engineering Savings", detail: "Performing capital improvement design and construction management in-house, rather than through outside consultants, is estimated to save the County $1,660,880 in FY 2027." },
+    achievement: { label: "Estimated Consultant Costs Avoided", detail: "The $1,660,880 FY 2027 planning estimate sums nine in-house CIP project allocations. It is not demonstrated net savings after County staffing, overhead, and project-delivery costs." },
     challenges: "Fourteen positions, down two, provide in-house design and construction management for 30 funded transportation and infrastructure projects.",
     revenue: "General Government Taxes &mdash; Local Option Fuel Tax $2.4M",
     capitalItems: [
@@ -678,7 +686,9 @@ const DEPARTMENTS = [
     capitalItems: [{item:"SUV (Replacement)",amount:50000}],
     contracts: [],
     sideCards: [{ label: "Tourism Lifeguard Services and Beach Safety", amount: 3380779, detail: "South Walton Fire District &mdash; purchased-service agreement funding beach-safety and lifeguard coverage, tracked separately from Tourism Administration's operating budget above." }],
-    pms: [{q:"Tourism-supported jobs in Walton County",obj:"Foster sustainable tourism that supports local jobs annually",y:["47,000","47,000","41,600","33,800"],target:"32,000",svc:0},{q:"Average Daily Rate for Walton County lodging",obj:"Position Walton County as a high-value destination",y:["$413","$413","$385","$352"],target:"$375",svc:1}]
+    performanceHeading: "Tourism Economic Context",
+    performanceNote: "Jobs and lodging rates are broader market indicators, not results attributable solely to County spending. Historical values and FY 2027 projections below are retained from the published budget performance sheet. The 32,000 jobs projection is not a County goal to reduce employment. Separate tourism economic-impact publications may use different reporting periods and estimation methods; comparability with this budget series has not been verified.",
+    pms: [{q:"Tourism-supported jobs (budget source)",obj:"Monitor tourism-related employment",y:["47,000","47,000","41,600","33,800"],target:"32,000",targetLabel:"FY27 Projection",context:true,svc:0},{q:"Average Daily Rate for Walton County lodging",obj:"Monitor lodging-market conditions",y:["$413","$413","$385","$352"],target:"$375",targetLabel:"FY27 Projection",context:true,svc:1}]
   },
   {
     name: "Sales and Visitors Center", entityType: "Tourism Administration Office", fte: 9, personnel: 863987, operating: 821850, indirect: 126725, contractual: 137438, capital: 0,
@@ -705,6 +715,7 @@ const DEPARTMENTS = [
     goal:"Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
     services:[["Plan and place destination advertising","Develops integrated campaigns and media investments for priority markets."],["Manage digital visitor engagement","Operates web, social, email, customer-relationship, and digital-asset platforms."],["Measure market performance","Uses tourism research and analytics to guide audiences, timing, and investment."]],
     challenges:"Four positions manage $12.5M in contracted advertising, research, and digital marketing services.", changeNote:"Promotional Activities increasing by $611,612.",
+    valueExplanation: `<h3>What the advertising allocation funds</h3><p>The $11,951,147 advertising-services appropriation is part of this office's $14,502,450 budget, not an additional amount or an agency fee alone. Published Contract 24-27 with Zehnder Communications covers media placements, campaign planning, creative and digital work, and website support. Media costs pass through at net cost; the agreement sets a 12% service fee on approved net media-plan budgets and $155 per hour for approved non-media work. The FY 2027 split between placements and fees is not provided in this budget.</p><h3>How delivery is documented</h3><p>The contract requires monthly billing backup, work reports, and media proof of performance. These document delivery; they do not establish that advertising alone caused countywide jobs or visitor spending.</p><p class="source-trace">Source: <a href="https://walton.civicweb.net/document/467546/">County agenda item 24-1175, Contract 24-27, Section 5 and Exhibit A</a>. Published August 27, 2024; FY 2027 renewals or amendments must be read with the original agreement.</p>`,
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
     contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:11951147},{service:"Regional Tourism Communications Partnership",provider:"Florida's Coastal Northwest Communications Council",amount:265500},{service:"Tourism Analytics Platform",provider:"Key Data Dashboard, Inc",amount:84600},{service:"Public Relations",provider:"Turner Public Relations, LLC · Contract 25-17",amount:86000},{service:"Marketing Research",provider:"Not listed",amount:65000},{service:"Digital Asset Management",provider:"Not listed",amount:25000},{service:"Customer Relationship Management",provider:"Not listed",amount:25000}],
     sideCards: [{ label: "North Walton", amount: 355500, detail: "North Walton Tourist Development Tax District &mdash; restricted destination promotion program for areas north of Choctawhatchee Bay, tracked separately from Marketing's operating budget above." }],
@@ -721,6 +732,7 @@ const DEPARTMENTS = [
     challenges:"Sixty-seven positions, up seven, clean 66 beach and bay access facilities daily in peak season and complete about 6,000 work orders.", changeNote:"Other Services increasing by $704,875.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
     capitalItems:[{item:"Beach Operations vehicles, machinery and equipment",amount:1902500}],
+    capitalNote: "The equipment ledger includes a $200,000 new Truck Wash System. The item schedule does not document expected use, operating costs, or quantified savings; no savings estimate is assumed here. The operating justification requires department confirmation.",
     contracts:[{service:"SR 83 (US 331) Landscaping Improvements",provider:"C&A Landscape Maintenance, LLC · Contract 25-26",amount:515000},{service:"US Highway 331 Median & Right-of-Way Maintenance",provider:"Harper Landscaping, LLC · Contract 22-028",amount:455000},{service:"Highway 98 Median & Right-of-Way Maintenance",provider:"ZIIC Outdoors, LLC · Contract 020-016",amount:300000},{service:"Task Order Services",provider:"Multiple providers as authorized",amount:200000}],
     sideCards: [{ label: "Beach Renourishment", amount: 11000000, detail: "$10,750,000 capital program plus $250,000 in task-order services to preserve and restore Walton County's 26 miles of beach, tracked separately from Beach Operations' totals above." }],
     pms:[{q:"Beach and bay public access facilities cleaned daily",obj:"Clean all beach and bay public access facilities daily during peak season",y:["60","60","62","63"],target:"66",svc:0},{q:"Maintenance work orders completed",obj:"Complete at least 6,000 maintenance work orders annually",y:["4,177","5,111","5,970","6,000"],target:"6,000",svc:2}]
@@ -733,6 +745,7 @@ const DEPARTMENTS = [
     goal:"Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
     services:[["Operate beach shuttles","Transports passengers between designated parking and beach access locations."],["Maintain fleet readiness","Coordinates drivers, mechanics, dispatch, inspections, and vehicle availability."],["Improve coastal mobility","Reduces parking demand and expands access for residents and visitors."]],
     serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY 2027 ridership target.",
+    valueExplanation: `<h3>What changes in the budget</h3><table class="tourism-change-table"><thead><tr><th>Category</th><th>FY 2026</th><th>FY 2027</th><th>Change</th></tr></thead><tbody><tr><td>Personnel</td><td>$2,694,376</td><td>$3,813,305</td><td>+$1,118,929</td></tr><tr><td>Operating</td><td>$605,750</td><td>$744,750</td><td>+$139,000</td></tr><tr><td>Indirect allocation</td><td>$0</td><td>$177,166</td><td>+$177,166</td></tr><tr><td>Capital</td><td>$216,000</td><td>$507,000</td><td>+$291,000</td></tr><tr><th>Total</th><th>$3,516,126</th><th>$5,242,221</th><th>+$1,726,095</th></tr></tbody></table><p>The 49.1% total increase includes all four categories; it is not attributable solely to six added positions. Personnel includes wages and employer benefit costs. The source identifies regular salaries and wages increasing $601,594 within the personnel increase.</p><p>Staffing rises from 54 to 60 FTE. The $507,000 FY 2027 capital allocation includes three replacement ADA shuttles and one new pickup. The ridership target is 250,000 versus 200,000 reported in 2025.</p><p class="source-trace">Source: FY 2027 expense budget and FY 2026 original budget.</p>`,
     challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, up from 200,000 in 2025.", changeNote:"Regular Salaries & Wages increasing by $601,594.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Tram vehicles and transportation equipment",amount:507000}], contracts:[],
     pms:[{q:"Passengers transported annually by the shuttle service",obj:"Transport at least 200,000 passengers annually",y:["77,282","193,725","168,203","200,000"],target:"250,000",svc:0}]
@@ -824,22 +837,13 @@ function sumRevenueExcluding(html, includeRe, excludeRe) {
 // Splits a property-tax-funded amount into a residential and a
 // commercial/other row using the same 87.9% / 12.1% real-property
 // just-value shares the live site's Who Pays Ledger uses.
-// Residential funding-scale figures use the same 31,491 occupied housing
-// units reported in this book's 2018-2022 ACS statistical profile.
-const HOUSEHOLDS = 31491;
-function householdCost(amount) {
-  const annual = amount / HOUSEHOLDS;
-  const monthly = annual / 12;
-  const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `Residential funding scale: ${fmt(annual)} annually (${fmt(monthly)} monthly) per occupied household`;
-}
 
 function splitPropertyTax(amount, detail) {
   if (!amount) return [];
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 31,491 occupied housing units &mdash; a planning proxy, not an individual household's tax bill.`],
+    ["Residential property owners", residential, `${detail} Estimated at the Countywide 87.9% residential share; not an individual tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }
@@ -852,105 +856,31 @@ function splitSalesTax(amount, detail) {
   const resident = amount - nonResident;
   return [
     ["Non-residents", nonResident, `${detail} Estimated using the County's tourism visitor study, which found visitors account for 68% of local retail spending.`],
-    ["Residents", resident, `${detail} The remaining 32% resident share reflects the same visitor-spending study, equal to ${householdCost(resident)}.`]
+    ["Residents", resident, `${detail} The remaining 32% resident share reflects the same visitor-spending study.`]
   ];
 }
 
 function whoPaysFor(d) {
-  const n = d.name.toLowerCase();
-  const total = sumRevenue(d.revenue);
-  // Tourism offices are funded entirely by Tourist Development Tax, so the
-  // office's own FY 2027 total is the amount paid by overnight visitors.
-  const officeTotal = d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0);
-  if (d.fund.includes("Tourist Development")) return [["Overnight visitors", total || officeTotal, "Tourist Development Tax is paid on eligible short-term lodging stays and supports authorized tourism uses."]];
-  if (/tourism lifeguard/.test(n)) return [["Overnight visitors", total || null, "Tourist Development Tax supports the service agreement; it is collected on eligible short-term lodging stays."]];
-  if (/building department/.test(n)) return [["Permit applicants, property owners, contractors and developers", total || null, "Building Fund resources originate primarily from permits and development-related service activity; prior resources may also be carried forward."]];
-  if (/golf and recreation/.test(n)) {
-    const fees = sumRevenueMatching(d.revenue, /charges for services/i);
-    return [["Golfers, members and facility users", fees || null, "Memberships, green fees, cart fees, pool entry and other customer charges support the facility."], ["Residents and visitors", (total - fees) || null, "Intergovernmental or General Fund support covers the portion not recovered from users."]];
+  const exactRows = revenueSnapshot[d.name];
+  if (exactRows && exactRows.length) {
+    const summary = globalThis.WCFundingSources.summarize(exactRows, d.name.toLowerCase());
+    const grouped = [];
+    for (const item of summary.rows) {
+      // Compact print groups retain the same source classification and exact amounts.
+      const label = /Fuel purchasers/.test(item.payer) ? "Fuel taxes" : /^Paid when the related service/.test(item.detail) ? "Customer fees, permits and fines" : item.source;
+      const existing = grouped.find(row => row[0] === label);
+      const detail = label === "Customer fees, permits and fines" ? "Paid by users, applicants, renters, or those assessed a fine when the related activity occurs." : item.detail;
+      if (existing) existing[1] += item.amount;
+      else grouped.push([label, item.amount, detail]);
+    }
+    if (Math.abs(grouped.reduce((sum,row)=>sum+row[1],0)-summary.total)>0.01) throw new Error(`${d.name}: funding does not reconcile`);
+    return grouped;
   }
-  if (/eagle springs grill/.test(n)) {
-    const fees = sumRevenueMatching(d.revenue, /charges for services/i);
-    return [["Customers and event patrons", fees || null, "Food, beverage and event purchases support Grill operations."], ["County support", (total - fees) || null, "Any remaining cost is supported through the applicable County fund."]];
+  if (d.fund.includes("Tourist Development")) {
+    const appropriation = d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0);
+    return [["Tourist Development Fund allocation", appropriation, "Office appropriation supported by restricted lodging-tax resources; not a separate office revenue assignment."]];
   }
-  if (/housing/.test(n)) return [["Federal taxpayers", total || null, "Federal housing-assistance resources support eligible households and program administration."]];
-  if (/engineering|public works/.test(n)) {
-    const fuel = sumRevenueMatching(d.revenue, /fuel tax/i);
-    const surtax = sumRevenueExcluding(d.revenue, /surtax/i, /fuel tax/i);
-    const taxes = sumRevenueExcluding(d.revenue, /general government taxes/i, /fuel tax/i);
-    const other = total - fuel - surtax - taxes;
-    return [
-      ...(fuel ? [["Residents and non-residents purchasing fuel", fuel, "Local-option and other fuel taxes support transportation services."]] : []),
-      ...splitSalesTax(surtax, "The Small County Surtax Transfer, a sales-tax-funded interfund transfer, supports transportation services."),
-      ...splitPropertyTax(taxes, "General Fund or property-tax support may fund eligible projects and operations."),
-      ...(other ? [["Intergovernmental and other sources", other, "Shared revenues and other resources support eligible projects and operations."]] : [])
-    ];
-  }
-  if (/solid waste/.test(n)) {
-    const surtax = sumRevenueMatching(d.revenue, /sales surtax/i);
-    const fees = sumRevenueMatching(d.revenue, /charges for services|special assessment/i);
-    const other = total - surtax - fees;
-    return [
-      ...splitSalesTax(surtax, "Discretionary Sales Surtax supports Solid Waste Fund collection and disposal services."),
-      ["Solid-waste customers and property owners", fees || null, "Service charges and assessments support collection and disposal services."],
-      ...(other ? [["County funds receiving or providing support", other, "Transfers and indirect administrative allocations retain the payer mix of the originating fund."]] : [])
-    ];
-  }
-  if (/mosquito/.test(n)) {
-    const dedicated = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|assessment|ad valorem/i);
-    const other = total - dedicated;
-    return [
-      ...splitPropertyTax(dedicated, "Dedicated assessments and property-tax resources support mosquito-control services."),
-      ...(other ? [["County funds", other, "Indirect administrative allocations reimburse shared County support where budgeted."]] : [])
-    ];
-  }
-  if (/planning|code compliance/.test(n)) {
-    const fees = sumRevenueMatching(d.revenue, /charges for services|permits|fees|fines|special assessment/i) - sumRevenueMatching(d.revenue, /tourist development tax/i);
-    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
-    const tdt = sumRevenueMatching(d.revenue, /tourist development tax/i);
-    return [
-      ["Applicants, property owners, businesses and regulated users", fees || null, "Permits, certificates, service charges and fines are paid when the related activity or service occurs."],
-      ...(tdt ? [["Overnight visitors", tdt, "Tourist Development Tax reimbursement for eligible tourism-related public-safety enforcement, collected on eligible short-term lodging stays."]] : []),
-      ...splitPropertyTax(taxes, "General Fund or property-tax support covers services not recovered through fees.")
-    ];
-  }
-  if (/librar|recreation/.test(n)) {
-    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
-    const salesTax = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|sales surtax/i);
-    const fees = sumRevenueMatching(d.revenue, /charges for services|fees/i);
-    const other = total - taxes - salesTax - fees;
-    return [
-      ...splitPropertyTax(taxes, "General Fund support provides broad public access."),
-      ...splitSalesTax(salesTax, "Local sales-tax revenue supports the General Fund."),
-      ["Program and facility users", fees || null, "Applicable rentals, program fees or service charges are paid only by participating users."],
-      ...(other ? [["Residents, visitors and businesses", other, "State shared revenues and other General Fund resources."]] : [])
-    ];
-  }
-  if (/indirect administrative fees/i.test(d.revenue)) {
-    const indirect = sumRevenueMatching(d.revenue, /indirect administrative fees/i);
-    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
-    const salesTax = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|sales surtax/i);
-    const fees = sumRevenueExcluding(d.revenue, /charges for services|fees/i, /indirect administrative fees/i);
-    const other = total - indirect - taxes - salesTax - fees;
-    return [
-      ...splitPropertyTax(taxes, "Property taxes support the General Fund."),
-      ...splitSalesTax(salesTax, "Local sales-tax revenue supports the General Fund."),
-      ...(fees ? [["Service users", fees, "Paid by the residents, businesses, applicants, customers, or other users receiving the specific fee-supported service."]] : []),
-      ["Administrative cost allocation", indirect || null, "Reimburse the General Fund for administrative support."],
-      ...(other ? [["Residents, visitors and businesses", other, "State shared revenues and other General Fund resources."]] : [])
-    ];
-  }
-  if (d.fund === "General Fund") {
-    const taxes = sumRevenueMatching(d.revenue, /general government taxes|ad valorem/i);
-    const salesTax = sumRevenueMatching(d.revenue, /1\/2 cent|sales tax|sales surtax/i);
-    const other = total - taxes - salesTax;
-    return [
-      ...splitPropertyTax(taxes, "Property taxes support the General Fund."),
-      ...splitSalesTax(salesTax, "Local sales-tax revenue supports the General Fund."),
-      ...(other ? [["Residents, visitors and businesses", other, "State shared revenues, fees, and other General Fund resources."]] : [])
-    ];
-  }
-  return [["Users and beneficiaries of the dedicated fund", total || null, "Fees, restricted taxes, grants or prior fund resources support eligible services."], ["State, federal or other County funding sources", null, "Shared revenues and transfers retain the payer mix of their originating source."]];
+  throw new Error(d.name + ": exact revenue snapshot is missing");
 }
 
 function compactFundingDetail(text) {
@@ -959,12 +889,15 @@ function compactFundingDetail(text) {
     .replace(/\s+Estimated using[\s\S]*$/, "")
     .replace(/\s+The remaining 32%[\s\S]*$/, "");
 }
-function householdEquivalent(text) {
-  const match = String(text).match(/(Residential funding scale: \$[\d,.]+ annually \(\$[\d,.]+ monthly\) per occupied household)/);
-  return match ? match[1] : "";
-}
 
 const sharedCss = `
+  .tourism-value-context h3{ margin:.1in 0 .035in; color:#003f28; font-size:9pt; }
+  .tourism-value-context p{ margin:.035in 0 .075in; color:#33453c; font-size:8pt; line-height:1.4; }
+  .tourism-change-table{ width:100%; border-collapse:collapse; font-size:7pt; margin:.06in 0; }
+  .tourism-change-table th,.tourism-change-table td{ padding:4px 3px; text-align:right; border-bottom:1px solid #dce5e0; white-space:nowrap; }
+  .tourism-change-table th:first-child,.tourism-change-table td:first-child{ text-align:left; }
+  .tourism-change-table thead{ background:#003f28; color:white; }
+  .tourism-change-table tbody tr:last-child{ background:#f4f1e5; color:#003f28; }
   @page{ size:letter portrait; margin:0; }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
@@ -1142,6 +1075,7 @@ const sharedCss = `
   .rev-con-grid.three{ grid-template-columns:1.05fr 1fr 1fr; }
   .rev-box h2, .con-box h2, .cap-box h2{ padding-bottom:.04in; border-bottom:1px solid #003f28; margin-bottom:.05in; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.1pt; line-height:1.42; }
+  .rev-box .payer-row{ padding-top:.02in; padding-bottom:.02in; margin-bottom:.025in; }
   .payer-row{margin:0 0 .045in;padding:.06in .075in;border:1px solid #e1e9e4;border-radius:6px;background:#f8faf8;color:#33453c;font-size:6.2pt;line-height:1.28}.payer-row:nth-child(odd){background:#f2f6f3}.payer-row .payer-head{display:flex;justify-content:space-between;align-items:baseline;gap:.08in}.payer-row b{color:#003f28;font-size:6.6pt}.payer-row .payer-amt{flex:0 0 auto;color:#006231;font-size:7pt;font-weight:800;white-space:nowrap}.payer-detail{margin-top:.025in!important;font-size:5.9pt!important;line-height:1.28!important}.payer-equivalent{display:inline-block;margin-top:.035in;padding:.018in .05in;border-radius:99px;background:#e4f1e8;color:#006231;font-size:5.7pt;font-weight:900}.source-trace{margin:.055in 0 0;color:#68786f;font-size:5.55pt!important;line-height:1.3!important;font-style:italic}
   .con-list{ margin:0; }
   .con-row{ display:flex; justify-content:space-between; gap:.08in; padding:.04in .055in; border-bottom:1px solid #edf1ee; font-size:6.6pt; }
@@ -1168,6 +1102,7 @@ const sharedCss = `
   .pm-item:last-child{ border-bottom:0; }
   .pm-title-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:.08in; margin:0 0 .045in; }
   .pm-item .pm-q{ margin:0; color:#003f28; font-size:7.4pt; font-weight:800; line-height:1.25; }
+  .pm-context-note{ margin:.045in 0 0; color:#53665d; font-size:6.4pt; line-height:1.3; }
   .trend-pill{ flex:0 0 auto; padding:.018in .05in; border:1px solid #c8d7cf; border-radius:99px; background:#f1f6f3; color:#365a49; font-size:5.05pt; font-weight:900; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; }
   .trend-pill.rising,.trend-pill.falling{ border-color:#c8d7cf; color:#365a49; }
   .pm-trend{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)) auto; align-items:baseline; gap:.1in .3in; }
@@ -1180,6 +1115,9 @@ const sharedCss = `
   .pm-trend.compact{ gap:.1in .12in; }
   .pm-trend.compact span b{ font-size:7.8pt; }
   .pm-trend.compact span.target{ padding-left:.12in; }
+  .pm-item.economic-context .pm-trend{ grid-template-columns:repeat(5,minmax(0,1fr)); gap:.05in; }
+  .pm-item.economic-context .pm-trend span b{ font-size:8pt; }
+  .pm-item.economic-context .pm-trend span.target{ padding-left:.035in; font-size:5.2pt; }
   .footnote{ margin-top:.1in; color:#68786f; font-size:6.4pt; line-height:1.35; font-style:italic; }
   footer{
     position:absolute;
@@ -1230,11 +1168,12 @@ async function buildDeptPage(d, pageNumber) {
   const fteDeltaHtml = fteDelta ? `<p class="fte-change-note ${fteDelta > 0 ? "up" : "down"}">${fteDelta > 0 ? "+" : "&minus;"}${Math.abs(fteDelta)} FTE ${fteDelta > 0 ? "requested" : "reduced"}${ftePositionText} from FY 2026 (${d.ftePrior} &rarr; ${d.fte})</p>` : "";
   // Rows without a dollar amount are omitted rather than printed unquantified.
   const payerRows = whoPaysFor(d).filter(([, amount]) => amount);
-  const usesPropertyMethod = payerRows.some(([, , explanation]) => /87\.9%|34,362 households/.test(explanation));
+  const usesPropertyMethod = payerRows.some(([, , explanation]) => /87\.9%/.test(explanation));
   const usesSalesMethod = payerRows.some(([, , explanation]) => /tourism visitor study|68% of local retail spending|32% resident share/.test(explanation));
-  const payerHtml = payerRows.map(([payer, amount, explanation]) => { const equivalent = householdEquivalent(explanation); return `<div class="payer-row"><div class="payer-head"><b>${payer}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(explanation)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
+  const propertyTaxAllocation = payerRows.filter(([payer]) => /^(Property taxes|Property-tax transfer|Residential property owners|Commercial and other property owners)$/.test(payer)).reduce((sum, [, amount]) => sum + amount, 0);
+  const payerHtml = payerRows.map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(explanation)}</p></div>`).join("") + `<p class="source-trace"><b>${revenueSnapshot[d.name]?.length ? "Total assigned resources" : "Office appropriation"}: ${money(payerRows.reduce((sum, row) => sum + row[1], 0))}</b></p>` + (d.name === "Mosquito Control" ? "" : homeownerValueExample(propertyTaxAllocation));
   const payerMethodHtml = (usesPropertyMethod || usesSalesMethod)
-    ? `<p class="source-trace">Planning estimates: ${usesPropertyMethod ? "property-tax shares use the Countywide 87.9% residential / 12.1% commercial taxable-value allocation" : ""}${usesPropertyMethod && usesSalesMethod ? "; " : ""}${usesSalesMethod ? "sales-tax shares use the tourism study's 68% visitor / 32% resident retail-spending allocation" : ""}.</p>`
+    ? `<p class="source-trace">Estimated funding shares: ${usesPropertyMethod ? "property tax 87.9% residential / 12.1% commercial" : ""}${usesPropertyMethod && usesSalesMethod ? "; " : ""}${usesSalesMethod ? "sales tax 68% visitor / 32% resident (tourism study)" : ""}. Not individual payments.</p>`
     : "";
 
   let qrHtml = "";
@@ -1249,6 +1188,7 @@ async function buildDeptPage(d, pageNumber) {
   // size so the four actuals never run together or wrap mid-value; a
   // paired value stacks its second figure on its own line.
   const pmVal = (v) => {
+    if (String(v).toUpperCase() === 'N/A') return v;
     const parts = String(v).split(/\s*\/\s*/);
     return parts.length === 2 ? `${parts[0]}<small class="pm-pair">/ ${parts[1]}</small>` : v;
   };
@@ -1264,17 +1204,19 @@ async function buildDeptPage(d, pageNumber) {
     return latest > prior ? ["2024-25 rising", "rising"] : ["2024-25 falling", "falling"];
   };
   const pmBlock = (pm) => {
-    const [trendLabel, trendClass] = trendFor(pm);
+    const [trendLabel, trendClass] = pm.context ? ["Economic context", ""] : trendFor(pm);
+    const contextNote = globalThis.WCPerformanceContext.noteFor({Dept_Name:d.name,Measure:pm.q});
     return `
-    <div class="pm-item">
+    <div class="pm-item${pm.context ? " economic-context" : ""}">
       <div class="pm-title-row"><p class="pm-q">${pm.q}</p><span class="trend-pill ${trendClass}">${trendLabel}</span></div>
       <div class="pm-trend${[...pm.y, pm.target].some((v) => String(v).split("/").pop().trim().length > 6) ? " compact" : ""}">
         <span><b>${pmVal(pm.y[0])}</b>2022</span>
         <span><b>${pmVal(pm.y[1])}</b>2023</span>
         <span><b>${pmVal(pm.y[2])}</b>2024</span>
         <span><b>${pmVal(pm.y[3])}</b>2025</span>
-        <span class="target"><b>${pmVal(pm.target)}</b>FY27 Target</span>
+        <span class="target"><b>${pmVal(pm.target)}</b>${pm.targetLabel || "FY27 Target"}</span>
       </div>
+      ${contextNote ? `<p class="pm-context-note">${contextNote}</p>` : ""}
     </div>`;
   };
 
@@ -1350,10 +1292,12 @@ async function buildDeptPage(d, pageNumber) {
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
         ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}</p></div>` : ""}</div>` : ""}
         <div class="goal-chain goal-chain-inline">
-          <h2>Core Services &amp; Performance</h2>
+          <h2>${d.performanceHeading || "Core Services &amp; Performance"}</h2>
           <p class="svc-change-note"><b>FY 2027 Service Outlook</b><br>${serviceChangeFor(d)}</p>
+          ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>. Submitted budget figures are not overwritten with a different-source estimate.</p>` : ""}
+          ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
           <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
-          ${d.pms.length ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
+          ${d.pms.length || d.valueExplanation ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
         </div>
       </div>
       <div class="side-col">
@@ -1385,7 +1329,7 @@ async function buildDeptPage(d, pageNumber) {
       </div>
     </div>
     <div class="rev-con-grid three">
-      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
+      <div class="rev-box"><h2>Funding Sources / Who Pays</h2>${payerHtml}${payerMethodHtml}</div>
       <div class="con-box"><h2>Contracted Services</h2>${conHtml}</div>
       <div class="cap-box"><h2>Funded Capital Items</h2>${capItems.length ? capHtml : (d.capital ? `<div class="empty-card"><b>${money(d.capital)} capital budget</b>No itemized funded-capital schedule was available for this office.</div>` : `<div class="empty-card"><b>No FY 2027 funded capital items</b>No capital purchase or project is budgeted for this office.</div>`)}</div>
     </div>
@@ -1449,6 +1393,13 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle" });
+  const fundingOverflows = await page.evaluate(() => [...document.querySelectorAll('section')].flatMap(section => {
+    const panel = section.querySelector('.rev-box');
+    const footer = section.querySelector('footer');
+    return panel && footer && panel.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 5
+      ? [section.querySelector('h1')?.textContent || 'Department funding panel'] : [];
+  }));
+  if (fundingOverflows.length) throw new Error(`Funding panels overlap the footer: ${fundingOverflows.join(', ')}`);
   await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
   await browser.close();
   console.log("Wrote " + outPath + " (" + (2 + deptPages.length) + " pages)");

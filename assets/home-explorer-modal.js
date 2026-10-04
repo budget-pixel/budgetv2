@@ -613,7 +613,7 @@
         '<header class="wc-home-department-modal-head">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
-        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
@@ -860,6 +860,15 @@
         departmentPanelResizeObserver = null;
       }
       departmentPanelResizeObserver = watchIframePopupHeight(departmentFrame, updateDepartmentModalHeight);
+      // Loading the nested page can return focus to this document's body
+      // after the opener has already focused the Close button. Restore it
+      // only when focus has fallen out of the dialog, never over a user's
+      // deliberate move to another control or into the embedded page.
+      window.setTimeout(function () {
+        if (departmentModal.hidden || (document.activeElement !== document.body && document.activeElement !== document.documentElement)) return;
+        if (departmentModal.classList.contains("is-budget-book")) departmentFrame.focus({ preventScroll: true });
+        else departmentModal.querySelector(".wc-home-department-modal-close").focus({ preventScroll: true });
+      }, 1200);
     });
     departmentModal.addEventListener("click", function (event) {
       if (event.target.closest("[data-department-popup-close]")) dismissDepartmentModal();
@@ -1114,7 +1123,7 @@
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
       '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
-        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
       '<footer class="wc-home-explorer-modal-footer"><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
     document.body.appendChild(modal);
@@ -1230,7 +1239,8 @@
         return;
       }
       if (departmentModal && !departmentModal.hidden && event.key === "Tab") {
-        var popupFocusable = Array.prototype.slice.call(departmentModal.querySelectorAll('button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])'));
+        var popupFocusable = Array.prototype.slice.call(departmentModal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])'))
+          .filter(function (element) { return !element.hidden && !element.closest('[hidden],[inert]') && element.getClientRects().length > 0; });
         var popupFirst = popupFocusable[0];
         var popupLast = popupFocusable[popupFocusable.length - 1];
         if (event.shiftKey && document.activeElement === popupFirst) {

@@ -34,7 +34,7 @@ const BUDGET_EXPLORER_QR = await QRCode.toDataURL(BUDGET_EXPLORER_URL, {
 // ($8,596,305), Planning ($6,839,111), and Code Compliance ($4,811,854).
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
-  ["Other Constitutional Officers", 33.08],
+  ["Other Constitutional Officers", 33.2615],
   ["Funded Capital Program", 43.80],
   ["Tourism Administration", 29.67],
   ["Environmental Services", 23.51],
@@ -44,7 +44,7 @@ const EXPENSE_CATEGORIES = [
   ["Building Construction & Maintenance", 8.60],
   ["Planning", 6.84],
   ["Code Compliance", 4.81],
-  ["All Other Departments & Agencies", 32.97]
+  ["All Other Departments & Agencies", 32.7885]
 ];
 const EXPENSE_TOTAL = 345.2;
 
@@ -79,7 +79,7 @@ const REVENUE_SOURCES = [
   ["Local Option Fuel Tax", 4.01],
   ["State Revenue Share Proceeds", 3.73],
   ["Housing Prisoners Revenue", 3.5],
-  ["Federal Grant - Economic Environment", 3.06],
+  ["Federal Grant - Housing and Urban Development (HUD)", 3.06],
   ["Ambulance Fees", 3.0],
   ["All Other Sources", 49.75]
 ];

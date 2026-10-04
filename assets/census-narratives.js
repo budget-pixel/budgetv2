@@ -2,18 +2,18 @@
    Loads pre-computed Census Bureau figures from assets/census-data.json
    (produced offline by scripts/fetch-census-data.js via a scheduled GitHub
    Action — see .github/workflows/update-census-data.yml) and the Census
-   Narratives Google Sheet, then fills the sheet's {{placeholder}} templates
+   Narratives static publication dataset, then fills the sheet's {{placeholder}} templates
    with those figures. The Census API is never called from the browser. */
 (function () {
   "use strict";
 
   const CENSUS_DATA_JSON_URL = "../assets/census-data.json";
   const CENSUS_NARRATIVES_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=945636240&single=true&output=csv";
+    "../assets/static-data/census-narratives.csv?v=20261004-static-final";
   // data.census.gov vizwidget geography code for Walton County, FL.
   const CENSUS_IFRAME_GEOGRAPHY = "050XX00US12131";
 
-  // One block per row in the Census Narratives sheet. Each block pairs the
+  // One block per row in the Census narrative publication. Each block pairs the
   // relevant data.census.gov visualization(s) with that row's narrative.
   // `fallback` is shown verbatim (no placeholder substitution) if either
   // census-data.json or the narrative sheet fails to load.
@@ -139,7 +139,7 @@
 
   // Response cache + one retry + stale-cache fallback -- CENSUS_DATA_JSON_URL
   // above is a same-origin static file (fast, reliably cached by the
-  // browser already) but this CSV comes from a published Google Sheet,
+  // browser already) but this CSV comes from a published static publication dataset,
   // which is slow enough and unreliable enough on its own to need this.
   const CENSUS_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -252,7 +252,7 @@
         : splitIntoParagraphs(template).map((p) => "<p>" + formatCensusNarrative(p, censusValues) + "</p>").join("");
 
       const sourceNote = useFallback
-        ? '<p class="wc-census-source"><em>Source: U.S. Census Bureau. Narrative shown is a default summary; live figures are temporarily unavailable.</em></p>'
+        ? '<p class="wc-census-source"><em>Source: U.S. Census Bureau. Narrative shown is a default summary; published figures are temporarily unavailable.</em></p>'
         : '<p class="wc-census-source"><em>Source: U.S. Census Bureau, ACS 5-Year Estimates. Data current as of ' + escapeHtml(lastUpdatedLabel) + ".</em></p>";
 
       const vizCardHtml =
@@ -281,7 +281,7 @@
       .then(([jsonResult, csvResult]) => {
         const dataLoadFailed = jsonResult.status !== "fulfilled";
         if (dataLoadFailed) console.error("CensusNarratives: failed to load census-data.json", jsonResult.reason);
-        if (csvResult.status !== "fulfilled") console.error("CensusNarratives: failed to load Census Narratives sheet", csvResult.reason);
+        if (csvResult.status !== "fulfilled") console.error("CensusNarratives: failed to load Census narrative publication", csvResult.reason);
 
         const censusData = dataLoadFailed ? { metadata: {}, values: {} } : jsonResult.value;
         const narrativeRows = csvResult.status === "fulfilled" ? csvResult.value : [];

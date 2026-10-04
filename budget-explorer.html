@@ -21,8 +21,8 @@
 <link rel="icon" type="image/png" href="assets/images/page-images/walton-county-logo-no-background.png">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20261001-popup-search-ledger">
-<link rel="stylesheet" href="assets/home-landing.css?v=20261001-popup-search-ledger">
+<link rel="stylesheet" href="assets/style.css?v=20261001-hidden-budget-lines">
+<link rel="stylesheet" href="assets/home-landing.css?v=20261002-secondary-budget-cards">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -32,7 +32,7 @@
     <form class="wc-home-search-form" role="search" aria-label="Search the Budget">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>
       <label class="wc-sr-only" for="wcHomeBudgetSearch">Search the Walton County budget</label>
-      <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcHomeSearchDropdown" aria-autocomplete="list">
+      <input id="wcHomeBudgetSearch" name="q" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcHomeSearchDropdown" aria-autocomplete="list">
       <button type="submit">Search</button>
     </form>
     <div id="wcHomeSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
@@ -144,6 +144,7 @@
     </a>
 
   </section>
+  <p class="wc-explorer-view-note">These budget views overlap, so their amounts should not be added together.</p>
 
   <div class="wc-explorer-intro-icons" aria-label="County overview and structure">
     <a class="wc-explorer-intro-icon-link" href="pages/budget-overview.html" data-explorer-popup-trigger="Ledger Directory">
@@ -179,6 +180,7 @@
     <a class="wc-explorer-card wc-card-revenue" data-home-explorer="revenue" href="?explorer=revenue">
       <div class="wc-explorer-card-heading">
         <div><h3>Revenue Budget</h3></div>
+        <p>Where the County’s funding comes from.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-revenue-total>—</strong><span>Total Revenue Budget</span><small data-card-revenue-change>FY 2027 final</small></div>
@@ -190,6 +192,7 @@
     <a class="wc-explorer-card wc-card-personnel" data-home-explorer="personnel" href="?explorer=personnel">
       <div class="wc-explorer-card-heading">
         <div><h3>Workforce Budget</h3></div>
+        <p>The people behind County services.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-personnel-total>—</strong><span>Total Personnel Cost</span><small data-card-personnel-share>Share of total expenditures</small></div>
@@ -203,12 +206,12 @@
 </main>
 </div>
 
-<script src="assets/search-data.js?v=20260930-budget-adjustments-title"></script>
+<script src="assets/search-data.js?v=20261001-search-links"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="assets/budget-data.js?v=20261001-popup-search-ledger"></script>
+<script src="assets/performance-context.js?v=20261004-performance-context"></script><script src="assets/budget-data.js?v=20261004-static-final"></script>
 <script src="assets/independent-agencies-data.js?v=20260910-launch-review"></script>
-<script src="assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
+<script src="assets/nav.js?v=20261001-iframe-lang"></script>
 <script>
 (function(){
   "use strict";

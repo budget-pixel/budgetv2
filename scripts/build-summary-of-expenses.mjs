@@ -30,12 +30,12 @@ const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Ac
 
 // [function, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
-  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$59,228,754"],
+  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$59,410,254"],
   ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,571,918"],
   ["Physical Environment", "$15,448,028", "$17,139,861", "$20,480,144", "$20,797,576", "$23,738,840", "$24,559,033"],
   ["Transportation", "$41,530,734", "$36,422,624", "$42,302,193", "$39,852,608", "$48,143,047", "$58,121,849"],
   ["Economic Environment", "$41,878,146", "$51,789,996", "$55,678,766", "$51,137,982", "$54,818,996", "$62,761,100"],
-  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$6,360,322"],
+  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$6,178,822"],
   ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,953,833", "$5,476,961", "$6,306,200", "$6,106,603"],
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
@@ -43,12 +43,13 @@ const ROWS = [
 const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
 
 // Pages 2–3: FY 2027 department detail grouped by the published activity
-// sheet. The final-budget reconciliation moves $222,541 out of the Board,
-// $181,500 into Non-Profit Funding, and $41,041 into Statutory & Other.
+// sheet. The final-budget reconciliation retains $181,500 in BCC operating
+// expenses following the confirmed nonprofit budget of $268,500, leaving
+// a net $41,041 moved from the Board to Statutory & Other.
 // Each function below now sums to the consolidated budget ledger.
 const DEPT_GROUPS = [
   ["General Government", [
-    ["Board of County Commissioners", "$12,291,280"],
+    ["Board of County Commissioners", "$12,472,780"],
     ["Building Construction and Maintenance", "$8,912,305"],
     ["Tax Collector", "$8,500,000"],
     ["Clerk of Court", "$6,871,175"],
@@ -109,7 +110,7 @@ const DEPT_GROUPS = [
     ["Human Services", "$2,325,259"],
     ["Walton County Health Department", "$1,724,397"],
     ["Mosquito Control", "$1,426,937"],
-    ["Non-Profit Funding Program", "$450,000"],
+    ["Non-Profit Funding Program", "$268,500"],
     ["Lakeview", "$175,000"],
     ["Gulf Coast Kid's House", "$98,100"],
     ["Mosquito Control State Aid", "$69,588"],
@@ -139,6 +140,100 @@ const DEPT_GROUPS = [
 ];
 const DEPT_TOTAL = ["Department Budget Total", "$345,223,508"];
 
+// FY 2026 original-budget records, matched to the printed department scope.
+// Code Compliance's two current programs share historical accounting codes;
+// present their combined budget rather than assigning shared history twice.
+const FY2026_DEPARTMENT_BUDGETS = {
+  "Board of County Commissioners": 12339938,
+  "Building Construction and Maintenance": 9986168,
+  "Tax Collector": 7900000,
+  "Clerk of Court": 5984728,
+  "Planning": 5750851,
+  "Property Appraiser": 4829596,
+  "County Administration": 2219903,
+  "Office of the County Attorney": 1993475,
+  "Supervisor of Elections": 1615107,
+  "Planning Short-Term Rental": 939013,
+  "Human Resources": 1338993,
+  "Procurement": 1188795,
+  "Office of Management and Budget": 1524708,
+  "Geographic Info Systems": 801815,
+  "Mossy Head Wastewater Treatment Facility": 1402528,
+  "Court Innovations": 50000,
+  "Walton County Sheriff's Office": 114116228,
+  "Building Department": 4200000,
+  "Code Compliance": 4873159,
+  "South Walton Fire": 919693,
+  "Emergency Management": 804151,
+  "Medical Examiner": 1351698,
+  "Probation Services": 364655,
+  "Volunteer Fire": 250000,
+  "State Fire": 32790,
+  "Solid Waste": 22110673,
+  "Environmental Services": 840902,
+  "Extension Office": 600710,
+  "Soil Conservation": 143330,
+  "MSBU": 43225,
+  "Public Works": 25201472,
+  "Capital Projects": 20391997,
+  "Engineering Services": 2474578,
+  "Sidewalk": 75000,
+  "Marketing": 13834592,
+  "Beach Operations": 10471698,
+  "Beach Renourishment": 10000000,
+  "Tourism Public Safety": 4420000,
+  "Beach Tram": 3516126,
+  "South Walton Fire Lifeguard Services": 3250749,
+  "Tourism Administration": 2998667,
+  "Housing & Urban Development": 3082896,
+  "Sales and Visitors Center": 1790723,
+  "Communications": 894445,
+  "Economic Development Alliance": 271841,
+  "North Walton Tourist Development Tax": 323000,
+  "Veteran Services": 236100,
+  "Human Services": 2347802,
+  "Walton County Health Department": 1724397,
+  "Mosquito Control": 1340000,
+  "Non-Profit Funding Program": 527820,
+  "Lakeview": 150000,
+  "Gulf Coast Kid's House": 40000,
+  "Mosquito Control State Aid": 61856,
+  "Indigent Cremation Program": 50000,
+  "Statutory & Other reconciliation": 0,
+  "Libraries": 1894963,
+  "Eagle Springs Golf and Recreation Center": 1974044,
+  "Recreation": 859309,
+  "Recreation Plat Fee": 1000000,
+  "Eagle Springs Grill": 577884,
+  "Culture and Recreation (Senior Centers & Mainstreet)": 0,
+  "State Attorney": 260633,
+  "Public Defender": 152439,
+  "Circuit Court": 260511,
+  "Court Technology - Court Administration": 393758,
+  "County Court": 69956,
+  "Guardian Ad Litem": 9000,
+  "BCC Other Uses Contingency": 500000
+};
+const money = (amount) => "$" + amount.toLocaleString("en-US");
+const amountOf = (value) => Number(String(value).replace(/[^0-9.-]/g, ""));
+function priorDepartmentBudget(functionName, name) {
+  if (functionName === "Culture and Recreation" && name === "Board of County Commissioners") return 0;
+  if (!(name in FY2026_DEPARTMENT_BUDGETS)) throw new Error("Missing FY 2026 department budget: " + name);
+  return FY2026_DEPARTMENT_BUDGETS[name];
+}
+const safetyRows = DEPT_GROUPS.find(([name]) => name === "Public Safety")[1];
+const complianceRows = safetyRows.filter(([name]) => /^Code Compliance/.test(name));
+const complianceIndex = safetyRows.findIndex(([name]) => name === "Code Compliance Beach");
+safetyRows.splice(complianceIndex, complianceRows.length, ["Code Compliance", money(complianceRows.reduce((sum, row) => sum + amountOf(row[1]), 0))]);
+const priorDetailTotal = DEPT_GROUPS.reduce((sum, [fn, rows]) => sum + rows.reduce((subtotal, [name]) => subtotal + priorDepartmentBudget(fn, name), 0), 0);
+if (priorDetailTotal !== 327945088) throw new Error("FY 2026 department ledger does not reconcile");
+// FY 2026 is presented using the same department/function grouping as the
+// continuation pages; older actuals retain their published classifications.
+ROWS.forEach((row) => {
+  const group = DEPT_GROUPS.find(([name]) => name.replace(/[^a-z]/gi, "").toLowerCase() === row[0].replace(/[^a-z]/gi, "").toLowerCase());
+  row[5] = money(group[1].reduce((sum, [name]) => sum + priorDepartmentBudget(group[0], name), 0));
+});
+
 // 65 rows across 9 function groups no longer fit a single two-column page
 // at the larger, more readable type size below -- split at a natural
 // group boundary into two continuation pages instead, matching the
@@ -146,13 +241,13 @@ const DEPT_TOTAL = ["Department Budget Total", "$345,223,508"];
 const DEPT_GROUPS_A = DEPT_GROUPS.slice(0, 4);
 const DEPT_GROUPS_B = DEPT_GROUPS.slice(4);
 
-function deptRow(cells) {
-  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${cells[1]}</div></div>`;
+function deptRow(cells, functionName) {
+  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${money(priorDepartmentBudget(functionName, cells[0]))}</div><div class="dnum">${cells[1]}</div></div>`;
 }
 function buildDeptSections(groups) {
   return groups.map(([fn, rows]) => `
     <div class="dgroup">${fn}</div>
-    ${rows.map((r) => deptRow(r)).join("")}
+    ${rows.map((r) => deptRow(r, fn)).join("")}
 `).join("");
 }
 
@@ -161,7 +256,7 @@ const row = (cells, cls) => {
   return `<div class="lrow${cl}"><div class="rlabel">${cells[0]}</div>${cells.slice(1).map((c) => `<div class="rnum">${c}</div>`).join("")}</div>`;
 };
 
-const tableHead = `<div class="lrow head"><div class="rlabel">Functional Classification</div>${YEARS.map((y) => `<div class="rnum">${y}</div>`).join("")}</div>`;
+const tableHead = `<div class="lrow head"><div class="rlabel">Functional Classification</div>${YEARS.map((y) => `<div class="rnum">${y === "FY 2027 Final" ? "FY 2027<br>Final" : y}</div>`).join("")}</div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -335,9 +430,10 @@ const sharedCss = `
   .dgroup:first-child{ margin-top:0; }
   .drow{
     break-inside:avoid-column;
-    display:flex;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) .9in .9in;
     align-items:center;
-    gap:.06in;
+    gap:.1in;
     padding:.05in 0;
     border-bottom:1px solid #f1f4f1;
   }
@@ -413,14 +509,15 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>FY 2027 functions follow the published activity sheet and match the Consolidated Budget Ledger. Prior-year figures retain their originally reported classifications, so a category change may affect a year-over-year comparison.</p>
+      <p>FY 2026 and FY 2027 budgets use the department grouping shown on the continued ledger pages. Earlier actuals retain their originally reported classifications, so a category change may affect a year-over-year comparison.</p>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
 
-const dtableHead = `<div class="dtable-head"><div class="drow dhead"><div class="dlabel">Department / Function</div><div class="dnum">FY27 Final</div></div><div class="drow dhead"><div class="dlabel">Department / Function</div><div class="dnum">FY27 Final</div></div></div>`;
+const departmentHead = `<div class="drow dhead"><div class="dlabel">Department / Function</div><div class="dnum">FY 2026<br>Budget</div><div class="dnum">FY 2027<br>Final</div></div>`;
+const dtableHead = `<div class="dtable-head">${departmentHead}${departmentHead}</div>`;
 
 const page2 = `
   <section>
@@ -430,7 +527,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <p class="footnote">The Board's $12,791,280 total is classified as $12,291,280 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
+    <p class="footnote">The Board's $12,972,780 total is classified as $12,472,780 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses. Code Compliance combines both current programs for comparison with their shared FY 2026 accounting codes.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
@@ -443,7 +540,7 @@ const page3 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_B)}
     </div>
-    <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${DEPT_TOTAL[1]}</div></div>
+    <div class="drow grand"><div class="dlabel">${DEPT_TOTAL[0]}</div><div class="dnum">${money(priorDetailTotal)}</div><div class="dnum">${DEPT_TOTAL[1]}</div></div>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;

@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import { consolidated, generalFund, values, millions } from "./fund-schedule-data.mjs";
 
 // New chapter: "Long-Term Outlook" -- closes the Financial Plan and
 // Capital Program chapter (placed after the Debt Ledger, before the
@@ -175,11 +176,15 @@ const MILLAGE = [["FY 2024", 3.6000], ["FY 2025", 3.575], ["FY 2026", 3.519], ["
 const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
 
 const FORECAST_ROWS = [
-  ["Total Revenue & Other Sources", "$476.3M", "$467.6M", "$488.5M", "$491.2M"],
-  ["Total Expenditures & Other Uses", "$468.3M", "$488.9M", "$503.6M", "$518.7M"],
-  ["Change in Fund Balance", "$7.9M", "&minus;$21.3M", "&minus;$15.0M", "&minus;$27.5M", [false, true, true, true]],
-  ["Estimated Ending Fund Balance", "$443.9M", "$410.5M", "$395.5M", "$368.0M"]
+  ["Beginning Fund Balance", ...values(consolidated, "Beginning Fund Balance").slice(6, 10).map(millions)],
+  ["Total Revenue & Other Sources", ...values(consolidated, "Total Revenue and Other Financial Sources").slice(6, 10).map(millions)],
+  ["Total Expenditures & Other Uses", ...values(consolidated, "Total Expenditures and Other Financial Uses").slice(6, 10).map(millions)],
+  ["Change in Fund Balance", ...values(consolidated, "Change in Fund Balance").slice(6, 10).map(millions), values(consolidated, "Change in Fund Balance").slice(6, 10).map(v => v < 0)],
+  ["Estimated Ending Fund Balance", ...values(consolidated, "Estimated Ending Fund Balance").slice(6, 10).map(millions)]
 ];
+const generalFundEnding = millions(values(generalFund, "Estimated Ending Fund Balance")[7]);
+const nextYearDraw = millions(-values(consolidated, "Change in Fund Balance")[8]);
+const followingYearDraw = millions(-values(consolidated, "Change in Fund Balance")[9]);
 
 const page1 = `
   <section>
@@ -198,19 +203,20 @@ const page1 = `
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>
-    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Taxable-value growth helped offset the lower rate, but recurring revenue does not cover all adopted FY 2027 expenditures and transfers.</p>
+    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Current-year sources and accumulated fund balance together support the adopted plan. The fund schedules include operating expenses, capital and transfers; they do not isolate a recurring operating gap.</p>
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
     <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY 2024 to a final 3.2500 mills in FY 2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. The tentative-hearing comparison estimated an $8.6M revenue effect from lowering the rate; the final funding schedule budgets $8.0M of General Fund balance brought forward after all revenue updates.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
-    <p class="body">The Fund Financial Ledger presents history through the FY 2027 final budget. The online fund forecast extends through FY 2029, while the five-year Capital Improvement Plan carries the capital planning view through FY 2031.</p>
+    <p class="body">The Fund Financial Ledger and this table use the same Consolidated Fund Financial Schedule. That schedule extends through FY 2029. The separate six-major-fund Forecast Explorer uses fund-specific assumptions and the capital project schedule through FY 2031; it is not the same countywide projection.</p>
     <div class="fcast-table">
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. Countywide fund balance is projected to decline by another $15.0M in FY 2028 and $27.5M in FY 2029 as capital spending and transfers outpace revenue growth. These are projections under current assumptions, not current-year funding shortfalls.</p>
+    <p class="body">Amounts are rounded to $0.1 million. FY 2027 starts with an updated opening estimate, rather than the FY 2026 budget's estimated closing balance. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
+    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. This schedule projects further decreases of ${nextYearDraw} in FY 2028 and ${followingYearDraw} in FY 2029 as spending and transfers outpace revenue growth. These are projections under the schedule's assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -222,10 +228,10 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
-    <p class="body">The General Fund is the County's primary, least-restricted operating fund. Countywide balance is not interchangeable: $166.5M in the Tourist Development Fund and $41.1M in the Transportation Fund are legally restricted, while the $3.668M self-insurance reserve exceeds its separate 60-day requirement by $693,946.</p>
+    <p class="body">The General Fund is the County's primary, least-restricted operating fund. Other fund balances are not interchangeable with General Fund resources. Tourism and transportation resources retain their applicable restrictions, while the $3.668M self-insurance reserve has a separate 60-day requirement.</p>
     <div class="two-col">
-      <div class="info-card"><b>Audited FY 2025 GFOA Comparison</b><span>GFOA recommends at least two months of unrestricted budgetary General Fund operating revenues or expenditures. The FY 2025 ACFR reports $58.394M as <i>unassigned</i> General Fund balance and $185.853M of expenditures and other uses. Two months of that audited base is $30.976M. The unassigned balance equals about 3.77 months and exceeds the illustrative minimum by $27.418M. Using unassigned balance is conservative; committed, assigned, and unassigned together are the broader unrestricted categories.</span></div>
-      <div class="info-card"><b>Six-Month Reference From the Audited FY 2025 Base</b><span>The Board has not adopted a numeric minimum. The audited General Fund expenditure and other-use base is $185.853M (about $186M); six months is $92.927M (about $93M). The projected FY 2027 total ending balance of $73.3M is numerically about $20M below that reference and equals about five months on the historical base. Because the projection is not classified as restricted, committed, assigned, and unassigned, it is not a direct update of the audited FY 2025 unassigned balance.</span></div>
+      <div class="info-card"><b>GFOA Two-Month Guideline</b><span>GFOA recommends unrestricted budgetary General Fund balance of at least two months of regular operating revenues or expenditures. The FY 2025 ACFR reports $58.394M of <i>unassigned</i> balance and $185.853M of expenditures and other uses. Using that audited base gives a $30.976M two-month reference and about 3.77 months of unassigned balance. This is an audited-base comparison, not a formal compliance calculation; the regular operating base excludes unusual one-time items and includes recurring transfers.</span></div>
+      <div class="info-card"><b>FY 2027 Planned Draw and Ending Balance</b><span>The General Fund starts with $81.9M, budgets an $8.047M draw, and projects ${generalFundEnding} of total ending balance. That draw is included in the $21.3M countywide total. Accumulated fund balance is not new recurring revenue. The schedules do not divide the draw between one-time projects and recurring services. The projected total is not classified by fund-balance category and is not an updated audited unassigned balance or a direct test of the GFOA guideline.</span></div>
     </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
@@ -241,9 +247,10 @@ const page2 = `
     <div class="stat-strip">
       <div class="stat-card"><b>$29.5M</b><span>Total Debt Issued</span></div>
       <div class="stat-card"><b>$9.1M</b><span>Remaining Debt Service</span></div>
-      <div class="stat-card"><b>$2.51M</b><span>FY 2027 Debt Service</span></div>
+      <div class="stat-card"><b>$2.58M</b><span>FY 2027 Final Debt-Service Budget</span></div>
       <div class="stat-card"><b>FY 2030</b><span>Scheduled Payoff</span></div>
     </div>
+
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>

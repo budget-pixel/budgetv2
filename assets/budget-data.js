@@ -1,22 +1,8 @@
-/* Walton County FY 2027 Budget — live Google Sheets data layer.
-   Fetches, parses, and renders department + financial summary data from the
-   published budget CSVs. Exposes window.WCBudgetData for reuse on any page. */
+/* Walton County FY 2027 Budget — fixed final publication data.
+   The CIP plan uses its separate live connection. */
 (function () {
   "use strict";
 
-  const DATA_SOURCES = {
-    expenditures: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=0&single=true&output=csv",
-    revenues: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1812049672&single=true&output=csv",
-    staffing: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=676680519&single=true&output=csv",
-    performanceMeasures: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=95242207&single=true&output=csv",
-    departmentNarratives: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=445845528&single=true&output=csv",
-    funds: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=968844446&single=true&output=csv",
-    activities: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1380538812&single=true&output=csv",
-    fundBalances: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=78843155&single=true&output=csv",
-    personnelPositionCosts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1934273460&single=true&output=csv",
-    personnelCostFormulaInputs: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1205082856&single=true&output=csv",
-    machineryUnfunded: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=708613103&single=true&output=csv"
-  };
 
   const LOADING_MESSAGE = "Loading budget data...";
   // Bouncing-dots markup (see style.css's .wc-loading-dots) appended to the
@@ -26,14 +12,9 @@
     ' <span class="wc-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
   const ERROR_MESSAGE = "Budget data could not be loaded. Please try again later.";
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
-  const SUPABASE_CLIENT_SCRIPT = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-  const BUDGET_FETCH_TIMEOUT_MS = 20000;
-  const SUPABASE_LOAD_TIMEOUT_MS = 15000;
-  const BUDGET_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
-
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const supabaseDataScript = assetBaseUrl + "supabase-data.js?v=20260706-1";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261004-static-final";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -373,83 +354,6 @@
   };
   let loadPromise = null;
 
-  function rejectAfter(ms, message) {
-    return new Promise((resolve, reject) => {
-      window.setTimeout(() => reject(new Error(message)), ms);
-    });
-  }
-
-  function withTimeout(promise, ms, message) {
-    return Promise.race([promise, rejectAfter(ms, message)]);
-  }
-
-  function loadScriptOnce(id, src) {
-    return new Promise((resolve, reject) => {
-      const existing = document.getElementById(id);
-      if (existing) {
-        if (existing.dataset.loaded === "true") {
-          resolve();
-          return;
-        }
-        existing.addEventListener("load", () => resolve(), { once: true });
-        existing.addEventListener("error", () => reject(new Error("Failed to load " + src)), { once: true });
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = id;
-      script.src = src;
-      script.async = true;
-      script.addEventListener(
-        "load",
-        () => {
-          script.dataset.loaded = "true";
-          resolve();
-        },
-        { once: true }
-      );
-      script.addEventListener("error", () => reject(new Error("Failed to load " + src)), { once: true });
-      document.head.appendChild(script);
-    });
-  }
-
-  function ensureSupabaseDataLayer() {
-    if (window.WCSupabaseData) return Promise.resolve(window.WCSupabaseData);
-
-    return loadScriptOnce("wc-supabase-js", SUPABASE_CLIENT_SCRIPT)
-      .then(() => loadScriptOnce("wc-supabase-data", supabaseDataScript))
-      .then(() => window.WCSupabaseData || null)
-      .catch((err) => {
-        console.error("WCBudgetData: Supabase actuals layer could not be loaded; using Google Sheets fallbacks.", err);
-        return null;
-      });
-  }
-
-  function loadSupabaseActualLookups() {
-    const request = ensureSupabaseDataLayer().then((supabaseData) => {
-      if (!supabaseData) return null;
-
-      return Promise.all([
-        supabaseData.loadExpenseActuals(),
-        supabaseData.loadRevenueActuals(),
-        supabaseData.loadOriginalBudget()
-      ]).then(([expenseRows, revenueRows, originalBudgetRows]) => ({
-        supabaseData,
-        expenseRows,
-        revenueRows,
-        originalBudgetRows
-      }));
-    });
-
-    return withTimeout(
-      request,
-      SUPABASE_LOAD_TIMEOUT_MS,
-      "Supabase actuals timed out after " + SUPABASE_LOAD_TIMEOUT_MS + "ms"
-    ).catch((err) => {
-      console.error("WCBudgetData: Supabase actuals could not be loaded; using Google Sheets fallbacks.", err);
-      return null;
-    });
-  }
 
   // Some departments' historical actuals are booked under older Dept_Code
   // values that predate a county org-code restructuring and no longer
@@ -603,12 +507,10 @@
     });
   }
 
-  // The published FY 2027 print budget is the final control for these four
-  // office/agency totals. The currently published expenditures sheet moves
-  // $222,541 into BCC from the Non-Profit and Statutory & Other lines while
-  // leaving the $345,223,508 countywide total unchanged. Keep the source
-  // rows visible and add named reconciliation lines so the site matches the
-  // final print book without inventing account or project allocations.
+  // Retain the statutory/personnel reconciliation. The user confirmed
+  // nonprofit funding of $268,500 and reassigned the former $181,500
+  // nonprofit adjustment to BCC operating expenses. Countywide totals
+  // stay unchanged. Skip corrections when the underlying source changes.
   function reconcilePublishedFinalExpenseTotals(rows) {
     const totalFor = (name) => rows.filter((row) => normalizeDeptName(row.Dept_Name) === name)
       .reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0);
@@ -634,9 +536,19 @@
     return rows.concat([
       adjustment("Board of County Commissioners", "00101000", "Personnel Services", -197541),
       adjustment("Board of County Commissioners", "00101000", "Operating Expenditures", -25000),
-      adjustment("Non-Profit Funding Program", "00102014", "Grants and Aid", 181500),
+      adjustment("Board of County Commissioners", "00101000", "Operating Expenditures", 181500),
       adjustment("Statutory & Other", "00102012", "Grants and Aid", 41041)
     ]);
+  }
+
+  // User-confirmed correction: nonprofit expenses remain $268,500; move
+  // its excess $181,500 property-tax funding to BCC without changing the levy.
+  function reassignNonprofitPropertyTaxFunding(rows) {
+    const nonprofit = rows.filter(row => normalizeDeptName(row.Dept_Name) === "non profit funding program" && String(row.Revenue_Code) === "311000");
+    const board = rows.filter(row => normalizeDeptName(row.Dept_Name) === "board of county commissioners" && String(row.Revenue_Code) === "311000");
+    if (nonprofit.length !== 1 || board.length !== 1) return rows;
+    if (Number(nonprofit[0].FY2027_Proposed) !== 450000 || Number(board[0].FY2027_Proposed) !== 4491053) return rows;
+    return rows.map(row => row === nonprofit[0] ? { ...row, FY2027_Proposed: 268500 } : row === board[0] ? { ...row, FY2027_Proposed: 4672553 } : row);
   }
 
   // Specific (Dept_Code, Revenue_Code) revenue rows relabeled to a
@@ -1368,7 +1280,7 @@
     return /^(https?:|mailto:)/i.test(trimmed) ? trimmed : "";
   }
 
-  // Renders narrative text pulled from Google Sheets: escapes it for safe
+  // Renders narrative text pulled from publication data: escapes it for safe
   // HTML output, then converts markdown-style **bold** spans into <strong>
   // and [Link Text](https://example.com) spans into target="_blank" links.
   // Used for Statement of Function, Mission, Budget Highlights, and any
@@ -1396,12 +1308,12 @@
     return result;
   }
 
-  // Splits a raw narrative cell's text into paragraphs. Google Sheets cells
+  // Splits a raw narrative cell's text into paragraphs. publication data cells
   // can contain multiple paragraphs separated by blank lines (or multiple
   // consecutive line breaks); this normalizes line endings, splits on those
   // blank-line boundaries, trims each result, and drops empty entries while
   // preserving original order. Used for any long-form narrative field loaded
-  // from Google Sheets (Statement of Function, mission statements, department
+  // from publication data (Statement of Function, mission statements, department
   // descriptions, budget highlights, etc.), not just one specific field.
   function splitIntoParagraphs(text) {
     if (!text) return [];
@@ -2636,7 +2548,8 @@
       "Code Link": (row["Code Link"] || "").trim(),
       Goal: (row.Goal || "").trim(),
       Objective: (row.Objective || "").trim(),
-      Measure: (row.Measure || "").trim(),
+      Measure: window.WCPerformanceContext ? window.WCPerformanceContext.measureLabel((row.Measure || "").trim()) : (row.Measure || "").trim(),
+      ContextNote: window.WCPerformanceContext ? window.WCPerformanceContext.noteFor(row) : "",
       Actual_2022: (row.Actual_2022 || "").trim(),
       Actual_2023: (row.Actual_2023 || "").trim(),
       Actual_2024: (row.Actual_2024 || "").trim(),
@@ -2649,7 +2562,7 @@
   function normalizeNarrativeRow(row) {
     return {
       Dept_Name: (row.Dept_Name || "").trim(),
-      Narrative: (row.Narrative || "").trim()
+      Narrative: window.WCPerformanceContext ? window.WCPerformanceContext.narrative((row.Narrative || "").trim()) : (row.Narrative || "").trim()
     };
   }
 
@@ -2864,124 +2777,6 @@
   // multi-department rows) defaults to true since those rows really do
   // span several departments.
 
-  // Every sheet tab used to be re-fetched from scratch on every page view
-  // (no caching at all) with no retry, so on a slow connection the tab most
-  // likely to time out failed first -- and a failed fetch was silently
-  // swallowed into an empty array downstream (see loadBudgetData), with only
-  // a console.error to show for it. dataFetchDegraded flags whenever a
-  // retry or a stale-cache fallback fires, so loadBudgetData can surface
-  // that to the reader instead of rendering as if nothing went wrong.
-  let dataFetchDegraded = false;
-
-  function budgetFetchCacheKey(url) {
-    return "wcFetchCache:" + url;
-  }
-
-  function readBudgetFetchCache(url) {
-    try {
-      const raw = sessionStorage.getItem(budgetFetchCacheKey(url));
-      return raw ? JSON.parse(raw) : null;
-    } catch (err) {
-      return null;
-    }
-  }
-
-  function writeBudgetFetchCache(url, text) {
-    try {
-      sessionStorage.setItem(budgetFetchCacheKey(url), JSON.stringify({ text: text, savedAt: Date.now() }));
-    } catch (err) {
-      // sessionStorage can throw (private browsing, storage quota) --
-      // caching is a nice-to-have, not required for the fetch to succeed.
-    }
-  }
-
-  function fetchTextOnce(url) {
-    const controller = typeof AbortController === "function" ? new AbortController() : null;
-    const options = { cache: "no-store" };
-    if (controller) options.signal = controller.signal;
-    const timer = controller
-      ? window.setTimeout(() => controller.abort(), BUDGET_FETCH_TIMEOUT_MS)
-      : null;
-
-    return fetch(url, options)
-      .then((res) => {
-        if (!res.ok) throw new Error("Request failed with status " + res.status);
-        return res.text();
-      })
-      .finally(() => {
-        if (timer !== null) window.clearTimeout(timer);
-      });
-  }
-
-  function fetchText(url) {
-    const cached = readBudgetFetchCache(url);
-    if (cached && Date.now() - cached.savedAt < BUDGET_FETCH_CACHE_TTL_MS) {
-      return Promise.resolve(cached.text);
-    }
-
-    function attempt(retriesLeft) {
-      return fetchTextOnce(url).catch((err) => {
-        if (retriesLeft > 0) {
-          dataFetchDegraded = true;
-          return attempt(retriesLeft - 1);
-        }
-        throw err;
-      });
-    }
-
-    return attempt(1)
-      .then((text) => {
-        writeBudgetFetchCache(url, text);
-        return text;
-      })
-      .catch((err) => {
-        if (cached) {
-          dataFetchDegraded = true;
-          return cached.text;
-        }
-        throw err;
-      });
-  }
-
-  function fetchCSV(url) {
-    return fetchText(url).then(parseCSV);
-  }
-
-  // Turns an invisible partial failure (a source that timed out and quietly
-  // became an empty array, or one that only recovered via a stale cached
-  // copy) into something the reader can actually see, with a way to try
-  // again -- shown once per load, dismissible, and safe to call before
-  // document.body exists yet.
-  function showDataDegradedBanner() {
-    if (document.querySelector(".wc-data-degraded-banner")) return;
-    if (!document.body) {
-      document.addEventListener("DOMContentLoaded", showDataDegradedBanner, { once: true });
-      return;
-    }
-    const banner = document.createElement("div");
-    banner.className = "wc-data-degraded-banner";
-    banner.setAttribute("role", "status");
-    banner.style.cssText =
-      "position:sticky;top:0;z-index:9997;display:flex;align-items:center;justify-content:center;" +
-      "gap:16px;padding:10px 16px;background:#7a5b12;color:#fff;font:600 13px/1.4 Arial,sans-serif;text-align:center";
-    const message = document.createElement("span");
-    message.textContent = "Some figures may be out of date or incomplete because a data source was slow to respond.";
-    const refresh = document.createElement("button");
-    refresh.type = "button";
-    refresh.textContent = "Refresh";
-    refresh.style.cssText = "border:1px solid rgba(255,255,255,.6);border-radius:999px;background:transparent;color:#fff;padding:4px 12px;font:700 12px/1 Arial,sans-serif;cursor:pointer";
-    refresh.addEventListener("click", () => window.location.reload());
-    const dismiss = document.createElement("button");
-    dismiss.type = "button";
-    dismiss.setAttribute("aria-label", "Dismiss");
-    dismiss.textContent = "×";
-    dismiss.style.cssText = "border:0;background:transparent;color:#fff;font:700 18px/1 Arial,sans-serif;cursor:pointer;padding:0 4px";
-    dismiss.addEventListener("click", () => banner.remove());
-    banner.appendChild(message);
-    banner.appendChild(refresh);
-    banner.appendChild(dismiss);
-    document.body.insertBefore(banner, document.body.firstChild);
-  }
 
   // Dev-only sanity check, never shown in the UI -- logs to the browser
   // console automatically after every data load. Reuses the same row
@@ -3247,108 +3042,19 @@
 
   function loadBudgetData() {
     if (loadPromise) return loadPromise;
-
-    const specs = [
-      ["expenditures", DATA_SOURCES.expenditures, normalizeExpenditureRow],
-      ["revenues", DATA_SOURCES.revenues, normalizeRevenueRow],
-      ["staffing", DATA_SOURCES.staffing, normalizeStaffingRow],
-      ["performanceMeasures", DATA_SOURCES.performanceMeasures, normalizePerformanceRow],
-      ["departmentNarratives", DATA_SOURCES.departmentNarratives, normalizeNarrativeRow],
-      ["funds", DATA_SOURCES.funds, normalizeFundRow],
-      ["activities", DATA_SOURCES.activities, normalizeActivityRow],
-      ["fundBalances", DATA_SOURCES.fundBalances, normalizeFundBalanceRow],
-      ["personnelPositionCosts", DATA_SOURCES.personnelPositionCosts, normalizePersonnelPositionCostRow],
-      ["machineryUnfunded", DATA_SOURCES.machineryUnfunded, normalizeMachineryUnfundedRow]
-    ];
-
-    cache.datasetCount = specs.length;
-
-    loadPromise = Promise.all([
-      Promise.allSettled(specs.map((spec) => fetchCSV(spec[1]).then((rows) => rows.map(spec[2])))),
-      loadSupabaseActualLookups(),
-      fetchPersonnelCostFormulaInputs()
-    ]).then(([results, actuals, personnelCostFormula]) => {
-      cache.personnelCostFormula = personnelCostFormula;
-      results.forEach((result, i) => {
-        const key = specs[i][0];
-        if (result.status === "fulfilled") {
-          cache[key] = result.value;
-        } else {
-          cache[key] = [];
-          cache.errors[key] = result.reason;
-          dataFetchDegraded = true;
-          console.error("WCBudgetData: failed to load " + key, result.reason);
+    loadPromise = fetch(STATIC_BUDGET_URL, {cache:"default"})
+      .then((response) => {
+        if (!response.ok) throw new Error("Final budget data could not be loaded.");
+        return response.json();
+      })
+      .then((publication) => {
+        const data = publication.data;
+        if (!data || !data.expenditures?.length || !data.revenues?.length || Object.keys(data.errors || {}).length) {
+          throw new Error("The final budget publication is incomplete.");
         }
+        Object.assign(cache, data);
+        return cache;
       });
-
-      if (dataFetchDegraded) showDataDegradedBanner();
-
-      // An empty or unavailable primary financial source is not a zero budget.
-      // Stop dependent totals before overrides or summaries can make a partial
-      // dataset appear complete. Existing renderers display their error state.
-      if(cache.errors.expenditures || cache.errors.revenues || !cache.expenditures.length || !cache.revenues.length){
-        throw new Error('Required budget revenue or expenditure data is unavailable.');
-      }
-
-      cache.expenditures = applyStatutoryExpenseOverrides(cache.expenditures);
-      cache.revenues = applyRevenueNameOverrides(cache.revenues);
-
-      if (actuals) {
-        cache.expenseActualRows = actuals.expenseRows || [];
-        cache.revenueActualRows = actuals.revenueRows || [];
-        // Kept raw (not collapsed per row like applyOriginalBudgetToRows
-        // does) so a fund-scoped schedule can pull one fund's own share
-        // back out of a multi-fund SUPABASE_LOOKUP_OVERRIDES row -- see
-        // adValoremFivePercentReductionForFunds.
-        cache.originalBudgetRows = actuals.originalBudgetRows || [];
-
-        // Add a placeholder row for any Supabase department+account that
-        // has no row at all in the sheet, before the actuals/budget
-        // machinery below runs, so it picks them up the same way it does
-        // every other row -- and so does every table downstream that reads
-        // cache.expenditures/cache.revenues (Summary of Expenses/Revenues,
-        // every department's own Budget/Revenue Lines popup), with no
-        // per-table special-casing needed. Built from the sheet's
-        // *pre-synthesis* state, since these are catalogs/known-name lists,
-        // not row data that needs the new rows reflected in it.
-        const knownDeptNames = buildKnownDeptNames(cache.expenditures, cache.revenues);
-        const excludedKeys = overrideRedirectTargetKeys();
-        const excludedOrgs = aliasTargetOrgCodes();
-        const expenseObjectCatalog = buildExpenseObjectCatalog(cache.expenditures);
-        const revenueCodeCatalog = buildRevenueCodeCatalog(cache.revenues);
-        cache.expenditures = synthesizeMissingExpenseRows(
-          cache.expenditures, actuals.originalBudgetRows, actuals.expenseRows,
-          cache.activities, expenseObjectCatalog, knownDeptNames, excludedKeys
-        );
-        cache.expenditures = applyTourismAdministrativeFeeOverrides(cache.expenditures);
-        cache.revenues = synthesizeMissingRevenueRows(
-          cache.revenues, actuals.originalBudgetRows, actuals.revenueRows,
-          cache.activities, revenueCodeCatalog, knownDeptNames, excludedKeys, excludedOrgs
-        );
-
-        cache.expenditures = applyActualsToRows(cache.expenditures, actuals.expenseRows);
-        cache.revenues = applyActualsToRows(cache.revenues, actuals.revenueRows);
-        cache.expenditures = applyOriginalBudgetToRows(cache.expenditures, actuals.originalBudgetRows);
-        cache.revenues = applyOriginalBudgetToRows(cache.revenues, actuals.originalBudgetRows);
-      }
-      cache.expenditures = mergePtoBuybackIntoRegularSalaries(cache.expenditures);
-      cache.expenditures = reconcilePublishedFinalExpenseTotals(cache.expenditures);
-
-      // Computed once per load from the now-finalized cache.expenditures,
-      // and shared by the Consolidated Expense Summary and
-      // buildFundFinancialSchedule for FY2020-FY2026 -- see
-      // buildDedupedHistoricalExpenseRows.
-      cache.dedupedExpenseRows = buildDedupedHistoricalExpenseRows(cache);
-
-      cache.machinery = buildMachineryRowsFromExpenditures(cache.expenditures);
-      cache.contractualServices = buildContractualServicesRowsFromExpenditures(cache.expenditures);
-
-      auditDepartmentExpenseRevenueParity();
-      auditPersonnelCostPositionParity();
-
-      return cache;
-    });
-
     return loadPromise;
   }
 
@@ -3437,7 +3143,7 @@
     { field: "FY2024_Actual", label: "FY 2024 Actual", year: 2024, actual: true },
     { field: "FY2025_Actual", label: "FY 2025 Actual", year: 2025, actual: true },
     // Sourced from expense_original_budget_public (Supabase), not the
-    // Google Sheets FY2026_Budget field. Not flagged `actual: true` --
+    // publication data FY2026_Budget field. Not flagged `actual: true` --
     // budget amounts never drill through to transaction detail, only
     // historical actuals do.
     { field: "FY2026_Original_Budget", label: "FY 2026 Budget" }
@@ -4484,6 +4190,15 @@
         ).join('') + '</div></details>'
       : '';
     const toggleHeader = usesRevenueYearPicker ? revenueYearPickerHtml : (priorYearsToggleDisabled ? "" : priorYearsToggleHtml(showPrior, "wc-budget-lines-detail-header"));
+    const hiddenCurrentRows = mergedRows.filter((row) =>
+      (row.FY2027_Proposed || 0) !== 0 &&
+      (budgetLineVisibleColumnAmount(row, fy2026BudgetColumn) || 0) === 0
+    );
+    const hiddenCurrentAmount = hiddenCurrentRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0);
+    const hiddenCurrentNote = hiddenCurrentRows.length && !usesRevenueYearPicker && !priorYearsToggleDisabled
+      ? '<p class="wc-budget-line-hidden-current-note">The FY 2027 total includes <strong>' + formatCurrency(hiddenCurrentAmount) + '</strong> in ' + hiddenCurrentRows.length +
+        ' ' + (hiddenCurrentRows.length === 1 ? 'line' : 'lines') + ' with no FY 2026 budget. Select View Prior Years to review those amounts.</p>'
+      : '';
     const departmentDataNoteText = (isExpense && mergedRows.length) ? DEPARTMENT_DATA_NOTES.get(normalizeDeptName(mergedRows[0].Dept_Name)) : "";
     const dataNoteTexts = [generatedActualsNoteText, departmentDataNoteText].filter(Boolean);
     const departmentDataNote = dataNoteTexts.length
@@ -4496,7 +4211,7 @@
     return {
       button: '<button type="button" class="wc-view-budget-lines-toggle" data-target="' + detailId + '" data-closed-label="View Budget Lines" data-open-label="Hide Budget Lines" aria-expanded="false">View Budget Lines</button>',
       detail: '<div class="wc-budget-lines-detail wc-budget-lines-card wc-has-print-budget-table' + (showPrior && !usesRevenueYearPicker ? " show-prior-years" : "") + (usesRevenueYearPicker ? " wc-revenue-year-picker-detail" : "") + '" id="' + detailId + '"' + (isPriorYearsDisabled ? ' data-prior-years-disabled="true"' : '') + ' hidden>' +
-        budgetLinesTools + detailTable + '<div class="wc-print-budget-table-wrap">' + printDetailTable + "</div></div>"
+        budgetLinesTools + hiddenCurrentNote + detailTable + '<div class="wc-print-budget-table-wrap">' + printDetailTable + "</div></div>"
     };
   }
 
@@ -5629,7 +5344,7 @@
 
   // The "Consolidated Budget Ledger" revenue/expenditure-by-fund
   // tables: rows are budget categories, columns are major funds (plus a
-  // Non-Major Funds rollup and a grand total), all derived live from the
+  // Non-Major Funds rollup and a grand total), all derived from the
   // revenues/expenditures + funds sheets rather than hand-entered.
   const CONSOLIDATED_REVENUE_FUND_COLUMNS = [
     { code: "001", label: "General Fund" },
@@ -5771,7 +5486,7 @@
   // both tables can report the real historical total instead.
   //
   // FY2027 Proposed is intentionally untouched here: it comes straight from
-  // the Google Sheet's own budget rows, which are not subject to this
+  // the publication dataset's own budget rows, which are not subject to this
   // duplication (each is its own itemized budget line, not a repeated
   // historical actual).
   const HISTORICAL_EXPENSE_DEDUP_FIELDS = HISTORICAL_ACTUAL_YEARS
@@ -7496,7 +7211,7 @@
 
       return {
         fund,
-        beginningBalanceSource: "Fund balance sheet FY " + beginningBalanceSourceYear,
+        beginningBalanceSource: "Published fund balance FY " + beginningBalanceSourceYear,
         historicalRevenue: summarizeForecastHistory("revenue", fund.code),
         historicalExpense: summarizeForecastHistory("expense", fund.code),
         originalBudgetRevenue: summarizeForecastOriginalBudget("revenue", fund.code),
@@ -8011,7 +7726,7 @@
         '</details>' +
         '<details id="forecast-expense-assumptions" class="wc-forecast-detail wc-forecast-assumptions-detail">' +
           '<summary>Expenditure Assumptions</summary>' +
-          '<p class="wc-forecast-assumptions-intro">Expenditure assumptions are developed using normalized historical spending, known recurring operating needs, personnel cost expectations, capital exclusions, and management judgment. One-time capital purchases, administrative pass-throughs, land purchases, and other nonrecurring items are excluded from trend calculations where they would distort future operating growth. The FY 2027 baseline remains the proposed budget; these adjustments affect only the growth assumptions applied to future years.</p>' +
+          '<p class="wc-forecast-assumptions-intro">Expenditure assumptions are developed using normalized historical spending, known recurring operating needs, personnel cost expectations, capital exclusions, and management judgment. One-time capital purchases, administrative pass-throughs, land purchases, and other nonrecurring items are excluded from trend calculations where they would distort future operating growth. The FY 2027 budget remains the baseline; these adjustments affect only the growth assumptions applied to future years.</p>' +
           renderForecastAssumptionsDetailTable(model, "expense") +
         '</details>' +
       '</section>' +
@@ -8051,7 +7766,7 @@
   }
 
   // "COA Expenses" (Object_Code/Object_Name/Object_Type) has no dedicated
-  // Google Sheet tab, so this catalog is derived from the expenditures
+  // publication dataset tab, so this catalog is derived from the expenditures
   // sheet's own Object_Code/Object_Name/Object_Type columns instead (first
   // row seen per code) -- classification/label use only, never dollars.
   // Used by synthesizeMissingExpenseRows.
@@ -8084,6 +7799,16 @@
     const revenueRows = cache.revenues || [];
     const expenseRows = cache.expenditures || [];
     if ((!revenueRows.length && !expenseRows.length) || !(cache.fundBalances || []).length) return "";
+
+    // Confirmed FY2026 Code Compliance baseline, including capital, from
+    // the Expenditure Ledger. Keep fund/activity/department totals aligned
+    // without altering any FY2027 account or forecast amount.
+    const codeCompliancePriorRows = (cache.dedupedExpenseRows || []).filter((r) =>
+      /^code compliance(?: beach)?$/.test(normalizeDeptName(r.Dept_Name)) &&
+      fundCodeForRow(r) === "001" && !isOtherFinancingExpenseRow(r));
+    const codeCompliancePriorCorrection = codeCompliancePriorRows.length
+      ? 4873159 - codeCompliancePriorRows.reduce((sum, r) => sum + (Number(r.FY2026_Original_Budget || r.FY2026_Budget) || 0), 0)
+      : 0;
 
     const isMosquitoControlFundOnlyView = fundCodes.length === 1 && fundCodes[0] === "105";
     const isExcludedFund = (r) => CONSOLIDATED_SCHEDULE_EXCLUDED_FUND_CODES.has(fundCodeForRow(r));
@@ -8174,7 +7899,7 @@
       }
 
       const seenAmounts = shouldDedupeRevenue ? new Set() : null;
-      return sourceRows.reduce((sum, r) => {
+      const total = sourceRows.reduce((sum, r) => {
         if (!inFund(r) || !predicate(r)) return sum;
         if (seenAmounts) {
           const key = revenueBudgetUniqueKey(r);
@@ -8204,6 +7929,9 @@
         }
         return sum + (r[field] || 0);
       }, 0);
+      const includesCodeCompliance = rows === expenseRows && field === "FY2026_Original_Budget" &&
+        codeCompliancePriorRows.length && codeCompliancePriorRows.every((r) => inFund(r) && predicate(r));
+      return total + (includesCodeCompliance ? codeCompliancePriorCorrection : 0);
     }
 
     function rowValues(predicate, rows) {
@@ -8517,7 +8245,7 @@
       const code = fundCodeForRow(r);
       if (code) codes.add(code);
     });
-    // Some funds exist only in Supabase with no Google Sheet row at all
+    // Some funds exist only in Supabase with no publication dataset row at all
     // (e.g. the Preservation Fund) -- synthesizeMissingExpenseRows/
     // synthesizeMissingRevenueRows now add a sheet row for these, so the
     // scans above already see them via fundCodeForRow's same DEPT_CODE_
@@ -8616,7 +8344,7 @@
   }
 
   // "Summary of Revenues" page: historical actuals (FY2020-FY2025) by
-  // revenue category, live from the revenues sheet.
+  // revenue category, from the fixed revenue publication.
   const CONSOLIDATED_REVENUE_SUMMARY_ROWS = [
     { type: "General Government Taxes", label: "General Government Taxes" },
     { type: "Permits Fees and Special Assessments", label: "Permits, Fees, and Special Assessments" },
@@ -9166,7 +8894,7 @@
     // FY2028/FY2029 projections must not become the expense table's default
     // visible columns; FY2027 Proposed is the current/default view.
     const expenditureLedgerColumns = CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.filter((column) => !column.projected);
-    const lastIndex = expenditureLedgerColumns.length - 1;
+    const historyClass = (column) => column.field === "FY2026_Original_Budget" || column.field === "FY2027_Proposed" ? "" : " wc-prior-year";
     const totals = expenditureLedgerColumns.map(() => 0);
     const allMatchingRows = [];
     const allMatchingDedupedRows = [];
@@ -9181,7 +8909,7 @@
         expenditureLedgerColumns.map((col, i) => {
           const sum = columnSum(matching, matchingDeduped, col);
           totals[i] += sum;
-          return '<td class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + formatCurrency(sum) + "</td>";
+          return '<td class="wc-num' + historyClass(col) + '">' + formatCurrency(sum) + "</td>";
         }).join("") +
         "</tr>"
       );
@@ -9208,13 +8936,13 @@
     if (unclassifiedExpenseValues.some((v) => v !== 0)) {
       bodyRows.push(
         '<tr class="wc-table-unclassified-row"><td>Unclassified</td>' +
-        unclassifiedExpenseValues.map((v, i) => '<td class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + formatCurrency(v) + "</td>").join("") +
+        unclassifiedExpenseValues.map((v, i) => '<td class="wc-num' + historyClass(expenditureLedgerColumns[i]) + '">' + formatCurrency(v) + "</td>").join("") +
         "</tr>"
       );
     }
     bodyRows.push(
       '<tr class="wc-table-total-row"><td>Total</td>' +
-      totals.map((t, i) => '<td class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + formatCurrency(t) + "</td>").join("") +
+      totals.map((t, i) => '<td class="wc-num' + historyClass(expenditureLedgerColumns[i]) + '">' + formatCurrency(t) + "</td>").join("") +
       "</tr>"
     );
 
@@ -9230,7 +8958,7 @@
       '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
       '<table class="wc-data-table">' +
       "<thead><tr><th>Expense Area</th>" +
-      expenditureLedgerColumns.map((c, i) => '<th class="wc-num' + (i < lastIndex ? " wc-prior-year" : "") + '">' + escapeHtml(c.label) + "</th>").join("") +
+      expenditureLedgerColumns.map((c) => '<th class="wc-num' + historyClass(c) + '">' + (c.field === "FY2027_Proposed" ? "FY 2027<br>Final" : escapeHtml(c.label)) + "</th>").join("") +
       "</tr></thead>" +
       "<tbody>" + bodyRows.join("") + "</tbody>" +
       "</table>" +
@@ -9380,6 +9108,7 @@
     };
     function groupedDeptName(r) {
       if (r.Budget_Change_Group) return r.Budget_Change_Group;
+      if (fundCodeForRow(r) === "300" && /^(571000|572000)$/.test(String(r.Object_Code || "").trim())) return "Debt Service";
       // The Transportation and Infrastructure Capital Ledger includes all
       // General Fund and Transportation Fund building/infrastructure
       // capital (562000/563000), including Board-approved General Fund
@@ -9559,7 +9288,7 @@
         const change = proposed - prior;
         // Rows with no year-over-year change are dropped -- this table is
         // about what changed, not a full department budget breakdown.
-        if (change === 0) return;
+        if (change === 0 && normalizeDeptName(label.dept) !== "debt service") return;
         entries.push({ dept: label.dept, category: label.category, prior, proposed, change });
       });
       return { entries, totalPrior, totalProposed };
@@ -9704,6 +9433,7 @@
       // class used elsewhere for a link that shouldn't carry the
       // View-Budget-Lines arrow -- see wc-department-row-link::after).
       const CAPITAL_LINE_HREFS = {
+        "debt service": "debt-overview.html",
         "machinery vehicles and equipment": "summary-of-machinery-vehicles-and-equipment.html",
         "sheriff capital projects": "cip-sheriff.html",
         "transportation and infrastructure capital": "cip-capital-projects.html",
@@ -9785,7 +9515,9 @@
             if (href) deptLabel = '<a class="wc-table-row-link" href="' + escapeHtml(href) + '">' + escapeHtml(dept) + "</a>";
           }
         }
-        if (normalizeDeptName(dept) === "board of county commissioners") deptLabel += '<sup aria-label="See Board budget scope note">*</sup>';
+        if (departmentGroupOrder(dept) === DEPARTMENT_GROUP_ORDER.Departments || normalizeDeptName(dept) === "board of county commissioners") {
+          deptLabel += '<sup aria-label="See Board budget scope note">*</sup>';
+        }
         return (
           "<tr><td>" + deptLabel + "</td>" +
           '<td class="wc-num">' + formatCurrency(prior) + "</td>" +
@@ -9978,6 +9710,7 @@
     budgetLinesDetailCounter += 1;
     const detailId = "wc-budget-lines-" + budgetLinesDetailCounter;
     const showPrior = getShowPriorYears();
+    const historyClass = (column) => column.field === "FY2026_Original_Budget" ? "" : " wc-prior-year";
 
     function activityIndex(activity) {
       const norm = String(activity || "").toLowerCase();
@@ -10062,7 +9795,7 @@
         "<td>" + escapeHtml(activityLabel(d.activity)) + "</td>" +
         "<td>" + (deptHref ? '<a class="wc-department-row-link" href="' + escapeHtml(deptHref) + '">' + deptLabel + "</a>" : deptLabel) + "</td>" +
         BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) =>
-          '<td class="wc-num wc-prior-year">' + formatCurrency(d[c.field] || 0) + "</td>"
+          '<td class="wc-num' + historyClass(c) + '">' + formatCurrency(d[c.field] || 0) + "</td>"
         ).join("") +
         '<td class="wc-num">' + formatCurrency(d.FY2027_Proposed || 0) + "</td></tr>"
       );
@@ -10078,7 +9811,7 @@
       return (
         '<tr class="wc-table-subtotal-row"><td></td><td>' + escapeHtml(activity) + "</td>" +
         BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) =>
-          '<td class="wc-num wc-prior-year">' + formatCurrency(activityRows.reduce((sum, row) => sum + (row[c.field] || 0), 0)) + "</td>"
+          '<td class="wc-num' + historyClass(c) + '">' + formatCurrency(activityRows.reduce((sum, row) => sum + (row[c.field] || 0), 0)) + "</td>"
         ).join("") +
         '<td class="wc-num">' + formatCurrency(activityRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0)) + "</td></tr>"
       );
@@ -10115,14 +9848,14 @@
       // label cell breaks this table's print column hiding/alignment.
       '<tr class="wc-table-total-row"><td></td><td>Total</td>' +
         BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) =>
-          '<td class="wc-num wc-prior-year">' + formatCurrency(totals[c.field] || 0) + "</td>"
+          '<td class="wc-num' + historyClass(c) + '">' + formatCurrency(totals[c.field] || 0) + "</td>"
         ).join("") +
         '<td class="wc-num">' + formatCurrency(totals.FY2027_Proposed || 0) + "</td></tr>"
     );
 
     const detailTable = renderTable({
       columns: [{ label: "Category" }, { label: "Department" }].concat(
-        BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) => ({ label: c.label, num: true, classes: ["wc-prior-year"] })),
+        BUDGET_LINE_PRIOR_YEAR_COLUMNS.map((c) => ({ label: c.label, num: true, classes: historyClass(c) ? ["wc-prior-year"] : [] })),
         [{ label: "FY 2027 Final", num: true }]
       ),
       bodyRows: bodyRows
@@ -10813,7 +10546,7 @@
     { field: "FY2024_Actual", label: "FY 2024 Actual" },
     { field: "FY2025_Actual", label: "FY 2025 Actual" },
     // Sourced from expense_original_budget_public (Supabase), not the
-    // Google Sheets FY2026_Budget field -- the sheet no longer carries that
+    // publication data FY2026_Budget field -- the sheet no longer carries that
     // column at all, so reading it directly left this bar permanently
     // empty. See BUDGET_LINE_PRIOR_YEAR_COLUMNS for the same field used
     // everywhere else FY2026 is shown.
@@ -11277,7 +11010,7 @@
           '<div class="wc-property-tax-burden-row"><div><span>Commercial &amp; industrial</span></div><strong>5.3%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.053)) + '</em></div>' +
           '<div class="wc-property-tax-burden-row"><div><span>Other taxable property</span></div><strong>78.0%</strong><em>' + escapeHtml(formatCurrency(adValoremCurrentAmount * 0.78)) + '</em></div>' +
           '<div class="wc-property-tax-burden-bar wc-property-tax-burden-bar-stacked" role="img" aria-label="Taxable value: 16.7 percent homestead, 5.3 percent commercial and industrial, and 78 percent other taxable property"><i class="is-homestead" style="width:16.7%"></i><i class="is-commercial" style="width:5.3%"></i><i class="is-other" style="width:78%"></i></div>' +
-          '<p>Estimated FY 2027 levy shares apply the parcel roll and Florida Department of Revenue&rsquo;s 2025 property-use taxable values to proposed ad valorem revenue. This is a tax-base comparison, not a parcel-level billing calculation.</p></div>'
+          '<p>Estimated FY 2027 levy shares apply the parcel roll and Florida Department of Revenue&rsquo;s 2025 property-use taxable values to budgeted ad valorem revenue. This is a tax-base comparison, not a parcel-level billing calculation.</p></div>'
         : '';
       const propertyTaxSupportPage = window.location.pathname.includes("/pages/")
         ? "summary-of-property-tax-allocations.html?embed=calculator"
@@ -12411,7 +12144,7 @@
 
   const TOURISM_ADMIN_HIGHLIGHTS_PARAGRAPHS = [
   "In 2025, 4.5 million visitors came to Walton County, accounting for $3.9 billion in direct spending and generating more than 3.9 million room nights for accommodation partners. These figures, which saw a slight decrease from 2024, represent a $4.7 billion economic impact to Walton County, generating more than $61.4 million in Tourist Development Tax revenues.",
-  "Tourism in Walton County supported 29,450 jobs (direct and indirect) and generated more than $1.2 billion in wages and salaries. An additional Walton County job is supported by every 156 visitors. Visitors to Walton County generated a net tax benefit of $60.9 million, saving local residents $1,772 in local taxes per household each year. Visitors to Walton County also accounted for 68% of all retail spending. Walton County Tourism’s marketing efforts supported 65 local events with $500,000 in reimbursable funds through its event grant marketing program.",
+  "The Tourism Department's reported 2025 economic-impact estimates include 29,450 direct and indirect jobs and more than $1.2 billion in wages and salaries. These describe the wider visitor economy, not jobs or tax savings demonstrated to result from the County's marketing contract. Visitor spending contributes to tourism taxes and other public revenues; no household tax-bill reduction is assumed here. The department also reports supporting 65 local events with $500,000 in reimbursable event-marketing funds.",
   "In 2025, the Visitor Center welcomed 22,917 people and generated $206,582 in branded merchandise sales. Group Sales was responsible for generating 284 meeting and wedding leads for our partners. The sales team actively prospects, networks, makes sales calls and hosts familiarization tours and events in target markets, in addition to participating in travel and trade shows. Communications generated close to $32 million in earned (advertising equivalency) media value in 2025 and circulation/viewership of more than 4.8 billion impressions in 208 press hits across top travel and leisure media placements including publications like Conde Nast Traveler, Modern Luxury, Travel + Leisure, Southern Living and USA Today Travel. They also hosted 8 media visits and multiple desksides in core markets."
 ];
 
@@ -12806,7 +12539,7 @@
           ? '<td class="wc-performance-objective wc-performance-merged-cell" rowspan="' + objectiveRowspan + '">' +
             escapeHtml(r.Objective || "") + "</td>"
           : "") +
-        '<td class="wc-performance-measure">' + escapeHtml(r.Measure || "") + "</td>" +
+        '<td class="wc-performance-measure">' + escapeHtml(r.Measure || "") + (r.ContextNote ? '<p class="wc-performance-note">' + escapeHtml(r.ContextNote) + '</p>' : '') + "</td>" +
         yearCols.map((c) => '<td class="wc-performance-value wc-prior-year wc-fy-' + c.year + '">' + escapeHtml(r[c.key] || "") + "</td>").join("") +
         '<td class="wc-performance-value wc-fy-' + finalCol.year + '">' + escapeHtml(r[finalCol.key] || "") + "</td>" +
         "</tr>"
@@ -14954,6 +14687,7 @@
         if (personnelDescription) personnelDescription.textContent = 'FTE counts include full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is shown across Salaries & Wages (regular salaries and other salaries), Overtime & Weekend Pay, Retirement, Health Insurance, and Other Benefits & Taxes (FICA/Medicare, workers’ compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff’s Office.';
         const personnelChangeSummary = explorer.querySelector('.wc-personnel-explorer-total > small');
         if (personnelChangeSummary) personnelChangeSummary.classList.add(costChange > 0 ? 'is-increase' : costChange < 0 ? 'is-decrease' : 'is-neutral');
+        explorer.insertAdjacentHTML('beforeend', personnelCostChangeExplanationHtml());
       }
       if (explainedContainer) {
         const snapshotIntro = document.getElementById('pq-snapshot-intro');
@@ -14964,7 +14698,7 @@
         const functionBarsHtml = functionRows.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (maxFunctionFte ? (item[1] / maxFunctionFte * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         const costMixBarsHtml = costMix.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatCurrency(item[1])) + '</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         explainedContainer.innerHTML =
-          '<div class="pq-stat-row">' +
+          personnelCostChangeExplanationHtml() + '<div class="pq-stat-row">' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>1,508 full-time positions · 7 part-time positions. FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(boardFte2027)) + ' FTE</b><span>Board Departments</span><small>Departments that report to the County Administrator.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(constitutionalFte2027)) + ' FTE</b><span>Constitutional Officers</span><small>Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff.</small></article>' +
@@ -15030,7 +14764,7 @@
         const colaAmount = document.getElementById('pq-driver-cola-amount');
         if (colaAmount) { colaAmount.textContent = formatDriverAmount(totalCola) + ' estimated salary and wage impact this year.'; colaAmount.hidden = false; }
         const healthAmount = document.getElementById('pq-driver-health-amount');
-        if (healthAmount) { healthAmount.textContent = formatDriverAmount(healthInsuranceIncrease) + ' estimated health insurance impact this year.'; healthAmount.hidden = false; }
+        if (healthAmount) { healthAmount.textContent = formatDriverAmount(healthInsuranceIncrease) + ' hypothetical 5% premium scenario; not added to the adopted personnel increase.'; healthAmount.hidden = false; }
         const frsAmount = document.getElementById('pq-driver-frs-amount');
         if (frsAmount) { frsAmount.textContent = Math.abs(retirementChangePct).toFixed(1) + '% (' + formatDriverAmount(Math.abs(retirementChangeAmount)) + ' estimated ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ') this year.'; frsAmount.hidden = false; }
       }
@@ -15203,7 +14937,8 @@
       const isSalary = PERSONNEL_COST_SALARY_CODES.has(code);
       const isRetirement = code === PERSONNEL_COST_RETIREMENT_CODE;
       const isHealthInsurance = code === PERSONNEL_COST_HEALTH_INSURANCE_CODE;
-      const isOtherBenefit = PERSONNEL_COST_OTHER_BENEFIT_CODES.has(code);
+      // Retain the existing final personnel adjustment in aggregate cost.
+      const isOtherBenefit = PERSONNEL_COST_OTHER_BENEFIT_CODES.has(code) || code === "999997";
       if (!isSalary && !isRetirement && !isHealthInsurance && !isOtherBenefit) return;
 
       // Engineering Services moved from General Fund org 00120000 to
@@ -15220,7 +14955,7 @@
       // here so Circuit Court's own department total (and therefore its
       // popup reconciliation) actually includes it, instead of it silently
       // padding BOCC's total and leaving Circuit Court's gap negative.
-      const isCourtInnovationProject = String(row.Project_Code || "").trim() === "1040";
+      const isCourtInnovationProject = /^0*1040$/.test(String(row.Project_Code || "").trim());
       let rawDeptNameForRow = isCourtInnovationProject ? "Circuit Court" : row.Dept_Name;
       // Circuit Court and County Court use 510000 for separately budgeted
       // bailiff coverage. Keep that funding out of the employee/FTE row so
@@ -15276,6 +15011,43 @@
       byKey.get(key).PriorTotal += priorAmount;
     });
     return Array.from(byKey.values()).filter((r) => r.Salaries || r.Retirement || r.HealthInsurance || r.OtherBenefits || r.PriorTotal);
+  }
+
+  function getPersonnelCostChangeAnalysis() {
+    const ledger = buildPersonnelCostRows();
+    const amount = row => row.Salaries + row.Retirement + row.HealthInsurance + row.OtherBenefits;
+    const group = rows => ({ prior: rows.reduce((sum,row)=>sum+row.PriorTotal,0), current: rows.reduce((sum,row)=>sum+amount(row),0) });
+    const boardRows = ledger.filter(row=>!isConstitutionalPersonnelDept(row.Dept_Name));
+    const officeRows = ledger.filter(row=>isConstitutionalPersonnelDept(row.Dept_Name));
+    const components = [
+      { label: "Salaries and wages, including overtime", field: "Salaries", codes: PERSONNEL_COST_SALARY_CODES },
+      { label: "Health insurance", field: "HealthInsurance", codes: new Set([PERSONNEL_COST_HEALTH_INSURANCE_CODE]) },
+      { label: "Retirement contributions", field: "Retirement", codes: new Set([PERSONNEL_COST_RETIREMENT_CODE]) },
+      { label: "Other employer benefits and payroll taxes", field: "OtherBenefits", codes: PERSONNEL_COST_OTHER_BENEFIT_CODES }
+    ].map(item=>Object.assign(item,{prior:0,current:boardRows.reduce((sum,row)=>sum+row[item.field],0)}));
+    const priorByKey = new Map((cache.dedupedExpenseRows||[]).map(row=>[expenseAccountingKey(row),personnelCostPriorYearAmount(row)]));
+    const consumed = new Set();
+    (cache.expenditures||[]).forEach(row=>{
+      if (String(row.Object_Type||'').trim()!=="Personnel Services") return;
+      const key=expenseAccountingKey(row),code=String(row.Object_Code||'').trim();
+      const prior=consumed.has(key)?0:(priorByKey.get(key)||personnelCostPriorYearAmount(row));
+      consumed.add(key);
+      const dept=/^0*1040$/.test(String(row.Project_Code||'').trim())?'Circuit Court':row.Dept_Name;
+      if(isConstitutionalPersonnelDept(dept))return;
+      const component=components.find(item=>item.codes.has(code));
+      if(component)component.prior+=prior;
+    });
+    const board=group(boardRows), offices=group(officeRows), total=group(ledger);
+    if(Math.abs(components.reduce((sum,row)=>sum+row.prior,0)-board.prior)>.01 || Math.abs(components.reduce((sum,row)=>sum+row.current,0)-board.current)>.01)throw new Error('Personnel change components do not reconcile');
+    const staffing=cache.staffing||[];
+    return {board,offices,total,components:components.map(({label,prior,current})=>({label,prior,current})),positions:{prior:staffing.reduce((sum,row)=>sum+(Number(row[2026])||0),0),current:staffing.reduce((sum,row)=>sum+(Number(row[2027])||0),0)}};
+  }
+
+  function personnelCostChangeExplanationHtml() {
+    const analysis=getPersonnelCostChangeAnalysis();
+    const rows=[{label:'Constitutional offices, Board Office and court group',...analysis.offices},{label:'Board departments',...analysis.board},{label:'Countywide personnel total',...analysis.total}];
+    const table = items => '<div class="wc-data-table-scroll"><table class="wc-data-table"><thead><tr><th>Personnel cost</th><th class="wc-num">FY 2026</th><th class="wc-num">FY 2027</th><th class="wc-num">Change</th></tr></thead><tbody>'+items.map(row=>'<tr><td>'+escapeHtml(row.label)+'</td><td class="wc-num">'+formatCurrency(row.prior)+'</td><td class="wc-num">'+formatCurrency(row.current)+'</td><td class="wc-num">'+formatCurrency(row.current-row.prior)+'</td></tr>').join('')+'</tbody></table></div>';
+    return '<section class="pq-section" id="personnel-cost-change"><h2>Why personnel cost changes</h2><p>The countywide increase includes staffing, compensation and employer benefit costs. It is not all raises or new hires.</p>'+table(rows)+'<h3>Board department cost changes</h3>'+table(analysis.components)+'<p>Salary and wage changes combine added or reduced positions, pay adjustments, overtime and changes in staffing mix. Budgeted position equivalents rise from '+formatNumber(analysis.positions.prior)+' to '+formatNumber(analysis.positions.current)+' countywide; the aggregate records do not separately price new positions versus raises. Health, retirement and other employer costs below reflect budgeted dollar changes, not rate changes alone. Constitutional offices manage their own personnel budgets; their aggregate funding is not uniformly itemized into salary and benefit categories.</p><p>The 3% Board COLA estimate is included within salary funding, not an additional amount to add to this table. The 5% health-premium scenario shown separately is a planning illustration, not another component of the adopted increase.</p></section>';
   }
 
   // FTE count per department, from cache.staffing (the same source
@@ -15470,14 +15242,6 @@
     return result;
   }
 
-  function fetchPersonnelCostFormulaInputs() {
-    return fetchText(DATA_SOURCES.personnelCostFormulaInputs)
-      .then((text) => parsePersonnelCostFormulaInputs(parseCSVRows(text)))
-      .catch((err) => {
-        console.error("WCBudgetData: failed to load personnel cost formula inputs, using defaults", err);
-        return PERSONNEL_COST_FORMULA_DEFAULTS;
-      });
-  }
 
   // Full per-position cost, following the County's own formula map:
   // Q base wage, R COLA (Q x COLA rate), S commissioner vehicle allowance
@@ -15487,10 +15251,10 @@
   // (only counted when it exceeds $100). Rolled up into this page's own
   // four display categories: Salaries & Wages (Q+R+S+AB), Retirement (Y),
   // Health Insurance (V+W+AA), Other Benefits & Taxes (T+U+X+Z). Rates
-  // come from cache.personnelCostFormula (live from the Formula Inputs
-  // sheet -- see fetchPersonnelCostFormulaInputs), so editing a rate there
-  // (e.g. an FRS retirement rate change) updates every position's cost on
-  // the next page load without a code change.
+  // come from the fixed cache.personnelCostFormula publication snapshot.
+  // Rate changes require an explicit update to the local publication.
+  // Published rates do not refresh from an external source.
+
   function computePersonnelPositionCost(row) {
     const f = cache.personnelCostFormula || PERSONNEL_COST_FORMULA_DEFAULTS;
     const q = (row.Hourly_Base_Wage || 0) * (row.Standard_Hours || 0) * (row.Allocation_Pct || 0);
@@ -17000,7 +16764,7 @@
           return (
             '<div class="wc-alignment-measure-row">' +
               '<div><span>Objective</span><p>' + escapeHtml(row.Objective || "Not provided") + "</p></div>" +
-              '<div><span>Performance measure</span><p>' + escapeHtml(row.Measure || "Not provided") + "</p></div>" +
+              '<div><span>Performance measure</span><p>' + escapeHtml(row.Measure || "Not provided") + "</p>" + (row.ContextNote ? '<p class="wc-performance-note">' + escapeHtml(row.ContextNote) + '</p>' : '') + "</div>" +
               '<div class="wc-alignment-target"><span>FY 2027 target</span><p>' + escapeHtml(target) + "</p></div>" +
             "</div>"
           );
@@ -17031,7 +16795,7 @@
         '<summary><span class="wc-alignment-roman">' + initiative.code + '.</span><span class="wc-alignment-summary-copy"><strong>' +
         escapeHtml(initiative.title) + '</strong><small>' + departmentList.length + " " + (departmentList.length === 1 ? "department" : "departments") +
         " · " + goalCount + " " + (goalCount === 1 ? "goal" : "goals") + " · " + formatCurrency(initiativeAmount) +
-        " in proposed department budgets</small></span></summary>" +
+        " in FY 2027 department budgets</small></span></summary>" +
         '<div class="wc-alignment-initiative-body"><button type="button" class="wc-priority-back" data-initiative-filter="all">&larr; All priorities</button>' +
         (departmentHtml || '<p class="wc-alignment-empty">No aligned department goals are currently listed.</p>') + "</div>" +
       "</details>"
@@ -17951,9 +17715,9 @@
         const officeHref = officePages[office.key];
         const tag = officeHref ? "a" : "button";
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
-        return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total proposed budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
+        return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total expenditure budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its proposed budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and proposed spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note">* The Board office total is $12,791,280, including $1,705,000 of capital and $400,000 of contingency. Budget Adjustments shows $11,086,280 before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its FY 2027 budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and FY 2027 spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note">* The Board office total is $12,791,280, including $1,705,000 of capital and $400,000 of contingency. Budget Adjustments shows $11,086,280 before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");
@@ -18218,7 +17982,7 @@
     getConsolidatedBudgetChangeTotals,
     getConsolidatedRevenueTotals,
     getConstitutionalOfficersBudgetTotal,
-    DATA_SOURCES,
+    STATIC_BUDGET_URL,
     loadBudgetData,
     parseCSV,
     formatCurrency,
@@ -18236,6 +18000,7 @@
     getDepartmentNarrative,
     openBudgetDetailPanel,
     getDepartmentPersonnelCostDetail,
+    getPersonnelCostChangeAnalysis,
     renderTable,
     filterComboFieldHtml,
     setupFilterCombo,

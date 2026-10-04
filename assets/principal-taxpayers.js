@@ -1,5 +1,5 @@
 /* Walton County FY 2027 Budget — Principal Property Taxpayers table.
-   Loads the Principal Property Taxpayers Google Sheet (no header row: just
+   Loads the Principal Property Taxpayers static publication dataset (no header row: just
    Taxpayer, Assessed Value, % of Total Net Assessed Value, one per row) and
    renders it as a data table, with the Total row computed from the sheet's
    own figures rather than hardcoded. */
@@ -7,7 +7,7 @@
   "use strict";
 
   const TAXPAYERS_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1358951318&single=true&output=csv";
+    "../assets/static-data/principal-taxpayers.csv?v=20261004-static-final";
 
   function escapeHtml(value) {
     return String(value === undefined || value === null ? "" : value)
@@ -75,7 +75,7 @@
   }
 
   // Response cache + one retry + stale-cache fallback around the published
-  // Google Sheet fetch -- see budget-data.js's fetchText for the full
+  // static publication dataset fetch -- see budget-data.js's fetchText for the full
   // rationale (this page's sheet was previously re-fetched from scratch on
   // every view with no retry, and a failed/timed-out fetch fell straight
   // through to an empty table with no visible sign anything went wrong).

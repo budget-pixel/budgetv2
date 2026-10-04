@@ -292,6 +292,14 @@ Financial Forecast:
 - A complete manual screen reader pass has not been run.
 - A complete page-by-page keyboard audit across every public page has not been run.
 
+## October 1, 2026 Content-Page Scan
+
+- The current local build was scanned at 1280 × 900 with axe-core WCAG 2.0/2.1 A and AA rules. The earlier department pass covered 29 department popups; this pass covered 63 other content pages plus the two department-index pages, completing automated coverage of all 94 content pages.
+- The quick 63-page pass found no violations other than intermittent `html-has-lang` reports from the closed footer utility iframe's empty document. Every content-page HTML file has a `lang` attribute, and checked rendered pages retained `lang="en"`. The empty iframe now receives `lang="en"` on initial load and reset, although axe still reports this rule intermittently during broad parallel scans. The 63-page pass with only this rule disabled and the two index-page checks with the closed dialog excluded reported no other violations at that load point.
+- The home shell (`index.html`) and embedded explorer landing page also reported no violations with the closed utility dialog excluded.
+- A later-state check after the 133-page budget book finished loading found insufficient contrast on its small page indicator. Its background was darkened, and the rendered “Page 1 of 133” state then reported no axe violations with the closed utility dialog excluded.
+- These automated checks do not establish full WCAG compliance. Third-party video embeds still need separate review, and a complete manual screen-reader and keyboard pass remains open.
+
 ## Lighthouse Accessibility Audit
 
 Date: June 27, 2026

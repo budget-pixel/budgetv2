@@ -85,7 +85,7 @@ const html = `<!doctype html>
   }
   p.intro{
     max-width:7.3in;
-    margin:0 0 .2in;
+    margin:0 0 .12in;
     color:#33453c;
     font-size:9.3pt;
     line-height:1.5;
@@ -113,13 +113,13 @@ const html = `<!doctype html>
   }
   .transfer-map{display:grid;grid-template-columns:1fr .35in 1fr;gap:.08in;align-items:center;margin:0 0 .2in;padding:.12in;border:1px solid #d1be78;border-radius:11px;background:#faf9f3}
   .transfer-side{display:flex;flex-direction:column;gap:.055in}.transfer-node{display:flex;justify-content:space-between;gap:.08in;padding:.065in .08in;border-radius:7px;background:white;border-left:4px solid #0b7741;font-size:6.7pt}.transfer-node b{color:#003f28}.transfer-arrow{text-align:center;color:#b89521;font-size:24pt;font-weight:900}.transfer-caption{grid-column:1/-1;color:#53665d;font-size:6.4pt;line-height:1.3;text-align:center}
-  .ledger{ border-top:2px solid #d1be78; margin-bottom:.28in; }
+  .ledger{ border-top:2px solid #d1be78; margin-bottom:.14in; }
   .lrow{
     display:grid;
     grid-template-columns:1.7in 3.7in 1.3in;
     gap:.1in;
     align-items:center;
-    padding:.08in 0;
+    padding:.045in 0;
     border-bottom:1px solid #eef1ee;
   }
   .lrow.head{
@@ -189,6 +189,21 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-interfund-transfer-
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+try {
+  const validation = await page.evaluate(() => {
+    const footerTop = document.querySelector("footer").getBoundingClientRect().top;
+    const ledgers = [...document.querySelectorAll(".ledger")];
+    return {
+      fits: ledgers.every(ledger => ledger.getBoundingClientRect().bottom <= footerTop - 12),
+      rowCounts: ledgers.map(ledger => ledger.querySelectorAll(".lrow:not(.head):not(.grand)").length),
+      totals: ledgers.map(ledger => ledger.querySelector(".grand .rnum").textContent.trim())
+    };
+  });
+  if (!validation.fits || validation.rowCounts.some(count => count !== 7) || validation.totals.some(total => total !== IN_TOTAL)) {
+    throw new Error("Transfer ledger failed printable-area, row-count, or total validation: " + JSON.stringify(validation));
+  }
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
-await browser.close();
+} finally {
+  await browser.close();
+}
 console.log("Wrote " + outPath);

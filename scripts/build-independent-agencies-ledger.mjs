@@ -20,9 +20,9 @@ import { chromium } from "playwright";
 // funding anywhere in this section.
 
 const STATS = [
-  ["$9.20M", "Total FY 2027 Budget"],
-  ["-$96K", "Net Change from FY 2026"],
-  ["-1.0%", "Net Percent Change"]
+  ["$9.02M", "Total FY 2027 Budget"],
+  ["-$278K", "Net Change from FY 2026"],
+  ["-3.0%", "Net Percent Change"]
 ];
 
 // [entity, fy26, fy27, fund]
@@ -32,7 +32,7 @@ const SUMMARY_ROWS = [
   ["South Walton Fire & State Control", 952483, 980074, "General Fund"],
   ["Medical Examiner", 1351698, 881930, "General Fund"],
   ["E911 Fund", 440000, 460000, "E911 Fund"],
-  ["Non-Profit Funding Program", 477820, 450000, "General Fund"],
+  ["Non-Profit Funding Program", 477820, 268500, "General Fund"],
   ["State Attorney", 260633, 297111, "General Fund"],
   ["Public Defender", 152439, 290833, "General Fund"],
   ["Circuit Court", 260511, 261493, "General Fund"],
@@ -41,7 +41,7 @@ const SUMMARY_ROWS = [
   ["Daughette MSBU Fund", 43225, 43225, "Daughette MSBU Fund"],
   ["Guardian Ad Litem", 9000, 9000, "General Fund"]
 ];
-const SUMMARY_TOTAL = ["Total Independent Agencies", 9295563, 9199508];
+const SUMMARY_TOTAL = ["Total Independent Agencies", 9295563, 9018008];
 
 const AGENCIES = [
   {
@@ -80,7 +80,7 @@ const AGENCIES = [
     narrative: "The E911 Fund accounts for phone charges assessed to provide emergency assistance through the E911 system that links emergency callers with appropriate public resources. The State of Florida requires E911 receipts to be maintained in a separate fund; these dollars are transferred to the Sheriff's fund for E911 expenditures and are included in the Sheriff's Office's overall budget shown in the Constitutional Officers Ledger, not in addition to it."
   },
   {
-    name: "Non-Profit Funding Program", fy26: 477820, fy27: 450000, fund: "General Fund", personnel: 0, operating: 450000,
+    name: "Non-Profit Funding Program", fy26: 477820, fy27: 268500, fund: "General Fund", personnel: 0, operating: 268500,
     narrative: "The Board of County Commissioners designates funding to support nonprofit agencies that contribute to the County's vision of being the premier place to live, visit, work, and play. This funding is intended to enhance programs and services that promote the health and social well-being of Walton County residents."
   },
   {
@@ -310,7 +310,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
-    <p class="footnote">Scope: this comprehensive $9.20M total includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem. The $6.93M Budget Change Summary uses a narrower General Fund comparison set; the $8.05M Property Tax Allocation includes only agency support funded by the County operating levy. E911 revenue is transferred to the Sheriff's Office budget.</p>
+    <p class="footnote">Scope: this comprehensive $9.02M total includes the Health Department, E911, Daughette MSBU, and Guardian ad Litem. The $6.75M Budget Change Summary uses a narrower General Fund comparison set; the $7.87M Property Tax Allocation includes only agency support funded by the County operating levy. E911 revenue is transferred to the Sheriff's Office budget.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-popup-search-ledger">
+<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
   html.wc-property-tax-calculator-embed body #nav-menu,
@@ -112,6 +112,24 @@
 
   .wc-ptax-flow{
     margin:0 0 34px;
+  }
+  #wc-ptax-flow .wc-ptax-agency-detail td:first-child{
+    padding-left:2.25rem;
+    color:var(--muted);
+    font-size:.9em;
+  }
+  #wc-ptax-flow .wc-ptax-agency-detail td:first-child::before{
+    content:"↳ ";
+    color:var(--green);
+  }
+  #wc-ptax-flow .wc-ptax-capital-detail td:first-child{
+    padding-left:2.25rem;
+    color:var(--muted);
+    font-size:.9em;
+  }
+  #wc-ptax-flow .wc-ptax-capital-detail td:first-child::before{
+    content:"↳ ";
+    color:var(--green);
   }
 
   .wc-ptax-flow-head{
@@ -553,13 +571,13 @@
 </style>
 
 <section class="page-text wc-ptax-narrative">
-  <p>Walton County's countywide ad valorem (property) tax is the largest funding source for core services that aren&rsquo;t paid for by their own dedicated fees &mdash; constitutional offices, public safety, courts, and general government. This page shows the proposed dollar amount each department receives from that tax.</p>
+  <p>Walton County's countywide ad valorem (property) tax is the largest funding source for core services that aren&rsquo;t paid for by their own dedicated fees &mdash; constitutional offices, public safety, courts, and general government. This page shows the FY 2027 amount assigned to each department from that tax.</p>
 </section>
 
 <section class="wc-ptax">
   <div class="wc-budget-kpi-grid" id="wc-ptax-summary" aria-label="Property tax revenue summary">
     <article class="wc-budget-kpi neutral">
-      <span>Total Countywide Ad Valorem Revenue</span>
+      <span>Total Countywide Ad Valorem Allocation</span>
       <strong id="wc-ptax-total">&hellip;</strong>
       <small>County-only portion, excludes schools and other taxing authorities</small>
     </article>
@@ -737,7 +755,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/budget-data.js?v=20261001-popup-search-ledger"></script>
+<script src="../assets/performance-context.js?v=20261004-performance-context"></script><script src="../assets/budget-data.js?v=20261004-static-final"></script>
 <script>
 (function(){
   function $(selector){
@@ -790,6 +808,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
 
   let pageHrefByName = null;
   function getPageHref(norm){
+    if (norm === "sheriff projects") return "cip-sheriff.html";
+    if (norm === "transportation and infrastructure") return "cip-capital-projects.html";
     if (!pageHrefByName){
       pageHrefByName = {};
       (window.wcBudgetPages || []).forEach(function(page){
@@ -878,6 +898,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   // and the personalized calculator below, so there's exactly one
   // definition of "the property tax allocation" on this page.
   let adValoremRowsPromise = null;
+  let statutoryAgencyNames = [];
   function loadAdValoremRows(){
     if (adValoremRowsPromise) return adValoremRowsPromise;
     if (!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function"){
@@ -886,6 +907,10 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     adValoremRowsPromise = window.WCBudgetData.loadBudgetData().then(function(data){
       const totalsByName = new Map();
       const interfundTransferAmounts = [];
+      statutoryAgencyNames = Array.from(new Set((data.expenditures || [])
+        .filter(function(row){ return String(row.Note || "").trim() === "Statutory & Other"; })
+        .map(function(row){ return String(row.Project_Name || "").trim(); })
+        .filter(Boolean))).sort(function(a, b){ return a.localeCompare(b); });
       (data.revenues || []).forEach(function(row){
         if (AD_VALOREM_REVENUE_CODES.indexOf(String(row.Revenue_Code || "").trim()) === -1) return;
         if (fundCodeForRow(row) === MOSQUITO_CONTROL_FUND_CODE){
@@ -904,6 +929,11 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       interfundTransferAmounts.sort(function(a, b){ return b - a; });
       interfundTransferAmounts.forEach(function(amount, index){
         const name = INTERFUND_TRANSFER_LABELS[index] || "Interfund Group Transfer Out";
+        if (name === "Capital Projects") {
+          totalsByName.set("Sheriff Projects", 7000000);
+          totalsByName.set("Transportation and Infrastructure", amount - 7000000);
+          return;
+        }
         totalsByName.set(name, (totalsByName.get(name) || 0) + amount);
       });
 
@@ -941,7 +971,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   // (see INTERFUND_TRANSFER_LABELS above) -- its own subtotal rather than
   // folded into the Board Departments catch-all.
   const CAPITAL_PROJECT_NAMES = {
-    "capital projects": true
+    "capital projects": true,
+    "sheriff projects": true,
+    "transportation and infrastructure": true
   };
 
   // Grouped Constitutional Officers -> Independent Agencies -> Capital ->
@@ -998,7 +1030,14 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       const groupTotal = groupRows.reduce(function(sum, d){ return sum + d.amount; }, 0);
       const groupPercent = total ? (groupTotal / total) * 100 : 0;
       bodyRows.push('<tr class="wc-table-group-row"><td colspan="3">' + escapeHtml(group.label) + '</td></tr>');
-      groupRows.forEach(function(d){ bodyRows.push(rowHtml(d)); });
+      groupRows.forEach(function(d){
+        bodyRows.push(rowHtml(d));
+        if (normalizeMatchName(d.name) === "statutory & other agency funding") {
+          statutoryAgencyNames.forEach(function(name){
+            bodyRows.push('<tr class="wc-ptax-agency-detail"><td>' + escapeHtml(name) + '</td><td class="wc-num">—</td><td class="wc-num">—</td></tr>');
+          });
+        }
+      });
       bodyRows.push(
         '<tr class="wc-table-subtotal-row"><td>Total ' + escapeHtml(group.label) + '</td><td class="wc-num">' +
         escapeHtml(window.WCBudgetData ? window.WCBudgetData.formatCurrency(groupTotal) : compactCurrency(groupTotal)) +
@@ -1006,7 +1045,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       );
     });
     bodyRows.push(
-      '<tr class="wc-table-total-row"><td>Total Countywide Ad Valorem Revenue</td><td class="wc-num">' +
+      '<tr class="wc-table-total-row"><td>Total Countywide Ad Valorem Allocation</td><td class="wc-num">' +
       escapeHtml(window.WCBudgetData ? window.WCBudgetData.formatCurrency(total) : compactCurrency(total)) +
       '</td><td class="wc-num">100.0%</td></tr>'
     );
@@ -1017,7 +1056,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
           hideVisualCaption: true,
           columns: [
             { label: "Department" },
-            { label: "FY 2027 Ad Valorem Revenue", num: true },
+            { label: "FY 2027 Ad Valorem Allocation", num: true },
             { label: "% of Total", num: true }
           ],
           bodyRows: bodyRows
@@ -1040,7 +1079,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       largestHtml +
       '<div class="wc-ptax-flow-head">' +
         '<h2>Property tax allocation ledger</h2>' +
-        '<p>Grouped by Constitutional Officers, Independent Agencies, and Board Departments, each with its own subtotal -- largest first within each group.</p>' +
+        '<p>Grouped by Constitutional Officers, Independent Agencies, Capital, and Board Departments.</p>' +
       '</div>' +
       tableHtml;
     if (window.WCBudgetData && typeof window.WCBudgetData.bindTooltipAnchors === "function") {
@@ -1539,7 +1578,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   });
 })();
 </script>
-<script src="../assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
+<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>

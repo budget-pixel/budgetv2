@@ -395,7 +395,7 @@
       // Sheriff's Office rows carry neither and default to Complete.
       const phaseText = entry.phase || "";
       const statusText = entry.status || "Complete";
-      const baseDescription = "Historical capital project from the County's FY2022-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 proposed capital budget.";
+      const baseDescription = "Historical capital project from the County's FY2022-FY2026 5-year work plans, shown for project-completion tracking. Not part of the FY2027 capital budget.";
       return {
         title: entry.name,
         // Use the same title-based slug as a current/future record so a

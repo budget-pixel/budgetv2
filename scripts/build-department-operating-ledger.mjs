@@ -43,7 +43,7 @@ const SUMMARY_ROWS = [
   ["County Administration Offices", 10488035, 10887378, 76, 76],
   ["Building Construction & Maintenance", 8639168, 8596305, 68, 68],
   ["Planning", 6570086, 6839111, 45, 47],
-  ["Code Compliance", 4459159, 4811854, 43, 43],
+  ["Code Compliance", 4449159, 4811854, 43, 43],
   ["Building", 4035000, 4000000, 21, 21],
   ["Parks & Recreation", 2919737, 2972948, 24.5, 24],
   ["Engineering Department", 2876106, 2798118, 17, 15],
@@ -53,6 +53,11 @@ const SUMMARY_ROWS = [
   ["Emergency Management", 804151, 887455, 5.5, 6]
 ];
 const SUMMARY_TOTAL = ["Total Board Departments", 130148972, 135794083, 655, 667];
+for (const [rowIndex, totalIndex] of [[1, 1], [2, 2], [3, 3], [4, 4]]) {
+  if (SUMMARY_ROWS.reduce((sum, row) => sum + row[rowIndex], 0) !== SUMMARY_TOTAL[totalIndex]) {
+    throw new Error("Department summary rows do not reconcile to the printed total");
+  }
+}
 
 // Per-department profiles
 const DEPARTMENTS = [
@@ -141,7 +146,7 @@ const DEPARTMENTS = [
     changes: "The primary change is attributed to additional staffing requested, needed to keep pace with growing service demand across the county."
   },
   {
-    name: "Code Compliance", fy26: 4459159, fy27: 4811854,
+    name: "Code Compliance", fy26: 4449159, fy27: 4811854,
     personnel: 4260744, contractual: 87600, operating: 463510,
     fte26: 43, fte27: 43,
     services: [
@@ -493,7 +498,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1>Department Operating Ledger</h1>
-    <p class="intro">Walton County's 15 Board department rollups budget a combined $135.8M and employ 667 FTE for FY 2027. This total matches the Department Rollup Budgets on page 21. The office and program profiles that follow show funded capital items on the responsible department page; those profile totals therefore include capital and should not be added again to the countywide Capital Budget.</p>
+    <p class="intro">Walton County's 15 Board department rollups budget a combined $135.8M and employ 667 FTE for FY 2027. This total matches the Board Department Operating &amp; Personnel Budgets on page 23. The office and program profiles that follow show funded capital items on the responsible department page; those profile totals therefore include capital and should not be added again to the countywide Capital Budget.</p>
     <div class="stat-strip">${OVERVIEW_STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Department Summary</h2>

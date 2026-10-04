@@ -1,97 +1,40 @@
 import { chromium } from "playwright";
 
-// Builds the FY 2027 Budget Book's "Fund Financial Ledger" -- the
-// county's combining fund financial statements, consistent with the
-// Florida State Uniform Accounting System Manual for Local Governments.
-// Source: pages/fund-financial-schedules.html, live-rendered and
-// cross-checked by a research pass.
-//
-// Two things the research pass confirmed and this build reflects: (1)
-// this book's original raw capture had stale FY 2028/FY 2029 Consolidated
-// figures (likely captured before the live sheet's forecast was
-// recalculated) -- the live-verified values are used here instead. (2)
-// Summing all 15 individual funds' FY 2027 revenue does not quite reach
-// the Consolidated schedule's total -- a real, intentional $4,000,000
-// gap, not a missing fund or a data error. The Building Fund's own
-// single-fund schedule suppresses a $4M "balance brought forward" line
-// that would otherwise double-count against its Beginning Fund Balance
-// row; the Consolidated schedule correctly includes it since that
-// balance genuinely flows through the countywide roll-forward. Flagged
-// in a footnote below rather than left as an unexplained discrepancy.
+// Fund schedules and outlook share one verified snapshot of the live site.
+import { schedules, consolidated, individualFunds, printRow, values, currency } from "./fund-schedule-data.mjs";
 
-// FY 2028/FY 2029 projections exist only at the countywide level -- the
-// live per-fund schedules stop at FY 2027 -- so this table now runs
-// FY 2022 Actual through FY 2027 Final (6 years) instead of the
-// 8-year countywide-only range it used before.
 const YEARS = ["FY22 Actual", "FY23 Actual", "FY24 Actual", "FY25 Actual", "FY26 Budget", "FY27 Final"];
-
-// [row, FY22...FY27] -- countywide rows only; Total Revenues and Total
-// Expenditures are shown broken out by fund instead (see REVENUE_BY_FUND
-// and EXPENDITURE_BY_FUND below).
-const CONSOLIDATED_TOP = [
-  ["Beginning Fund Balance", "$206,500,685", "$273,894,781", "$313,775,975", "$367,413,796", "$435,939,242", "$431,812,854"]
-];
+const CONSOLIDATED_TOP = [printRow(consolidated, "Beginning Fund Balance")];
 const CONSOLIDATED_MID = [
-  ["Other Financial Sources", "$23,420,641", "$27,156,634", "$113,343,159", "$128,521,478", "$148,350,579", "$121,867,516"],
-  ["Total Revenue and Other Sources", "$316,685,658", "$339,919,659", "$464,143,127", "$510,574,687", "$476,295,667", "$467,091,024"]
+  printRow(consolidated, "Other Financial Sources"),
+  printRow(consolidated, "Total Revenue and Other Financial Sources", "Total Revenue and Other Sources")
 ];
 const CONSOLIDATED_MID2 = [
-  ["Other Financial Uses", "$23,420,641", "$27,057,034", "$113,343,159", "$128,521,478", "$140,404,580", "$143,663,984"],
-  ["Total Expenditures and Other Uses", "$264,529,971", "$294,176,828", "$413,480,332", "$444,997,637", "$468,349,668", "$488,887,492"]
+  printRow(consolidated, "Other Financial Uses"),
+  printRow(consolidated, "Total Expenditures and Other Financial Uses", "Total Expenditures and Other Uses")
 ];
 const CONSOLIDATED_BOTTOM = [
-  ["Change in Fund Balance", "$52,155,686", "$45,742,831", "$50,662,795", "$65,577,049", "$7,945,999", "-$21,259,176"],
-  ["Estimated Ending Fund Balance", "$258,656,371", "$319,637,612", "$364,438,770", "$432,990,845", "$443,885,241", "$410,016,386"]
+  printRow(consolidated, "Change in Fund Balance"),
+  printRow(consolidated, "Estimated Ending Fund Balance")
 ];
-
-// [fund, FY22...FY27] -- Total Revenues only (not Total Revenue and
-// Other Sources), matching each fund's own schedule on the live site.
-const REVENUE_BY_FUND = [
-  ["General Fund", "$78,461,600", "$85,605,447", "$176,479,967", "$201,872,576", "$205,190,611", "$208,279,098"],
-  ["Transportation Fund", "$23,662,086", "$17,491,134", "$17,011,653", "$12,997,868", "$11,132,143", "$15,668,118"],
-  ["Fine & Forfeiture / Sheriff Fund", "$72,818,787", "$88,583,254", "$25,254,560", "$42,706,440", "$12,631,972", "$15,651,972"],
-  ["Tourist Development Fund", "$66,975,578", "$66,999,372", "$70,236,908", "$65,403,419", "$51,500,000", "$58,965,950"],
-  ["Solid Waste Fund", "$39,857,430", "$40,448,918", "$42,325,079", "$43,839,760", "$41,000,000", "$40,701,564"],
-  ["Capital Projects Fund", "$1,034,410", "$1,819,434", "$5,218,763", "$2,160,857", "$306,000", "$0"],
-  ["Mosquito Control Fund", "$676,546", "$849,759", "$1,504,254", "$1,761,459", "$1,407,773", "$1,426,937"],
-  ["Non-Major Funds", "$9,483,618", "$9,830,168", "$11,749,052", "$10,565,035", "$4,776,589", "$4,529,869"]
-];
-const REVENUE_BY_FUND_TOTAL = ["Total Revenues, All Funds", "$293,265,017", "$312,763,025", "$350,799,968", "$382,053,209", "$327,945,088", "$345,223,508"];
-
-// [fund, FY22...FY27] -- Total Expenditures only (not Total Expenditures
-// and Other Uses).
-const EXPENDITURE_BY_FUND = [
-  ["General Fund", "$71,471,052", "$78,627,465", "$73,781,082", "$78,938,073", "$83,474,213", "$81,239,108"],
-  ["Transportation Fund", "$33,094,927", "$25,881,227", "$27,037,520", "$26,230,765", "$26,604,000", "$30,668,118"],
-  ["Fine & Forfeiture / Sheriff Fund", "$66,006,876", "$80,296,105", "$100,876,080", "$123,069,284", "$114,116,228", "$114,116,228"],
-  ["Tourist Development Fund", "$39,299,739", "$47,968,373", "$51,432,452", "$46,991,176", "$51,500,000", "$58,965,950"],
-  ["Solid Waste Fund", "$14,918,353", "$15,747,341", "$17,181,725", "$19,282,584", "$22,110,673", "$23,119,567"],
-  ["Capital Projects Fund", "$8,413,918", "$10,544,329", "$13,868,195", "$12,040,906", "$20,336,997", "$27,617,731"],
-  ["Mosquito Control Fund", "$609,898", "$911,145", "$1,032,836", "$1,081,832", "$1,340,000", "$1,426,937"],
-  ["Non-Major Funds", "$6,982,317", "$6,011,145", "$13,897,240", "$8,097,151", "$8,462,977", "$8,069,869"]
-];
-const EXPENDITURE_BY_FUND_TOTAL = ["Total Expenditures, All Funds", "$241,109,330", "$267,119,794", "$300,137,173", "$316,476,159", "$327,945,088", "$345,223,508"];
-
-// [fund, beginning, totalRevOther, totalExpOther, change, ending]
-const MAJOR_FUNDS = [
-  ["General Fund", "$81,910,494", "$198,813,825", "$206,861,095", "-$8,047,270", "$73,863,224"],
-  ["Transportation Fund", "$41,124,267", "$25,786,212", "$30,668,118", "-$4,881,906", "$36,242,361"],
-  ["Fine & Forfeiture / Sheriff Fund", "$49,765,273", "$109,986,228", "$114,116,228", "-$4,130,000", "$45,635,273"],
-  ["Tourist Development Fund", "$166,535,869", "$58,965,950", "$58,965,950", "$0", "$166,535,869"],
-  ["Solid Waste Fund", "$50,601,216", "$40,701,564", "$40,701,564", "$0", "$50,601,216"],
-  ["Capital Projects Fund", "$26,965,592", "$27,617,731", "$27,617,731", "$0", "$26,965,592"]
-];
-const NON_MAJOR_FUNDS = [
-  ["Daughette MSBU Fund", "$0", "$43,225", "$43,225", "$0", "$0"],
-  ["Building Fund", "$6,594,402", "$0", "$4,000,000", "-$4,000,000", "$2,594,402"],
-  ["E911 Fund", "$223,763", "$460,000", "$460,000", "$0", "$223,763"],
-  ["Housing & Urban Development Fund", "$93,502", "$3,057,056", "$3,057,056", "$0", "$93,502"],
-  ["Mosquito Control Fund", "$1,621,059", "$1,426,937", "$1,426,937", "$0", "$1,621,059"],
-  ["Mosquito Control State Aid Fund", "$0", "$69,588", "$69,588", "$0", "$0"],
-  ["Recreation Plat Fee Fund", "$4,417,138", "$600,000", "$600,000", "$0", "$4,417,138"],
-  ["Preservation Fund", "$1,111,100", "$0", "$0", "$0", "$1,111,100"],
-  ["Sidewalk Fund", "$849,179", "$100,000", "$300,000", "-$200,000", "$649,179"]
-];
+const labels = ["General Fund", "Transportation Fund", "Fine & Forfeiture / Sheriff Fund", "Tourist Development Fund", "Solid Waste Fund", "Capital Projects Fund", "Mosquito Control Fund"];
+const groupedFunds = [individualFunds[0], individualFunds[1], individualFunds[2], individualFunds[3], individualFunds[4], individualFunds[5], individualFunds[10]];
+function byFund(label) {
+  const rows = groupedFunds.map((fund, i) => printRow(fund, label, labels[i]));
+  const nonMajor = individualFunds.filter(fund => !groupedFunds.includes(fund));
+  rows.push(["Non-Major Funds", ...[2, 3, 4, 5, 6, 7].map(i => currency(nonMajor.reduce((sum, fund) => sum + values(fund, label)[i], 0)))]);
+  return rows;
+}
+const REVENUE_BY_FUND = byFund("Total Revenues");
+const REVENUE_BY_FUND_TOTAL = printRow(consolidated, "Total Revenues", "Total Revenues, All Funds");
+const EXPENDITURE_BY_FUND = byFund("Total Expenditures");
+const EXPENDITURE_BY_FUND_TOTAL = printRow(consolidated, "Total Expenditures", "Total Expenditures, All Funds");
+const fundSummary = fund => [fund.name, ...[
+  "Beginning Fund Balance", "Total Revenue and Other Financial Sources", "Total Expenditures and Other Financial Uses",
+  "Change in Fund Balance", "Estimated Ending Fund Balance"
+].map(label => currency(values(fund, label)[7]))];
+const MAJOR_FUNDS = individualFunds.slice(0, 6).map(fundSummary);
+const NON_MAJOR_FUNDS = individualFunds.slice(6).map(fundSummary);
 
 const cRow = (cells, cls) => `<div class="crow${cls ? " " + cls : ""}"><div class="clabel">${cells[0]}</div>${cells.slice(1).map((c) => `<div class="cnum">${c}</div>`).join("")}</div>`;
 const cHead = `<div class="crow head"><div class="clabel">Consolidated Fund Financial Schedule</div>${YEARS.map((y) => `<div class="cnum">${y}</div>`).join("")}</div>`;

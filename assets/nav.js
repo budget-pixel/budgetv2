@@ -140,7 +140,7 @@
   function loadWaltonBudgetSearchModules(onReady){
     loadWcScriptOnce(
       "wc-budget-search-data-script",
-      wcBudgetAssetBaseUrl + "search-data.js?v=20260819-contractual-services-ledger",
+      wcBudgetAssetBaseUrl + "search-data.js?v=20261001-search-links",
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
@@ -2155,7 +2155,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
             </svg>
             <label class="wc-sr-only" for="wcNavBudgetSearch">Search the Walton County budget</label>
-            <input id="wcNavBudgetSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
+            <input id="wcNavBudgetSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
             <button type="submit">Search</button>
           </form>
           <div id="wcNavSearchBarDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
@@ -2542,6 +2542,9 @@
     var utilityDialog = footer.querySelector('.wc-footer-utility-dialog');
     var utilityFrame = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-frame');
     var utilityWave = utilityDialog && utilityDialog.querySelector('.wc-footer-utility-wave');
+    if(utilityFrame && utilityFrame.contentDocument && utilityFrame.contentDocument.documentElement){
+      utilityFrame.contentDocument.documentElement.lang='en';
+    }
     function closeUtilityDialog(){
       if(!utilityDialog) return;
       if(utilityWave){utilityWave.pause();utilityWave.currentTime=0;}
@@ -2588,7 +2591,11 @@
     if(utilityDialog){
       utilityFrame.addEventListener('load',function(){
         try{
-          if(!utilityFrame.contentDocument||utilityFrame.src==='about:blank')return;
+          if(!utilityFrame.contentDocument)return;
+          if(!utilityFrame.getAttribute('src')||utilityFrame.src==='about:blank'){
+            utilityFrame.contentDocument.documentElement.lang='en';
+            return;
+          }
           utilityFrame.contentDocument.documentElement.classList.add('wc-embedded-utility');
           // This dialog is a plain content-page viewer -- it has no idea
           // about the budget book's transparent, chromeless layout. A link

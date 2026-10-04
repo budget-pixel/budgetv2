@@ -1,5 +1,5 @@
 /* Walton County FY 2027 Budget — Supabase actuals data layer.
-   Google Sheets remains the source for budget/publication rows, labels,
+   fixed publication data is the source for budget/publication rows, labels,
    descriptions, FY 2026 budget, FY 2027 proposed, and page narrative content.
    Supabase public views provide FY 2020-FY 2025 historical actuals.
    Cache tables stay internal in Supabase and are not queried by browser code.
@@ -30,7 +30,7 @@
     if (!hasSupabaseConfig()) {
       if (!warnedAboutConfig) {
         console.warn(
-          "WCSupabaseData: Supabase URL/key placeholders are not configured; using Google Sheets historical actual fallbacks."
+          "WCSupabaseData: Supabase URL/key placeholders are not configured; using fixed publication data historical actual fallbacks."
         );
         warnedAboutConfig = true;
       }
@@ -74,7 +74,7 @@
         // would then silently operate on a partial actuals set with no
         // indication anything was missing. Throwing instead propagates the
         // failure up through loadSupabaseActualLookups' Promise.all/catch,
-        // which falls back to the Google Sheets-only figures rather than a
+        // which falls back to the fixed publication data-only figures rather than a
         // silently wrong, undercounted blend.
         console.error("Failed to load " + viewName + " actuals from Supabase:", error);
         throw new Error("Failed to load " + viewName + " actuals from Supabase: " + (error.message || error));
@@ -244,7 +244,7 @@
   // NULL on every row of public_transactions (checked directly against the
   // live table), so filtering or displaying them would silently show
   // nothing. department_code/fund_code are real, but use a different code
-  // scheme than the Dept_Code/Fund_code used in the Google Sheets budget
+  // scheme than the Dept_Code/Fund_code used in the fixed publication data budget
   // data elsewhere on this site (e.g. "103322" here vs "10332200" there),
   // so they're exposed here as their own raw codes rather than mapped to a
   // name that might not be correct.

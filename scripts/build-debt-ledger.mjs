@@ -12,7 +12,7 @@ import { chromium } from "playwright";
 const STATS = [
   ["$29.5M", "Total Debt Issued"],
   ["$9.1M", "Remaining Debt Service"],
-  ["$2.51M", "FY 2027 Debt Service"],
+  ["$2.58M", "FY 2027 Final Budget"],
   ["FY 2030", "Scheduled Payoff"]
 ];
 
@@ -87,7 +87,7 @@ const html = `<!doctype html>
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:.13in;
-    margin:0 0 .3in;
+    margin:0 0 .15in;
   }
   .stat-card{
     padding:.14in .1in;
@@ -125,7 +125,7 @@ const html = `<!doctype html>
     grid-template-columns:1.6in 1fr 1fr 1fr;
     gap:.1in;
     align-items:center;
-    padding:.1in 0;
+    padding:.075in 0;
     border-bottom:1px solid #eef1ee;
   }
   .lrow.head{
@@ -148,15 +148,15 @@ const html = `<!doctype html>
   }
   .lrow.grand .rlabel, .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:10.3pt; }
   .callout{
-    margin-top:.3in;
-    padding:.2in .26in;
+    margin-top:.12in;
+    padding:.12in .2in;
     border:1px solid #d1be78;
     border-radius:12px;
     background:#f9f8f2;
   }
   .maturity{display:grid;grid-template-columns:repeat(4,1fr);gap:.12in;align-items:end;height:1.42in;margin:.08in 0 .22in;padding:0 .1in;border-bottom:1.5px solid #003f28}.maturity-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.maturity-col b{color:#003f28;font-size:7pt}.maturity-col .bar{width:55%;margin-top:.04in;border-radius:4px 4px 0 0;background:#0b7741}.maturity-col span{margin-top:.045in;color:#63736b;font-size:6.5pt;font-weight:800}.maturity-col small{color:#a88418;font-size:5.8pt;font-weight:800}
   .callout h3{ margin:0 0 .06in; color:#003f28; font:800 9.5pt Georgia, serif; }
-  .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.5; }
+  .callout p{ margin:0; color:#33453c; font-size:8.3pt; line-height:1.35; }
   footer{
     position:absolute;
     left:.62in;
@@ -185,11 +185,16 @@ const html = `<!doctype html>
     <h2>Debt Service Declines to Final Payoff</h2>
     <div class="maturity">${SCHEDULE.map((r)=>{const total=Number(r[3].replace(/[$,]/g,''));return `<div class="maturity-col"><b>${r[3]}</b><div class="bar" style="height:${Math.round(total/2522786*86)}%"></div><span>${r[0]}</span>${r[0]==='2030'?'<small>FINAL PAYMENT</small>':''}</div>`}).join('')}</div>
 
-    <h2>Debt Ledger &mdash; Capital Projects Fund</h2>
+    <h2>Scheduled Principal and Interest &mdash; Capital Projects Fund</h2>
     <div class="ledger">
       <div class="lrow head"><div class="rlabel">Year Ending September 30</div><div class="rnum">Principal</div><div class="rnum">Interest</div><div class="rnum">Total</div></div>
       ${SCHEDULE.map((r) => row(r)).join("")}
       ${row(SCHEDULE_TOTAL, "grand")}
+    </div>
+
+    <div class="callout">
+      <h3>FY 2027 Final Debt-Service Budget</h3>
+      <p>The Capital Projects Fund includes $2,581,997 for debt service, funded through Small County Surtax transfers.</p>
     </div>
 
     <div class="callout">

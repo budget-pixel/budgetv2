@@ -1,0 +1,40 @@
+{
+  "board": {
+    "prior": 56902515,
+    "current": 59751103
+  },
+  "offices": {
+    "prior": 98788928,
+    "current": 104428668
+  },
+  "total": {
+    "prior": 155691443,
+    "current": 164179771
+  },
+  "components": [
+    {
+      "label": "Salaries and wages, including overtime",
+      "prior": 39198452,
+      "current": 40700289
+    },
+    {
+      "label": "Health insurance",
+      "prior": 8424055,
+      "current": 9441899
+    },
+    {
+      "label": "Retirement contributions",
+      "prior": 5507907,
+      "current": 5718171
+    },
+    {
+      "label": "Other employer benefits and payroll taxes",
+      "prior": 3772101,
+      "current": 3890744
+    }
+  ],
+  "positions": {
+    "prior": 1500,
+    "current": 1515
+  }
+}

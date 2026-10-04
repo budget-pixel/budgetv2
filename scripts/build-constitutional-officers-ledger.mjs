@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { homeownerValueExample } from "./homeowner-value-example.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IMG_DIR = path.join(__dirname, "..", "assets", "images", "page-images");
@@ -32,11 +33,11 @@ function photoDataUrl(filename) {
 // script: this book's live source has two different figures for the
 // Board of County Commissioners' total budget depending on which page
 // renders it. summary-of-expenses.html (this book's Expenditure Ledger)
-// shows BCC's department-only total ($12,389,938 FY26 / $12,391,280
+// shows BCC's department-only total ($12,389,938 FY26 / $12,572,780
 // FY27), classifying its $500,000/$400,000 statutory "Other Uses
 // Contingency" reserve (Dept_Code 00101001) separately under "Other
 // Uses." constitutional-ledger.html instead folds that reserve back
-// into BCC's own total ($12,889,938 / $12,791,280), since it's budget
+// into BCC's own total ($12,889,938 / $12,972,780), since it's budget
 // authority the Board controls -- and that is the figure this section's
 // own live grand total is built from. This page uses the office-total
 // figure (matching this section's own source and grand total) with a
@@ -54,27 +55,27 @@ function photoDataUrl(filename) {
 // implying a funding gap, each office's revenue line notes this plainly.
 
 const STATS = [
-  ["$148.9M", "Total FY 2027 Budget"],
-  ["+$1.6M", "Net Change from FY 2026"],
-  ["+1.1%", "Net Percent Change"],
+  ["$149.1M", "Total FY 2027 Budget"],
+  ["+$1.7M", "Net Change from FY 2026"],
+  ["+1.2%", "Net Percent Change"],
   ["847", "Total FTE, 6 Offices"]
 ];
 const SPLIT = [
-  ["Personnel", "$104.14M", "70.0%"],
-  ["Operating", "$33.12M", "22.2%"],
+  ["Personnel", "$104.14M", "69.9%"],
+  ["Operating", "$33.30M", "22.3%"],
   ["Capital & Other", "$11.64M", "7.8%"]
 ];
 
 // [office, fte, fy26, fy27, personnel, operating, capitalOther]
 const SUMMARY_ROWS = [
   ["Walton County Sheriff's Office", 669, 114116228, 114116228, 83607042, 21348864, 9160322],
-  ["Board of County Commissioners*", 11, 12889938, 12791280, 2791180, 7890100, 2110000],
+  ["Board of County Commissioners*", 11, 12889938, 12972780, 2791180, 8071600, 2110000],
   ["Tax Collector", 40, 7900000, 8500000, 7512920, 987080, 0],
   ["Clerk of Courts & County Comptroller", 80, 5984728, 6871175, 4905230, 1845945, 120000],
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
   ["Supervisor of Elections", 10, 1615107, 1663865, 1198763, 348682, 116420]
 ];
-const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 148896886, 104138719, 33118053, 11640114];
+const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 149078386, 104138719, 33299553, 11640114];
 
 const OFFICES = [
   {
@@ -96,10 +97,10 @@ const OFFICES = [
       ["District 4", "Donna Johns", "commissioner-donna-johns.jpeg"],
       ["District 5", "Tony Anderson", "commissioner-tony-anderson.jpeg"]
     ],
-    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12791280,
-    personnel: 2791180, contractual: 2473100, operating: 5417000, capital: 2110000,
+    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12972780,
+    personnel: 2791180, contractual: 2473100, operating: 5598500, capital: 2110000,
     sof: "The Board of County Commissioners (BCC) is the legislative and policy-making body of County government. Representatives from five Walton County districts are elected countywide and serve four-year terms. The BCC establishes policies through ordinances and resolutions, appoints the County Administrator, Chief Financial Officer, and County Attorney, and adopts the budget, making all decisions on appropriating funds to County departments, divisions, and Constitutional offices, in accordance with Florida State statutes.",
-    revenue: "General Government Taxes $4.5M &middot; Miscellaneous Revenue $4.3M &middot; Intergovernmental Revenues $2.4M &middot; Permits, Fees &amp; Special Assessments $1.5M",
+    revenue: "General Government Taxes $4.7M &middot; Miscellaneous Revenue $4.3M &middot; Intergovernmental Revenues $2.4M &middot; Permits, Fees &amp; Special Assessments $1.5M",
     contracts: [
       { service: "Board ERP Finance, HR, Planning &amp; Permit Software", provider: "Tyler Technologies", amount: 420000 },
       { service: "Enhanced South Walton Right-of-Way Landscaping (portion paid by Tourist Fund)", provider: "ZIIC Outdoors, LLC; Harper Landscaping, LLC", amount: 1175000 },
@@ -164,15 +165,6 @@ const OFFICES = [
 function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
 function pct(delta, base) { return base === 0 ? "N/A" : (delta >= 0 ? "+" : "") + ((delta / base) * 100).toFixed(1) + "%"; }
 
-// Household equivalents use the same 31,491 occupied housing units reported
-// in this book's 2018-2022 ACS statistical profile.
-const HOUSEHOLDS = 31491;
-function householdCost(amount) {
-  const annual = amount / HOUSEHOLDS;
-  const monthly = annual / 12;
-  const fmt = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `Residential funding scale: ${fmt(annual)} annually (${fmt(monthly)} monthly) per occupied household`;
-}
 
 // Splits a property-tax-funded amount into a residential and a
 // commercial/other row using the same 87.9% / 12.1% real-property
@@ -183,56 +175,57 @@ function splitPropertyTax(amount, detail) {
   const residential = amount * 0.879;
   const commercial = amount - residential;
   return [
-    ["Residential property owners", residential, `${detail} Estimated at ${householdCost(residential)}, using residential property's 87.9% share of Walton County's taxable real-property value across 31,491 occupied housing units &mdash; a planning proxy, not an individual household's tax bill.`],
+    ["Residential property owners", residential, `${detail} Estimated at the Countywide 87.9% residential share; not an individual tax bill.`],
     ["Commercial and other property owners", commercial, detail]
   ];
 }
 
-// Amounts come from each office's own Revenue Summary line (o.revenue,
-// see above), not a fresh calculation -- e.g. the Sheriff's "Other
-// Sources $102.6M" is that office's property-tax-funded interfund
-// transfer (per the live Who Pays Ledger's own sheriff-specific
-// property-tax classification), so it's attributed to the taxpayer
-// row here the same way. Left blank where the office's own revenue
-// text says the amount isn't part of this County-funded presentation
-// (Tax Collector's fee commissions, Clerk's outside court/recording
-// revenue) rather than implying a false precision. Rows funded by
-// property tax are split into residential/commercial shares (see
-// splitPropertyTax); rows funded by a mix of revenue types are left
-// as a single combined row rather than guessing a split.
+// Sheriff sources reconcile to the FY 2027 fund schedule. E911 and
+// accumulated fund balance are not classified as current property taxes.
+const OFFICE_PROPERTY_TAX = {
+  "Walton County Sheriff's Office": 98004256,
+  "Board of County Commissioners": 4672553,
+  "Tax Collector": 4449400,
+  "Clerk of Courts & County Comptroller": 6871175,
+  "Property Appraiser": 4954338,
+  "Supervisor of Elections": 1663865
+};
 function whoPaysFor(o) {
   const rows = {
     "Walton County Sheriff's Office": [
-      ...splitPropertyTax(102600000, "County funding supports law enforcement, corrections, fire rescue, animal services, and court security."),
-      ["Service users and partner agencies", 11500000, "Patient/insurance payments, service charges, intergovernmental funding, and E911-related revenues offset costs."]
+      ["County property-tax allocation", 98004256, "County transfer supporting the Sheriff Fund; Sheriff capital projects funded separately are excluded."],
+      ["E911 transfer", 460000, "Separate transfer from the E911 Fund; not property-tax revenue."],
+      ["Other current-year revenue", 11521972, "Intergovernmental revenue, service charges, fines, and miscellaneous revenue."],
+      ["Planned use of Sheriff fund balance", 4130000, "Previously accumulated resources; not new current-year revenue."],
+      ["Total funding", 114116228, "Matches the full FY 2027 Sheriff Fund budget."]
     ],
     "Board of County Commissioners": [
-      ...splitPropertyTax(4500000, "Property taxes support the Board's Countywide policy and administrative functions."),
-      ["Visitors, businesses, and service users", 8200000, "Sales-related revenues, fees, permits, and shared revenues contribute to services and capital activity."]
+      ["Property taxes", 4672553, "Assigned County property-tax revenue."],
+      ["State-shared revenues", 2417874, "Revenue sharing, state taxes and licenses, boating funds, and payments in lieu of taxes."],
+      ["Beach vending permits", 1530000, "Managed beach vendor permit revenue."],
+      ["Interest and investment earnings", 2205000, "Fund earnings, including Constitutional Officer interest; not new taxes."],
+      ["Administrative cost allocation", 1969762, "Internal reimbursement from County funds receiving administrative support."],
+      ["Other assigned revenue", 140700, "Office rent, animal-control fines, prior-year refunds, and miscellaneous revenue."]
     ],
     "Tax Collector": [
       ["Taxing authorities and transaction customers", null, "Statutory commissions and fees are earned while collecting taxes and providing vehicle, vessel, license, and related services."],
-      ["County taxpayers", 4400000, "The County-funded share is supported by general governmental revenues."]
+      ["County property-tax allocation", 4449400, "The County-funded share shown in the Property Tax Allocation schedule."]
     ],
     "Clerk of Courts & County Comptroller": [
-      ...splitPropertyTax(6900000, "County general revenues support Clerk-to-the-Board, finance, records, technology, and comptroller functions."),
+      ...splitPropertyTax(6871175, "County property taxes support Clerk-to-the-Board, finance, records, technology, and comptroller functions."),
       ["Court and records users", null, "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
     ],
     "Property Appraiser": [
-      ...splitPropertyTax(5000000, "The County, municipalities, and school board fund proportional shares of the State-approved property appraisal budget."),
+      ...splitPropertyTax(4954338, "The County property-tax allocation supports the State-approved property appraisal budget."),
       ["County taxpayers", null, "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
     ],
-    "Supervisor of Elections": splitPropertyTax(1700000, "County general revenues fund voter registration, election administration, equipment, ballots, and polling-place operations.")
+    "Supervisor of Elections": splitPropertyTax(1663865, "County property taxes fund voter registration, election administration, equipment, ballots, and polling-place operations.")
   };
   return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
 }
 
 function compactFundingDetail(text) {
   return String(text).replace(/\s+Estimated at[\s\S]*$/, "");
-}
-function householdEquivalent(text) {
-  const match = String(text).match(/(Residential funding scale: \$[\d,.]+ annually \(\$[\d,.]+ monthly\) per occupied household)/);
-  return match ? match[1] : "";
 }
 
 const sharedCss = `
@@ -412,6 +405,9 @@ const sharedCss = `
   .pos-summary .pnum b{ display:block; color:#003f28; font:800 20pt Georgia, serif; }
   .pos-summary .pnum span{ display:block; margin-top:.03in; color:#68786f; font-size:6.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .pos-summary .parrow{ color:#d1be78; font-size:20pt; font-weight:800; }
+  .personnel-scope{ margin:.04in 0 .08in; color:#fff; font-size:6.8pt; line-height:1.35; }
+  .bcc-profile .payer-row{ padding:.04in .075in; }
+  .funding-total{ margin:.05in 0 .08in!important; font-size:6.6pt!important; font-weight:800; }
   section.dense-profile p.sof{ font-size:7.55pt; line-height:1.34; }
   section.dense-profile .official-line{ margin-bottom:.11in; padding-bottom:.11in; }
 `;
@@ -431,11 +427,9 @@ async function buildOfficerPage(o, pageNumber) {
   // Rows without a dollar amount are omitted rather than printed unquantified.
   const payerRows = whoPaysFor(o).filter(([, amount]) => amount);
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|31,491 occupied/.test(detail));
-  const hasHouseholdEquivalent = payerRows.some(([, , detail]) => householdEquivalent(detail));
-  const payerHtml = payerRows.map(([label, amount, detail]) => { const equivalent = householdEquivalent(detail); return `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount ? `<span class="payer-amt">${money(amount)}</span>` : ""}</div><p class="payer-detail">${compactFundingDetail(detail)}</p>${equivalent ? `<span class="payer-equivalent">${equivalent}</span>` : ""}</div>`; }).join("");
+  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + (o.name === "Board of County Commissioners" ? `<p class="funding-total">Total assigned revenue: ${money(payerRows.reduce((sum, [, amount]) => sum + amount, 0))}</p>` : "") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
   const methodNotes = [
-    usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial taxable-value shares. These are not individual tax bills." : "",
-    hasHouseholdEquivalent ? "Residential funding-scale figures divide the office's residential funding share by 31,491 occupied housing units from the 2018-2022 ACS. They are not estimated tax bills and are not comparable to the $645.41 illustration, which applies one home's taxable value and millage." : ""
+    usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial real-property just-value shares. These are not individual tax bills." : "",
   ].filter(Boolean).join(" ");
   const payerMethodHtml = methodNotes ? `<p class="source-trace">${methodNotes}</p>` : "";
   const denseClass = "";
@@ -475,7 +469,7 @@ async function buildOfficerPage(o, pageNumber) {
     .filter(([,amount]) => amount > 0).map(([name,amount]) => `<i class="${name}" style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i>`).join("");
 
   return `
-  <section class="profile-page${denseClass ? " dense-profile" : ""}">
+  <section class="profile-page${denseClass ? " dense-profile" : ""}${o.name === "Board of County Commissioners" ? " bcc-profile" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
     <h1>${o.name}</h1>
@@ -501,6 +495,7 @@ async function buildOfficerPage(o, pageNumber) {
         <div class="budget-mix" aria-label="Budget composition">${mixSegments}</div>
         <div class="side-split">
           <div class="personnel"><span>Personnel</span><b>${money(o.personnel)}</b></div>
+          ${o.name === "Board of County Commissioners" ? '<p class="personnel-scope">Board personnel: $2,754,289.<br>Court Innovation: $36,891, assigned to Circuit Court in the Personnel Ledger.</p>' : ""}
           ${o.contractual ? `<div class="contractual"><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
           <div class="operating"><span>Operating</span><b>${money(o.operating)}</b></div>
           <div class="capital"><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
@@ -537,7 +532,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
     <h1>Constitutional Officers and Board Office Ledger</h1>
-    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $148.9M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
+    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $149.1M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Office Summary</h2>
@@ -546,7 +541,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <p class="footnote">* Full Board office total: $12,791,280, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,086,280 before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p>
+    <p class="footnote">* Full Board office total: $12,972,780, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,267,780 before capital; the Expenditure Ledger shows $12,572,780 before contingency. Board personnel includes $36,891 booked to Court Innovation; the Personnel Ledger assigns that amount to Circuit Court and shows $2,754,289 for the Board.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
@@ -568,6 +563,12 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-constitutional-offi
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+const overflowingProfiles = await page.evaluate(() => Array.from(document.querySelectorAll('section.profile-page')).filter(section => {
+  const footer = section.querySelector('footer');
+  const bottom = section.querySelector('.pos-summary');
+  return bottom.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 4;
+}).map(section => section.querySelector('h1').textContent));
+if (overflowingProfiles.length) throw new Error('Profile content overlaps the footer: ' + overflowingProfiles.join(', '));
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath + " (" + (1 + OFFICES.length) + " pages)");

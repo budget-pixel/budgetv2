@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Supporting Budget Documentation — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-popup-search-ledger">
+<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
 <style>
 .wc-doc-section{
   margin-top:28px;
@@ -186,8 +186,8 @@ window.wcBudgetPages = [
   {title:"Supporting Budget Documentation",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supporting-budget-documentation.html"}
 ];
 </script>
-<script src="../assets/search-data.js?v=20260930-budget-adjustments-title"></script>
-<script src="../assets/nav.js?v=20260915-no-nested-utility-dialog"></script>
+<script src="../assets/search-data.js?v=20261001-search-links"></script>
+<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script>
 (function(){
@@ -200,7 +200,7 @@ window.wcBudgetPages = [
     if(window.WCBudgetData) return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement("script");
-      script.src="../assets/budget-data.js?v=20261001-popup-search-ledger";
+script.src="../assets/budget-data.js?v=20261004-static-final";
       script.onload=resolve;
       script.onerror=reject;
       document.head.appendChild(script);

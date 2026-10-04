@@ -4,7 +4,7 @@
 // reference (like assets/cip-fy2025-2026-supplement.js) since the live
 // Machinery, Vehicles & Equipment Ledger page only carries the current
 // FY2027 Proposed budget sheet -- prior years are not part of that live
-// Google Sheet.
+// fixed publication data.
 window.wcHistoricalMachinery = {
   fy2025: [
     { dept: "Board of County Commissioners", item: "SUV", amount: 70000 },
