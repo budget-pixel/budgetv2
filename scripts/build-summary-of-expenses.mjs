@@ -45,7 +45,7 @@ const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,
 // Pages 2–3: FY 2027 department detail grouped by the published activity
 // sheet. The final-budget reconciliation retains $181,500 in BCC operating
 // expenses following the confirmed nonprofit budget of $268,500, leaving
-// a net $41,041 moved from the Board to Statutory & Other.
+// a net $41,041 moved from the Board to Human Services.
 // Each function below now sums to the consolidated budget ledger.
 const DEPT_GROUPS = [
   ["General Government", [
@@ -107,7 +107,7 @@ const DEPT_GROUPS = [
     ["Veteran Services", "$316,650"],
   ]],
   ["Human Services", [
-    ["Human Services", "$2,325,259"],
+    ["Human Services", "$2,366,300"],
     ["Walton County Health Department", "$1,724,397"],
     ["Mosquito Control", "$1,426,937"],
     ["Non-Profit Funding Program", "$268,500"],
@@ -115,7 +115,6 @@ const DEPT_GROUPS = [
     ["Gulf Coast Kid's House", "$98,100"],
     ["Mosquito Control State Aid", "$69,588"],
     ["Indigent Cremation Program", "$50,000"],
-    ["Statutory & Other reconciliation", "$41,041"],
   ]],
   ["Culture and Recreation", [
     ["Libraries", "$2,155,655"],
@@ -191,15 +190,14 @@ const FY2026_DEPARTMENT_BUDGETS = {
   "Economic Development Alliance": 271841,
   "North Walton Tourist Development Tax": 323000,
   "Veteran Services": 236100,
-  "Human Services": 2347802,
+  "Human Services": 2397802,
   "Walton County Health Department": 1724397,
   "Mosquito Control": 1340000,
-  "Non-Profit Funding Program": 527820,
+  "Non-Profit Funding Program": 477820,
   "Lakeview": 150000,
   "Gulf Coast Kid's House": 40000,
   "Mosquito Control State Aid": 61856,
   "Indigent Cremation Program": 50000,
-  "Statutory & Other reconciliation": 0,
   "Libraries": 1894963,
   "Eagle Springs Golf and Recreation Center": 1974044,
   "Recreation": 859309,
@@ -527,7 +525,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <p class="footnote">The Board's $12,972,780 total is classified as $12,472,780 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses. Code Compliance combines both current programs for comparison with their shared FY 2026 accounting codes.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board's $12,972,780 total is classified as $12,472,780 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;

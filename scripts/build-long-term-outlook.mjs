@@ -195,10 +195,9 @@ const page1 = `
 
     <h2>Economic Conditions Driving the Outlook</h2>
     <p class="body">Walton County's budget planning happens against a backdrop of sustained population and visitor growth, detailed further in the Statistical &amp; Supplemental Information section of this book.</p>
-    <div class="stat-strip">
+    <div class="stat-strip" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
       <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
-      <div class="stat-card"><b>44.4</b><span>Median Age vs. 42.4 Statewide (2018–2022 ACS)</span></div>
       <div class="stat-card"><b>+15.9%</b><span>FY 2027 Tourist Development Fund Growth</span></div>
     </div>
 
@@ -227,12 +226,8 @@ const page2 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
-    <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
-    <p class="body">The General Fund is the County's primary, least-restricted operating fund. Other fund balances are not interchangeable with General Fund resources. Tourism and transportation resources retain their applicable restrictions, while the $3.668M self-insurance reserve has a separate 60-day requirement.</p>
-    <div class="two-col">
-      <div class="info-card"><b>GFOA Two-Month Guideline</b><span>GFOA recommends unrestricted budgetary General Fund balance of at least two months of regular operating revenues or expenditures. The FY 2025 ACFR reports $58.394M of <i>unassigned</i> balance and $185.853M of expenditures and other uses. Using that audited base gives a $30.976M two-month reference and about 3.77 months of unassigned balance. This is an audited-base comparison, not a formal compliance calculation; the regular operating base excludes unusual one-time items and includes recurring transfers.</span></div>
-      <div class="info-card"><b>FY 2027 Planned Draw and Ending Balance</b><span>The General Fund starts with $81.9M, budgets an $8.047M draw, and projects ${generalFundEnding} of total ending balance. That draw is included in the $21.3M countywide total. Accumulated fund balance is not new recurring revenue. The schedules do not divide the draw between one-time projects and recurring services. The projected total is not classified by fund-balance category and is not an updated audited unassigned balance or a direct test of the GFOA guideline.</span></div>
-    </div>
+    <h2 style="margin-top:.08in;">Future Reserve Pressure</h2>
+    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See General Fund Reserve Position on page 41 for the current reserve comparison.</p>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">
@@ -242,15 +237,8 @@ const page2 = `
 
     <p class="warn"><b>Deferred and Contingent Items</b>No major project in the funded $43.8M FY 2027 capital program was postponed. Outside that total are $15.3M of grant-dependent projects, $2.0M of Sheriff projects funded separately, and $10.25M of prior-funded tourism work that remains active. A $600,000 recreational-plat allocation and $300,000 sidewalk allocation await project selection. Future phases and costs shown as pending are not assumed funded.</p>
 
-    <h2>Debt: Minimal, and Scheduled to End in FY 2030</h2>
-    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $9.1M in remaining debt service, including principal and interest. FY 2027 payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax rather than property taxes, and the schedule ends in FY 2030 &mdash; see the Debt Ledger for the payment schedule and terminology.</p>
-    <div class="stat-strip">
-      <div class="stat-card"><b>$29.5M</b><span>Total Debt Issued</span></div>
-      <div class="stat-card"><b>$9.1M</b><span>Remaining Debt Service</span></div>
-      <div class="stat-card"><b>$2.58M</b><span>FY 2027 Final Debt-Service Budget</span></div>
-      <div class="stat-card"><b>FY 2030</b><span>Scheduled Payoff</span></div>
-    </div>
-
+    <h2>Debt Payoff and Future Commitments</h2>
+    <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page 40 for payment amounts and funding details.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>
@@ -258,7 +246,6 @@ const page2 = `
     <p class="trend">The plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
 
     <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. If conditions change, OMB will reforecast service, capital, reserve, and millage options. Beginning with FY 2027, OMB will compare actual revenue, expenditures, capital timing, and ending balances with the forecast and report material variances in the next cycle; the current book has no historical forecast-accuracy series.</p>
-    <p class="footnote">Sources: GFOA, <i>Fund Balance Guidelines for the General Fund</i> (2015); Walton County FY 2025 ACFR, Management's Discussion and Analysis and governmental fund-balance schedules.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>

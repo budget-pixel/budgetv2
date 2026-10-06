@@ -10,6 +10,8 @@ import "../assets/performance-context.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 const revenueSnapshot = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-revenue-snapshot.json"), "utf8")).departments;
+const annualReportPerformance = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/annual-report-performance.json"), "utf8"));
+const departmentPhotos = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-photos.json"), "utf8"));
 const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/divider-bg-departments.jpg")).toString("base64")}`;
 
 // Maps each office's name (DEPARTMENTS[].name) to its live page on the
@@ -233,7 +235,7 @@ const DEPARTMENTS = [
     deltaP: 33511, deltaO: 23500, deltaC: -225500, video: "d4o7JNx6o4s", fund: "General Fund",
     sof: "Walton County owns one golf course, Eagle Springs Golf and Recreation Center, purchased by the Board of County Commissioners in 2019 to provide economic development and enhance quality of life through sports and recreation. Eagle Springs consists of 190 acres containing an 18-hole golf course and four spring-fed lakes, with more than 30,000 rounds played annually, a driving range, pro shop, pickleball courts, a public swimming pool, and a walking path.",
     goal: "Provide high-quality and accessible recreational opportunities for all residents and visitors.",
-    challenges: "Twelve positions support a target of 43,000 rounds, up from 38,514 in 2025. Budgeted customer revenue covers 77.0% of the full FY 2027 budget, including capital.",
+    challenges: "Twelve positions support a target of 43,000 rounds, compared with 37,722 reported in 2025. Budgeted customer revenue covers 77.0% of the full FY 2027 budget, including capital.",
     changeNote: "Buildings decreasing by $250,000.",
     revenue: "Charges for Services &mdash; Customer Revenue $1,390,000 &middot; Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $415,555",
     customerRevenue: 1390000, sharedSalesTax: 415555,
@@ -305,7 +307,6 @@ const DEPARTMENTS = [
       ["Oversee traffic and right-of-way", "Coordinates traffic operations, right-of-way permitting, and surveying for county roadways."],
       ["Administer transportation grants", "Manages FDOT grant administration and engineering oversight for the Mossy Head sewer system."]
     ],
-    achievement: { label: "Estimated Consultant Costs Avoided", detail: "The $1,660,880 FY 2027 planning estimate sums nine in-house CIP project allocations. It is not demonstrated net savings after County staffing, overhead, and project-delivery costs." },
     challenges: "Fourteen positions, down two, provide in-house design and construction management for 30 funded transportation and infrastructure projects.",
     revenue: "General Government Taxes &mdash; Local Option Fuel Tax $2.4M",
     capitalItems: [
@@ -428,7 +429,7 @@ const DEPARTMENTS = [
     deltaP: -67045, deltaO: 168982, deltaC: -15000, video: "U5q2lymuFys", fund: "Mosquito Control Fund",
     sof: "The Mosquito Control Department is dedicated to protecting public health and enhancing quality of life for residents and visitors by managing mosquito populations through surveillance, larval control, and public education, aimed at minimizing nuisance and reducing the risk of mosquito-borne disease.",
     goal: "Protect public health and enhance quality of life by managing mosquito populations through effective, innovative, and environmentally responsible practices.",
-    challenges: "Eight positions, down one, plan 610,000 treated acres and 9,750 site inspections, up from 580,000 and 9,600 in 2025.",
+    challenges: "Eight positions, down one, plan 610,000 treated acres and 9,750 site inspections, compared with approximately 309,000 treated acres in the annual report; the report does not give an inspection count.",
     changeNote: "Indirect Admin Allocation increasing by $146,557.",
     revenue: "General Government Taxes &mdash; Ad Valorem Taxes $1,426,937",
     capitalItems: [
@@ -467,7 +468,6 @@ const DEPARTMENTS = [
       ["Monitor public spending", "Tracks budget performance and supports amendments throughout the fiscal year."],
       ["Explain financial decisions", "Produces schedules, forecasts, analysis, and public budget information for decision-making."]
     ],
-    achievement: { label: "GFOA Distinguished Budget Presentation Award", detail: "Walton County has received the Government Finance Officers Association's Distinguished Budget Presentation Award for FY 2025 and FY 2026, recognizing the County's budget document as a policy document, financial plan, operations guide, and communications device." },
     challenges: "Nine positions prepare the budget and manage grant spending, projected at $10M in FY 2027 compared with $15.6M in 2025.",
     changeNote: "Books, Publications, Subscriptions or Memberships decreasing by $260,000.",
     revenue: "Miscellaneous Revenue &mdash; Indirect Administrative Fees $619,356 &middot; Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $440,670 &middot; Charges for Services &mdash; Cremation Fees $15,000",
@@ -562,17 +562,11 @@ const DEPARTMENTS = [
       { service: "DeFuniak Springs Interlocal Road Maintenance", provider: "City of DeFuniak Springs", amount: 50000 },
     ],
     capitalItems: [
-      { item: "21-Yard Dump Truck (New) &times;5 &mdash; Districts 1&ndash;5", amount: 1225000 },
-      { item: "Mid-size Excavator (New) &times;2", amount: 318000 },
-      { item: "3/4 Ton Crew Cab Truck w/Utility Body (Replacement) &times;3", amount: 195000 },
-      { item: "Service Truck w/Lube Body (New)", amount: 195000 },
-      { item: "Mid-size Excavator w/Mulching Head (New)", amount: 186000 },
-      { item: "Flatbed Dump Truck (New)", amount: 165000 },
-      { item: "1/2 Ton Pickup Crew Cab w/Fuel Transfer Tank (Replacement) &times;2", amount: 116000 },
-      { item: "75-80 hp Tractor w/Loader, Grapple, Forks (New)", amount: 85000 },
-      { item: "1,000 Gal Water Tank w/Pump & Chemical Rack (New)", amount: 14000 }
+      { item: "Roadway infrastructure (Local Option Fuel Tax)", amount: 4501000 },
+      { item: "21-Yard Dump Trucks (New) &times;5 &mdash; Districts 1&ndash;5", amount: 1225000 },
+      { item: "Remaining vehicles and equipment", amount: 1274000 }
     ],
-    capitalNote: "An additional $4.5M in Public Works capital is Local Option Fuel Tax-funded roadway work not itemized by department here; see the Transportation and Infrastructure Capital Ledger.",
+    capitalNote: "For individual equipment requests, see the Machinery, Vehicles, and Equipment Ledger (pp. 120&ndash;122). For roadway projects and funding, see the Transportation and Infrastructure Capital Ledger (pp. 114&ndash;115).",
     pms: [
       { q: "Number of capital improvement projects completed per fiscal year", obj: "Plan and complete capital improvement projects that enhance infrastructure sustainability", y: ["11", "10", "18", "17"], target: "23", svc: 2 },
       { q: "Number of miles of road maintained or improved per fiscal year (unpaved and paved roads)", obj: "Maintain and improve paved and unpaved roadways to enhance mobility and safety", y: ["1,046", "1,046", "1,046", "1,049"], target: "1,049", svc: 0 }
@@ -588,8 +582,7 @@ const DEPARTMENTS = [
       ["Support county purchasing", "Helps departments obtain needed resources under adopted rules and contracts."],
       ["Maintain procurement records", "Documents awards, contracts, vendor information, and purchasing compliance."]
     ],
-    achievement: { label: "Achievement of Excellence in Procurement Award", detail: "Walton County Purchasing was named a 2026 winner of the National Procurement Institute's Achievement of Excellence in Procurement Award, recognizing innovation, professionalism, e-procurement, and ethics in public procurement." },
-    challenges: "Ten positions process about 5,000 purchase orders a year and target 28 formal solicitations, up from 25 in 2025.",
+    challenges: "Ten positions process a FY 2027 target of 5,000 purchase orders and target 28 formal solicitations, compared with more than 30 reported in 2025.",
     changeNote: "Books, Publications, Subscriptions or Memberships increasing by $64,000.",
     revenue: "Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $864,637 &middot; Miscellaneous Revenue &mdash; Indirect Administrative Fees $211,862",
     capitalItems: [
@@ -608,7 +601,7 @@ const DEPARTMENTS = [
     deltaP: 4949, deltaO: -865, deltaC: -30000, video: "ODzfUR4KX2o", fund: "General Fund",
     sof: "The Recreation Department operates youth and adult programs and maintains fields, courts, buildings, and equipment used for community recreation.",
     goal: "Provide diverse recreational programs that enhance community health, engagement, and quality of life.",
-    challenges: "Six positions maintain facilities and schedules while the program target rises from 4,105 participants in 2025 to 4,500 in FY 2027.",
+    challenges: "Six positions maintain facilities and schedules while the FY 2027 target is 4,500 participations, compared with 4,214 County-run program participations reported in 2025.",
     changeNote: "Machinery & Equipment decreasing by $30,000.",
     revenue: "Intergovernmental Revenues $653K &middot; Charges for Services &mdash; Program & Sports Fees $135K",
     capitalItems: [
@@ -666,7 +659,7 @@ const DEPARTMENTS = [
     deltaP: 80324, deltaO: 226, deltaC: 0, video: "v4tpooBZoPs", fund: "General Fund",
     sof: "The Veteran Services Department works to communicate with every veteran and their dependents in Walton County, to administer and advocate for all the benefits they have earned, providing excellent customer service in a manner that depicts the gratitude and honor reserved for those who have sacrificed so much.",
     goal: "Deliver timely, effective, and informative assistance to veterans and their families.",
-    challenges: "Three positions, up one, target 1,100 benefit claims and five outreach events, up from 1,050 claims and three events in 2025.",
+    challenges: "Three positions, up one, target 1,100 benefit claims and five outreach events, compared with 1,151 claims reported in 2025.",
     revenue: "Intergovernmental Revenues &mdash; Local Government 1/2 Cent Sales Tax $317K",
     contracts: [],
     pms: [
@@ -686,9 +679,7 @@ const DEPARTMENTS = [
     capitalItems: [{item:"SUV (Replacement)",amount:50000}],
     contracts: [],
     sideCards: [{ label: "Tourism Lifeguard Services and Beach Safety", amount: 3380779, detail: "South Walton Fire District &mdash; purchased-service agreement funding beach-safety and lifeguard coverage, tracked separately from Tourism Administration's operating budget above." }],
-    performanceHeading: "Tourism Economic Context",
-    performanceNote: "Jobs and lodging rates are broader market indicators, not results attributable solely to County spending. Historical values and FY 2027 projections below are retained from the published budget performance sheet. The 32,000 jobs projection is not a County goal to reduce employment. Separate tourism economic-impact publications may use different reporting periods and estimation methods; comparability with this budget series has not been verified.",
-    pms: [{q:"Tourism-supported jobs (budget source)",obj:"Monitor tourism-related employment",y:["47,000","47,000","41,600","33,800"],target:"32,000",targetLabel:"FY27 Projection",context:true,svc:0},{q:"Average Daily Rate for Walton County lodging",obj:"Monitor lodging-market conditions",y:["$413","$413","$385","$352"],target:"$375",targetLabel:"FY27 Projection",context:true,svc:1}]
+    pms: []
   },
   {
     name: "Sales and Visitors Center", entityType: "Tourism Administration Office", fte: 9, personnel: 863987, operating: 821850, indirect: 126725, contractual: 137438, capital: 0,
@@ -729,10 +720,10 @@ const DEPARTMENTS = [
     goal:"Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
     services:[["Maintain beach and bay facilities","Cleans, repairs, and supports public access facilities throughout the visitor season."],["Care for scenic corridors","Maintains landscaping and public-facing infrastructure along major tourism corridors."],["Deliver access improvements","Coordinates equipment and capital work that improves safety, function, and accessibility."]],
     serviceChange:"Adds staffing and capital capacity to support growing maintenance demands and expanded public infrastructure.",
-    challenges:"Sixty-seven positions, up seven, clean 66 beach and bay access facilities daily in peak season and complete about 6,000 work orders.", changeNote:"Other Services increasing by $704,875.",
+    challenges:"Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.", changeNote:"Other Services increasing by $704,875.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
     capitalItems:[{item:"Beach Operations vehicles, machinery and equipment",amount:1902500}],
-    capitalNote: "The equipment ledger includes a $200,000 new Truck Wash System. The item schedule does not document expected use, operating costs, or quantified savings; no savings estimate is assumed here. The operating justification requires department confirmation.",
+    capitalNote: "The budget includes $200,000 for a new Truck Wash System. Operating costs and expected savings have not been estimated.",
     contracts:[{service:"SR 83 (US 331) Landscaping Improvements",provider:"C&A Landscape Maintenance, LLC · Contract 25-26",amount:515000},{service:"US Highway 331 Median & Right-of-Way Maintenance",provider:"Harper Landscaping, LLC · Contract 22-028",amount:455000},{service:"Highway 98 Median & Right-of-Way Maintenance",provider:"ZIIC Outdoors, LLC · Contract 020-016",amount:300000},{service:"Task Order Services",provider:"Multiple providers as authorized",amount:200000}],
     sideCards: [{ label: "Beach Renourishment", amount: 11000000, detail: "$10,750,000 capital program plus $250,000 in task-order services to preserve and restore Walton County's 26 miles of beach, tracked separately from Beach Operations' totals above." }],
     pms:[{q:"Beach and bay public access facilities cleaned daily",obj:"Clean all beach and bay public access facilities daily during peak season",y:["60","60","62","63"],target:"66",svc:0},{q:"Maintenance work orders completed",obj:"Complete at least 6,000 maintenance work orders annually",y:["4,177","5,111","5,970","6,000"],target:"6,000",svc:2}]
@@ -745,8 +736,8 @@ const DEPARTMENTS = [
     goal:"Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
     services:[["Operate beach shuttles","Transports passengers between designated parking and beach access locations."],["Maintain fleet readiness","Coordinates drivers, mechanics, dispatch, inspections, and vehicle availability."],["Improve coastal mobility","Reduces parking demand and expands access for residents and visitors."]],
     serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY 2027 ridership target.",
-    valueExplanation: `<h3>What changes in the budget</h3><table class="tourism-change-table"><thead><tr><th>Category</th><th>FY 2026</th><th>FY 2027</th><th>Change</th></tr></thead><tbody><tr><td>Personnel</td><td>$2,694,376</td><td>$3,813,305</td><td>+$1,118,929</td></tr><tr><td>Operating</td><td>$605,750</td><td>$744,750</td><td>+$139,000</td></tr><tr><td>Indirect allocation</td><td>$0</td><td>$177,166</td><td>+$177,166</td></tr><tr><td>Capital</td><td>$216,000</td><td>$507,000</td><td>+$291,000</td></tr><tr><th>Total</th><th>$3,516,126</th><th>$5,242,221</th><th>+$1,726,095</th></tr></tbody></table><p>The 49.1% total increase includes all four categories; it is not attributable solely to six added positions. Personnel includes wages and employer benefit costs. The source identifies regular salaries and wages increasing $601,594 within the personnel increase.</p><p>Staffing rises from 54 to 60 FTE. The $507,000 FY 2027 capital allocation includes three replacement ADA shuttles and one new pickup. The ridership target is 250,000 versus 200,000 reported in 2025.</p><p class="source-trace">Source: FY 2027 expense budget and FY 2026 original budget.</p>`,
-    challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, up from 200,000 in 2025.", changeNote:"Regular Salaries & Wages increasing by $601,594.",
+    valueExplanation: `<h3>What changes in the budget</h3><table class="tourism-change-table"><thead><tr><th>Category</th><th>FY 2026</th><th>FY 2027</th><th>Change</th></tr></thead><tbody><tr><td>Personnel</td><td>$2,694,376</td><td>$3,813,305</td><td>+$1,118,929</td></tr><tr><td>Operating</td><td>$605,750</td><td>$744,750</td><td>+$139,000</td></tr><tr><td>Indirect allocation</td><td>$0</td><td>$177,166</td><td>+$177,166</td></tr><tr><td>Capital</td><td>$216,000</td><td>$507,000</td><td>+$291,000</td></tr><tr><th>Total</th><th>$3,516,126</th><th>$5,242,221</th><th>+$1,726,095</th></tr></tbody></table><p>The 49.1% total increase includes all four categories; it is not attributable solely to six added positions. Personnel includes wages and employer benefit costs. The source identifies regular salaries and wages increasing $601,594 within the personnel increase.</p><p>Staffing rises from 54 to 60 FTE. The $507,000 FY 2027 capital allocation includes three replacement ADA shuttles and one new pickup. The ridership target is 250,000 versus 224,352 rides reported in 2025.</p><p class="source-trace">Source: FY 2027 expense budget and FY 2026 original budget.</p>`,
+    challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.", changeNote:"Regular Salaries & Wages increasing by $601,594.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Tram vehicles and transportation equipment",amount:507000}], contracts:[],
     pms:[{q:"Passengers transported annually by the shuttle service",obj:"Transport at least 200,000 passengers annually",y:["77,282","193,725","168,203","200,000"],target:"250,000",svc:0}]
   }
@@ -1171,7 +1162,7 @@ async function buildDeptPage(d, pageNumber) {
   const usesPropertyMethod = payerRows.some(([, , explanation]) => /87\.9%/.test(explanation));
   const usesSalesMethod = payerRows.some(([, , explanation]) => /tourism visitor study|68% of local retail spending|32% resident share/.test(explanation));
   const propertyTaxAllocation = payerRows.filter(([payer]) => /^(Property taxes|Property-tax transfer|Residential property owners|Commercial and other property owners)$/.test(payer)).reduce((sum, [, amount]) => sum + amount, 0);
-  const payerHtml = payerRows.map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(explanation)}</p></div>`).join("") + `<p class="source-trace"><b>${revenueSnapshot[d.name]?.length ? "Total assigned resources" : "Office appropriation"}: ${money(payerRows.reduce((sum, row) => sum + row[1], 0))}</b></p>` + (d.name === "Mosquito Control" ? "" : homeownerValueExample(propertyTaxAllocation));
+  const payerHtml = payerRows.map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(explanation)}</p></div>`).join("") + (revenueSnapshot[d.name]?.length ? "" : `<p class="source-trace"><b>Office appropriation: ${money(payerRows.reduce((sum, row) => sum + row[1], 0))}</b></p>`) + (["Mosquito Control", "Building Construction and Maintenance"].includes(d.name) ? "" : homeownerValueExample(propertyTaxAllocation));
   const payerMethodHtml = (usesPropertyMethod || usesSalesMethod)
     ? `<p class="source-trace">Estimated funding shares: ${usesPropertyMethod ? "property tax 87.9% residential / 12.1% commercial" : ""}${usesPropertyMethod && usesSalesMethod ? "; " : ""}${usesSalesMethod ? "sales tax 68% visitor / 32% resident (tourism study)" : ""}. Not individual payments.</p>`
     : "";
@@ -1203,8 +1194,10 @@ async function buildDeptPage(d, pageNumber) {
     if (latest === prior) return ["2024-25 stable", "stable"];
     return latest > prior ? ["2024-25 rising", "rising"] : ["2024-25 falling", "falling"];
   };
-  const pmBlock = (pm) => {
-    const [trendLabel, trendClass] = pm.context ? ["Economic context", ""] : trendFor(pm);
+  const pmBlock = (originalPm) => {
+    const revision = (annualReportPerformance[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
+    const pm = revision ? {...originalPm, y: [...originalPm.y.slice(0, 3), revision.value]} : originalPm;
+    const [trendLabel, trendClass] = pm.context ? ["Economic context", ""] : revision?.comparable === false ? ["Different reporting basis", ""] : trendFor(pm);
     const contextNote = globalThis.WCPerformanceContext.noteFor({Dept_Name:d.name,Measure:pm.q});
     return `
     <div class="pm-item${pm.context ? " economic-context" : ""}">
@@ -1213,9 +1206,10 @@ async function buildDeptPage(d, pageNumber) {
         <span><b>${pmVal(pm.y[0])}</b>2022</span>
         <span><b>${pmVal(pm.y[1])}</b>2023</span>
         <span><b>${pmVal(pm.y[2])}</b>2024</span>
-        <span><b>${pmVal(pm.y[3])}</b>2025</span>
+        <span><b>${pmVal(pm.y[3])}</b>${revision?.latestLabel || "2025"}</span>
         <span class="target"><b>${pmVal(pm.target)}</b>${pm.targetLabel || "FY27 Target"}</span>
       </div>
+      ${revision ? `<p class="source-trace">Source: 2025 Annual Report, p. ${revision.reportPage}.${revision.note ? " " + revision.note : ""}</p>` : ""}
       ${contextNote ? `<p class="pm-context-note">${contextNote}</p>` : ""}
     </div>`;
   };
@@ -1259,7 +1253,7 @@ async function buildDeptPage(d, pageNumber) {
   const MAX_CAP_ROWS = 12;
   let capHtml = "";
   if (capItems.length) {
-    const sorted = [...capItems].sort((a, b) => b.amount - a.amount);
+    const sorted = d.name === "Public Works" ? [...capItems] : [...capItems].sort((a, b) => b.amount - a.amount);
     const shown = sorted.slice(0, MAX_CAP_ROWS);
     const hidden = sorted.slice(MAX_CAP_ROWS);
     capHtml = shown.map((c) => `<div class="cap-row${c.notFunded ? " notfunded" : ""}"><span>${c.item}</span><b>${c.notFunded ? "(" + money(c.amount) + ")" : money(c.amount)}</b></div>`).join("");
@@ -1279,22 +1273,25 @@ async function buildDeptPage(d, pageNumber) {
   ].filter(([, amount]) => amount > 0).map(([name, amount]) => `<i class="${name}" style="width:${((amount / fy27) * 100).toFixed(2)}%"></i>`).join("");
 
   return `
-  <section class="profile-page">
+  <section class="profile-page${d.name === "Building Construction and Maintenance" ? " building-photo-top" : d.name === "Public Works" ? " public-works-photo" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <div class="top-grid">
       <div>
         <small class="kicker">${d.entityType || "Departments"}</small>
         <h1>${d.name}</h1>
+        <div class="function-with-photo">
+        ${departmentPhotos[d.name] ? `<figure class="annual-department-photo"><img src="data:image/${path.extname(departmentPhotos[d.name].file).slice(1) === "png" ? "png" : "jpeg"};base64,${readFileSync(path.join(repoRoot, departmentPhotos[d.name].file)).toString("base64")}" alt="${d.name}"><figcaption>${departmentPhotos[d.name].caption}</figcaption></figure>` : ""}
         <h2>Statement of Function</h2>
-        <p class="sof">${d.sof}</p>
+        <p class="sof">${d.name === "Building Construction and Maintenance" ? "Facilities Maintenance delivers construction, remodeling, repairs, preventive maintenance, and treatment-plant assistance for County departments and constitutional offices. Parks Maintenance maintains parks, ballfields, office grounds, community centers, irrigation, fencing, playgrounds, and parking islands. Custodian provides cleaning services to County offices countywide." : d.sof}</p>
+        </div>
         <div class="responsibility-tags">${responsibilityTags}</div>
         <div class="profile-context"><span><b>Accounting rollup</b> ${accountingRollup}</span><span><b>Strategic priority</b> ${strategicPriority}</span></div>
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
         ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}</p></div>` : ""}</div>` : ""}
-        <div class="goal-chain goal-chain-inline">
+        <div class="goal-chain goal-chain-inline"${d.name === "Tourism Administration" ? ' style="display:none"' : ""}>
           <h2>${d.performanceHeading || "Core Services &amp; Performance"}</h2>
           <p class="svc-change-note"><b>FY 2027 Service Outlook</b><br>${serviceChangeFor(d)}</p>
-          ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>. Submitted budget figures are not overwritten with a different-source estimate.</p>` : ""}
+          ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>.</p>` : ""}
           ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
           <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
           ${d.pms.length || d.valueExplanation ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
@@ -1349,7 +1346,7 @@ async function main() {
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Board Department<br/>Budgets</h1b>
-      <p>A statement of function, department goal, FY 2027 operating context, services, funding sources, contracts, and performance measures for each of Walton County's ${DEPARTMENTS.length} Board offices and programs.</p>
+      <p>A statement of function, department goal, FY 2027 operating context, services, funding sources, contracts, and performance measures for each of Walton County's 15 departments and related offices and programs.</p>
     </div>
   </section>`;
 
@@ -1378,15 +1375,21 @@ async function main() {
   </section>`;
   pageCounter++;
 
+  const pageOrder = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/budget-book-page-order.json"), "utf8"));
+  const orderedDepartments = pageOrder.departmentProfileOriginalPages.map((oldPage) => DEPARTMENTS[oldPage - 70]);
   const deptPages = [];
-  for (const d of DEPARTMENTS) {
+  for (const d of orderedDepartments) {
     deptPages.push(await buildDeptPage(d, pageCounter));
     pageCounter++;
   }
 
   const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Board Department Budgets</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}
+.public-works-photo .function-with-photo .sof{font-size:7.3pt;line-height:1.3}.public-works-photo .top-grid{margin-bottom:0}.public-works-photo .rev-con-grid{margin-top:0}.public-works-photo .cap-row{padding:.025in .045in}.public-works-photo .payer-row{padding:.04in .06in;margin-bottom:.03in}.public-works-photo .svc-block{padding:.045in 0}.public-works-photo .editorial-cards{margin:.08in 0}.function-with-photo{display:flow-root}.annual-department-photo{float:right;width:1.65in;margin:0 0 .08in .14in}.annual-department-photo img{display:block;width:100%;height:1.15in;object-fit:contain;background:#edf2ef;border-radius:9px}.annual-department-photo figcaption{font:italic 6.5pt/1.3 Arial,sans-serif;color:#68786f;margin-top:.035in}
+.building-photo-top .department-photo{margin:.08in 0 .1in}.building-photo-top .department-photo img{display:block;width:100%;height:1.5in;object-fit:cover;object-position:center 65%;border-radius:9px}.building-photo-top .department-photo figcaption{font:italic 7pt/1.3 Arial,sans-serif;color:#68786f;margin-top:.035in}
+.building-photo-top h1{font-size:18pt;margin-bottom:.07in}.building-photo-top h2{margin-top:.08in;margin-bottom:.04in}.building-photo-top .sof{font-size:7.4pt;line-height:1.32}.building-photo-top .responsibility-tags{display:none}.building-photo-top .editorial-cards{margin:.08in 0}.building-photo-top .goal-quote{padding:.08in .1in}.building-photo-top .goal-quote p{font-size:7.4pt;line-height:1.3}.building-photo-top .svc-block{padding:.05in 0}.building-photo-top .pm-item{padding:.055in .08in}.building-photo-top .svc-change-note{margin:.04in 0;padding:.055in .08in}.building-photo-top .rev-con-grid{margin-top:.1in}.building-photo-top .payer-row{padding:.035in .055in;margin-bottom:.025in}.building-photo-top .payer-detail{display:none}.building-photo-top .department-photo img{height:1.7in}.building-photo-top .homeowner-value-example{margin-top:.035in}
+</style></head>
 <body>${dividerHtml}${overviewHtml}${deptPages.join("\n")}</body></html>`;
 
   const outPath = process.argv[2] || "/private/tmp/budget-book-departments-and-services.pdf";
@@ -1394,10 +1397,11 @@ async function main() {
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle" });
   const fundingOverflows = await page.evaluate(() => [...document.querySelectorAll('section')].flatMap(section => {
-    const panel = section.querySelector('.rev-box');
+    const panels = [...section.querySelectorAll('.rev-box,.con-box,.cap-box,.side-col')];
+    const panel = panels.sort((a,b)=>b.getBoundingClientRect().bottom-a.getBoundingClientRect().bottom)[0];
     const footer = section.querySelector('footer');
     return panel && footer && panel.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 5
-      ? [section.querySelector('h1')?.textContent || 'Department funding panel'] : [];
+      ? [(section.querySelector('h1')?.textContent || 'Department funding panel') + ' overflow=' + Math.round(panel.getBoundingClientRect().bottom-footer.getBoundingClientRect().top)] : [];
   }));
   if (fundingOverflows.length) throw new Error(`Funding panels overlap the footer: ${fundingOverflows.join(', ')}`);
   await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });

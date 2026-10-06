@@ -1,0 +1,174 @@
+{
+  "Building Department": [
+    {
+      "index": 0,
+      "value": "12,199",
+      "reportPage": 13,
+      "note": "Annual report covers January\u2013July 2025; this is a partial-year result.",
+      "latestLabel": "Jan\u2013Jul 2025",
+      "comparable": false
+    },
+    {
+      "index": 1,
+      "value": "847",
+      "reportPage": 13,
+      "note": "Annual report covers January\u2013July 2025; this is a partial-year result.",
+      "latestLabel": "Jan\u2013Jul 2025",
+      "comparable": false
+    }
+  ],
+  "County Administration": [
+    {
+      "index": 1,
+      "value": "128",
+      "reportPage": 11,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Eagle Springs Golf and Recreation Center": [
+    {
+      "index": 0,
+      "value": "37,722",
+      "reportPage": 17,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    },
+    {
+      "index": 1,
+      "value": "1,332",
+      "reportPage": 31,
+      "note": "The recreation summary identifies this as 2025 activity; the golf narrative on report page 17 calls the same count summer 2024. Confirm the period before using it for year-to-year comparisons.",
+      "latestLabel": "Report result",
+      "comparable": false
+    }
+  ],
+  "Eagle Springs Grill": [
+    {
+      "index": 1,
+      "value": "39",
+      "reportPage": 17,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Emergency Management": [
+    {
+      "index": 0,
+      "value": "22 / 25,000+",
+      "reportPage": 19,
+      "note": "Report describes more than 25,000 residents reached.",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Libraries": [
+    {
+      "index": 1,
+      "value": "9,100",
+      "reportPage": 34,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Mosquito Control": [
+    {
+      "index": 0,
+      "value": "\u2248309,000",
+      "reportPage": 25,
+      "note": "Annual report gives approximate treatment acreage; repeat applications may be included.",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Probation": [
+    {
+      "index": 0,
+      "value": "53",
+      "reportPage": 33,
+      "note": "Annual report period is October 2024\u2013September 2025.",
+      "latestLabel": "FY 2025",
+      "comparable": false
+    }
+  ],
+  "Public Works": [
+    {
+      "index": 1,
+      "value": "1,046",
+      "reportPage": 35,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Purchasing": [
+    {
+      "index": 0,
+      "value": "6,136",
+      "reportPage": 30,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    },
+    {
+      "index": 1,
+      "value": "30+",
+      "reportPage": 30,
+      "note": "Report includes ITBs, RFPs, RFQs, ITQs, and ITNs.",
+      "latestLabel": "2025",
+      "comparable": false
+    }
+  ],
+  "Recreation": [
+    {
+      "index": 0,
+      "value": "4,214",
+      "reportPage": 31,
+      "note": "Sum of seven County-run basketball, soccer, camp, and adult kickball participation counts. Excludes separately listed County-supported and travel programs; participants may appear in multiple programs.",
+      "latestLabel": "2025",
+      "comparable": false
+    }
+  ],
+  "Veteran Services": [
+    {
+      "index": 0,
+      "value": "1,151",
+      "reportPage": 41,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Beach Operations": [
+    {
+      "index": 0,
+      "value": "62",
+      "reportPage": 39,
+      "note": "15 regional and 47 neighborhood beach/bay access points cleaned twice daily, 363 days per year.",
+      "latestLabel": "2025",
+      "comparable": true
+    },
+    {
+      "index": 1,
+      "value": "5,183",
+      "reportPage": 39,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ],
+  "Beach Tram": [
+    {
+      "index": 0,
+      "value": "224,352",
+      "reportPage": 40,
+      "note": "",
+      "latestLabel": "2025",
+      "comparable": true
+    }
+  ]
+}

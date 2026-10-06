@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import sys
+import subprocess
 from pypdf import PdfReader, PdfWriter
 
 
@@ -9,9 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "output/pdf/walton-county-fy2027-budget-book.pdf"
 SCRATCH = ROOT / "tmp/pdfs"
 
-# Physical, one-based PDF pages. The printed page numbers start two pages later.
+# Original physical page references; the response-page offset is applied below.
 SOURCES = [
+    (110, SCRATCH / "reserve-position-revised.pdf", 4, "Where FY 2027 Capital Investment Serves"),
     (3, SCRATCH / "transmittal-letter-revised.pdf", 1, "Transmittal Letter"),
+    (4, SCRATCH / "transmittal-letter-revised.pdf", 2, "Budget Summary"),
+    (14, SCRATCH / "community-priorities-revised.pdf", 1, "Community Priorities"),
     (15, SCRATCH / "community-priorities-revised.pdf", 2, "Organizational Challenges"),
     (40, SCRATCH / "reserve-position-revised.pdf", 3, "General Fund Reserve Position"),
     (47, SCRATCH / "gfoa-enhancements-revised.pdf", 12, "Public Participation and Decision Record"),
@@ -61,6 +65,20 @@ SOURCES += [(physical, SCRATCH / "departments-value-revised.pdf", physical - 67,
              "BEACH OPERATIONS OFFICE" if physical >= 100 else "DEPARTMENTS")
             for physical in range(70, 102)]
 
+# Shift the original edition's references for the added response page.
+SOURCES = [(physical + (physical >= 16), path, source, title) for physical, path, source, title in SOURCES]
+SOURCES.append((16, SCRATCH / "community-priorities-revised.pdf", 3, "FY 2027 Response"))
+SOURCES.append((69, SCRATCH / "departments-value-revised.pdf", 1, "Board DepartmentBudgets"))
+SOURCES.append((44, SCRATCH / "divider-budget-process.pdf", 1, "BudgetProcess"))
+SOURCES.append((5, SCRATCH / "page-order-toc.pdf", 1, "Introduction and Our County"))
+SOURCES.append((33, SCRATCH / "gfoa-enhancements-revised.pdf", 9, "Florida Amendment 3"))
+SOURCES.append((26, SCRATCH / "gfoa-enhancements-revised.pdf", 7, "How FY 2027 Resources Were Estimated"))
+SOURCES.append((19, SCRATCH / "visual-storytelling-revised.pdf", 1, "How the Budget Works"))
+SOURCES.append((46, SCRATCH / "budget-process-revised.pdf", 2, "Budget Process"))
+
+# Capital chapter cover inserted before the previous page 107 guide.
+SOURCES = [(physical + (physical >= 107), path, source, title) for physical, path, source, title in SOURCES]
+
 # Optional physical page numbers keep a focused update from reapplying
 # unrelated intermediate exports from earlier revisions.
 if len(sys.argv) > 1:
@@ -71,8 +89,8 @@ if len(sys.argv) > 1:
     SOURCES = [item for item in SOURCES if item[0] in requested_pages]
 
 original = PdfReader(BOOK)
-if len(original.pages) != 133:
-    raise RuntimeError("The existing book is not the expected 133-page edition")
+if len(original.pages) != 135:
+    raise RuntimeError("The existing book is not the expected 135-page edition")
 
 replacements = {}
 readers = {}
@@ -82,7 +100,7 @@ for physical_page, source_path, source_page, expected_title in SOURCES:
     source = readers[source_path]
     old_text = original.pages[physical_page - 1].extract_text() or ""
     new_text = source.pages[source_page - 1].extract_text() or ""
-    if expected_title not in old_text or expected_title not in new_text:
+    if expected_title not in " ".join(old_text.split()) or expected_title not in " ".join(new_text.split()):
         raise RuntimeError(f"Unexpected content at physical page {physical_page}")
     replacements[physical_page - 1] = source.pages[source_page - 1]
 
@@ -110,7 +128,8 @@ with temp.open("wb") as handle:
     writer.write(handle)
 
 checked = PdfReader(temp)
-if len(checked.pages) != 133 or len(checked.outline) != len(original.outline):
+if len(checked.pages) != 135 or len(checked.outline) != len(original.outline):
     raise RuntimeError("Updated book failed page-count or outline validation")
 temp.replace(BOOK)
+subprocess.run([sys.executable, str(ROOT / "scripts/finalize-budget-book-order.py"), "--renumber-only"], check=True)
 print(f"Updated {BOOK} ({len(replacements)} revised pages)")

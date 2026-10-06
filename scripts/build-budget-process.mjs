@@ -412,12 +412,12 @@ const page2 = `
 
 
     <div class="section-block">
-      <h2><span>Request Guidance</span>What Departments Were Asked to Provide</h2>
+      <h2><span>Request Guidance</span>What Board Departments Were Asked to Provide</h2>
       <p class="intro" style="margin:0 0 .12in;font-size:8.6pt;">Each department completed the same budget request form. Departments were also directed to keep services at their current level and to identify any area where spending could be reduced.</p>
       <div class="request-grid">
         ${REQUEST.map(([tag, title, desc, note]) => `<div class="request-card${note ? " note" : ""}"><span>${tag}</span><h3>${title}</h3><p>${desc}</p></div>`).join("")}
       </div>
-      <p class="intro" style="margin:.12in 0 0;font-size:8pt;line-height:1.35;">OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13&ndash;14. Public comments and budget effects are documented on page 44.</p>
+      <p class="intro" style="margin:.12in 0 0;font-size:8pt;line-height:1.35;">OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13&ndash;14. Public comments and budget effects are documented on page 48.</p>
     </div>
 
     <div class="section-block" style="margin-bottom:0;">

@@ -307,7 +307,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M.</p>
     </div>
 
     <div class="revenue-qr">

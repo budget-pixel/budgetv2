@@ -1,4 +1,6 @@
 import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
+const pageOrder = JSON.parse(readFileSync(new URL("./data/budget-book-page-order.json", import.meta.url), "utf8"));
 
 // Builds the FY 2027 Budget Book's Table of Contents as a three-page PDF.
 // Introduction and Our County, Financial Overview, Budget Process, and
@@ -21,12 +23,12 @@ const outPath = process.argv[2] || "/private/tmp/gfoa-final-toc.pdf";
 const sections = [
   { title: "Introduction and Our County", subtitle: "Walton County's budget message, organizational structure, strategic priorities, and community context.", items: [
     ["GFOA Distinguished Budget Presentation Award",2],["Transmittal Letter",3],
-    ["Overview of Walton County",9],["Organizational Structure",12],["Strategic Initiatives",13],["Community Priorities and Organizational Challenges",14]
+    ["Overview of Walton County",9],["Organizational Structure",12],["Strategic Initiatives",13],["Community Priorities",14]
   ]},
   { title: "Financial Overview", subtitle: "A one-page look at the whole budget, the year-over-year change by department and fund, how a resident's property tax dollar is allocated, and the countywide revenue, expenditure, fund, transfer, and debt ledgers behind it.", items: [
     ["Budget in Brief",17],["Consolidated Budget Ledger",18],["Budget Change Summary",20],["Revenue Portfolio",22],["Revenue Strategy",23],["Revenue Ledger",24],["Property Tax Allocation Ledger",28],["Florida Amendment 3 Risk",30],["Expenditure Ledger",31],["Fund Financial Ledger",34],["Interfund Transfer Ledger",36],["Debt Ledger",37],["Long-Term Outlook",38]
   ]},
-  { title: "Budget Process", subtitle: "How a department request becomes Walton County's FY 2027 final spending plan, and the key dates residents can follow before final adoption.", items: [
+  { title: "Budget Process", subtitle: "How budget requests became Walton County's FY 2027 final spending plan, including public workshops, hearings, and Board decisions.", items: [
     ["Budget Process",41],["Budget Process (continued)",42],["Budget Calendar",43],["Public Participation and Decision Record",44],["Financial Policies",45],["Summary of Financial Policies",46]
   ]},
   { title: "Constitutional Officer Budget", subtitle: "Function, elected leadership, revenue sources, staffing, and budget summary for independently elected offices and the Board.", items: [["Constitutional Officers Ledger",48,{overview:true}],["Walton County Sheriff's Office",49],["Board of County Commissioners",50],["Tax Collector",51],["Clerk of Courts & County Comptroller",52],["Property Appraiser",53],["Supervisor of Elections",54]] },
@@ -67,11 +69,28 @@ for (const section of sections) {
   if (section.items) section.items = section.items.map((item) => Array.isArray(item) ? [item[0], shiftedPage(item[1]), item[2]] : item);
   if (section.groups) section.groups = section.groups.map(([label, number, children]) => [label, number == null ? null : shiftedPage(number), children.map(([child, page]) => [child, shiftedPage(page)])]);
 }
+// Match the grouped department profile order in the assembled book.
+const departments = sections.find((section) => section.title === "Board Department Budgets");
+const departmentPage = (page) => pageOrder.departmentPageMap[String(page)] ?? page;
+departments.groups = departments.groups.map(([label, page, children]) =>
+  [label, page == null ? null : departmentPage(page), children.map(([name, number]) => [name, departmentPage(number)])]);
 const financialOverview = sections.find((s) => s.title === "Financial Overview");
 financialOverview.items.splice(1, 0, ["How the Budget Works", 18], ["How to Read the Financial Schedules", 19]);
 financialOverview.items.splice(financialOverview.items.findIndex(([label]) => label === "Long-Term Outlook"), 0, ["General Fund Reserve Position", 40]);
 const capitalBudget = sections.find((s) => s.title === "Capital Budget");
 capitalBudget.items.splice(1, 0, ["Capital Investment Map", 110], ["Capital Funding and Delivery Dashboard", 111]);
+// Organizational challenges and responses now occupy two pages.
+for (const section of sections) {
+  if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] + (item[1] >= 16 ? 1 : 0), item[2]] : item);
+  if (section.groups) section.groups = section.groups.map(([label, number, children]) => [label, number == null ? null : number + (number >= 16 ? 1 : 0), children.map(([label, page]) => [label, page + (page >= 16 ? 1 : 0)])]);
+}
+// Capital now opens with a photo chapter cover before its guide.
+for (const section of sections) {
+  if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] + (item[1] >= 107 ? 1 : 0), item[2]] : item);
+}
+capitalBudget.items.unshift(["Capital Budget Chapter Cover", 107]);
+const county = sections.find(s => s.title === "Introduction and Our County");
+county.items.push(["Organizational Challenges", 15], ["FY 2027 Response", 16]);
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.
 const firstPage = (g) => g[1] ?? Math.min(...g[2].map((c) => c[1]));

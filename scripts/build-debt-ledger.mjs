@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 
 const STATS = [
   ["$29.5M", "Total Debt Issued"],
-  ["$9.1M", "Remaining Debt Service"],
+  ["$9.2M", "Remaining Debt Service"],
   ["$2.58M", "FY 2027 Final Budget"],
   ["FY 2030", "Scheduled Payoff"]
 ];
@@ -23,12 +23,12 @@ const NOTES = [
 
 // [Year Ending Sept 30, Principal, Interest, Total]
 const SCHEDULE = [
-  ["2027", "$2,245,783", "$268,920", "$2,514,703"],
+  ["2027", "$2,313,077", "$268,920", "$2,581,997"],
   ["2028", "$2,310,881", "$196,943", "$2,507,824"],
   ["2029", "$2,399,115", "$123,671", "$2,522,786"],
   ["2030", "$1,571,648", "$47,343", "$1,618,991"]
 ];
-const SCHEDULE_TOTAL = ["Total", "$8,466,013", "$636,877", "$9,102,890"];
+const SCHEDULE_TOTAL = ["Total", "$8,594,721", "$636,877", "$9,231,598"];
 
 const row = (cells, cls) => `<div class="lrow${cls ? " " + cls : ""}"><div class="rlabel">${cells[0]}</div><div class="rnum">${cells[1]}</div><div class="rnum">${cells[2]}</div><div class="rnum">${cells[3]}</div></div>`;
 
@@ -178,12 +178,12 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Debt Ledger</h1>
-    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.1M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax and are scheduled to end in FY 2030.</p>
+    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.2M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax and are scheduled to end in FY 2030.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
     <h2>Debt Service Declines to Final Payoff</h2>
-    <div class="maturity">${SCHEDULE.map((r)=>{const total=Number(r[3].replace(/[$,]/g,''));return `<div class="maturity-col"><b>${r[3]}</b><div class="bar" style="height:${Math.round(total/2522786*86)}%"></div><span>${r[0]}</span>${r[0]==='2030'?'<small>FINAL PAYMENT</small>':''}</div>`}).join('')}</div>
+    <div class="maturity">${SCHEDULE.map((r)=>{const total=Number(r[3].replace(/[$,]/g,''));return `<div class="maturity-col"><b>${r[3]}</b><div class="bar" style="height:${Math.round(total/2581997*86)}%"></div><span>${r[0]}</span>${r[0]==='2030'?'<small>FINAL PAYMENT</small>':''}</div>`}).join('')}</div>
 
     <h2>Scheduled Principal and Interest &mdash; Capital Projects Fund</h2>
     <div class="ledger">

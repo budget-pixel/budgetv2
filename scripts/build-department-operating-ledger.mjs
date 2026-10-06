@@ -346,7 +346,7 @@ const sharedCss = `
   .ledger{ border-top:2px solid #d1be78; }
   .lrow{
     display:grid;
-    grid-template-columns:1fr .65in .65in .8in .8in .75in;
+    grid-template-columns:minmax(0,1fr) .48in .48in .48in .85in .85in .5in;
     gap:.07in;
     align-items:center;
     padding:.05in 0;
@@ -449,11 +449,12 @@ const sharedCss = `
   .dept-note b{ color:#003f28; }
 `;
 
+const fteChange = value => (value > 0 ? "+" : "") + fte(value);
 function summaryRowHtml(r) {
   const [name, fy26, fy27] = r;
   const delta = fy27 - fy26;
   const isDown = delta < 0;
-  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${fte(r[3])}</div><div class="rnum">${fte(r[4])}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div></div>`;
+  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${fte(r[3])}</div><div class="rnum">${fte(r[4])}</div><div class="rnum">${fteChange(r[4] - r[3])}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div></div>`;
 }
 
 function deptCardHtml(d) {
@@ -498,16 +499,16 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Departments</small>
     <h1>Department Operating Ledger</h1>
-    <p class="intro">Walton County's 15 Board department rollups budget a combined $135.8M and employ 667 FTE for FY 2027. This total matches the Board Department Operating &amp; Personnel Budgets on page 23. The office and program profiles that follow show funded capital items on the responsible department page; those profile totals therefore include capital and should not be added again to the countywide Capital Budget.</p>
+    <p class="intro">Walton County's 15 Board department rollups budget a combined $135.8M and employ 667 FTE for FY 2027. The office and program profiles that follow show funded capital items on the responsible department page; those profile totals therefore include capital and should not be added again to the countywide Capital Budget.</p>
     <div class="stat-strip">${OVERVIEW_STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Department Summary</h2>
     <div class="ledger">
-      <div class="lrow head"><div class="rlabel">Department</div><div class="rnum">FY26 FTE</div><div class="rnum">FY27 FTE</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div></div>
+      <div class="lrow head"><div class="rlabel">Department</div><div class="rnum">FY26 FTE</div><div class="rnum">FY27 FTE</div><div class="rnum">FTE +/&minus;</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div></div>
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
-      <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
+      <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${fteChange(SUMMARY_TOTAL[4] - SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
     </div>
-    <p class="dept-note"><b>How to read the two views:</b> This table is the County's 15-department accounting rollup. The pages that follow expand those rollups into 32 offices and programs. Each profile total reconciles to the categories printed on that page: Personnel + Contractual + Operating + Indirect, when applicable + Capital.</p>
+    <p class="footnote"><b>Department budgets:</b> The table summarizes operating and personnel budgets for 15 Board departments. The following pages show the related offices and programs, including their capital requests.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
@@ -524,7 +525,8 @@ pageCounter++;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Department Operating Ledger</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}  .footnote{margin:.14in 0 0;color:#68786f;font-size:7.1pt;line-height:1.4;font-style:italic;}
+</style></head>
 <body>${overviewPage}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-dept-operating-ledger.pdf";

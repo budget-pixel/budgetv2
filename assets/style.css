@@ -1987,7 +1987,7 @@ a.wc-ledger-card-button:focus-visible{
 
 /* department-services.js's render() moves this into the
    .wc-dept-supporting-media rail beside the Statement of Function once its
-   (async, Google-Sheets-dependent) data finishes loading -- same
+   (async, publication-data-dependent) data finishes loading -- same
    original-position flash this hides for the Recreation parks section
    above. Only hidden while still a direct child of its original wrapper;
    the selector no longer matches once JS re-parents it into the rail, so
@@ -2043,7 +2043,7 @@ a.wc-ledger-card-button:focus-visible{
 
 /* department-services.js's render() moves these into the
    .wc-dept-supporting-media rail beside the Statement of Function once its
-   (async, Google-Sheets-dependent) data finishes loading -- until then they
+   (async, publication-data-dependent) data finishes loading -- until then they
    sit in their original, un-styled-for-that-slot position as a direct
    child of main#content, which is what was visibly flashing full-width in
    the page center before jumping into the narrower rail. Hidden here only
@@ -3079,14 +3079,11 @@ main#content > .recreation-parks-section {
 }
 .wc-budget-detail-heading { min-width: 0; flex: 1 1 auto; }
 .wc-budget-detail-heading h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.wc-budget-detail-header .wc-nav-search-bar-wrap {
-  width: min(600px, 48vw) !important;
-  flex: 0 0 min(600px, 48vw) !important;
-}
-.wc-budget-detail-header .wc-nav-search-bar-form { padding: 3px 4px 3px 13px !important; box-shadow: none !important; }
-.wc-budget-detail-header .wc-nav-search-bar-form svg { width: 19px !important; height: 19px !important; }
-.wc-budget-detail-header .wc-nav-search-bar-form input { padding: 7px 9px !important; font-size: .8rem !important; }
-.wc-budget-detail-header .wc-nav-search-bar-form button { padding: 9px 17px !important; font-size: .7rem !important; font-weight: 850 !important; text-transform: none !important; }
+
+
+
+
+
 .wc-budget-detail-kicker {
   margin: 0 0 6px;
   color: #003f28;
@@ -4802,11 +4799,7 @@ html.wc-embedded-utility .wc-budget-process-back { display: none !important; }
   }
   .wc-budget-detail-heading { order: 1; }
   .wc-budget-detail-close { order: 2; }
-  .wc-budget-detail-header .wc-nav-search-bar-wrap {
-    order: 3;
-    width: 100% !important;
-    flex: 1 0 100% !important;
-  }
+
   .wc-budget-detail-body {
     max-height: calc(82vh - 82px);
     padding: 16px 18px 18px;

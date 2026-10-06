@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261004-static-final";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261006-tourism-performance";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -4296,15 +4296,11 @@
             '<p class="wc-budget-detail-kicker">Budget Detail</p>' +
             '<h2 id="wc-budget-detail-title">Budget Lines</h2>' +
           '</div>' +
-          '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcBudgetDetailSearch">Search the Walton County budget</label><input id="wcBudgetDetailSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcBudgetDetailSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcBudgetDetailSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
           '<button type="button" class="wc-budget-detail-close" data-budget-detail-close aria-label="Close budget detail">&times;</button>' +
         '</div>' +
         '<div class="wc-budget-detail-body"></div>' +
       '</section>';
     document.body.appendChild(modal);
-    if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
-      window.WCBudgetNav.initNavSearchBar(modal.querySelector(".wc-nav-search-bar-wrap"));
-    }
     modal.addEventListener("click", (event) => {
       if (event.target.closest("[data-budget-detail-close]")) {
         closeBudgetDetailModal();
@@ -17849,14 +17845,14 @@
   // and dropped from the schedule/totals below, so "remaining" reflects
   // the balance outstanding as of the start of FY2027.
   const DEBT_OVERVIEW_TOTALS = {
-    principal: 8466013,
+    principal: 8594721,
     interest: 636877,
-    totalDebtService: 9102890,
+    totalDebtService: 9231598,
     // FY 2027's own debt service (see pages/debt-overview.html's own Debt
     // Ledger -- Capital Project Fund table's 2027 row) -- the Budget
     // Ledgers directory's Debt Ledger callout shows just this year, not the
     // full remaining balance through final maturity above.
-    principalFY2027: 2245783,
+    principalFY2027: 2313077,
     interestFY2027: 268920,
     finalMaturityYear: 2030,
     creditRating: "Aa1",
@@ -17929,6 +17925,9 @@
       (rows || []).forEach((row) => {
         const org = String(row.Dept_Code || "").trim();
         const object = String(row[objectField] || "").trim();
+        // Publication-only reconciliation entries have no G/L account.
+        // Keep them in site totals, but never send them to the import file.
+        if (objectField === "Object_Code" && object === "999997") return;
         if (!org && !object) return;
         // A few revenue rows carry the project number in the Project Name
         // column with Project Code left empty; a purely numeric name is
@@ -17946,7 +17945,7 @@
       });
       return Array.from(totals.values())
         .map((entry) => Object.assign(entry, { amount: Math.round(entry.amount * 100) / 100 }))
-        .filter((entry) => entry.amount !== 0)
+        .filter((entry) => source.includeZeroAccounts || entry.amount !== 0)
         .sort((a, b) => (a.org < b.org ? -1 : a.org > b.org ? 1 : a.object < b.object ? -1 : a.object > b.object ? 1 : a.project < b.project ? -1 : a.project > b.project ? 1 : 0))
         .map((entry) => [entry.org, entry.object, entry.project || " ", "", "", "", "", entry.amount.toFixed(2)].join("|"));
     }
@@ -17955,8 +17954,13 @@
   }
 
   function downloadBudgetImportCsv() {
-    return loadBudgetData().then((data) => {
-      const csv = buildBudgetImportCsv(data);
+    // Account-level import captured directly from the published sheet;
+    // display data merges accounts and applies publication adjustments.
+    return fetch(assetBaseUrl + "static-data/budget-import-fy2027.csv?v=20261005-sheet-refresh", { cache: "default" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Budget import file could not be loaded.");
+        return response.text();
+      }).then((csv) => {
       if (!csv) throw new Error("No budget rows are available to export.");
       const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
       const link = document.createElement("a");

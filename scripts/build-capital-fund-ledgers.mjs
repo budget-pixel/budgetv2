@@ -333,7 +333,7 @@ const machineryPage3 = `
       ${itemTable(TOURISM_ADMIN_ITEMS, "Tourism Administration &mdash; $50,000")}
       ${itemTable(BEACH_TRAM_ITEMS, "Beach Tram &mdash; $507,000")}
       ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
-      <p class="note"><b>Truck Wash System:</b> $200,000 is a new Beach Operations equipment appropriation funded by Tourist Development Taxes, not an annual operating charge. The item schedule does not quantify utilization, ongoing costs, or savings; an operating justification requires department confirmation. No savings estimate is included here.</p>
+      <p class="note"><b>Truck Wash System:</b> The budget includes $200,000 for new Beach Operations equipment funded by Tourist Development Taxes. Operating costs and expected savings have not been estimated.</p>
     </div>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE3}}"}</b></footer>
   </section>

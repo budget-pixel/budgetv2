@@ -55,13 +55,13 @@ function photoDataUrl(filename) {
 // implying a funding gap, each office's revenue line notes this plainly.
 
 const STATS = [
-  ["$149.1M", "Total FY 2027 Budget"],
+  ["$149.0M", "Total FY 2027 Budget"],
   ["+$1.7M", "Net Change from FY 2026"],
   ["+1.2%", "Net Percent Change"],
   ["847", "Total FTE, 6 Offices"]
 ];
 const SPLIT = [
-  ["Personnel", "$104.14M", "69.9%"],
+  ["Personnel", "$104.10M", "69.9%"],
   ["Operating", "$33.30M", "22.3%"],
   ["Capital & Other", "$11.64M", "7.8%"]
 ];
@@ -69,13 +69,13 @@ const SPLIT = [
 // [office, fte, fy26, fy27, personnel, operating, capitalOther]
 const SUMMARY_ROWS = [
   ["Walton County Sheriff's Office", 669, 114116228, 114116228, 83607042, 21348864, 9160322],
-  ["Board of County Commissioners*", 11, 12889938, 12972780, 2791180, 8071600, 2110000],
+  ["Board of County Commissioners", 11, 12889938, 12935889, 2754289, 8071600, 2110000],
   ["Tax Collector", 40, 7900000, 8500000, 7512920, 987080, 0],
   ["Clerk of Courts & County Comptroller", 80, 5984728, 6871175, 4905230, 1845945, 120000],
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
   ["Supervisor of Elections", 10, 1615107, 1663865, 1198763, 348682, 116420]
 ];
-const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 149078386, 104138719, 33299553, 11640114];
+const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 149041495, 104101828, 33299553, 11640114];
 
 const OFFICES = [
   {
@@ -97,8 +97,8 @@ const OFFICES = [
       ["District 4", "Donna Johns", "commissioner-donna-johns.jpeg"],
       ["District 5", "Tony Anderson", "commissioner-tony-anderson.jpeg"]
     ],
-    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12972780,
-    personnel: 2791180, contractual: 2473100, operating: 5598500, capital: 2110000,
+    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12935889,
+    personnel: 2754289, contractual: 2473100, operating: 5598500, capital: 2110000,
     sof: "The Board of County Commissioners (BCC) is the legislative and policy-making body of County government. Representatives from five Walton County districts are elected countywide and serve four-year terms. The BCC establishes policies through ordinances and resolutions, appoints the County Administrator, Chief Financial Officer, and County Attorney, and adopts the budget, making all decisions on appropriating funds to County departments, divisions, and Constitutional offices, in accordance with Florida State statutes.",
     revenue: "General Government Taxes $4.7M &middot; Miscellaneous Revenue $4.3M &middot; Intergovernmental Revenues $2.4M &middot; Permits, Fees &amp; Special Assessments $1.5M",
     contracts: [
@@ -208,18 +208,18 @@ function whoPaysFor(o) {
       ["Other assigned revenue", 140700, "Office rent, animal-control fines, prior-year refunds, and miscellaneous revenue."]
     ],
     "Tax Collector": [
-      ["Taxing authorities and transaction customers", null, "Statutory commissions and fees are earned while collecting taxes and providing vehicle, vessel, license, and related services."],
-      ["County property-tax allocation", 4449400, "The County-funded share shown in the Property Tax Allocation schedule."]
+      ["County property-tax allocation", 4449400, "The County-funded share shown in the Property Tax Allocation schedule."],
+      ["Fees for services", null, "The office also receives statutory commissions and fees for tax collection, vehicle, vessel, license, and related services."]
     ],
     "Clerk of Courts & County Comptroller": [
-      ...splitPropertyTax(6871175, "County property taxes support Clerk-to-the-Board, finance, records, technology, and comptroller functions."),
-      ["Court and records users", null, "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
+      ["County property-tax allocation", 6871175, "County property taxes support Clerk-to-the-Board, finance, records, technology, and comptroller functions."],
+      ["Fees for services", null, "The office also receives fees for court, recording, and other services."]
     ],
     "Property Appraiser": [
-      ...splitPropertyTax(4954338, "The County property-tax allocation supports the State-approved property appraisal budget."),
+      ["County property-tax allocation", 4954338, "The County property-tax allocation supports the State-approved property appraisal budget."],
       ["County taxpayers", null, "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
     ],
-    "Supervisor of Elections": splitPropertyTax(1663865, "County property taxes fund voter registration, election administration, equipment, ballots, and polling-place operations.")
+    "Supervisor of Elections": [["County property-tax allocation", 1663865, "County property taxes fund voter registration, election administration, equipment, ballots, and polling-place operations."]]
   };
   return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
 }
@@ -293,7 +293,7 @@ const sharedCss = `
   .rnum{ text-align:right; color:#33453c; font-size:7.3pt; font-variant-numeric:tabular-nums; }
   .lrow.grand{ margin-top:.04in; border-top:1.5px solid #003f28; border-bottom:0; padding:.07in 0; }
   .lrow.grand .rlabel, .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:7.8pt; }
-  p.footnote{ margin:.12in 0 0; color:#68786f; font-size:7pt; line-height:1.4; font-style:italic; }
+  p.footnote{ margin:.12in 0 0; color:#68786f; font-size:7.1pt; line-height:1.4; font-style:italic; }
   footer{
     position:absolute;
     left:.62in;
@@ -424,10 +424,10 @@ async function buildOfficerPage(o, pageNumber) {
   const workforcePositionNote = o.fteDelta && (o.newPositions?.length || o.workforcePositionNote)
     ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote}</p>`
     : "";
-  // Rows without a dollar amount are omitted rather than printed unquantified.
-  const payerRows = whoPaysFor(o).filter(([, amount]) => amount);
+  // Service-fee descriptions are shown without amounts for the Clerk and Tax Collector.
+  const payerRows = whoPaysFor(o).filter(([label, amount]) => amount || label === "Fees for services");
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|31,491 occupied/.test(detail));
-  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + (o.name === "Board of County Commissioners" ? `<p class="funding-total">Total assigned revenue: ${money(payerRows.reduce((sum, [, amount]) => sum + amount, 0))}</p>` : "") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
+  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount == null ? "" : `<span class="payer-amt">${money(amount)}</span>`}</div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + (o.name === "Board of County Commissioners" ? `<p class="funding-total">Total assigned revenue: ${money(payerRows.reduce((sum, [, amount]) => sum + amount, 0))}</p>` : "") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
   const methodNotes = [
     usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial real-property just-value shares. These are not individual tax bills." : "",
   ].filter(Boolean).join(" ");
@@ -449,7 +449,7 @@ async function buildOfficerPage(o, pageNumber) {
     : `<p class="fte-empty">No new positions requested for FY 2027.</p>`;
 
   const hasBreakouts = (o.contracts && o.contracts.length) || (o.capitalItems && o.capitalItems.length);
-  const MAX_ROWS = 6;
+  const MAX_ROWS = o.name === "Board of County Commissioners" ? o.contracts.length : 6;
   let conHtml = "";
   if (o.contracts && o.contracts.length) {
     const sorted = [...o.contracts].sort((a, b) => b.amount - a.amount);
@@ -495,7 +495,7 @@ async function buildOfficerPage(o, pageNumber) {
         <div class="budget-mix" aria-label="Budget composition">${mixSegments}</div>
         <div class="side-split">
           <div class="personnel"><span>Personnel</span><b>${money(o.personnel)}</b></div>
-          ${o.name === "Board of County Commissioners" ? '<p class="personnel-scope">Board personnel: $2,754,289.<br>Court Innovation: $36,891, assigned to Circuit Court in the Personnel Ledger.</p>' : ""}
+          
           ${o.contractual ? `<div class="contractual"><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
           <div class="operating"><span>Operating</span><b>${money(o.operating)}</b></div>
           <div class="capital"><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
@@ -514,7 +514,7 @@ async function buildOfficerPage(o, pageNumber) {
       <div class="parrow">&rarr;</div>
       <div class="pnum"><b>${o.fte}</b><span>Final FTE</span></div>
     </div>
-    ${o.footnote ? `<p class="footnote">*${o.footnote}</p>` : ""}
+    ${o.footnote ? `<p class="footnote"><b>${o.name}:</b> ${o.footnote}</p>` : ""}
     <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>`;
 }
@@ -532,7 +532,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
     <h1>Constitutional Officers and Board Office Ledger</h1>
-    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $149.1M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
+    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $149.0M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Office Summary</h2>
@@ -541,7 +541,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <p class="footnote">* Full Board office total: $12,972,780, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,267,780 before capital; the Expenditure Ledger shows $12,572,780 before contingency. Board personnel includes $36,891 booked to Court Innovation; the Personnel Ledger assigns that amount to Circuit Court and shows $2,754,289 for the Board.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board office total includes $1,705,000 in capital and $400,000 in contingency, which are shown separately in the Budget Change Summary and Expenditure Ledger.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

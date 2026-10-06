@@ -1,63 +1,45 @@
-/* Walton County FY 2027 Budget — Census narrative renderer.
-   Loads pre-computed Census Bureau figures from assets/census-data.json
-   (produced offline by scripts/fetch-census-data.js via a scheduled GitHub
-   Action — see .github/workflows/update-census-data.yml) and the Census
-   Narratives static publication dataset, then fills the sheet's {{placeholder}} templates
-   with those figures. The Census API is never called from the browser. */
+/* Walton County census publication: saved local figures and narratives.
+   Updated only by an explicit publication edit; no live Census embeds. */
 (function () {
   "use strict";
 
   const CENSUS_DATA_JSON_URL = "../assets/census-data.json";
   const CENSUS_NARRATIVES_CSV_URL =
     "../assets/static-data/census-narratives.csv?v=20261004-static-final";
-  // data.census.gov vizwidget geography code for Walton County, FL.
-  const CENSUS_IFRAME_GEOGRAPHY = "050XX00US12131";
 
   // One block per row in the Census narrative publication. Each block pairs the
-  // relevant data.census.gov visualization(s) with that row's narrative.
+  // saved census figures with that row's narrative.
   // `fallback` is shown verbatim (no placeholder substitution) if either
   // census-data.json or the narrative sheet fails to load.
   const CENSUS_TOPIC_SECTIONS = [
     {
       sheetTitle: "population",
       title: "Age and Sex",
-      iframes: [{ topic: "Age and Sex", height: 600 }],
       fallback: "Walton County has experienced significant population growth over the past decade, driven largely by new residents relocating from other parts of the United States. The county's age profile reflects its appeal as a retirement and vacation destination, with a median age that trends somewhat older than the state of Florida as a whole."
     },
     {
       sheetTitle: "Income",
       title: "Income and Earnings",
-      iframes: [{ topic: "Income and Earnings", height: 300 }],
       fallback: "Household income in Walton County varies by household type, with married-couple families typically reporting higher earnings than the county's overall median. Compared to the rest of Florida and neighboring Okaloosa County, Walton County's household income figures reflect its mix of year-round residents and a strong tourism-driven local economy."
     },
     {
       sheetTitle: "Education",
       title: "Educational Attainment & School Enrollment",
-      iframes: [
-        { topic: "Educational Attainment", height: 350 },
-        { topic: "School Enrollment", height: 300 }
-      ],
       fallback: "A majority of Walton County residents age 25 and older have completed high school, with a meaningful share holding an associate, bachelor's, or graduate degree. School enrollment spans kindergarten through graduate study, reflecting the county's range of educational institutions and programs."
     },
     {
       sheetTitle: "Employment",
       title: "Class of Worker",
-      iframes: [{ topic: "Class of Worker", height: 350 }],
       fallback: "Most working residents of Walton County are employed by private companies, with smaller shares self-employed, working for nonprofit organizations, or employed by local, state, or federal government. This employment mix is broadly similar to patterns seen statewide and in neighboring Okaloosa County."
     },
     {
       sheetTitle: "Housing",
       title: "Housing",
-      iframes: [
-        { topic: "Homeownership Rate", height: 500 },
-        { topic: "Housing Units", height: 200 }
-      ],
       fallback: "Walton County's housing stock spans a wide range of values, from entry-level homes to higher-end coastal properties. The county's homeownership rate and housing inventory reflect both its year-round resident population and its role as a popular vacation and second-home destination."
     },
     {
       sheetTitle: "Business and Economy",
       title: "Industry",
-      iframes: [{ topic: "Industry", height: 700 }],
       fallback: "Walton County's economy is supported by a diverse mix of industries, including professional services, health care and education, retail, hospitality, and construction. This diversity helps the local economy remain resilient across different sectors and seasons."
     }
   ];
@@ -229,14 +211,23 @@
     return result;
   }
 
-  function renderIframeCards(iframes) {
-    return iframes.map((f) =>
-      '<div class="wc-census-iframe-card">' +
-      '<p class="wc-census-iframe-label">' + escapeHtml(f.topic) + "</p>" +
-      '<iframe src="https://data.census.gov/vizwidget?g=' + CENSUS_IFRAME_GEOGRAPHY +
-      "&infoSection=" + encodeURIComponent(f.topic) + '" height="' + f.height + '" title="' + escapeHtml(f.topic) + '"></iframe>' +
-      "</div>"
-    ).join("");
+  const CENSUS_SUMMARY_FIELDS = {
+    population: [["2010 population", "population2010"], ["2020 population", "population2020"], ["Median age", "waltonMedianAge"], ["Population growth", "populationGrowthPct", "%"]],
+    Income: [["Median household income", "waltonMedianHouseholdIncome"], ["Family income", "waltonFamilyIncome"], ["Nonfamily income", "waltonNonfamilyIncome"]],
+    Education: [["Bachelor's degree or higher", "waltonBachelorOrHigherPct", "%"], ["Associate degree", "waltonAssociatePct", "%"], ["Some college", "waltonSomeCollegePct", "%"]],
+    Employment: [["Private workers", "privateWorkerPct", "%"], ["Government workers", "governmentWorkerPct", "%"], ["Nonprofit workers", "nonprofitWorkerPct", "%"]],
+    Housing: [["Housing units", "housingUnits"], ["Occupied units", "occupiedUnits"], ["Vacant units", "vacantUnits"], ["Homeownership rate", "homeownershipRate", "%"], ["Median rent", "waltonMedianRent"]],
+    "Business and Economy": [["Professional services", "professionalServicesPct", "%"], ["Hospitality", "hospitalityPct", "%"], ["Health and education", "healthEducationPct", "%"], ["Construction", "constructionPct", "%"], ["Retail", "retailPct", "%"]]
+  };
+
+  function renderSavedCensusSummary(section, values) {
+    const fields = CENSUS_SUMMARY_FIELDS[section.sheetTitle] || [];
+    return '<div class="wc-census-viz-card"><h3>' + escapeHtml(section.title) + '</h3><dl>' + fields.map(([label, key, suffix]) => {
+      const value = values[key];
+      return '<dt>' + escapeHtml(label) + '</dt><dd><strong>' +
+        (value === undefined || value === null ? 'Data unavailable' : escapeHtml(String(value) + (suffix || ''))) +
+        '</strong></dd>';
+    }).join('') + '</dl></div>';
   }
 
   function renderCensusSections(container, sections, narrativeRows, censusValues, metadata, dataLoadFailed) {
@@ -256,7 +247,7 @@
         : '<p class="wc-census-source"><em>Source: U.S. Census Bureau, ACS 5-Year Estimates. Data current as of ' + escapeHtml(lastUpdatedLabel) + ".</em></p>";
 
       const vizCardHtml =
-        '<div class="wc-census-viz-card wc-census-card-stack">' + renderIframeCards(section.iframes) + "</div>";
+        renderSavedCensusSummary(section, censusValues);
       const narrativeCardHtml =
         '<div class="wc-census-narrative-card">' +
         "<h2>" + escapeHtml(section.title) + "</h2>" +

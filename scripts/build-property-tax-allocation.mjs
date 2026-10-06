@@ -59,8 +59,7 @@ const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$7,872,351", "5.20%"];
 const STATUTORY_RECIPIENTS = [
   "Medicaid Services", "Health Care Response (HCRA)",
   "DeFuniak Community Redevelopment Agency", "Liberty Volunteer Fire Department",
-  "Argyle Volunteer Fire Department", "Opioid Settlement Year 4",
-  "15% Opioid Settlement Year 4", "Economic Development Alliance",
+  "Argyle Volunteer Fire Department", "Economic Development Alliance",
   "Gulf Coast Kid's House", "DeFuniak Springs Interlocal (Life Enrichment Center)",
   "Indigent Cremation Program", "Lakeview Center (Women & Children)",
   "Lakeview Center (Mental Health)", "Lakeview Center (Baker Act)"

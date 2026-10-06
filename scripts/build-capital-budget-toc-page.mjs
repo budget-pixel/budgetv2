@@ -2,24 +2,20 @@ import { chromium } from "playwright";
 
 // Guide/TOC page for the new "Capital Budget" chapter -- the Capital
 // Improvement Plan and its six supporting fund ledgers, pulled out of
-// the Financial Plan chapter into their own top-level section. Also
-// carries the trailing Glossary/Back Cover pointers, since Capital
-// Budget is now the last operating chapter before reference material.
+// the Financial Plan chapter into their own top-level section.
+// Lists only Capital content in its final physical page order.
 
 const ITEMS = [
-  ["Capital Improvement Plan", 93],
-  ["Machinery, Vehicles, and Equipment Ledger", 96],
-  { category: "Transportation and Infrastructure Projects" },
-  ["Transportation and Infrastructure Capital Ledger", 98, true],
-  ["Tourist Development Fund Capital Ledger", 100],
-  { category: "Sheriff Projects" },
-  ["Sheriff Capital Project Ledger", 101, true],
-  ["Recreation Plat Fee Fund Capital Ledger", 102],
-  ["Sidewalk Fund Capital Ledger", 103]
-];
-const TRAILING = [
-  ["Glossary, Acronyms, and Frequently Asked Questions", 104],
-  ["Back Cover", 113]
+  ["Capital Improvement Plan", 109],
+  ["Capital Investment Map", 112],
+  ["Capital Funding and Delivery Dashboard", 113],
+  { category: "Fund-Specific Capital Ledgers" },
+  ["Transportation and Infrastructure Capital Ledger", 114],
+  ["Tourist Development Fund Capital Ledger", 116],
+  ["Sheriff Capital Project Ledger", 117],
+  ["Recreation Plat Fee Fund Capital Ledger", 118],
+  ["Sidewalk Fund Capital Ledger", 119],
+  ["Machinery, Vehicles, and Equipment Ledger", 120]
 ];
 
 const css = `
@@ -53,10 +49,7 @@ const html = `<!doctype html>
     ${ITEMS.map((item) => item.category
       ? `<div class="category">${item.category}</div>`
       : `<div class="row${item[2] ? " is-subitem" : ""}"><span>${item[0]}</span><b>${item[1]}</b></div>`).join("")}
-    <div class="trailing">
-      ${TRAILING.map(([label, num]) => `<div class="row"><span>${label}</span><b>${num}</b></div>`).join("")}
-    </div>
-    <footer><span>FY 2027 Final Budget</span><b>10</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>108</b></footer>
   </section>
 </body></html>`;
 

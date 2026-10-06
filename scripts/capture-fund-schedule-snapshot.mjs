@@ -19,7 +19,7 @@ try {
       }));
       return { name, headers, rows };
     });
-    return { capturedAt: new Date().toISOString(), source: "pages/fund-financial-schedules.html; published Google Sheet budgets and opening balances; public historical actuals", schedules };
+    return { capturedAt: new Date().toISOString(), source: "pages/fund-financial-schedules.html; saved publication budgets and opening balances; public historical actuals", schedules };
   });
   assert.equal(snapshot.schedules.length, 16);
   const consolidated = snapshot.schedules[0];

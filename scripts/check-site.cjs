@@ -16,6 +16,23 @@ collect(path.join(root, 'assets'));
 collect(path.join(root, 'pages'));
 let scripts = 0, pages = 0;
 const failures = [];
+// Only CIP may use an external spreadsheet connection. Publication and import downloads stay local.
+const cipFile = path.join(root, 'assets/cip-projects-data.js');
+for (const file of files) {
+  const source = fs.readFileSync(file, 'utf8');
+  if (/https?:\/\/(?:api\.census\.gov|data\.census\.gov\/vizwidget)/i.test(source)) {
+    failures.push(path.relative(root, file) + ': live Census data connection in frozen publication');
+  }
+  const sheetUrls = [...source.matchAll(/https?:\/\/(?:docs|sheets)\.google\.com\/spreadsheets[^\s"'<>]*/g)];
+  for (const match of sheetUrls) {
+    if (file !== cipFile || new URL(match[0]).searchParams.get('gid') !== '1388930304') {
+      failures.push(path.relative(root, file) + ': External spreadsheet connection outside CIP');
+    }
+  }
+}
+for (const localFile of ['assets/static-data/budget.json', 'assets/static-data/budget-import-fy2027.csv']) {
+  if (!fs.existsSync(path.join(root, localFile))) failures.push('Missing static publication file: ' + localFile);
+}
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   try {

@@ -94,7 +94,7 @@ const sharedCss = `
   }
   .area-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:.14in; margin:.1in 0 .12in; }
   .area-card{ position:relative; min-height:1.3in; padding:.16in .15in .14in .46in; border:1px solid #e4ebe7; border-radius:10px; background:#fbfcfa; }
-  .area-card .num{ position:absolute; left:.08in; top:.09in; display:grid; place-items:center; width:.21in; height:.21in; border-radius:50%; background:#003f28; color:#e7c95f; font:800 7pt Georgia,serif; }
+  .area-card .num{ position:absolute; left:.08in; top:.09in; display:flex; align-items:center; justify-content:center; width:.21in; height:.21in; padding:0; margin:0; border-radius:50%; background:#003f28; color:#e7c95f; font:700 8pt/1 Arial,sans-serif; text-align:center; letter-spacing:0; }
   .area-card b{ display:block; color:#003f28; font:800 9.2pt Georgia, serif; margin-bottom:.05in; }
   .area-card p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.4; }
   .challenge-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.12in; margin:.08in 0 .14in; }
@@ -178,7 +178,7 @@ const page2 = `
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
-    <h1>Organizational Challenges and FY 2027 Response</h1>
+    <h1>Organizational Challenges</h1>
     <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. The FY 2027 plan connects these pressures to specific actions, funding sources, expected results, and review dates.</p>
 
     <div class="context-grid">
@@ -196,25 +196,50 @@ const page2 = `
       <div class="challenge-card org"><small>Organizational challenge</small><b>Emergency readiness and financial flexibility</b><p>The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and distinguishes audited unassigned balance from the FY 2027 projected total.</p></div>
     </div>
 
-    <h2>FY 2027 Challenge-to-Result Plan</h2>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
+  </section>
+`;
+
+const page3 = `
+  <section class="response-page">
+    <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+    <small class="kicker">Our County</small>
+    <h1>FY 2027 Response</h1>
+    <p class="intro">The FY 2027 budget addresses the challenges on the preceding page through funded actions, service targets, and regular review.</p>
     <div class="conn-table">
-      <div class="crow head"><div>Challenge</div><div>FY 2027 response</div><div>Budget commitment</div><div>Expected FY 2027 result</div><div>Review date</div></div>
-      <div class="crow"><div class="carea">Infrastructure demand<span class="effect">Mitigate / renew capacity</span></div><div class="cresp">Fund the FY 2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money">$43.8M funded capital</div><div class="result">Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when">Project milestones and year-end measures</div></div>
-      <div class="crow"><div class="carea">Seasonal coastal demand<span class="effect">Mitigate / expand capacity</span></div><div class="cresp">Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.</div><div class="money">+13 Beach Operations FTE</div><div class="result">Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.</div><div class="when">Peak-season monitoring and FY 2027 year end</div></div>
-      <div class="crow"><div class="carea">Housing access<span class="effect">Mitigate / maintain access</span></div><div class="cresp">Continue HUD rental-assistance and Housing Choice Voucher administration.</div><div class="money">$3.1M program budget</div><div class="result">Serve about 300 families and achieve 75% utilization of available housing vouchers.</div><div class="when">Program reporting throughout FY 2027</div></div>
-      <div class="crow"><div class="carea">Capacity and continuity<span class="effect">Maintain / targeted adjustment</span></div><div class="cresp">Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money">+15 net countywide FTE</div><div class="result">No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when">Budget monitoring and annual personnel review</div></div>
-      <div class="crow"><div class="carea">Fiscal uncertainty<span class="effect">Monitor / preserve flexibility</span></div><div class="cresp">Assume no specific Amendment 3 reduction, protect reserves, limit new recurring commitments, and update forecasts as facts change.</div><div class="money">$58.4M FY 2025 unassigned; $31.0M two-month audited-base reference</div><div class="result">Track unassigned and unrestricted balances separately from total projected balance and report material impacts.</div><div class="when">FY 2027 monitoring and FY 2028 forecast update</div></div>
+      <div class="crow"><div class="carea">Infrastructure demand<span class="effect">Mitigate / renew capacity</span></div><div class="cresp"><strong>Action</strong>Fund the FY 2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money"><strong>Budget commitment</strong>$43.8M funded capital</div><div class="result"><strong>Expected result</strong>Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when"><strong>Review</strong>Project milestones and year-end measures</div></div>
+      <div class="crow"><div class="carea">Seasonal coastal demand<span class="effect">Mitigate / expand capacity</span></div><div class="cresp"><strong>Action</strong>Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.</div><div class="money"><strong>Budget commitment</strong>+13 Beach Operations FTE</div><div class="result"><strong>Expected result</strong>Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.</div><div class="when"><strong>Review</strong>Peak-season monitoring and FY 2027 year end</div></div>
+      <div class="crow"><div class="carea">Housing access<span class="effect">Mitigate / maintain access</span></div><div class="cresp"><strong>Action</strong>Continue HUD rental-assistance and Housing Choice Voucher administration.</div><div class="money"><strong>Budget commitment</strong>$3.1M program budget</div><div class="result"><strong>Expected result</strong>Serve about 300 families and achieve 75% utilization of available housing vouchers.</div><div class="when"><strong>Review</strong>Program reporting throughout FY 2027</div></div>
+      <div class="crow"><div class="carea">Capacity and continuity<span class="effect">Maintain / targeted adjustment</span></div><div class="cresp"><strong>Action</strong>Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money"><strong>Budget commitment</strong>+15 net countywide FTE</div><div class="result"><strong>Expected result</strong>No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when"><strong>Review</strong>Budget monitoring and annual personnel review</div></div>
+      <div class="crow"><div class="carea">Fiscal uncertainty<span class="effect">Monitor / preserve flexibility</span></div><div class="cresp"><strong>Action</strong>Assume no specific Amendment 3 reduction, protect reserves, limit new recurring commitments, and update forecasts as facts change.</div><div class="money"><strong>Budget commitment</strong>$58.4M FY 2025 unassigned; $31.0M two-month audited-base reference</div><div class="result"><strong>Expected result</strong>Track unassigned and unrestricted balances separately from total projected balance and report material impacts.</div><div class="when"><strong>Review</strong>FY 2027 monitoring and FY 2028 forecast update</div></div>
     </div>
     <p class="footnote">The priority areas and supporting direction are drawn from the Walton County Strategic Plan 2027&ndash;2032. Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this final budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
 
-    <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
+    <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
 `;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Community Priorities and Organizational Challenges</title>
-<style>${sharedCss}</style></head>
-<body>${page1}${page2}</body></html>`;
+<style>${sharedCss}
+  .challenge-grid{gap:.17in;margin:.12in 0;}
+  .challenge-card{padding:.16in .17in;}
+  .challenge-card small{font-size:8pt;margin-bottom:.06in;}
+  .challenge-card b{font-size:11pt;line-height:1.2;}
+  .challenge-card p{font-size:9.5pt;line-height:1.42;margin-top:.07in;}
+  .context-grid{gap:.17in;margin:.13in 0 .2in;}
+  .context-card{padding:.14in .16in;}
+  .context-card b{font-size:10pt;margin-bottom:.06in;}
+  .context-card p{font-size:9pt;line-height:1.42;}
+  .response-page .conn-table{border:0;margin-top:.13in;}
+  .response-page .crow:not(.head){grid-template-columns:1fr 1fr;gap:.06in .2in;margin-top:.07in;padding:.09in .16in;}
+  .response-page .carea{grid-column:1 / -1;font:800 11pt/1.2 Georgia,serif;}
+  .response-page .effect{display:inline;margin-left:.12in;font:800 7.5pt Arial,sans-serif;}
+  .response-page .cresp,.response-page .money,.response-page .result,.response-page .when{font-size:8.5pt;line-height:1.3;}
+  .response-page .cresp strong,.response-page .money strong,.response-page .result strong,.response-page .when strong{display:block;color:#52665c;font-size:7.5pt;text-transform:uppercase;margin-bottom:3px;}
+  .response-page .footnote{font-size:8pt;}
+</style></head>
+<body>${page1}${page2}${page3}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-community-priorities.pdf";
 const browser = await chromium.launch({ headless: true });
