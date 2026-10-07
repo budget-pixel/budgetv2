@@ -11,12 +11,6 @@
     "imageIndex": 0,
     "caption": "Code Compliance \u00b7 2025 Annual Report"
   },
-  "County Administration": {
-    "file": "assets/images/annual-report-2025/county-administration.jpg",
-    "reportPage": 11,
-    "imageIndex": 1,
-    "caption": "Administration building \u00b7 2025 Annual Report"
-  },
   "Eagle Springs Golf and Recreation Center": {
     "file": "assets/images/annual-report-2025/eagle-springs-golf-and-recreation-center.jpg",
     "reportPage": 17,
@@ -88,12 +82,6 @@
     "reportPage": 35,
     "imageIndex": 0,
     "caption": "Public Works \u00b7 2025 Annual Report"
-  },
-  "Recreation": {
-    "file": "assets/images/annual-report-2025/recreation.jpg",
-    "reportPage": 31,
-    "imageIndex": 0,
-    "caption": "Lakewood Park \u00b7 2025 Annual Report"
   },
   "Solid Waste": {
     "file": "assets/images/annual-report-2025/solid-waste.jpg",

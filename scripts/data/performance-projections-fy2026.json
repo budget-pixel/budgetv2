@@ -1,0 +1,318 @@
+{
+  "Building Construction and Maintenance": [
+    {
+      "index": 0,
+      "value": "3,800",
+      "sourceMeasure": "Number of work orders completed within the department\u2019s established timeframe per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "115",
+      "sourceMeasure": "Number of facilities maintained and inspected per year"
+    }
+  ],
+  "Building Department": [
+    {
+      "index": 0,
+      "value": "28,000",
+      "sourceMeasure": "Number of building inspections conducted successfully per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "1,700",
+      "sourceMeasure": "Number of contractor licenses issued and/or renewed per fiscal year"
+    }
+  ],
+  "Code Compliance": [
+    {
+      "index": 0,
+      "value": "94%",
+      "sourceMeasure": "Percentage of code violations resolved through voluntary compliance without formal enforcement action"
+    },
+    {
+      "index": 1,
+      "value": "11,000",
+      "sourceMeasure": "Total number of street and beach code cases resolved annually"
+    }
+  ],
+  "County Administration": [
+    {
+      "index": 0,
+      "value": "360",
+      "sourceMeasure": "Number of BCC directives, task orders, and agreements processed annually"
+    },
+    {
+      "index": 1,
+      "value": "130",
+      "sourceMeasure": "Number of public videos created on social media platforms"
+    }
+  ],
+  "Eagle Springs Golf and Recreation Center": [
+    {
+      "index": 0,
+      "value": "42,000",
+      "sourceMeasure": "Total number of rounds played per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "2,750",
+      "sourceMeasure": "Total number of pool attendees during the open season"
+    }
+  ],
+  "Eagle Springs Grill": [
+    {
+      "index": 0,
+      "value": "55,000",
+      "sourceMeasure": "Total number of guest checks processed per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "60",
+      "sourceMeasure": "Number of events hosted"
+    }
+  ],
+  "Emergency Management": [
+    {
+      "index": 0,
+      "value": "24 / 22,000",
+      "sourceMeasure": "Number of community outreach events held, and total participants reached per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "2,500",
+      "sourceMeasure": "Number of CERT volunteer hours contributed per fiscal year"
+    }
+  ],
+  "Engineering Department": [
+    {
+      "index": 0,
+      "value": "Yes",
+      "sourceMeasure": "Was the five-year Capital Improvement Plan (CIP) updated and approved?"
+    },
+    {
+      "index": 1,
+      "value": "Yes",
+      "sourceMeasure": "Has the department website been updated to reflect the current status of active projects?"
+    }
+  ],
+  "Environmental Resources": [
+    {
+      "index": 0,
+      "value": "80",
+      "sourceMeasure": "Number of stormwater inspections performed and compliance with NPDES regulations"
+    },
+    {
+      "index": 1,
+      "value": "13",
+      "sourceMeasure": "Number of environmental conservation projects completed per fiscal year (e.g. reef deployments, habitat plans)"
+    }
+  ],
+  "Extension Office": [
+    {
+      "index": 0,
+      "value": "5,000",
+      "sourceMeasure": "Number of participants attending extension educational programs per calendar year"
+    },
+    {
+      "index": 1,
+      "value": "2,600",
+      "sourceMeasure": "Number of client consultations performed per calendar year (email, text, field, office, telephone)"
+    }
+  ],
+  "Geographic Info Systems": [
+    {
+      "index": 0,
+      "value": "4,150",
+      "sourceMeasure": "Customer GIS assistance (Walk-ins, Email, Phone) for address, GIS maps, website, & interactive maps"
+    },
+    {
+      "index": 1,
+      "value": "2,625",
+      "sourceMeasure": "Maps produced (Paper & Digital)"
+    }
+  ],
+  "Housing & Urban Development": [
+    {
+      "index": 0,
+      "value": "300",
+      "sourceMeasure": "Total number of families served by HUD rental assistance programs per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "75%",
+      "sourceMeasure": "Percentage of available housing vouchers utilized per fiscal year"
+    }
+  ],
+  "Human Resources": [
+    {
+      "index": 0,
+      "value": "250",
+      "sourceMeasure": "Number of employees onboarded and trained per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "900 / 450",
+      "sourceMeasure": "Number of personnel action forms and benefits changes processed per fiscal year"
+    }
+  ],
+  "Libraries": [
+    {
+      "index": 0,
+      "value": "225,000",
+      "sourceMeasure": "Total number of visitors and program attendees annually"
+    },
+    {
+      "index": 1,
+      "value": "7,500",
+      "sourceMeasure": "Number of new items added to the library collection (physical and digital) annually"
+    }
+  ],
+  "Mosquito Control": [
+    {
+      "index": 0,
+      "value": "567,840",
+      "sourceMeasure": "Total number of acres treated per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "8,300",
+      "sourceMeasure": "Number of site inspections performed per fiscal year"
+    }
+  ],
+  "Mossy Head Wastewater Treatment Facility": [
+    {
+      "index": 0,
+      "value": "30",
+      "sourceMeasure": "Number of lift station inspections or repairs completed per fiscal year"
+    }
+  ],
+  "Office of Management and Budget": [
+    {
+      "index": 0,
+      "value": "100%",
+      "sourceMeasure": "Percentage of budget prepared in compliance with Florida Statutes and Truth in Millage requirements"
+    },
+    {
+      "index": 1,
+      "value": "$11M",
+      "sourceMeasure": "Total amount of grant expenditures managed per fiscal year"
+    }
+  ],
+  "Office of the County Attorney": [
+    {
+      "index": 0,
+      "value": "400",
+      "sourceMeasure": "Number of contracts, agreements, and procurement documents reviewed per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "4.5",
+      "sourceMeasure": "Average response time for processing public records requests measured in days"
+    }
+  ],
+  "Planning": [
+    {
+      "index": 0,
+      "value": "100%",
+      "sourceMeasure": "Percentage of development projects that meet MS4 permitting requirements"
+    },
+    {
+      "index": 1,
+      "value": "5,800",
+      "sourceMeasure": "Number of permits processed through the new EnerGov system"
+    }
+  ],
+  "Probation": [
+    {
+      "index": 0,
+      "value": "59",
+      "sourceMeasure": "Number of county court hearings attended by probation officers per calendar year"
+    }
+  ],
+  "Public Works": [
+    {
+      "index": 0,
+      "value": "23",
+      "sourceMeasure": "Number of capital improvement projects completed per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "1,049",
+      "sourceMeasure": "Number of miles of road maintained or improved per fiscal year (unpaved and paved roads)"
+    }
+  ],
+  "Purchasing": [
+    {
+      "index": 0,
+      "value": "5,000",
+      "sourceMeasure": "Total number of purchase orders processed per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "28",
+      "sourceMeasure": "Total number of formal solicitations per fiscal year"
+    }
+  ],
+  "Recreation": [
+    {
+      "index": 0,
+      "value": "4,300",
+      "sourceMeasure": "Total number of participants in recreational programs per fiscal year (Rec Soccer, Basketball, Kickball, etc.)"
+    }
+  ],
+  "Soil Conservation": [
+    {
+      "index": 0,
+      "value": "80 / 15,500",
+      "sourceMeasure": "Number of EQIP contracts approved and total acreage managed under the program per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "20 / 10,000",
+      "sourceMeasure": "Number of CSP contracts approved and total acreage managed under the program per fiscal year"
+    }
+  ],
+  "Solid Waste": [
+    {
+      "index": 0,
+      "value": "96,637",
+      "sourceMeasure": "Total tons of Class I waste processed per year"
+    },
+    {
+      "index": 1,
+      "value": "1,150",
+      "sourceMeasure": "Total tons of recyclable material processed per year"
+    }
+  ],
+  "Veteran Services": [
+    {
+      "index": 0,
+      "value": "1,075",
+      "sourceMeasure": "Number of claims processed for veterans per fiscal year"
+    },
+    {
+      "index": 1,
+      "value": "3",
+      "sourceMeasure": "Number of outreach presentations or events held for veterans"
+    }
+  ],
+  "Beach Operations": [
+    {
+      "index": 0,
+      "value": "63",
+      "sourceMeasure": "Number of beach and bay public access facilities cleaned daily"
+    },
+    {
+      "index": 1,
+      "value": "6,000",
+      "sourceMeasure": "Number of maintenance work orders completed per fiscal year"
+    }
+  ],
+  "Beach Tram": [
+    {
+      "index": 0,
+      "value": "200,000",
+      "sourceMeasure": "Total number of passengers transported annually by the shuttle service"
+    }
+  ]
+}

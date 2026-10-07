@@ -410,6 +410,15 @@ const sharedCss = `
   .funding-total{ margin:.05in 0 .08in!important; font-size:6.6pt!important; font-weight:800; }
   section.dense-profile p.sof{ font-size:7.55pt; line-height:1.34; }
   section.dense-profile .official-line{ margin-bottom:.11in; padding-bottom:.11in; }
+
+  .profile-page .rev-box h2,.profile-page .fte-box h2,.profile-page .con-box h2,.profile-page .cap-box h2{margin:0 0 .05in;padding-bottom:.04in;border-bottom:1px solid #003f28;color:#003f28;font:800 7.9pt Georgia,serif;text-transform:uppercase;letter-spacing:.03em}
+  .profile-page .fte-empty{margin:.04in 0;color:#52665c;font-size:7pt;line-height:1.4;font-style:normal}
+  /* Match funding rows to the contract and capital ledger rows. */
+  .rev-box .payer-row{margin:0;padding:.04in .055in;border:0;border-bottom:1px solid #edf1ee;border-radius:0;background:transparent;font-size:6.35pt;line-height:1.28}
+  .rev-box .payer-row:nth-child(odd){background:transparent}
+  .rev-box .payer-row:nth-child(even){background:#f4f7f5}
+  .rev-box .payer-head b{color:#173229;font-size:6.35pt;font-weight:400}
+  .rev-box .payer-amt{color:#003f28;font-size:6.35pt;font-weight:700}
 `;
 
 function fteChangeLabel(d) {
@@ -504,7 +513,7 @@ async function buildOfficerPage(o, pageNumber) {
       </div>
     </div>
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
-      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
+      <div class="rev-box"><h2>Funding Sources / Who Pays</h2>${payerHtml}${payerMethodHtml}</div>
       ${hasBreakouts
         ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY 2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY 2027</h2>${fteHtml}</div>`}
