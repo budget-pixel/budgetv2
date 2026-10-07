@@ -924,7 +924,7 @@ const sharedCss = `
     grid-template-columns:minmax(0,1fr) 1.9in;
     gap:.28in;
     align-items:start;
-    margin-bottom:.16in;
+    margin-bottom:.10in;
   }
   h2{
     margin:0 0 .05in;
@@ -994,7 +994,7 @@ const sharedCss = `
   .svc-change-note{ margin:.04in 0 .065in; padding:.045in .07in; border-left:3px solid #d1be78; background:#fbfaf5; color:#52665c; font-size:6.35pt; line-height:1.32; }
   .svc-change-note b{ color:#a88418; font-size:5.5pt; letter-spacing:.04em; text-transform:uppercase; }
   .svc-measure-list{ padding-top:.05in; border-top:1px solid #eef2ef; }
-  .svc-block{ display:grid; grid-template-columns:minmax(0,1fr); gap:.065in; align-items:start; padding:.07in 0; border-bottom:1px solid #e4ebe7; }
+  .svc-block{ display:grid; grid-template-columns:minmax(0,1fr); gap:.05in; align-items:start; padding:.045in 0; border-bottom:1px solid #e4ebe7; }
   .svc-block:last-child{ border-bottom:0; }
   .svc-block .svc-head{ padding-right:.04in; }
   .svc-block .svc-head b{ display:block; color:#003f28; font:800 8pt/1.2 Georgia, serif; }
@@ -1008,10 +1008,13 @@ const sharedCss = `
     margin-top:.16in;
     background:#003f28;
     border-radius:11px;
-    padding:.14in .16in;
+    padding:.10in .16in;
     color:#fff;
   }
-  .side-card.sub{ margin-top:.14in; padding:.11in .16in; }
+  .side-card.sub{ margin-top:.08in; padding:.08in .12in; background:#edf4ef;color:#173229;border:1px solid #b8cec0; }
+  .side-card.sub .side-fund{color:#465a46}
+  .side-card.sub .side-sub-amt{color:#003f28}
+  .side-card.sub .side-sub-detail{color:#52665c;font-size:6.5pt}
   .side-sub-amt{ margin-top:.03in; color:#fff; font:800 13pt Georgia, serif; }
   .side-sub-detail{ margin:.05in 0 0; color:#a9c4b3; font-size:6.1pt; line-height:1.4; }
   .side-fund{ color:#e7c95f; font-size:6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin-bottom:.06in; }
@@ -1036,13 +1039,13 @@ const sharedCss = `
   .fte-change-note{ margin:-.05in 0 .08in; text-align:center; font-size:6pt; font-style:italic; line-height:1.3; }
   .fte-change-note.up{ color:#8fe0b0; }
   .fte-change-note.down{ color:#f0b090; }
-  .budget-composition{margin:.075in 0 .07in;display:grid;gap:.045in}
+  .budget-composition{margin:.075in 0 .07in;display:grid;gap:.03in}
   .composition-label{display:flex;justify-content:space-between;align-items:baseline;gap:.035in;font-size:6.3pt;line-height:1.25}
   .composition-label b{color:#e7c95f;white-space:nowrap;font-size:6.3pt;font-variant-numeric:tabular-nums}
   .composition-track{height:3px;margin-top:2px;border-radius:2px;background:rgba(255,255,255,.17);overflow:hidden}
   .composition-track i{display:block;height:100%;background:#e7c95f;border-radius:2px}
   .qr-wrap{ margin-top:.08in; padding-top:.08in; border-top:1px solid rgba(255,255,255,.2); text-align:center; }
-  .qr-wrap img{ box-sizing:border-box; width:.8in; height:.8in; border:1px solid #d1be78; border-radius:0; background:#fff; }
+  .qr-wrap img{ box-sizing:border-box; width:.65in; height:.65in; border:1px solid #d1be78; border-radius:0; background:#fff; }
   .qr-wrap span{ display:block; margin-top:.02in; color:#a9c4b3; font-size:5.3pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
   .rev-con-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.06in 0 .1in; padding-top:.08in; border-top:1px solid #d7e2dc; }
   .rev-con-grid.three{ grid-template-columns:1.05fr 1fr 1fr; }
@@ -1265,15 +1268,9 @@ async function buildDeptPage(d, pageNumber) {
         </div>
         <div class="profile-context">${parentDepartment ? `<span>Included in <b>${parentDepartment}</b> in summary reports.</span> ` : ""}<span><b>Strategic priority:</b> ${strategicPriority}.</span></div>
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
-        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}</p></div>` : ""}</div>` : ""}
-        <div class="goal-chain goal-chain-inline"${d.name === "Tourism Administration" ? ' style="display:none"' : ""}>
-          <h2>${d.performanceHeading || "Core Services &amp; Performance"}</h2>
-          ${serviceChangeFor(d) ? `<p class="svc-change-note"><b>FY 2027 Service Outlook</b><br>${serviceChangeFor(d)}</p>` : ""}
-          ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>.</p>` : ""}
-          ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
-          <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
-          ${d.pms.length || d.valueExplanation ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
-        </div>
+        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}${d.serviceChange ? " " + d.serviceChange : ""}</p></div>` : ""}</div>` : ""}
+        ${sideCardsHtml}
+
       </div>
       <div class="side-col">
         <div class="side-card">
@@ -1293,9 +1290,15 @@ async function buildDeptPage(d, pageNumber) {
           ${d.changeNote ? `<div class="primary-change"><b>Primary change</b><p>${d.changeNote}</p></div>` : ""}
           ${qrHtml}
         </div>
-        ${sideCardsHtml}
       </div>
     </div>
+        <div class="goal-chain goal-chain-inline"${d.name === "Tourism Administration" ? ' style="display:none"' : ""}>
+          <h2>${d.performanceHeading || "Core Services &amp; Performance"}</h2>
+          ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>.</p>` : ""}
+          ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
+          <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
+          ${d.pms.length || d.valueExplanation ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
+        </div>
     <div class="rev-con-grid three" style="grid-template-columns:${bottomColumns}">
       <div class="rev-box"><h2>Funding Sources / Who Pays</h2>${payerHtml}${payerMethodHtml}</div>
       <div class="con-box"><h2>Contracted Services</h2>${conHtml}</div>
@@ -1366,10 +1369,11 @@ async function main() {
   .dense-performance .tourism-value-context p{font-size:6.8pt;line-height:1.3;margin:.04in 0}
   .dense-performance .tourism-value-context{margin:.06in 0;padding:.055in 0}
   .dense-performance .rev-con-grid,.public-works-photo .rev-con-grid{margin-top:0;padding-top:.05in}
-  .profile-page .pm-trend{grid-template-columns:repeat(4,minmax(0,1fr));gap:.075in .07in}
+  .public-works-photo .svc-block{padding:.01in 0}
+  .profile-page .pm-trend{grid-template-columns:repeat(6,minmax(0,1fr));gap:.075in .09in}
   .profile-page .pm-trend span b{font-size:11pt}
   .profile-page .pm-trend.compact span b{font-size:9.5pt}
-  .profile-page .pm-trend .projection,.profile-page .pm-trend .target{grid-column:span 2;padding:.045in .055in;border:0;border-top:1px solid #dce5e0;background:#eef4f0}
+  .profile-page .pm-trend .projection,.profile-page .pm-trend .target{grid-column:span 1;padding:.045in .055in;border:0;border-top:1px solid #dce5e0;background:#eef4f0}
   .profile-page .pm-trend .projection{color:#52665c}
   .paired-measure .pm-trend b .paired-figure{display:block;color:inherit;font:inherit;text-transform:none;letter-spacing:0}
   .paired-measure .paired-figure small{font:700 5.2pt/1.2 Arial,sans-serif;color:#52665c;margin-left:.025in}
@@ -1384,7 +1388,7 @@ async function main() {
   .profile-page .editorial-cards{margin:.10in 0 .12in}
   .profile-page .goal-quote span{color:#465a46;font-weight:800}
   .no-contracts,.no-capital{margin:.04in 0;color:#52665c;font-size:7pt;line-height:1.4}
-  .primary-change{margin:.09in 0 .04in;padding-top:.075in;border-top:1px solid rgba(255,255,255,.2)}
+  .primary-change{margin:.06in 0 .03in;padding-top:.05in;border-top:1px solid rgba(255,255,255,.2)}
   .primary-change>b{display:block;color:#dce9e2;font-size:6.5pt;margin-bottom:.035in}
   .primary-change p{margin:0;color:#f0f6f2;font-size:7pt;line-height:1.45}
   /* Match funding rows to the contract and capital ledger rows. */
@@ -1401,31 +1405,6 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle" });
-  // Expand a complete service section only when its heading clears the sidebar.
-  const expandedServices = await page.evaluate(() => {
-    let count = 0;
-    for (const section of document.querySelectorAll('.profile-page')) {
-      const grid = section.querySelector('.top-grid');
-      const sidebar = section.querySelector('.side-col');
-      if (!grid || !sidebar) continue;
-      const rightEdge = grid.getBoundingClientRect().right;
-      const clearBelow = sidebar.getBoundingClientRect().bottom + 8;
-      for (const service of section.querySelectorAll('.svc-block')) {
-        const rect = service.getBoundingClientRect();
-        if (rect.top >= clearBelow) {
-          service.style.boxSizing = 'border-box';
-          service.style.width = `${rightEdge - rect.left}px`;
-          service.classList.add('expanded-service');
-          count++;
-        }
-      }
-      for (const service of section.querySelectorAll('.expanded-service')) {
-        if (service.getBoundingClientRect().top < clearBelow) throw new Error('Expanded service overlaps sidebar');
-      }
-    }
-    return count;
-  });
-  console.log(`Expanded ${expandedServices} complete service sections below the sidebar.`);
   const fundingOverflows = await page.evaluate(() => [...document.querySelectorAll('section')].flatMap(section => {
     const panels = [...section.querySelectorAll('.rev-box,.con-box,.cap-box,.side-col')];
     const panel = panels.sort((a,b)=>b.getBoundingClientRect().bottom-a.getBoundingClientRect().bottom)[0];
