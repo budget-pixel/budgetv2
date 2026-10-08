@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { consolidated, generalFund, values, millions } from "./fund-schedule-data.mjs";
 
@@ -198,11 +199,11 @@ const page1 = `
     <div class="stat-strip" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
       <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
-      <div class="stat-card"><b>+15.9%</b><span>FY 2027 Tourist Development Fund Growth</span></div>
+      <div class="stat-card"><b>4.7M</b><span>Annual visitors, 2025 tourism report</span></div>
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>
-    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Current-year sources and accumulated fund balance together support the adopted plan. The fund schedules include operating expenses, capital and transfers; they do not isolate a recurring operating gap.</p>
+    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Current-year sources and accumulated fund balance together support the adopted plan. The adopted plan includes operating expenses, capital investments, and transfers between funds.</p>
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
@@ -214,7 +215,7 @@ const page1 = `
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="body">Amounts are rounded to $0.1 million. FY 2027 starts with an updated opening estimate, rather than the FY 2026 budget's estimated closing balance. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
+    <p class="body">Amounts are rounded to $0.1 million. From FY 2027, the General Fund uses its FY 2025 audited unassigned balance as the opening assumption; other funds retain total balances. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
     <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. This schedule projects further decreases of ${nextYearDraw} in FY 2028 and ${followingYearDraw} in FY 2029 as spending and transfers outpace revenue growth. These are projections under the schedule's assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
@@ -245,7 +246,7 @@ const page2 = `
     <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     <p class="trend">The plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
 
-    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. If conditions change, OMB will reforecast service, capital, reserve, and millage options. Beginning with FY 2027, OMB will compare actual revenue, expenditures, capital timing, and ending balances with the forecast and report material variances in the next cycle; the current book has no historical forecast-accuracy series.</p>
+    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. Monitoring revenue, expenditures, capital timing, and ending balances helps the Board assess service levels, capital priorities, reserves, and millage options as conditions change.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
@@ -260,6 +261,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-long-term-outlook.p
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

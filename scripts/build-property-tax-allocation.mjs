@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
@@ -368,7 +369,7 @@ const page1 = `
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
 
-    <h2 class="group">Constitutional Officers</h2>
+    <h2 class="group">Constitutional Officers and Board Office</h2>
     <div class="dept-table">
       ${tableHead}
       ${CONSTITUTIONAL.map((r) => row(r)).join("")}
@@ -445,6 +446,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-property-tax-alloca
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

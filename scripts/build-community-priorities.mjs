@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // New chapter: "Community Priorities and Organizational Challenges and
@@ -188,12 +189,12 @@ const page2 = `
 
     <h2>What Is Creating Pressure</h2>
     <div class="challenge-grid">
-      <div class="challenge-card"><small>Community challenge</small><b>Growth, mobility, and aging assets</b><p>Population has grown 36.8% since 2010, while development and visitation add demand to roads, drainage, facilities, parks, public-safety infrastructure, and coastal access.</p></div>
+      <div class="challenge-card"><small>Community challenge</small><b>Growth, mobility, and aging assets</b><p>Population grew 20.2% from 2020 to the April 2025 BEBR estimate, while development and visitation add demand to roads, drainage, facilities, parks, public-safety infrastructure, and coastal access.</p></div>
       <div class="challenge-card"><small>Community challenge</small><b>Seasonal demand and coastal stewardship</b><p>Approximately 4.7 million annual visitors intensify peak-season transportation, lifeguard, tram, beach-access, maintenance, and natural-resource demands.</p></div>
       <div class="challenge-card"><small>Community challenge</small><b>Housing affordability and access</b><p>Growth in housing cost and demand affects workforce stability and residents seeking rental assistance, attainable housing, and access to essential community services.</p></div>
       <div class="challenge-card org"><small>Organizational challenge</small><b>Capacity, asset delivery, and coordination</b><p>The County must fill critical positions, coordinate work across departments, and deliver a large capital program without materially expanding core service commitments.</p></div>
       <div class="challenge-card org"><small>Organizational challenge</small><b>Revenue uncertainty and recurring cost</b><p>Potential property-tax changes, grant uncertainty, and continuing personnel and operating costs require conservative assumptions and limits on new recurring obligations.</p></div>
-      <div class="challenge-card org"><small>Organizational challenge</small><b>Emergency readiness and financial flexibility</b><p>The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and distinguishes audited unassigned balance from the FY 2027 projected total.</p></div>
+      <div class="challenge-card org"><small>Organizational challenge</small><b>Emergency readiness and financial flexibility</b><p>The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and the FY 2027 plan using that unassigned balance as its opening assumption.</p></div>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
@@ -245,6 +246,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-community-prioritie
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

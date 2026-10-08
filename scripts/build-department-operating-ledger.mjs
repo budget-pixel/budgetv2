@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Department Operating Ledger" --
@@ -525,7 +526,7 @@ pageCounter++;
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Department Operating Ledger</title>
-<style>${sharedCss}  .footnote{margin:.14in 0 0;color:#68786f;font-size:7.1pt;line-height:1.4;font-style:italic;}
+<style>${sharedCss}.lrow .rlabel,.lrow .rnum{font-size:8.5pt}.lrow.head .rlabel,.lrow.head .rnum{font-size:7.5pt}.footnote{font-size:7.5pt}.stat-card span,.split-card span{font-size:7.5pt}  .footnote{margin:.14in 0 0;color:#68786f;font-size:7.1pt;line-height:1.4;font-style:italic;}
 </style></head>
 <body>${overviewPage}</body></html>`;
 
@@ -533,6 +534,8 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-dept-operating-ledg
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await assertPublicationFits(page);
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath + " (1 page)");

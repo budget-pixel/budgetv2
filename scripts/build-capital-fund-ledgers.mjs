@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Rebuilds six capital fund ledgers that had never been touched since
@@ -468,11 +469,11 @@ function projectProfileTable(rows, total, separate) {
   </tbody></table>`;
 }
 
-function decisionProfileTable(rows, total) {
+function decisionProfileTable(rows, total, compact = false) {
   return `<table class="profile-table"><thead><tr><th>Project, status &amp; public benefit</th><th>Investment</th><th>Delivery &amp; operating impact</th><th>Amount</th></tr></thead><tbody>
     ${rows.map((r) => {
       const d = PROJECT_DETAILS[r[0]] || ["Improvement", "Project development", "Operating impact will be evaluated with the final scope.", "Preserves or improves a County capital asset.", "Status shown in section heading"];
-      return `<tr><td><span class="project-name">${r[0]}</span><span class="project-funding">${r[1]}</span><span class="project-benefit"><b>Status:</b> ${d[4]}<br><b>Benefit:</b> ${d[3]}</span></td><td class="type">${d[0]}</td><td><b>${d[1]}</b><br>${d[2]}</td><td class="num">${money(r[2])}</td></tr>`;
+      return `<tr><td><span class="project-name">${r[0]}</span>${compact ? "" : `<span class="project-funding">${r[1]}</span><span class="project-benefit"><b>Status:</b> ${d[4]}</span>`}<span class="project-benefit"><b>Benefit:</b> ${d[3]}</span></td><td class="type">${d[0]}</td><td><b>${d[1]}</b><br>${d[2]}</td><td class="num">${money(r[2])}</td></tr>`;
     }).join("")}
     ${total == null ? "" : `<tr class="grand"><td colspan="3">Total</td><td class="num">${money(total)}</td></tr>`}
   </tbody></table>`;
@@ -501,7 +502,7 @@ const transPage1 = `
     ${fundTable(TRANS_FUNDING, TRANS_TOTAL)}
     <h2>FY 2027 Funded Projects</h2>
     <p class="intro">Listed from largest to smallest, each line identifies what FY 2027 buys, the project's current delivery stage, its public benefit, and the expected operating effect. A funded FY 2027 phase does not by itself mean every future phase of a multi-year project is fully funded.</p>
-    ${projectProfileTable(TRANS_PROJECTS.slice(0, 11))}
+    ${projectProfileTable(TRANS_PROJECTS.slice(0, 6))}
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
 `;
@@ -511,10 +512,17 @@ const transPage2 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Transportation and Infrastructure Capital Ledger <span class="sub">(continued)</span></h1>
     <h2 style="margin-top:.1in;">FY 2027 Funded Projects <span style="font-weight:400;color:#68786f;">(continued)</span></h2>
-    ${projectProfileTable(TRANS_PROJECTS.slice(11), TRANS_TOTAL, GRANT_LEDGER)}
+    ${projectProfileTable(TRANS_PROJECTS.slice(6, 19))}
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE2}}"}</b></footer>
   </section>
 `;
+
+const transPage3 = `<section class="transport-page">
+<header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
+<h1 class="continued">Transportation and Infrastructure Capital Ledger <span class="sub">(continued)</span></h1>
+<h2>FY 2027 Funded Projects (continued)</h2>
+${projectProfileTable(TRANS_PROJECTS.slice(19), TRANS_TOTAL, GRANT_LEDGER)}
+<footer><span>FY 2027 Final Budget</span><b>{{PAGE3}}</b></footer></section>`;
 
 // ============================== PAGE SET 3: TOURIST DEVELOPMENT FUND CAPITAL ==============================
 
@@ -534,7 +542,7 @@ const TOURIST_ADDITIONAL = [
 const TOURIST_ADDITIONAL_TOTAL = 10250000;
 
 const touristPage = `
-  <section>
+  <section class="tourist-capital-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Tourist Development Fund Capital Ledger</h1>
@@ -542,16 +550,16 @@ const touristPage = `
     <div class="stat-strip">
       <div class="stat-card"><b>${money(TOURIST_ADOPTED_TOTAL)}</b><span>FY 2027 Funded</span></div>
       <div class="stat-card"><b>2</b><span>FY 2027 Funded Projects</span></div>
-      <div class="stat-card"><b>${money(TOURIST_ADDITIONAL_TOTAL)}</b><span>Previously Funded</span></div>
+      <div class="stat-card"><b>${money(TOURIST_ADDITIONAL_TOTAL, true)}</b><span>Previously Funded</span></div>
       <div class="stat-card"><b>100%</b><span>Tourist Development Taxes</span></div>
     </div>
     <h2>Funding by Revenue Source</h2>
     ${fundTable([["Tourist Development Fund", "Tourist Development Taxes", "100.0%", TOURIST_ADOPTED_TOTAL]], TOURIST_ADOPTED_TOTAL)}
     <h2>FY 2027 Funded Projects</h2>
-    ${decisionProfileTable(TOURIST_ADOPTED.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADOPTED_TOTAL)}
+    ${decisionProfileTable(TOURIST_ADOPTED.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADOPTED_TOTAL, true)}
     <h2>Previously Funded Projects</h2>
-    <p class="intro">These projects received funding in prior years and remain active in the County's project inventory. They are shown for reference, not as new FY 2027 appropriations. In particular, the $6,000,000 US 331 Bridge Lighting amount is previously funded and is excluded from both the $11,350,000 FY 2027 tourism project total and the $43.8 million FY 2027 capital program.</p>
-    ${decisionProfileTable(TOURIST_ADDITIONAL.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADDITIONAL_TOTAL)}
+    <p class="intro">These Tourist Development Tax projects were funded in prior years. The $6,000,000 US 331 Bridge Lighting project and other amounts below are excluded from the $11,350,000 FY 2027 tourism total and the $43.8 million FY 2027 capital program.</p>
+    ${decisionProfileTable(TOURIST_ADDITIONAL.map((r) => [r[0], "Tourist Development Fund &middot; Tourist Development Taxes", r[1]]), TOURIST_ADDITIONAL_TOTAL, true)}
     <p class="note">Beach renourishment is an ongoing capital commitment because shoreline restoration is periodically required. Its FY 2027 appropriation remains capital rather than operating spending; the previously funded projects above are shown for reference.</p>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE1}}"}</b></footer>
   </section>
@@ -634,20 +642,22 @@ const sidewalkPage = simpleFundPage(
 // ============================== ASSEMBLE ==============================
 
 const startPage = Number(process.argv[3] || 100);
-const pages = [transPage1, transPage2, touristPage, sheriffPage, recreationPage, sidewalkPage, machineryPage1, machineryPage2, machineryPage3];
+const pages = [transPage1, transPage2, transPage3, touristPage, sheriffPage, recreationPage, sidewalkPage, machineryPage1, machineryPage2, machineryPage3];
 let html = pages.join("\n");
 let n = startPage;
 html = html.replace(/\{\{PAGE1\}\}|\{\{PAGE2\}\}|\{\{PAGE3\}\}|\{\{PAGE4\}\}/g, () => String(n++));
 
 const fullHtml = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Capital Fund Ledgers</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}.profile-table,.transport-page .profile-table{font-size:8pt;line-height:1.23}.profile-table th,.transport-page .profile-table th{font-size:7.5pt}.profile-table .project-name,.transport-page .profile-table .project-name{font-size:8.5pt}.profile-table .project-funding,.transport-page .profile-table .project-funding,.profile-table .project-benefit,.transport-page .profile-table .project-benefit{font-size:7.5pt;line-height:1.23}.profile-table td,.transport-page .profile-table td{padding:3px 5px}.proj-table,.item-table,.fund-table{font-size:8pt}.stat-card span{font-size:7.5pt}.note,.footnote{font-size:7.5pt!important}.tourist-capital-page .profile-table th:nth-child(1){width:49%}.tourist-capital-page .profile-table th:nth-child(2){width:12%}.tourist-capital-page .profile-table th:nth-child(3){width:26%}.tourist-capital-page .profile-table th:nth-child(4){width:13%}.tourist-capital-page .profile-table td{padding:2px 5px}.tourist-capital-page .intro{font-size:8.5pt;line-height:1.3;margin-bottom:.08in}.tourist-capital-page .stat-strip{margin:.08in 0}.tourist-capital-page h2{margin:.12in 0 .04in}</style></head>
 <body>${html}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-capital-fund-ledgers.pdf";
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(fullHtml, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await assertPublicationFits(page);
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath + " (" + pages.length + " pages)");

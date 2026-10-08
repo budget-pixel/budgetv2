@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's Transmittal Letter as its own two-page
@@ -221,7 +222,7 @@ const html = `<!doctype html>
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
         <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million and maintains current services while funding public safety, infrastructure, and the staffing needed to serve a growing county.</p>
-        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, with an estimated $8,584,562 effect in the tentative-hearing comparison. The final funding schedule uses $8,047,270 of General Fund balance after all revenue updates, while the expenditure plan remains unchanged. This uses accumulated resources, not new recurring revenue. The fund schedules do not assign the draw between one-time projects and recurring services; both reserve use and future recurring costs require monitoring.</p>
+        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, with an estimated $8,584,562 effect in the tentative-hearing comparison. The final funding schedule uses $8,047,270 of General Fund balance after all revenue updates, while the expenditure plan remains unchanged. This uses accumulated resources, not new recurring revenue. The County will need to monitor reserve use and future recurring costs.</p>
         <p>The final budget carries out that decision through four principal commitments:</p>
         <ul>
           <li>Maintain current services and fund the Sheriff, other Constitutional Officers, and statutory obligations</li>
@@ -263,7 +264,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. Countywide Ad Valorem property taxes remain the County&rsquo;s largest revenue source at $151.1 million. Public Safety remains the largest expenditure function at $126.2 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
+    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. County operating property taxes remain the County&rsquo;s largest revenue source at $151.6 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">
@@ -297,6 +298,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-transmittal-letter.
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

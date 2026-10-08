@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 import fs from "fs";
@@ -361,18 +362,11 @@ const sharedCss = `
   .workforce-line em{ grid-column:2; color:#a9c4b3; font-size:5.5pt; font-style:normal; text-align:right; }
   .workforce-position-note{ margin:.045in 0 0; padding-top:.045in; border-top:1px solid rgba(255,255,255,.1); color:#dce9e2; font-size:5.35pt; line-height:1.3; }
   .workforce-position-note b{ color:#d1be78; }
-  .side-split{ font-size:6.7pt; line-height:1.55; }
-  .side-split div{ display:flex; justify-content:space-between; }
-  .side-split div>span{ display:flex; align-items:center; gap:.045in; }
-  .side-split div>span:before{ content:""; width:5px; height:5px; flex:0 0 5px; border-radius:50%; background:#ffffff; }
-  .side-split .personnel>span:before{ background:#e7c95f; }
-  .side-split .contractual>span:before{ background:#85bea0; }
-  .side-split .operating>span:before{ background:#ffffff; }
-  .side-split .capital>span:before{ background:#c7d2cc; }
-  .side-split b{ color:#e7c95f; }
-  .budget-mix{ display:flex; height:7px; margin:.075in 0 .07in; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.14); }
-  .budget-mix i{ display:block; height:100%; }
-  .budget-mix .personnel{ background:#e7c95f; }.budget-mix .contractual{ background:#85bea0; }.budget-mix .operating{ background:#ffffff; }.budget-mix .capital{ background:#c7d2cc; }
+  .budget-composition{margin:.075in 0 .07in;display:grid;gap:.03in}
+  .composition-label{display:flex;justify-content:space-between;align-items:baseline;gap:.035in;font-size:7.5pt;line-height:1.25}
+  .composition-label b{color:#e7c95f;white-space:nowrap;font-size:7.5pt;font-variant-numeric:tabular-nums}
+  .composition-track{height:3px;margin-top:2px;border-radius:2px;background:rgba(255,255,255,.17);overflow:hidden}
+  .composition-track i{display:block;height:100%;background:#e7c95f;border-radius:2px}
   .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.32in 0 .13in; padding-top:.15in; border-top:1px solid #d7e2dc; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.45; }
   .payer-row{ margin:0 0 .045in; padding:.06in .075in; border:1px solid #e1e9e4; border-radius:6px; background:#f8faf8; color:#33453c; font-size:6.2pt; line-height:1.28; }
@@ -436,7 +430,7 @@ async function buildOfficerPage(o, pageNumber) {
   // Service-fee descriptions are shown without amounts for the Clerk and Tax Collector.
   const payerRows = whoPaysFor(o).filter(([label, amount]) => amount || label === "Fees for services");
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|31,491 occupied/.test(detail));
-  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount == null ? "" : `<span class="payer-amt">${money(amount)}</span>`}</div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + (o.name === "Board of County Commissioners" ? `<p class="funding-total">Total assigned revenue: ${money(payerRows.reduce((sum, [, amount]) => sum + amount, 0))}</p>` : "") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
+  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount == null ? "" : `<span class="payer-amt">${money(amount)}</span>`}</div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
   const methodNotes = [
     usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial real-property just-value shares. These are not individual tax bills." : "",
   ].filter(Boolean).join(" ");
@@ -450,12 +444,12 @@ async function buildOfficerPage(o, pageNumber) {
   let qrHtml = "";
   if (o.docUrl) {
     const dataUrl = await QRCode.toDataURL(o.docUrl, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
-    qrHtml = `<div class="qr-wrap"><img class="qr" src="${dataUrl}" alt="QR"/><span>View Submitted Budget Request</span></div>`;
+    qrHtml = `<div class="qr-wrap"><a href="${o.docUrl}" aria-label="View ${o.name} submitted budget request"><img class="qr" src="${dataUrl}" alt=""/><span>View Submitted Budget Request</span></a></div>`;
   }
 
   const fteHtml = (o.newPositions && o.newPositions.length)
     ? `<div class="fte-list">${o.newPositions.map((p) => `<div class="fte-row"><div class="fname">${p.title}</div><b>+${p.n} FTE</b></div>`).join("")}</div>`
-    : `<p class="fte-empty">No new positions requested for FY 2027.</p>`;
+    : `<p class="fte-empty">${o.fteDelta < 0 ? `${Math.abs(o.fteDelta)} fewer position${Math.abs(o.fteDelta) === 1 ? "" : "s"} in FY 2027.` : "No change in authorized positions for FY 2027."}</p>`;
 
   const hasBreakouts = (o.contracts && o.contracts.length) || (o.capitalItems && o.capitalItems.length);
   const MAX_ROWS = o.name === "Board of County Commissioners" ? o.contracts.length : 6;
@@ -472,10 +466,8 @@ async function buildOfficerPage(o, pageNumber) {
     capHtml = o.capitalItems.map((c) => `<div class="cap-row"><span>${c.item}</span><b>${money(c.amount)}</b></div>`).join("");
     if (o.capitalNote) capHtml += `<p class="cap-note">${o.capitalNote}</p>`;
   }
-  const mixOperating = o.operating;
-  const mixCapital = o.capital;
-  const mixSegments = [["personnel",o.personnel],["contractual",o.contractual],["operating",mixOperating],["capital",mixCapital]]
-    .filter(([,amount]) => amount > 0).map(([name,amount]) => `<i class="${name}" style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i>`).join("");
+  const compositionRows = [["Personnel",o.personnel],["Contractual",o.contractual],["Operating",o.operating],["Capital &amp; Other",o.capital]]
+    .filter(([,amount]) => amount > 0).map(([label,amount]) => `<div class="composition-row"><div class="composition-label"><span>${label}</span><b>${money(amount)}</b></div><div class="composition-track"><i style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i></div></div>`).join("");
 
   return `
   <section class="profile-page${denseClass ? " dense-profile" : ""}${o.name === "Board of County Commissioners" ? " bcc-profile" : ""}">
@@ -501,14 +493,7 @@ async function buildOfficerPage(o, pageNumber) {
           <div class="workforce-line"><span>Workforce</span><b>${o.fte} FTE</b><em>${o.fteDelta ? `${o.fteDelta > 0 ? "+" : "&minus;"}${Math.abs(o.fteDelta)} FTE` : "No change"}</em></div>
           ${workforcePositionNote}
         </div>
-        <div class="budget-mix" aria-label="Budget composition">${mixSegments}</div>
-        <div class="side-split">
-          <div class="personnel"><span>Personnel</span><b>${money(o.personnel)}</b></div>
-          
-          ${o.contractual ? `<div class="contractual"><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
-          <div class="operating"><span>Operating</span><b>${money(o.operating)}</b></div>
-          <div class="capital"><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
-        </div>
+        <div class="budget-composition" aria-label="Budget composition; bars show each category as a share of the office total">${compositionRows}</div>
         ${qrHtml}
       </div>
     </div>
@@ -550,7 +535,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <p class="footnote"><b>Board of County Commissioners:</b> The Board office total includes $1,705,000 in capital and $400,000 in contingency, which are shown separately in the Budget Change Summary and Expenditure Ledger.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board office total includes $1,705,000 in capital, $400,000 in contingency, and $5,000 in grants and aid, which are shown separately in the Budget Change Summary and Expenditure Ledger.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
@@ -565,7 +550,7 @@ const officePagesHtml = officePagesArr.join("\n");
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Constitutional Officers Ledger</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}.qr-wrap a{color:inherit;text-decoration:none}</style></head>
 <body>${overviewPage}${officePagesHtml}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-constitutional-officers-ledger.pdf";
@@ -578,6 +563,7 @@ const overflowingProfiles = await page.evaluate(() => Array.from(document.queryS
   return bottom.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 4;
 }).map(section => section.querySelector('h1').textContent));
 if (overflowingProfiles.length) throw new Error('Profile content overlaps the footer: ' + overflowingProfiles.join(', '));
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath + " (" + (1 + OFFICES.length) + " pages)");

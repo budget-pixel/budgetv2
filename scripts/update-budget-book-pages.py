@@ -79,6 +79,17 @@ SOURCES.append((46, SCRATCH / "budget-process-revised.pdf", 2, "Budget Process")
 # Capital chapter cover inserted before the previous page 107 guide.
 SOURCES = [(physical + (physical >= 107), path, source, title) for physical, path, source, title in SOURCES]
 
+# The reviewed edition has an additional transportation page and a shorter
+# glossary. Use its source manifest to prevent old offsets being reapplied.
+publication_manifest = SCRATCH / "publication-pages.json"
+if (PdfReader(BOOK).metadata or {}).get("/PublicationReview") == "20261008":
+    import json
+    if not publication_manifest.exists():
+        raise RuntimeError("Rebuild the reviewed publication source manifest before updating pages")
+    entries = json.loads(publication_manifest.read_text())
+    SOURCES = [(int(number), SCRATCH / (entry["file"] + ".pdf"), entry["page"], None)
+               for number, entry in entries.items()]
+
 # Optional physical page numbers keep a focused update from reapplying
 # unrelated intermediate exports from earlier revisions.
 if len(sys.argv) > 1:
@@ -100,7 +111,7 @@ for physical_page, source_path, source_page, expected_title in SOURCES:
     source = readers[source_path]
     old_text = original.pages[physical_page - 1].extract_text() or ""
     new_text = source.pages[source_page - 1].extract_text() or ""
-    if expected_title not in " ".join(old_text.split()) or expected_title not in " ".join(new_text.split()):
+    if expected_title and (expected_title not in " ".join(old_text.split()) or expected_title not in " ".join(new_text.split())):
         raise RuntimeError(f"Unexpected content at physical page {physical_page}")
     replacements[physical_page - 1] = source.pages[source_page - 1]
 

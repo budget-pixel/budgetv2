@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 import { readFileSync } from "fs";
@@ -12,6 +13,8 @@ const repoRoot = path.resolve(__dirname, "..");
 const revenueSnapshot = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-revenue-snapshot.json"), "utf8")).departments;
 const performanceProjections = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/performance-projections-fy2026.json"), "utf8"));
 const annualReportPerformance = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/annual-report-performance.json"), "utf8"));
+const publicationData = JSON.parse(readFileSync(path.join(repoRoot, "assets/static-data/budget.json"), "utf8")).data;
+const publicationExpenses = publicationData.expenditures;
 const departmentPhotos = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-photos.json"), "utf8"));
 const DEPARTMENTS_DIVIDER_PHOTO = `data:image/jpeg;base64,${readFileSync(path.join(repoRoot, "assets/images/page-images/divider-bg-departments.jpg")).toString("base64")}`;
 
@@ -430,7 +433,7 @@ const DEPARTMENTS = [
     deltaP: -67045, deltaO: 168982, deltaC: -15000, video: "U5q2lymuFys", fund: "Mosquito Control Fund",
     sof: "The Mosquito Control Department is dedicated to protecting public health and enhancing quality of life for residents and visitors by managing mosquito populations through surveillance, larval control, and public education, aimed at minimizing nuisance and reducing the risk of mosquito-borne disease.",
     goal: "Protect public health and enhance quality of life by managing mosquito populations through effective, innovative, and environmentally responsible practices.",
-    challenges: "Eight positions, down one, plan 610,000 treated acres and 9,750 site inspections, compared with approximately 309,000 treated acres in the annual report; the report does not give an inspection count.",
+    challenges: "Eight positions, down one, plan 610,000 treated acres and 9,750 site inspections, compared with approximately 309,000 treated acres in the annual report.",
     changeNote: "The allocation for shared administrative costs increases by $146,557 from FY 2026.",
     revenue: "General Government Taxes &mdash; Ad Valorem Taxes $1,426,937",
     capitalItems: [
@@ -539,11 +542,11 @@ const DEPARTMENTS = [
       { service: "Caseload Software", provider: "Tyler Technologies", amount: 12000 }
     ],
     pms: [
-      { q: "Number of county court hearings attended by probation officers per calendar year", obj: "Monitor and attend all required county court hearings to support judicial processes", y: ["83", "83", "62", "56"], target: "60" }
+      { q: "County court hearings attended by probation officers", obj: "Monitor and attend all required county court hearings to support judicial processes", y: ["83", "83", "62", "56"], target: "60" }
     ]
   },
   {
-    name: "Public Works", fte: 148, personnel: 13083100, operating: 7067900, contractual: 675000, capital: 7000000,
+    name: "Public Works", fte: 148, personnel: 13083100, operating: 7067900, contractual: 675000, capital: 6999000,
     deltaP: 38181, deltaO: -62853, deltaC: 2648200, video: "USzOdbzw-VI", fund: "Transportation Fund",
     sof: "The Public Works Department provides services related to infrastructure maintenance, repair, and construction that enhance quality of life for Walton County citizens and visitors, weighing every infrastructure improvement plan for the best long-term impact within available taxpayer funds.",
     goal: "Provide, maintain, and improve Walton County's public infrastructure in a sustainable, innovative, and efficient manner.",
@@ -563,11 +566,11 @@ const DEPARTMENTS = [
       { service: "DeFuniak Springs Interlocal Road Maintenance", provider: "City of DeFuniak Springs", amount: 50000 },
     ],
     capitalItems: [
-      { item: "Roadway infrastructure (Local Option Fuel Tax)", amount: 4501000 },
+      { item: "Roadway infrastructure (Local Option Fuel Tax)", amount: 4500000 },
       { item: "21-Yard Dump Trucks (New) &times;5 &mdash; Districts 1&ndash;5", amount: 1225000 },
       { item: "Remaining vehicles and equipment", amount: 1274000 }
     ],
-    capitalNote: "For individual equipment requests, see the Machinery, Vehicles, and Equipment Ledger (pp. 120&ndash;122). For roadway projects and funding, see the Transportation and Infrastructure Capital Ledger (pp. 114&ndash;115).",
+    capitalNote: "For individual equipment requests, see the Machinery, Vehicles, and Equipment Ledger (pp. 121&ndash;123). For roadway projects and funding, see the Transportation and Infrastructure Capital Ledger (pp. 114&ndash;116).",
     pms: [
       { q: "Number of capital improvement projects completed per fiscal year", obj: "Plan and complete capital improvement projects that enhance infrastructure sustainability", y: ["11", "10", "18", "17"], target: "23", svc: 2 },
       { q: "Number of miles of road maintained or improved per fiscal year (unpaved and paved roads)", obj: "Maintain and improve paved and unpaved roadways to enhance mobility and safety", y: ["1,046", "1,046", "1,046", "1,049"], target: "1,049", svc: 0 }
@@ -738,7 +741,7 @@ const DEPARTMENTS = [
     services:[["Operate beach shuttles","Transports passengers between designated parking and beach access locations."],["Maintain fleet readiness","Coordinates drivers, mechanics, dispatch, inspections, and vehicle availability."],["Improve coastal mobility","Reduces parking demand and expands access for residents and visitors."]],
     serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY 2027 ridership target.",
 
-    challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.", changeNote:"The $1,726,095 increase includes personnel $1,118,929, operating $139,000, indirect allocation $177,166, and capital $291,000. It is not attributable solely to six added positions.",
+    challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.", changeNote:"The $1,726,095 increase includes personnel $1,118,929, operating $139,000, indirect allocation $177,166, and capital $291,000.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Tram vehicles and transportation equipment",amount:507000}], capitalNote:"The $507,000 capital allocation includes three replacement ADA shuttles and one new pickup.", contracts:[],
     pms:[{q:"Passengers transported annually by the shuttle service",obj:"Transport at least 200,000 passengers annually",y:["77,282","193,725","168,203","200,000"],target:"250,000",svc:0}]
   }
@@ -1129,10 +1132,48 @@ const sharedCss = `
   .stat-card span{ display:block; margin-top:.03in; color:#e7c95f; font-size:6.2pt; font-weight:800; letter-spacing:.02em; text-transform:uppercase; line-height:1.25; }
 `;
 
+
+const PUBLICATION_EXPENSE_ALIASES = {
+  "Code Compliance": ["Code Compliance", "Code Compliance Beach"],
+  "Planning": ["Planning", "Planning Short-Term Rental"],
+  "Environmental Resources": ["Environmental Services"],
+  "Engineering Department": ["Engineering Services"],
+  "Probation": ["Probation Services"],
+  "Purchasing": ["Procurement"],
+  "Tourism Administration": ["Tourism Administration"],
+  "Sales and Visitors Center": ["Sales and Visitors Center"],
+  "Communications": ["Communications"],
+  "Marketing": ["Marketing"]
+};
+function publicationExpensesFor(name) {
+  const aliases = PUBLICATION_EXPENSE_ALIASES[name] || [name];
+  return publicationExpenses.filter(row => aliases.includes(row.Dept_Name));
+}
+function publicationChangeNote(department, rows) {
+  const changes = new Map();
+  const labels = {"Personnel Services":"Personnel", "Operating Expenditures":"Operating and contracted services", "Capital Outlay":"Capital", "Grants and Aid":"Grants and aid"};
+  rows.forEach(row => {
+    const label = labels[row.Object_Type];
+    if (label) changes.set(label, (changes.get(label) || 0) + Number(row.FY2027_Proposed || 0));
+  });
+  publicationData.dedupedExpenseRows.filter(row => (PUBLICATION_EXPENSE_ALIASES[department.name] || [department.name]).includes(row.Dept_Name)).forEach(row => { const label = labels[row.Object_Type]; if (label) changes.set(label, (changes.get(label) || 0) - Number(row.FY2026_Original_Budget || 0)); });
+  const largest = [...changes].filter(([,amount]) => amount).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0, 3);
+  const sentence = largest.map(([label, amount]) => `${label} ${amount > 0 ? (label.endsWith("services") ? "increase" : "increases") : (label.endsWith("services") ? "decrease" : "decreases")} ${money(Math.abs(amount))}`).join("; ") + ".";
+  if (department.name === "Extension Office") return "Lower personnel and operating costs offset a $40,000 replacement truck, for a $3,391 net decrease.";
+  if (department.name === "Purchasing") return "Capital decreases $105,000 and operating costs decrease $8,000, while personnel increases $704.";
+  if (department.name === "Beach Operations") return "Adds $1.10M capital, $1.00M operating and shared costs, and $0.43M personnel for seven new positions.";
+  if (department.name === "Beach Tram") return "The increase adds $1.12M in personnel, $0.29M in capital, $0.18M in shared costs, and $0.14M in operating costs.";
+  return largest.length ? sentence : "The total appropriation is unchanged from FY 2026.";
+}
+
 async function buildDeptPage(d, pageNumber) {
   const fy27 = d.personnel + d.contractual + d.operating + (d.indirect || 0) + d.capital + (d.other || 0);
-  const deltaTotal = d.deltaP + d.deltaO + d.deltaC;
-  const fy26 = fy27 - deltaTotal;
+  const expenseRows = publicationExpensesFor(d.name);
+  const fy26 = publicationData.dedupedExpenseRows.filter(row => (PUBLICATION_EXPENSE_ALIASES[d.name] || [d.name]).includes(row.Dept_Name)).reduce((sum, row) => sum + Number(row.FY2026_Original_Budget || 0), 0);
+  const sourceTotal = expenseRows.reduce((sum, row) => sum + Number(row.FY2027_Proposed || 0), 0);
+  if (sourceTotal !== fy27) throw new Error(`${d.name}: profile ${fy27} does not match frozen accounts ${sourceTotal}`);
+  const deltaTotal = fy27 - fy26;
+  const changeNote = publicationChangeNote(d, expenseRows);
   const isDown = deltaTotal < 0;
   const dsign = deltaTotal >= 0 ? "+" : "−";
   const fteDelta = d.ftePrior != null ? d.fte - d.ftePrior : null;
@@ -1147,7 +1188,7 @@ async function buildDeptPage(d, pageNumber) {
   const usesPropertyMethod = payerRows.some(([, , explanation]) => /87\.9%/.test(explanation));
   const usesSalesMethod = payerRows.some(([, , explanation]) => /tourism visitor study|68% of local retail spending|32% resident share/.test(explanation));
   const propertyTaxAllocation = payerRows.filter(([payer]) => /^(Property taxes|Property-tax transfer|Residential property owners|Commercial and other property owners)$/.test(payer)).reduce((sum, [, amount]) => sum + amount, 0);
-  const payerHtml = payerRows.map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(explanation)}</p></div>`).join("") + (revenueSnapshot[d.name]?.length ? "" : `<p class="source-trace"><b>Office appropriation: ${money(payerRows.reduce((sum, row) => sum + row[1], 0))}</b></p>`) + (["Mosquito Control"].includes(d.name) ? "" : homeownerValueExample(propertyTaxAllocation));
+  const payerHtml = payerRows.map(([payer, amount, explanation]) => `<div class="payer-row"><div class="payer-head"><b>${payer}</b><span class="payer-amt">${money(amount)}</span></div>${/Building Fund|Prior-year fund balance|Small County Surtax transfer|Tourist Development Fund allocation/.test(payer + " " + explanation) ? `<p class="payer-detail">${compactFundingDetail(explanation)}</p>` : ""}</div>`).join("") + (["Mosquito Control"].includes(d.name) ? "" : homeownerValueExample(propertyTaxAllocation));
   const payerMethodHtml = (usesPropertyMethod || usesSalesMethod)
     ? `<p class="source-trace">Estimated funding shares: ${usesPropertyMethod ? "property tax 87.9% residential / 12.1% commercial" : ""}${usesPropertyMethod && usesSalesMethod ? "; " : ""}${usesSalesMethod ? "sales tax 68% visitor / 32% resident (tourism study)" : ""}. Not individual payments.</p>`
     : "";
@@ -1157,7 +1198,7 @@ async function buildDeptPage(d, pageNumber) {
   if (pageHref) {
     const url = `https://final2027.budget-waltoncountyfl.com/pages/${pageHref}`;
     const dataUrl = await QRCode.toDataURL(url, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
-    qrHtml = `<div class="qr-wrap"><img src="${dataUrl}" alt="QR"/><span>View Online</span></div>`;
+    qrHtml = `<div class="qr-wrap"><a href="${url}" aria-label="View ${d.name} online"><img src="${dataUrl}" alt=""/><span>View Online</span></a></div>`;
   }
 
   // Long values (six-digit counts, "80 / 15,500" pairs) get a compact
@@ -1206,7 +1247,7 @@ async function buildDeptPage(d, pageNumber) {
   const matchedPms = new Set();
   const svcBlocks = serviceList.map(([t, desc], i) => {
     const linked = hasExplicitServices ? d.pms.filter((pm) => pm.svc === i) : d.pms;
-    if (!linked.length) return null;
+    if (!linked.length) return d.pms.length ? null : `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div></div>`;
     linked.forEach((pm) => matchedPms.add(pm));
     return `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div><div class="svc-kpis">${linked.map(pmBlock).join("")}</div></div>`;
   }).filter(Boolean).join("");
@@ -1255,14 +1296,14 @@ async function buildDeptPage(d, pageNumber) {
   ].filter(([, amount]) => amount !== 0).map(([label, amount]) => `<div class="composition-row"><div class="composition-label"><span>${label}</span><b>${money(amount)}</b></div><div class="composition-track"><i style="width:${((amount / fy27) * 100).toFixed(2)}%"></i></div></div>`).join("");
 
   return `
-  <section class="profile-page${d.name === "Building Construction and Maintenance" ? " building-photo-top" : d.name === "Public Works" ? " public-works-photo" : ["Eagle Springs Golf and Recreation Center", "Office of the County Attorney", "Planning"].includes(d.name) ? " dense-performance" : ""}">
+  <section class="profile-page${d.name === "Building Construction and Maintenance" ? " building-photo-top" : d.name === "Public Works" ? " public-works-photo" : ["Eagle Springs Golf and Recreation Center", "Office of the County Attorney", "Planning", "Beach Operations"].includes(d.name) ? " dense-performance" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <div class="top-grid">
       <div>
         <small class="kicker">${d.entityType || "Departments"}</small>
         <h1>${d.name}</h1>
         <div class="function-with-photo">
-        ${departmentPhotos[d.name] ? `<figure class="annual-department-photo"><img src="data:image/${path.extname(departmentPhotos[d.name].file).slice(1) === "png" ? "png" : "jpeg"};base64,${readFileSync(path.join(repoRoot, departmentPhotos[d.name].file)).toString("base64")}" alt="${d.name}"></figure>` : ""}
+        ${departmentPhotos[d.name] ? `<figure class="annual-department-photo"><img src="data:image/${path.extname(departmentPhotos[d.name].file).slice(1) === "png" ? "png" : "jpeg"};base64,${readFileSync(path.join(repoRoot, departmentPhotos[d.name].file)).toString("base64")}" alt="${d.name}"${departmentPhotos[d.name].objectPosition ? ` style="object-position:${departmentPhotos[d.name].objectPosition}"` : ""}></figure>` : ""}
         <h2>Statement of Function</h2>
         <p class="sof">${d.name === "Building Construction and Maintenance" ? "Facilities Maintenance delivers construction, remodeling, repairs, preventive maintenance, and treatment-plant assistance for County departments and constitutional offices. Parks Maintenance maintains parks, ballfields, office grounds, community centers, irrigation, fencing, playgrounds, and parking islands. Custodian provides cleaning services to County offices countywide." : d.sof}</p>
         </div>
@@ -1287,20 +1328,20 @@ async function buildDeptPage(d, pageNumber) {
             ${d.fteRollupNote ? `<p style="margin:.055in 0 0;color:#dce9e1;font-size:5.5pt;line-height:1.3;">${d.fteRollupNote}</p>` : ""}
           </div>
           <div class="budget-composition" aria-label="Budget composition; bars show each category as a share of the department total">${compositionRows}</div>
-          ${d.changeNote ? `<div class="primary-change"><b>Primary change</b><p>${d.changeNote}</p></div>` : ""}
+          <div class="primary-change"><b>Primary change</b><p>${changeNote}</p></div>
           ${qrHtml}
         </div>
       </div>
     </div>
         <div class="goal-chain goal-chain-inline"${d.name === "Tourism Administration" ? ' style="display:none"' : ""}>
-          <h2>${d.performanceHeading || "Core Services &amp; Performance"}</h2>
+          <h2>${d.performanceHeading || (d.pms.length ? "Core Services &amp; Performance" : "Core Services")}</h2>
           ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>.</p>` : ""}
           ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
           <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
-          ${d.pms.length || d.valueExplanation ? "" : `<p class="con-empty">${d.entityType === "Tourism Administration Office" ? "This office is part of the Tourism Administration department; its performance is measured and reported with the Tourism Administration department measures." : "Performance for this office is reported at the department level."}</p>`}
+
         </div>
     <div class="rev-con-grid three" style="grid-template-columns:${bottomColumns}">
-      <div class="rev-box"><h2>Funding Sources / Who Pays</h2>${payerHtml}${payerMethodHtml}</div>
+      <div class="rev-box"><h2>${d.name === "Solid Waste" ? "Fund Resources / Who Pays" : "Funding Sources / Who Pays"}</h2>${payerHtml}${payerMethodHtml}${d.name === "Solid Waste" ? `<p class="funding-scope">Fund resources of $40,701,564 support this $23,119,567 department budget and $17,581,997 in transfers to other County funds. See the Interfund Transfer Ledger.</p>` : ""}</div>
       <div class="con-box"><h2>Contracted Services</h2>${conHtml}</div>
       <div class="cap-box"><h2>Funded Capital Items</h2>${capItems.length ? capHtml : (d.capital ? `<div class="empty-card"><b>${money(d.capital)} capital budget</b>No itemized funded-capital schedule was available for this office.</div>` : `<p class="no-capital">No capital purchase or project is budgeted for FY 2027.</p>`)}</div>
     </div>
@@ -1398,6 +1439,33 @@ async function main() {
   .rev-box .payer-head b{color:#173229;font-size:6.35pt;font-weight:400}
   .rev-box .payer-amt{color:#003f28;font-size:6.35pt;font-weight:700}
 
+
+  .profile-page .sof{font-size:8.5pt;line-height:1.35}
+  .profile-page .svc-head span,.profile-page .profile-context{font-size:7.5pt}
+  .profile-page .goal-quote p{font-size:8.5pt}
+  .profile-page .goal-quote span{font-size:7pt}
+  .profile-page .rev-box .payer-head b,.profile-page .rev-box .payer-amt,.profile-page .con-row,.profile-page .cap-row{font-size:8pt;line-height:1.3}
+  .profile-page .payer-detail,.profile-page .cap-note,.profile-page .source-trace,.profile-page .pm-context-note,.profile-page .funding-scope{font-size:7.5pt!important;line-height:1.3!important}
+  .profile-page .funding-scope{margin:.06in 0;color:#52665c}
+  .profile-page .composition-label,.profile-page .composition-label b{font-size:7.5pt}
+  .profile-page .primary-change p{font-size:7.5pt;line-height:1.35}
+  .profile-page .qr-wrap a{color:inherit;text-decoration:none}
+  .profile-page .qr-wrap span{font-size:7pt}
+  .profile-page .top-grid{gap:.22in}
+  .profile-page{padding-top:.45in}
+  .profile-page .rev-con-grid h2{margin-top:.04in;margin-bottom:.03in}
+  .profile-page .con-row,.profile-page .cap-row{padding:.025in .045in}
+  .profile-page .rev-box .payer-row{padding:.025in .045in}
+  .dense-performance .editorial-cards{margin:.06in 0}
+  .dense-performance .svc-head span{line-height:1.25}
+  .dense-performance .side-card{padding:.10in .12in}
+  .dense-performance .side-stats{margin:.06in 0}
+  .dense-performance .side-change{padding:.05in 0}
+  .dense-performance .qr-wrap{padding-top:.045in}
+  .dense-performance .composition-row{margin:0;padding:0}
+  .dense-performance .budget-composition{gap:.02in}
+  .dense-performance .qr-wrap{margin-top:.05in}
+  .dense-performance .qr-wrap img{width:.68in;height:.68in}
 </style></head>
 <body>${dividerHtml}${overviewHtml}${deptPages.join("\n")}</body></html>`;
 
@@ -1405,6 +1473,7 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle" });
+  await capturePublicationHtml(page, outPath);
   const fundingOverflows = await page.evaluate(() => [...document.querySelectorAll('section')].flatMap(section => {
     const panels = [...section.querySelectorAll('.rev-box,.con-box,.cap-box,.side-col')];
     const panel = panels.sort((a,b)=>b.getBoundingClientRect().bottom-a.getBoundingClientRect().bottom)[0];
@@ -1413,7 +1482,8 @@ async function main() {
       ? [(section.querySelector('h1')?.textContent || 'Department funding panel') + ' overflow=' + Math.round(panel.getBoundingClientRect().bottom-footer.getBoundingClientRect().top)] : [];
   }));
   if (fundingOverflows.length) throw new Error(`Funding panels overlap the footer: ${fundingOverflows.join(', ')}`);
-  await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+  await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
   await browser.close();
   console.log("Wrote " + outPath + " (" + (2 + deptPages.length) + " pages)");
 }

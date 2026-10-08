@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
@@ -34,7 +35,7 @@ const BUDGET_EXPLORER_QR = await QRCode.toDataURL(BUDGET_EXPLORER_URL, {
 // ($8,596,305), Planning ($6,839,111), and Code Compliance ($4,811,854).
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
-  ["Other Constitutional Officers", 33.2615],
+  ["Other Officers & Board Office", 33.224609],
   ["Funded Capital Program", 43.80],
   ["Tourism Administration", 29.67],
   ["Environmental Services", 23.51],
@@ -44,7 +45,7 @@ const EXPENSE_CATEGORIES = [
   ["Building Construction & Maintenance", 8.60],
   ["Planning", 6.84],
   ["Code Compliance", 4.81],
-  ["All Other Departments & Agencies", 32.7885]
+  ["All Other Departments & Agencies", 32.825391]
 ];
 const EXPENSE_TOTAL = 345.2;
 
@@ -342,7 +343,7 @@ const html = `<!doctype html>
     letter-spacing:.08em;
     text-transform:uppercase;
   }
-</style></head>
+.stat-card span,.fund-row,.micro-note{font-size:7.5pt}.bar-label,.bar-value{font-size:8pt}.bar-value span{font-size:7pt}.footnote{font-size:7.5pt}</style></head>
 <body>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
@@ -379,7 +380,7 @@ const html = `<!doctype html>
     <div class="fund-strip">
       ${FUNDS.map(([l, v]) => `<div class="fund-chip"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
-    <p class="fund-note">Fund highlights present gross fund budgets and are not additive to the $345.2 million net expenditure budget. Interfund transfers appear in more than one fund and are eliminated from the net total. This Budget in Brief was distributed at the tentative and final budget hearings and posted online.</p>
+    <p class="fund-note">Fund highlights present gross fund budgets and are not additive to the $345.2 million net expenditure budget. Interfund transfers appear in more than one fund and are eliminated from the net total.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
@@ -392,13 +393,15 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 const bookHtml = html.replace("PAGE_A", startPage);
 await page.setContent(bookHtml, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await assertPublicationFits(page);
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 const handoutHtml = bookHtml.replace(
   `<footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>`,
   `<footer><span>FY 2027 Final Budget</span><b>Budget in Brief</b></footer>`
 );
 await page.setContent(handoutHtml, { waitUntil: "networkidle" });
-await page.pdf({ path: handoutPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await page.pdf({ path: handoutPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);
 console.log("Wrote " + handoutPath);

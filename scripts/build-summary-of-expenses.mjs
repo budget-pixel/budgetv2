@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Expenditure Ledger" -- the county's
@@ -49,7 +50,7 @@ const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,
 // Each function below now sums to the consolidated budget ledger.
 const DEPT_GROUPS = [
   ["General Government", [
-    ["Board of County Commissioners", "$12,472,780"],
+    ["Board of County Commissioners", "$12,435,889"],
     ["Building Construction and Maintenance", "$8,912,305"],
     ["Tax Collector", "$8,500,000"],
     ["Clerk of Court", "$6,871,175"],
@@ -64,7 +65,7 @@ const DEPT_GROUPS = [
     ["Office of Management and Budget", "$1,075,026"],
     ["Geographic Info Systems", "$839,146"],
     ["Mossy Head Wastewater Treatment Facility", "$464,000"],
-    ["Court Innovations", "$43,109"],
+    ["Court Innovations", "$80,000"],
   ]],
   ["Public Safety", [
     ["Walton County Sheriff's Office", "$114,116,228"],
@@ -505,11 +506,6 @@ const page1 = `
       ${row(TOTAL, "grand")}
     </div>
 
-    <div class="callout">
-      <h3>Reading This Table</h3>
-      <p>FY 2026 and FY 2027 budgets use the department grouping shown on the continued ledger pages. Earlier actuals retain their originally reported classifications, so a category change may affect a year-over-year comparison.</p>
-    </div>
-
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
@@ -525,7 +521,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <p class="footnote"><b>Board of County Commissioners:</b> The Board's $12,972,780 total is classified as $12,472,780 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board's $12,935,889 total is classified as $12,435,889 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
@@ -552,6 +548,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-summary-of-expenses
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

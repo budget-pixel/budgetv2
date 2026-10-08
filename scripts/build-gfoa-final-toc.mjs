@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 const pageOrder = JSON.parse(readFileSync(new URL("./data/budget-book-page-order.json", import.meta.url), "utf8"));
@@ -91,6 +92,11 @@ for (const section of sections) {
 capitalBudget.items.unshift(["Capital Budget Chapter Cover", 107]);
 const county = sections.find(s => s.title === "Introduction and Our County");
 county.items.push(["Organizational Challenges", 15], ["FY 2027 Response", 16]);
+// The transportation ledger now spans three pages. The shorter glossary
+// offsets the extra capital page, preserving the 135-page publication.
+for (const section of sections) {
+ if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] >= 116 && item[1] <= 124 ? item[1] + 1 : item[1], item[2]] : item);
+}
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.
 const firstPage = (g) => g[1] ?? Math.min(...g[2].map((c) => c[1]));
@@ -125,6 +131,7 @@ const pages = PAGE_GROUPS.map((g,index) => `<section class="page toc-page-${inde
 const browser = await chromium.launch({headless:true});
 const page = await browser.newPage();
 await page.setContent(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Table of Contents</title><style>${css}${firstPageCss}</style></head><body>${pages}</body></html>`,{waitUntil:'networkidle'});
+await capturePublicationHtml(page, outPath);
 await page.pdf({path:outPath,format:'Letter',printBackground:true,preferCSSPageSize:true,tagged:true,outline:true});
 await browser.close();
 console.log(`Wrote ${outPath}`);

@@ -21,7 +21,8 @@
     "file": "assets/images/annual-report-2025/eagle-springs-grill.jpg",
     "reportPage": 17,
     "imageIndex": 2,
-    "caption": "Eagle Springs Grill \u00b7 2025 Annual Report"
+    "caption": "Eagle Springs Grill \u00b7 2025 Annual Report",
+    "objectPosition": "center top"
   },
   "Engineering Department": {
     "file": "assets/images/annual-report-2025/engineering-department.jpg",

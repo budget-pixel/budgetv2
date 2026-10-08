@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Guide/TOC page for the new "Capital Budget" chapter -- the Capital
@@ -11,11 +12,11 @@ const ITEMS = [
   ["Capital Funding and Delivery Dashboard", 113],
   { category: "Fund-Specific Capital Ledgers" },
   ["Transportation and Infrastructure Capital Ledger", 114],
-  ["Tourist Development Fund Capital Ledger", 116],
-  ["Sheriff Capital Project Ledger", 117],
-  ["Recreation Plat Fee Fund Capital Ledger", 118],
-  ["Sidewalk Fund Capital Ledger", 119],
-  ["Machinery, Vehicles, and Equipment Ledger", 120]
+  ["Tourist Development Fund Capital Ledger", 117],
+  ["Sheriff Capital Project Ledger", 118],
+  ["Recreation Plat Fee Fund Capital Ledger", 119],
+  ["Sidewalk Fund Capital Ledger", 120],
+  ["Machinery, Vehicles, and Equipment Ledger", 121]
 ];
 
 const css = `
@@ -57,6 +58,7 @@ const outPath = process.argv[2] || "/private/tmp/toc-capital-budget.pdf";
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

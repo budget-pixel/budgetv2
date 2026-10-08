@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261006-tourism-performance";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261008-unassigned-opening";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -2861,7 +2861,7 @@
     } else if (norm === "court innovations") {
       expenseRows = (cache.expenditures || []).filter(
         (r) =>
-          (r.Dept_Code === "00101000" && r.Project_Code === "1040") ||
+          (r.Dept_Code === "00101000" && /^0*1040$/.test(String(r.Project_Code || "").trim())) ||
           normalizeDeptName(r.Dept_Name) === "court innovations"
       );
       expenseRowsForRevenuePlug = expenseRows;
@@ -2874,7 +2874,7 @@
       const expenseMainRows = filterAllZeroRowsForSelectedDepartments(getDepartmentExpenses(deptName, deptCode).filter(
         (r) =>
           !excludedObjectCodes.includes(String(r.Object_Code || "").trim()) &&
-          !(isBcc && String(r.Project_Code || "").trim() === "1040")
+          !(isBcc && /^0*1040$/.test(String(r.Project_Code || "").trim()))
       ), deptName);
       const supplementalRows = [];
       if (isSolidWaste) {
@@ -2897,7 +2897,7 @@
         supplementalRows.push(
           ...(cache.expenditures || []).filter(
             (r) =>
-              (r.Dept_Code === "00101000" && r.Project_Code === "1040") ||
+              (r.Dept_Code === "00101000" && /^0*1040$/.test(String(r.Project_Code || "").trim())) ||
               normalizeDeptName(r.Dept_Name) === "court innovations"
           )
         );
@@ -5442,7 +5442,7 @@
   }
 
   function isCourtInnovationsExpenseRow(r) {
-    return (r.Dept_Code === "00101000" && r.Project_Code === "1040") || normalizeDeptName(r.Dept_Name) === "court innovations";
+    return (r.Dept_Code === "00101000" && /^0*1040$/.test(String(r.Project_Code || "").trim())) || normalizeDeptName(r.Dept_Name) === "court innovations";
   }
 
   function getCourtInnovationsExpenses() {
@@ -5991,7 +5991,6 @@
     // balance, and the subtotal/total columns are re-added from the funds.
     const directCount = directOperationalColumns.length;
     const reportedReserves = new Map([
-      [directOperationalColumns.findIndex((column) => column.key === "general"), 73863224],
       [directOperationalColumns.findIndex((column) => column.key === "tourist"), 172457049],
       [directOperationalColumns.findIndex((column) => column.key === "special"), 37154971],
       [directCount + 2, 572948]
@@ -6076,6 +6075,7 @@
       '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns"><table class="wc-data-table wc-consolidated-financial-table">' +
       '<thead><tr>' + headers.map((header, index) => '<th>' + formatHeaderLabel(header) + '</th>').join("") + '</tr></thead>' +
       '<tbody>' + bodyRows.join("") + '</tbody></table></div>' +
+      '<p class="wc-budget-note trim-balance-basis"><strong>Balance basis:</strong> General Fund reserves use the FY 2025 audited unassigned balance of $58,393,573 as the FY 2027 opening assumption, less planned fund-balance use. Other funds retain their total balance basis.</p>' +
       '<p class="trim-budget-record-note">The final adopted, and/or final budgets are on file in the Office of the Walton County Board of County Commissioners as a public record.</p></div>';
   }
 
@@ -6107,10 +6107,9 @@
     { code: "115", label: "Sidewalk Fund" }
   ];
 
-  // FY2027's Beginning Fund Balance is simply FY2026's recorded balance,
-  // so the sheet only needs FY2026 (and prior) filled in. For a prior-year
-  // column (e.g. FY2024 Actual), the beginning balance is the year before
-  // that column's own fiscal year.
+  // The FY2026 balance record supplies the FY2027 opening assumption.
+  // For General Fund it uses FY2025 audited unassigned balance, rather
+  // than total fund balance. Earlier columns retain their reported basis.
   function fundBalanceForYear(fundCodes, year) {
     const codes = Array.isArray(fundCodes) ? fundCodes : [fundCodes];
     return (cache.fundBalances || [])
@@ -7207,7 +7206,9 @@
 
       return {
         fund,
-        beginningBalanceSource: "Published fund balance FY " + beginningBalanceSourceYear,
+        beginningBalanceSource: fund.code === "001"
+          ? "FY 2025 audited unassigned balance used as FY 2027 opening assumption"
+          : "Published fund balance FY " + beginningBalanceSourceYear,
         historicalRevenue: summarizeForecastHistory("revenue", fund.code),
         historicalExpense: summarizeForecastHistory("expense", fund.code),
         originalBudgetRevenue: summarizeForecastOriginalBudget("revenue", fund.code),
@@ -8216,6 +8217,7 @@
       "<tbody>" + bodyRows.join("") + "</tbody>" +
       "</table>" +
       "</div>" +
+      (fundCodes.includes("001") ? '<p class="wc-budget-note"><strong>Balance basis:</strong> FY 2027 starts with $58,393,573 of FY 2025 audited unassigned General Fund balance. Planned fund-balance use reduces this opening assumption; later projections roll forward from it. Other funds retain their total balance basis.</p>' : "") +
       "</div>" +
       "</div>"
     );
@@ -9171,7 +9173,7 @@
     // (Transportation, Sheriff Capital, Tourist Development, Recreation
     // Plat Fee, Sidewalk, Machinery/Vehicles/Equipment), so it's labeled
     // "Capital" rather than a generic "Other".
-    const DEPARTMENT_GROUP_LABELS = ["Constitutional Officers", "Independent Agencies", "Board Department Operating and Personnel Budgets", "Capital"];
+    const DEPARTMENT_GROUP_LABELS = ["Constitutional Officers and Board Office", "Independent Agencies", "Board Department Operating and Personnel Budgets", "Capital"];
     // The 15 canonical Board Department rollup names (see
     // BOARD_DEPARTMENT_ROLLUP_NAMES/groupedDeptName above) -- a couple of
     // them ("Parks & Recreation", "Beach Operations") aren't themselves a
@@ -9184,6 +9186,7 @@
     );
     function departmentGroupOrder(deptName) {
       const norm = normalizeDeptName(deptName);
+      if (norm === "msbu") return DEPARTMENT_GROUP_ORDER["Autonomous Entities"];
       if (BOARD_DEPARTMENT_CANONICAL_NAMES.has(norm)) return DEPARTMENT_GROUP_ORDER.Departments;
       const pages = window.wcBudgetPages || [];
       const title = DEPARTMENT_PAGE_TITLE_ALIASES.get(norm) || deptName;
@@ -9282,9 +9285,9 @@
         totalPrior += prior;
         totalProposed += proposed;
         const change = proposed - prior;
-        // Rows with no year-over-year change are dropped -- this table is
-        // about what changed, not a full department budget breakdown.
-        if (change === 0 && normalizeDeptName(label.dept) !== "debt service") return;
+        // Retain unchanged appropriations so the comparison subtotals
+        // reconcile to all departments and agencies.
+        if (prior === 0 && proposed === 0) return;
         entries.push({ dept: label.dept, category: label.category, prior, proposed, change });
       });
       return { entries, totalPrior, totalProposed };
@@ -12055,7 +12058,7 @@
   function renderCourtInnovationsSupplementalTables() {
     const rows = (cache.expenditures || []).filter(
       (r) =>
-        (r.Dept_Code === "00101000" && r.Project_Code === "1040") ||
+        (r.Dept_Code === "00101000" && /^0*1040$/.test(String(r.Project_Code || "").trim())) ||
         normalizeDeptName(r.Dept_Name) === "court innovations"
     );
     const expensePiece = renderTypeSummaryGroup(rows, "expense", "Expenditure Summary");
@@ -12961,7 +12964,7 @@
           let expenseRows = filterAllZeroRowsForSelectedDepartments(getDepartmentExpenses(deptName, deptCode).filter(
             (r) =>
               !excludedObjectCodes.includes(String(r.Object_Code || "").trim()) &&
-              !(isBcc && String(r.Project_Code || "").trim() === "1040")
+              !(isBcc && /^0*1040$/.test(String(r.Project_Code || "").trim()))
           ), deptName);
           // The Solid Waste Transfer (interfund transfer to other funds) is
           // booked under its own Dept_Name in the sheet -- folded in here
@@ -17713,7 +17716,7 @@
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
         return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total expenditure budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its FY 2027 budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and FY 2027 spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note">* The Board office total is $12,791,280, including $1,705,000 of capital and $400,000 of contingency. Budget Adjustments shows $11,086,280 before capital; the Expenditure Ledger shows $12,391,280 before contingency.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its FY 2027 budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and FY 2027 spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note"><strong>Board office:</strong> $12,935,889, including $1,705,000 in capital, $400,000 in contingency, and $5,000 in grants and aid.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");
