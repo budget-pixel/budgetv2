@@ -3,3 +3,11 @@ tmp/
 .DS_Store
 **/.DS_Store
 output/pdf/*.tmp.pdf
+
+# Keep only the current publication PDFs and the award criteria reference.
+# Drafts, source attachments, backups, and internal workpapers stay local.
+*.pdf
+*.PDF
+!/output/pdf/walton-county-fy2027-budget-book.pdf
+!/output/pdf/walton-county-fy2027-budget-in-brief.pdf
+!/GFOA budget award critera.pdf

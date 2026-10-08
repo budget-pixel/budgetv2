@@ -16,6 +16,19 @@ collect(path.join(root, 'assets'));
 collect(path.join(root, 'pages'));
 let scripts = 0, pages = 0;
 const failures = [];
+// Only current public PDFs belong in the publication folder; workpapers use tmp/.
+const publicationPdfs = new Set([
+  'walton-county-fy2027-budget-book.pdf',
+  'walton-county-fy2027-budget-in-brief.pdf'
+]);
+for (const entry of fs.readdirSync(path.join(root, 'output/pdf'), { withFileTypes: true })) {
+  if (!entry.isFile() || !/\.pdf$/i.test(entry.name)) continue;
+  const relative = 'output/pdf/' + entry.name;
+  if (!publicationPdfs.has(entry.name)) failures.push(relative + ': obsolete or draft PDF; keep workpapers in tmp/');
+  if (fs.statSync(path.join(root, relative)).size > 100 * 1024 * 1024) {
+    failures.push(relative + ': exceeds the 100 MiB GitHub file limit');
+  }
+}
 // Only CIP may use an external spreadsheet connection. Publication and import downloads stay local.
 const cipFile = path.join(root, 'assets/cip-projects-data.js');
 for (const file of files) {
@@ -79,4 +92,4 @@ for (const file of files.filter((item) => item.endsWith('.html'))) {
   } catch (error) { failures.push(path.relative(root, file) + ': search index: ' + error.message); }
 }
 if (failures.length) { console.error(failures.join('\n')); process.exitCode = 1; }
-else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, local HTML resource links, and ${searchIndexes} page search indexes.`);
+else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, local HTML resource links, ${searchIndexes} page search indexes, and publication PDF inventory/size checks.`);
