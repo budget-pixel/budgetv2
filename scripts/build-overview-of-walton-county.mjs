@@ -34,7 +34,7 @@ const COMMISSIONERS = [
 ].map(([file, name, role, position, transform]) => [imageDataUri(file, file.endsWith(".jpeg") ? "image/jpeg" : "image/png"), name, role, position, transform]);
 
 const OFFICERS = [
-  ["tax-collector-rhonda-skipper.jpg", "Tax Collector", "Rhonda Skipper"],
+  ["tax-collector-brian-mcbroom.jpg", "Tax Collector", "Brian McBroom"],
   ["clerk-crystal-sconiers.jpg", "Clerk of Court & Comptroller", "Crystal Sconiers"],
   ["property-appraiser-gary-gregor.png", "Property Appraiser", "Gary J. Gregor"],
   ["supervisor-elections-ryan-messer.jpg", "Supervisor of Elections", "Ryan Messer"],

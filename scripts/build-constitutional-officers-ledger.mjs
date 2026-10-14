@@ -123,7 +123,7 @@ const OFFICES = [
   },
   {
     name: "Tax Collector", fund: "General Fund (State Approved)",
-    official: "Rhonda Skipper", title: "Tax Collector", photo: "tax-collector-rhonda-skipper.jpg",
+    official: "Brian McBroom", officialLabel: "Appointed Official", title: "Tax Collector", photo: "tax-collector-brian-mcbroom.jpg",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission",
     fte: 40, ftePrior: 40, fteDelta: 0, fy26: 7900000, fy27: 8500000,
     personnel: 7512920, operating: 987080, capital: 0,
@@ -439,7 +439,7 @@ async function buildOfficerPage(o, pageNumber) {
 
   const officialHtml = o.commissioners
     ? `<div class="comm-grid">${o.commissioners.map(([d, n, photo]) => `<div class="comm-card"><img src="${photoDataUrl(photo)}" alt="${n}"/><b>${n}</b><span>${d}</span></div>`).join("")}</div>`
-    : `<div class="official-line"><img src="${photoDataUrl(o.photo)}" alt="${o.official}"${o.photoPosition ? ` style="object-position:${o.photoPosition}"` : ""}/><div class="etext"><span class="elabel">Elected Official</span><span class="ename">${o.official}</span><span class="etitle">${o.title}</span></div></div>`;
+    : `<div class="official-line"><img src="${photoDataUrl(o.photo)}" alt="${o.official}"${o.photoPosition ? ` style="object-position:${o.photoPosition}"` : ""}/><div class="etext"><span class="elabel">${o.officialLabel || "Elected Official"}</span><span class="ename">${o.official}</span><span class="etitle">${o.title}</span></div></div>`;
 
   let qrHtml = "";
   if (o.docUrl) {
