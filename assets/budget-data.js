@@ -4313,6 +4313,53 @@
     return modal;
   }
 
+  function prepareMobileBudgetLines(body) {
+    // Read the rendered ledger rather than recalculating or regrouping its figures.
+    if (!body || body.querySelector('.wc-revenue-year-picker')) return;
+    body.querySelectorAll('table').forEach((table) => {
+      if (!table.querySelector('.wc-itemized-description-column')) return;
+      const list = document.createElement('div');
+      list.className = 'wc-mobile-budget-lines';
+      const heading = document.createElement('p');
+      heading.className = 'wc-mobile-budget-lines-heading';
+      heading.textContent = 'FY 2027 final budget';
+      list.appendChild(heading);
+      table.querySelectorAll('tbody tr').forEach((row) => {
+        if (row.hidden || row.classList.contains('wc-budget-line-zero-current') || row.classList.contains('wc-budget-line-summary-row')) return;
+        if (row.classList.contains('wc-budget-line-zero-prior-budget') && body.dataset.priorYearsDisabled !== 'true') return;
+        const amount = row.querySelector('td.wc-fy-2027');
+        const description = row.querySelector('.wc-itemized-description-column');
+        if (!amount || !description) return;
+        const name = description.previousElementSibling;
+        const label = name && (name.dataset.wcMobileLabel || name.textContent.trim());
+        if (!label) return;
+        const item = document.createElement('article');
+        item.className = 'wc-mobile-budget-line';
+        if (row.classList.contains('wc-table-total-row')) item.classList.add('is-total');
+        else if (row.classList.contains('wc-table-subtotal-row')) item.classList.add('is-subtotal');
+        const title = document.createElement('h3');
+        title.textContent = label;
+        const value = document.createElement('strong');
+        value.textContent = amount.textContent.trim();
+        item.append(title, value);
+        if (description.textContent.trim()) {
+          const note = document.createElement('p');
+          note.textContent = description.textContent.trim();
+          item.appendChild(note);
+        }
+        list.appendChild(item);
+      });
+      if (!list.querySelector('article')) return;
+      const scroll = table.closest('.wc-data-table-scroll') || table.parentElement;
+      scroll.classList.add('wc-mobile-budget-table');
+      scroll.before(list);
+      const hint = document.createElement('p');
+      hint.className = 'wc-mobile-budget-history-hint';
+      hint.textContent = 'Swipe the table sideways to compare fiscal years.';
+      scroll.before(hint);
+    });
+  }
+
   function closeBudgetDetailModal() {
     const modal = document.querySelector(".wc-budget-detail-modal");
     if (!modal) return;
@@ -4377,6 +4424,7 @@
       if (body.querySelector(".wc-revenue-year-picker")) bindRevenueYearPicker(body);
       else applyPriorYearsState(getShowPriorYears("budget"), body);
     }
+    prepareMobileBudgetLines(body);
     activeBudgetDetailToggle = toggle;
     toggle.setAttribute("aria-expanded", "true");
     modal.hidden = false;
@@ -4433,6 +4481,7 @@
       if (body.querySelector(".wc-revenue-year-picker")) bindRevenueYearPicker(body);
       else applyPriorYearsState(getShowPriorYears("budget"), body);
     }
+    prepareMobileBudgetLines(body);
     activeBudgetDetailToggle = toggle || null;
     if (toggle) toggle.setAttribute("aria-expanded", "true");
     modal.hidden = false;
@@ -11620,7 +11669,7 @@
           : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
         concentrationContainer.innerHTML = concentrationHtml +
           '<dialog class="wc-revenue-source-dialog" data-revenue-explorer-dialog aria-labelledby="wcRevenueExplorerDialogTitle">' +
-          '<video class="wc-revenue-source-dialog-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="' + explorerDialogWaveSrc + '" type="video/mp4"></video><div class="wc-revenue-source-dialog-shade" aria-hidden="true"></div>' +
+          '<video class="wc-revenue-source-dialog-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="' + explorerDialogWaveSrc + '" type="video/mp4"></video><div class="wc-revenue-source-dialog-shade" aria-hidden="true"></div>' +
           '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueExplorerDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-explorer-dialog-close aria-label="Close">&times;</button></div>' +
           '<div class="wc-revenue-source-dialog-body" data-revenue-explorer-dialog-body></div></div></dialog>';
         const explorerDialog = concentrationContainer.querySelector("[data-revenue-explorer-dialog]");
@@ -11659,7 +11708,7 @@
           if (explorerDialogWave) {
             explorerDialogWave.defaultPlaybackRate = 0.25;
             explorerDialogWave.playbackRate = 0.25;
-            const playPromise = explorerDialogWave.play();
+            const playPromise = window.WCPlayBackgroundVideo ? window.WCPlayBackgroundVideo(explorerDialogWave) : Promise.resolve();
             if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
           }
           renderRevenueTopicCards(explorerDialogBody, [topic], "wc-chart-revenue-explorer-popup");
@@ -12811,6 +12860,44 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  function enhanceMobileDepartmentPage(deptName, deptCode) {
+    const content = document.getElementById("content");
+    const expenses = getDepartmentExpenses(deptName, deptCode);
+    if (!content || !expenses.length) return;
+    const current = expenses.reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0);
+    const prior = expenses.reduce((sum, row) => sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0), 0);
+    const staffing = getDepartmentStaffing(deptName, deptCode);
+    const fte = staffing.reduce((sum, row) => sum + (Number(row[2027]) || 0), 0);
+    const change = current - prior;
+    const overview = document.createElement("section");
+    overview.className = "wc-mobile-department-overview";
+    overview.setAttribute("aria-label", "Department budget highlights");
+    overview.innerHTML = '<span>FY 2027 expense budget · including capital</span><strong>' +
+      escapeHtml(formatCurrency(current)) + '</strong><dl><div><dt>Change from FY 2026</dt><dd>' +
+      (change >= 0 ? "+" : "−") + escapeHtml(formatCurrency(Math.abs(change))) + '</dd></div>' +
+      (staffing.length ? '<div><dt>Staffing</dt><dd>' + escapeHtml(formatNumber(fte)) + ' FTE</dd></div>' : '') + '</dl>';
+    const title = content.querySelector('.wc-page-title-row') || content.querySelector('h1');
+    if (title) title.after(overview);
+    else content.prepend(overview);
+    const disclosures = [];
+    content.querySelectorAll('.statement-of-function, .tourism-admin-section-narrative').forEach((section) => {
+      // Keep financial tables outside the narrative disclosure.
+      if (section.closest('.wc-mobile-department-description') || section.querySelector('table, .wc-financial-dashboard-card')) return;
+      const details = document.createElement('details');
+      details.className = 'wc-mobile-department-description';
+      const summary = document.createElement('summary');
+      summary.textContent = 'About this department';
+      section.before(details);
+      details.append(summary, section);
+      disclosures.push(details);
+    });
+    const phone = window.matchMedia('(max-width:700px)');
+    function syncDescriptions(){ disclosures.forEach((details) => { details.open = !phone.matches; }); }
+    syncDescriptions();
+    phone.addEventListener('change', syncDescriptions);
+    if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+  }
+
   function initDepartmentPage() {
     const ids = [
       "department-narrative",
@@ -13126,6 +13213,10 @@
           const target = document.getElementById(window.location.hash.slice(1));
           if (target) target.scrollIntoView();
         }
+      })
+      .then(() => {
+        if (!document.querySelector('#department-narrative:not([hidden])')) return;
+        enhanceMobileDepartmentPage(deptName, deptCode);
       })
       .catch((err) => {
         console.error("WCBudgetData: failed to load budget data", err);
@@ -17448,7 +17539,7 @@
           });
         }
         const badgesHtml = window.WCDepartmentServices ? '<div class="wc-department-card-badges"><span class="wc-department-info-badge" data-dept-badge="services" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' services">Services</span><span class="wc-department-info-badge" data-dept-badge="challenges" tabindex="0" role="button" aria-label="' + escapeHtml(dept.name) + ' challenges">Challenges</span><span class="wc-department-info-badge" data-dept-badge="changing" tabindex="0" role="button" aria-label="What is changing at ' + escapeHtml(dept.name) + '">Changes</span></div>' : "";
-        const cardBodyHtml = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(currentExcludingCapital)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div>';
+        const cardBodyHtml = '<div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(dept.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(currentExcludingCapital)) + '</b><small class="wc-revenue-card-share">' + shareOfBoard.toFixed(1) + '% of board department budget</small></div><div class="wc-revenue-card-badge-stack">' + badgesHtml + '<span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div><span class="wc-mobile-department-action">View department <span aria-hidden="true">&rarr;</span></span>';
         // Most departments' offices all land on that department's own page
         // (pageHref), so the card can link straight there. A few roll up
         // offices that keep separate pages of their own (e.g. County

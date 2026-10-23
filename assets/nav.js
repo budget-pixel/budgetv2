@@ -1,4 +1,24 @@
 (function(){
+  window.WCPlayBackgroundVideo = function(video){
+    if(window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches || navigator.connection?.saveData) return Promise.resolve();
+    var source = video.querySelector('source[data-src]');
+    if(source && !source.hasAttribute('src')){ source.src = source.dataset.src; video.load(); }
+    return video.play() || Promise.resolve();
+  };
+  // Create third-party video players only after an explicit play action.
+  document.addEventListener('click', function(event){
+    var button = event.target.closest('.wc-lazy-video[data-video-src]');
+    if(!button) return;
+    var frame = document.createElement('iframe');
+    frame.title = button.dataset.videoTitle || 'Department video';
+    frame.allow = button.dataset.videoAllow || 'autoplay; encrypted-media; picture-in-picture';
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.style.cssText = 'display:block;width:100%;height:100%;min-height:200px;aspect-ratio:16/9;border:0';
+    frame.src = button.dataset.videoSrc;
+    button.replaceWith(frame);
+    frame.focus();
+  });
   // Department pages opened with the popup embed flag should be
   // chromeless immediately, even before the outer popup's iframe load
   // handler adds the same class. This also keeps direct preview and
@@ -2524,7 +2544,7 @@
         </nav>
       </div>
       <dialog class="wc-footer-utility-dialog" aria-labelledby="wcFooterUtilityTitle">
-        <video class="wc-footer-utility-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="${utilityWaveHref}" type="video/mp4"></video>
+        <video class="wc-footer-utility-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="${utilityWaveHref}" type="video/mp4"></video>
         <div class="wc-footer-utility-shade" aria-hidden="true"></div>
         <section class="wc-footer-utility-panel">
           <header class="wc-footer-utility-head"><h2 id="wcFooterUtilityTitle">Website Information</h2><button type="button" class="wc-footer-utility-close" aria-label="Close website information">&times;</button></header>
@@ -2584,7 +2604,7 @@
         utilityFrame.src=url.href;
         document.documentElement.classList.add('wc-modal-open');
         utilityDialog.showModal();
-        if(utilityWave){var playPromise=utilityWave.play();if(playPromise&&typeof playPromise.catch==='function')playPromise.catch(function(){});}
+        if(utilityWave){var playPromise=window.WCPlayBackgroundVideo(utilityWave);if(playPromise&&typeof playPromise.catch==='function')playPromise.catch(function(){});}
         utilityDialog.querySelector('.wc-footer-utility-close').focus();
       });
     });

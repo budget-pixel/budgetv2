@@ -1358,7 +1358,7 @@
     // not in the legacy list above. Do not use a generic iframe selector:
     // department pages also contain maps, library sites, and other tools
     // that should remain in their own content sections.
-    document.querySelectorAll('main#content iframe[src*="youtube.com/embed"],main#content iframe[src*="youtube-nocookie.com/embed"]').forEach(function(videoFrame){
+    document.querySelectorAll('main#content iframe[src*="youtube.com/embed"],main#content iframe[src*="youtube-nocookie.com/embed"],main#content .wc-lazy-video').forEach(function(videoFrame){
       if(supportingMedia.some(function(item){return item===videoFrame||item.contains(videoFrame);})) return;
       var videoWrapper=videoFrame.closest('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,[class*="video-frame"]')||videoFrame;
       if(supportingMedia.indexOf(videoWrapper)===-1) supportingMedia.push(videoWrapper);

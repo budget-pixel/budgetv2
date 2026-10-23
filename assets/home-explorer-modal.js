@@ -51,7 +51,30 @@
   // How long the popup stays at its small opening size before it's allowed
   // to grow -- deliberate, so the reveal reads as a consistent flourish
   // rather than something that only happens to appear on slow-loading pages.
-  var MIN_POPUP_REVEAL_MS = 900;
+  function popupRevealDelay(){
+    return window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches ? 0 : 900;
+  }
+
+  function playBackgroundVideo(video){
+    if(window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches || navigator.connection?.saveData) return Promise.resolve();
+    var source = video.querySelector('source[data-src]');
+    if(source && !source.hasAttribute('src')){ source.src = source.dataset.src; video.load(); }
+    return video.play() || Promise.resolve();
+  }
+
+  var chartLibraryPromise = null;
+  function loadExplorerCharts(){
+    if(window.Chart) return Promise.resolve();
+    if(chartLibraryPromise) return chartLibraryPromise;
+    chartLibraryPromise = new Promise(function(resolve, reject){
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+      script.onload = resolve;
+      script.onerror = function(){ script.remove(); chartLibraryPromise = null; reject(new Error('Chart library could not load')); };
+      document.head.appendChild(script);
+    });
+    return chartLibraryPromise;
+  }
 
   // Sizes the department popup to the loaded page's actual content height
   // (capped at the viewport) instead of always opening at near-full
@@ -125,6 +148,9 @@
   function updateDepartmentModalHeight() {
     if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
     var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
+    var detailOpen = false;
+    try { detailOpen = departmentFrame.contentDocument.body.classList.contains('wc-budget-detail-open'); } catch (error) {}
+    departmentModal.classList.toggle('is-detail-open', detailOpen);
     // The budget book always wants the full available height for its own
     // page-flip sizing (see the is-budget-book CSS) rather than shrinking
     // to fit its iframe's measured content height like a normal department
@@ -149,8 +175,8 @@
     // ready well before that keeps the deliberate small-then-grow motion
     // instead of jumping straight to full size.
     var elapsed = Date.now() - departmentModalOpenedAt;
-    if (elapsed < MIN_POPUP_REVEAL_MS) {
-      window.setTimeout(updateDepartmentModalHeight, MIN_POPUP_REVEAL_MS - elapsed);
+    if (elapsed < popupRevealDelay()) {
+      window.setTimeout(updateDepartmentModalHeight, popupRevealDelay() - elapsed);
       return;
     }
     sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), false);
@@ -582,7 +608,10 @@
     if (!window.WCBudgetData) return;
     if (type === "revenue") {
       modalBody.innerHTML = '<section id="revenue-source-concentration" aria-label="Revenue Budget Explorer"></section><section id="revenue-peer-comparison" class="wc-revenue-peer-section" hidden aria-labelledby="revenue-peer-title"><button type="button" class="wc-revenue-peer-close">Close Revenue Comparison</button><div class="wc-revenue-peer-card"><div class="wc-revenue-peer-head"><div><span>Florida peer benchmark</span><h2 id="revenue-peer-title">How does Walton County compare?</h2><p>FY 2024 actual county-government revenue per resident provides a consistent comparison across regional and tourism-oriented peers.</p></div><label>Compare by<select id="revenue-peer-metric"></select></label></div><div class="wc-revenue-peer-chart-wrap"><canvas id="revenue-peer-chart"></canvas></div><div id="revenue-peer-insight" class="wc-revenue-peer-insight" aria-live="polite"></div><p class="wc-revenue-peer-source">Source: Florida Office of Economic and Demographic Research, FY 2024 county Annual Financial Report data.</p></div></section><section id="revenue-budget-questions" hidden></section>';
-      window.WCBudgetData.renderRevenueBudgetQuestions();
+      var revenueMount = modalBody.querySelector('#revenue-source-concentration');
+      loadExplorerCharts().catch(function(error){ console.warn(error.message); }).then(function(){
+        if(!modal.hidden && revenueMount.isConnected) window.WCBudgetData.renderRevenueBudgetQuestions();
+      });
     } else if (type === "personnel") {
       modalBody.innerHTML = '<section id="personnel-explorer" aria-label="Workforce Budget Explorer"></section><section id="personnel-budget-questions" hidden></section>';
       window.WCBudgetData.renderPersonnelBudgetQuestions();
@@ -607,7 +636,7 @@
     departmentModal.setAttribute("role", "dialog");
     departmentModal.setAttribute("aria-modal", "true");
     departmentModal.setAttribute("aria-labelledby", "wcHomeDepartmentModalTitle");
-    departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
+    departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
       '<section class="wc-home-department-modal-panel">' +
         '<header class="wc-home-department-modal-head">' +
@@ -821,7 +850,7 @@
               });
               departmentModal.classList.add("is-loading");
               var navigatingPanel = departmentModal.querySelector(".wc-home-department-modal-panel");
-              if (navigatingPanel) navigatingPanel.style.height = "360px";
+              if (navigatingPanel) navigatingPanel.style.height = popupRevealDelay() ? "360px" : "";
               departmentModalOpenedAt = Date.now();
               if (departmentPanelResizeObserver) {
                 departmentPanelResizeObserver.disconnect();
@@ -846,11 +875,11 @@
       if (!departmentModal.hidden) {
         var isUtilityOrBookLoad = departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book");
         // Keep the "Loading budget page…" overlay up for the same minimum
-        // reveal window as the height grow (see MIN_POPUP_REVEAL_MS) so the
+        // reveal window as the height grow (see popupRevealDelay()) so the
         // content reveal and the size grow happen together as one motion,
         // rather than the real (still small, internally-scrolled) page
         // flashing into view before the box has grown to show it properly.
-        var loadingRemoveDelay = isUtilityOrBookLoad ? 0 : Math.max(0, MIN_POPUP_REVEAL_MS - (Date.now() - departmentModalOpenedAt));
+        var loadingRemoveDelay = isUtilityOrBookLoad ? 0 : Math.max(0, popupRevealDelay() - (Date.now() - departmentModalOpenedAt));
         window.setTimeout(function () {
           window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
         }, loadingRemoveDelay);
@@ -934,7 +963,7 @@
     if (waveVideo) {
       waveVideo.defaultPlaybackRate = 0.25;
       waveVideo.playbackRate = 0.25;
-      var playPromise = waveVideo.play();
+      var playPromise = playBackgroundVideo(waveVideo);
       if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
     }
     departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = departmentTitle;
@@ -955,9 +984,9 @@
     // Chart, GFOA Award) should still open at this small "loading" size
     // and visibly expand a beat later, the same reveal a data-driven page
     // like Budget Adjustments naturally gets. See the matching
-    // MIN_POPUP_REVEAL_MS gate in updateDepartmentModalHeight.
+    // popupRevealDelay() gate in updateDepartmentModalHeight.
     var panelToReset = departmentModal.querySelector(".wc-home-department-modal-panel");
-    if (panelToReset && !isUtilityPage && !isBudgetBook) panelToReset.style.height = "360px";
+    if (panelToReset && popupRevealDelay() && !isUtilityPage && !isBudgetBook) panelToReset.style.height = "360px";
     else if (panelToReset) panelToReset.style.height = "";
     departmentModalOpenedAt = Date.now();
     departmentFrameAwaitingInitialLoad = true;
@@ -1023,7 +1052,7 @@
     if (!openedWithoutExplorer) {
       var explorerWave = modal.querySelector(".wc-home-explorer-modal-wave");
       if (explorerWave) {
-        var playPromise = explorerWave.play();
+        var playPromise = playBackgroundVideo(explorerWave);
         if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
       }
     }
@@ -1094,12 +1123,12 @@
     if (explorerWave) {
       explorerWave.defaultPlaybackRate = 0.25;
       explorerWave.playbackRate = 0.25;
-      var playPromise = explorerWave.play();
+      var playPromise = playBackgroundVideo(explorerWave);
       if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
     }
     modal.querySelector(".wc-home-explorer-modal-close").focus();
     // Open small and grow -- the same deliberate reveal the department/
-    // org-chart/GFOA-award popups use (see MIN_POPUP_REVEAL_MS), so every
+    // org-chart/GFOA-award popups use (see popupRevealDelay()), so every
     // popup in the explorer reads as one consistent motion instead of the
     // big summary explorers (Department Budget, Constitutional Officers
     // Budget, etc.) snapping straight to full height.
@@ -1110,7 +1139,7 @@
     window.setTimeout(function () {
       if (modal.hidden || explorerModalOpenedAt !== openedAt) return;
       window.requestAnimationFrame(function () { modal.classList.remove("is-loading"); });
-    }, MIN_POPUP_REVEAL_MS);
+    }, popupRevealDelay());
   }
 
   function init() {
@@ -1120,13 +1149,19 @@
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
-    modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
+    modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
       '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
-      '<footer class="wc-home-explorer-modal-footer"><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></footer></div>';
+      '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';
     document.body.appendChild(modal);
+    var footerDisclosure = modal.querySelector('.wc-explorer-more-info');
+    var phoneLayout = window.matchMedia('(max-width:700px)');
+    function syncFooterDisclosure(){ footerDisclosure.open = !phoneLayout.matches; }
+    syncFooterDisclosure();
+    phoneLayout.addEventListener('change', syncFooterDisclosure);
+
     modalBody = modal.querySelector(".wc-home-explorer-modal-body");
     modalTitle = modal.querySelector("#wcHomeExplorerModalTitle");
     if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
