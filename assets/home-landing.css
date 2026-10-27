@@ -342,3 +342,17 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
   .wc-home-explorer-modal-wave,.wc-home-department-modal-wave{display:none}
   .wc-home-department-modal-panel{transition:none}
 }
+.wc-explorer-card:focus-visible,
+.wc-full-budget-feature:focus-visible,
+.wc-department-budget-cards>a:focus-visible,
+.wc-department-budget-cards>button:focus-visible{outline:3px solid #006231;outline-offset:4px;box-shadow:0 8px 24px rgba(0,63,40,.14)}
+.wc-home-department-modal-back{max-width:260px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:700px){
+  .wc-home-department-modal-head{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px 12px;padding:12px 16px}
+  .wc-home-department-modal-back{grid-column:1;grid-row:1;justify-self:start;max-width:100%;min-height:44px;font-size:13px;border:0;border-radius:6px;padding:4px 0;background:transparent;white-space:normal;text-align:left}
+  .wc-home-department-modal-head h2{grid-column:1;grid-row:2;white-space:normal;overflow:visible;overflow-wrap:anywhere;font-size:18px;line-height:1.35}
+  .wc-home-department-modal-close{grid-column:2;grid-row:1/3;align-self:start}
+  .wc-home-department-modal-head .wc-nav-search-bar-wrap{grid-column:1/-1;grid-row:3}
+  .wc-home-explorer-modal-heading h2{white-space:normal;overflow-wrap:anywhere;line-height:1.35}
+  .wc-explorer-card,.wc-full-budget-feature{scroll-margin-top:150px}
+}

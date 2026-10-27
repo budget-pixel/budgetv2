@@ -628,6 +628,18 @@
     }
   }
 
+  function updateDepartmentBackButton() {
+    if (!departmentModal) return;
+    var button = departmentModal.querySelector('[data-department-popup-back]');
+    var previous = departmentNavigationStack[departmentNavigationStack.length - 1] || departmentReturnTo;
+    var labels = { departments:'Departments', constitutional:'Constitutional Officers', capital:'Capital Budget', independent:'Independent Agencies', personnel:'Workforce Budget', revenue:'Revenue Budget' };
+    var label = previous ? previous.title : (modal && !modal.hidden ? labels[activeExplorerType] : '') || 'Budget explorer';
+    button.hidden = departmentModal.classList.contains('is-budget-book');
+    button.textContent = '\u2190 ' + label;
+    button.title = 'Back to ' + label;
+    button.setAttribute('aria-label', 'Back to ' + label);
+  }
+
   function ensureDepartmentModal() {
     if (departmentModal) return departmentModal;
     departmentModal = document.createElement("div");
@@ -657,7 +669,7 @@
         // A scripted iframe navigation can bypass the link listener that
         // records an explicit return target. Closing is safer than sending
         // the iframe into its initial blank history entry.
-        closeDepartmentModal();
+        dismissDepartmentModal();
         return;
       }
       var targetUrl = new URL(target.href, window.location.href);
@@ -665,8 +677,7 @@
       departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = target.title;
       departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + target.title);
       departmentFrame.title = target.title + " budget page";
-      var backButton = departmentModal.querySelector("[data-department-popup-back]");
-      if (backButton) backButton.hidden = departmentNavigationStack.length === 0;
+      updateDepartmentBackButton();
       departmentModal.classList.add("is-loading");
       departmentModalOpenedAt = Date.now();
       departmentFrameAwaitingInitialLoad = true;
@@ -749,8 +760,7 @@
           // Follow-on links normally record an explicit return target in
           // departmentNavigationStack. Show the shared Back control for
           // those pages instead of relying on the iframe's browser history.
-          var followOnBackButton = departmentModal.querySelector("[data-department-popup-back]");
-          if (followOnBackButton) followOnBackButton.hidden = false;
+          updateDepartmentBackButton();
           // Keep the address bar's ?popup= in sync with wherever this
           // in-popup navigation actually landed, so a refresh reopens here
           // rather than back at the page this popup originally opened to.
@@ -968,9 +978,7 @@
     }
     departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = departmentTitle;
     departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + departmentTitle);
-    var openedFilename = url.pathname.split("/").pop();
-    var backButton = departmentModal.querySelector("[data-department-popup-back]");
-    if (backButton) backButton.hidden = true;
+    updateDepartmentBackButton();
     departmentFrame.title = departmentTitle + " budget page";
     departmentModal.dataset.standalone = openedWithoutExplorer ? "true" : "false";
     if (openedWithoutExplorer) lockBackgroundPage();

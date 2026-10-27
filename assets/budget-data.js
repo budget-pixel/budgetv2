@@ -4190,15 +4190,6 @@
         ).join('') + '</div></details>'
       : '';
     const toggleHeader = usesRevenueYearPicker ? revenueYearPickerHtml : (priorYearsToggleDisabled ? "" : priorYearsToggleHtml(showPrior, "wc-budget-lines-detail-header"));
-    const hiddenCurrentRows = mergedRows.filter((row) =>
-      (row.FY2027_Proposed || 0) !== 0 &&
-      (budgetLineVisibleColumnAmount(row, fy2026BudgetColumn) || 0) === 0
-    );
-    const hiddenCurrentAmount = hiddenCurrentRows.reduce((sum, row) => sum + (row.FY2027_Proposed || 0), 0);
-    const hiddenCurrentNote = hiddenCurrentRows.length && !usesRevenueYearPicker && !priorYearsToggleDisabled
-      ? '<p class="wc-budget-line-hidden-current-note">The FY 2027 total includes <strong>' + formatCurrency(hiddenCurrentAmount) + '</strong> in ' + hiddenCurrentRows.length +
-        ' ' + (hiddenCurrentRows.length === 1 ? 'line' : 'lines') + ' with no FY 2026 budget. Select View Prior Years to review those amounts.</p>'
-      : '';
     const departmentDataNoteText = (isExpense && mergedRows.length) ? DEPARTMENT_DATA_NOTES.get(normalizeDeptName(mergedRows[0].Dept_Name)) : "";
     const dataNoteTexts = [generatedActualsNoteText, departmentDataNoteText].filter(Boolean);
     const departmentDataNote = dataNoteTexts.length
@@ -4211,7 +4202,7 @@
     return {
       button: '<button type="button" class="wc-view-budget-lines-toggle" data-target="' + detailId + '" data-closed-label="View Budget Lines" data-open-label="Hide Budget Lines" aria-expanded="false">View Budget Lines</button>',
       detail: '<div class="wc-budget-lines-detail wc-budget-lines-card wc-has-print-budget-table' + (showPrior && !usesRevenueYearPicker ? " show-prior-years" : "") + (usesRevenueYearPicker ? " wc-revenue-year-picker-detail" : "") + '" id="' + detailId + '"' + (isPriorYearsDisabled ? ' data-prior-years-disabled="true"' : '') + ' hidden>' +
-        budgetLinesTools + hiddenCurrentNote + detailTable + '<div class="wc-print-budget-table-wrap">' + printDetailTable + "</div></div>"
+        budgetLinesTools + detailTable + '<div class="wc-print-budget-table-wrap">' + printDetailTable + "</div></div>"
     };
   }
 
@@ -4296,15 +4287,11 @@
             '<p class="wc-budget-detail-kicker">Budget Detail</p>' +
             '<h2 id="wc-budget-detail-title">Budget Lines</h2>' +
           '</div>' +
-          '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcBudgetDetailSearch">Search the Walton County budget</label><input id="wcBudgetDetailSearch" type="search" placeholder="What would you like to find?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcBudgetDetailSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcBudgetDetailSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
           '<button type="button" class="wc-budget-detail-close" data-budget-detail-close aria-label="Close budget detail">&times;</button>' +
         '</div>' +
         '<div class="wc-budget-detail-body"></div>' +
       '</section>';
     document.body.appendChild(modal);
-    if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
-      window.WCBudgetNav.initNavSearchBar(modal.querySelector(".wc-nav-search-bar-wrap"));
-    }
     modal.addEventListener("click", (event) => {
       if (event.target.closest("[data-budget-detail-close]")) {
         closeBudgetDetailModal();
@@ -16000,7 +15987,7 @@
         '<td class="wc-num">' + formatCurrency(positionsGrand.Total) + "</td></tr>"
       );
       positionsHtml =
-        '<p class="wc-data-source-note"><strong>Position cost estimates:</strong> Salary and benefit estimates are allocated to match the department budget, including shared adjustments. These are planning allocations, not individual employee pay or independently reconciled position appropriations.</p>' +
+        '<p class="wc-data-source-note"><strong>Budgeted position costs:</strong> Amounts reflect the salary and benefits budgeted for each position, including applicable shared budget adjustments. These are budget amounts, not individual employees’ actual pay.</p>' +
         '<div class="wc-staffing-notes-title-row">' +
         '<p class="wc-staffing-notes-title">Staffing and Cost by Position</p>' +
         '<div class="wc-staffing-notes-title-row-toggles">' +

@@ -3065,6 +3065,7 @@ main#content > .recreation-parks-section {
   transform: translateY(0) scale(1);
 }
 .wc-budget-detail-header {
+  flex: 0 0 auto;
   position: sticky;
   top: 0;
   z-index: 2;
@@ -3077,8 +3078,8 @@ main#content > .recreation-parks-section {
   background: rgba(255,255,255,.86);
   backdrop-filter: blur(18px);
 }
-.wc-budget-detail-heading { min-width: 0; flex: 1 1 auto; }
-.wc-budget-detail-heading h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wc-budget-detail-heading { min-width: 0; flex: 1 1 0; }
+.wc-budget-detail-heading h2 { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
 .wc-budget-detail-header .wc-nav-search-bar-wrap {
   width: min(600px, 48vw) !important;
   flex: 0 0 min(600px, 48vw) !important;
@@ -3100,10 +3101,11 @@ main#content > .recreation-parks-section {
   color: #172033;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.6rem, 4vw, 2.5rem);
-  line-height: 1.05;
+  line-height: 1.25;
   font-weight: 500;
 }
 .wc-budget-detail-close {
+  flex: 0 0 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3563,8 +3565,6 @@ main#content > .recreation-parks-section {
 .wc-budget-lines-card:not(.show-prior-years) .wc-data-table .wc-prior-year { display: none; }
 .wc-budget-lines-card:not(.show-prior-years) .wc-data-table tr.wc-budget-line-zero-current { display: none; }
 .wc-budget-lines-card:not(.show-prior-years):not(.wc-revenue-year-picker-detail):not([data-prior-years-disabled="true"]) .wc-data-table tr.wc-budget-line-zero-prior-budget { display: none; }
-.wc-budget-line-hidden-current-note { margin: 0 0 12px; padding: 10px 12px; border-left: 3px solid #d0b75e; background: #fbfaf5; color: var(--navy); font-size: .8rem; line-height: 1.5; }
-.wc-budget-lines-card.show-prior-years .wc-budget-line-hidden-current-note { display: none; }
 .wc-budget-lines-card:not(.show-prior-years) .wc-data-table tr.wc-budget-line-summary-row { display: none; }
 .wc-budget-lines-card:not(.show-prior-years) .wc-transaction-drilldown-helper { display: none; }
 .wc-budget-lines-card.show-prior-years .wc-data-table tr.wc-budget-line-detail-row { display: none; }
@@ -5294,3 +5294,23 @@ html.wc-embedded-utility .wc-budget-process-back { display: none !important; }
 .wc-lazy-video-play{display:grid;place-items:center;width:52px;height:52px;padding-left:3px;border:1px solid #d1be78;border-radius:50%;color:#d1be78;font-size:22px}
 .wc-lazy-video small{font-size:13px;font-weight:400;line-height:1.5}
 .wc-lazy-video:focus-visible{outline:3px solid #d1be78;outline-offset:3px}
+
+/* Keep explorer actions anchored to the totals they belong to. */
+.wc-department-explorer-total-primary>a.wc-ledger-card-button{margin:18px 0 0 auto!important}
+.wc-home-explorer-modal-body .wc-department-explorer-total-primary>.wc-department-ledger-actions,
+.wc-home-explorer-modal-body .wc-revenue-total-primary>.wc-revenue-view-actions,
+.wc-personnel-explorer-total>div:has(.wc-ledger-card-button){margin-top:18px}
+.wc-department-ledger-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px}
+.wc-revenue-view-actions:has(>a.wc-ledger-card-button:only-child){display:flex;justify-content:flex-end}
+.wc-independent-agencies-explorer .wc-revenue-snapshot-change{margin-top:auto}
+.wc-independent-agencies-explorer .wc-revenue-card-head{padding-bottom:12px}
+@media(max-width:1050px){
+  .wc-department-explorer-total-primary>a.wc-ledger-card-button{margin-left:0!important}
+  .wc-department-ledger-actions{justify-content:flex-start}
+}
+@media(max-width:900px){
+  .wc-revenue-view-actions:has(>a.wc-ledger-card-button:only-child){justify-content:flex-start}
+}
+@media(min-width:701px) and (max-width:1100px){
+  .wc-personnel-explorer .wc-revenue-snapshot{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
