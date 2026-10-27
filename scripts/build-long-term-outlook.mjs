@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { consolidated, generalFund, values, millions } from "./fund-schedule-data.mjs";
 
@@ -195,15 +196,14 @@ const page1 = `
 
     <h2>Economic Conditions Driving the Outlook</h2>
     <p class="body">Walton County's budget planning happens against a backdrop of sustained population and visitor growth, detailed further in the Statistical &amp; Supplemental Information section of this book.</p>
-    <div class="stat-strip">
+    <div class="stat-strip" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
       <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
-      <div class="stat-card"><b>44.4</b><span>Median Age vs. 42.4 Statewide (2018–2022 ACS)</span></div>
-      <div class="stat-card"><b>+15.9%</b><span>FY 2027 Tourist Development Fund Growth</span></div>
+      <div class="stat-card"><b>4.7M</b><span>Annual visitors, 2025 tourism report</span></div>
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>
-    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Current-year sources and accumulated fund balance together support the adopted plan. The fund schedules include operating expenses, capital and transfers; they do not isolate a recurring operating gap.</p>
+    <p class="body">The Board reduced the countywide operating millage in each of the last three budget cycles, from 3.6000 mills in FY 2024 to 3.2500 mills in FY 2027. Current-year sources and accumulated fund balance together support the adopted plan. The adopted plan includes operating expenses, capital investments, and transfers between funds.</p>
     <div class="chart-wrap">
       <div class="chart">${MILLAGE.map(([y, v]) => `<div class="bar-col"><div class="amt">${v.toFixed(4)}</div><div class="bar" style="height:${(v / 3.6 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     </div>
@@ -215,7 +215,7 @@ const page1 = `
       <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
       ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
     </div>
-    <p class="body">Amounts are rounded to $0.1 million. FY 2027 starts with an updated opening estimate, rather than the FY 2026 budget's estimated closing balance. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
+    <p class="body">Amounts are rounded to $0.1 million. From FY 2027, the General Fund uses its FY 2025 audited unassigned balance as the opening assumption; other funds retain total balances. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
     <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. This schedule projects further decreases of ${nextYearDraw} in FY 2028 and ${followingYearDraw} in FY 2029 as spending and transfers outpace revenue growth. These are projections under the schedule's assumptions, not current-year funding shortfalls.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
@@ -227,12 +227,8 @@ const page2 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
-    <h2 style="margin-top:.08in;">Reserves: How Much Cushion Does the County Have?</h2>
-    <p class="body">The General Fund is the County's primary, least-restricted operating fund. Other fund balances are not interchangeable with General Fund resources. Tourism and transportation resources retain their applicable restrictions, while the $3.668M self-insurance reserve has a separate 60-day requirement.</p>
-    <div class="two-col">
-      <div class="info-card"><b>GFOA Two-Month Guideline</b><span>GFOA recommends unrestricted budgetary General Fund balance of at least two months of regular operating revenues or expenditures. The FY 2025 ACFR reports $58.394M of <i>unassigned</i> balance and $185.853M of expenditures and other uses. Using that audited base gives a $30.976M two-month reference and about 3.77 months of unassigned balance. This is an audited-base comparison, not a formal compliance calculation; the regular operating base excludes unusual one-time items and includes recurring transfers.</span></div>
-      <div class="info-card"><b>FY 2027 Planned Draw and Ending Balance</b><span>The General Fund starts with $81.9M, budgets an $8.047M draw, and projects ${generalFundEnding} of total ending balance. That draw is included in the $21.3M countywide total. Accumulated fund balance is not new recurring revenue. The schedules do not divide the draw between one-time projects and recurring services. The projected total is not classified by fund-balance category and is not an updated audited unassigned balance or a direct test of the GFOA guideline.</span></div>
-    </div>
+    <h2 style="margin-top:.08in;">Future Reserve Pressure</h2>
+    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See General Fund Reserve Position on page 41 for the current reserve comparison.</p>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">
@@ -242,23 +238,15 @@ const page2 = `
 
     <p class="warn"><b>Deferred and Contingent Items</b>No major project in the funded $43.8M FY 2027 capital program was postponed. Outside that total are $15.3M of grant-dependent projects, $2.0M of Sheriff projects funded separately, and $10.25M of prior-funded tourism work that remains active. A $600,000 recreational-plat allocation and $300,000 sidewalk allocation await project selection. Future phases and costs shown as pending are not assumed funded.</p>
 
-    <h2>Debt: Minimal, and Scheduled to End in FY 2030</h2>
-    <p class="body">Walton County's only long-term debt consists of two notes totaling $29.5M when issued, with $9.1M in remaining debt service, including principal and interest. FY 2027 payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax rather than property taxes, and the schedule ends in FY 2030 &mdash; see the Debt Ledger for the payment schedule and terminology.</p>
-    <div class="stat-strip">
-      <div class="stat-card"><b>$29.5M</b><span>Total Debt Issued</span></div>
-      <div class="stat-card"><b>$9.1M</b><span>Remaining Debt Service</span></div>
-      <div class="stat-card"><b>$2.58M</b><span>FY 2027 Final Debt-Service Budget</span></div>
-      <div class="stat-card"><b>FY 2030</b><span>Scheduled Payoff</span></div>
-    </div>
-
+    <h2>Debt Payoff and Future Commitments</h2>
+    <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page 40 for payment amounts and funding details.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>
     <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
     <p class="trend">The plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
 
-    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. If conditions change, OMB will reforecast service, capital, reserve, and millage options. Beginning with FY 2027, OMB will compare actual revenue, expenditures, capital timing, and ending balances with the forecast and report material variances in the next cycle; the current book has no historical forecast-accuracy series.</p>
-    <p class="footnote">Sources: GFOA, <i>Fund Balance Guidelines for the General Fund</i> (2015); Walton County FY 2025 ACFR, Management's Discussion and Analysis and governmental fund-balance schedules.</p>
+    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. Monitoring revenue, expenditures, capital timing, and ending balances helps the Board assess service levels, capital priorities, reserves, and millage options as conditions change.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
@@ -273,6 +261,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-long-term-outlook.p
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

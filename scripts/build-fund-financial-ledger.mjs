@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Fund schedules and outlook share one verified snapshot of the live site.
@@ -208,7 +209,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY 2026 ending balance is an estimate produced by the FY 2026 budget schedule; FY 2027 beginning balance is the separately adopted opening estimate based on newer information, so the two are not expected to roll forward unchanged. The next page details each fund's FY 2027 schedule.</p>
+    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY 2027 uses the FY 2025 audited unassigned General Fund balance as its opening assumption. Other funds retain their total balance basis. The next page details each fund's FY 2027 schedule.</p>
     <div class="cledger">
       ${cHead}
       ${cRow(CONSOLIDATED_TOP[0])}
@@ -241,6 +242,8 @@ const page2 = `
       <div class="fgroup">Non-Major Funds</div>
       ${NON_MAJOR_FUNDS.map(fRow).join("")}
     </div>
+    <p class="footnote" style="font-size:7.5pt"><b>General Fund balance basis:</b> The $58,393,573 beginning balance is the FY 2025 audited unassigned balance used as the FY 2027 opening assumption. After $8,047,270 of planned use, the estimated remaining balance is $50,346,303.</p>
+    <p class="footnote" style="font-size:7.5pt"><b>Project allocations:</b> Ending balances shown here do not deduct existing Board allocations for projects. The amount available for other uses may therefore be lower. The Board may release or reallocate project funding as priorities change or emergencies arise, subject to funding restrictions and existing commitments.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
@@ -254,6 +257,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-fund-financial-ledg
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

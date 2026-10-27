@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
@@ -307,7 +308,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M. The Revenue Strategy page intentionally regroups some sources into broader planning portfolios.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M.</p>
     </div>
 
     <div class="revenue-qr">
@@ -367,6 +368,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-revenue-ledger.pdf"
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

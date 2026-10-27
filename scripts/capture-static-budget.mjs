@@ -20,15 +20,5 @@ try {
   assert.equal(Math.round(totals.expenditures),345223508);
   await fs.mkdir('assets/static-data',{recursive:true});
   await fs.writeFile('assets/static-data/budget.json',JSON.stringify({capturedAt:new Date().toISOString(),totals,data})+'\n');
-  const files = ['asset-detail','principal-taxpayers','census-narratives'];
-  for (const file of files) {
-    const src = await fs.readFile('assets/'+file+'.js','utf8');
-    const urls = [...src.matchAll(/https:\/\/docs\.google\.com\/spreadsheets[^"\s]+/g)].map(m=>m[0]);
-    for (let i=0;i<urls.length;i++) {
-      const csv = await page.evaluate(async url => {const r=await fetch(url);if(!r.ok)throw Error('Capture failed '+r.status+' '+url);return r.text();},urls[i]);
-      assert.ok(csv.length>20&&!/^\s*</.test(csv),'Invalid CSV for '+file);
-      await fs.writeFile('assets/static-data/'+file+(urls.length>1?'-'+(i+1):'')+'.csv',csv);
-    }
-  }
-  console.log('Captured complete final budget, historical summaries, and all supplemental publication datasets.',totals);
+  console.log('Captured complete final budget, historical summaries, datasets. Supplemental publication files remain unchanged.',totals);
 } finally {await browser.close();}

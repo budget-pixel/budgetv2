@@ -1,6 +1,9 @@
 import { chromium } from "playwright";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
-const outPath = process.argv[2] || "output/pdf/gfoa-working-checklist.pdf";
+const outPath = process.argv[2] || "tmp/pdfs/gfoa-working-checklist.pdf";
+mkdirSync(dirname(outPath), { recursive: true });
 
 const sections = [
   ["Community Priorities & Organizational Challenges", "20 pts", [

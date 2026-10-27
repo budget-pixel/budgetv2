@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
@@ -59,8 +60,7 @@ const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$7,872,351", "5.20%"];
 const STATUTORY_RECIPIENTS = [
   "Medicaid Services", "Health Care Response (HCRA)",
   "DeFuniak Community Redevelopment Agency", "Liberty Volunteer Fire Department",
-  "Argyle Volunteer Fire Department", "Opioid Settlement Year 4",
-  "15% Opioid Settlement Year 4", "Economic Development Alliance",
+  "Argyle Volunteer Fire Department", "Economic Development Alliance",
   "Gulf Coast Kid's House", "DeFuniak Springs Interlocal (Life Enrichment Center)",
   "Indigent Cremation Program", "Lakeview Center (Women & Children)",
   "Lakeview Center (Mental Health)", "Lakeview Center (Baker Act)"
@@ -369,7 +369,7 @@ const page1 = `
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
 
-    <h2 class="group">Constitutional Officers</h2>
+    <h2 class="group">Constitutional Officers and Board Office</h2>
     <div class="dept-table">
       ${tableHead}
       ${CONSTITUTIONAL.map((r) => row(r)).join("")}
@@ -446,6 +446,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-property-tax-alloca
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

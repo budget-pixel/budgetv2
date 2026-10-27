@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 import fs from "fs";
@@ -55,13 +56,13 @@ function photoDataUrl(filename) {
 // implying a funding gap, each office's revenue line notes this plainly.
 
 const STATS = [
-  ["$149.1M", "Total FY 2027 Budget"],
+  ["$149.0M", "Total FY 2027 Budget"],
   ["+$1.7M", "Net Change from FY 2026"],
   ["+1.2%", "Net Percent Change"],
   ["847", "Total FTE, 6 Offices"]
 ];
 const SPLIT = [
-  ["Personnel", "$104.14M", "69.9%"],
+  ["Personnel", "$104.10M", "69.9%"],
   ["Operating", "$33.30M", "22.3%"],
   ["Capital & Other", "$11.64M", "7.8%"]
 ];
@@ -69,13 +70,13 @@ const SPLIT = [
 // [office, fte, fy26, fy27, personnel, operating, capitalOther]
 const SUMMARY_ROWS = [
   ["Walton County Sheriff's Office", 669, 114116228, 114116228, 83607042, 21348864, 9160322],
-  ["Board of County Commissioners*", 11, 12889938, 12972780, 2791180, 8071600, 2110000],
+  ["Board of County Commissioners", 11, 12889938, 12935889, 2754289, 8071600, 2110000],
   ["Tax Collector", 40, 7900000, 8500000, 7512920, 987080, 0],
   ["Clerk of Courts & County Comptroller", 80, 5984728, 6871175, 4905230, 1845945, 120000],
   ["Property Appraiser", 37, 4829596, 4954338, 4123584, 697382, 133372],
   ["Supervisor of Elections", 10, 1615107, 1663865, 1198763, 348682, 116420]
 ];
-const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 149078386, 104138719, 33299553, 11640114];
+const SUMMARY_TOTAL = ["Total Constitutional Officers and Board Office", 847, 147335597, 149041495, 104101828, 33299553, 11640114];
 
 const OFFICES = [
   {
@@ -97,8 +98,8 @@ const OFFICES = [
       ["District 4", "Donna Johns", "commissioner-donna-johns.jpeg"],
       ["District 5", "Tony Anderson", "commissioner-tony-anderson.jpeg"]
     ],
-    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12972780,
-    personnel: 2791180, contractual: 2473100, operating: 5598500, capital: 2110000,
+    fte: 11, ftePrior: 11, fteDelta: 0, fy26: 12889938, fy27: 12935889,
+    personnel: 2754289, contractual: 2473100, operating: 5598500, capital: 2110000,
     sof: "The Board of County Commissioners (BCC) is the legislative and policy-making body of County government. Representatives from five Walton County districts are elected countywide and serve four-year terms. The BCC establishes policies through ordinances and resolutions, appoints the County Administrator, Chief Financial Officer, and County Attorney, and adopts the budget, making all decisions on appropriating funds to County departments, divisions, and Constitutional offices, in accordance with Florida State statutes.",
     revenue: "General Government Taxes $4.7M &middot; Miscellaneous Revenue $4.3M &middot; Intergovernmental Revenues $2.4M &middot; Permits, Fees &amp; Special Assessments $1.5M",
     contracts: [
@@ -122,7 +123,7 @@ const OFFICES = [
   },
   {
     name: "Tax Collector", fund: "General Fund (State Approved)",
-    official: "Rhonda Skipper", title: "Tax Collector", photo: "tax-collector-rhonda-skipper.jpg",
+    official: "Brian McBroom", officialLabel: "Appointed Official", title: "Tax Collector", photo: "tax-collector-brian-mcbroom.jpg",
     docUrl: "https://www.mywaltonfl.gov/DocumentCenter/View/45479/FY27-Budget-DOR-Submission",
     fte: 40, ftePrior: 40, fteDelta: 0, fy26: 7900000, fy27: 8500000,
     personnel: 7512920, operating: 987080, capital: 0,
@@ -208,18 +209,18 @@ function whoPaysFor(o) {
       ["Other assigned revenue", 140700, "Office rent, animal-control fines, prior-year refunds, and miscellaneous revenue."]
     ],
     "Tax Collector": [
-      ["Taxing authorities and transaction customers", null, "Statutory commissions and fees are earned while collecting taxes and providing vehicle, vessel, license, and related services."],
-      ["County property-tax allocation", 4449400, "The County-funded share shown in the Property Tax Allocation schedule."]
+      ["County property-tax allocation", 4449400, "The County-funded share shown in the Property Tax Allocation schedule."],
+      ["Fees for services", null, "The office also receives statutory commissions and fees for tax collection, vehicle, vessel, license, and related services."]
     ],
     "Clerk of Courts & County Comptroller": [
-      ...splitPropertyTax(6871175, "County property taxes support Clerk-to-the-Board, finance, records, technology, and comptroller functions."),
-      ["Court and records users", null, "Court, recording, and service-related revenues support eligible activities outside this County-funded presentation."]
+      ["County property-tax allocation", 6871175, "County property taxes support Clerk-to-the-Board, finance, records, technology, and comptroller functions."],
+      ["Fees for services", null, "The office also receives fees for court, recording, and other services."]
     ],
     "Property Appraiser": [
-      ...splitPropertyTax(4954338, "The County property-tax allocation supports the State-approved property appraisal budget."),
+      ["County property-tax allocation", 4954338, "The County property-tax allocation supports the State-approved property appraisal budget."],
       ["County taxpayers", null, "Florida law requires the Board to advance the municipalities' and school board's shares, with those costs included here."]
     ],
-    "Supervisor of Elections": splitPropertyTax(1663865, "County property taxes fund voter registration, election administration, equipment, ballots, and polling-place operations.")
+    "Supervisor of Elections": [["County property-tax allocation", 1663865, "County property taxes fund voter registration, election administration, equipment, ballots, and polling-place operations."]]
   };
   return rows[o.name] || [["County taxpayers and service users", null, "The funding mix reflects the public revenues and service charges supporting this office."]];
 }
@@ -293,7 +294,7 @@ const sharedCss = `
   .rnum{ text-align:right; color:#33453c; font-size:7.3pt; font-variant-numeric:tabular-nums; }
   .lrow.grand{ margin-top:.04in; border-top:1.5px solid #003f28; border-bottom:0; padding:.07in 0; }
   .lrow.grand .rlabel, .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:7.8pt; }
-  p.footnote{ margin:.12in 0 0; color:#68786f; font-size:7pt; line-height:1.4; font-style:italic; }
+  p.footnote{ margin:.12in 0 0; color:#68786f; font-size:7.1pt; line-height:1.4; font-style:italic; }
   footer{
     position:absolute;
     left:.62in;
@@ -361,18 +362,11 @@ const sharedCss = `
   .workforce-line em{ grid-column:2; color:#a9c4b3; font-size:5.5pt; font-style:normal; text-align:right; }
   .workforce-position-note{ margin:.045in 0 0; padding-top:.045in; border-top:1px solid rgba(255,255,255,.1); color:#dce9e2; font-size:5.35pt; line-height:1.3; }
   .workforce-position-note b{ color:#d1be78; }
-  .side-split{ font-size:6.7pt; line-height:1.55; }
-  .side-split div{ display:flex; justify-content:space-between; }
-  .side-split div>span{ display:flex; align-items:center; gap:.045in; }
-  .side-split div>span:before{ content:""; width:5px; height:5px; flex:0 0 5px; border-radius:50%; background:#ffffff; }
-  .side-split .personnel>span:before{ background:#e7c95f; }
-  .side-split .contractual>span:before{ background:#85bea0; }
-  .side-split .operating>span:before{ background:#ffffff; }
-  .side-split .capital>span:before{ background:#c7d2cc; }
-  .side-split b{ color:#e7c95f; }
-  .budget-mix{ display:flex; height:7px; margin:.075in 0 .07in; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.14); }
-  .budget-mix i{ display:block; height:100%; }
-  .budget-mix .personnel{ background:#e7c95f; }.budget-mix .contractual{ background:#85bea0; }.budget-mix .operating{ background:#ffffff; }.budget-mix .capital{ background:#c7d2cc; }
+  .budget-composition{margin:.075in 0 .07in;display:grid;gap:.03in}
+  .composition-label{display:flex;justify-content:space-between;align-items:baseline;gap:.035in;font-size:7.5pt;line-height:1.25}
+  .composition-label b{color:#e7c95f;white-space:nowrap;font-size:7.5pt;font-variant-numeric:tabular-nums}
+  .composition-track{height:3px;margin-top:2px;border-radius:2px;background:rgba(255,255,255,.17);overflow:hidden}
+  .composition-track i{display:block;height:100%;background:#e7c95f;border-radius:2px}
   .lower-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.24in; margin:.32in 0 .13in; padding-top:.15in; border-top:1px solid #d7e2dc; }
   .rev-box p{ margin:0; color:#33453c; font-size:7.4pt; line-height:1.45; }
   .payer-row{ margin:0 0 .045in; padding:.06in .075in; border:1px solid #e1e9e4; border-radius:6px; background:#f8faf8; color:#33453c; font-size:6.2pt; line-height:1.28; }
@@ -410,6 +404,15 @@ const sharedCss = `
   .funding-total{ margin:.05in 0 .08in!important; font-size:6.6pt!important; font-weight:800; }
   section.dense-profile p.sof{ font-size:7.55pt; line-height:1.34; }
   section.dense-profile .official-line{ margin-bottom:.11in; padding-bottom:.11in; }
+
+  .profile-page .rev-box h2,.profile-page .fte-box h2,.profile-page .con-box h2,.profile-page .cap-box h2{margin:0 0 .05in;padding-bottom:.04in;border-bottom:1px solid #003f28;color:#003f28;font:800 7.9pt Georgia,serif;text-transform:uppercase;letter-spacing:.03em}
+  .profile-page .fte-empty{margin:.04in 0;color:#52665c;font-size:7pt;line-height:1.4;font-style:normal}
+  /* Match funding rows to the contract and capital ledger rows. */
+  .rev-box .payer-row{margin:0;padding:.04in .055in;border:0;border-bottom:1px solid #edf1ee;border-radius:0;background:transparent;font-size:6.35pt;line-height:1.28}
+  .rev-box .payer-row:nth-child(odd){background:transparent}
+  .rev-box .payer-row:nth-child(even){background:#f4f7f5}
+  .rev-box .payer-head b{color:#173229;font-size:6.35pt;font-weight:400}
+  .rev-box .payer-amt{color:#003f28;font-size:6.35pt;font-weight:700}
 `;
 
 function fteChangeLabel(d) {
@@ -424,10 +427,10 @@ async function buildOfficerPage(o, pageNumber) {
   const workforcePositionNote = o.fteDelta && (o.newPositions?.length || o.workforcePositionNote)
     ? `<p class="workforce-position-note"><b>${o.fteDelta > 0 ? "Added" : "Reduced"}:</b> ${o.newPositions?.length ? o.newPositions.map((p) => `${p.title}${p.n > 1 ? ` (${p.n})` : ""}`).join("; ") : o.workforcePositionNote}</p>`
     : "";
-  // Rows without a dollar amount are omitted rather than printed unquantified.
-  const payerRows = whoPaysFor(o).filter(([, amount]) => amount);
+  // Service-fee descriptions are shown without amounts for the Clerk and Tax Collector.
+  const payerRows = whoPaysFor(o).filter(([label, amount]) => amount || label === "Fees for services");
   const usesPropertyMethod = payerRows.some(([, , detail]) => /87\.9%|31,491 occupied/.test(detail));
-  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b><span class="payer-amt">${money(amount)}</span></div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + (o.name === "Board of County Commissioners" ? `<p class="funding-total">Total assigned revenue: ${money(payerRows.reduce((sum, [, amount]) => sum + amount, 0))}</p>` : "") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
+  const payerHtml = payerRows.map(([label, amount, detail]) => `<div class="payer-row"><div class="payer-head"><b>${label}</b>${amount == null ? "" : `<span class="payer-amt">${money(amount)}</span>`}</div><p class="payer-detail">${compactFundingDetail(detail)}</p></div>`).join("") + homeownerValueExample(OFFICE_PROPERTY_TAX[o.name]);
   const methodNotes = [
     usesPropertyMethod ? "Planning estimates allocate property-tax support using the Countywide 87.9% residential / 12.1% commercial real-property just-value shares. These are not individual tax bills." : "",
   ].filter(Boolean).join(" ");
@@ -436,20 +439,20 @@ async function buildOfficerPage(o, pageNumber) {
 
   const officialHtml = o.commissioners
     ? `<div class="comm-grid">${o.commissioners.map(([d, n, photo]) => `<div class="comm-card"><img src="${photoDataUrl(photo)}" alt="${n}"/><b>${n}</b><span>${d}</span></div>`).join("")}</div>`
-    : `<div class="official-line"><img src="${photoDataUrl(o.photo)}" alt="${o.official}"${o.photoPosition ? ` style="object-position:${o.photoPosition}"` : ""}/><div class="etext"><span class="elabel">Elected Official</span><span class="ename">${o.official}</span><span class="etitle">${o.title}</span></div></div>`;
+    : `<div class="official-line"><img src="${photoDataUrl(o.photo)}" alt="${o.official}"${o.photoPosition ? ` style="object-position:${o.photoPosition}"` : ""}/><div class="etext"><span class="elabel">${o.officialLabel || "Elected Official"}</span><span class="ename">${o.official}</span><span class="etitle">${o.title}</span></div></div>`;
 
   let qrHtml = "";
   if (o.docUrl) {
     const dataUrl = await QRCode.toDataURL(o.docUrl, { margin: 4, width: 200, color: { dark: "#003f28", light: "#ffffff" } });
-    qrHtml = `<div class="qr-wrap"><img class="qr" src="${dataUrl}" alt="QR"/><span>View Submitted Budget Request</span></div>`;
+    qrHtml = `<div class="qr-wrap"><a href="${o.docUrl}" aria-label="View ${o.name} submitted budget request"><img class="qr" src="${dataUrl}" alt=""/><span>View Submitted Budget Request</span></a></div>`;
   }
 
   const fteHtml = (o.newPositions && o.newPositions.length)
     ? `<div class="fte-list">${o.newPositions.map((p) => `<div class="fte-row"><div class="fname">${p.title}</div><b>+${p.n} FTE</b></div>`).join("")}</div>`
-    : `<p class="fte-empty">No new positions requested for FY 2027.</p>`;
+    : `<p class="fte-empty">${o.fteDelta < 0 ? `${Math.abs(o.fteDelta)} fewer position${Math.abs(o.fteDelta) === 1 ? "" : "s"} in FY 2027.` : "No change in authorized positions for FY 2027."}</p>`;
 
   const hasBreakouts = (o.contracts && o.contracts.length) || (o.capitalItems && o.capitalItems.length);
-  const MAX_ROWS = 6;
+  const MAX_ROWS = o.name === "Board of County Commissioners" ? o.contracts.length : 6;
   let conHtml = "";
   if (o.contracts && o.contracts.length) {
     const sorted = [...o.contracts].sort((a, b) => b.amount - a.amount);
@@ -463,10 +466,8 @@ async function buildOfficerPage(o, pageNumber) {
     capHtml = o.capitalItems.map((c) => `<div class="cap-row"><span>${c.item}</span><b>${money(c.amount)}</b></div>`).join("");
     if (o.capitalNote) capHtml += `<p class="cap-note">${o.capitalNote}</p>`;
   }
-  const mixOperating = o.operating;
-  const mixCapital = o.capital;
-  const mixSegments = [["personnel",o.personnel],["contractual",o.contractual],["operating",mixOperating],["capital",mixCapital]]
-    .filter(([,amount]) => amount > 0).map(([name,amount]) => `<i class="${name}" style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i>`).join("");
+  const compositionRows = [["Personnel",o.personnel],["Contractual",o.contractual],["Operating",o.operating],["Capital &amp; Other",o.capital]]
+    .filter(([,amount]) => amount > 0).map(([label,amount]) => `<div class="composition-row"><div class="composition-label"><span>${label}</span><b>${money(amount)}</b></div><div class="composition-track"><i style="width:${((amount / o.fy27) * 100).toFixed(2)}%"></i></div></div>`).join("");
 
   return `
   <section class="profile-page${denseClass ? " dense-profile" : ""}${o.name === "Board of County Commissioners" ? " bcc-profile" : ""}">
@@ -492,19 +493,12 @@ async function buildOfficerPage(o, pageNumber) {
           <div class="workforce-line"><span>Workforce</span><b>${o.fte} FTE</b><em>${o.fteDelta ? `${o.fteDelta > 0 ? "+" : "&minus;"}${Math.abs(o.fteDelta)} FTE` : "No change"}</em></div>
           ${workforcePositionNote}
         </div>
-        <div class="budget-mix" aria-label="Budget composition">${mixSegments}</div>
-        <div class="side-split">
-          <div class="personnel"><span>Personnel</span><b>${money(o.personnel)}</b></div>
-          ${o.name === "Board of County Commissioners" ? '<p class="personnel-scope">Board personnel: $2,754,289.<br>Court Innovation: $36,891, assigned to Circuit Court in the Personnel Ledger.</p>' : ""}
-          ${o.contractual ? `<div class="contractual"><span>Contractual</span><b>${money(o.contractual)}</b></div>` : ""}
-          <div class="operating"><span>Operating</span><b>${money(o.operating)}</b></div>
-          <div class="capital"><span>Capital &amp; Other</span><b>${money(o.capital)}</b></div>
-        </div>
+        <div class="budget-composition" aria-label="Budget composition; bars show each category as a share of the office total">${compositionRows}</div>
         ${qrHtml}
       </div>
     </div>
     <div class="lower-grid${hasBreakouts ? " three" : ""}">
-      <div class="rev-box"><h2>Who Funds</h2>${payerHtml}${payerMethodHtml}</div>
+      <div class="rev-box"><h2>Funding Sources / Who Pays</h2>${payerHtml}${payerMethodHtml}</div>
       ${hasBreakouts
         ? `<div class="con-box"><h2>Contracts</h2>${conHtml || `<p class="fte-empty">No contracted services identified.</p>`}</div><div class="cap-box"><h2>Capital Requests</h2>${capHtml || `<p class="fte-empty">No capital requests for FY 2027.</p>`}</div>`
         : `<div class="fte-box"><h2>FTE Changes, FY 2027</h2>${fteHtml}</div>`}
@@ -514,7 +508,7 @@ async function buildOfficerPage(o, pageNumber) {
       <div class="parrow">&rarr;</div>
       <div class="pnum"><b>${o.fte}</b><span>Final FTE</span></div>
     </div>
-    ${o.footnote ? `<p class="footnote">*${o.footnote}</p>` : ""}
+    ${o.footnote ? `<p class="footnote"><b>${o.name}:</b> ${o.footnote}</p>` : ""}
     <footer><span>FY 2027 Final Budget</span><b>${pageNumber}</b></footer>
   </section>`;
 }
@@ -532,7 +526,7 @@ const overviewPage = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Constitutional Officer Budget</small>
     <h1>Constitutional Officers and Board Office Ledger</h1>
-    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $149.1M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
+    <p class="intro">Walton County's five independently elected offices and the Board of County Commissioners Office budget a combined $149.0M and employ 847 FTE for FY 2027. Totals include the Board Office's capital and contingency. The Personnel Ledger's broader group totals 848 FTE because it also counts one County-funded Circuit Court position. Each office's own page follows.</p>
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Office Summary</h2>
@@ -541,7 +535,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${SUMMARY_TOTAL[1]}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[5])}</div><div class="rnum">${money(SUMMARY_TOTAL[6])}</div></div>
     </div>
-    <p class="footnote">* Full Board office total: $12,972,780, including $1,705,000 of capital and $400,000 of contingency. The Budget Change Summary shows $11,267,780 before capital; the Expenditure Ledger shows $12,572,780 before contingency. Board personnel includes $36,891 booked to Court Innovation; the Personnel Ledger assigns that amount to Circuit Court and shows $2,754,289 for the Board.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board office total includes $1,705,000 in capital, $400,000 in contingency, and $5,000 in grants and aid, which are shown separately in the Budget Change Summary and Expenditure Ledger.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;
@@ -556,7 +550,7 @@ const officePagesHtml = officePagesArr.join("\n");
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Constitutional Officers Ledger</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}.qr-wrap a{color:inherit;text-decoration:none}</style></head>
 <body>${overviewPage}${officePagesHtml}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-constitutional-officers-ledger.pdf";
@@ -569,6 +563,7 @@ const overflowingProfiles = await page.evaluate(() => Array.from(document.queryS
   return bottom.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 4;
 }).map(section => section.querySelector('h1').textContent));
 if (overflowingProfiles.length) throw new Error('Profile content overlaps the footer: ' + overflowingProfiles.join(', '));
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath + " (" + (1 + OFFICES.length) + " pages)");

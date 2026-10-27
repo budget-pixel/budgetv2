@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -230,11 +231,11 @@ const html = `<!doctype html>
       <h1>Distinguished Budget Presentation Award</h1>
       <div class="badges">
         <span class="badge"><b>Two-Time</b> Recipient</span>
-        <span class="badge">FY 2027 Submitted for Review</span>
+        <span class="badge">FY 2027 Final Budget</span>
       </div>
       <p>The Government Finance Officers Association of the United States and Canada presented Walton County, Florida with its second consecutive Distinguished Budget Presentation Award for the Annual Budget beginning October 1, 2025.</p>
       <p>To receive this award, a government must publish a budget document that meets program criteria as a policy document, a financial plan, an operations guide, and a communications device.</p>
-      <p>The certificates below recognize the prior-year publication. This FY 2027 Final Budget has been submitted separately for review and consideration under the current program criteria.</p>
+      <p>The certificates below recognize the prior-year publication. This FY 2027 Final Budget is prepared according to the current program criteria.</p>
       <div class="caption">
         <div class="caption-mark"><img src="${GFOA_MARK}" alt=""></div>
         <span>Government Finance<br>Officers Association</span>
@@ -260,6 +261,7 @@ const browser = await chromium.launch({ headless: true });
 // into the PDF, so the rotated borders stay smooth at print resolution.
 const page = await browser.newPage({ deviceScaleFactor: 3 });
 await page.setContent(html, { waitUntil: "networkidle" });
+await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

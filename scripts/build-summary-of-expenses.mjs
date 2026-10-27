@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Expenditure Ledger" -- the county's
@@ -45,11 +46,11 @@ const TOTAL = ["Department Budget Total", "$241,109,330", "$267,119,794", "$300,
 // Pages 2–3: FY 2027 department detail grouped by the published activity
 // sheet. The final-budget reconciliation retains $181,500 in BCC operating
 // expenses following the confirmed nonprofit budget of $268,500, leaving
-// a net $41,041 moved from the Board to Statutory & Other.
+// a net $41,041 moved from the Board to Human Services.
 // Each function below now sums to the consolidated budget ledger.
 const DEPT_GROUPS = [
   ["General Government", [
-    ["Board of County Commissioners", "$12,472,780"],
+    ["Board of County Commissioners", "$12,435,889"],
     ["Building Construction and Maintenance", "$8,912,305"],
     ["Tax Collector", "$8,500,000"],
     ["Clerk of Court", "$6,871,175"],
@@ -64,7 +65,7 @@ const DEPT_GROUPS = [
     ["Office of Management and Budget", "$1,075,026"],
     ["Geographic Info Systems", "$839,146"],
     ["Mossy Head Wastewater Treatment Facility", "$464,000"],
-    ["Court Innovations", "$43,109"],
+    ["Court Innovations", "$80,000"],
   ]],
   ["Public Safety", [
     ["Walton County Sheriff's Office", "$114,116,228"],
@@ -107,7 +108,7 @@ const DEPT_GROUPS = [
     ["Veteran Services", "$316,650"],
   ]],
   ["Human Services", [
-    ["Human Services", "$2,325,259"],
+    ["Human Services", "$2,366,300"],
     ["Walton County Health Department", "$1,724,397"],
     ["Mosquito Control", "$1,426,937"],
     ["Non-Profit Funding Program", "$268,500"],
@@ -115,7 +116,6 @@ const DEPT_GROUPS = [
     ["Gulf Coast Kid's House", "$98,100"],
     ["Mosquito Control State Aid", "$69,588"],
     ["Indigent Cremation Program", "$50,000"],
-    ["Statutory & Other reconciliation", "$41,041"],
   ]],
   ["Culture and Recreation", [
     ["Libraries", "$2,155,655"],
@@ -191,15 +191,14 @@ const FY2026_DEPARTMENT_BUDGETS = {
   "Economic Development Alliance": 271841,
   "North Walton Tourist Development Tax": 323000,
   "Veteran Services": 236100,
-  "Human Services": 2347802,
+  "Human Services": 2397802,
   "Walton County Health Department": 1724397,
   "Mosquito Control": 1340000,
-  "Non-Profit Funding Program": 527820,
+  "Non-Profit Funding Program": 477820,
   "Lakeview": 150000,
   "Gulf Coast Kid's House": 40000,
   "Mosquito Control State Aid": 61856,
   "Indigent Cremation Program": 50000,
-  "Statutory & Other reconciliation": 0,
   "Libraries": 1894963,
   "Eagle Springs Golf and Recreation Center": 1974044,
   "Recreation": 859309,
@@ -507,11 +506,6 @@ const page1 = `
       ${row(TOTAL, "grand")}
     </div>
 
-    <div class="callout">
-      <h3>Reading This Table</h3>
-      <p>FY 2026 and FY 2027 budgets use the department grouping shown on the continued ledger pages. Earlier actuals retain their originally reported classifications, so a category change may affect a year-over-year comparison.</p>
-    </div>
-
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
 `;
@@ -527,7 +521,7 @@ const page2 = `
     <div class="dtable">
       ${buildDeptSections(DEPT_GROUPS_A)}
     </div>
-    <p class="footnote">The Board's $12,972,780 total is classified as $12,472,780 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses. Code Compliance combines both current programs for comparison with their shared FY 2026 accounting codes.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The Board's $12,935,889 total is classified as $12,435,889 General Government, $100,000 Culture and Recreation, and $400,000 Other Uses.</p>
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
@@ -554,6 +548,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-summary-of-expenses
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

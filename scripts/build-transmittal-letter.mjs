@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's Transmittal Letter as its own two-page
@@ -11,9 +12,8 @@ import { chromium } from "playwright";
 // DRAFT CONTENT: the letter body below is a first draft written for the
 // county's Chief Financial Officer to revise -- not a substitute for the
 // actual signed letter. The dollar figures are real, pulled directly from
-// this site's own FY 2027 budget dataset (assets/budget-data.js's live
-// Google Sheet sources) and cross-referenced against FY 2026 via Supabase's
-// original-budget view; see the PR/commit notes for the research trail.
+// this site's saved FY 2027 budget dataset and cross-referenced
+// against the saved FY 2026 original-budget figures; see the PR/commit notes for the research trail.
 // Two figures could not be independently verified and are flagged inline
 // with an HTML comment rather than silently guessed: the FY 2027 Capital
 // Projects Fund's year-over-year change (the FY 2026 comparison couldn't be
@@ -222,7 +222,7 @@ const html = `<!doctype html>
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
         <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million and maintains current services while funding public safety, infrastructure, and the staffing needed to serve a growing county.</p>
-        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, with an estimated $8,584,562 effect in the tentative-hearing comparison. The final funding schedule uses $8,047,270 of General Fund balance after all revenue updates, while the expenditure plan remains unchanged. This uses accumulated resources, not new recurring revenue. The fund schedules do not assign the draw between one-time projects and recurring services; both reserve use and future recurring costs require monitoring.</p>
+        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, with an estimated $8,584,562 effect in the tentative-hearing comparison. The final funding schedule uses $8,047,270 of General Fund balance after all revenue updates, while the expenditure plan remains unchanged. This uses accumulated resources, not new recurring revenue. The County will need to monitor reserve use and future recurring costs.</p>
         <p>The final budget carries out that decision through four principal commitments:</p>
         <ul>
           <li>Maintain current services and fund the Sheriff, other Constitutional Officers, and statutory obligations</li>
@@ -264,7 +264,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. Countywide Ad Valorem property taxes remain the County&rsquo;s largest revenue source at $151.1 million. Public Safety remains the largest expenditure function at $126.2 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
+    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. County operating property taxes remain the County&rsquo;s largest revenue source at $151.6 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">
@@ -277,12 +277,12 @@ const html = `<!doctype html>
     </div>
 
     <h2>Investing in Our Workforce</h2>
-    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 positions assigned to constitutional officers and the County-funded court position (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The additions maintain existing services rather than create new core programs; no requested positions were rejected.</p>
+    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 positions assigned to constitutional officers and the County-funded court position (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The added positions support existing services.</p>
 
     <h2>Continuity, Capital Investment and Preparedness</h2>
-    <p><strong>Service continuity.</strong> The Board&rsquo;s formal direction for FY 2027 is to maintain current service levels: no major core service is added, eliminated, or materially reduced. Within that direction, the budget balances today&rsquo;s services, tomorrow&rsquo;s infrastructure, and the County&rsquo;s financial flexibility.</p>
-    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. It excludes grant-funded projects, the Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years, which remain visible separately in the project inventory; no major funded project was postponed.</p>
-    <p><strong>Financial preparedness.</strong> Florida voters are scheduled to consider Amendment 3 in November 2026, which could materially change the countywide taxable base; this budget does not assume it as an enacted revenue reduction. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
+    <p><strong>Service continuity.</strong> The FY 2027 budget maintains current core services while investing in infrastructure and preserving financial flexibility.</p>
+    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. Grant-dependent projects, the Sheriff/Fine and Forfeiture Fund project, and previously funded tourism projects are listed separately in the project inventory.</p>
+    <p><strong>Financial preparedness.</strong> Florida voters are scheduled to consider Amendment 3 in November 2026, which could change the County's taxable property base. The adopted budget uses current law. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
     <p>I thank the Board for its guidance and County staff for its work developing this final budget.</p>
 
     <div class="signature-block">
@@ -298,6 +298,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-transmittal-letter.
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

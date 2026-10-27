@@ -1,3 +1,4 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
 
@@ -40,7 +41,7 @@ const STATS = [
 // [department, fund|null, FY26 FTE, FY27 FTE, FTE change, FY26 cost, FY27 cost, cost change]
 const CONSTITUTIONAL = [
   ["Board of County Commissioners", "General Fund", "11", "11", "0", "$2,552,616", "$2,754,289", "+$201,673"],
-  ["Circuit Court", "General Fund", "1", "1", "0", "$36,114", "$73,887", "+$37,773"],
+  ["Circuit Court & Court Innovations", "General Fund", "1", "1", "0", "$36,114", "$73,887", "+$37,773"],
   ["Circuit Court – Bailiff Services", "General Fund", "0", "0", "0", "$187,097", "$187,097", "$0"],
   ["Clerk of Courts & County Comptroller", "General Fund", "77", "80", "+3", "$4,198,783", "$4,905,230", "+$706,447"],
   ["County Court – Bailiff Services", "General Fund", "0", "0", "0", "$65,856", "$65,856", "$0"],
@@ -52,7 +53,7 @@ const CONSTITUTIONAL = [
 const CONSTITUTIONAL_TOTAL = ["Total", "", "845", "848", "+3", "$98,788,928", "$104,428,668", "+$5,639,740"];
 
 const BOARD = [
-  ["Beach Operations", "Tourist Development Fund", "114", "127", "+13", "$7,256,216", "$8,805,004", "+$1,548,788"],
+  ["Beach Operations", "Tourism Fund", "114", "127", "+13", "$7,256,216", "$8,805,004", "+$1,548,788"],
   ["Building", "Building Fund", "21", "21", "0", "$2,114,158", "$2,312,201", "+$198,043"],
   ["Building Construction & Maintenance", "General Fund", "68", "68", "0", "$5,258,168", "$5,427,755", "+$169,587"],
   ["Code Compliance", "General Fund", "43", "43", "0", "$3,908,159", "$4,260,744", "+$352,585"],
@@ -66,7 +67,7 @@ const BOARD = [
   ["Planning", "General Fund", "45", "47", "+2", "$4,614,044", "$4,961,086", "+$347,042"],
   ["Public Works", "Transportation Fund", "148", "148", "0", "$13,044,919", "$13,083,100", "+$38,181"],
   ["Purchasing", "General Fund", "10", "10", "0", "$888,295", "$888,999", "+$704"],
-  ["Tourism Administration", "Tourist Development Fund", "22", "22", "0", "$2,395,702", "$2,419,413", "+$23,711"]
+  ["Tourism Administration", "Tourism Fund", "22", "22", "0", "$2,395,702", "$2,419,413", "+$23,711"]
 ];
 const BOARD_TOTAL = ["Total", "", "655", "667", "+12", "$56,902,515", "$59,751,103", "+$2,848,588"];
 
@@ -77,7 +78,7 @@ function row(cells, cls) {
   return `<div class="lrow${cl}"><div class="rlabel">${cells[0]}</div>${fundCell}<div class="rnum">${cells[2]}</div><div class="rnum">${cells[3]}</div><div class="rnum">${cells[4]}</div><div class="rnum">${cells[5]}</div><div class="rnum">${cells[6]}</div><div class="rnum change${isDown ? " is-down" : ""}">${cells[7]}</div></div>`;
 }
 
-const tableHead = (withFund) => `<div class="lrow head"><div class="rlabel">Department</div><div class="rfund">${withFund ? "Fund" : ""}</div><div class="rnum">FY26 Equiv.</div><div class="rnum">FY27 Equiv.</div><div class="rnum">+/&minus;</div><div class="rnum">FY26 Cost</div><div class="rnum">FY27 Cost</div><div class="rnum">+/&minus;</div></div>`;
+const tableHead = (withFund) => `<div class="lrow head"><div class="rlabel">Department</div><div class="rfund">${withFund ? "Fund" : ""}</div><div class="rnum">FY26<br>Equiv.</div><div class="rnum">FY27<br>Equiv.</div><div class="rnum">+/&minus;</div><div class="rnum">FY26 Cost</div><div class="rnum">FY27 Cost</div><div class="rnum">+/&minus;</div></div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -274,7 +275,7 @@ const startPage = Number(process.argv[3] || 177);
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Personnel Ledger</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}.lrow .rlabel,.lrow .rfund,.lrow .rnum{font-size:8pt}.lrow.head .rlabel,.lrow.head .rfund,.lrow.head .rnum{font-size:7.5pt}.footnote{font-size:7.5pt}.stat-card span{font-size:7.5pt}.stat-card b{font-size:15pt}.lrow{padding:.024in 0;grid-template-columns:1.83in .79in .50in .50in .35in .90in .90in .90in;gap:.025in}.stat-strip{margin:.08in 0}.stat-card{padding:.09in .08in}.footnote{line-height:1.3}</style></head>
 <body>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
@@ -306,7 +307,7 @@ const html = `<!doctype html>
       ${row(BOARD_TOTAL, "grand")}
     </div>
 
-    <p class="footnote">The 1,515 headline counts authorized positions, including seven part-time slots. Department changes use budgeted position equivalents, not filled headcount; hours-adjusted FTE cannot be calculated without part-time schedules. Board totals include salaries, wages, retirement, health insurance, and other benefits. Rollups combine Solid Waste and Mosquito Control within Environmental Services, Veteran Services within County Administration Offices, and Eagle Springs Grill within Parks &amp; Recreation. Departments funded from more than one source are labeled "Multiple Funds."</p>
+    <p class="footnote">The 1,515 authorized positions include seven part-time slots. Comparisons use budgeted position equivalents, rather than filled headcount or hours-adjusted FTE. Personnel cost includes salaries, wages, retirement, insurance, and other benefits. Office rollups follow the Department Operating Ledger; “Multiple Funds” identifies departments supported by more than one fund.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -316,6 +317,8 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-personnel-ledger.pd
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await assertPublicationFits(page);
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

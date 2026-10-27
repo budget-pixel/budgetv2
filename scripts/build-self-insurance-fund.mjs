@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-self-insurance-fund.pdf";
@@ -44,6 +45,7 @@ const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, outline: true });
 await browser.close();
 console.log(`Wrote ${outPath}`);

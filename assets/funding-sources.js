@@ -1,6 +1,6 @@
 (function(root){
   'use strict';
-  var buildingNote='The FY 2027 budget uses accumulated Building Fund reserves to reduce a balance above the statutory carryforward limit, rather than charging current permit applicants for this allocation. Section 553.80(7), Florida Statutes, generally limits carryforward to the average of the preceding four fiscal years of building-code enforcement operating budgets, excluding reserves. Restricted funds remain subject to statutory use requirements; this budgeted drawdown is not a certification of compliance.';
+  var buildingNote='The FY 2027 budget uses accumulated Building Fund reserves to reduce a balance above the statutory carryforward limit, rather than charging current permit applicants for this allocation. Section 553.80(7), Florida Statutes, generally limits carryforward to the average of the preceding four fiscal years of building-code enforcement operating budgets, excluding reserves. Restricted funds remain subject to statutory use requirements.';
   function classify(row,key){
     var name=String(row.Revenue_Name||''),type=String(row.Revenue_Type||''),note=String(row.Note||'');
     var source=name,payer='Other funding sources',detail='Assigned revenue; not an equal charge to each household.';

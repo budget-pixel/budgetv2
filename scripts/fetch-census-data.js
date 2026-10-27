@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /* Fetches Census Bureau data for Walton County, FL (and Florida + Okaloosa
    County, FL as comparison geographies), calculates the derived statistics
-   used by the Census Narratives Google Sheet's {{placeholder}} templates,
+   used by the saved Census Narratives publication's {{placeholder}} templates,
    and writes the result to assets/census-data.json.
 
-   This script is run by .github/workflows/update-census-data.yml (on a
-   schedule and on manual workflow_dispatch). It is NOT run in the browser —
+   This is a manual publication utility, with no scheduled refresh.
+   It is NOT run in the browser —
    the website only ever reads the static assets/census-data.json this
    script produces, so the Census API key never reaches front-end code.
 
@@ -246,7 +246,7 @@ async function main() {
   ]);
 
   // Raw numeric values before display formatting. Keys match the
-  // {{placeholder}} names used in the Census Narratives Google Sheet.
+  // {{placeholder}} names used in the saved Census Narratives publication.
   const raw = {
     population2010: pop2010,
     population2020: pop2020,

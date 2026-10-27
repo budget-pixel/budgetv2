@@ -1,3 +1,4 @@
+import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Interfund Transfer Ledger" -- both
@@ -202,6 +203,7 @@ try {
   if (!validation.fits || validation.rowCounts.some(count => count !== 7) || validation.totals.some(total => total !== IN_TOTAL)) {
     throw new Error("Transfer ledger failed printable-area, row-count, or total validation: " + JSON.stringify(validation));
   }
+await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 } finally {
   await browser.close();

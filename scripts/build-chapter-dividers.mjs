@@ -121,7 +121,7 @@ const budgetProcessDivider = `
     <div class="divider">
       <span class="kicker2">Budget Book</span>
       <h1b>Budget<br/>Process</h1b>
-      <p>How department requests became Walton County's FY 2027 final spending plan, including the public workshops, tentative hearing, final hearing, and Board decisions that shaped adoption.</p>
+      <p>How budget requests became Walton County's FY 2027 final spending plan, including the public workshops, tentative hearing, final hearing, and Board decisions that shaped adoption.</p>
     </div>
   </section>
 `;
@@ -182,6 +182,16 @@ async function render(html, outPath) {
   await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
   await browser.close();
   console.log("Wrote " + outPath);
+}
+
+if (process.argv[2] === "--capital-only") {
+  await render(capitalBudgetDivider, process.argv[3] || "/private/tmp/divider-capital-budget.pdf");
+  process.exit(0);
+}
+
+if (process.argv[2] === "--budget-process-only") {
+  await render(budgetProcessDivider, process.argv[3] || "/private/tmp/divider-budget-process.pdf");
+  process.exit(0);
 }
 
 await render(constitutionalOfficersDivider, process.argv[2] || "/private/tmp/divider-constitutional-officers.pdf");

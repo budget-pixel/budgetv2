@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { chromium } from "playwright";
 
 // Standalone supporting-documentation workpaper. The checked source snapshot
@@ -6,7 +7,8 @@ import { chromium } from "playwright";
 // category amounts for individual Board offices and programs.
 const source = JSON.parse(readFileSync(new URL("../data/board-department-reduction-fy2027.json", import.meta.url), "utf8"));
 const capitalProjects = JSON.parse(readFileSync(new URL("../data/board-capital-projects-fy2027.json", import.meta.url), "utf8"));
-const output = process.argv[2] || "output/pdf/board-department-reduction-sheet-fy2027.pdf";
+const output = process.argv[2] || "tmp/pdfs/board-department-reduction-sheet-fy2027.pdf";
+mkdirSync(dirname(output), { recursive: true });
 const categories = ["Personnel", "Operating", "Capital"];
 const actualYears = [2021, 2022, 2023, 2024, 2025];
 const money = (value) => "$" + Math.round(value).toLocaleString("en-US");

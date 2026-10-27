@@ -1,10 +1,11 @@
+import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 
 // Builds the FY 2027 Budget Book's "Budget Change Summary" as its own
 // multi-page PDF. Content is the real FY 2026-vs-FY 2027 comparison from
 // the live site's Consolidated Budget Changes table (assets/budget-
 // data.js's renderConsolidatedBudgetChangesTable), verified against the
-// live Google Sheet + Supabase data sources rather than retyped from a
+// saved publication datasets rather than retyped from a
 // flawed raw print capture (which had lost several department names).
 // The Opioid Settlement Year 4 grant is folded into Statutory & Other
 // Agency Funding under Independent Agencies (matching the Independent
@@ -26,19 +27,19 @@ const row = ([name, fy26, fy27, change, pct], rowClass) => {
 const tableHead = `<div class="dept-row head"><div class="dept-name">Department</div><div class="num">FY 2026 Budget</div><div class="num">FY 2027 Budget</div><div class="num">Change</div><div class="num">%</div></div>`;
 
 const CONSTITUTIONAL = [
-  ["Board of County Commissioners*", "$11,340,758", "$11,267,780", "-$72,978", "-0.6%"],
+  ["Board of County Commissioners", "$11,340,758", "$11,230,889", "-$109,869", "-1.0%"],
   ["Clerk of Court", "$5,984,728", "$6,871,175", "+$886,447", "+14.8%"],
   ["Property Appraiser", "$4,829,596", "$4,954,338", "+$124,742", "+2.6%"],
   ["Supervisor of Elections", "$1,615,107", "$1,663,865", "+$48,758", "+3.0%"],
   ["Tax Collector", "$7,900,000", "$8,500,000", "+$600,000", "+7.6%"],
   ["Walton County Sheriff's Office", "$114,116,228", "$114,116,228", "$0", "+0.0%"]
 ];
-const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$145,786,417", "$147,373,386", "+$1,586,969", "+1.1%"];
+const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers and Board Office", "$145,786,417", "$147,336,495", "+$1,550,078", "+1.1%"];
 
 const INDEPENDENT = [
   ["Circuit Court", "$260,511", "$261,493", "+$982", "+0.4%"],
   ["County Court", "$69,956", "$70,056", "+$100", "+0.1%"],
-  ["Court Innovations", "$50,000", "$43,109", "-$6,891", "-13.8%"],
+  ["Court Innovations", "$50,000", "$80,000", "+$30,000", "+60.0%"],
   ["Court Technology - Court Administration", "$93,758", "$185,436", "+$91,678", "+97.8%"],
   ["Medical Examiner", "$1,351,698", "$881,930", "-$469,768", "-34.8%"],
   ["Non-Profit Funding Program", "$477,820", "$268,500", "-$209,320", "-43.8%"],
@@ -47,7 +48,13 @@ const INDEPENDENT = [
   ["State Attorney", "$260,633", "$297,111", "+$36,478", "+14.0%"],
   ["Statutory & Other", "$3,109,643", "$3,502,844", "+$393,201", "+12.6%"]
 ];
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$6,746,151", "$6,748,596", "+$2,445", "+0.0%"];
+INDEPENDENT.push(
+  ["Walton County Health Department", "$1,724,397", "$1,724,397", "$0", "0.0%"],
+  ["Daughette MSBU", "$43,225", "$43,225", "$0", "0.0%"],
+  ["State Fire", "$32,790", "$32,790", "$0", "0.0%"],
+  ["Guardian Ad Litem", "$9,000", "$9,000", "$0", "0.0%"]
+);
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,555,563", "$8,594,899", "+$39,336", "+0.5%"];
 
 const BOARD_DEPTS = [
   ["Tourism Administration", "$27,447,176", "$29,673,729", "+$2,226,553", "+8.1%"],
@@ -151,7 +158,7 @@ const sharedCss = `
     display:block;
     margin-top:.03in;
     color:#e7c95f;
-    font-size:6.4pt;
+    font-size:7pt;
     font-weight:800;
     letter-spacing:.03em;
     text-transform:uppercase;
@@ -172,7 +179,7 @@ const sharedCss = `
     display:grid;
     grid-template-columns:2.55in 1.05in 1.05in 1.05in .65in;
     gap:.08in;
-    padding:.055in 0;
+    padding:.04in 0;
     border-bottom:1px solid #eef1ee;
     align-items:center;
   }
@@ -250,7 +257,7 @@ const page1 = `
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
     </div>
 
-    <h2 class="group">Constitutional Officers</h2>
+    <h2 class="group">Constitutional Officers and Board Office</h2>
     <div class="dept-table">
       ${tableHead}
       ${CONSTITUTIONAL.map(row).join("")}
@@ -262,10 +269,9 @@ const page1 = `
       ${INDEPENDENT.map(row).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>
-    <p class="footnote"><b>Medical Examiner:</b> The FY 2026 comparison includes prior-year facility funding that does not recur in FY 2027. The $469,768 decrease therefore should not be read as an equivalent reduction in ongoing services.</p>
-    <p class="footnote"><b>Public Defender:</b> The increase supports court-technology costs, including IT salary reimbursements, software and system support, and replacement computers and licenses. The submitted IT request lists $91,270 in salary reimbursements separately from maintenance; the increase should not be described solely as physical repairs.</p>
-    <p class="footnote"><b>Court Technology - Court Administration:</b> The FY 2027 request includes $120,678 in salaries and benefits. This schedule's increase uses a non-capital comparison; the submitted request's full budget decreases from $395,858 to $185,436 because $300,000 of prior-year equipment funding does not recur, while operating costs also decline.</p>
-    <p class="footnote">* Board figures: $11,267,780 here excludes $1,705,000 of capital; the Expenditure Ledger's $12,572,780 includes capital but reports $400,000 of contingency under Other Uses; the full Board office total is $12,972,780. Other scope notes: the Sheriff comparison uses the amended FY 2026 fund budget. The $6.75M agency subtotal is the General Fund comparison set; the comprehensive agency ledger includes additional funds and agencies.</p>
+    <p class="footnote"><b>Medical Examiner:</b> The $469,768 decrease reflects facility funding included in FY 2026 that does not recur in FY 2027.</p>
+    <p class="footnote"><b>Court budgets:</b> Public Defender funding includes $91,270 in IT salary reimbursements. Court Administration includes $120,678 in salaries and benefits; its $300,000 FY 2026 equipment appropriation is shown under capital.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The $12,935,889 office budget comprises $11,230,889 shown here, including $400,000 contingency and $5,000 grants, plus $1,705,000 capital. Sheriff comparisons use the amended FY 2026 budget.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
@@ -279,7 +285,7 @@ const page2 = `
     <h2 class="group" style="margin-top:.12in">Board Department Operating & Personnel Budgets</h2>
     <div class="dept-table">
       ${tableHead}
-      ${BOARD_DEPTS.map((entry) => row([entry[0] + "*", ...entry.slice(1)])).join("")}
+      ${BOARD_DEPTS.map(row).join("")}
       ${row(BOARD_TOTAL, "total")}
     </div>
 
@@ -289,9 +295,8 @@ const page2 = `
       ${row(CAPITAL_TOTAL, "total")}
     </div>
     ${row(GRAND_TOTAL, "grand")}
-    <p class="footnote"><b>Personnel costs:</b> The $8.49M countywide increase combines staffing, compensation and employer benefit costs, not just raises or new hires. See Workforce Budget for the Board department breakdown and the separately managed constitutional-office and court totals.</p>
 
-    <p class="footnote">* Board department figures here include operating and personnel only. Their capital spending appears in the Capital section; individual department pages may therefore show larger totals. Capital crosswalk: the $53.50M Total Capital equals the $43.80M funded Capital Improvement Plan, plus $7.12M of machinery, vehicles, and equipment, plus $2.58M of debt service budgeted in the Capital Projects Fund.</p>
+    <p class="footnote"><b>Board Department Total:</b> Board department totals include operating and personnel costs; capital is listed separately. Department profiles include their capital items. Total Capital of $53.50M comprises the $43.80M Capital Improvement Plan, $7.12M in machinery, vehicles, and equipment, and $2.58M in debt service.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>
@@ -307,6 +312,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-budget-change-summa
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
-await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
+await capturePublicationHtml(page, outPath);
+await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();
 console.log("Wrote " + outPath);

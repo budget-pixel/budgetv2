@@ -16,6 +16,36 @@ collect(path.join(root, 'assets'));
 collect(path.join(root, 'pages'));
 let scripts = 0, pages = 0;
 const failures = [];
+// Only current public PDFs belong in the publication folder; workpapers use tmp/.
+const publicationPdfs = new Set([
+  'walton-county-fy2027-budget-book.pdf',
+  'walton-county-fy2027-budget-in-brief.pdf'
+]);
+for (const entry of fs.readdirSync(path.join(root, 'output/pdf'), { withFileTypes: true })) {
+  if (!entry.isFile() || !/\.pdf$/i.test(entry.name)) continue;
+  const relative = 'output/pdf/' + entry.name;
+  if (!publicationPdfs.has(entry.name)) failures.push(relative + ': obsolete or draft PDF; keep workpapers in tmp/');
+  if (fs.statSync(path.join(root, relative)).size > 100 * 1024 * 1024) {
+    failures.push(relative + ': exceeds the 100 MiB GitHub file limit');
+  }
+}
+// Only CIP may use an external spreadsheet connection. Publication and import downloads stay local.
+const cipFile = path.join(root, 'assets/cip-projects-data.js');
+for (const file of files) {
+  const source = fs.readFileSync(file, 'utf8');
+  if (/https?:\/\/(?:api\.census\.gov|data\.census\.gov\/vizwidget)/i.test(source)) {
+    failures.push(path.relative(root, file) + ': live Census data connection in frozen publication');
+  }
+  const sheetUrls = [...source.matchAll(/https?:\/\/(?:docs|sheets)\.google\.com\/spreadsheets[^\s"'<>]*/g)];
+  for (const match of sheetUrls) {
+    if (file !== cipFile || new URL(match[0]).searchParams.get('gid') !== '1388930304') {
+      failures.push(path.relative(root, file) + ': External spreadsheet connection outside CIP');
+    }
+  }
+}
+for (const localFile of ['assets/static-data/budget.json', 'assets/static-data/budget-import-fy2027.csv']) {
+  if (!fs.existsSync(path.join(root, localFile))) failures.push('Missing static publication file: ' + localFile);
+}
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   try {
@@ -62,4 +92,4 @@ for (const file of files.filter((item) => item.endsWith('.html'))) {
   } catch (error) { failures.push(path.relative(root, file) + ': search index: ' + error.message); }
 }
 if (failures.length) { console.error(failures.join('\n')); process.exitCode = 1; }
-else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, local HTML resource links, and ${searchIndexes} page search indexes.`);
+else console.log(`PASS: ${pages} HTML pages, ${scripts} JavaScript files/inline blocks, local HTML resource links, ${searchIndexes} page search indexes, and publication PDF inventory/size checks.`);

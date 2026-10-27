@@ -6,7 +6,7 @@ const publication=JSON.parse(fs.readFileSync('assets/static-data/budget.json','u
 assert.equal(publication.totals.expenditures,345223508);
 assert.equal(publication.totals.change.prior,327945088);
 for(const file of fs.readdirSync('assets').filter(f=>f.endsWith('.js')&&f!=='cip-projects-data.js')) {
-  assert.ok(!fs.readFileSync('assets/'+file,'utf8').includes('docs.google.com/spreadsheets'),file+' still references a live spreadsheet');
+  assert.ok(!fs.readFileSync('assets/'+file,'utf8').match(/https?:\/\/(?:docs|sheets)\.google\.com\/spreadsheets/),file+' still references a live spreadsheet');
 }
 const browser=await chromium.launch({headless:true});
 try {
@@ -17,7 +17,7 @@ try {
     page.on('pageerror',e=>errors.push(e.message));
     await page.route('**/*',async route=>{
       const url=route.request().url();
-      if(url.includes('supabase.co')||(url.includes('docs.google.com/spreadsheets')&&!url.includes('gid=1388930304'))) {forbidden.push(url);return route.abort();}
+      if(url.includes('supabase.co')||(url.match(/https?:\/\/(?:docs|sheets)\.google\.com\/spreadsheets/)&&!url.includes('gid=1388930304'))) {forbidden.push(url);return route.abort();}
       return route.continue();
     });
     const assetQuery=name==='asset-detail'?'&asset='+encodeURIComponent(fs.readFileSync('assets/static-data/asset-detail.csv','utf8').split(/\r?\n/)[1].split(',')[0]):'';
