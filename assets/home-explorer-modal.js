@@ -4,10 +4,10 @@
   var EXPLORERS = {
     revenue: { title: "Revenue Budget" },
     personnel: { title: "Workforce Budget" },
-    departments: { title: "Department Budget" },
+    departments: { title: "Board Department Budgets" },
     capital: { title: "Capital Budget" },
     constitutional: { title: "Constitutional Officers Budget" },
-    independent: { title: "Independent Agencies Budget" }
+    independent: { title: "Other Agencies and Court-Related Functions Budget" }
   };
 
   // Every page listed in the Ledger Directory (pages/budget-overview.html's
@@ -336,19 +336,39 @@
       var cards = [
         { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: transportationInfrastructureTotal, badge: activeProjects + " active projects" },
         { title: "Tourist Development Fund Capital Ledger", href: "pages/cip-tourist-development.html", amount: byFund["111"] || 0 },
-        { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: (data.expenditures || []).filter(function (row) { return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) === "107"; }).reduce(function (sum, row) { return sum + (Number(row.FY2027_Proposed) || 0); }, 0) },
+        { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: projects.filter(function (project) {
+          return project && !project.is_legacy_in_house_engineering_row &&
+            String(project.department_filter || "").trim().toLowerCase() === "sheriff" &&
+            String(project.funding || "").trim().toLowerCase() === "capital projects fund";
+        }).reduce(function (sum, project) {
+          return sum + (project.funding_by_year || []).filter(function (year) {
+            return year.year === "FY2027";
+          }).reduce(function (yearSum, year) { return yearSum + (Number(year.amount_value) || 0); }, 0);
+        }, 0) },
         { title: "Machinery, Vehicles, & Equipment Ledger", href: "pages/summary-of-machinery-vehicles-and-equipment.html", amount: machinery, badge: machineryRows.length + " items" },
         { title: "Recreation Plat Fee Fund Capital Ledger", href: "pages/recreation-plat-fee-fund.html", amount: byFund["114"] || 0 },
         { title: "Sidewalk Fund Capital Ledger", href: "pages/sidewalk-fund.html", amount: byFund["115"] || 0 }
       ];
       var cardHtml = cards.map(function (card) {
-        var scope = card.href.indexOf('cip-sheriff') !== -1 ? 'Sheriff capital outlay; excluded from headline total' : card.href.indexOf('machinery') !== -1 ? 'Equipment schedule; overlaps fund capital budgets' : 'Capital-outlay appropriations in the selected funds';
+        var scope = card.href.indexOf('cip-sheriff') !== -1 ? 'Capital Projects Fund projects; included in County capital outlay' : card.href.indexOf('machinery') !== -1 ? 'Equipment schedule; overlaps fund capital budgets' : 'Capital-outlay appropriations in the selected funds';
         return '<a href="' + escapeHtml(card.href) + '" data-explorer-popup-trigger="' + escapeHtml(card.title) + '"><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(card.title) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(card.amount)) + '</b><small class="wc-revenue-card-share">' + scope + '</small></div>' +
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
-      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Explore Walton County&rsquo;s capital improvement plan, fund ledgers, machinery and equipment, and searchable project detail.</p><p>Select a ledger below to review projects, funding sources, and budgeted investment. These are overlapping views, not amounts to add together. Project schedules and annual appropriations can cover different scopes.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Capital outlay, excluding Sheriff</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
-        '<section class="wc-capital-what-counts" aria-labelledby="wcCapitalWhatCountsTitle">' +
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Find a capital project or choose a ledger to explore infrastructure, facilities, machinery, and equipment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>County capital outlay</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small><p class="wc-capital-total-scope">Includes County-funded sheriff projects. Capital budgeted directly in the Sheriff Fund is separate.</p></div></aside></div>' +
+        '<section class="wc-home-search wc-capital-project-search" aria-labelledby="wcCapitalSearchTitle">' +
+          '<div><h2 id="wcCapitalSearchTitle">Search Capital Projects</h2><p>Find a specific capital project by name, department, or fund.</p></div>' +
+          '<div class="wc-home-search-input-wrap">' +
+            '<form class="wc-home-search-form" data-capital-project-search-form role="search">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>' +
+              '<label class="wc-sr-only" for="wcCapitalProjectSearchInput">Search capital projects</label>' +
+              '<input id="wcCapitalProjectSearchInput" name="q" type="search" placeholder="Search projects" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcCapitalSearchDropdown" aria-autocomplete="list">' +
+              '<button type="submit">Search</button>' +
+            '</form>' +
+            '<div id="wcCapitalSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Matching capital projects" hidden></div>' +
+          '</div>' +
+        '</section>' +
+        '<details class="wc-explorer-help wc-capital-help"><summary>About capital projects</summary><p>Project schedules and annual appropriations can cover different scopes. These are overlapping views, not amounts to add together.</p><section class="wc-capital-what-counts" aria-labelledby="wcCapitalWhatCountsTitle">' +
           '<div class="wc-capital-what-counts-head"><h3 id="wcCapitalWhatCountsTitle">What is a capital project?</h3><p>Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not.</p></div>' +
           '<div class="wc-capital-what-counts-grid">' +
             '<article class="wc-capital-what-counts-card is-included"><span>Counted as capital</span><ul>' +
@@ -367,19 +387,7 @@
             '</ul></article>' +
           '</div>' +
           '<p class="wc-capital-what-counts-note"><a href="pages/capital-improvement-plan.html#wc-cip-what-counts" data-explorer-popup-trigger="Capital Improvement Plan">Read the full explanation</a> &mdash; including the four tests for what qualifies, how projects are financed, and what counts toward the capitalization threshold.</p>' +
-        '</section>' +
-        '<section class="wc-home-search wc-capital-project-search" aria-labelledby="wcCapitalSearchTitle">' +
-          '<div><h2 id="wcCapitalSearchTitle">Search Capital Projects</h2><p>Find a specific capital project by name, department, or fund.</p></div>' +
-          '<div class="wc-home-search-input-wrap">' +
-            '<form class="wc-home-search-form" data-capital-project-search-form role="search">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>' +
-              '<label class="wc-sr-only" for="wcCapitalProjectSearchInput">Search capital projects</label>' +
-              '<input id="wcCapitalProjectSearchInput" name="q" type="search" placeholder="What project are you looking for?" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcCapitalSearchDropdown" aria-autocomplete="list">' +
-              '<button type="submit">Search</button>' +
-            '</form>' +
-            '<div id="wcCapitalSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Matching capital projects" hidden></div>' +
-          '</div>' +
-        '</section>' +
+        '</section></details>' +
         '<div class="wc-department-budget-cards">' + cardHtml + '</div>' +
         '<section class="wc-capital-search-results" data-capital-search-results hidden>' +
           '<div class="wc-capital-search-results-head"><h3 data-capital-search-results-title>Search results</h3><button type="button" class="wc-capital-search-clear" data-capital-search-clear>Clear search</button></div>' +
@@ -597,7 +605,7 @@
       }).join("");
       var change = total - prior;
       var pct = prior ? change / Math.abs(prior) * 100 : null;
-      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Independent Agencies Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Independent Agencies Ledger">View Independent Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Other Agencies and Court-Related Functions Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Other Agencies and Court-Related Functions Ledger">View Other Agencies and Court-Related Functions Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
     });
@@ -632,7 +640,7 @@
     if (!departmentModal) return;
     var button = departmentModal.querySelector('[data-department-popup-back]');
     var previous = departmentNavigationStack[departmentNavigationStack.length - 1] || departmentReturnTo;
-    var labels = { departments:'Departments', constitutional:'Constitutional Officers', capital:'Capital Budget', independent:'Independent Agencies', personnel:'Workforce Budget', revenue:'Revenue Budget' };
+    var labels = { departments:'Departments', constitutional:'Constitutional Officers', capital:'Capital Budget', independent:'Other Agencies and Court-Related Functions', personnel:'Workforce Budget', revenue:'Revenue Budget' };
     var label = previous ? previous.title : (modal && !modal.hidden ? labels[activeExplorerType] : '') || 'Budget explorer';
     button.hidden = departmentModal.classList.contains('is-budget-book');
     button.textContent = '\u2190 ' + label;
@@ -651,7 +659,7 @@
     departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
       '<section class="wc-home-department-modal-panel">' +
-        '<header class="wc-home-department-modal-head">' +
+        '<header class="wc-home-department-modal-head wc-popup-header">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
@@ -709,6 +717,9 @@
         departmentFrameAwaitingInitialLoad = false;
       try {
         var embeddedDocument = departmentFrame.contentDocument;
+        var isTransactionDetail = /\/transactions\.html$/i.test(embeddedDocument.location.pathname);
+        departmentModal.classList.toggle('is-transaction-detail', isTransactionDetail);
+        if (isTransactionDetail) departmentModal.querySelector('#wcHomeDepartmentModalTitle').textContent = 'Transactions';
         embeddedDocument.documentElement.classList.add("wc-embedded-department");
         // Utility/legal pages (Glossary, Accessibility, Privacy, Transaction
         // Search) opened here already carry wc-embedded-utility -- set by
@@ -736,6 +747,7 @@
             (isUtilityEmbed ? '' : 'footer[role="contentinfo"]{display:block!important}') +
             '#layout{display:block!important;min-height:0!important}' +
             '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
+            '#content.wc-transaction-page{padding-top:16px!important}' +
             '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
             '.wc-budget-process-back{display:none!important}' +
             '[data-constitutional-ledger-close]{display:none!important}' +
@@ -802,7 +814,8 @@
               returnUrl.searchParams.delete("embed");
               returnTo = { href: returnUrl.href, title: departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent };
             }
-            openDepartmentModal(resolvedUrl.href, link.textContent.trim(), departmentTrigger, returnTo);
+            var utilityTitle = link.querySelector('strong');
+            openDepartmentModal(resolvedUrl.href, utilityTitle ? utilityTitle.textContent.trim() : link.textContent.trim(), departmentTrigger, returnTo);
             return;
           }
           // The budget book supplies its own transparent, chromeless layout
@@ -1159,7 +1172,7 @@
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
-      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
+      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head wc-popup-header"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
       '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';

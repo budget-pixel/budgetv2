@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Independent Agencies Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
+<title>Other Agencies and Court-Related Functions Ledger — Walton County FY 2027 Budget</title>
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
 </head>
 <body>
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
 <div id="layout"><main id="content">
 <div class="page-eyebrow">Financial Overview</div>
-<div class="wc-page-title-row"><h1 class="page-title">Independent Agencies Ledger</h1><a class="wc-asset-back" href="budget-overview.html">← Back to Ledger Directory</a><a class="wc-asset-back" href="../index.html?explorer=independent">← Back to Explorer</a></div>
+<div class="wc-page-title-row"><h1 class="page-title">Other Agencies and Court-Related Functions Ledger</h1><a class="wc-asset-back" href="budget-overview.html">← Back to Ledger Directory</a><a class="wc-asset-back" href="../index.html?explorer=independent">← Back to Explorer</a></div>
 <p class="page-intro">Compare budget, fund, personnel, operating, and capital cost across the Courts, Health Department, and other independent and autonomous entities not part of a County department or Constitutional Officer.</p>
 
-<section aria-label="Independent Agencies Budget Ledger">
+<section aria-label="Other Agencies and Court-Related Functions Budget Ledger">
   <div id="independentAgenciesFilters" hidden></div>
   <div class="wc-department-ledger wc-ledger-page-flush" id="independentAgenciesLedger"></div>
 </section>
 
 </main></div>
-<script src="../assets/search-data.js?v=20261001-search-links"></script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261005-ledger-header"></script>
+<script src="../assets/search-data.js?v=20261101-agency-names"></script>
+<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
 <script src="../assets/independent-agencies-data.js?v=20260910-launch-review"></script>
 <script src="../assets/nav.js?v=20261001-iframe-lang"></script>
 <script>
@@ -80,7 +80,7 @@
         sum.priorBudget += item.priorBudget || 0;
         return sum;
       }, { budget:0, priorBudget:0 });
-      return '<tr class="wc-table-total-row"><td>Total Independent Agencies</td>' +
+      return '<tr class="wc-table-total-row"><td>Total Other Agencies and Court-Related Functions</td>' +
         moneyCellHtml(totals.priorBudget) +
         moneyCellHtml(totals.budget) +
         changeCellHtml(totals.budget, totals.priorBudget) +
@@ -121,10 +121,10 @@
       var bodyRows = items.map(isLoading ? loadingRowHtml : readyRowHtml);
       if(!isLoading && items.length) bodyRows.push(totalRowHtml(items));
       if(!isLoading && !items.length){
-        bodyRows.push('<tr><td colspan="4" class="wc-data-empty">No independent agencies match the selected filters.</td></tr>');
+        bodyRows.push('<tr><td colspan="4" class="wc-data-empty">No other agencies or court-related functions match the selected filters.</td></tr>');
       }
       host.innerHTML = window.WCBudgetData
-        ? window.WCBudgetData.renderTable({ caption:"Independent Agencies Budget Ledger", hideVisualCaption:true, columns:LEDGER_COLUMNS, bodyRows:bodyRows })
+        ? window.WCBudgetData.renderTable({ caption:"Other Agencies and Court-Related Functions Budget Ledger", hideVisualCaption:true, columns:LEDGER_COLUMNS, bodyRows:bodyRows })
         : "";
     }
 

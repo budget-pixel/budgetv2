@@ -8,7 +8,7 @@ function collect(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const file = path.join(dir, entry.name);
     if (entry.isDirectory()) collect(file);
-    else if (/\.(?:html|js)$/.test(file)) files.push(file);
+    else if (/\.(?:html|js|css)$/.test(file)) files.push(file);
   }
 }
 for (const entry of fs.readdirSync(root)) if (/\.html$/.test(entry)) files.push(path.join(root, entry));
@@ -33,6 +33,9 @@ for (const entry of fs.readdirSync(path.join(root, 'output/pdf'), { withFileType
 const cipFile = path.join(root, 'assets/cip-projects-data.js');
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
+  if (/^(?:<{7}(?:\s|$)|={7}\s*$|>{7}(?:\s|$))/m.test(source)) {
+    failures.push(path.relative(root, file) + ': unresolved Git merge conflict markers');
+  }
   if (/https?:\/\/(?:api\.census\.gov|data\.census\.gov\/vizwidget)/i.test(source)) {
     failures.push(path.relative(root, file) + ': live Census data connection in frozen publication');
   }
@@ -48,6 +51,7 @@ for (const localFile of ['assets/static-data/budget.json', 'assets/static-data/b
 }
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
+  if (file.endsWith('.css')) continue;
   try {
     if (file.endsWith('.js')) { new vm.Script(source, { filename: file }); scripts++; continue; }
     pages++;

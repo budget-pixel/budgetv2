@@ -30,6 +30,11 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   }
 
+  const departmentNames = new Map();
+  function transactionDepartmentName(row) {
+    const code = String(row.department_code || '').trim();
+    return departmentNames.get(code) || departmentNames.get(code.slice(0, 6)) || 'Not available';
+  }
   let currentPage = 0;
   let lastRows = [];
   let lastCount = 0;
@@ -46,6 +51,7 @@
       amountMin: form.amountMin.disabled ? "" : form.amountMin.value,
       amountMax: form.amountMax.disabled ? "" : form.amountMax.value,
       departmentCodes: form.departmentCodes.value ? form.departmentCodes.value.split(",").filter(Boolean) : [],
+      accountCode: form.accountCode.value,
       sort: form.sort.value
     };
   }
@@ -64,7 +70,7 @@
   function renderTable(rows) {
     const host = $("#txnResults");
     if (!rows.length) {
-      host.innerHTML = '<p class="wc-txn-empty">No transactions match these filters.</p>';
+      host.innerHTML = '<div class="wc-txn-empty"><strong>No matching transactions</strong><p>Try a broader vendor name, a different year, or fewer filters.</p></div>';
       return;
     }
     const bodyRows = rows.map((row) => {
@@ -72,14 +78,13 @@
       const amount = Math.abs(Number(row.amount) || 0);
       return (
         "<tr>" +
-        "<td>" + escapeHtml(formatDate(row.transaction_date)) + "</td>" +
-        '<td class="wc-txn-vendor">' + escapeHtml(row.vendor_payee_public || "Not available") + "</td>" +
-        "<td>" + escapeHtml(row.description_public || "No description provided") + "</td>" +
-        "<td>" + escapeHtml(row.object_name || "Not available") + "</td>" +
-        '<td class="wc-txn-code">' + escapeHtml(row.department_code || "&mdash;") + "</td>" +
-        '<td class="wc-txn-code">' + escapeHtml(row.fund_code || "&mdash;") + "</td>" +
-        "<td>" + escapeHtml(row.document_number_public || "&mdash;") + "</td>" +
-        '<td class="wc-txn-amount' + (isRevenue ? " is-revenue" : "") + '">' + (isRevenue ? "+" : "") + escapeHtml(formatCurrency(amount)) + "</td>" +
+        '<td data-label="Date">' + escapeHtml(formatDate(row.transaction_date)) + "</td>" +
+        '<td data-label="Vendor / Payee" class="wc-txn-vendor">' + escapeHtml(row.vendor_payee_public || "Not available") + "</td>" +
+        '<td data-label="Description">' + escapeHtml(row.description_public || "No description provided") + "</td>" +
+        '<td data-label="Account">' + escapeHtml(row.object_name || "Not available") + "</td>" +
+        '<td data-label="Department">' + escapeHtml(transactionDepartmentName(row)) + "</td>" +
+        '<td data-label="Document #">' + escapeHtml(row.document_number_public || "—") + "</td>" +
+        '<td data-label="Amount" class="wc-txn-amount' + (isRevenue ? " is-revenue" : "") + '">' + '<span class="wc-txn-type">' + (isRevenue ? 'Revenue' : 'Expense') + '</span>' + escapeHtml(formatCurrency(amount)) + "</td>" +
         "</tr>"
       );
     }).join("");
@@ -87,8 +92,8 @@
     host.innerHTML =
       '<div class="wc-txn-table-wrap" tabindex="0" role="region" aria-label="Transaction results; scroll horizontally for more columns"><table class="wc-txn-table">' +
       "<thead><tr>" +
-      "<th>Date</th><th>Vendor / Payee</th><th>Description</th><th>Category</th>" +
-      "<th>Dept Code</th><th>Fund Code</th><th>Document #</th><th>Amount</th>" +
+      "<th>Date</th><th>Vendor / Payee</th><th>Description</th><th>Account</th>" +
+      "<th>Department</th><th>Document #</th><th>Amount</th>" +
       "</tr></thead><tbody>" + bodyRows + "</tbody></table></div>";
   }
 
@@ -138,32 +143,40 @@
       return;
     }
 
+    const resultsHost = $("#txnResults");
+    resultsHost.setAttribute('aria-busy', 'true');
     status.textContent = "Searching…";
     $("#txnResults").innerHTML = "";
     downloadBtn.disabled = true;
     pagination.hidden = true;
+    $("#txnResultsToolbar").hidden = true;
 
     const filters = readFilters();
     if (filters.dateFrom && filters.dateTo && filters.dateFrom > filters.dateTo) {
       status.textContent = "The start date must be on or before the end date.";
+      resultsHost.setAttribute("aria-busy", "false");
+      $("#txnMoreFilters").open = true;
       $("#txnDateTo").focus();
       return;
     }
     if (filters.amountMin !== "" && filters.amountMax !== "" && Number(filters.amountMin) > Number(filters.amountMax)) {
       status.textContent = "The minimum amount must not exceed the maximum amount.";
+      resultsHost.setAttribute("aria-busy", "false");
+      $("#txnMoreFilters").open = true;
       $("#txnAmountMax").focus();
       return;
     }
     let result;
     try { result = await window.WCSupabaseData.searchTransactions(filters, currentPage); }
     catch (error) { if (requestId === searchRequestId) status.textContent = "Transaction search could not connect. Please try again."; return; }
+    finally { if (requestId === searchRequestId) resultsHost.setAttribute("aria-busy", "false"); }
     if (requestId !== searchRequestId) return;
     lastRows = result.rows || [];
     lastCount = result.count === null || result.count === undefined ? null : result.count;
 
     if (result.error) {
       status.textContent = result.error.code === "57014"
-        ? "That search took too long to run against 650,000+ raw records. Try a longer or more specific vendor/description term."
+        ? "That search took too long. Choose a fiscal year or department, or use a more specific vendor or description."
         : "Something went wrong loading transactions. Try narrowing your search and try again.";
       return;
     }
@@ -189,8 +202,9 @@
 
     renderTable(lastRows);
     downloadBtn.disabled = !lastRows.length;
+    $("#txnResultsToolbar").hidden = !lastRows.length;
 
-    pagination.hidden = false;
+    pagination.hidden = !lastRows.length && currentPage === 0;
     $("#txnPrev").disabled = currentPage === 0;
     $("#txnNext").disabled = lastRows.length < pageSize;
     $("#txnPageLabel").textContent = "Page " + (currentPage + 1);
@@ -227,6 +241,62 @@
     if (!select || !window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
     try {
       const data = await window.WCBudgetData.loadBudgetData();
+      const departmentCandidates = new Map();
+      (data.activities || []).concat(data.expenditures || [], data.revenues || []).forEach(row => {
+        const code = String(row.Dept_Code || '').trim();
+        const name = String(row.Dept_Name || '').trim();
+        if (!code || !name) return;
+        if (!departmentNames.has(code)) departmentNames.set(code, name);
+        const shortCode = code.slice(0, 6);
+        if (!departmentCandidates.has(shortCode)) departmentCandidates.set(shortCode, new Set());
+        departmentCandidates.get(shortCode).add(name);
+      });
+      departmentCandidates.forEach((names, code) => {
+        if (!departmentNames.has(code) && names.size === 1) departmentNames.set(code, Array.from(names)[0]);
+      });
+      const accounts = new Map();
+      const revenueGroups = new Map();
+      function revenueGroup(name) {
+        if (/^(interest and other earnings|contributions and donations|pro shop sales|sale of fixed assets|state shared revenue \(other\))$/i.test(name)) {
+          return {
+            'interest and other earnings': 'Interest and Other Earnings',
+            'contributions and donations': 'Contributions and Donations',
+            'pro shop sales': 'Pro Shop Sales',
+            'sale of fixed assets': 'Sale of Fixed Assets',
+            'state shared revenue (other)': 'State Shared Revenue (Other)'
+          }[name.toLowerCase()];
+        }
+        if (/^(state|federal)\s+grant\b/i.test(name)) return 'Grant Reimbursements';
+        if (/^tourist development tax/i.test(name)) return 'Tourist Development Tax';
+        if (/^general government fees$/i.test(name)) return 'General Government Fees';
+        if (/^judgments? and (fines|fees)$/i.test(name)) return 'Judgments and Fines';
+        if (/^physical environment (fees|revenue)/i.test(name)) return 'Physical Environment Revenue';
+        if (/^ad valorem/i.test(name)) return 'Ad Valorem Taxes';
+        return '';
+      }
+      (data.expenditures || []).forEach(row => {
+        const code = String(row.Object_Code || "").trim();
+        const name = code === '581001' ? 'Aid to Government Agencies' : String(row.Object_Name || '').trim();
+        if (code && name && !['500000', '523004', '999997'].includes(code) && !/unclassified|published final budget reconciliation/i.test(name)) accounts.set(code, name);
+      });
+      (data.revenues || []).forEach(row => {
+        const code = String(row.Revenue_Code || "").trim();
+        const name = String(row.Revenue_Name || '').trim();
+        const group = revenueGroup(name);
+        if (group && code) {
+          if (!revenueGroups.has(group)) revenueGroups.set(group, new Set());
+          revenueGroups.get(group).add(code);
+          return;
+        }
+        if (code && name && !/unclassified|published final budget reconciliation/i.test(name)) accounts.set(code, name);
+      });
+      revenueGroups.forEach((codes, name) => accounts.set(Array.from(codes).sort().join(','), name));
+      Array.from(accounts).sort((a, b) => a[0].split(',')[0].localeCompare(b[0].split(',')[0], undefined, { numeric: true })).forEach(([code, name]) => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = code.includes(',') ? name : name + ' — ' + code;
+        $('#txnAccount').appendChild(option);
+      });
       const codesByName = new Map();
       const excludedDepartmentNames = new Set([
         "self insurance expense",
@@ -248,7 +318,9 @@
         // incorrectly return an empty result.
         codesByName.get(name).add(transactionCode);
         codesByName.get(name).add(rawCode);
+
       });
+      if (lastRows.length) renderTable(lastRows);
       Array.from(codesByName.entries())
         .sort((a, b) => a[0].localeCompare(b[0]))
         .forEach(([name, codes]) => {
@@ -272,9 +344,21 @@
     $("#txnReset").addEventListener("click", () => {
       $("#txnFilters").reset();
       updateAmountFieldState();
-      runSearch(true);
+      searchRequestId += 1;
+      currentPage = 0;
+      lastRows = [];
+      lastCount = 0;
+      $("#txnResults").innerHTML = "";
+      $("#txnResults").setAttribute("aria-busy", "false");
+      $("#txnPagination").hidden = true;
+      $("#txnDownload").disabled = true;
+      $("#txnResultsToolbar").hidden = true;
+      $("#txnMoreFilters").open = false;
+      $("#txnStatus").textContent = "Choose your filters, then select Search transactions.";
+      $("#txnKeyword").focus();
     });
     $("#txnDownload").addEventListener("click", downloadCsv);
+    $("#txnSort").addEventListener("change", () => runSearch(true));
     $("#txnPrev").addEventListener("click", () => {
       if (currentPage > 0) {
         currentPage -= 1;
@@ -290,7 +374,6 @@
 
     populateYearOptions();
     populateDepartmentOptions();
-    runSearch(true);
   }
 
   if (document.readyState === "loading") {

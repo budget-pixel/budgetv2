@@ -251,7 +251,7 @@ const page1 = `
   <section>
     ${pageHeader()}
     <small class="kicker">Financial Overview</small>
-    <h1>Budget Change Summary</h1>
+    <h1>Budget Adjustments</h1>
     <p class="intro">A comparison of the FY 2026 and FY 2027 budgets by Constitutional Officer, Independent Agency, Board Department, and capital fund.</p>
     <div class="stat-strip">
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
@@ -280,7 +280,7 @@ const page1 = `
 const page2 = `
   <section>
     ${pageHeader()}
-    <h1 class="continued">Budget Change Summary <span>(continued)</span></h1>
+    <h1 class="continued">Budget Adjustments <span>(continued)</span></h1>
 
     <h2 class="group" style="margin-top:.12in">Board Department Operating & Personnel Budgets</h2>
     <div class="dept-table">
@@ -304,7 +304,7 @@ const page2 = `
 
 const startPage = Number(process.argv[3] || 168);
 const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Budget Change Summary</title>
+<html><head><meta charset="utf-8"><title>Budget Adjustments</title>
 <style>${sharedCss}</style></head>
 <body>${page1.replace("PAGE_A", startPage)}${page2.replace("PAGE_B", startPage + 1)}</body></html>`;
 

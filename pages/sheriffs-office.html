@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sheriff's Office — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
 </head>
 <body>
 
@@ -24,118 +24,6 @@
   <img src="../assets/images/page-images/sheriff-mike-adkinson.jpg" alt="Michael Adkinson, Walton County Sheriff" width="700" height="560" loading="lazy" decoding="async">
   <figcaption>Michael Adkinson, Sheriff</figcaption>
 </figure>
-<style>
-  .wc-image-card{
-    max-width:1200px;
-    margin:0 auto;
-    padding:12px;
-    background:#ffffff;
-    border:3px solid #d1be78;
-    border-radius:28px;
-    box-shadow:
-      0 12px 40px rgba(0,0,0,0.10),
-      0 4px 12px rgba(0,0,0,0.06),
-      0 0 0 1px rgba(209,190,120,0.35);
-    box-sizing:border-box;
-  }
-
-  #wso-header-slideshow{
-    position:relative;
-    width:100%;
-    height:420px;
-    overflow:hidden;
-    border-radius:18px;
-  }
-
-  #wso-header-slideshow img{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    opacity:0;
-    transition:opacity 1.2s ease-in-out;
-  }
-
-  #wso-header-slideshow img.is-active{
-    opacity:1;
-  }
-
-  .wso-header-overlay{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%);
-    z-index:1;
-  }
-
-  .wso-header-title{
-    position:absolute;
-    left:24px;
-    bottom:20px;
-    z-index:2;
-  }
-
-  .wso-header-title h2{
-    margin:0;
-    color:#ffffff;
-    font-size:28px;
-    font-weight:800;
-    text-shadow:0 2px 8px rgba(0,0,0,0.5);
-  }
-
-  @media (max-width: 768px){
-    .wc-image-card{
-      max-width:100%;
-      padding:8px;
-      border-width:2px;
-      border-radius:20px;
-      margin:0 12px;
-    }
-
-    #wso-header-slideshow{
-      height:240px;
-      border-radius:12px;
-    }
-
-    .wso-header-title h2{
-      font-size:20px;
-    }
-  }
-
-  @media print{
-    .wc-image-card{
-      display:none !important;
-    }
-  }
-</style>
-<div class="wc-image-card">
-  <div id="wso-header-slideshow">
-    <img class="is-active" src="../assets/images/page-images/sheriff-cardenas-cover.jpg" alt="Hispanic male deputy standing in front of patrol car smiling" width="2048" height="840" decoding="async">
-    <img src="../assets/images/page-images/sheriff-karen-rushane-cover.jpg" alt="Karen and Rushane Cover" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-dispatcher-cover.jpg" alt="Dispatcher with headset" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-war-cover.jpg" alt="Flight paramedics by helicopter" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-jail-cover.jpg" alt="Jail Operations" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-vet-tech-cover.jpg" alt="Vet tech holding kitten" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-posse-cover.jpg" alt="Sheriff posse member" width="2048" height="840" loading="lazy" decoding="async">
-    <img src="../assets/images/page-images/sheriff-cover.jpg" alt="Sheriff at desk" width="2048" height="840" loading="lazy" decoding="async">
-    <div class="wso-header-overlay"></div>
-    <div class="wso-header-title">
-      <h2>Walton County Sheriff's Office</h2>
-    </div>
-  </div>
-</div>
-<script>
-  (function () {
-    var slides = document.querySelectorAll("#wso-header-slideshow img");
-    if (slides.length < 2) return;
-    var current = 0;
-    setInterval(function () {
-      slides[current].classList.remove("is-active");
-      current = (current + 1) % slides.length;
-      slides[current].classList.add("is-active");
-    }, 4000);
-  })();
-</script>
 <div id="department-performance-table"></div>
 <div id="department-expense-table"></div>
 <div id="department-revenue-table"></div>
@@ -228,8 +116,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261005-ledger-header"></script>
+<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
 <script src="../assets/nav.js?v=20261001-iframe-lang"></script>
-<script src="../assets/funding-sources.js?v=20261004-funding-sources"></script><script src="../assets/department-services.js?v=20261004-performance-context"></script>
+<script src="../assets/funding-sources.js?v=20261004-funding-sources"></script><script src="../assets/department-services.js?v=20261101-label-under-total"></script>
 </body>
 </html>

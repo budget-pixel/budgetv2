@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
   html.wc-property-tax-calculator-embed body #nav-menu,
@@ -755,7 +755,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261005-ledger-header"></script>
+<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
 <script>
 (function(){
   function $(selector){
@@ -983,7 +983,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   // must stay last.
   const ALLOCATION_GROUPS = [
     { key: "constitutional", label: "Constitutional Officers", match: function(norm){ return !!CONSTITUTIONAL_OFFICER_NAMES[norm] || norm === "board of county commissioners"; } },
-    { key: "independent", label: "Independent Agencies", match: function(norm){ return !!INDEPENDENT_AGENCY_NAMES[norm]; } },
+    { key: "independent", label: "Other Agencies and Court-Related Functions", match: function(norm){ return !!INDEPENDENT_AGENCY_NAMES[norm]; } },
     { key: "capital", label: "Capital", match: function(norm){ return !!CAPITAL_PROJECT_NAMES[norm]; } },
     { key: "board", label: "Board Departments", match: function(){ return true; } }
   ];
@@ -1079,7 +1079,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       largestHtml +
       '<div class="wc-ptax-flow-head">' +
         '<h2>Property tax allocation ledger</h2>' +
-        '<p>Grouped by Constitutional Officers, Independent Agencies, Capital, and Board Departments.</p>' +
+        '<p>Grouped by Constitutional Officers, Other Agencies and Court-Related Functions, Capital, and Board Departments.</p>' +
       '</div>' +
       tableHtml;
     if (window.WCBudgetData && typeof window.WCBudgetData.bindTooltipAnchors === "function") {

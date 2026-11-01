@@ -3451,10 +3451,18 @@
     try {
       const url = new URL(window.location.href);
       url.searchParams.set("openBudgetLines", detailId);
+      url.searchParams.set("budgetHistory", "1");
       return url.href;
     } catch (e) {
       return "";
     }
+  }
+
+  function usesFundRevenueTransactions(row, fields) {
+    return fields && fields.kind === "revenue" && (
+      String(row.Revenue_Code || "").trim() === "311000" ||
+      String(row.Revenue_Type || "").trim().toLowerCase() === "general government taxes"
+    );
   }
 
   function transactionHrefForBudgetLine(row, column, fields) {
@@ -3471,6 +3479,7 @@
     if (!amount) return "";
 
     const params = new URLSearchParams();
+    const fundRevenue = usesFundRevenueTransactions(row, fields);
     const category = row[fields.categoryField] || "";
     const objectCode = Array.isArray(row._mergedObjectCodes) && row._mergedObjectCodes.length
       ? row._mergedObjectCodes.join(",")
@@ -3491,17 +3500,19 @@
     params.set("category", slugParam(category));
     params.set("categoryLabel", category);
     params.set("kind", fields.kind || "expense");
-    params.set("selectedActual", String((fields.kind || "expense") === "revenue" ? Math.abs(amount) : amount));
+    if (!fundRevenue) params.set("selectedActual", String((fields.kind || "expense") === "revenue" ? Math.abs(amount) : amount));
     params.set("objectCode", objectCode);
     params.set("objectName", objectName);
-    params.set("org", orgCodes.join(","));
-    params.set("departmentCode", deptCode);
-    params.set("departmentName", row.Dept_Name || "");
+    if (!fundRevenue) {
+      params.set("org", orgCodes.join(","));
+      params.set("departmentCode", deptCode);
+      params.set("departmentName", row.Dept_Name || "");
+    }
     params.set("fundCode", fundCodeForRow(row));
     const returnTo = currentBudgetLinesReturnUrl(fields && fields.detailId);
     if (returnTo) params.set("returnTo", returnTo);
-    if (projectCode) params.set("projectCode", projectCode);
-    if (projectName) params.set("program", projectName);
+    if (!fundRevenue && projectCode) params.set("projectCode", projectCode);
+    if (!fundRevenue && projectName) params.set("program", projectName);
 
     return transactionPage + "?" + params.toString();
   }
@@ -3521,6 +3532,9 @@
     const usesRevenueYearPicker = !isExpense && !!combineByName;
     const codeFieldForFilter = isExpense ? "Object_Code" : "Revenue_Code";
     rows = rows.filter((r) => !HIDDEN_BUDGET_LINE_OBJECT_CODES.has(String(r[codeFieldForFilter] || "").trim()));
+    rows = rows.filter((r) => !(isExpense &&
+      normalizeDeptName(r.Dept_Name) === "non profit funding program" &&
+      String(r.Object_Code || "").trim() === "582000"));
     if (!rows.length) return { button: "", detail: "" };
     budgetLinesDetailCounter += 1;
     const detailId = "wc-budget-lines-" + budgetLinesDetailCounter;
@@ -3920,7 +3934,7 @@
           const href = transactionHrefForBudgetLine(r, c, drilldownFields);
           const amount = budgetLineVisibleColumnAmount(r, c);
           const value = amount === null ? "—" : formatCurrency(amount);
-          const drilldownLabel = "View " + c.label + " transaction detail for " +
+          const drilldownLabel = (usesFundRevenueTransactions(r, drilldownFields) ? "View fund revenue transactions for " : "View transaction detail for ") + c.label + ": " +
             (r[nameField] || r[codeField] || "this budget line") + " actual amount " + value;
           return '<td class="wc-num wc-prior-year wc-fy-' + c.year + '">' +
             (href && amount !== null ? '<a class="wc-actual-drilldown-link" href="' + escapeHtml(href) + '" aria-label="' + escapeHtml(drilldownLabel) + '">' + value + "</a>" : value) +
@@ -4339,11 +4353,99 @@
       if (!list.querySelector('article')) return;
       const scroll = table.closest('.wc-data-table-scroll') || table.parentElement;
       scroll.classList.add('wc-mobile-budget-table');
+      const labelIndex = table.querySelector('td.wc-itemized-description-column')?.previousElementSibling?.cellIndex;
+      if (labelIndex !== undefined) {
+        table.querySelectorAll('tr').forEach(row => row.cells[labelIndex]?.classList.add('wc-mobile-budget-label-column'));
+      }
       scroll.before(list);
       const hint = document.createElement('p');
       hint.className = 'wc-mobile-budget-history-hint';
-      hint.textContent = 'Swipe the table sideways to compare fiscal years.';
+      hint.textContent = 'Showing the most recent budget years. Swipe sideways for earlier years.';
       scroll.before(hint);
+    });
+  }
+
+  function positionCellText(cell) {
+    if (!cell) return '';
+    const copy = cell.cloneNode(true);
+    copy.querySelectorAll('.wc-personnel-base-amt').forEach(element => element.remove());
+    return copy.textContent.trim();
+  }
+
+  function prepareMobilePersonnel(body) {
+    const table = body?.querySelector('.wc-personnel-position-detail');
+    if (!table) return;
+    const headers = Array.from(table.querySelectorAll('thead th')).map(positionCellText);
+    const currentIndex = headers.findIndex(label => /FY 2027 FTE/.test(label));
+    const totalIndex = headers.findIndex(label => /Total Personnel Cost/.test(label));
+    if (currentIndex < 0 || totalIndex < 0) return;
+    const cards = document.createElement('div');
+    cards.className = 'wc-mobile-personnel-cards';
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = Array.from(row.cells);
+      if (!cells[totalIndex]) return;
+      const card = document.createElement('article');
+      card.className = 'wc-mobile-personnel-card';
+      if (row.classList.contains('wc-table-total-row')) card.classList.add('is-total');
+      const heading = document.createElement('h3');
+      heading.textContent = positionCellText(cells[0]);
+      const fte = document.createElement('p');
+      const current = positionCellText(cells[currentIndex]);
+      fte.textContent = current ? 'FY 2027 staffing: ' + current + ' FTE' : 'Additional personnel costs';
+      const total = document.createElement('strong');
+      total.textContent = positionCellText(cells[totalIndex]);
+      const label = document.createElement('span');
+      label.textContent = 'Total budgeted personnel cost';
+      const details = document.createElement('details');
+      const summary = document.createElement('summary');
+      summary.textContent = 'Salary, benefits and staffing history';
+      const list = document.createElement('dl');
+      const components = document.createElement('dl');
+      cells.forEach((cell, index) => {
+        if (index === 0 || index === currentIndex || index === totalIndex || !positionCellText(cell)) return;
+        const group = document.createElement('div');
+        const term = document.createElement('dt');
+        term.textContent = headers[index];
+        const value = document.createElement('dd');
+        value.textContent = positionCellText(cell);
+        group.append(term, value);
+        (cell.classList.contains('wc-personnel-position-optional-col') ? components : list).append(group);
+      });
+      details.append(summary, list);
+      if (components.children.length) {
+        const breakdown = document.createElement('details');
+        const breakdownTitle = document.createElement('summary');
+        breakdownTitle.textContent = 'Cost components and reference scenario';
+        const explanation = document.createElement('p');
+        explanation.textContent = 'COLA and health insurance are already included in the salary and benefit amounts above. The health insurance increase is a reference scenario and is not included in total personnel cost.';
+        breakdown.append(breakdownTitle, explanation, components);
+        details.append(breakdown);
+      }
+      card.append(heading, fte, total, label, details);
+      cards.append(card);
+    });
+    const scroll = table.closest('.wc-data-table-scroll');
+    if (!scroll) return;
+    scroll.classList.add('wc-personnel-comparison-scroll');
+    body.classList.add('wc-has-mobile-personnel');
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'wc-mobile-personnel-view-toggle';
+    toggle.textContent = 'Compare positions in a table';
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.addEventListener('click', () => {
+      const comparing = body.classList.toggle('is-personnel-table-view');
+      toggle.setAttribute('aria-pressed', String(comparing));
+      toggle.textContent = comparing ? 'Read as position cards' : 'Compare positions in a table';
+    });
+    scroll.before(toggle, cards);
+  }
+
+  function scrollMobileBudgetComparison(root) {
+    if (!window.matchMedia('(max-width:700px)').matches) return;
+    (root || document).querySelectorAll('.wc-budget-detail-body.show-prior-years .wc-mobile-budget-table').forEach(scroll => {
+      const current = scroll.querySelector('th.wc-fy-2027');
+      if (current) scroll.scrollLeft = scroll.scrollWidth - scroll.clientWidth;
     });
   }
 
@@ -4412,12 +4514,14 @@
       else applyPriorYearsState(getShowPriorYears("budget"), body);
     }
     prepareMobileBudgetLines(body);
+    prepareMobilePersonnel(body);
     activeBudgetDetailToggle = toggle;
     toggle.setAttribute("aria-expanded", "true");
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
     lockBudgetDetailBackgroundScroll();
+    requestAnimationFrame(() => scrollMobileBudgetComparison(modal));
     const closeButton = modal.querySelector(".wc-budget-detail-close");
     if (closeButton) closeButton.focus({ preventScroll: true });
   }
@@ -4469,12 +4573,14 @@
       else applyPriorYearsState(getShowPriorYears("budget"), body);
     }
     prepareMobileBudgetLines(body);
+    prepareMobilePersonnel(body);
     activeBudgetDetailToggle = toggle || null;
     if (toggle) toggle.setAttribute("aria-expanded", "true");
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
     lockBudgetDetailBackgroundScroll();
+    requestAnimationFrame(() => scrollMobileBudgetComparison(modal));
     const closeButton = modal.querySelector(".wc-budget-detail-close");
     if (closeButton) closeButton.focus({ preventScroll: true });
     return body;
@@ -4588,6 +4694,10 @@
     const toggles = Array.from(document.querySelectorAll(".wc-view-budget-lines-toggle[data-target]"));
     const toggle = toggles.find((candidate) => candidate.dataset.target === target);
     if (!toggle) return false;
+    if (new URLSearchParams(window.location.search).get('budgetHistory') === '1') {
+      setShowPriorYears(true, 'budget');
+      applyPriorYearsState(true, document, 'budget');
+    }
     requestedBudgetLinesOpened = true;
     toggle.click();
     return true;
@@ -9213,7 +9323,7 @@
     // (Transportation, Sheriff Capital, Tourist Development, Recreation
     // Plat Fee, Sidewalk, Machinery/Vehicles/Equipment), so it's labeled
     // "Capital" rather than a generic "Other".
-    const DEPARTMENT_GROUP_LABELS = ["Constitutional Officers and Board Office", "Independent Agencies", "Board Department Operating and Personnel Budgets", "Capital"];
+    const DEPARTMENT_GROUP_LABELS = ["Constitutional Officers and Board Office", "Other Agencies and Court-Related Functions", "Board Department Operating and Personnel Budgets", "Capital"];
     // The 15 canonical Board Department rollup names (see
     // BOARD_DEPARTMENT_ROLLUP_NAMES/groupedDeptName above) -- a couple of
     // them ("Parks & Recreation", "Beach Operations") aren't themselves a
@@ -9388,8 +9498,8 @@
       const chartHtml = chartItems.map((item) => {
         const width = Math.max(3, Math.abs(item.change) / maxAbsChange * 50);
         const positive = item.change > 0;
-        return '<button type="button" class="wc-budget-diverging-row ' + (positive ? "increase" : "decrease") + '" data-budget-change-dept="' + escapeHtml(item.dept) + '" title="' + escapeHtml(formatCurrency(item.change)) + '" aria-label="Filter table to ' + escapeHtml(item.dept) + ', change ' + escapeHtml(formatCurrency(item.change)) + '">' +
-          '<span class="wc-budget-diverging-name">' + escapeHtml(item.dept) + '</span><span class="wc-budget-diverging-plot"><span class="wc-budget-diverging-axis" aria-hidden="true"></span><span class="wc-budget-diverging-bar" style="width:' + width.toFixed(2) + '%"></span></span><strong>' + escapeHtml(compactCurrency(item.change)) + "</strong></button>";
+        return '<div class="wc-budget-diverging-row ' + (positive ? "increase" : "decrease") + '" title="' + escapeHtml(formatCurrency(item.change)) + '">' +
+          '<span class="wc-budget-diverging-name">' + escapeHtml(item.dept) + '</span><span class="wc-budget-diverging-plot"><span class="wc-budget-diverging-axis" aria-hidden="true"></span><span class="wc-budget-diverging-bar" style="width:' + width.toFixed(2) + '%"></span></span><strong>' + escapeHtml(compactCurrency(item.change)) + "</strong></div>";
       }).join("");
 
       executiveEl.innerHTML =
@@ -9399,7 +9509,7 @@
           kpiCard("Net percent change", (netPct >= 0 ? "+" : "") + (netPct * 100).toFixed(1) + "%", "Countywide change", netPct >= 0 ? "increase" : "decrease") +
           kpiCard("Largest budget increase", largestIncrease ? compactCurrency(largestIncrease.change) : "None", largestIncrease ? largestIncrease.dept : "No department increase", "increase") +
         "</div>" +
-        '<div class="wc-budget-executive-grid"><section class="wc-budget-diverging" aria-labelledby="wcBudgetChartTitle"><div class="wc-budget-diverging-head"><div><h3 id="wcBudgetChartTitle">Largest Budget Changes</h3><p>Select a department to filter the detailed table.</p></div><div class="wc-budget-diverging-legend"><span class="decrease">Decrease</span><span class="increase">Increase</span></div></div><div class="wc-budget-diverging-chart">' + chartHtml + "</div></section></div>";
+        '<div class="wc-budget-executive-grid"><section class="wc-budget-diverging" aria-labelledby="wcBudgetChartTitle"><div class="wc-budget-diverging-head"><div><h3 id="wcBudgetChartTitle">Largest Budget Changes</h3><p>The ten largest budget changes, ranked by dollar amount.</p></div><div class="wc-budget-diverging-legend"><span class="decrease">Decrease</span><span class="increase">Increase</span></div></div><div class="wc-budget-diverging-chart">' + chartHtml + "</div></section></div>";
     }
 
     function showFiltered() {
@@ -9674,17 +9784,6 @@
         }
         showFiltered();
       }
-    });
-    executiveEl.addEventListener("click", (event) => {
-      const departmentButton = event.target.closest("[data-budget-change-dept]");
-      if (!departmentButton) return;
-      selectedDept = departmentButton.dataset.budgetChangeDept || "";
-      selectedFund = "";
-      deptCombo.setValue(selectedDept);
-      fundCombo.setValue("");
-      showFiltered();
-      const filterBar = container.querySelector(".wc-filter-bar");
-      if (filterBar) filterBar.scrollIntoView({ behavior: "smooth", block: "center" });
     });
     renderExecutiveSummary();
     showFiltered();
@@ -11646,8 +11745,9 @@
         return '<' + tag + (target ? ' type="button" data-revenue-explorer-target="' + escapeHtml(target) + '"' : "") + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(source.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactRevenueCurrency(source.amount)) + '</b><small class="wc-revenue-card-share">' + Math.round(source.share * 100) + '% of total budget</small></div><div class="wc-revenue-card-badge-stack"><div class="wc-revenue-card-badges">' + sourceAccessBadgeHtml + '<div class="wc-revenue-recurrence-badge ' + (recurrenceLabel === "Non-recurring" ? "is-nonrecurring" : "is-recurring") + '" data-revenue-tooltip="' + (recurrenceLabel === "Non-recurring" ? "Non-recurring revenue is expected as a one-time or irregular source rather than a dependable annual stream." : "Recurring revenue is expected to continue as an annual source, subject to changes in collections and policy.") + '">' + recurrenceLabel + '</div><div class="wc-revenue-control-badge ' + escapeHtml(control.className) + '" data-revenue-tooltip="' + escapeHtml(control.text) + '">' + escapeHtml(control.level.replace(/ local control$/i, " control")) + '</div></div></div></div>' + revenueChangeHtml(source.amount, priorAmount, source.name) + '</' + tag + '>';
       }).join("");
       const concentrationHtml = '<section class="wc-revenue-concentration" aria-labelledby="revenue-explorer-title">' +
-        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Start with the 12 largest sources below. Hover over a badge to learn whether revenue is restricted, recurring, or within the County&rsquo;s control. Select a card for details, or open the ledger to review the full budget.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="revenue-ledger.html" data-explorer-popup-trigger="Revenue Ledger">View Revenue Ledger</a><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
+        '<div class="wc-revenue-concentration-head"><div><h3 id="revenue-explorer-title">Revenue Budget Explorer</h3><p>See where Walton County&rsquo;s FY 2027 funding comes from and how each source supports the budget.</p><p>Select a card for details or open the ledger for the full budget. Expand About revenue badges for help with the labels.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total revenue budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (totalRevenueChange > 0 ? "is-increase" : totalRevenueChange < 0 ? "is-decrease" : "") + '">' + (totalRevenueChange >= 0 ? "+" : "−") + escapeHtml(compactRevenueCurrency(Math.abs(totalRevenueChange))) + ' (' + (totalRevenueChangePercent === null ? "No prior-year base" : (totalRevenueChangePercent >= 0 ? "+" : "−") + Math.abs(totalRevenueChangePercent).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="revenue-ledger.html" data-explorer-popup-trigger="Revenue Ledger">View Revenue Ledger</a><button type="button" class="wc-revenue-peer-trigger" aria-controls="revenue-peer-comparison" aria-expanded="false">View Revenue Comparison</button></div></div></aside></div>' +
         '<div class="wc-revenue-card-summary-row"><p class="wc-revenue-concentration-summary"><strong>' + twelveLargestSharePercent + '%</strong> of the total revenue budget is represented by the 12 sources shown below.</p><div class="wc-revenue-support-split"><div><span>Estimated paid by visitors</span><b>' + escapeHtml(compactRevenueCurrency(visitorSupportedRevenue)) + '</b></div><div><span>Estimated paid by non-visitors</span><b>' + escapeHtml(compactRevenueCurrency(locallySupportedRevenue)) + '</b></div></div></div>' +
+        '<details class="wc-explorer-help"><summary>About revenue badges</summary><p><strong>Restricted:</strong> Used only for designated purposes. <strong>Unrestricted:</strong> Can support general County priorities through the adopted budget.</p><p><strong>Recurring:</strong> Expected to continue each year. <strong>Non-recurring:</strong> One-time or irregular funding.</p><p><strong>Local control:</strong> Describes how much influence the County has over a revenue source. Open a source card for its specific context.</p></details>' +
         '<div class="wc-revenue-snapshot">' +
           largestSourceCardsHtml +
         '</div>' +
@@ -12668,6 +12768,7 @@
         const scope = priorYearsScopeForToggle(button);
         setShowPriorYears(checked, scope);
         applyPriorYearsState(checked, null, scope);
+        if (checked) scrollMobileBudgetComparison(document);
       });
     });
     container.querySelectorAll(".wc-fy-column-toggle-checkbox").forEach((checkbox) => {
@@ -12678,6 +12779,7 @@
         const scope = priorYearsScopeForCheckbox(checkbox);
         setShowPriorYears(checked, scope);
         applyPriorYearsState(checked, null, scope);
+        if (checked) scrollMobileBudgetComparison(document);
       });
     });
   }
@@ -12863,7 +12965,7 @@
     overview.className = "wc-mobile-department-overview";
     overview.setAttribute("aria-label", "Department budget highlights");
     overview.innerHTML = '<span>FY 2027 expense budget · including capital</span><strong>' +
-      escapeHtml(formatCurrency(current)) + '</strong><dl><div><dt>Change from FY 2026</dt><dd>' +
+      escapeHtml(formatCurrency(current)) + '</strong><dl><div><dt>Total budget change, including capital</dt><dd>' +
       (change >= 0 ? "+" : "−") + escapeHtml(formatCurrency(Math.abs(change))) + '</dd></div>' +
       (staffing.length ? '<div><dt>Staffing</dt><dd>' + escapeHtml(formatNumber(fte)) + ' FTE</dd></div>' : '') + '</dl>';
     const title = content.querySelector('.wc-page-title-row') || content.querySelector('h1');
@@ -12877,8 +12979,15 @@
       details.className = 'wc-mobile-department-description';
       const summary = document.createElement('summary');
       summary.textContent = 'About this department';
-      section.before(details);
-      details.append(summary, section);
+      // Keep the section itself in place: department-services inserts the
+      // snapshot beside it after data loads. Moving the section into a
+      // closed disclosure would also hide that subsequently inserted snapshot.
+      // The media rail must remain a direct child for its bounded column
+      // layout, regardless of which department initializer runs first.
+      const narrativeNodes = Array.from(section.childNodes).filter((node) =>
+        !(node.nodeType === 1 && node.matches('.wc-dept-supporting-media')));
+      section.appendChild(details);
+      details.append(summary, ...narrativeNodes);
       disclosures.push(details);
     });
     const phone = window.matchMedia('(max-width:700px)');
@@ -14766,6 +14875,18 @@
         if (personnelKicker && personnelKicker.textContent.trim() === 'FY 2027 workforce and cost') personnelKicker.remove();
         const personnelDescription = explorer.querySelectorAll('.wc-personnel-explorer-head > div:first-child > p')[1];
         if (personnelDescription) personnelDescription.textContent = 'FTE counts include full-time and part-time employees, with part-time hours converted to full-time equivalents. Budgeted cost is shown across Salaries & Wages (regular salaries and other salaries), Overtime & Weekend Pay, Retirement, Health Insurance, and Other Benefits & Taxes (FICA/Medicare, workers’ compensation, and unemployment compensation). Countywide totals include the personnel budgets of the Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff’s Office.';
+        const workforceIntro = explorer.querySelector('.wc-personnel-explorer-head > div:first-child > p');
+        if (workforceIntro) workforceIntro.textContent = 'Explore FY 2027 staffing and costs for ' + formatNumber(totalFte2027) + ' full-time equivalent (FTE) positions.';
+        if (personnelDescription) {
+          const workforceHelp = document.createElement('details');
+          workforceHelp.className = 'wc-explorer-help wc-workforce-help';
+          const summary = document.createElement('summary');
+          summary.textContent = 'About workforce counts and costs';
+          const breakdown = document.createElement('p');
+          breakdown.textContent = 'The workforce includes ' + formatNumber(boardFte2027) + ' FTE across Board departments and ' + formatNumber(constitutionalFte2027) + ' FTE across Constitutional Officers.';
+          workforceHelp.append(summary, breakdown, personnelDescription);
+          explorer.querySelector('.wc-personnel-explorer-head').after(workforceHelp);
+        }
         const personnelChangeSummary = explorer.querySelector('.wc-personnel-explorer-total > small');
         if (personnelChangeSummary) personnelChangeSummary.classList.add(costChange > 0 ? 'is-increase' : costChange < 0 ? 'is-decrease' : 'is-neutral');
         explorer.insertAdjacentHTML('beforeend', personnelCostChangeExplanationHtml());
@@ -17798,7 +17919,7 @@
         const openAttr = officeHref ? ' href="' + escapeHtml(officeHref) + '"' : ' type="button" data-constitutional-key="' + office.key + '"';
         return '<' + tag + openAttr + '><div class="wc-revenue-card-head"><div class="wc-revenue-card-head-main"><strong>' + escapeHtml(office.name) + '</strong><b class="wc-revenue-card-amount">' + escapeHtml(compactCurrency(office.current)) + '</b><small class="wc-revenue-card-share">' + shareOfTotal.toFixed(1) + '% of total expenditure budget</small></div><div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(formatNumber(office.fte)) + ' FTE</span></div></div><div class="wc-revenue-snapshot-change' + (change < 0 ? " is-down" : "") + '">' + costChangeHtml + fteChangeHtml + '</div></' + tag + '>';
       }).join("");
-      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its FY 2027 budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and FY 2027 spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '<p class="wc-budget-reconcile-note"><strong>Board office:</strong> $12,935,889, including $1,705,000 in capital, $400,000 in contingency, and $5,000 in grants and aid.</p></section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
+      explorer.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Constitutional Officers Budget Explorer</h2><p>Walton County&rsquo;s ' + (offices.length - 1) + ' independently elected offices and the Board of County Commissioners budget a combined ' + escapeHtml(compactCurrency(total)) + ' and employ ' + escapeHtml(formatNumber(totalFte)) + ' FTE. Select an office below to review its FY 2027 budget, staffing, major cost categories, and available supporting information.</p></div><div class="wc-department-explorer-total"><span>Total Constitutional Budget</span><strong>' + formatCurrency(total) + '</strong><a class="wc-department-ledger-trigger wc-ledger-card-button" href="constitutional-ledger.html" data-explorer-popup-trigger="Constitutional Officers Ledger">View Constitutional Officers Ledger</a></div></div>' + compositionHtml + '<div class="wc-department-budget-cards">' + officeCards + '</div></section><section class="wc-department-ledger' + (isLedgerOnly ? " wc-ledger-page-flush" : "") + '" data-constitutional-ledger hidden><button type="button" class="wc-department-detail-close" data-constitutional-ledger-close>Close Officers Ledger</button>' + (isLedgerOnly ? "" : '<h2>Constitutional Officers Budget Ledger</h2><p>Compare staffing and FY 2027 spending across the Board of County Commissioners and the five independently elected offices.</p>') + ledger + '</section><section class="wc-department-detail" data-constitutional-detail hidden></section>';
       const constitutionalTotalCallout = explorer.querySelector(".wc-department-explorer-total");
       const constitutionalLedgerButton = explorer.querySelector(".wc-department-ledger-trigger");
       const constitutionalTotalAmount = constitutionalTotalCallout && constitutionalTotalCallout.querySelector(":scope > strong");

@@ -5,20 +5,6 @@
     if(source && !source.hasAttribute('src')){ source.src = source.dataset.src; video.load(); }
     return video.play() || Promise.resolve();
   };
-  // Create third-party video players only after an explicit play action.
-  document.addEventListener('click', function(event){
-    var button = event.target.closest('.wc-lazy-video[data-video-src]');
-    if(!button) return;
-    var frame = document.createElement('iframe');
-    frame.title = button.dataset.videoTitle || 'Department video';
-    frame.allow = button.dataset.videoAllow || 'autoplay; encrypted-media; picture-in-picture';
-    frame.allowFullscreen = true;
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    frame.style.cssText = 'display:block;width:100%;height:100%;min-height:200px;aspect-ratio:16/9;border:0';
-    frame.src = button.dataset.videoSrc;
-    button.replaceWith(frame);
-    frame.focus();
-  });
   // Department pages opened with the popup embed flag should be
   // chromeless immediately, even before the outer popup's iframe load
   // handler adds the same class. This also keeps direct preview and

@@ -3,8 +3,8 @@
    descriptions, FY 2026 budget, FY 2027 proposed, and page narrative content.
    Supabase public views provide FY 2020-FY 2025 historical actuals.
    Cache tables stay internal in Supabase and are not queried by browser code.
-   Raw transaction data must not load in browser code; transaction drilldown
-   uses cleaned public_transactions rows for a specific year/org/object/project.
+   Transaction detail reads reviewed fields through transaction_search_public,
+   a read-only view directly over transactions_raw with no deduplication.
    Use a Supabase publishable/anon key only; never place a service-role key in
    this public static website. */
 (function () {
@@ -197,7 +197,7 @@
 
     const options = filters || {};
     let query = client
-      .from("public_transactions")
+      .from("transaction_search_public")
       .select(PUBLIC_TRANSACTION_FIELDS)
       .eq("is_public", true)
       .order("transaction_date", { ascending: true });
@@ -226,13 +226,19 @@
       query = project ? query.eq("program_code", project) : query.or("program_code.is.null,program_code.eq.");
     }
 
-    const { data, error } = await query;
-    if (error) {
-      console.error("WCSupabaseData: failed to load transaction detail", error);
-      return [];
+    // Fetch every page before computing the ledger reconciliation total.
+    query = query.order('department_code').order('object_code').order('amount').order('document_number_public');
+    const rows = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await query.range(offset, offset + 499);
+      if (error) throw new Error("Transaction data could not be loaded: " + (error.message || "connection error"));
+      const page = Array.isArray(data) ? data : [];
+      rows.push(...page);
+      if (!page.length) break;
+      offset += page.length;
     }
-
-    return Array.isArray(data) ? data : [];
+    return rows;
   }
 
   // Powers the public transaction search page (pages/transaction-search.html)
@@ -262,114 +268,40 @@
   ].join(", ");
   const SEARCH_PAGE_SIZE = 50;
 
-  function escapeForOrFilter(value) {
-    // Postgrest's .or() syntax reads a comma-separated list of
-    // filter:operator.value clauses, and commas/parens inside a value would
-    // otherwise be parsed as clause separators or grouping -- a keyword
-    // search box is free text a resident can type anything into (vendor
-    // names routinely contain both, e.g. "Smith, Jones & Co (FL)").
-    return String(value || "").replace(/[,()]/g, " ").trim();
+  function normalizeSearchKeyword(value) {
+    // RPC parameters preserve vendor punctuation without PostgREST OR syntax.
+    return String(value || "").trim();
   }
 
-  // page is 0-based. Returns { rows, count } where count is the total
-  // number of matching rows (for "X results" and pagination), not just
-  // this page's length.
+  // page is 0-based. count is null: pagination uses the returned page length.
   async function searchTransactions(filters, page) {
     const client = getClient();
-    if (!client) return { rows: [], count: 0 };
+    if (!client) return { rows: [], count: 0, error: { message: "Transaction connection is unavailable." } };
 
     const options = filters || {};
     const pageIndex = Number(page) || 0;
     const from = pageIndex * SEARCH_PAGE_SIZE;
-    const to = from + SEARCH_PAGE_SIZE - 1;
 
-    const keyword = escapeForOrFilter(options.keyword);
+    // The read-only server function applies filters before date conversion and
+    // sorting. It returns only the reviewed public projection, with stable row
+    // ordering, and never copies or deduplicates the underlying transactions.
+    const query = client.rpc("search_public_transactions", {
+      _filters: { ...options, keyword: normalizeSearchKeyword(options.keyword) },
+      _offset: from,
+      _limit: SEARCH_PAGE_SIZE
+    }).select(SEARCH_TRANSACTION_FIELDS);
 
-    // "estimated" (planner statistics), not "exact": an exact count
-    // combined with a filtered, sorted query over 650k+ rows reliably hits
-    // Postgrest's statement timeout on this table (no index on amount, and
-    // none of the text columns support fast substring search) -- verified
-    // directly against the live table before choosing this. A keyword
-    // search skips the count entirely: this table's statement timeout is a
-    // tight ~3-4s, and an unindexed two-column ILIKE scan already eats most
-    // of that budget on its own, so asking for a count too pushes some
-    // otherwise-fine searches over the edge.
-    let query = client
-      .from("public_transactions")
-      .select(SEARCH_TRANSACTION_FIELDS, keyword ? {} : { count: "estimated" })
-      .eq("is_public", true)
-      // Original-budget load rows are accounting setup entries rather than
-      // vendor payments or receipts. They are consistently labeled
-      // "Original Budget <year>" in the cleaned public description and do
-      // not belong in the citizen-facing transaction search.
-      .not("description_public", "ilike", "Original Budget%");
-
-    if (keyword) {
-      // Deliberately only 2 columns, not also object_name/document_number:
-      // verified against the live table that a 4-column ILIKE OR times out
-      // almost every time, while vendor+description alone reliably finishes
-      // (still ~2s -- there's no index, so this is a real sequential scan).
-      const pattern = "%" + keyword + "%";
-      query = query.or(
-        ["vendor_payee_public.ilike." + pattern, "description_public.ilike." + pattern].join(",")
-      );
-    }
-    if (options.year !== undefined && options.year !== null && String(options.year).trim() !== "") {
-      query = query.eq("fiscal_year", options.year);
-    }
-    // "expense" rows are booked positive, "revenue" rows negative -- see
-    // the module comment above SEARCH_TRANSACTION_FIELDS for how this was
-    // confirmed against the live table (e.g. Regular Salaries & Wages is
-    // always positive, Building Permits fee receipts always negative).
-    if (options.kind === "expense") query = query.gt("amount", 0);
-    else if (options.kind === "revenue") query = query.lt("amount", 0);
-    if (options.amountMin !== undefined && options.amountMin !== null && options.amountMin !== "") {
-      const min = Math.abs(Number(options.amountMin)) || 0;
-      query = options.kind === "revenue" ? query.lte("amount", -min) : query.gte("amount", min);
-    }
-    if (options.amountMax !== undefined && options.amountMax !== null && options.amountMax !== "") {
-      const max = Math.abs(Number(options.amountMax)) || 0;
-      query = options.kind === "revenue" ? query.gte("amount", -max) : query.lte("amount", max);
-    }
-    if (options.dateFrom) query = query.gte("transaction_date", options.dateFrom);
-    if (options.dateTo) query = query.lte("transaction_date", options.dateTo);
-    if (Array.isArray(options.departmentCodes) && options.departmentCodes.length) {
-      query = query.in("department_code", options.departmentCodes);
-    }
-
-    // Sorting by amount is deliberately not offered: verified directly
-    // against the live table that filtering by amount *and* sorting by
-    // amount together reliably times out (no index makes Postgres sort
-    // 650k+ rows before applying the filter). Date and vendor sorts stay
-    // fast under the same filters.
-    const sort = options.sort || "date_desc";
-    if (sort === "date_asc") query = query.order("transaction_date", { ascending: true });
-    else if (sort === "vendor_asc") query = query.order("vendor_payee_public", { ascending: true });
-    else query = query.order("transaction_date", { ascending: false });
-
-    query = query.range(from, to);
-
-    // A keyword search runs an unindexed sequential scan against 650k+ rows
-    // and this table's statement timeout is tight enough (~3-4s) that the
-    // same query genuinely does sometimes finish and sometimes doesn't,
-    // depending on the database's cache state at that moment -- confirmed
-    // by re-running an identical request back to back live. One silent
-    // retry recovers most of those transient cases before bothering the
-    // user with an error for something that isn't really wrong with their
-    // search.
-    let { data, error, count } = await query;
+    let { data, error } = await query;
     if (error && error.code === "57014") {
-      ({ data, error, count } = await query);
+      ({ data, error } = await query);
     }
     if (error) {
       console.error("WCSupabaseData: failed to search transactions", error);
       return { rows: [], count: null, error: error };
     }
 
-    // count is null (not 0) for a keyword search, since no count was
-    // requested at all -- the caller should show "at least N" rather than
-    // a specific total in that case, not a literal zero.
-    return { rows: Array.isArray(data) ? data : [], count: keyword ? null : count || 0 };
+    // No total count was requested; the caller offers Next for a full page.
+    return { rows: Array.isArray(data) ? data : [], count: null };
   }
 
   window.WCSupabaseData = {

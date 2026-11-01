@@ -127,7 +127,9 @@
     const returnHref = safeReturnHref(param("returnTo"));
     const page = DEPARTMENT_BACK_LINK_PAGES[normalizeDeptNameForBackLink(context && context.departmentName)];
     if (returnHref) {
-      link.setAttribute("href", returnHref);
+      const ledgerReturn = new URL(returnHref, window.location.href);
+      if (ledgerReturn.searchParams.has('openBudgetLines')) ledgerReturn.searchParams.set('budgetHistory', '1');
+      link.setAttribute("href", ledgerReturn.pathname + ledgerReturn.search + ledgerReturn.hash);
     } else if (page) {
       link.setAttribute("href", page);
     }
@@ -202,22 +204,26 @@
     const intro = $("#transaction-intro");
     const status = $("#transaction-status");
     const objectLabel = compact([context.objectName, context.objectCode]).join(" — ");
+    const fundRevenue = context.kind === "revenue" && !context.org && !!context.fundCode;
 
-    if (title) title.textContent = objectLabel ? "Transactions for " + objectLabel : "Transaction Detail";
+    if (title) title.textContent = "Transactions";
+    const accountHeading = document.getElementById('transaction-account-title');
+    if (accountHeading) accountHeading.textContent = objectLabel || 'Account transactions';
     if (intro) {
-      intro.textContent = "Showing transactions for the selected FY " + (context.fy || "") + " actual amount.";
+      intro.textContent = fundRevenue
+        ? "Showing FY " + context.fy + " revenue account transactions for fund " + context.fundCode + ". These receipts support the fund as a whole."
+        : "Review the transactions behind this budget account’s historical actuals.";
     }
 
     renderChips(compact([
       context.fy ? "FY " + context.fy : "",
-      context.category,
-      objectLabel,
+      fundRevenue ? "Fund " + context.fundCode : "",
       context.departmentName || context.departmentCode,
       context.program || context.projectCode
     ]));
 
-    if (!context.fy || !context.org || !context.objectCode) {
-      if (status) status.textContent = "Missing year, department, or object code filter.";
+    if (!context.fy || (!context.org && !fundRevenue) || !context.objectCode) {
+      if (status) status.textContent = "Missing year, account code, or department/fund filter.";
       return;
     }
 
@@ -251,7 +257,12 @@
       queryFilters.project = context.projectCode;
     }
 
-    const rows = await window.WCSupabaseData.loadTransactions(queryFilters);
+    let rows;
+    try { rows = await window.WCSupabaseData.loadTransactions(queryFilters); }
+    catch (error) {
+      if (status) status.textContent = "Transaction data could not be loaded. Please try again after the database connection is restored.";
+      return;
+    }
 
     const transactionTotal = rows.reduce((sum, row) => sum + displayAmount(row.amount, context), 0);
     const hasSelectedActual = context.selectedActual !== null;
@@ -259,22 +270,14 @@
     const withinTolerance = !hasSelectedActual || Math.abs(difference) <= RECONCILIATION_TOLERANCE;
 
     if (status) {
-      if (!rows.length) {
-        status.innerHTML = escapeHtml("No matching transactions were found for this exact filter.");
-      } else {
-        const lines = [
-          rows.length.toLocaleString("en-US") + " transaction" + (rows.length === 1 ? "" : "s") + " found."
-        ];
-        lines.push("Transaction total: " + formatCurrency(transactionTotal));
-        if (hasSelectedActual) lines.push("Difference: " + formatCurrency(difference));
-
-        const warning = hasSelectedActual && !withinTolerance
-          ? '<p class="wc-transaction-summary-note">The transaction total does not match the selected actual amount. ' +
-            "This may happen if some activity is recorded centrally, " +
-            "summarized differently in the actuals view, or unavailable at the transaction level.</p>"
-          : "";
-        status.innerHTML = lines.map((line) => "<p>" + escapeHtml(line) + "</p>").join("") + warning;
-      }
+      const metrics = '<div class="wc-transaction-metrics"><div><span>Transactions</span><strong>' + rows.length.toLocaleString("en-US") + '</strong></div><div><span>Transaction total</span><strong>' + formatCurrency(transactionTotal) + '</strong></div>' +
+        (hasSelectedActual ? '<div><span>Selected actual</span><strong>' + formatCurrency(context.selectedActual) + '</strong></div>' : '') + '</div>';
+      const reconciliation = hasSelectedActual
+        ? '<div class="wc-transaction-reconciliation ' + (withinTolerance ? 'is-match' : 'is-mismatch') + '"><strong>' +
+          (withinTolerance ? 'Matches selected actual' : 'Transaction total does not match') + '</strong>' +
+          (!withinTolerance ? '<span>Difference: ' + formatCurrency(difference) + ' (transaction total minus selected actual).</span>' : '') + '</div>'
+        : '<p class="wc-transaction-summary-note">No comparable actual amount was supplied for this account scope.</p>';
+      status.innerHTML = metrics + reconciliation + (!rows.length ? '<p>No matching transactions were found for this exact filter.</p>' : '');
     }
 
     renderTable(rows, context);

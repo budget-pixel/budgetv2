@@ -258,7 +258,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Program</small>
     <h1>Capital Improvement Plan</h1>
-    <p class="intro">The funded FY 2027 Capital Improvement Plan totals $43.8 million. The Budget Change Summary's $53.5 million Total Capital adds $7.1 million of machinery, vehicles, and equipment and $2.6 million of debt service budgeted in the Capital Projects Fund. This CIP excludes grant-funded projects, the $2.0 million Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years.</p>
+    <p class="intro">The funded FY 2027 Capital Improvement Plan totals $43.8 million. The Budget Adjustments' $53.5 million Total Capital adds $7.1 million of machinery, vehicles, and equipment and $2.6 million of debt service budgeted in the Capital Projects Fund. This CIP excludes grant-funded projects, the $2.0 million Sheriff/Fine and Forfeiture Fund project, and tourism projects funded in prior years.</p>
 
     <h2>What Is a Capital Project?</h2>
     <p class="body">Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not. A request is capital when it meets all four tests:</p>

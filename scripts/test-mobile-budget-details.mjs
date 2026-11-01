@@ -18,12 +18,32 @@ try {
     await page.waitForFunction(() => !!document.querySelector('[data-budget-landing-frame]')?.contentWindow?.WCHomeExplorer);
     const home = page.frames().find(frame => frame.url().includes('budget-explorer.html'));
     await home.waitForFunction(() => !!window.WCHomeExplorer);
+    const search = home.locator('#wcHomeBudgetSearch');
+    await search.fill('road');
+    await home.locator('#wcHomeSearchDropdown').waitFor();
+    await search.press('Escape');
+    assert(await home.locator('#wcHomeSearchDropdown').isHidden());
+    assert(await page.locator('[data-budget-landing-dialog]').isVisible());
+    assert.equal(await search.inputValue(), 'road');
+    assert(await search.evaluate(element => element === document.activeElement));
+    await search.fill('');
     await home.evaluate(() => WCHomeExplorer.openDepartmentModal('pages/mosquito-control.html', 'Mosquito Control'));
     await home.locator('.wc-home-department-modal.is-loading').waitFor({ state: 'hidden' });
     const department = page.frames().find(frame => frame.url().includes('/pages/mosquito-control.html'));
     const trigger = department.locator('[data-profile-operating-budget-sheet-trigger]');
     await trigger.waitFor();
     await department.waitForFunction(() => !document.body.classList.contains('wc-board-department-loading'));
+    const actions = await department.locator('.wc-profile-snapshot .wc-profile-snapshot-sheet').evaluateAll(elements =>
+      elements.filter(element => element.getClientRects().length).map(element => ({
+        label: element.textContent.trim(),
+        height: element.getBoundingClientRect().height,
+        clipped: element.scrollWidth > element.clientWidth
+      })));
+    assert(actions.length > 0);
+    for (const action of actions) {
+      assert(action.height >= 44, action.label + ' needs a usable touch target');
+      assert.equal(action.clipped, false, action.label + ' must fit');
+    }
     if (phone) await trigger.tap();
     else await trigger.click();
     await department.locator('.wc-budget-detail-modal:not([hidden])').waitFor();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Search — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261001-hidden-budget-lines">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
 <style>
   .wc-txn-page{max-width:1280px;margin:0 auto}
   .wc-txn-intro{max-width:900px;margin:0 0 8px;color:var(--muted);font-size:1.05rem;line-height:1.65}
@@ -27,7 +27,7 @@
   .wc-txn-download-btn{min-height:38px;padding:0 16px;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--green);font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
   .wc-txn-download-btn:disabled{opacity:.4;cursor:not-allowed}
   .wc-txn-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:18px}
-  .wc-txn-table{width:100%;min-width:920px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif}
+  .wc-txn-table{width:100%;min-width:720px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif}
   .wc-txn-table th,.wc-txn-table td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);font-size:13px}
   .wc-txn-table th{background:var(--green);color:#fff;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
   .wc-txn-table td{color:var(--muted)}
@@ -43,6 +43,67 @@
   @media(max-width:640px){
     .wc-txn-filters{padding:18px}
   }
+  .wc-txn-help{margin:18px 0 24px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
+  .wc-txn-help summary{min-height:48px;padding:14px 18px;box-sizing:border-box;color:var(--green);font-size:15px;font-weight:700;cursor:pointer}
+  .wc-txn-help .wc-txn-caveat{max-width:none;margin:0;padding:0 18px 18px;border:0;background:transparent;font-size:14px}
+  .wc-txn-filters{border-radius:14px}
+  .wc-txn-field label{font-size:14px}
+  .wc-txn-field input,.wc-txn-field select{box-sizing:border-box;width:100%;min-width:0;min-height:48px;font-size:16px}
+  .wc-txn-field small{font-size:12px;line-height:1.5}
+  .wc-txn-actions button,.wc-txn-page-btn{min-height:48px;border-radius:12px;font-size:14px}
+  .wc-txn-page :is(input,select,button,summary):focus-visible{outline:3px solid #79b99a;outline-offset:3px}
+  .wc-txn-pagination[hidden]{display:none!important}
+  .wc-txn-table tbody tr:nth-child(even){background:var(--light)}
+  @media(max-width:700px){
+    .wc-txn-filter-row{grid-template-columns:minmax(0,1fr)}
+    .wc-txn-actions{display:grid;grid-template-columns:1fr;width:100%}
+    .wc-txn-actions button{width:100%}
+    .wc-txn-filters{padding:18px}
+    .wc-txn-intro{font-size:16px}
+    .wc-txn-pagination{gap:8px;justify-content:space-between}
+    .wc-txn-page-btn{padding:0 12px}
+  }
+  .wc-txn-account-code{display:block;margin-top:4px;font-size:12px;color:var(--muted);font-weight:400}
+  .wc-txn-code{white-space:normal!important;min-width:130px}
+  .wc-txn-type{display:block;margin-bottom:4px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .wc-txn-table td.wc-txn-amount.is-revenue{color:var(--green)}
+  .wc-txn-empty{padding:28px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
+  .wc-txn-empty strong{color:var(--navy)}
+  .wc-txn-empty p{margin:8px 0 0;font-size:15px;line-height:1.6}
+  .wc-txn-table th{position:sticky;top:0;z-index:1;font-size:12px;text-transform:none;letter-spacing:normal}
+  .wc-txn-table-wrap{max-height:70vh;border-radius:14px}
+  @media(max-width:700px){
+    .wc-txn-table-wrap{border:0;overflow:visible;max-height:none}
+    .wc-txn-table,.wc-txn-table tbody{display:block;min-width:0;width:100%}
+    .wc-txn-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+    .wc-txn-table tr{display:block;margin-bottom:14px;padding:8px 16px;border:1px solid var(--border);border-radius:14px;background:#fff!important}
+    .wc-txn-table td{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;overflow-wrap:anywhere;white-space:normal!important;min-width:0}
+    .wc-txn-table td:before{content:attr(data-label);font-size:12px;font-weight:700;color:var(--muted);text-align:left}
+    .wc-txn-table td:last-child{border-bottom:0}
+    .wc-txn-table .wc-txn-account-code{grid-column:2;margin-top:-8px}
+    .wc-txn-table .wc-txn-amount{display:block;text-align:right!important}
+    .wc-txn-table .wc-txn-amount:before{float:left;margin-top:8px}
+    .wc-txn-table .wc-txn-type{margin-bottom:4px}
+  }
+  /* Normalize native macOS selects and date inputs to the same field box. */
+  #txnFilters .wc-txn-field :is(input,select){appearance:none;-webkit-appearance:none;box-sizing:border-box;height:48px;min-height:48px;max-height:48px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background-color:#fff;color:var(--text);font:400 16px/1.4 Arial,Helvetica,sans-serif}
+  #txnFilters .wc-txn-field select{padding-right:38px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23006231' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+  #txnFilters .wc-txn-field input:disabled{background-color:var(--light);color:var(--muted);opacity:.65}
+  #txnFilters input[type="date"]::-webkit-date-and-time-value{text-align:left}
+  #txnFilters .wc-txn-filter-row{align-items:start;gap:20px 16px}
+  #txnFilters .wc-txn-field label{margin:0;line-height:1.4}
+  #txnFilters .wc-txn-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-top:8px}
+  #txnFilters .wc-txn-actions button{box-sizing:border-box;width:100%;height:48px;min-height:48px;padding:8px 16px;font:700 14px/1.4 Arial,Helvetica,sans-serif}
+  @media(max-width:700px){#txnFilters .wc-txn-actions{grid-template-columns:1fr}}
+  #txnFilters .wc-txn-actions{grid-template-columns:repeat(2,minmax(0,220px))}
+  .wc-txn-more{border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .wc-txn-more summary{padding:14px 0;min-height:48px;box-sizing:border-box;font-size:14px;font-weight:700;color:var(--green);cursor:pointer}
+  .wc-txn-more>.wc-txn-filter-row{padding:4px 0 18px}
+  .wc-txn-results-toolbar{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:20px 0 16px}
+  .wc-txn-results-toolbar[hidden]{display:none!important}
+  .wc-txn-results-toolbar select{appearance:none;box-sizing:border-box;min-height:48px;padding:10px 38px 10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);font:400 16px/1.4 Arial,Helvetica,sans-serif;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23006231' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+  .wc-txn-results-toolbar button{min-height:48px;border-radius:12px;font-size:14px;padding:10px 16px}
+  @media(max-width:700px){#txnFilters .wc-txn-actions{grid-template-columns:minmax(0,1fr)}.wc-txn-results-toolbar{align-items:stretch;flex-direction:column}.wc-txn-results-toolbar select{width:100%}}
 </style>
 </head>
 <body>
@@ -57,72 +118,59 @@
 
 <div class="page-eyebrow">Financial Summaries</div>
 <h1 class="page-title">Transaction Search</h1>
-<p class="wc-txn-intro">Search every public transaction Walton County has recorded since FY 2020 &mdash; vendor payments, fee receipts, and everything in between. Filter by vendor, description, amount, date, or department and conduct your own review of where the money actually went.</p>
-<p class="wc-txn-caveat"><strong>Reading this data:</strong> Choose a department by name below; the search automatically matches its underlying transaction codes. Fund continues to display as its internal code in the results. Amounts are recorded as positive for expenses and negative for revenue receipts (e.g. a permit fee), which is why the Type filter reads that way. This is transaction-level actuals, separate from the FY 2027 final budget figures shown elsewhere on this site.</p>
+<p class="wc-txn-intro">Find public expense payments and revenue receipts from FY 2020 onward. Search by vendor or description, then narrow the results by year, department, account, date, or amount.</p>
+<details class="wc-txn-help"><summary>How to read transactions</summary><p class="wc-txn-caveat"> Choose a department by name below; the search automatically matches its underlying transaction codes. Department and fund codes are included in CSV downloads. Results label each amount as Expense or Revenue. CSV downloads preserve the recorded signs: expenses are positive and receipts are negative. This is transaction-level actuals, separate from the FY 2027 final budget figures shown elsewhere on this site.</p></details>
 
 <form class="wc-txn-filters" id="txnFilters">
-  <div class="wc-txn-field wc-txn-keyword">
+<div class="wc-txn-field wc-txn-keyword">
     <label for="txnKeyword">Search vendor or description</label>
-    <input type="text" id="txnKeyword" name="keyword" placeholder="e.g. a vendor name or &ldquo;sheriff&rdquo;&hellip;" autocomplete="off">
-    <small>This searches vendor and description text directly against the raw records, so a more specific term returns results faster.</small>
+    <input type="text" id="txnKeyword" name="keyword" placeholder="Enter a vendor name or description" autocomplete="off">
+    <small>Enter a vendor name or words from the description. Choose a year or department to narrow your search.</small>
   </div>
-  <div class="wc-txn-filter-row">
-    <div class="wc-txn-field">
+<div class="wc-txn-filter-row"><div class="wc-txn-field">
       <label for="txnType">Type</label>
       <select id="txnType" name="kind">
         <option value="">All transactions</option>
         <option value="expense">Expenses only</option>
         <option value="revenue">Revenue receipts only</option>
       </select>
-    </div>
-    <div class="wc-txn-field">
+    </div><div class="wc-txn-field">
       <label for="txnYear">Fiscal year</label>
       <select id="txnYear" name="year">
         <option value="">All years</option>
       </select>
-    </div>
-    <div class="wc-txn-field">
-      <label for="txnDateFrom">Date from</label>
-      <input type="date" id="txnDateFrom" name="dateFrom">
-    </div>
-    <div class="wc-txn-field">
-      <label for="txnDateTo">Date to</label>
-      <input type="date" id="txnDateTo" name="dateTo">
-    </div>
-  </div>
-  <div class="wc-txn-filter-row">
-    <div class="wc-txn-field">
-      <label for="txnAmountMin">Amount at least ($)</label>
-      <input type="number" id="txnAmountMin" name="amountMin" min="0" step="0.01" placeholder="0" disabled>
-      <small>Select Expenses or Revenue above to filter by amount.</small>
-    </div>
-    <div class="wc-txn-field">
-      <label for="txnAmountMax">Amount at most ($)</label>
-      <input type="number" id="txnAmountMax" name="amountMax" min="0" step="0.01" placeholder="No limit" disabled>
-    </div>
-    <div class="wc-txn-field">
+    </div><div class="wc-txn-field">
       <label for="txnDept">Department</label>
       <select id="txnDept" name="departmentCodes">
         <option value="">All departments</option>
       </select>
-    </div>
-    <div class="wc-txn-field">
+    </div><div class="wc-txn-field"><label for="txnAccount">Account</label><select id="txnAccount" name="accountCode"><option value="">All accounts</option></select></div></div>
+<details class="wc-txn-more" id="txnMoreFilters"><summary>More filters</summary><div class="wc-txn-filter-row"><div class="wc-txn-field">
+      <label for="txnDateFrom">Date from</label>
+      <input type="date" id="txnDateFrom" name="dateFrom">
+    </div><div class="wc-txn-field">
+      <label for="txnDateTo">Date to</label>
+      <input type="date" id="txnDateTo" name="dateTo">
+    </div><div class="wc-txn-field">
+      <label for="txnAmountMin">Amount at least ($)</label>
+      <input type="number" id="txnAmountMin" name="amountMin" min="0" step="0.01" placeholder="0" disabled>
+      <small>Select Expenses or Revenue above to filter by amount.</small>
+    </div><div class="wc-txn-field">
+      <label for="txnAmountMax">Amount at most ($)</label>
+      <input type="number" id="txnAmountMax" name="amountMax" min="0" step="0.01" placeholder="No limit" disabled>
+    </div></div></details>
+<div class="wc-txn-actions"><button type="submit" class="wc-txn-search-btn">Search transactions</button><button type="button" class="wc-txn-reset-btn" id="txnReset">Clear filters</button></div>
+</form>
+
+<p class="wc-txn-status" id="txnStatus" role="status" aria-live="polite">Choose your filters, then select Search transactions.</p>
+<div class="wc-txn-results-toolbar" id="txnResultsToolbar" hidden><div class="wc-txn-field">
       <label for="txnSort">Sort by</label>
-      <select id="txnSort" name="sort">
+      <select id="txnSort" name="sort" form="txnFilters">
         <option value="date_desc">Date, newest first</option>
         <option value="date_asc">Date, oldest first</option>
         <option value="vendor_asc">Vendor, A&ndash;Z</option>
       </select>
-    </div>
-  </div>
-  <div class="wc-txn-actions">
-    <button type="submit" class="wc-txn-search-btn">Search transactions</button>
-    <button type="button" class="wc-txn-reset-btn" id="txnReset">Clear filters</button>
-    <button type="button" class="wc-txn-download-btn" id="txnDownload" disabled>Download this page (CSV)</button>
-  </div>
-</form>
-
-<p class="wc-txn-status" id="txnStatus">Loading&hellip;</p>
+    </div><button type="button" class="wc-txn-download-btn" id="txnDownload" disabled>Download this page (CSV)</button></div>
 <div id="txnResults"></div>
 <div class="wc-txn-pagination" id="txnPagination" hidden>
   <button type="button" class="wc-txn-page-btn" id="txnPrev">&larr; Previous</button>
@@ -134,10 +182,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/supabase-data.js?v=20260901-exclude-original-budget-transactions"></script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261005-ledger-header"></script>
-<script src="../assets/transaction-search.js?v=20260910-launch-review"></script>
-<script src="../assets/search-data.js?v=20261001-search-links"></script>
+<script src="../assets/supabase-data.js?v=20261101-raw-view"></script>
+<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
+<script src="../assets/transaction-search.js?v=20261101-department-names"></script>
+<script src="../assets/search-data.js?v=20261101-agency-names"></script>
 <script src="../assets/nav.js?v=20261001-iframe-lang"></script>
 </body>
 </html>
