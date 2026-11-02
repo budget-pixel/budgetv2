@@ -24,6 +24,22 @@ begin
   return null;
 end;
 $$;
+-- Account family and direction jointly identify public transaction types.
+-- Negative expenditure postings reduce costs; they are not revenue receipts.
+create or replace function public.transaction_public_kind(account text, amount numeric)
+returns text language sql immutable parallel safe
+set search_path = pg_catalog
+as $$
+  select case
+    when trim(account)='369300' and amount<0 then 'expense_credit'
+    when trim(account)='369300' then 'adjustment'
+    when left(trim(account),1)='5' and amount>0 then 'expense'
+    when left(trim(account),1)='5' and amount<0 then 'expense_credit'
+    when left(trim(account),1)='3' and amount<0 then 'revenue'
+    when left(trim(account),1)='3' and amount>0 then 'revenue_refund'
+    else 'adjustment'
+  end
+$$;
 create or replace view public.transaction_search_public
 with (security_barrier = true) as
 select
@@ -35,7 +51,7 @@ select
   null::text as department_name,
   project::text as program_code,
   null::text as program_name,
-  null::text as category,
+  public.transaction_public_kind(object, amount) as category,
   object::text as object_code,
   nullif(trim(description::text), '') as object_name,
   vendor_payee_public,
@@ -81,7 +97,7 @@ begin
   query := $q$
     select r.year, public.transaction_search_date(r.eff_date,r.post_date),
       nullif(substr(r.org::text,1,3),''),null::text,r.org::text,null::text,
-      r.project::text,null::text,null::text,r.object::text,
+      r.project::text,null::text,public.transaction_public_kind(r.object,r.amount),r.object::text,
       nullif(trim(r.description::text),''),r.vendor_payee_public,
       r.description_public,null::text,r.amount::numeric,true
     from public.transactions_raw r
@@ -96,15 +112,17 @@ begin
   if nullif(_filters->>'year','') is not null then
     query := query || format(' and r.year=%L::integer',_filters->>'year');
   end if;
-  if kind='expense' then query := query || ' and r.amount>0';
-  elsif kind='revenue' then query := query || ' and r.amount<0'; end if;
+  if kind='expense' then query:=query||' and left(trim(r.object),1)=''5'' and r.amount>0';
+  elsif kind='expense_credit' then query:=query||' and (left(trim(r.object),1)=''5'' or trim(r.object)=''369300'') and r.amount<0';
+  elsif kind='revenue' then query:=query||' and left(trim(r.object),1)=''3'' and trim(r.object)<>''369300'' and r.amount<0';
+  elsif kind='revenue_refund' then query:=query||' and left(trim(r.object),1)=''3'' and trim(r.object)<>''369300'' and r.amount>0';
+  elsif kind='adjustment' then query:=query||' and (r.amount=0 or left(trim(r.object),1) not in (''3'',''5'') or (trim(r.object)=''369300'' and r.amount>0))';
+  end if;
   if nullif(_filters->>'amountMin','') is not null then
-    query := query || format(' and r.amount %s %L::numeric',case when kind='revenue' then '<=' else '>=' end,
-      case when kind='revenue' then -abs((_filters->>'amountMin')::numeric) else abs((_filters->>'amountMin')::numeric) end);
+    query := query || format(' and abs(r.amount)>=%L::numeric',abs((_filters->>'amountMin')::numeric));
   end if;
   if nullif(_filters->>'amountMax','') is not null then
-    query := query || format(' and r.amount %s %L::numeric',case when kind='revenue' then '>=' else '<=' end,
-      case when kind='revenue' then -abs((_filters->>'amountMax')::numeric) else abs((_filters->>'amountMax')::numeric) end);
+    query := query || format(' and abs(r.amount)<=%L::numeric',abs((_filters->>'amountMax')::numeric));
   end if;
   if nullif(_filters->>'dateFrom','') is not null then
     query := query || format(' and public.transaction_search_date(r.eff_date,r.post_date)>=%L::date',_filters->>'dateFrom');
@@ -120,6 +138,12 @@ begin
     codes := regexp_split_to_array(_filters->>'accountCode','\s*,\s*');
     query := query || format(' and r.object=any(%L::text[])',codes);
   end if;
+  -- Credit keyword searches finish matching with the targeted keyword index
+  -- before sorting. Broad searches retain the main date-index path.
+  if keyword is not null and kind='expense_credit' then
+    query := substr(query,1,strpos(query,'from public.transactions_raw r')-1)
+      ||'from (select * '||substr(query,strpos(query,'from public.transactions_raw r'))||' offset 0) r';
+  end if;
   query := query || case sorting
     when 'date_asc' then ' order by public.transaction_search_date(r.eff_date,r.post_date) asc, r._public_transaction_id asc'
     when 'vendor_asc' then ' order by r.vendor_payee_public asc, r._public_transaction_id asc'
@@ -131,6 +155,35 @@ $$;
 revoke all on function public.search_public_transactions(jsonb,integer,integer) from public;
 grant execute on function public.search_public_transactions(jsonb,integer,integer) to anon, authenticated;
 
+create index if not exists transactions_raw_expense_credit_date_idx
+  on public.transactions_raw (public.transaction_search_date(eff_date,post_date))
+  where vendor_payee_public is not null and description_public is not null
+    and year is not null and object is not null and amount is not null
+    and upper(trim(coalesce(src,''))) <> 'BUC'
+    and coalesce(comments,'') !~* '^\s*ORIGINAL BUDGET'
+    and left(trim(object),1)='5' and amount<0;
+create extension if not exists pg_trgm with schema extensions;
+do $credit_index$
+declare operator_schema text;
+begin
+  select n.nspname into operator_schema
+  from pg_opclass c join pg_namespace n on n.oid=c.opcnamespace
+  where c.opcname='gin_trgm_ops' limit 1;
+  execute format($index_sql$
+    create index if not exists transactions_raw_expense_credit_keyword_idx
+    on public.transactions_raw using gin
+      (vendor_payee_public %1$I.gin_trgm_ops, description_public %1$I.gin_trgm_ops)
+    where vendor_payee_public is not null and description_public is not null
+      and year is not null and object is not null and amount is not null
+      and upper(trim(coalesce(src,''))) <> 'BUC'
+      and coalesce(comments,'') !~* '^\s*ORIGINAL BUDGET'
+      and (left(trim(object),1)='5' or trim(object)='369300') and amount<0
+  $index_sql$,operator_schema);
+end;
+$credit_index$;
+create statistics if not exists public.transactions_raw_account_family_stats
+  on (left(trim(object),1)) from public.transactions_raw;
+analyze public.transactions_raw;
 notify pgrst, 'reload schema';
 commit;
 

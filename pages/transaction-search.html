@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Search — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens6">
 <style>
   .wc-txn-page{max-width:1280px;margin:0 auto}
   .wc-txn-intro{max-width:900px;margin:0 0 8px;color:var(--muted);font-size:1.05rem;line-height:1.65}
@@ -118,8 +118,8 @@
 
 <div class="page-eyebrow">Financial Summaries</div>
 <h1 class="page-title">Transaction Search</h1>
-<p class="wc-txn-intro">Find public expense payments and revenue receipts from FY 2020 onward. Search by vendor or description, then narrow the results by year, department, account, date, or amount.</p>
-<details class="wc-txn-help"><summary>How to read transactions</summary><p class="wc-txn-caveat"> Choose a department by name below; the search automatically matches its underlying transaction codes. Department and fund codes are included in CSV downloads. Results label each amount as Expense or Revenue. CSV downloads preserve the recorded signs: expenses are positive and receipts are negative. This is transaction-level actuals, separate from the FY 2027 final budget figures shown elsewhere on this site.</p></details>
+<p class="wc-txn-intro">Find public expenses, credits, and revenue transactions from FY 2020 onward. Search by vendor or description, then narrow the results by year, department, account, date, or amount.</p>
+<details class="wc-txn-help"><summary>How to read transactions</summary><p class="wc-txn-caveat"> Choose a department by name below; the search automatically matches its underlying transaction codes. Expense credits include vendor refunds, expense reversals, and refunds of prior-year expenditures. They are separate from expenses and revenue receipts. Refunds or reversals in revenue accounts have their own label. Transaction types use both the account and the recorded amount's direction; a negative amount alone does not mean revenue. CSV downloads include the type and preserve the original signed amount. This is transaction-level actuals, separate from the FY 2027 final budget figures shown elsewhere on this site.</p></details>
 
 <form class="wc-txn-filters" id="txnFilters">
 <div class="wc-txn-field wc-txn-keyword">
@@ -132,7 +132,10 @@
       <select id="txnType" name="kind">
         <option value="">All transactions</option>
         <option value="expense">Expenses only</option>
+        <option value="expense_credit">Vendor credits / expense reversals</option>
         <option value="revenue">Revenue receipts only</option>
+        <option value="revenue_refund">Revenue refunds / reversals</option>
+        <option value="adjustment">Other adjustments</option>
       </select>
     </div><div class="wc-txn-field">
       <label for="txnYear">Fiscal year</label>
@@ -154,7 +157,7 @@
     </div><div class="wc-txn-field">
       <label for="txnAmountMin">Amount at least ($)</label>
       <input type="number" id="txnAmountMin" name="amountMin" min="0" step="0.01" placeholder="0" disabled>
-      <small>Select Expenses or Revenue above to filter by amount.</small>
+      <small>Select a transaction type above to filter by amount. Enter the amount without a minus sign.</small>
     </div><div class="wc-txn-field">
       <label for="txnAmountMax">Amount at most ($)</label>
       <input type="number" id="txnAmountMax" name="amountMax" min="0" step="0.01" placeholder="No limit" disabled>
@@ -186,6 +189,6 @@
 <script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
 <script src="../assets/transaction-search.js?v=20261101-department-names"></script>
 <script src="../assets/search-data.js?v=20261101-agency-names"></script>
-<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="../assets/nav.js?v=20261101-footer-txn"></script>
 </body>
 </html>

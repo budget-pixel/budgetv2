@@ -21,8 +21,8 @@
 <link rel="icon" type="image/png" href="assets/images/page-images/walton-county-logo-no-background.png">
 <title>Budget Explorer — Walton County FY 2027</title>
 <script>if(new URLSearchParams(window.location.search).get("embed")==="landing")document.documentElement.classList.add("wc-embedded-budget-landing");</script>
-<link rel="stylesheet" href="assets/style.css?v=20261101-popup-tokens5">
-<link rel="stylesheet" href="assets/home-landing.css?v=20261101-names6">
+<link rel="stylesheet" href="assets/style.css?v=20261101-popup-tokens6">
+<link rel="stylesheet" href="assets/home-landing.css?v=20261101-names24">
 </head>
 <body class="wc-home-landing-page">
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -48,41 +48,10 @@
         <div class="wc-explorer-intro-copy">
           <h2 id="explore-categories-title">How the budget is organized</h2>
           <p class="wc-explorer-intro-lede">The County budget is organized into four main views. Each one opens a detailed explorer, with revenue and workforce views below.</p>
-          <details class="wc-explorer-category-guide" open>
-          <summary>About the budget categories</summary>
-          <dl class="wc-explorer-intro-views">
-            <div>
-              <dt>Board Department Budgets</dt>
-              <dd>Operating and personnel costs for Board departments.</dd>
-            </div>
-            <div>
-              <dt>Constitutional Officers Budget</dt>
-              <dd>The five independently elected offices and the Board of County Commissioners.</dd>
-            </div>
-            <div>
-              <dt>Capital Budget</dt>
-              <dd>Capital funding for transportation, infrastructure, parks, machinery, and equipment.</dd>
-            </div>
-            <div>
-              <dt>Other Agencies and Court-Related Functions Budget</dt>
-              <dd>Entities the County is required to fund or elects to support.</dd>
-            </div>
-          </dl>
-          </details>
-          <script>
-            (function(){
-              var guide = document.querySelector('.wc-explorer-category-guide');
-              var phone = window.matchMedia('(max-width:700px)');
-              function syncGuide(){ guide.open = !phone.matches; }
-              syncGuide();
-              phone.addEventListener('change', syncGuide);
-            })();
-          </script>
         </div>
-        <a class="wc-full-budget-feature" href="pages/budget-book.html?v=20260903-reorder-topspace" data-explorer-popup-trigger="Full Budget Document">
-          <span class="wc-full-budget-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04A8.97 8.97 0 0 0 6 3.75c-1.05 0-2.06.18-3 .51v14.25A8.99 8.99 0 0 1 6 18c2.3 0 4.41.87 6 2.29m0-14.25a8.97 8.97 0 0 1 6-2.29c1.05 0 2.06.18 3 .51v14.25A8.99 8.99 0 0 0 18 18a8.97 8.97 0 0 0-6 2.29m0-14.25v14.25"></path></svg></span>
-          <span class="wc-full-budget-feature-copy"><small>FY 2027 Budget Book</small><strong>Explore the Print Budget</strong><em>Open the complete interactive budget document</em></span>
-          <b aria-hidden="true">&rarr;</b>
+        <a class="wc-explorer-print-button" href="pages/budget-book.html?v=20260903-reorder-topspace" data-explorer-popup-trigger="Full Budget Document">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04A8.97 8.97 0 0 0 6 3.75c-1.05 0-2.06.18-3 .51v14.25A8.99 8.99 0 0 1 6 18c2.3 0 4.41.87 6 2.29m0-14.25a8.97 8.97 0 0 1 6-2.29c1.05 0 2.06.18 3 .51v14.25A8.99 8.99 0 0 0 18 18a8.97 8.97 0 0 0-6 2.29m0-14.25v14.25"></path></svg>
+          <span>Explore the Print Budget</span>
         </a>
       </div>
     </div>
@@ -93,6 +62,7 @@
     <a class="wc-explorer-card wc-card-departments" data-home-explorer="departments" href="?explorer=departments">
       <div class="wc-explorer-card-heading">
         <div><h3>Board Department Budgets</h3></div>
+        <p>Operating and personnel costs for Board departments.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-department-total>—</strong><small data-card-department-share>Share of total expenditures</small></div>
@@ -104,6 +74,7 @@
     <a class="wc-explorer-card wc-card-constitutional" data-home-explorer="constitutional" href="?explorer=constitutional">
       <div class="wc-explorer-card-heading">
         <div><h3>Constitutional Officers Budget</h3></div>
+        <p>The five independently elected offices and the Board of County Commissioners.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-constitutional-total>—</strong><small data-card-constitutional-share>Share of total expenditures</small></div>
@@ -115,6 +86,7 @@
     <a class="wc-explorer-card wc-card-capital" data-home-explorer="capital" href="?explorer=capital">
       <div class="wc-explorer-card-heading">
         <div><h3>Capital Budget</h3></div>
+        <p>Transportation, infrastructure, parks, machinery, and equipment.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-capital-total>—</strong><small data-card-capital-share>Share of total expenditures</small></div>
@@ -126,6 +98,7 @@
     <a class="wc-explorer-card wc-card-independent" data-home-explorer="independent" href="?explorer=independent">
       <div class="wc-explorer-card-heading">
         <div><h3>Other Agencies and Court-Related Functions Budget</h3></div>
+        <p>Entities the County is required to fund or elects to support.</p>
       </div>
       <div class="wc-explorer-card-body">
         <div class="wc-explorer-card-primary"><strong data-card-independent-total>—</strong><small data-card-independent-share>Share of total expenditures</small></div>
@@ -198,7 +171,7 @@
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
 <script src="assets/performance-context.js?v=20261004-performance-context"></script><script src="assets/budget-data.js?v=20261101-agency-names"></script>
 <script src="assets/independent-agencies-data.js?v=20260910-launch-review"></script>
-<script src="assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="assets/nav.js?v=20261101-footer-txn"></script>
 <script>
 (function(){
   "use strict";
@@ -479,6 +452,6 @@
   });
 })();
 </script>
-<script src="assets/home-explorer-modal.js?v=20261101-agency-names"></script>
+<script src="assets/home-explorer-modal.js?v=20261101-footer-txn"></script>
 </body>
 </html>

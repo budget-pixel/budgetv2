@@ -14,7 +14,7 @@ try {
         await new Promise(r=>setTimeout(r,50));
         if(window.searchMode==='error')throw new Error('offline');
         if(window.searchMode==='empty')return {rows:[],count:0};
-        return {rows:[{fiscal_year:2025,transaction_date:'2025-07-01',vendor_payee_public:'Example supplier',description_public:'Office supplies',object_name:'Operating Supplies',department_code:'00117020',fund_code:'001',document_number_public:'123',amount:125.5},{fiscal_year:2025,transaction_date:'2025-07-02',vendor_payee_public:'Example receipt',description_public:'Permit receipt',object_name:'Permits',department_code:'00117020',fund_code:'001',amount:-250}],count:4};
+        return {rows:[{fiscal_year:2025,transaction_date:'2025-07-01',vendor_payee_public:'Example supplier',description_public:'Office supplies',object_name:'Operating Supplies',category:'expense',object_code:'552000',department_code:'00117020',fund_code:'001',document_number_public:'123',amount:125.5},{fiscal_year:2025,transaction_date:'2025-07-02',vendor_payee_public:'Example receipt',description_public:'Permit receipt',object_name:'Permits',category:'revenue',object_code:'322000',department_code:'00117020',fund_code:'001',amount:-250}],count:4};
       }};`;
       await route.fulfill({ response, body: stub + await response.text() });
     });
@@ -28,7 +28,7 @@ try {
     await page.waitForFunction(()=>document.querySelector('[data-label="Department"]')?.textContent==='Building Construction and Maintenance');
     assert(!(await page.locator('#txnResults').innerText()).includes('00117020'));
     await page.locator('#txnResults').screenshot({path:'/private/tmp/transaction-results-'+width+'.png'});
-    assert.equal(await page.locator('.wc-txn-type').allTextContents().then(t => t.join(',')), 'Expense,Revenue');
+    assert.equal(await page.locator('.wc-txn-type').allTextContents().then(t => t.join(',')), 'Expense,Revenue receipt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     if (width < 700) assert.equal(await page.locator('.wc-txn-table tr').last().evaluate(e => getComputedStyle(e).display), 'block');
     await page.waitForSelector('#txnAccount option[value="561000"]', {state:'attached'});

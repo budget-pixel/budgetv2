@@ -39,7 +39,7 @@
   // Otherwise the sitewide header flashes until the outer page catches up.
   (function markEmbeddedUtilityPage(){
     if(window.top === window.self) return;
-    if(!/\/(accessibility|privacy|glossary-acronyms-and-frequently-asked-questions|supporting-budget-documentation)\.html$/i.test(window.location.pathname)) return;
+    if(!/\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions|supporting-budget-documentation)\.html$/i.test(window.location.pathname)) return;
     document.documentElement.classList.add("wc-embedded-utility");
   })();
 
@@ -2519,12 +2519,14 @@
     var privacyHref = /\/pages\//.test(window.location.pathname) ? "privacy.html" : "pages/privacy.html";
     var glossaryFaqHref = /\/pages\//.test(window.location.pathname) ? "glossary-acronyms-and-frequently-asked-questions.html" : "pages/glossary-acronyms-and-frequently-asked-questions.html";
     var supportingDocsHref = /\/pages\//.test(window.location.pathname) ? "supporting-budget-documentation.html" : "pages/supporting-budget-documentation.html";
+    var transactionSearchHref = /\/pages\//.test(window.location.pathname) ? "transaction-search.html" : "pages/transaction-search.html";
     var utilityWaveHref = /\/pages\//.test(window.location.pathname) ? "../assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" : "assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4";
     var desiredFooterHtml = `
       <div class="wc-budget-footer-inner">
         <nav class="wc-budget-footer-links" aria-label="Footer utility links">
           <a href="${glossaryFaqHref}" data-wc-utility-popup="Glossary, Acronyms &amp; FAQ">Glossary &amp; FAQ</a>
           <a href="${supportingDocsHref}" data-wc-utility-popup="Supporting Budget Documentation">Supporting Documentation</a>
+          <a href="${transactionSearchHref}" data-wc-utility-popup="Transaction Search">Transaction Search</a>
           <a href="${accessibilityHref}" data-wc-utility-popup="Accessibility Statement">Accessibility</a>
           <a href="${privacyHref}" data-wc-utility-popup="Privacy Statement">Privacy</a>
         </nav>

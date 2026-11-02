@@ -1175,7 +1175,7 @@
       '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head wc-popup-header"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
-      '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';
+      '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';
     document.body.appendChild(modal);
     var footerDisclosure = modal.querySelector('.wc-explorer-more-info');
     var phoneLayout = window.matchMedia('(max-width:700px)');
@@ -1251,6 +1251,7 @@
       var pageAction = {
         glossary: { href: "pages/glossary-acronyms-and-frequently-asked-questions.html", title: "Glossary, Acronyms & FAQ" },
         documentation: { href: "pages/supporting-budget-documentation.html", title: "Supporting Budget Documentation" },
+        transactions: { href: "pages/transaction-search.html", title: "Transaction Search" },
         accessibility: { href: "pages/accessibility.html", title: "Accessibility Statement" },
         privacy: { href: "pages/privacy.html", title: "Privacy Statement" }
       }[action];

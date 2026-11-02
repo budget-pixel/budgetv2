@@ -4,47 +4,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Process — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens6">
 <style>
   .bp-section{margin:0 0 40px;scroll-margin-top:24px}
   .bp-section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,1fr);gap:24px;align-items:start;margin-bottom:20px}
-  .bp-section h2{margin:0 0 16px;color:var(--navy);font:700 24px/1.3 Arial,Helvetica,sans-serif;letter-spacing:normal}
+  .bp-section h2{margin:0 0 16px;color:var(--navy);font:700 var(--fs-figure-md)/1.3 Arial,Helvetica,sans-serif;letter-spacing:normal}
   .bp-section-head h2{margin:0}
-  .bp-section p{color:var(--muted);font-size:15px;line-height:1.7;text-align:left}
+  .bp-section p{color:var(--muted);font-size:var(--fs-body);line-height:1.7;text-align:left}
   .bp-section-head p{margin:0}
   .bp-section a:focus-visible,.bp-jump-links button:focus-visible{outline:3px solid #79b99a;outline-offset:4px}
-  .bp-jump-links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:24px 0 32px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
-  .bp-jump-links button{display:flex;align-items:center;box-sizing:border-box;height:64px;min-height:64px;justify-content:center;text-align:center;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--green);font:700 14px/1.4 Arial,Helvetica,sans-serif;text-decoration:none;cursor:pointer}
+  .bp-jump-links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:24px 0 32px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--light)}
+  .bp-jump-links button{display:flex;align-items:center;box-sizing:border-box;height:64px;min-height:64px;justify-content:center;text-align:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-inner);background:#fff;color:var(--green);font:700 var(--fs-body)/1.4 Arial,Helvetica,sans-serif;text-decoration:none;cursor:pointer}
   .bp-jump-links button:hover{border-color:var(--green);background:#edf4ef}
   .bp-phases,.bp-after,.bp-request,.bp-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
   .bp-phases{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .bp-phase,.bp-after article,.bp-request article,.bp-link,.bp-role-main,.bp-public{min-width:0;padding:24px;border:1px solid var(--border);border-radius:14px;background:#fff}
+  .bp-phase,.bp-after article,.bp-request article,.bp-link,.bp-role-main,.bp-public{min-width:0;padding:24px;border:1px solid var(--border);border-radius:var(--radius-card);background:#fff}
   .bp-phase{display:flex;flex-direction:column;border-top:4px solid var(--green);background:var(--light)}
-  .bp-phase>span,.bp-after article>span,.bp-request article>span,.bp-link small{display:block;color:var(--green);font:700 12px/1.5 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
-  .bp-section h3{margin:10px 0;color:var(--navy);font:700 18px/1.4 Arial,Helvetica,sans-serif}
+  .bp-phase>span,.bp-after article>span,.bp-request article>span,.bp-link small{display:block;color:var(--green);font:700 var(--fs-small)/1.5 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+  .bp-section h3{margin:10px 0;color:var(--navy);font:700 var(--fs-card-title)/1.4 Arial,Helvetica,sans-serif}
   .bp-phase p,.bp-after p,.bp-request p,.bp-role p{margin:0}
-  .bp-phase small{display:block;margin-top:auto;padding-top:20px;color:var(--green);font-size:13px;font-weight:700}
+  .bp-phase small{display:block;margin-top:auto;padding-top:20px;color:var(--green);font-size:var(--fs-row);font-weight:700}
   .bp-role-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
   .bp-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
-  .bp-role h3{margin-top:0;font-size:16px}
+  .bp-role h3{margin-top:0;font-size:var(--fs-lede)}
   .bp-public{background:var(--light)}
   .bp-public-icon{display:none}
-  .bp-public h3{margin-top:0;font-size:22px}
-  .bp-public ul{margin:20px 0 0;padding-left:20px;color:var(--text);font-size:15px;line-height:1.7}
+  .bp-public h3{margin-top:0;font-size:var(--fs-card-title)}
+  .bp-public ul{margin:20px 0 0;padding-left:20px;color:var(--text);font-size:var(--fs-body);line-height:1.7}
   .bp-public li+li{margin-top:8px}
   .bp-request .bp-request-note{background:var(--light);border-top:4px solid var(--gold)}
-  .bp-participation{padding:24px;border:1px solid var(--border);border-radius:14px;background:var(--light)}
+  .bp-participation{padding:24px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--light)}
   .bp-participation p:last-child{margin-bottom:0}
   .bp-links{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bp-link{display:flex;flex-direction:column;color:inherit;text-decoration:none;transition:border-color .16s ease,box-shadow .16s ease}
-  .bp-link strong{margin:8px 0;color:var(--navy);font-size:18px;line-height:1.4}
-  .bp-link span{color:var(--muted);font-size:15px;line-height:1.6}
-  .bp-link b{align-self:flex-end;margin-top:auto;padding-top:12px;color:var(--green);font-size:22px}
-  .bp-link:hover{border-color:var(--green);box-shadow:0 4px 12px rgba(0,63,40,.08)}
+  .bp-link strong{margin:8px 0;color:var(--navy);font-size:var(--fs-card-title);line-height:1.4}
+  .bp-link span{color:var(--muted);font-size:var(--fs-body);line-height:1.6}
+  .bp-link b{align-self:flex-end;margin-top:auto;padding-top:12px;color:var(--green);font-size:var(--fs-figure-md)}
+  .bp-link:hover{border-color:var(--green);box-shadow:var(--shadow-card)}
   @media(max-width:1050px){.bp-jump-links{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-phases,.bp-request{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-role-grid{grid-template-columns:1fr}}
   @media(max-width:700px){
     .bp-section{margin-bottom:32px}.bp-section-head{grid-template-columns:1fr;gap:12px}
-    .bp-section h2{font-size:22px}.bp-section p{font-size:16px}
+    .bp-section h2{font-size:var(--fs-card-title)}.bp-section p{font-size:var(--fs-lede)}
     .bp-phases,.bp-after,.bp-request,.bp-links,.bp-roles{grid-template-columns:1fr}
     .bp-phase,.bp-after article,.bp-request article,.bp-link,.bp-role-main,.bp-public,.bp-participation{padding:20px}
     .bp-jump-links{padding:12px;gap:8px}.bp-jump-links button{min-width:0;justify-content:center;text-align:center}
@@ -53,10 +53,10 @@
   @media(prefers-reduced-motion:reduce){.bp-link{transition:none}}
   .bp-jump-links button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff}
   .bp-section[hidden],.bp-resource-panel[hidden],[role="tabpanel"][hidden]{display:none!important}
-  .bp-resource-panel>h2{color:var(--navy);font:700 24px/1.3 Arial,Helvetica,sans-serif;margin:0 0 20px}
+  .bp-resource-panel>h2{color:var(--navy);font:700 var(--fs-figure-md)/1.3 Arial,Helvetica,sans-serif;margin:0 0 20px}
   .bp-resource-frame{display:block;width:100%;border:0;min-height:300px}
   .bp-resource-frame[hidden]{display:none!important}
-  .bp-resource-status{color:var(--muted);font-size:15px}
+  .bp-resource-status{color:var(--muted);font-size:var(--fs-body)}
 </style>
 </head>
 <body>
@@ -140,7 +140,7 @@
 </main></div>
 <script src="../assets/search-data.js?v=20261101-agency-names"></script>
 <script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
-<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="../assets/nav.js?v=20261101-footer-txn"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 <script src="../assets/budget-process-tabs.js"></script>
 </body>

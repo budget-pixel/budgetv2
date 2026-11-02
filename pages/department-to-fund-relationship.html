@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Department to Fund Relationship — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens6">
 <link rel="stylesheet" href="../assets/budget-process-resources.css">
 </head>
 <body class="fund-relationship-page">
@@ -40,7 +40,7 @@
 
   .wc-fund-hero-copy{
     padding:40px;
-    border-radius:30px;
+    border-radius:var(--radius-card);
     background:#003f28;
     color:#ffffff;
   }
@@ -48,16 +48,16 @@
   .wc-fund-hero-copy h2{
     margin:0 0 16px;
     color:#ffffff;
-    font-size:clamp(40px, 5.6vw, 68px);
+    font-size:var(--fs-figure-lg);
     line-height:1;
-    font-weight:500;
+    font-weight:700;
   }
 
   .wc-fund-hero-copy p{
     max-width:760px;
     margin:0;
     color:rgba(255,255,255,.86);
-    font-size:17px;
+    font-size:var(--fs-lede);
     line-height:1.7;
   }
 
@@ -80,14 +80,14 @@
     gap:22px;
     padding:26px;
     border:1px solid var(--border);
-    border-radius:30px;
+    border-radius:var(--radius-card);
     background:var(--light);
   }
 
   .wc-fund-route-card strong{
     display:block;
     color:var(--green);
-    font-size:34px;
+    font-size:var(--fs-figure);
     line-height:1.05;
   }
 
@@ -95,7 +95,7 @@
     display:block;
     margin-top:8px;
     color:var(--muted);
-    font-size:11px;
+    font-size:var(--fs-eyebrow);
     font-weight:900;
     letter-spacing:.10em;
     text-transform:uppercase;
@@ -112,7 +112,7 @@
     min-height:178px;
     padding:22px;
     border:1px solid var(--border);
-    border-radius:20px;
+    border-radius:var(--radius-card);
     background:var(--light);
   }
 
@@ -120,14 +120,14 @@
     display:block;
     margin:0 0 10px;
     color:var(--green);
-    font-size:18px;
+    font-size:var(--fs-card-title);
     line-height:1.2;
   }
 
   .wc-fund-summary-card p{
     margin:0;
     color:var(--muted);
-    font-size:14px;
+    font-size:var(--fs-body);
     line-height:1.6;
   }
 
@@ -135,9 +135,9 @@
     margin:0 0 42px;
     padding:28px;
     border:1px solid var(--border);
-    border-radius:28px;
+    border-radius:var(--radius-card);
     background:#ffffff;
-    box-shadow:0 14px 34px rgba(23,32,51,.05);
+    box-shadow:var(--shadow-card);
   }
 
   .wc-fund-flow-head{
@@ -151,16 +151,16 @@
   .wc-fund-flow-head h2{
     margin:0 0 8px;
     color:var(--text);
-    font-size:clamp(30px, 4vw, 48px);
+    font-size:var(--fs-page-title);
     line-height:1.05;
-    font-weight:500;
+    font-weight:700;
   }
 
   .wc-fund-flow-head p{
     max-width:720px;
     margin:0;
     color:var(--muted);
-    font-size:15px;
+    font-size:var(--fs-body);
     line-height:1.65;
   }
 
@@ -172,7 +172,7 @@
   .wc-fund-flow-total strong{
     display:block;
     color:var(--green);
-    font-size:30px;
+    font-size:var(--fs-figure);
     line-height:1;
   }
 
@@ -180,7 +180,7 @@
     display:block;
     margin-top:8px;
     color:var(--muted);
-    font-size:11px;
+    font-size:var(--fs-eyebrow);
     font-weight:900;
     letter-spacing:.10em;
     text-transform:uppercase;
@@ -194,7 +194,7 @@
   .wc-fund-flow-row{
     padding:14px;
     border:1px solid var(--border);
-    border-radius:18px;
+    border-radius:var(--radius-card);
     background:var(--light);
   }
 
@@ -227,12 +227,12 @@
 
   .wc-fund-flow-subline span{
     color:var(--muted);
-    font-size:13px;
+    font-size:var(--fs-row);
   }
 
   .wc-fund-flow-subline strong{
     color:var(--text);
-    font-size:13px;
+    font-size:var(--fs-row);
     font-weight:800;
     white-space:nowrap;
   }
@@ -240,7 +240,7 @@
   .wc-fund-flow-name strong{
     display:block;
     color:var(--text);
-    font-size:15px;
+    font-size:var(--fs-body);
     line-height:1.25;
   }
 
@@ -248,7 +248,7 @@
     display:block;
     margin-top:6px;
     color:var(--muted);
-    font-size:11px;
+    font-size:var(--fs-eyebrow);
     font-weight:900;
     letter-spacing:.08em;
     text-transform:uppercase;
@@ -273,7 +273,7 @@
 
   .wc-fund-flow-amount{
     color:var(--green);
-    font-size:20px;
+    font-size:var(--fs-card-title);
     font-weight:900;
     text-align:right;
     white-space:nowrap;
@@ -283,7 +283,7 @@
     display:block;
     margin-top:5px;
     color:var(--muted);
-    font-size:11px;
+    font-size:var(--fs-eyebrow);
     font-weight:900;
     letter-spacing:.08em;
     text-transform:uppercase;
@@ -292,7 +292,7 @@
   .wc-fund-flow-note{
     margin:16px 0 0;
     color:var(--muted);
-    font-size:12px;
+    font-size:var(--fs-small);
     line-height:1.55;
   }
 
@@ -300,7 +300,7 @@
   .wc-fund-flow-error{
     padding:20px;
     border:1px solid var(--border);
-    border-radius:18px;
+    border-radius:var(--radius-card);
     background:var(--light);
     color:var(--muted);
     font-weight:800;
@@ -318,15 +318,15 @@
   .wc-fund-section-header h2{
     margin:0 0 10px;
     color:var(--text);
-    font-size:clamp(32px, 4vw, 54px);
+    font-size:var(--fs-page-title);
     line-height:1.06;
-    font-weight:500;
+    font-weight:700;
   }
 
   .wc-fund-section-header p{
     margin:0;
     color:var(--muted);
-    font-size:16px;
+    font-size:var(--fs-lede);
     line-height:1.7;
   }
 
@@ -347,21 +347,21 @@
     flex-direction:column;
     justify-content:center;
     padding:20px;
-    border-radius:20px;
+    border-radius:var(--radius-card);
     border:1px solid var(--border);
     background:var(--light);
   }
 
   .wc-relationship-node strong{
     color:var(--green);
-    font-size:20px;
+    font-size:var(--fs-card-title);
     line-height:1.15;
   }
 
   .wc-relationship-node span{
     margin-top:7px;
     color:var(--muted);
-    font-size:11px;
+    font-size:var(--fs-eyebrow);
     font-weight:900;
     letter-spacing:.08em;
     text-transform:uppercase;
@@ -374,9 +374,9 @@
     gap:8px;
     padding:18px;
     border:1px solid var(--border);
-    border-radius:20px;
+    border-radius:var(--radius-card);
     background:#ffffff;
-    box-shadow:0 14px 34px rgba(23,32,51,.05);
+    box-shadow:var(--shadow-card);
   }
 
   .wc-relationship-chip{
@@ -388,7 +388,7 @@
     border-radius:999px;
     background:var(--light);
     color:var(--text);
-    font-size:13px;
+    font-size:var(--fs-row);
     font-weight:800;
     line-height:1.2;
     text-decoration:none;
@@ -407,7 +407,7 @@
     align-items:center;
     justify-content:center;
     padding:18px;
-    border-radius:20px;
+    border-radius:var(--radius-card);
     background:#003f28;
     color:#ffffff;
     font-weight:900;
@@ -424,22 +424,22 @@
   .wc-fund-detail-card{
     padding:24px;
     border:1px solid var(--border);
-    border-radius:22px;
+    border-radius:var(--radius-card);
     background:#ffffff;
-    box-shadow:0 14px 34px rgba(23,32,51,.05);
+    box-shadow:var(--shadow-card);
   }
 
   .wc-fund-detail-card h3{
     margin:0 0 10px;
     color:var(--green);
-    font-size:20px;
+    font-size:var(--fs-card-title);
     line-height:1.2;
   }
 
   .wc-fund-detail-card p{
     margin:0;
     color:var(--muted);
-    font-size:14px;
+    font-size:var(--fs-body);
     line-height:1.65;
   }
 
@@ -493,7 +493,7 @@
     .wc-fund-route-card,
     .wc-fund-flow{
       padding:22px;
-      border-radius:22px;
+      border-radius:var(--radius-card);
     }
 
     .wc-fund-summary-grid,
@@ -1068,6 +1068,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   });
 })();
 </script>
-<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="../assets/nav.js?v=20261101-footer-txn"></script>
 </body>
 </html>

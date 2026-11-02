@@ -246,10 +246,9 @@
   // transaction, as opposed to loadTransactions above, which only ever
   // drills into one already-known department/object/year combination.
   //
-  // fund_name, department_name, and category are NOT queried here: they are
-  // NULL on every row of public_transactions (checked directly against the
-  // live table), so filtering or displaying them would silently show
-  // nothing. department_code/fund_code are real, but use a different code
+  // category carries the server's account-and-direction transaction type.
+  // Names for departments/funds come from the publication data. Their codes
+  // use a different code
   // scheme than the Dept_Code/Fund_code used in the fixed publication data budget
   // data elsewhere on this site (e.g. "103322" here vs "10332200" there),
   // so they're exposed here as their own raw codes rather than mapped to a
@@ -261,6 +260,7 @@
     "department_code",
     "object_code",
     "object_name",
+    "category",
     "vendor_payee_public",
     "description_public",
     "document_number_public",

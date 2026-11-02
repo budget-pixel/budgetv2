@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Calendar — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens5">
+<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens6">
 <style>
   .wc-calendar-intro{
     margin:34px 0;
     padding:32px;
-    border-radius:24px;
+    border-radius:var(--radius-card);
     background:var(--light);
     border:1px solid var(--border);
   }
@@ -17,14 +17,14 @@
     max-width:880px;
     margin:0;
     color:var(--muted);
-    font-size:17px;
+    font-size:var(--fs-lede);
     line-height:1.75;
   }
   .wc-calendar-intro a{
     display:inline-flex;
     margin-top:20px;
     color:var(--green);
-    font-size:13px;
+    font-size:var(--fs-row);
     font-weight:900;
     text-decoration:none;
     text-transform:uppercase;
@@ -40,7 +40,7 @@
     min-height:110px;
     padding:16px;
     border:1px solid var(--border);
-    border-radius:18px;
+    border-radius:var(--radius-card);
     background:#ffffff;
   }
   .wc-timeline-month.featured{
@@ -51,20 +51,20 @@
     display:block;
     margin-bottom:8px;
     color:var(--green);
-    font-size:13px;
+    font-size:var(--fs-row);
     text-transform:uppercase;
     letter-spacing:.10em;
   }
   .wc-timeline-month span{
     color:var(--text);
-    font-size:14px;
+    font-size:var(--fs-body);
     font-weight:800;
     line-height:1.35;
   }
   .wc-calendar-table{
     margin-top:28px;
     border:1px solid var(--border);
-    border-radius:22px;
+    border-radius:var(--radius-card);
     overflow:hidden;
     background:#ffffff;
   }
@@ -92,7 +92,7 @@
   .wc-calendar-event{
     padding:16px 20px;
     color:var(--muted);
-    font-size:15px;
+    font-size:var(--fs-body);
     line-height:1.65;
   }
   .wc-calendar-row.featured .wc-calendar-event{
@@ -103,7 +103,7 @@
     max-width:880px;
     margin:22px auto 0;
     color:var(--muted);
-    font-size:13px;
+    font-size:var(--fs-row);
     line-height:1.55;
     text-align:center;
   }
@@ -113,7 +113,7 @@
   .wc-public-involvement h2{
     margin:0 0 18px;
     color:var(--text);
-    font-size:clamp(28px, 4vw, 42px);
+    font-size:var(--fs-page-title);
     line-height:1.1;
   }
   .wc-public-grid{
@@ -124,25 +124,25 @@
   .wc-public-card{
     padding:22px;
     border:1px solid var(--border);
-    border-radius:18px;
+    border-radius:var(--radius-card);
     background:#ffffff;
   }
   .wc-public-card h3{
     margin:0 0 10px;
     color:var(--text);
-    font-size:20px;
+    font-size:var(--fs-card-title);
   }
   .wc-public-card p{
     margin:0;
     color:var(--muted);
-    font-size:15px;
+    font-size:var(--fs-body);
     line-height:1.65;
   }
   .wc-public-card > a{
     display:inline-flex;
     margin-top:14px;
     color:var(--green);
-    font-size:13px;
+    font-size:var(--fs-row);
     font-weight:900;
     text-decoration:none;
   }
@@ -297,7 +297,7 @@
 
 <script src="../assets/search-data.js?v=20261101-agency-names"></script>
 <script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261101-agency-names"></script>
-<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="../assets/nav.js?v=20261101-footer-txn"></script>
 <script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
 </body>
 </html>

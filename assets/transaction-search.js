@@ -30,6 +30,23 @@
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   }
 
+  const accountAcronyms = new Set([
+    'ADA', 'BCC', 'COBRA', 'DOT', 'E911', 'EMS', 'EOC', 'FDOT', 'FEMA',
+    'FICA', 'FSS', 'FY', 'GPS', 'HUD', 'HVAC', 'IT', 'LLC', 'MSBU',
+    'TDC', 'US', 'USA', 'USDA'
+  ]);
+  function formatAccountName(value) {
+    const name = String(value || '').trim().replace(/\s+/g, ' ');
+    if (!name) return 'Not available';
+    if (name !== name.toUpperCase()) return name;
+    return name.replace(/[A-Z0-9]+/g, (word, offset) => {
+      if (accountAcronyms.has(word) || /^[A-Z][0-9]+$/.test(word) || word.length === 1) return word;
+      if (/^[0-9]+(?:ST|ND|RD|TH)$/.test(word)) return word.toLowerCase();
+      if (offset > 0 && /^(AND|OR|OF|THE|FOR|IN|ON|TO|WITH)$/.test(word)) return word.toLowerCase();
+      return word.charAt(0) + word.slice(1).toLowerCase();
+    });
+  }
+
   const departmentNames = new Map();
   function transactionDepartmentName(row) {
     const code = String(row.department_code || '').trim();
@@ -74,17 +91,17 @@
       return;
     }
     const bodyRows = rows.map((row) => {
-      const isRevenue = Number(row.amount) < 0;
+      const type = transactionType(row);
       const amount = Math.abs(Number(row.amount) || 0);
       return (
         "<tr>" +
         '<td data-label="Date">' + escapeHtml(formatDate(row.transaction_date)) + "</td>" +
         '<td data-label="Vendor / Payee" class="wc-txn-vendor">' + escapeHtml(row.vendor_payee_public || "Not available") + "</td>" +
         '<td data-label="Description">' + escapeHtml(row.description_public || "No description provided") + "</td>" +
-        '<td data-label="Account">' + escapeHtml(row.object_name || "Not available") + "</td>" +
+        '<td data-label="Account">' + escapeHtml(formatAccountName(row.object_name)) + "</td>" +
         '<td data-label="Department">' + escapeHtml(transactionDepartmentName(row)) + "</td>" +
         '<td data-label="Document #">' + escapeHtml(row.document_number_public || "—") + "</td>" +
-        '<td data-label="Amount" class="wc-txn-amount' + (isRevenue ? " is-revenue" : "") + '">' + '<span class="wc-txn-type">' + (isRevenue ? 'Revenue' : 'Expense') + '</span>' + escapeHtml(formatCurrency(amount)) + "</td>" +
+        '<td data-label="Amount" class="wc-txn-amount' + (row.category === 'revenue' ? " is-revenue" : "") + '">' + '<span class="wc-txn-type">' + escapeHtml(type) + '</span>' + escapeHtml(formatCurrency(amount)) + "</td>" +
         "</tr>"
       );
     }).join("");
@@ -104,16 +121,23 @@
     return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
   }
 
+  function transactionType(row) {
+    return ({ expense: 'Expense', expense_credit: 'Expense credit',
+      revenue: 'Revenue receipt', revenue_refund: 'Revenue refund / reversal',
+      adjustment: 'Adjustment' })[row.category] || 'Adjustment';
+  }
+
   function downloadCsv() {
     if (!lastRows.length) return;
-    const headers = ["Date", "Vendor/Payee", "Description", "Category", "Department Code", "Fund Code", "Document #", "Amount"];
+    const headers = ["Date", "Vendor/Payee", "Description", "Account", "Type", "Department Code", "Fund Code", "Document #", "Amount"];
     const lines = [headers.join(",")];
     lastRows.forEach((row) => {
       lines.push([
         row.transaction_date || "",
         row.vendor_payee_public || "",
         row.description_public || "",
-        row.object_name || "",
+        row.object_name ? formatAccountName(row.object_name) : "",
+        transactionType(row),
         row.department_code || "",
         row.fund_code || "",
         row.document_number_public || "",
@@ -294,7 +318,8 @@
       Array.from(accounts).sort((a, b) => a[0].split(',')[0].localeCompare(b[0].split(',')[0], undefined, { numeric: true })).forEach(([code, name]) => {
         const option = document.createElement('option');
         option.value = code;
-        option.textContent = code.includes(',') ? name : name + ' — ' + code;
+        const label = formatAccountName(name);
+        option.textContent = code.includes(',') ? label : label + ' — ' + code;
         $('#txnAccount').appendChild(option);
       });
       const codesByName = new Map();

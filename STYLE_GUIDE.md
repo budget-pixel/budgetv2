@@ -59,7 +59,9 @@ Weights: 400 body, 700 emphasis, 800 titles/labels, 900 figures and row amounts.
 - **Section title**: 14px uppercase Arial 800, gold left bar.
 - **QR codes**: rounded square (radius 8–12px), never circular — circular masks clip the corner finder patterns and the code will not scan. Always link to `https://final2027.budget-waltoncountyfl.com/...`.
 
+- **Explorer landing page**: the four large cards carry their own one-line description under the title (no separate intro list). Shortcut links (Ledger Directory etc.) are plain icon + text links, not pills. Revenue and Workforce are slim single-row cards: title left, 26px figure and change on the right, round arrow button. The print budget button is gold, top-right beside the heading.
 - **Explorer landing card** (`.wc-explorer-card`, all six): 19px/800 title, 44px/900 green figure, 14px/800 green sub-line (no separate "Total …" label or tagline; the title already names the figure), then one full-width green pill button (13px/800, min-height 44px, white text, darker green on hover). Desktop only (>=761px); mobile keeps its own 14px/44px touch sizing.
+- **Popup header** (`header.wc-popup-header`, used by the landing popup, every explorer popup and every department popup): one search pill (48px high, 16px input, 14px/800 green Search button) and one 44px round close button. These rules live once in `assets/style.css`; don't add per-popup overrides. The landing popup's close button is positioned by `index.html`, so its header keeps 92px of right padding.
 - **Names** (use the same label on the site, search, nav, and print): Board Department Budgets, Constitutional Officers Budget, Capital Budget, Other Agencies and Court-Related Functions Budget (print chapter title; "Explore Other Agencies and Courts" on the button), Revenue Budget, Workforce Budget, Budget Adjustments, Budget Process.
 
 ## Print book (PDF)

@@ -80,19 +80,17 @@
   padding:24px;
   background:var(--light);
   border:1px solid var(--border);
-  border-radius:24px;
-  box-shadow:
-    0 12px 32px rgba(0,98,49,.06),
-    0 4px 12px rgba(0,0,0,.04);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-card);
   box-sizing:border-box;
 }
 
 .wc-policy-objectives-content h2{
   font-family:Arial, Helvetica, sans-serif;
-  font-size:34px;
+  font-size:var(--fs-figure);
   color:var(--text);
   margin:0 0 20px 0;
-  text-align:center;
+  text-align:left;
 }
 
 .wc-pillars{
@@ -107,22 +105,22 @@
   background:#fff;
   border:1px solid var(--border);
   border-top:6px solid var(--green);
-  border-radius:18px;
+  border-radius:var(--radius-card);
   padding:18px;
   height:100%;
-  box-shadow:0 6px 16px rgba(0,0,0,.05);
+  box-shadow:var(--shadow-card);
   transition:transform .2s ease, box-shadow .2s ease;
   box-sizing:border-box;
 }
 
 .wc-pillar-card:hover{
   transform:translateY(-4px);
-  box-shadow:0 12px 24px rgba(0,0,0,.08);
+  box-shadow:var(--shadow-card);
 }
 
 .wc-pillar-title{
   font-family:Arial, Helvetica, sans-serif;
-  font-size:17px;
+  font-size:var(--fs-card-title);
   font-weight:700;
   color:var(--text);
   margin-bottom:12px;
@@ -131,7 +129,13 @@
 .wc-pillar-description{
   color:var(--muted);
   line-height:1.55;
-  font-size:14px;
+  font-size:var(--fs-body);
+}
+
+@media(min-width:1001px){
+  #content .wc-pillars{grid-template-columns:repeat(6,minmax(0,1fr))}
+  #content .wc-pillars .wc-pillar-card{grid-column:span 2}
+  #content .wc-pillars .wc-pillar-card:nth-child(4){grid-column:2 / span 2}
 }
 
 @media(max-width:900px){
@@ -140,7 +144,7 @@
   }
 
   .wc-policy-objectives-content h2{
-    font-size:28px;
+    font-size:var(--fs-figure-md);
   }
   .wc-pillars{
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -154,17 +158,17 @@
 }
 </style>
 
-<h2 class="align-center">Summary of Financial Policies</h2><p style="text-align:center; max-width:800px; margin:0 auto 24px auto; color:var(--muted); line-height:1.7; font-family:Arial, Helvetica, sans-serif;">
+<h2 class="align-center">Summary of Financial Policies</h2><p style="text-align:left; max-width:800px; margin:0 0 24px 0; color:var(--muted); line-height:1.7; font-family:Arial, Helvetica, sans-serif;">
   Select a policy below to view a summary and access the adopted policy document.
 </p><style>
 h2.align-center{
   font-family:Arial, Helvetica, sans-serif;
-  font-size:42px;
+  font-size:var(--fs-page-title);
   font-weight:700;
   color:var(--text);
-  margin:44px auto 12px auto;
+  margin:44px 0 12px 0;
   position:relative;
-  text-align:center;
+  text-align:left;
 }
 
 h2.align-center::after{
@@ -173,16 +177,16 @@ h2.align-center::after{
   width:90px;
   height:4px;
   background:var(--green);
-  margin:12px auto 0 auto;
+  margin:12px 0 0 0;
   border-radius:999px;
 }
 .wc-policy-item{
   border:1px solid var(--border);
-  border-radius:16px;
+  border-radius:var(--radius-card);
   margin-bottom:14px;
   overflow:hidden;
   background:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.04);
+  box-shadow:var(--shadow-card);
   outline:none;
 }
 
@@ -190,7 +194,7 @@ h2.align-center::after{
   list-style:none;
   cursor:pointer;
   padding:20px 24px;
-  font-size:20px;
+  font-size:var(--fs-card-title);
   font-weight:700;
   color:var(--text);
   display:flex;
@@ -222,7 +226,7 @@ h2.align-center::after{
 .wc-policy-item summary::after{
   content:"+";
   color:var(--green);
-  font-size:28px;
+  font-size:var(--fs-figure-md);
 }
 
 .wc-policy-item[open] summary::after{
@@ -247,7 +251,8 @@ h2.align-center::after{
   text-decoration:none;
   padding:10px 16px;
   border-radius:999px;
-  font-weight:600;
+  font-size:var(--fs-row);
+  font-weight:800;
 }
 
 
@@ -432,6 +437,6 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
 ];
 </script>
-<script src="../assets/nav.js?v=20261001-iframe-lang"></script>
+<script src="../assets/nav.js?v=20261101-footer-txn"></script>
 </body>
 </html>
