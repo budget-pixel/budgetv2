@@ -8926,7 +8926,7 @@
       {
         "Dept_Code": "11242001",
         "Dept_Name": "Solid Waste Transfer",
-        "Note": "Small County Surtax",
+        "Note": "Transfer to General Fund",
         "Contract_Status": "",
         "Vendor": "",
         "Contract_No": "",
@@ -42721,7 +42721,7 @@
       {
         "Dept_Code": "001381",
         "Dept_Name": "Interfund Group Transfer In",
-        "Note": "Small County Surtax",
+        "Note": "Transfer from Solid Waste Fund",
         "Project_Code": "",
         "Project_Name": "",
         "Revenue_Code": "381000",
@@ -45159,7 +45159,7 @@
       {
         "Dept_Code": "300381",
         "Dept_Name": "Interfund Group Transfer In",
-        "Note": "",
+        "Note": "Debt Payment",
         "Project_Code": "",
         "Project_Name": "",
         "Revenue_Code": "381000",
@@ -93803,7 +93803,7 @@
         "2024": 3,
         "2025": 3,
         "2026": 3.5,
-        "2027": 4,
+        "2027": 3.5,
         "Dept_Code": "00112010",
         "Dept_Name": "Eagle Springs Golf and Recreation Center",
         "Position_Name": "Golf Course Attendant"
@@ -94397,7 +94397,7 @@
         "2024": 6,
         "2025": 3,
         "2026": 2,
-        "2027": 1.5,
+        "2027": 2,
         "Dept_Code": "00112040",
         "Dept_Name": "Eagle Springs Grill",
         "Position_Name": "Golf Course Server"

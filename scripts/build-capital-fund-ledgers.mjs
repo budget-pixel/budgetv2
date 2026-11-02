@@ -451,7 +451,7 @@ const PROJECT_DETAILS = {
   ,"Pleasant Ridge Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in the service area.", "Funded in FY 2027"]
   ,"Sheriff Triumph Radio Project": ["Public-safety system", "Implementation", "Ongoing system maintenance and technology replacement will continue after completion.", "Improves countywide coverage, reliability, and interoperability for first responders.", "Grant funded"]
   ,"Bruce Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire protection and emergency-response coverage.", "Sheriff/Fine and Forfeiture Fund"]
-  ,"Mossy Head Fire Station": ["New facility", "Funding pending", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Would improve fire and emergency-response coverage in Mossy Head.", "Grant funded"]
+  ,"Mossy Head Fire Station": ["New facility", "Project development", "Future facility and maintenance costs will be addressed through Sheriff operations.", "Improves fire and emergency-response coverage in Mossy Head.", "Grant funded"]
 };
 
 function projectProfileRow(r) {
@@ -574,7 +574,7 @@ const SHERIFF_ADOPTED = [
 const SHERIFF_ADOPTED_TOTAL = 7000000;
 const SHERIFF_GRANT = [
   ["Sheriff Triumph Radio Project", "Grant Funded &middot; State or Federal Funding", 10076335],
-  ["Bruce Fire Station", "Sheriff/Fine and Forfeiture Fund &middot; Fines and Forfeitures", 2000000],
+  ["Bruce Fire Station", "Sheriff/Fine and Forfeiture Fund &middot; Property Taxes", 2000000],
   ["Mossy Head Fire Station", "Grant Funded &middot; State or Federal Funding", 1000000]
 ];
 const SHERIFF_GRANT_TOTAL = 13076335;

@@ -112,11 +112,16 @@
     return breakdowns;
   }
 
+  // Statutory & Other recipients are tagged by Note; the published-budget
+  // reconciliation row (Human Services, $41,041) is tagged by Dept_Name.
+  function isStatutoryRow(row){
+    return String(row && row.Note || "").trim() === "Statutory & Other" ||
+      normalize(row && row.Dept_Name) === "statutory and other";
+  }
+
   function expenditureRowsForItem(rows, item){
     if(normalize(item.name) === "statutory and other agency funding"){
-      return rows.filter(function(row){
-        return String(row && row.Note || "").trim() === "Statutory & Other";
-      });
+      return rows.filter(isStatutoryRow);
     }
     return rows.filter(function(row){
       return rowMatches(row, item.name);
@@ -135,9 +140,7 @@
   // Project_Codes, which are part of that grain, so they don't collapse.
   function priorBudgetRowsForItem(dedupedRows, rawRows, item){
     if(normalize(item.name) === "statutory and other agency funding"){
-      return rawRows.filter(function(row){
-        return String(row && row.Note || "").trim() === "Statutory & Other";
-      });
+      return rawRows.filter(isStatutoryRow);
     }
     return dedupedRows.filter(function(row){
       return rowMatches(row, item.name);

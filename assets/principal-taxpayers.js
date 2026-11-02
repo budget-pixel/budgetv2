@@ -127,15 +127,17 @@
       });
   }
 
+  // FY 2025 ACFR p. 155 total taxable assessed value (2025 roll). The Total
+  // share is recalculated from it rather than summing rounded row shares.
+  const TOTAL_TAXABLE_ASSESSED_VALUE = 46564251989;
+
   function renderTaxpayersTable(container, rows) {
     let totalValue = 0;
-    let totalPercent = 0;
     const bodyRows = rows.map((r) => {
       const name = r[0] || "";
       const assessedValue = parseCurrency(r[1]);
       const percent = parsePercent(r[2]);
       totalValue += assessedValue;
-      totalPercent += percent;
       return (
         "<tr><td>" + escapeHtml(name) + "</td>" +
         '<td class="wc-num">' + escapeHtml(formatCurrency(assessedValue)) + "</td>" +
@@ -146,7 +148,7 @@
     const totalRow =
       '<tr class="wc-table-total-row"><td>Total</td>' +
       '<td class="wc-num">' + escapeHtml(formatCurrency(totalValue)) + "</td>" +
-      '<td class="wc-num">' + escapeHtml(formatPercent(totalPercent)) + "</td></tr>";
+      '<td class="wc-num">' + escapeHtml(formatPercent(totalValue / TOTAL_TAXABLE_ASSESSED_VALUE * 100)) + "</td></tr>";
 
     container.innerHTML =
       '<div class="wc-table-wrap">' +

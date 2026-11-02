@@ -169,8 +169,8 @@
 
 <script src="assets/search-data.js?v=20261101-agency-names"></script>
 <script src="assets/cip-projects-data.js?v=20260817-home-explorer"></script>
-<script src="assets/performance-context.js?v=20261004-performance-context"></script><script src="assets/budget-data.js?v=20261101-agency-names"></script>
-<script src="assets/independent-agencies-data.js?v=20260910-launch-review"></script>
+<script src="assets/performance-context.js?v=20261004-performance-context"></script><script src="assets/budget-data.js?v=20261102-library-materials"></script>
+<script src="assets/independent-agencies-data.js?v=20261102-print-reconcile"></script>
 <script src="assets/nav.js?v=20261101-footer-txn"></script>
 <script>
 (function(){
@@ -253,7 +253,7 @@
     var staffing = data.staffing || [];
     var totalFte = staffing.reduce(function(total,row){ return total + number(row[2027]); },0);
 
-    var capitalRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) !== "107"; });
+    var capitalRows = expenditures.filter(function(row){ return String(row.Object_Type || "").trim().toLowerCase() === "capital outlay" && fundCode(row) !== "107" && !window.WCBudgetData.isLibraryMaterialsRow(row); });
     var totalCapital = sum(capitalRows, "FY2027_Proposed");
     var departmentTotal = window.WCBudgetData.getDepartmentBudgetTotal(data);
     var constitutionalTotal = window.WCBudgetData.getConstitutionalOfficersBudgetTotal(data);

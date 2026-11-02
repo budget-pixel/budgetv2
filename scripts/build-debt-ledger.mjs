@@ -4,8 +4,7 @@ import { chromium } from "playwright";
 // Builds the FY 2027 Budget Book's "Debt Ledger" -- Walton County's only
 // long-term debt: a $27,000,000 Note Payable (2015) and a $2,500,000
 // Revenue Promissory Note (2020), both used for public improvements
-// (most notably the Broadband project). FY 2027 debt service is budgeted
-// from the infrastructure portion of the County's Small County Surtax,
+// (most notably the Broadband project). The debt is
 // fully repaid by FY 2030. Source: an already-complete, internally
 // consistent raw capture (Principal + Interest reconciles to Total for
 // every year and in aggregate) -- no research pass needed.
@@ -179,7 +178,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Debt Ledger</h1>
-    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.2M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are budgeted from the infrastructure portion of the County's one-cent Small County Surtax and are scheduled to end in FY 2030.</p>
+    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.2M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are scheduled to end in FY 2030.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 
@@ -195,7 +194,7 @@ const html = `<!doctype html>
 
     <div class="callout">
       <h3>FY 2027 Final Debt-Service Budget</h3>
-      <p>The Capital Projects Fund includes $2,581,997 for debt service, funded through Small County Surtax transfers.</p>
+      <p>The Capital Projects Fund includes $2,581,997 for debt service.</p>
     </div>
 
     <div class="callout">

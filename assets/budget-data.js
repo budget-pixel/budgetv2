@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261008-unassigned-opening";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=20261102-print-reconcile";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -2856,7 +2856,8 @@
     let supplementalRevenueRows = [];
 
     if (norm === "statutory and other agency funding" || norm === "statutory and other") {
-      expenseRows = (cache.expenditures || []).filter((r) => (r.Note || "").trim() === "Statutory & Other");
+      // The $41,041 published-budget reconciliation row carries the Dept_Name, not the Note.
+      expenseRows = (cache.expenditures || []).filter((r) => (r.Note || "").trim() === "Statutory & Other" || normalizeDeptName(r.Dept_Name) === "statutory and other");
       expenseRowsForRevenuePlug = expenseRows;
     } else if (norm === "court innovations") {
       expenseRows = (cache.expenditures || []).filter(
@@ -9014,6 +9015,22 @@
     { containerId: "expense-activity-other-uses", activity: "Other Uses", description: "Other Uses includes transfers, reserves, and other financing uses that are reported separately from direct operating, personnel, capital, debt-service, and grant expenditures." }
   ];
 
+  // Published FY 2026 budget by expense area (print Expenditure Ledger,
+  // total $327,945,088). The live FY2026 original-budget rows split a few
+  // offices across areas differently and total $10,000 less, so this
+  // ledger's FY 2026 column uses the published amounts.
+  const PUBLISHED_FY2026_EXPENSE_BY_ACTIVITY = {
+    "General Government": 59865618,
+    "Public Safety": 126912374,
+    "Physical Environment": 23738840,
+    "Transportation": 48143047,
+    "Economic Environment": 55090837,
+    "Human Services": 6241875,
+    "Culture and Recreation": 6306200,
+    "Court Related Cost": 1146297,
+    "Other Uses": 500000
+  };
+
   function renderConsolidatedExpenseSummaryTable() {
     // The Activity sheet has a few inconsistently-cased entries (e.g.
     // "economic Environment"), so matching is done case-insensitively.
@@ -9055,7 +9072,8 @@
       return (
         '<tr><td><button type="button" class="wc-revenue-ledger-source-link" data-expenditure-ledger-activity="' + escapeHtml(section.containerId) + '" title="View ' + escapeHtml(section.title || section.activity) + ' graph and explanation">' + escapeHtml(section.title || section.activity) + "</button></td>" +
         expenditureLedgerColumns.map((col, i) => {
-          const sum = columnSum(matching, matchingDeduped, col);
+          const published = col.field === "FY2026_Original_Budget" ? PUBLISHED_FY2026_EXPENSE_BY_ACTIVITY[section.activity] : undefined;
+          const sum = published !== undefined ? published : columnSum(matching, matchingDeduped, col);
           totals[i] += sum;
           return '<td class="wc-num' + historyClass(col) + '">' + formatCurrency(sum) + "</td>";
         }).join("") +
@@ -9074,7 +9092,7 @@
     allMatchingRows.push(...unclassifiedExpenseRows);
     allMatchingDedupedRows.push(...unclassifiedDedupedRows);
     const unclassifiedExpenseValues = expenditureLedgerColumns.map((col, i) => {
-      const sum = columnSum(unclassifiedExpenseRows, unclassifiedDedupedRows, col);
+      const sum = col.field === "FY2026_Original_Budget" ? 0 : columnSum(unclassifiedExpenseRows, unclassifiedDedupedRows, col);
       totals[i] += sum;
       return sum;
     });
@@ -17312,7 +17330,7 @@
         if (type.indexOf("personnel") >= 0) { group.personnel += amount; group.priorPersonnel += priorAmount; }
         else if (sourceKey === "tourism public safety" || /internal service|indirect|fleet|insurance allocation/.test(type + " " + objectText)) { group.internal += amount; group.priorInternal += priorAmount; }
         else if (sourceKey === "south walton fire lifeguard services" || String(row.Contract_Status || "").trim() || /contract|professional service/.test(objectText)) { group.contracts += amount; group.priorContracts += priorAmount; }
-        else if (type.indexOf("capital") >= 0) { group.capital += amount; group.priorCapital += priorAmount; }
+        else if (type.indexOf("capital") >= 0 && !isLibraryMaterialsRow(row)) { group.capital += amount; group.priorCapital += priorAmount; }
         else { group.operating += amount; group.priorOperating += priorAmount; }
       });
       // Code Compliance's source schedule carries the full FY 2026 account
@@ -17463,7 +17481,7 @@
           office.rows.push(row);
           const type = String(row.Object_Type || "").toLowerCase();
           if (type.indexOf("personnel") >= 0) office.personnel += amount;
-          else if (type.indexOf("capital") >= 0) office.capital += amount;
+          else if (type.indexOf("capital") >= 0 && !isLibraryMaterialsRow(row)) office.capital += amount;
           else office.operating += amount;
         });
         const offices = Array.from(officesByKey.values()).filter((office) => office.current || office.prior).sort((a, b) => b.current - a.current);
@@ -17964,6 +17982,13 @@
   // by initConstitutionalOfficersBudgetPage(), so the Budget Overview
   // directory callouts can show the same figures as those pages' own totals
   // without loading their full explorer UI.
+  // Library books and materials (566000) are coded as capital outlay but are
+  // budgeted as department spending, as in the print Department Operating
+  // Ledger; they are not part of the Capital Budget.
+  function isLibraryMaterialsRow(row) {
+    return String((row && row.Object_Code) || "").trim() === "566000";
+  }
+
   function getDepartmentBudgetTotal(data, field) {
     return getDepartmentBudgetBreakdown(data, field).reduce((sum, entry) => sum + entry.amount, 0);
   }
@@ -17979,7 +18004,7 @@
       // Capital Budget pages instead, so this total should reconcile with
       // what the Department Ledger/Explorer themselves show, not double-
       // count it here.
-      if (String(row.Object_Type || "").toLowerCase().indexOf("capital") >= 0) return;
+      if (String(row.Object_Type || "").toLowerCase().indexOf("capital") >= 0 && !isLibraryMaterialsRow(row)) return;
       const sourceKey = rollupSourceKey(row.Dept_Name);
       const rawName = boardDepartmentNames.get(sourceKey);
       if (!rawName) return;
@@ -18183,6 +18208,7 @@
     buildBudgetImportCsv,
     downloadBudgetImportCsv,
     getDepartmentBudgetTotal,
+    isLibraryMaterialsRow,
     getContractualServicesBudgetTotal,
     getDepartmentBudgetBreakdown,
     totalCountywideExpenditureBudget,

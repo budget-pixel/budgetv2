@@ -1539,7 +1539,7 @@
   .wc-home-start{display:inline-flex;align-items:center;gap:10px;min-height:56px;margin-top:34px;padding:0 30px;border-radius:999px;background:var(--wc-gold,#d1be78);color:#07110d;font:800 15px/1 Arial,Helvetica,sans-serif;letter-spacing:.03em;text-decoration:none;text-transform:uppercase;box-shadow:0 16px 34px rgba(0,0,0,.28);transition:transform .2s ease,box-shadow .2s ease}
   .wc-home-start:hover,.wc-home-start:focus-visible{transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.34)}
   html.wc-budget-landing-open,body.wc-budget-landing-open{height:100%;overflow:hidden}
-  .wc-budget-landing-dialog{position:fixed;z-index:20000;inset:0;display:flex;align-items:stretch;justify-content:center;padding:18px;background:rgba(11,42,32,0);overflow:hidden;overscroll-behavior:none;isolation:isolate;transition:background-color .72s cubic-bezier(.22,1,.36,1)}
+  .wc-budget-landing-dialog{position:fixed;z-index:20000;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(11,42,32,0);overflow:hidden;overscroll-behavior:none;isolation:isolate;transition:background-color .72s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog[hidden]{display:none}
   .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);opacity:0;pointer-events:none;transition:opacity .62s ease}
   .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);opacity:0;pointer-events:none;transition:opacity .62s ease}
@@ -1691,6 +1691,55 @@
       var animationTimer = 0;
       var sharedAnimation = null;
       if(!trigger || !dialog || !frame || !panel) return;
+      var fitObserver = null;
+      var phoneQuery = window.matchMedia("(max-width:700px)");
+      // Shrink the panel to the embedded page's natural height (capped at the
+      // viewport by max-height) so a short explorer homepage doesn't sit in a
+      // mostly empty full-height panel. The embedded body stretches #layout
+      // to fill the frame, so measure #layout's children rather than the body.
+      // Inner explorer popups and phones keep the full-height panel.
+      function naturalFrameHeight(doc){
+        var total = 0;
+        Array.prototype.forEach.call(doc.body.children, function(el){
+          var style = doc.defaultView.getComputedStyle(el);
+          if(style.display === "none" || style.position === "fixed" || style.position === "absolute") return;
+          var margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+          if(el.id !== "layout"){ total += el.offsetHeight + margins; return; }
+          var top = el.getBoundingClientRect().top, bottom = top;
+          Array.prototype.forEach.call(el.children, function(child){
+            var childStyle = doc.defaultView.getComputedStyle(child);
+            if(childStyle.display === "none" || childStyle.position === "fixed" || childStyle.position === "absolute") return;
+            bottom = Math.max(bottom, child.getBoundingClientRect().bottom + parseFloat(childStyle.marginBottom));
+          });
+          total += bottom - top + parseFloat(style.paddingBottom) + margins;
+        });
+        return Math.ceil(total);
+      }
+      function fitPanelHeight(){
+        if(dialog.hidden) return;
+        var doc = null;
+        try{ doc = frame.contentDocument; }catch(error){}
+        if(phoneQuery.matches || dialog.classList.contains("is-inner-popup-open") || !doc || !doc.body){
+          panel.style.height = "";
+          return;
+        }
+        var border = panel.offsetHeight - panel.clientHeight;
+        panel.style.height = Math.min(naturalFrameHeight(doc) + border, window.innerHeight - 36) + "px";
+      }
+      function watchFrameHeight(){
+        if(fitObserver){ fitObserver.disconnect(); fitObserver = null; }
+        try{
+          var doc = frame.contentDocument;
+          if(typeof ResizeObserver === "function" && doc && doc.body){
+            fitObserver = new ResizeObserver(fitPanelHeight);
+            Array.prototype.forEach.call(doc.body.children, function(el){ fitObserver.observe(el); });
+            var layout = doc.getElementById("layout");
+            if(layout) Array.prototype.forEach.call(layout.children, function(el){ fitObserver.observe(el); });
+          }
+        }catch(error){}
+        fitPanelHeight();
+      }
+      window.addEventListener("resize", fitPanelHeight);
       var closeButton = dialog.querySelector('.wc-budget-landing-close');
       function setSharedElementOrigin(){
         var triggerRect = trigger.getBoundingClientRect();
@@ -1837,9 +1886,11 @@
             var popupOpen = embeddedDocument.documentElement.classList.contains("wc-home-explorer-open") ||
               embeddedDocument.body.classList.contains("wc-home-explorer-open");
             dialog.classList.toggle("is-inner-popup-open", popupOpen);
+            fitPanelHeight();
           }
           syncInnerPopupState();
           new MutationObserver(syncInnerPopupState).observe(embeddedDocument.documentElement, { attributes:true, subtree:true, attributeFilter:["class"] });
+          watchFrameHeight();
         }catch(error){}
         var revealDelay = Math.max(0, minimumRevealMs - (Date.now() - openedAt));
         window.setTimeout(function(){

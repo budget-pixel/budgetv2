@@ -5333,6 +5333,10 @@ header.wc-popup-header form.wc-nav-search-bar-form:focus-within{outline:2px soli
 header.wc-popup-header button:is(.wc-budget-landing-close,.wc-home-explorer-modal-close,.wc-home-department-modal-close){display:grid!important;place-items:center!important;flex:0 0 44px!important;box-sizing:border-box!important;width:44px!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;border:1px solid #d7e2dc!important;border-radius:50%!important;background:#f5f8f6!important;color:#172033!important;font:400 24px/1 Arial,Helvetica,sans-serif!important;box-shadow:none!important;cursor:pointer}
 header.wc-popup-header button:is(.wc-budget-landing-close,.wc-home-explorer-modal-close,.wc-home-department-modal-close):hover{background:#eaf3ed!important}
 header.wc-popup-header button:is(.wc-budget-landing-close,.wc-home-explorer-modal-close,.wc-home-department-modal-close):focus-visible{outline:3px solid #79b99a!important;outline-offset:2px!important}
+/* Popup title and back button share the theme type scale: 19px/800 title, 13px/800 button sized to the 44px close button. */
+header.wc-popup-header :is(#wcHomeExplorerModalTitle,#wcHomeDepartmentModalTitle){font:800 var(--fs-card-title)/1.3 Arial,Helvetica,sans-serif;color:var(--navy)}
+header.wc-popup-header .wc-home-department-modal-back{font:800 var(--fs-row)/1.2 Arial,Helvetica,sans-serif}
+@media(min-width:701px){header.wc-popup-header .wc-home-department-modal-back{height:44px;padding:0 16px}}
 .wc-profile-snapshot-total small:has(.wc-profile-snapshot-change-label){display:flex;flex-direction:column;gap:3px;white-space:normal}
 .wc-profile-snapshot-change-label{color:var(--muted);font-size:11px;font-weight:700;line-height:1.4}
 .wc-explorer-help{margin:16px 0;color:var(--navy);font-size:14px;line-height:1.6}
@@ -5417,8 +5421,6 @@ header.wc-popup-header button:is(.wc-budget-landing-close,.wc-home-explorer-moda
 .wc-budget-adjustment-note strong{color:#172033}
 .wc-budget-adjustment-note a{color:#006231;text-underline-offset:3px}
 @media(max-width:700px){.wc-budget-adjustment-notes{padding:18px}.wc-budget-adjustment-note{font-size:15px}}
-.wc-revenue-total-primary .wc-capital-total-scope{max-width:360px;margin:14px 0 0 auto;color:var(--muted);font-size:13px;line-height:1.5;font-weight:400;letter-spacing:normal;text-transform:none}
-@media(max-width:1050px){.wc-revenue-total-primary .wc-capital-total-scope{margin-left:0}}
 
 /* Fiscal-year cell hover rules must preserve summary-row shading. */
 .wc-budget-detail-body .wc-data-table tbody tr.wc-table-total-row:hover>td,

@@ -83,6 +83,14 @@ function renderRevenueSource(project){
   return escapeHtml(revenueSourceFor(project));
 }
 
+// Published FY 2027 split of the Transportation and Infrastructure ledger's
+// Capital Projects Fund support: projects are tagged Property Taxes, but
+// $8,584,562 of that $18,035,734 is funded from balance brought forward.
+const PUBLISHED_SOURCE_SPLITS = [
+  { year: "FY 2027", fund: "Capital Projects Fund", source: "Property Taxes", amount: 18035734,
+    split: [["Property Taxes", 9451172], ["Balance Brought Forward", 8584562]] }
+];
+
 // What each revenue source pays for across the year's ledger, grouped by
 // fund then source -- the same summary the Machinery, Vehicles & Equipment
 // ledger opens with.
@@ -109,6 +117,18 @@ function renderRevenueSourceSummary(projects, yearLabel){
   if(!totals.size){
     return "";
   }
+
+  PUBLISHED_SOURCE_SPLITS.forEach(rule => {
+    const key = rule.fund + "\u0000" + rule.source;
+    const entry = totals.get(key);
+    if(rule.year !== yearLabel || !entry || entry.amount !== rule.amount){
+      return;
+    }
+    totals.delete(key);
+    rule.split.forEach(([source, amount]) => {
+      totals.set(rule.fund + "\u0000" + source, { fund: rule.fund, source, amount });
+    });
+  });
 
   const ordered = Array.from(totals.values()).sort((a, b) =>
     a.fund.localeCompare(b.fund) || b.amount - a.amount

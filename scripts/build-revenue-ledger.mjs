@@ -41,7 +41,7 @@ const STATS = [
   ["$345.2M", "Total FY 2027 Budget Funding"],
   ["+$17.3M", "Net Change from FY 2026"],
   ["+5.3%", "Net Percent Change"],
-  ["$151.6M", "Main Ad Valorem Levy"]
+  ["$151.6M", "County-wide Ad Valorem Levy"]
 ];
 
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
@@ -308,7 +308,7 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M main Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M.</p>
+      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M County-wide Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M.</p>
     </div>
 
     <div class="revenue-qr">

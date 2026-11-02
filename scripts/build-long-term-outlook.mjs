@@ -199,7 +199,7 @@ const page1 = `
     <div class="stat-strip" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat-card"><b>+20.2%</b><span>Population Growth, 2020–2025 (BEBR)</span></div>
       <div class="stat-card"><b>90,547</b><span>Population Estimate (BEBR, Apr. 1, 2025)</span></div>
-      <div class="stat-card"><b>4.7M</b><span>Annual visitors, 2025 tourism report</span></div>
+      <div class="stat-card"><b>4.5M</b><span>Annual visitors, 2025 tourism report</span></div>
     </div>
 
     <h2>A Declining Operating Millage, Even as the County Grows</h2>

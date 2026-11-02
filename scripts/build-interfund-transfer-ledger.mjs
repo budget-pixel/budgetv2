@@ -11,9 +11,9 @@ import { chromium } from "playwright";
 const OUT_ROWS = [
   ["E911 Fund", "E911 Revenue to Sheriff", "$460,000"],
   ["General Fund", "Property Tax (Sheriff)", "$98,004,256"],
-  ["General Fund", "Small County Surtax Debt Payment", "$2,581,997"],
+  ["General Fund", "Debt Payment", "$2,581,997"],
   ["General Fund", "Property Tax (Capital)", "$25,035,734"],
-  ["Solid Waste Fund", "Small County Surtax - Debt Service", "$2,581,997"],
+  ["Solid Waste Fund", "Transfer to General Fund", "$2,581,997"],
   ["Solid Waste Fund", "Small County Surtax (Mossy Head Wastewater Treatment)", "$379,000"],
   ["Solid Waste Fund", "Small County Surtax (Transportation)", "$14,621,000"]
 ];
@@ -21,8 +21,8 @@ const OUT_TOTAL = "$143,663,984";
 
 const IN_ROWS = [
   ["Capital Projects Fund", "Property Tax", "$25,035,734"],
-  ["Capital Projects Fund", "Small County Surtax Debt Payment", "$2,581,997"],
-  ["General Fund", "Small County Surtax - Debt Service", "$2,581,997"],
+  ["Capital Projects Fund", "Debt Payment", "$2,581,997"],
+  ["General Fund", "Transfer from Solid Waste Fund", "$2,581,997"],
   ["Sheriff Fund", "Property Tax", "$98,004,256"],
   ["Sheriff Fund", "E911", "$460,000"],
   ["Transportation Fund", "Small County Surtax", "$379,000"],
