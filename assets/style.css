@@ -5557,3 +5557,10 @@ main:has(.wc-profile-snapshot-card) .wc-profile-snapshot-fte-label{font-size:var
    call-out shares use the 700 emphasis weight from the type scale. */
 .wc-department-explorer-head p,.wc-department-explorer .wc-department-explorer-head p,.wc-department-explorer .wc-revenue-concentration-summary{color:var(--text)}
 .wc-department-explorer .wc-revenue-support-split small{font-weight:700}
+.wc-revenue-peer-trigger[hidden]{display:none!important}
+.wc-revenue-view-actions:has(>.wc-revenue-peer-trigger[hidden]){display:flex;justify-content:flex-end}
+@media(max-width:900px){.wc-revenue-view-actions:has(>.wc-revenue-peer-trigger[hidden]){justify-content:flex-start}}
+/* Revenue explorer intro starts at the same height as the other explorer popups. */
+.wc-home-explorer-modal-body > #revenue-source-concentration{margin-top:0}
+.wc-home-explorer-modal-body .wc-revenue-concentration-head > div > p:first-of-type{margin-top:0}
+.wc-revenue-concentration-head p,.wc-revenue-concentration .wc-revenue-concentration-summary{color:var(--text)}
