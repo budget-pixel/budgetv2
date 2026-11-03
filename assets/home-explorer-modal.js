@@ -145,12 +145,62 @@
     };
   }
 
+  // Ledger/detail panels are fixed overlays inside the department page's
+  // iframe, so on their own they can never be wider than the department
+  // popup. While one is open, stretch the iframe over the whole window
+  // (transparent) and pin the page's body to the rectangle the iframe used
+  // to occupy: the department popup looks unchanged and blurs behind the
+  // detail panel, which now spans the full window.
+  var DETAIL_LAYER_CSS =
+    'html.wc-detail-layer{overflow:hidden!important;background:linear-gradient(transparent,transparent)!important}' +
+    'html.wc-detail-layer body{position:fixed!important;left:var(--wc-layer-left)!important;right:auto!important;top:var(--wc-layer-top)!important;width:var(--wc-layer-width)!important;height:var(--wc-layer-height)!important;margin:0!important;overflow:hidden!important;border-radius:0 0 21px 21px}';
+  var departmentDetailLayerScroll = 0;
+
+  function syncDepartmentDetailLayer(detailOpen) {
+    var doc = null;
+    try { doc = departmentFrame.contentDocument; } catch (error) { doc = null; }
+    var root = doc && doc.documentElement;
+    var pinned = !!(root && root.classList.contains("wc-detail-layer"));
+    var isUtilityOrBook = departmentModal.classList.contains("is-utility-page") || departmentModal.classList.contains("is-budget-book");
+    if (!detailOpen || isUtilityOrBook || !root || !doc.body) {
+      departmentModal.classList.remove("is-detail-layer");
+      if (pinned) {
+        root.classList.remove("wc-detail-layer");
+        doc.body.scrollTop = 0;
+        if (doc.defaultView) doc.defaultView.scrollTo(0, departmentDetailLayerScroll);
+      }
+      return;
+    }
+    var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
+    var head = departmentModal.querySelector(".wc-home-department-modal-head");
+    var panelRect = panel.getBoundingClientRect();
+    var top = head ? head.getBoundingClientRect().bottom : panelRect.top + panel.clientTop;
+    root.style.setProperty("--wc-layer-left", (panelRect.left + panel.clientLeft) + "px");
+    root.style.setProperty("--wc-layer-top", top + "px");
+    root.style.setProperty("--wc-layer-width", panel.clientWidth + "px");
+    root.style.setProperty("--wc-layer-height", Math.max(0, panelRect.top + panel.clientTop + panel.clientHeight - top) + "px");
+    if (pinned) return;
+    if (!doc.getElementById("wcDetailLayerStyle")) {
+      var style = doc.createElement("style");
+      style.id = "wcDetailLayerStyle";
+      style.textContent = DETAIL_LAYER_CSS;
+      doc.head.appendChild(style);
+    }
+    // The page's own scroll lock (lockBudgetDetailBackgroundScroll in
+    // budget-data.js) has already moved its scroll offset into body.top.
+    departmentDetailLayerScroll = Math.max(0, -parseFloat(doc.body.style.top) || 0) || (doc.scrollingElement || root).scrollTop;
+    root.classList.add("wc-detail-layer");
+    departmentModal.classList.add("is-detail-layer");
+    doc.body.scrollTop = departmentDetailLayerScroll;
+  }
+
   function updateDepartmentModalHeight() {
     if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
     var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
     var detailOpen = false;
     try { detailOpen = departmentFrame.contentDocument.body.classList.contains('wc-budget-detail-open'); } catch (error) {}
     departmentModal.classList.toggle('is-detail-open', detailOpen);
+    syncDepartmentDetailLayer(detailOpen);
     // The budget book always wants the full available height for its own
     // page-flip sizing (see the is-budget-book CSS) rather than shrinking
     // to fit its iframe's measured content height like a normal department
@@ -160,16 +210,10 @@
       sizeIframePopupPanel(panel, departmentFrame, departmentModal.querySelector(".wc-home-department-modal-head"), true);
       return;
     }
-    // Ledger/detail panels are fixed overlays within the embedded page.
-    // While one is open, keep the containing department popup at its full
-    // viewport height instead of shrink-wrapping the shorter page beneath
-    // it and clipping most of the ledger.
-    try {
-      if (departmentFrame.contentDocument && departmentFrame.contentDocument.body.classList.contains("wc-budget-detail-open")) {
-        panel.style.height = "";
-        return;
-      }
-    } catch (detailPanelAccessError) {}
+    // While a ledger/detail panel is open the department page is pinned in
+    // place (see syncDepartmentDetailLayer), so hold the popup at its
+    // current size rather than re-measuring the pinned page.
+    if (detailOpen) return;
     // Hold at the small opening size (set in openDepartmentModal) until the
     // minimum reveal time has passed -- even a page whose content is fully
     // ready well before that keeps the deliberate small-then-grow motion
@@ -605,7 +649,7 @@
       }).join("");
       var change = total - prior;
       var pct = prior ? change / Math.abs(prior) * 100 : null;
-      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Other Agencies and Court-Related Functions Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Other Agencies and Court-Related Functions Ledger">View Other Agencies and Court-Related Functions Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
+      modalBody.innerHTML = '<section class="wc-department-explorer wc-independent-agencies-explorer"><div class="wc-department-explorer-head"><div><h2>Other Agencies and Court-Related Functions Budget</h2><p>Walton County budgets a combined ' + escapeHtml(compactCurrency(total)) + ' across ' + items.length + ' independent and autonomous entities' + (totalFte ? ', employing ' + escapeHtml(totalFte) + ' FTE' : '') + '. Select an entity to review its budget, staffing, and service information.</p><p class="wc-revenue-concentration-summary"><strong>' + (countywide ? Math.round(total / countywide * 100) : 0) + '%</strong> of the total expenditure budget is independent agency funding.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>Total Independent Agencies Budget</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (change > 0 ? 'is-increase' : change < 0 ? 'is-decrease' : '') + '">' + (change >= 0 ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(change))) + ' (' + (pct === null ? 'No FY 2026 base' : (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + '%') + ')</small><div class="wc-revenue-view-actions"><a class="wc-revenue-ledger-trigger wc-ledger-card-button" href="pages/independent-agencies-ledger.html" data-explorer-popup-trigger="Other Agencies and Court-Related Functions Ledger">View Other Agencies Ledger</a></div></div></aside></div><div class="wc-department-budget-cards">' + cards + '</div></section>';
     }).catch(function () {
       modalBody.innerHTML = '<div class="wc-data-error">Independent agency data could not be loaded.</div>';
     });
@@ -1040,6 +1084,7 @@
 
   function closeDepartmentModal() {
     if (!departmentModal || departmentModal.hidden) return;
+    departmentModal.classList.remove("is-detail-open", "is-detail-layer");
     var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     if (fullscreenElement === departmentModal) {
       var exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;

@@ -70,5 +70,7 @@ Same brand: Georgia for headings and large figures, Arial for body; deep green `
 ## Explorer popups
 Department, constitutional officer, capital, other agencies, revenue and workforce popups share the same tokens: 34px popup total, 26px list-card figure, 19px section/summary figures, 14px intro/card names, 13px buttons and rows, 12px sub-lines/shares, 11px uppercase labels and badges. No 850 weights or fractional sizes.
 
+Explorer popup header: the left column holds the 14px intro (`--text` color), then the total call-outs (11px/800 `--muted` uppercase label, 19px/800 green figure, 12px/700 `--muted` share), then the "% of the total expenditure budget" line (14px `--text`, 19px/800 green percent). The right column holds the 34px/900 total, its change and the ledger buttons.
+
 ## Scope notes
 The explorer landing (`assets/home-landing.css`, desktop block at the end), the explorer-popup blocks and the department-page block in `assets/style.css` ("Department page type scale") applies the scale via `main:has(.wc-profile-snapshot-card)`. The ledger popups, the Who Pays table, and the constitutional officer / independent agency pages still use their own sizes and should be migrated to the `--fs-*` tokens.

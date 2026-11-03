@@ -760,9 +760,12 @@ table.wc-personnel-position-detail.is-showing-optional-cols .wc-personnel-base-a
    Insurance toggle above so either can be shown without the other. */
 .wc-personnel-position-fte-optional-col { display: none; }
 table.wc-personnel-position-detail.is-showing-fte-history .wc-personnel-position-fte-optional-col { display: table-cell; }
-.wc-staffing-notes-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-.wc-staffing-notes-title-row .wc-staffing-notes-title { margin: 0; }
-.wc-staffing-notes-title-row-toggles { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-top: -3px; }
+.wc-staffing-notes-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.wc-staffing-notes-title-row .wc-staffing-notes-title { margin: 0; font-size: var(--fs-card-title, 1.05rem); color: var(--navy); }
+.wc-staffing-notes-title-row-toggles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Personnel Ledger lead note: a quiet callout set apart from the table heading. */
+.wc-data-source-note { margin: 0 0 20px; padding: 11px 14px; border-left: 4px solid var(--green); border-radius: 0 8px 8px 0; background: rgba(0,98,49,.06); color: var(--text); font-size: .83rem; line-height: 1.55; }
+.wc-data-source-note strong { color: var(--navy); }
 #wcPersonnelCostExportAllButton { display: none; }
 .wc-revenue-support-split { order: 2; display: grid; grid-template-columns: 1fr; gap: 9px; width: 100%; padding-top: 2px; }
 .wc-revenue-support-split > div { min-width: 135px; padding: 0 0 9px; border-bottom: 1px solid rgba(0,63,40,.14); }
@@ -5545,3 +5548,12 @@ main:has(.wc-profile-snapshot-card) .wc-profile-snapshot-fte-label{font-size:var
 .wc-department-explorer .wc-home-search h2{font-size:var(--fs-card-title);font-weight:800}
 .wc-department-explorer .wc-home-search p{font-size:var(--fs-row)}
 .wc-home-explorer-modal-body .wc-personnel-explorer-head p,.wc-home-explorer-modal-body [class*="personnel"][class*="head"] p{font-size:var(--fs-body);line-height:1.6}
+
+/* Explorer header cost split (Total Personnel / Operating / Capital) sits
+   in the left column under the intro paragraph, beside the total aside. */
+.wc-revenue-card-summary-row.wc-explorer-head-split { justify-content: flex-start; margin: var(--space-5, 20px) 0 0; }
+.wc-revenue-card-summary-row.wc-explorer-head-share { margin: var(--space-4, 16px) 0 0; }
+/* Explorer intro copy and the "% of total budget" line use body-text color;
+   call-out shares use the 700 emphasis weight from the type scale. */
+.wc-department-explorer-head p,.wc-department-explorer .wc-department-explorer-head p,.wc-department-explorer .wc-revenue-concentration-summary{color:var(--text)}
+.wc-department-explorer .wc-revenue-support-split small{font-weight:700}
