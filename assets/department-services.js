@@ -231,7 +231,7 @@
     return String(value||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g," ").trim();
   }
 
-  // SERVICES/CHALLENGE_GROUPS/SNAPSHOT_CAREER_STATS above are keyed by the
+  // SERVICES/CHALLENGE_GROUPS above are keyed by the
   // department name this data was originally written against -- a couple
   // of our own pages' actual <h1 class="page-title"> text (see render's
   // `key` below) differs slightly (a page named for the office rather
@@ -370,32 +370,6 @@
     {label:'Other Uses',type:'Other Uses',color:'#6b6f76'},
     {label:'Debt Service',type:'Debt Service',color:'#5a3d8a'}
   ];
-  // "Did you know" career-wage sidebar on the Budget Graph. Every figure
-  // here is a real, currently-published Florida BLS Occupational
-  // Employment & Wage Statistics estimate (accessed via O*NET Online,
-  // which sources directly from BLS OEWS) for one occupation broadly
-  // relevant to that department's work -- not an extrapolation or a
-  // future-year projection, since BLS doesn't publish one. Departments
-  // without a verified entry here simply don't get the sidebar, rather
-  // than showing a guessed figure.
-  // displayLabel is the generic, relatable term shown in the sentence
-  // ("Emergency Management staff"); occupation is the specific BLS/O*NET
-  // title the wage figure actually reflects, kept in the source citation
-  // so the generic phrasing never disconnects from what was measured.
-  var SNAPSHOT_CAREER_STATS={
-    'emergency management':{displayLabel:'Emergency Management staff',occupation:'Emergency Management Directors',wage:99020,socCode:'11-9161'},
-    'human resources':{displayLabel:'Human Resources staff',occupation:'Human Resources Specialists',wage:66410,socCode:'13-1071'},
-    'building department':{displayLabel:'Building Department staff',occupation:'Construction and Building Inspectors',wage:68170,socCode:'47-4011'},
-    'engineering department':{displayLabel:'Engineering staff',occupation:'Civil Engineers',wage:98570,socCode:'17-2051'},
-    'libraries':{displayLabel:'Library staff',occupation:'Librarians and Media Collections Specialists',wage:67060,socCode:'25-4022'},
-    'office of management and budget':{displayLabel:'Budget Office staff',occupation:'Budget Analysts',wage:84170,socCode:'13-2031'},
-    'office of the county attorney':{displayLabel:"County Attorney's Office staff",occupation:'Lawyers',wage:133180,socCode:'23-1011'},
-    'public works':{displayLabel:'Public Works staff',occupation:'Highway Maintenance Workers',wage:42210,socCode:'47-4051'},
-    'solid waste':{displayLabel:'Solid Waste staff',occupation:'Refuse and Recyclable Material Collectors',wage:47820,socCode:'53-7081'},
-    'county administration':{displayLabel:'County Administration staff',occupation:'General and Operations Managers',wage:101580,socCode:'11-1021'},
-    'purchasing':{displayLabel:'Purchasing staff',occupation:'Purchasing Agents',wage:72850,socCode:'13-1023'},
-    'planning':{displayLabel:'Planning staff',occupation:'Urban and Regional Planners',wage:80720,socCode:'19-3051'}
-  };
   var CHART_JS_SRC='https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
   var chartJsLoadPromise=null;
   function ensureChartJs(){
@@ -425,15 +399,7 @@
       var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
         '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend"></div>'+
         '<p class="wc-snapshot-chart-note">'+(showCombinedTotal?'Total spending by fiscal year.':'Personnel, operating, and capital spending by fiscal year.')+' Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the final budget.</p>';
-      var careerStat=SNAPSHOT_CAREER_STATS[deptKey];
-      var careerHtml=careerStat?(
-        '<aside class="wc-snapshot-career-fact">'+
-          '<p class="wc-snapshot-career-fact-lead">Florida occupational wage reference: <strong>'+money(careerStat.wage)+'</strong> per year for <strong>'+escapeHtml(careerStat.occupation)+'</strong>. This benchmark is not the pay of County employees.</p>'+
-          '<p class="wc-snapshot-career-fact-source">Based on '+escapeHtml(careerStat.occupation)+' wages. Source: U.S. Bureau of Labor Statistics, Occupational Employment &amp; Wage Statistics (Florida), via <a href="https://www.onetonline.org/link/localwages/'+encodeURIComponent(careerStat.socCode)+'.00?st=FL" target="_blank" rel="noopener noreferrer">O*NET OnLine</a>.</p>'+
-        '</aside>'
-      ):'';
-      var html=careerHtml?'<div class="wc-snapshot-chart-layout"><div class="wc-snapshot-chart-main">'+chartHtml+'</div>'+careerHtml+'</div>':chartHtml;
-      var body=window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Graph',kicker:deptLabel,bodyClassName:'wc-snapshot-chart-body',html:html});
+      var body=window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Graph',kicker:deptLabel,bodyClassName:'wc-snapshot-chart-body',html:chartHtml});
       ensureChartJs().then(function(){
         renderSnapshotChart(document.getElementById(canvasId),document.getElementById(canvasId+'-legend'),expenses,showCombinedTotal);
       }).catch(function(){
@@ -1132,10 +1098,14 @@
       var showStaffingCard=fte>0;
       var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
 
+      // Same Capital Outlay / Total Department Budget lines as a regular
+      // department snapshot, for offices that carry capital (e.g. Beach
+      // Renourishment's $10.75M), so the expenditure side ties to revenue.
+      var officeCapitalCalloutHtml=capitalGroup&&capitalGroup.amount?'<div class="wc-profile-capital-callout"><div><span>Capital Outlay</span><strong title="'+escapeHtml(money(capitalGroup.amount))+'">'+compactMoney(capitalGroup.amount)+'</strong></div></div><div class="wc-profile-department-total"><span>Total Department Budget</span><strong title="'+escapeHtml(money(cardBudget+capitalGroup.amount))+'">'+compactMoney(cardBudget+capitalGroup.amount)+'</strong></div>':'';
       var snapshot=document.createElement('section');
       snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
       snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
-        '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><span class="wc-profile-operating-label">Personnel &amp; Operating</span><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'"><span class="wc-profile-snapshot-change-label">Operating budget change</span>'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div></div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
+        '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(cardBudget)+'</strong><span class="wc-profile-operating-label">Personnel &amp; Operating</span><small class="'+(cardBudgetChange>0?'is-up':cardBudgetChange<0?'is-down':'')+'"><span class="wc-profile-snapshot-change-label">Operating budget change</span>'+(cardBudgetChange===0?'Unchanged':(cardBudgetChange>0?'+':'−')+compactMoney(Math.abs(cardBudgetChange))+(cardPriorBudget?' ('+Math.abs(cardBudgetChange/cardPriorBudget*100).toFixed(1)+'%)':''))+'</small></div></div></div>'+officeCapitalCalloutHtml+'<div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
         '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-office-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
         staffingCardHtml+
         '</div>';
@@ -1462,6 +1432,11 @@
       var beachOperationsNarrative=beachOperationsSection&&beachOperationsSection.querySelector('.tourism-admin-section-narrative');
       var beachGoalChain=functionSection.querySelector('.wc-dept-goal-chain');
       if(beachOperationsNarrative&&beachGoalChain) beachOperationsNarrative.insertAdjacentElement('afterend',beachGoalChain);
+      // Beach Renourishment is a funding program, not a department: its own
+      // popup carries no department goal, challenges, or core services.
+      var requestedOffice='';
+      try{requestedOffice=new URLSearchParams(window.location.search).get('office')||'';}catch(e){}
+      if(requestedOffice==='beach-renourishment'&&beachGoalChain) beachGoalChain.remove();
     }
     // These two page-specific summary boxes belong with the introductory
     // narrative, not beside the page title or in the media rail. Place them

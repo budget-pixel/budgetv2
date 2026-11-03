@@ -677,7 +677,12 @@
         // A scripted iframe navigation can bypass the link listener that
         // records an explicit return target. Closing is safer than sending
         // the iframe into its initial blank history entry.
+        // An office opened from a "Choose an office" picker goes back to the
+        // department list, so close that picker along with this popup.
+        var officePicker = departmentTrigger && departmentTrigger.closest ? departmentTrigger.closest(".wc-budget-detail-modal") : null;
         dismissDepartmentModal();
+        var officePickerClose = officePicker && !officePicker.hidden ? officePicker.querySelector("[data-budget-detail-close]") : null;
+        if (officePickerClose) officePickerClose.click();
         return;
       }
       var targetUrl = new URL(target.href, window.location.href);
@@ -1241,6 +1246,9 @@
       departmentHref.search = url.search;
       departmentHref.hash = url.hash;
       var departmentTitle = filename === "environmental-resources.html" ? "Environmental Resources" : page.title;
+      // A single-office link (e.g. tourism-administration.html?office=marketing)
+      // is titled by the office named on the link rather than the whole page.
+      if (url.searchParams.get("office") && link.textContent.trim()) departmentTitle = link.textContent.trim();
       openDepartmentModal(departmentHref.href, departmentTitle, link);
     }, true);
     modal.querySelector(".wc-home-explorer-modal-close").addEventListener("click", dismissModal);

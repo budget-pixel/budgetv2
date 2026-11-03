@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Supporting Budget Documentation — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261101-popup-tokens6">
+<link rel="stylesheet" href="../assets/style.css?v=20261102-no-wage-ref">
 <style>
 .wc-doc-section{
   margin-top:28px;
@@ -193,7 +193,7 @@ window.wcBudgetPages = [
     if(window.WCBudgetData) return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement("script");
-script.src="../assets/budget-data.js?v=20261102-library-materials";
+script.src="../assets/budget-data.js?v=20261102-beach-offices";
       script.onload=resolve;
       script.onerror=reject;
       document.head.appendChild(script);

@@ -9621,14 +9621,17 @@
         return BOARD_OFFICE_SPECIAL_HREFS[key] || key.replace(/ and /g, "-").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".html";
       }
       const BOARD_OFFICE_COMBINED_HREFS = {
-        "marketing": "tourism-administration.html",
-        "communications": "tourism-administration.html",
-        "sales and visitors center": "tourism-administration.html",
-        "north walton tourist development tax": "tourism-administration.html",
+        "tourism administration": "tourism-administration.html?office=tourism-administration",
+        "marketing": "tourism-administration.html?office=marketing",
+        "communications": "tourism-administration.html?office=communications",
+        "sales and visitors center": "tourism-administration.html?office=sales-and-visitor-center",
+        "north walton tourist development tax": "tourism-administration.html?office=north-walton",
         "tourism public safety": "tourism-lifeguard-services-and-beach-safety.html",
         "south walton fire lifeguard services": "tourism-lifeguard-services-and-beach-safety.html",
-        "beach renourishment": "tourism-beach-operations.html",
-        "beach tram": "tourism-beach-operations.html",
+        "beach operations": "tourism-beach-operations.html?office=beach-operations",
+        "tourism beach operations": "tourism-beach-operations.html?office=beach-operations",
+        "beach renourishment": "tourism-beach-operations.html?office=beach-renourishment",
+        "beach tram": "tourism-beach-operations.html?office=beach-tram",
         "eagle springs golf and recreation center": "eagle-springs-golf-and-recreation-center.html",
         "eagle springs grill": "eagle-springs-grill.html",
         "environmental services": "environmental-resources.html",
@@ -12342,8 +12345,27 @@
   }
 
 
+  // ?office=<section id> (e.g. ?office=marketing) shows one Tourism
+  // Administration office on its own, so each office opens as its own popup.
+  function requestedCombinedOffice(specs) {
+    let office = "";
+    try { office = new URLSearchParams(window.location.search).get("office") || ""; } catch (e) {}
+    return specs.some((spec) => slugifyId(spec.label) === office) ? office : "";
+  }
+
+  function requestedTourismAdminOffice() {
+    return requestedCombinedOffice(TOURISM_ADMIN_SECTIONS);
+  }
+
+  // Section heading for a combined page's office -- dropped when a single
+  // office is shown, since the popup title already names it.
+  function combinedOfficeTitleHtml(label, requestedOffice) {
+    return requestedOffice ? "" : '<h2 class="tourism-admin-section-title">' + escapeHtml(label) + "</h2>";
+  }
+
   function renderTourismAdministrationSections() {
-    const overview =
+    const requestedOffice = requestedTourismAdminOffice();
+    const overview = requestedOffice && requestedOffice !== "tourism-administration" ? "" :
       '<section class="content-section tourism-admin-overview">' +
       TOURISM_ADMIN_OVERVIEW_PARAGRAPHS.map((p) => "<p>" + formatNarrativeText(p) + "</p>").join("") +
       "<h3>Highlights</h3>" +
@@ -12356,7 +12378,7 @@
     // after every division's own section -- see DEPTS_WITH_PERFORMANCE_FOLDED_IN.
     const performanceHtml = renderPerformanceTable(getDepartmentPerformanceMeasures("Tourism Administration", ""));
 
-    const sections = TOURISM_ADMIN_SECTIONS.map((spec) => {
+    const sections = TOURISM_ADMIN_SECTIONS.filter((spec) => !requestedOffice || slugifyId(spec.label) === requestedOffice).map((spec) => {
       const narrativeRows = rowsForExactNames(cache.departmentNarratives, spec.narrativeNames)
         .filter((r) => r.Narrative && r.Narrative.trim());
       const narrativeHtml = narrativeRows.length
@@ -12382,7 +12404,7 @@
       if (!body) return "";
       return (
         '<section class="tourism-admin-section" id="' + escapeHtml(slugifyId(spec.label)) + '">' +
-        '<h2 class="tourism-admin-section-title">' + escapeHtml(spec.label) + "</h2>" +
+        combinedOfficeTitleHtml(spec.label, requestedOffice) +
         body +
         "</section>"
       );
@@ -12438,7 +12460,8 @@
   }
 
   function renderTourismBeachOperationsSections() {
-    return TOURISM_BEACH_SECTIONS.map((spec) => {
+    const requestedOffice = requestedCombinedOffice(TOURISM_BEACH_SECTIONS);
+    return TOURISM_BEACH_SECTIONS.filter((spec) => !requestedOffice || slugifyId(spec.label) === requestedOffice).map((spec) => {
       const narrativeRows = rowsForExactNames(cache.departmentNarratives, spec.narrativeNames)
         .filter((r) => r.Narrative && r.Narrative.trim());
       const narrativeHtml = narrativeRows.length
@@ -12464,7 +12487,7 @@
       if (!body) return "";
       return (
         '<section class="tourism-admin-section" id="' + escapeHtml(slugifyId(spec.label)) + '">' +
-        '<h2 class="tourism-admin-section-title">' + escapeHtml(spec.label) + "</h2>" +
+        combinedOfficeTitleHtml(spec.label, requestedOffice) +
         body +
         "</section>"
       );
@@ -12605,14 +12628,14 @@
   // (e.g. Summary of Expenses' "Tourism North Walton" row) needs to jump
   // to right away, before loadBudgetData() resolves.
   const COMBINED_SECTION_LABELS = {
-    "tourism administration": TOURISM_ADMIN_SECTIONS.map((spec) => spec.label),
-    "tourism beach operations": TOURISM_BEACH_SECTIONS.map((spec) => spec.label)
+    "tourism administration": TOURISM_ADMIN_SECTIONS.map((spec) => spec.label).filter((label) => !requestedTourismAdminOffice() || slugifyId(label) === requestedTourismAdminOffice()),
+    "tourism beach operations": TOURISM_BEACH_SECTIONS.map((spec) => spec.label).filter((label) => !requestedCombinedOffice(TOURISM_BEACH_SECTIONS) || slugifyId(label) === requestedCombinedOffice(TOURISM_BEACH_SECTIONS))
   };
 
   function renderCombinedSectionPlaceholders(labels) {
     return labels.map((label) =>
       '<section class="tourism-admin-section" id="' + escapeHtml(slugifyId(label)) + '">' +
-      '<h2 class="tourism-admin-section-title">' + escapeHtml(label) + "</h2>" +
+      combinedOfficeTitleHtml(label, labels.length === 1 && new URLSearchParams(window.location.search).has("office")) +
       '<div class="wc-data-loading">' + LOADING_MESSAGE_HTML + "</div>" +
       "</section>"
     ).join("");
@@ -17387,14 +17410,17 @@
       function officeHref(name) {
         const key = normalizeDeptName(name);
         const combined = {
-          "marketing": "tourism-administration.html",
-          "communications": "tourism-administration.html",
-          "sales and visitors center": "tourism-administration.html",
-          "north walton tourist development tax": "tourism-administration.html",
+          "tourism administration": "tourism-administration.html?office=tourism-administration",
+          "marketing": "tourism-administration.html?office=marketing",
+          "communications": "tourism-administration.html?office=communications",
+          "sales and visitors center": "tourism-administration.html?office=sales-and-visitor-center",
+          "north walton tourist development tax": "tourism-administration.html?office=north-walton",
           "tourism public safety": "tourism-lifeguard-services-and-beach-safety.html",
           "south walton fire lifeguard services": "tourism-lifeguard-services-and-beach-safety.html",
-          "beach renourishment": "tourism-beach-operations.html",
-          "beach tram": "tourism-beach-operations.html",
+          "beach operations": "tourism-beach-operations.html?office=beach-operations",
+          "tourism beach operations": "tourism-beach-operations.html?office=beach-operations",
+          "beach renourishment": "tourism-beach-operations.html?office=beach-renourishment",
+          "beach tram": "tourism-beach-operations.html?office=beach-tram",
           "eagle springs golf and recreation center": "eagle-springs-golf-and-recreation-center.html",
           "eagle springs grill": "eagle-springs-grill.html",
           "environmental services": "environmental-resources.html",

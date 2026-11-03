@@ -5268,14 +5268,6 @@ html.wc-embedded-utility .wc-budget-process-back { display: none !important; }
 .wc-profile-snapshot-card>.wc-profile-snapshot-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 .wc-profile-snapshot-card>.wc-profile-snapshot-actions .wc-profile-snapshot-sheet{width:100%;min-width:0;min-height:44px;height:auto;padding:10px 14px;font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
 .wc-snapshot-chart-body{max-width:1100px;margin:0 auto}
-.wc-snapshot-chart-layout{display:flex;gap:28px;align-items:flex-start}
-.wc-snapshot-chart-main{flex:1 1 0;min-width:0}
-.wc-snapshot-career-fact{flex:0 0 240px;padding:18px;border:1px solid var(--border);border-radius:16px;background:var(--light)}
-.wc-snapshot-career-fact-lead{margin:0 0 12px;color:var(--text);font-size:14px;line-height:1.55}
-.wc-snapshot-career-fact-lead strong{color:var(--green)}
-.wc-snapshot-career-fact-source{margin:0;padding-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.5}
-.wc-snapshot-career-fact-source a{color:var(--green)}
-@media(max-width:820px){.wc-snapshot-chart-layout{flex-direction:column}.wc-snapshot-career-fact{flex-basis:auto;width:100%}}
 .wc-snapshot-chart-wrap{position:relative;height:340px;margin-bottom:16px}
 .wc-snapshot-chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .wc-snapshot-chart-legend-item{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--text);font:800 12px/1.2 Arial,Helvetica,sans-serif;cursor:pointer;transition:opacity .15s ease,background .15s ease}

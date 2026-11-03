@@ -490,3 +490,11 @@ html.wc-embedded-budget-landing .wc-home-department-modal-head{box-sizing:border
   html.wc-embedded-budget-landing .wc-explorer-popup-header .wc-explorer-popup-brand-mount{flex:1 1 0;min-width:0}
   html.wc-embedded-budget-landing .wc-explorer-popup-header .wc-explorer-header-search{flex:0 0 600px;width:600px}
 }
+
+/* Ledger/detail popups opened inside a department page are fixed overlays
+   within its iframe. While one is open, let the department popup go
+   full-bleed (header hidden behind it) so the secondary popup spans the
+   whole window instead of being boxed inside the department panel. */
+html .wc-home-department-modal.is-detail-open{padding:0}
+html .wc-home-department-modal.is-detail-open .wc-home-department-modal-panel{width:100%;height:100%!important;max-height:none;border:0;border-radius:0;box-shadow:none;transition:none}
+html .wc-home-department-modal.is-detail-open .wc-home-department-modal-head{display:none}
