@@ -687,7 +687,7 @@
     var labels = { departments:'Departments', constitutional:'Constitutional Officers', capital:'Capital Budget', independent:'Other Agencies and Court-Related Functions', personnel:'Workforce Budget', revenue:'Revenue Budget' };
     var label = previous ? previous.title : (modal && !modal.hidden ? labels[activeExplorerType] : '') || 'Budget explorer';
     button.hidden = departmentModal.classList.contains('is-budget-book');
-    button.textContent = '\u2190 ' + label;
+    button.textContent = '\u2190 Back';
     button.title = 'Back to ' + label;
     button.setAttribute('aria-label', 'Back to ' + label);
   }
