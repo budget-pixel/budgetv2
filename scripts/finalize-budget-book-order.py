@@ -2,6 +2,7 @@
 from io import BytesIO
 import json
 from pathlib import Path
+import subprocess
 import sys
 
 from pypdf import PdfReader, PdfWriter
@@ -113,3 +114,6 @@ with temporary.open("wb") as handle:
 assert len(PdfReader(temporary).pages) == 135
 temporary.replace(BOOK)
 print("Updated 135-page budget book: grouped profiles, contents, guide, bookmarks, and footer numbers.")
+# Keep the web copy small: merged sections otherwise carry duplicate images
+# and fonts (see optimize-budget-book.py).
+subprocess.run([sys.executable, str(ROOT / "scripts/optimize-budget-book.py"), str(BOOK)], check=True)
