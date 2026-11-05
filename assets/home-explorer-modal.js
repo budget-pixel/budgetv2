@@ -102,8 +102,22 @@
     // always moved to the end of <body> by nav.js) sidesteps that: it
     // reflects exactly where rendered content stops, not how tall the
     // document's layout boxes claim to be.
-    var lastVisible = doc.querySelector('footer[role="contentinfo"]') || doc.body;
-    var contentHeight = lastVisible ? Math.ceil(lastVisible.getBoundingClientRect().bottom) : doc.documentElement.scrollHeight;
+    // Popups other than the landing page hide that footer (nav.js
+    // wc-popup-no-footer), so fall back to the lowest bottom edge among the
+    // body's visible children.
+    var contentHeight = 0;
+    var footer = doc.querySelector('footer[role="contentinfo"]');
+    if (footer && footer.getBoundingClientRect().height > 0) {
+      contentHeight = Math.ceil(footer.getBoundingClientRect().bottom);
+    } else if (doc.getElementById("layout") && doc.getElementById("layout").getBoundingClientRect().height > 0) {
+      contentHeight = Math.ceil(doc.getElementById("layout").getBoundingClientRect().bottom);
+    } else if (doc.body) {
+      Array.prototype.forEach.call(doc.body.children, function (child) {
+        var rect = child.getBoundingClientRect();
+        if (rect.height > 0) contentHeight = Math.max(contentHeight, Math.ceil(rect.bottom));
+      });
+    }
+    if (!contentHeight) contentHeight = doc.documentElement.scrollHeight;
     var maxHeight = (window.visualViewport ? window.visualViewport.height : window.innerHeight) - 36;
     var desired = Math.min(maxHeight, Math.max(320, Math.ceil(contentHeight + headHeight)));
     panel.style.height = desired + "px";

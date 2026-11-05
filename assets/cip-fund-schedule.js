@@ -458,8 +458,9 @@ function renderFundSchedule(config){
 
       .wc-cip-control-actions{
         display:flex;
-        align-items:center;
-        gap:16px;
+        flex-direction:column;
+        align-items:flex-end;
+        gap:12px;
       }
 
       .wc-cip-export-pdf{
@@ -467,15 +468,16 @@ function renderFundSchedule(config){
         padding:10px 16px;
         border:1px solid #003f28;
         border-radius:999px;
-        background:#003f28;
-        color:#ffffff;
-        font:800 13px/1.2 Arial, Helvetica, sans-serif;
+        background:#ffffff;
+        color:#003f28;
+        font:800 12px/1.2 Arial, Helvetica, sans-serif;
         cursor:pointer;
       }
 
       .wc-cip-export-pdf:hover,
       .wc-cip-export-pdf:focus-visible{
-        background:#006231;
+        background:#003f28;
+        color:#ffffff;
       }
 
       @page{
@@ -828,7 +830,7 @@ function renderFundSchedule(config){
         }
 
         .wc-cip-control-actions{
-          flex-wrap:wrap;
+          align-items:flex-start;
         }
 
         .wc-cip-year-picker,
@@ -1180,11 +1182,11 @@ function renderFundSchedule(config){
                 ${isHistoricalYear ? "" : "<p>Use the year controls to review planned future-year capital projects.</p>"}
               </div>
               <div class="wc-cip-control-actions">
-                ${config.pdfExport ? `<button type="button" class="wc-cip-export-pdf" id="wcCipExportPdf" aria-label="Export ${escapeHtml(yearLabel)} ${escapeHtml(config.label)} ledger as PDF">Export PDF</button>` : ""}
                 ${isHistoricalYear ? "" : `<div class="wc-cip-active-total">
                   <strong>${money(data.total)}</strong>
                   <span>${escapeHtml(yearLabel)} Total</span>
                 </div>`}
+                ${config.pdfExport ? `<button type="button" class="wc-cip-export-pdf" id="wcCipExportPdf" aria-label="Export ${escapeHtml(yearLabel)} ${escapeHtml(config.label)} ledger as PDF">Export PDF</button>` : ""}
               </div>
             </div>
             <div class="wc-cip-year-picker" role="tablist" aria-label="Select capital schedule year">

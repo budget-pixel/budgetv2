@@ -16,6 +16,19 @@
     if(embedMode === "department-popup") document.documentElement.classList.add("wc-embedded-department");
   })();
 
+  // Only the main landing popup (?embed=landing) keeps the sitewide footer.
+  // Every other popup (department, utility, calculator, or any page framed
+  // inside another popup) drops it.
+  (function markFooterlessPopup(){
+    var embedMode = null;
+    try { embedMode = new URLSearchParams(window.location.search).get("embed"); }
+    catch(error) {}
+    var framed = false;
+    try { framed = window.top !== window.self; } catch(error) { framed = true; }
+    if(embedMode === "landing") return;
+    if(embedMode || framed) document.documentElement.classList.add("wc-popup-no-footer");
+  })();
+
   // Detail and utility documents are designed to appear inside the homepage
   // popup shell. If one is opened directly in the top-level browser, return
   // to the homepage and ask it to reopen the same URL in that shell. Embedded

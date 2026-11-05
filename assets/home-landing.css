@@ -499,3 +499,6 @@ html.wc-embedded-budget-landing .wc-home-department-modal-head{box-sizing:border
 .wc-home-department-modal.is-detail-layer .wc-home-department-modal-frame{position:fixed;inset:0;z-index:5;width:100vw;height:100vh;background:transparent}
 .wc-home-department-modal.is-detail-layer .wc-home-department-modal-head{filter:blur(8px)}
 .wc-home-department-modal.is-detail-layer .wc-home-department-modal-backdrop{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+
+/* Only the main landing popup keeps a footer; the explorer popups drop theirs. */
+.wc-home-explorer-modal-footer{display:none!important}

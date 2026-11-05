@@ -2071,7 +2071,6 @@ a.wc-ledger-card-button:focus-visible{
    re-parents the element into the rail, so it reappears there
    automatically -- no JS class toggle needed). */
 main#content > a.environmental-iframe-link,
-main#content > a.public-works-iframe-link,
 main#content > a.lifeguard-iframe-link,
 main#content > .recreation-parks-section {
   display: none;
@@ -5564,3 +5563,43 @@ main:has(.wc-profile-snapshot-card) .wc-profile-snapshot-fte-label{font-size:var
 .wc-home-explorer-modal-body > #revenue-source-concentration{margin-top:0}
 .wc-home-explorer-modal-body .wc-revenue-concentration-head > div > p:first-of-type{margin-top:0}
 .wc-revenue-concentration-head p,.wc-revenue-concentration .wc-revenue-concentration-summary{color:var(--text)}
+
+/* Department goal, challenge, service, and measure cards use the print
+   budget book palette (scripts/build-departments-and-services.mjs). */
+.wc-dept-goal-quote{border-color:#b8cec0;background:#edf4ef;box-shadow:none}
+.wc-dept-challenge-quote{border-color:#d7e2dc;background:#f2f6f3}
+.wc-dept-function-services .wc-dept-goal-quote span{color:#465a46;font-weight:800;letter-spacing:.05em}
+.wc-dept-function-services .wc-dept-goal-quote p{color:#173229}
+.wc-dept-function-services .wc-dept-challenge-quote p{color:#33453c}
+.wc-dept-service-block{border-color:#e4ebe7;box-shadow:none}
+.wc-dept-service-head h3,.wc-dept-service-block:not(.is-department-wide)>.wc-dept-service-head h3::before{color:#003f28}
+.wc-dept-function-services .wc-dept-service-head p{color:#52665c}
+.wc-dept-measure-item{border:1px solid #e0e8e3;background:#f8faf8}
+.wc-dept-function-services .wc-dept-measure-name{color:#003f28}
+.wc-dept-function-services .wc-dept-measure-objective{color:#52665c}
+.wc-dept-measure-trend span{color:#8b988f}
+.wc-dept-measure-trend span b{color:#173229}
+.wc-dept-measure-trend span.is-target{border-left-color:#e4ebe7;color:#0b7741}
+.wc-dept-measure-trend span.is-target b{color:#0b7741}
+.wc-dept-service-block:not(.is-department-wide)>.wc-dept-service-head h3::before{content:none;display:none}
+
+/* Public Works GIS map: full-width section at the bottom of the page
+   instead of the narrow media rail beside the Statement of Function. */
+.public-works-map-section{clear:both;margin:40px 0 8px}
+.public-works-map-section h2{margin:0 0 14px;padding-left:10px;border-left:4px solid var(--gold);color:var(--navy);font:800 .92rem/1.3 Arial,Helvetica,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.public-works-map-section .public-works-iframe-link{max-width:none;margin:0}
+.public-works-map-section .public-works-iframe-preview{border-width:3px;border-radius:16px}
+.public-works-map-section .public-works-iframe-preview iframe{height:320px}
+
+/* Expenditures Summary: total department budget headline with the
+   Personnel & Operating / Capital Outlay split beneath it. */
+.wc-profile-snapshot-card:has(.wc-profile-expense-split) .wc-profile-snapshot-total{margin-bottom:14px}
+.wc-profile-expense-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:12px 0;border-top:1px solid var(--border)}
+.wc-profile-expense-split>div{min-width:0}
+.wc-profile-expense-split>div+div{padding-left:12px;border-left:1px solid var(--border)}
+.wc-profile-expense-split span{display:block;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.wc-profile-expense-split strong{display:block;margin:4px 0 2px;color:var(--green);font-size:19px;font-weight:800;line-height:1.1}
+.wc-profile-expense-split small{display:block;color:var(--muted);font-size:12px;font-weight:700}
+
+/* Popups other than the main landing popup have no sitewide footer (nav.js). */
+html.wc-popup-no-footer footer[role="contentinfo"]{display:none!important}
