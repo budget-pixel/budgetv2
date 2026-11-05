@@ -193,7 +193,7 @@ window.wcBudgetPages = [
     if(window.WCBudgetData) return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement("script");
-script.src="../assets/budget-data.js?v=20261103-revenue-head";
+script.src="../assets/budget-data.js?v=20261105-attorney-salary";
       script.onload=resolve;
       script.onerror=reject;
       document.head.appendChild(script);

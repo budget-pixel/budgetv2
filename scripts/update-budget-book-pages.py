@@ -5,6 +5,9 @@ import sys
 import subprocess
 from pypdf import PdfReader, PdfWriter
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from budget_book_layout import ASSEMBLY_PAGES, assembly_destination, assembly_pages
+
 
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "output/pdf/walton-county-fy2027-budget-book.pdf"
@@ -99,9 +102,10 @@ if len(sys.argv) > 1:
         raise ValueError("Requested pages are not available in the replacement sources")
     SOURCES = [item for item in SOURCES if item[0] in requested_pages]
 
+# Page numbers here are assembly numbers; a published (134-page) book gets a
+# placeholder in the removed slot, which finalize drops again.
 original = PdfReader(BOOK)
-if len(original.pages) != 135:
-    raise RuntimeError("The existing book is not the expected 135-page edition")
+original_pages = assembly_pages(original)
 
 replacements = {}
 readers = {}
@@ -109,14 +113,14 @@ for physical_page, source_path, source_page, expected_title in SOURCES:
     if source_path not in readers:
         readers[source_path] = PdfReader(source_path)
     source = readers[source_path]
-    old_text = original.pages[physical_page - 1].extract_text() or ""
+    old_text = original_pages[physical_page - 1].extract_text() or ""
     new_text = source.pages[source_page - 1].extract_text() or ""
     if expected_title and (expected_title not in " ".join(old_text.split()) or expected_title not in " ".join(new_text.split())):
         raise RuntimeError(f"Unexpected content at physical page {physical_page}")
     replacements[physical_page - 1] = source.pages[source_page - 1]
 
 writer = PdfWriter()
-for index, page in enumerate(original.pages):
+for index, page in enumerate(original_pages):
     writer.add_page(replacements.get(index, page))
 
 if original.metadata:
@@ -129,7 +133,7 @@ def copy_outline(items, parent=None):
         if isinstance(item, list):
             copy_outline(item, previous)
             continue
-        target = original.get_destination_page_number(item)
+        target = assembly_destination(original, item) - 1
         previous = writer.add_outline_item(item.title, target, parent=parent)
 
 
@@ -139,7 +143,7 @@ with temp.open("wb") as handle:
     writer.write(handle)
 
 checked = PdfReader(temp)
-if len(checked.pages) != 135 or len(checked.outline) != len(original.outline):
+if len(checked.pages) != ASSEMBLY_PAGES or len(checked.outline) != len(original.outline):
     raise RuntimeError("Updated book failed page-count or outline validation")
 temp.replace(BOOK)
 subprocess.run([sys.executable, str(ROOT / "scripts/finalize-budget-book-order.py"), "--renumber-only"], check=True)

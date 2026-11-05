@@ -3,11 +3,13 @@ from pathlib import Path
 import json, sys, subprocess, re, html
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, TextStringObject
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from budget_book_layout import ASSEMBLY_PAGES, PUBLISHED_PAGES, REMOVED_PAGE, assembly_destination, assembly_pages, published_number
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / 'output/pdf/walton-county-fy2027-budget-book.pdf'
 SCRATCH = ROOT / 'tmp/pdfs'
 source = PdfReader(Path(sys.argv[1]) if len(sys.argv) > 1 else BOOK)
-assert len(source.pages) == 135
+source_pages = assembly_pages(source)  # accepts the published 134-page book
 reviewed = (source.metadata or {}).get('/PublicationReview') == '20261008'
 manifest = {}
 def put(start, name, count=1, first=1):
@@ -39,7 +41,7 @@ for number in range(1,136):
         entry=manifest[number];page=readers[entry['file']].pages[entry['page']-1]
     else:
         old=123 if number==124 and not reviewed else number
-        page=source.pages[old-1]
+        page=source_pages[old-1]
     writer.add_page(page)
 # Back-cover links must match the addresses printed on the page.
 for annotation in writer.pages[134].get('/Annots',[]):
@@ -56,7 +58,7 @@ details=set()
 def collect(items):
     for item in items:
         if isinstance(item,list): collect(item);continue
-        number=source.get_destination_page_number(item)+1
+        number=assembly_destination(source,item)
         if not reviewed and 116<=number<=124: number+=1
         if any(item.title==title for _,title in chapters):continue
         details.add((number,item.title))
@@ -74,14 +76,17 @@ metadata.update({'/PublicationReview':'20261008','/Title':'Walton County FY 2027
 writer.add_metadata(metadata);writer.compress_identical_objects(remove_duplicates=True,remove_unreferenced=True)
 temporary=BOOK.with_suffix('.reviewed.pdf')
 with temporary.open('wb') as f:writer.write(f)
-assert len(PdfReader(temporary).pages)==135
+assert len(PdfReader(temporary).pages)==ASSEMBLY_PAGES
 temporary.replace(BOOK)
 subprocess.run([sys.executable,str(ROOT/'scripts/finalize-budget-book-order.py'),'--renumber-only'],check=True)
 (SCRATCH/'publication-pages.json').write_text(json.dumps(manifest,indent=2))
 # Text fallback is needed only for the original photo covers and back cover.
+# Keyed by assembly page number, like the manifest (finalize drops one page).
 finished=PdfReader(BOOK); fallback={}
-for i,page in enumerate(finished.pages,1):
+for i in range(1,ASSEMBLY_PAGES+1):
+    if i==REMOVED_PAGE: continue
+    page=finished.pages[published_number(i)-1]
     if i not in manifest:
         fallback[i]={'text':page.extract_text() or '', 'links':[str(a.get_object().get('/A',{}).get('/URI')) for a in page.get('/Annots',[]) if a.get_object().get('/A',{}).get('/URI')]}
 (SCRATCH/'publication-covers.json').write_text(json.dumps(fallback,indent=2))
-print(f'Assembled 135 pages; {len(manifest)} pages have shared HTML sources.')
+print(f'Assembled {PUBLISHED_PAGES} pages; {len(manifest)} pages have shared HTML sources.')

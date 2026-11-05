@@ -4585,6 +4585,19 @@
     return body;
   }
 
+  // The position table that follows a toggle's title row. Other elements
+  // (e.g. the mobile personnel view switcher) can sit between the two, so
+  // search the following siblings rather than only the next one.
+  function personnelPositionTableFor(toggle) {
+    const titleRow = toggle.closest(".wc-staffing-notes-title-row");
+    for (let el = titleRow && titleRow.nextElementSibling; el; el = el.nextElementSibling) {
+      if (el.matches(".wc-staffing-notes-title-row")) break;
+      const table = el.matches(".wc-personnel-position-detail") ? el : el.querySelector(".wc-personnel-position-detail");
+      if (table) return table;
+    }
+    return null;
+  }
+
   // "Show COLA, Health Insurance & Increase" toggle inside a "Staffing and Cost by
   // Position" popup (see personnelCostDeptDetailHtml) -- scoped to that
   // one table via a class on the table itself rather than a shared
@@ -4598,9 +4611,7 @@
   document.addEventListener("click", (event) => {
     const toggle = event.target.closest(".wc-personnel-position-optional-cols-toggle");
     if (!toggle) return;
-    const titleRow = toggle.closest(".wc-staffing-notes-title-row");
-    const tableScroll = titleRow && titleRow.nextElementSibling;
-    const table = tableScroll && tableScroll.querySelector(".wc-personnel-position-detail");
+    const table = personnelPositionTableFor(toggle);
     if (!table) return;
     const showing = table.classList.toggle("is-showing-optional-cols");
     toggle.setAttribute("aria-pressed", showing ? "true" : "false");
@@ -4613,9 +4624,7 @@
   document.addEventListener("click", (event) => {
     const toggle = event.target.closest(".wc-personnel-position-fte-history-toggle");
     if (!toggle) return;
-    const titleRow = toggle.closest(".wc-staffing-notes-title-row");
-    const tableScroll = titleRow && titleRow.nextElementSibling;
-    const table = tableScroll && tableScroll.querySelector(".wc-personnel-position-detail");
+    const table = personnelPositionTableFor(toggle);
     if (!table) return;
     const showing = table.classList.toggle("is-showing-fte-history");
     toggle.setAttribute("aria-pressed", showing ? "true" : "false");
@@ -15785,10 +15794,17 @@
       // personnelCostDeptDetailHtml (both are the same kind of thing: a real,
       // known dollar gap between the formula estimate and the department's
       // actual budgeted total that isn't tied to any individual roster row).
-      const perPositionSalaries = isBocc ? (overtimeTotal / reconcilableCount) : (salariesGap + overtimeTotal) / reconcilableCount;
+      // Office of the County Attorney: its budgeted salary line is below the
+      // positions' pay rates plus COLA, so spreading that gap over Salaries
+      // made every position's pay look like it excluded the COLA. Keep each
+      // position's salary at its rate plus COLA and carry the salary gap in
+      // the Retirement & Other Benefits column instead (the total still ties
+      // to the department budget).
+      const salaryGapToBenefits = normalizeDeptName(deptName) === "office of the county attorney";
+      const perPositionSalaries = isBocc || salaryGapToBenefits ? (overtimeTotal / reconcilableCount) : (salariesGap + overtimeTotal) / reconcilableCount;
       const perPositionRetirement = isBocc ? 0 : retirementGap / reconcilableCount;
       const perPositionHealthInsurance = isBocc ? 0 : healthInsuranceGap / reconcilableCount;
-      const perPositionOtherBenefits = isBocc ? 0 : otherBenefitsGap / reconcilableCount;
+      const perPositionOtherBenefits = isBocc ? 0 : (otherBenefitsGap + (salaryGapToBenefits ? salariesGap : 0)) / reconcilableCount;
       reconcilablePositions.forEach((p) => {
         p.Cost.Salaries += perPositionSalaries;
         p.Cost.Retirement += perPositionRetirement;

@@ -1,4 +1,8 @@
-"""Align department order, contents, bookmarks, and printed page numbers."""
+"""Align department order, contents, bookmarks, and printed page numbers.
+
+Also drops the assembly page listed in budget_book_layout.py, so the
+published book has 134 pages.
+"""
 from io import BytesIO
 import json
 from pathlib import Path
@@ -10,6 +14,10 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from budget_book_layout import (ASSEMBLY_PAGES, PUBLISHED_PAGES, REMOVED_PAGE, REMOVED_TITLE,
+                                assembly_destination, assembly_pages)
+
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "output/pdf/walton-county-fy2027-budget-book.pdf"
 LAYOUT = json.loads((ROOT / "scripts/data/budget-book-page-order.json").read_text())
@@ -18,12 +26,16 @@ footer_font = Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")
 if not footer_font.exists():
     footer_font = ROOT / "assets/fonts/Lora-Bold.ttf"
 pdfmetrics.registerFont(TTFont("BudgetFooter", str(footer_font)))
-assert len(reader.pages) == 135
+source_pages = assembly_pages(reader)
+removed_text = " ".join((source_pages[REMOVED_PAGE-1].extract_text() or "").split())
+if removed_text and REMOVED_TITLE not in removed_text:
+    raise RuntimeError(f"Assembly page {REMOVED_PAGE} is not the page to remove: {removed_text[:80]!r}")
 already_grouped = (reader.metadata or {}).get("/DepartmentProfileOrder") == "grouped-v1"
 renumber_only = "--renumber-only" in sys.argv
-order = list(range(1, 136))
+order = list(range(1, ASSEMBLY_PAGES + 1))
 if not already_grouped and not renumber_only:
     order[70:102] = [page + 1 for page in LAYOUT["departmentProfileOriginalPages"]]
+order.remove(REMOVED_PAGE)
 destinations = {old: new for new, old in enumerate(order, 1)}
 
 
@@ -87,7 +99,7 @@ if not renumber_only:
     replacements = {5: toc.pages[0], 6: toc.pages[1], 7: toc.pages[2], 108: guide.pages[0]}
 writer = PdfWriter()
 for number, old in enumerate(order, 1):
-    page = replacements.get(number, reader.pages[old-1])
+    page = replacements.get(number, source_pages[old-1])
     writer.add_page(page)
     number_footer(writer.pages[-1], number)
 
@@ -98,7 +110,9 @@ def copy_outline(items, parent=None):
         if isinstance(item, list):
             copy_outline(item, previous)
         else:
-            old = reader.get_destination_page_number(item)+1
+            old = assembly_destination(reader, item)
+            if old not in destinations:
+                continue  # bookmark for the removed page
             previous = writer.add_outline_item(item.title, destinations[old]-1, parent=parent)
 
 
@@ -111,9 +125,9 @@ writer.compress_identical_objects(remove_duplicates=True, remove_unreferenced=Tr
 temporary = BOOK.with_suffix(".updated.pdf")
 with temporary.open("wb") as handle:
     writer.write(handle)
-assert len(PdfReader(temporary).pages) == 135
+assert len(PdfReader(temporary).pages) == PUBLISHED_PAGES
 temporary.replace(BOOK)
-print("Updated 135-page budget book: grouped profiles, contents, guide, bookmarks, and footer numbers.")
+print(f"Updated {PUBLISHED_PAGES}-page budget book: grouped profiles, contents, guide, bookmarks, and footer numbers.")
 # Keep the web copy small: merged sections otherwise carry duplicate images
 # and fonts (see optimize-budget-book.py).
 subprocess.run([sys.executable, str(ROOT / "scripts/optimize-budget-book.py"), str(BOOK)], check=True)

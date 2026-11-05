@@ -1561,6 +1561,7 @@
   .wc-budget-landing-dialog.is-opening{transition:background-color 1s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog.is-opening .wc-budget-landing-wave,.wc-budget-landing-dialog.is-opening .wc-budget-landing-shade{transition:opacity .9s ease}
   .wc-budget-landing-dialog.is-opening .wc-budget-landing-frame,.wc-budget-landing-dialog.is-opening .wc-budget-landing-close{transition:opacity .4s ease .55s}
+  .wc-budget-landing-dialog.is-settling .wc-budget-landing-panel{transition:box-shadow .7s ease,height .6s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;max-height:none;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
@@ -1715,8 +1716,21 @@
         });
         return Math.ceil(total);
       }
-      function fitPanelHeight(){
+      // The fitted height is remembered per window size so the next opening
+      // grows straight to it instead of growing to full height and then
+      // shrinking once the explorer loads.
+      function savedHeightKey(){ return "wcLandingPanelHeight:" + window.innerWidth + "x" + window.innerHeight; }
+      function readSavedHeight(){
+        try{ var value = parseInt(window.localStorage.getItem(savedHeightKey()), 10); return value > 0 ? value : 0; }catch(error){ return 0; }
+      }
+      var settleTimer = 0;
+      var frameLoaded = false;
+      function fitPanelHeight(instant){
         if(dialog.hidden) return;
+        // Never resize while the opening animation runs -- its scale was
+        // measured from the starting size, so a mid-flight change jerks the
+        // panel. The timer that ends .is-opening calls this again.
+        if(dialog.classList.contains("is-opening") && instant !== true) return;
         var doc = null;
         try{ doc = frame.contentDocument; }catch(error){}
         if(phoneQuery.matches || dialog.classList.contains("is-inner-popup-open") || !doc || !doc.body){
@@ -1724,7 +1738,26 @@
           return;
         }
         var border = panel.offsetHeight - panel.clientHeight;
-        panel.style.height = Math.min(naturalFrameHeight(doc) + border, window.innerHeight - 36) + "px";
+        var height = Math.min(naturalFrameHeight(doc) + border, window.innerHeight - 36);
+        if(!height) return;
+        var next = height + "px";
+        if(instant === true){
+          setPanelHeightInstantly(next);
+        } else if(panel.style.height !== next && Math.abs(panel.getBoundingClientRect().height - height) > 24){
+          // A large change (first opening at this window size) eases in
+          // rather than snapping with the quick base transition.
+          dialog.classList.add("is-settling");
+          window.clearTimeout(settleTimer);
+          settleTimer = window.setTimeout(function(){ dialog.classList.remove("is-settling"); }, 650);
+        }
+        if(instant !== true) panel.style.height = next;
+        try{ window.localStorage.setItem(savedHeightKey(), String(height)); }catch(error){}
+      }
+      function setPanelHeightInstantly(value){
+        panel.style.transition = "none";
+        panel.style.height = value;
+        void panel.offsetHeight;
+        panel.style.transition = "";
       }
       function watchFrameHeight(){
         if(fitObserver){ fitObserver.disconnect(); fitObserver = null; }
@@ -1810,6 +1843,27 @@
       closeButton.addEventListener('click', closeOrGoBack);
       dialog.addEventListener('keydown', function(event){ if(event.key === 'Escape') closeOrGoBack(); });
 
+      function loadFrame(){
+        if(frame.getAttribute("src")) return;
+        var frameUrl = new URL(frame.dataset.src || "budget-explorer.html?embed=landing", window.location.href);
+        try{
+          var landingParams = new URLSearchParams(window.location.search);
+          ["explorer", "popup"].forEach(function(name){
+            if(landingParams.has(name)) frameUrl.searchParams.set(name, landingParams.get(name));
+          });
+        }catch(error){}
+        frame.setAttribute("src", frameUrl.href);
+      }
+      // Load the explorer in the background once the homepage is idle, so
+      // opening it can size the panel correctly from the first frame.
+      if(!quickMotion && !(navigator.connection && navigator.connection.saveData)){
+        var preload = function(){
+          if("requestIdleCallback" in window) window.requestIdleCallback(loadFrame, { timeout: 3000 });
+          else window.setTimeout(loadFrame, 1500);
+        };
+        if(document.readyState === "complete") preload();
+        else window.addEventListener("load", preload, { once: true });
+      }
       function openDialog(event){
         if(event) event.preventDefault();
         window.clearTimeout(animationTimer);
@@ -1821,6 +1875,16 @@
         openedAt = Date.now();
         document.documentElement.classList.add("wc-budget-landing-open");
         document.body.classList.add("wc-budget-landing-open");
+        // Settle the panel at its final height before measuring the opening
+        // animation: fit to the already-loaded explorer when possible,
+        // otherwise use the height remembered for this window size.
+        if(!phoneQuery.matches){
+          if(frameLoaded) fitPanelHeight(true);
+          else {
+            var savedHeight = readSavedHeight();
+            if(savedHeight) setPanelHeightInstantly(Math.min(savedHeight, window.innerHeight - 36) + "px");
+          }
+        }
         var openingTransform = setSharedElementOrigin();
         // Two frames ensure the browser paints the panel at the Begin
         // button before animating it to its final dimensions.
@@ -1834,20 +1898,11 @@
                 {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1}
               ],{duration:quickMotion ? 180 : 1050,easing:"cubic-bezier(.22,1,.36,1)"});
             }
-            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); }, quickMotion ? 200 : 1110);
+            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); fitPanelHeight(); }, quickMotion ? 200 : 1110);
           });
         });
-        if(!frame.getAttribute("src")){
-          var frameUrl = new URL(frame.dataset.src || "budget-explorer.html?embed=landing", window.location.href);
-          try{
-            var landingParams = new URLSearchParams(window.location.search);
-            ["explorer", "popup"].forEach(function(name){
-              if(landingParams.has(name)) frameUrl.searchParams.set(name, landingParams.get(name));
-            });
-          }catch(error){}
-          frame.setAttribute("src", frameUrl.href);
-        }
-        else { dialog.classList.remove('is-loading'); frame.focus(); }
+        if(!frame.getAttribute("src")) loadFrame();
+        else if(frameLoaded){ dialog.classList.remove('is-loading'); frame.focus(); }
         if(wave && !quickMotion && !navigator.connection?.saveData){
           var waveSource = wave.querySelector("source[data-src]");
           if(!waveSource.hasAttribute("src")){ waveSource.src = waveSource.dataset.src; wave.load(); }
@@ -1892,6 +1947,8 @@
           new MutationObserver(syncInnerPopupState).observe(embeddedDocument.documentElement, { attributes:true, subtree:true, attributeFilter:["class"] });
           watchFrameHeight();
         }catch(error){}
+        frameLoaded = true;
+        if(dialog.hidden) return;  // background preload; revealed on open
         var revealDelay = Math.max(0, minimumRevealMs - (Date.now() - openedAt));
         window.setTimeout(function(){
           dialog.classList.remove("is-loading");

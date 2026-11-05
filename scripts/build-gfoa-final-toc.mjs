@@ -27,7 +27,7 @@ const sections = [
     ["Overview of Walton County",9],["Organizational Structure",12],["Strategic Initiatives",13],["Community Priorities",14]
   ]},
   { title: "Financial Overview", subtitle: "A one-page look at the whole budget, the year-over-year change by department and fund, how a resident's property tax dollar is allocated, and the countywide revenue, expenditure, fund, transfer, and debt ledgers behind it.", items: [
-    ["Budget in Brief",17],["Consolidated Budget Ledger",18],["Budget Adjustments",20],["Revenue Portfolio",22],["Revenue Strategy",23],["Revenue Ledger",24],["Property Tax Allocation Ledger",28],["Florida Amendment 3 Risk",30],["Expenditure Ledger",31],["Fund Financial Ledger",34],["Interfund Transfer Ledger",36],["Debt Ledger",37],["Long-Term Outlook",38]
+    ["Budget in Brief",17],["Consolidated Budget Ledger",18],["Budget Change Summary",20],["Revenue Portfolio",22],["Revenue Strategy",23],["Revenue Ledger",24],["Property Tax Allocation Ledger",28],["Florida Amendment 3 Risk",30],["Expenditure Ledger",31],["Fund Financial Ledger",34],["Interfund Transfer Ledger",36],["Debt Ledger",37],["Long-Term Outlook",38]
   ]},
   { title: "Budget Process", subtitle: "How budget requests became Walton County's FY 2027 final spending plan, including public workshops, hearings, and Board decisions.", items: [
     ["Budget Process",41],["Budget Process (continued)",42],["Budget Calendar",43],["Public Participation and Decision Record",44],["Financial Policies",45],["Summary of Financial Policies",46]
@@ -96,6 +96,12 @@ county.items.push(["Organizational Challenges", 15], ["FY 2027 Response", 16]);
 // offsets the extra capital page, preserving the 135-page publication.
 for (const section of sections) {
  if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] >= 116 && item[1] <= 124 ? item[1] + 1 : item[1], item[2]] : item);
+}
+// The "Where FY 2027 Capital Investment Serves" map (page 112) was removed
+// from the published book; later pages move up one (budget_book_layout.py).
+capitalBudget.items = capitalBudget.items.filter(item => !(Array.isArray(item) && item[0] === "Capital Investment Map"));
+for (const section of sections) {
+  if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] > 112 ? item[1] - 1 : item[1], item[2]] : item);
 }
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.

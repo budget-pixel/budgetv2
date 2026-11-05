@@ -8,15 +8,14 @@ import { chromium } from "playwright";
 
 const ITEMS = [
   ["Capital Improvement Plan", 109],
-  ["Capital Investment Map", 112],
-  ["Capital Funding and Delivery Dashboard", 113],
+  ["Capital Funding and Delivery Dashboard", 112],
   { category: "Fund-Specific Capital Ledgers" },
-  ["Transportation and Infrastructure Capital Ledger", 114],
-  ["Tourist Development Fund Capital Ledger", 117],
-  ["Sheriff Capital Project Ledger", 118],
-  ["Recreation Plat Fee Fund Capital Ledger", 119],
-  ["Sidewalk Fund Capital Ledger", 120],
-  ["Machinery, Vehicles, and Equipment Ledger", 121]
+  ["Transportation and Infrastructure Capital Ledger", 113],
+  ["Tourist Development Fund Capital Ledger", 116],
+  ["Sheriff Capital Project Ledger", 117],
+  ["Recreation Plat Fee Fund Capital Ledger", 118],
+  ["Sidewalk Fund Capital Ledger", 119],
+  ["Machinery, Vehicles, and Equipment Ledger", 120]
 ];
 
 const css = `
