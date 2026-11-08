@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Ledgers — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261104-popup-footer">
+<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
 </head>
 <body>
 
@@ -18,7 +18,7 @@
 
 <div class="page-eyebrow">Budget Ledgers</div>
 <h1 class="page-title">Budget Ledgers</h1>
-<p class="page-intro">Use these ledgers to see how Walton County plans to raise and spend public money. Start with Budget Adjustments to see what is increasing or decreasing, then explore revenues, property taxes, personnel, departments, debt, and capital projects to understand what the budget funds and how the pieces fit together.</p>
+<p class="page-intro wc-ledger-intro-wide">Use these ledgers to see how Walton County plans to raise and spend public money. Start with Budget Adjustments to see what is increasing or decreasing, then explore revenues, property taxes, personnel, departments, debt, and capital projects to understand what the budget funds and how the pieces fit together.</p>
 
 <section aria-label="Budget overview directory">
   <div id="hubList"></div>
@@ -27,13 +27,13 @@
 </main>
 </div>
 
-<script src="../assets/search-data.js?v=20261101-agency-names"></script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261105-attorney-salary"></script>
-<script src="../assets/independent-agencies-data.js?v=20261102-print-reconcile"></script>
-<script src="../assets/cip-projects-data.js?v=20260827-live-historical-sheet"></script>
-<script src="../assets/cip-overview.js?v=20260910-launch-review"></script>
-<script src="../assets/nav.js?v=20261104-popup-footer"></script>
-<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script src="../assets/search-data.js?v=d307e7cdd2"></script>
+<script src="../assets/performance-context.js?v=0b1ba7b92f"></script><script src="../assets/budget-data.js?v=7320bf0322"></script>
+<script src="../assets/independent-agencies-data.js?v=e5ae048774"></script>
+<script src="../assets/cip-projects-data.js?v=f82ef1a6f2"></script>
+<script src="../assets/cip-overview.js?v=205a76fba2"></script>
+<script src="../assets/nav.js?v=c62ffef8c6"></script>
+<script src="../assets/budget-pdf.js?v=8987ba5f2b"></script>
 <script>
   (function(){
     // Grouped so visually related ledgers (e.g. every Capital ledger) are
@@ -47,36 +47,48 @@
           {
             title:"Consolidated Budget Ledger",
             href:"consolidated-financial-schedules.html",
+            metric:"totalBudget",
+            metricLabel:"FY 2027 Expenditures",
             description:"See revenues, expenditures, and fund balances combined across every fund in one consolidated schedule.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="4" rx="1"></rect><rect x="4" y="10" width="16" height="4" rx="1"></rect><rect x="4" y="16" width="16" height="4" rx="1"></rect></svg>'
           },
           {
             title:"Debt Ledger",
             href:"debt-overview.html",
+            metric:"debtService",
+            metricLabel:"FY 2027 Debt Service",
             description:"Review outstanding debt, annual principal and interest payments, and the funds behind each obligation.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M6 8l6-3 6 3M4 8h4M16 8h4M6 8l-2 6a2 2 0 0 0 4 0L6 8ZM18 8l-2 6a2 2 0 0 0 4 0l-2-6Z"></path></svg>'
           },
           {
             title:"Fund Financial Ledger",
             href:"fund-financial-schedules.html",
+            metric:"fundFinancialUses",
+            metricLabel:"FY 2027 Expenditures & Other Uses",
             description:"Browse revenues, expenditures, and balances for each of the County's individual funds.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V6a1 1 0 0 1 1-1h8l6 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M13 5v6h6"></path></svg>'
           },
           {
             title:"Interfund Transfer Ledger",
             href:"summary-of-interfund-transfers.html",
+            metric:"transfersOut",
+            metricLabel:"FY 2027 Transfers Out",
             description:"See transfers of money between funds, including which fund sends and which fund receives each transfer.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h11l-3-3m3 3-3 3"></path><path stroke-linecap="round" stroke-linejoin="round" d="M17 17H6l3 3m-3-3 3-3"></path></svg>'
           },
           {
             title:"Budget Adjustments",
             href:"summary-of-budget-changes-and-adjustments.html",
+            metric:"budgetChange",
+            metricLabel:"Net Change from FY 2026",
             description:"Review major additions, reductions, transfers, and other changes in the FY 2027 budget.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15 9 9l4 4 7-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 5h5v5"></path></svg>'
           },
           {
             title:"Budget Forecast",
             href:"financial-forecast.html",
+            metric:"forecastGeneralFund",
+            metricLabel:"FY 2031 Projected General Fund Balance",
             description:"Review long-range revenue and expenditure projections, planning assumptions, and fund outlooks.",
             icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 18 9 12l4 3 7-9"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 6h5v5"></path><path d="M4 4v16h16"></path></svg>'
           }
@@ -272,6 +284,11 @@
       return String(value || "").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
     }
 
+    function roundedMillions(amount){
+      var sign = amount < 0 ? "−" : "";
+      return sign + "$" + Math.round(Math.abs(amount) / 1000000).toLocaleString("en-US") + "M";
+    }
+
     function renderBudgetTotals(){
       if(!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function") return;
       window.WCBudgetData.loadBudgetData().then(function(data){
@@ -309,23 +326,30 @@
         var changeTotals = window.WCBudgetData.getConsolidatedBudgetChangeTotals(data);
         var budgetChangeTotal = changeTotals.change;
         var totalBudget = window.WCBudgetData.totalCountywideExpenditureBudget(data);
-        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, budgetChange:budgetChangeTotal, debtPrincipal:debtTotals.principalFY2027, debtInterest:debtTotals.interestFY2027, totalBudget:totalBudget };
+        var totals = { revenue:revenueTotal, personnel:personnelTotal, constitutionalOfficers:constitutionalOfficersTotal, department:departmentTotal, propertyTax:propertyTaxTotal, budgetChange:budgetChangeTotal, debtService:debtTotals.principalFY2027 + debtTotals.interestFY2027, totalBudget:totalBudget, fundFinancialUses:window.WCBudgetData.getFundFinancialUsesTotal(data), transfersOut:window.WCBudgetData.getInterfundTransfersOutTotal(data) };
         document.querySelectorAll("[data-budget-overview-total]").forEach(function(element){
           var key = element.dataset.budgetOverviewTotal;
           if(!(key in totals)) return;
           var amount = totals[key] || 0;
-          // FY 2027's own principal/interest (not the full remaining
-          // balance through final maturity) are small enough that rounding
-          // to millions would show "$0M" for interest -- shown as exact
-          // dollars instead, like every other non-millions stat here.
-          var useRoundedMillions = ["revenue", "personnel", "constitutionalOfficers", "department", "propertyTax", "budgetChange", "totalBudget"].indexOf(key) !== -1;
-          element.querySelector("strong").textContent = useRoundedMillions
-            ? "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M"
-            : window.WCBudgetData.formatCurrency(amount);
+          var sign = key === "budgetChange" && amount > 0 ? "+" : "";
+          element.querySelector("strong").textContent = sign + roundedMillions(amount);
         });
       }).catch(function(){
-        document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital']) strong").forEach(function(element){element.textContent = "Not available";});
+        document.querySelectorAll("[data-budget-overview-total]:not([data-budget-overview-total='capital']):not([data-budget-overview-total='forecastGeneralFund']) strong").forEach(function(element){element.textContent = "Not available";});
       });
+    }
+
+    function renderForecastTotal(){
+      var amountEl = $("[data-budget-overview-total='forecastGeneralFund'] strong");
+      var budget = window.WCBudgetData;
+      if(!amountEl || !budget) return;
+      Promise.all([budget.loadBudgetData(), window.wcCipProjectsReady || Promise.resolve(window.wcCipProjects || [])])
+        .then(function(results){
+          var amount = budget.getForecastGeneralFundEndingBalance(results[1]);
+          amountEl.textContent = Number.isFinite(amount) ? roundedMillions(amount) : "Not available";
+        }).catch(function(){
+          amountEl.textContent = "Not available";
+        });
     }
 
     function renderIndependentAgenciesTotal(){
@@ -436,6 +460,7 @@
     document.addEventListener("DOMContentLoaded", function(){
       renderHub();
       renderBudgetTotals();
+      renderForecastTotal();
       renderIndependentAgenciesTotal();
       renderContractualServicesTotal();
       renderCapitalTotal();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Supporting Budget Documentation — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261104-popup-footer">
+<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
 <style>
 .wc-doc-section{
   margin-top:28px;
@@ -179,21 +179,24 @@ window.wcBudgetPages = [
   {title:"Supporting Budget Documentation",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supporting-budget-documentation.html"}
 ];
 </script>
-<script src="../assets/search-data.js?v=20261101-agency-names"></script>
-<script src="../assets/nav.js?v=20261104-popup-footer"></script>
-<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script src="../assets/search-data.js?v=d307e7cdd2"></script>
+<script src="../assets/nav.js?v=c62ffef8c6"></script>
+<script src="../assets/budget-pdf.js?v=8987ba5f2b"></script>
 <script>
 (function(){
   var card=document.querySelector("[data-budget-csv-export]");
   if(!card) return;
+  // The card's status text lives in an <em>; create one if the card
+  // markup doesn't include it, so the busy/error messages still show.
   var label=card.querySelector("em");
+  if(!label){label=document.createElement("em");card.appendChild(label);}
   var idleText=label.textContent;
   var busy=false;
   function loadBudgetData(){
     if(window.WCBudgetData) return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement("script");
-script.src="../assets/budget-data.js?v=20261105-attorney-salary";
+script.src="../assets/budget-data.js?v=7320bf0322";
       script.onload=resolve;
       script.onerror=reject;
       document.head.appendChild(script);

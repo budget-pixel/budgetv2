@@ -247,6 +247,46 @@
     return DEPARTMENT_KEY_ALIASES[key]||key;
   }
 
+  // Department heads shown at the bottom of each Position Summary card.
+  // Source: Walton County staff directory (mywaltonfl.gov/Directory.aspx),
+  // checked 2026-11-06. Keyed by the page's normalized department key, or
+  // by office name on combined pages (Tourism, Beach Operations). Leave a
+  // department out when no head is listed; update here when staff change.
+  var DEPARTMENT_DIRECTORS={
+    "building construction and maintenance":{name:"Brad Alford",title:"Director of Facilities Maintenance"},
+    "building department":{name:"Billy Bearden",title:"Building Official"},
+    "code compliance":{name:"Tony Cornman",title:"Director of Code Compliance"},
+    "county administration":{name:"Brian Kellenberger",title:"County Administrator"},
+    "emergency management":{name:"Jeff Goldberg",title:"Emergency Management Director"},
+    "engineering department":{name:"Chance Powell",title:"County Engineer"},
+    "environmental resources":{name:"Melinda Gates",title:"Environmental Manager"},
+    "solid waste":{name:"Billy McKee",title:"Director of Environmental Services"},
+    "mosquito control":{name:"Gary Morse",title:"Mosquito Control Manager"},
+    "libraries":{name:"Caitie Cerise",title:"Library Director"},
+    "extension office":{name:"Amanda Masholie",title:"Interim County Extension Director"},
+    "geographic info systems":{name:"Harold Bigham",title:"GIS Director"},
+    "housing and urban development":{name:"Tom Baker",title:"Housing Director"},
+    "human resources":{name:"Tarey Franxman",title:"Director of Human Resources"},
+    "office of management and budget":{name:"Devon Peyton",title:"Budget Director"},
+    "probation":{name:"Nicole Echele",title:"Probation Manager"},
+    "purchasing":{name:"Jason Cutshaw",title:"Purchasing Director"},
+    "planning":{name:"Stephen Schoen",title:"Planning Director"},
+    "public works":{name:"Buddy Wright",title:"Public Works Director"},
+    "recreation":{name:"Shane Supple",title:"Recreation Director"},
+    "eagle springs golf and recreation center":{name:"Shane Supple",title:"Recreation Director"},
+    "eagle springs grill":{name:"Shane Supple",title:"Recreation Director"},
+    "veteran services":{name:"Wade Wilmoth",title:"Veteran Service Officer"},
+    "tourism administration":{name:"Matt Algarin",title:"Tourism Director"},
+    "marketing":{name:"Kelli Carter",title:"Director of Marketing"},
+    "communications":{name:"Nicole Barefield Everett",title:"Director of Communications"},
+    "sales and visitor center":{name:"Karen Morris",title:"Director of Sales"},
+    "beach operations":{name:"Josh Ervin",title:"Director of Beach Operations"}
+  };
+  function departmentDirectorHtml(key){
+    var director=DEPARTMENT_DIRECTORS[key];
+    if(!director) return '';
+    return '<p class="wc-profile-snapshot-director"><span>'+escapeHtml(director.title)+'</span><strong>'+escapeHtml(director.name)+'</strong></p>';
+  }
   function escapeHtml(value){
     return String(value===undefined||value===null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -259,16 +299,33 @@
     if(abs>=1000) return sign+'$'+Math.round(abs/1000).toLocaleString('en-US')+'K';
     return money(amount);
   }
-  // Expenditures Summary header: the total department budget is the large
-  // figure, with Personnel & Operating and Capital Outlay called out under
-  // it when the department carries capital.
+  // Expenditures Summary header: the Personnel & Operating budget (no
+  // capital) is the large figure, matching the Board Department Budgets
+  // explorer, with its change from FY 2026 inline beside it. Departments
+  // with capital get a second line directly under it in the same type --
+  // Capital Outlay and its own change -- so a capital-driven increase
+  // doesn't read as an operating increase. Capital also gets a bar below
+  // (withCapitalBar), which carries its tooltip. Each line gets a small label
+  // only when both are shown.
   function expenditureTotalHtml(ops,opsPrior,cap,capPrior){
-    var total=ops+cap,prior=opsPrior+capPrior,change=total-prior;
-    var changeText=change===0?'Unchanged':(change>0?'+':'−')+compactMoney(Math.abs(change))+(prior?' ('+Math.abs(change/prior*100).toFixed(1)+'%)':'');
-    function sharePct(amount){var pct=total?amount/total*100:0;if(pct>0&&pct<1) return '&lt;1%';if(pct<100&&pct>99) return '&gt;99%';return Math.round(pct)+'%';}
-    function part(label,amount){return '<div><span>'+label+'</span><strong title="'+escapeHtml(money(amount))+'">'+compactMoney(amount)+'</strong><small>'+sharePct(amount)+' of total</small></div>';}
-    return '<div class="wc-profile-snapshot-total"><strong title="'+escapeHtml(money(total))+'">'+compactMoney(total)+'</strong><span class="wc-profile-operating-label">Total Department Budget</span><small class="'+(change>0?'is-up':change<0?'is-down':'')+'"><span class="wc-profile-snapshot-change-label">Change from FY 2026</span>'+changeText+'</small></div>'+
-      (cap?'<div class="wc-profile-expense-split">'+part('Personnel &amp; Operating',ops)+part('Capital Outlay',cap)+'</div>':'');
+    function line(amount,prior,label,extraClass){
+      var change=amount-prior;
+      var changeText=!prior&&amount?'New in FY 2027':change===0?'Unchanged':(change>0?'+':'−')+compactMoney(Math.abs(change))+(prior?' ('+Math.abs(change/prior*100).toFixed(1)+'%)':'');
+      var showFrom=prior&&change!==0;
+      return '<div class="wc-profile-snapshot-total wc-profile-operating-total'+(extraClass?' '+extraClass:'')+'">'+
+        (label?'<span class="wc-profile-expense-line-label">'+label+'</span>':'')+
+        '<strong title="'+escapeHtml(money(amount))+'">'+compactMoney(amount)+'</strong>'+
+        '<small class="wc-profile-snapshot-change-line '+(change>0&&prior?'is-up':change<0?'is-down':'')+'">'+changeText+(showFrom?' <span>from FY 2026</span>':'')+'</small></div>';
+    }
+    if(!cap) return line(ops,opsPrior,'','');
+    return line(ops,opsPrior,'Personnel &amp; Operating','')+line(cap,capPrior||0,'Capital Outlay','wc-profile-capital-total');
+  }
+  // Expenditures Summary bars: Capital Outlay gets its own bar (with its
+  // tooltip) after the operating groups, and every bar is scaled against
+  // operating + capital so the bars compare on one scale.
+  function withCapitalBar(groups,total,capitalGroup){
+    if(!capitalGroup||!capitalGroup.amount||groups.some(function(item){return /capital outlay/i.test(item.label);})) return {groups:groups,total:total};
+    return {groups:groups.concat([capitalGroup]),total:total+capitalGroup.amount};
   }
   function sum(rows,field){return (rows||[]).reduce(function(total,row){return total+(Number(row[field])||0);},0);}
 
@@ -357,6 +414,7 @@
   // (BUDGET_LINE_PRIOR_YEAR_COLUMNS in budget-data.js), duplicated here
   // since department-services.js runs in its own scope and only needs the
   // field/label pairs, not the rest of that module's machinery.
+  var SNAPSHOT_FIRST_YEAR={'beach tram':2025};
   var SNAPSHOT_CHART_YEARS=[
     {field:'FY2020_Actual',label:'2020'},
     {field:'FY2021_Actual',label:'2021'},
@@ -407,8 +465,8 @@
       if(!window.WCBudgetData||typeof window.WCBudgetData.openBudgetDetailPanel!=='function') return;
       var showCombinedTotal=/tax collector/i.test(String(deptLabel||''));
       var canvasId='wc-snapshot-chart-'+Math.random().toString(36).slice(2);
-      var chartHtml='<div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
-        '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend"></div>'+
+      var chartHtml='<div class="wc-snapshot-chart-layout"><div class="wc-snapshot-chart-wrap"><canvas id="'+canvasId+'"></canvas></div>'+
+        '<div class="wc-snapshot-chart-legend" id="'+canvasId+'-legend" aria-label="Chart series"></div></div>'+
         '<p class="wc-snapshot-chart-note">'+(showCombinedTotal?'Total spending by fiscal year.':'Personnel, operating, and capital spending by fiscal year.')+' Earlier years are actuals, FY 2026 is the adopted budget, and FY 2027 is the final budget.</p>';
       var body=window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Graph',kicker:deptLabel,bodyClassName:'wc-snapshot-chart-body',html:chartHtml});
       ensureChartJs().then(function(){
@@ -491,7 +549,8 @@
         // dedicated Capital Investments popup beside this ledger.
         addBudgetTotals(operatingDetail);
         consolidateCapitalBudgetRows(operatingDetail);
-        html=officeSubtotalsHtml(expenses)+operatingDetail.innerHTML;
+        var showOfficeSubtotals=!/^(planning|code compliance)$/i.test(departmentLabel);
+        html=(showOfficeSubtotals?officeSubtotalsHtml(expenses):'')+operatingDetail.innerHTML;
       }
       window.WCBudgetData.openBudgetDetailPanel(button,{title:'Budget Ledger',kicker:departmentLabel||'',bodyClassName:'wc-department-budget-ledger-body',html:html});
     });
@@ -512,7 +571,11 @@
     if(!canvas||typeof window.Chart==='undefined') return;
     var existingChart=window.Chart.getChart(canvas);
     if(existingChart) existingChart.destroy();
-    var years=SNAPSHOT_CHART_YEARS;
+    // Departments that didn't exist before a given year (matches
+    // DEPARTMENT_FIRST_ACTUAL_YEAR in budget-data.js) start their chart there.
+    var firstYears=expenses.map(function(row){return SNAPSHOT_FIRST_YEAR[normalize(row.Dept_Name||'')];});
+    var firstYear=firstYears.length&&firstYears.every(function(y){return y&&y===firstYears[0];})?firstYears[0]:0;
+    var years=SNAPSHOT_CHART_YEARS.filter(function(y){return !firstYear||Number(y.label)>=firstYear;});
     var firstNonZero=years.length-1;
     for(var i=0;i<years.length;i++){
       var total=showCombinedTotal
@@ -554,7 +617,7 @@
       };
       return dataset;
     }).filter(function(dataset){return dataset.data.some(function(value){return value!==0;});});
-    var wrap=canvas.closest('.wc-snapshot-chart-wrap');
+    var wrap=canvas.closest('.wc-snapshot-chart-layout')||canvas.closest('.wc-snapshot-chart-wrap');
     if(!datasets.length){
       if(wrap) wrap.outerHTML='<p class="wc-data-empty">No historical spending data is available for this department.</p>';
       return;
@@ -563,7 +626,7 @@
     canvas.setAttribute('aria-label','Spending by fiscal year in dollars. The data table below provides the same values.');
     var table=document.createElement('details');
     table.className='wc-snapshot-chart-data';
-    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table"><caption>Spending in dollars; 2020–2025 actuals, 2026 adopted, 2027 final</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table wc-snapshot-data-table"><caption>Spending in dollars &middot; FY 2020&ndash;2025 actuals, FY 2026 adopted, FY 2027 final</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col" class="wc-num">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr'+(i===trimmedYears.length-1?' class="is-current-year"':'')+'><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
     if(wrap)wrap.insertAdjacentElement('afterend',table);
     var chart=new window.Chart(canvas,{
       type:'line',
@@ -578,7 +641,9 @@
             return context.dataset.label+': '+money(context.parsed.y);
           }}}
         },
-        scales:{y:{ticks:{callback:function(value){return compactMoney(value);}}}}
+        // Expenditure chart: anchor the axis at $0. A negative actual (e.g. a
+        // capital reversal) stays exact in the data table below.
+        scales:{y:{min:0,beginAtZero:true,ticks:{callback:function(value){return compactMoney(value);}}}}
       }
     });
     if(legendEl){
@@ -740,16 +805,6 @@
     });
     return Object.keys(buckets).map(function(label){return buckets[label];}).filter(function(item){return item.amount>0;}).sort(function(a,b){return b.amount-a.amount;});
   }
-  function departmentFeePayerCopy(key){
-    if(key==='code compliance') return {label:'Permit, compliance, and fine revenue',payer:'Paid by property owners, businesses, permit applicants, and others using a regulated activity or resolving a code case.'};
-    if(key==='building department') return {label:'Building permit and service fees',payer:'Paid by applicants, property owners, contractors, and developers receiving building review, permitting, or inspection services.'};
-    if(key==='eagle springs golf and recreation center') return {label:'Golf and recreation user revenue',payer:'Paid by golfers, event participants, renters, and other people who choose to use the facility.'};
-    if(key==='eagle springs grill') return {label:'Food, beverage, and customer revenue',payer:'Paid by grill customers and event patrons through their purchases.'};
-    if(key==='recreation') return {label:'Program, rental, and user fees',payer:'Paid by participants and people reserving or using fee-supported recreation programs and facilities.'};
-    if(key==='libraries') return {label:'Library service charges',payer:'Paid only by users incurring the applicable charge; ordinary library access is not allocated evenly as a household fee.'};
-    if(key==='planning') return {label:'Short-term rental certificate and planning fees',payer:'Paid by short-term rental property owners, permit applicants, and others receiving Planning Department services.'};
-    return {label:'Fees and charges for this department',payer:'Paid by the residents, businesses, applicants, customers, or other users receiving the specific fee-supported service.'};
-  }
   function fundingPayerSummary(rows,key){
     var summary=WCFundingSources.summarize(rows,key);
     if(!summary.rows.length)return '';
@@ -827,7 +882,12 @@
       totalRow.classList.add('wc-profile-capital-total-row');
       var categoryCell=totalRow.querySelector('.wc-category-column')||totalRow.cells[0];
       if(categoryCell) categoryCell.textContent='Capital Outlay Total';
+      // A total cloned from a line row must not keep that line's code
+      // (shown by the compact prior-years layout), and needs the label
+      // cell that layout and mobile.css read once Category is hidden.
+      Array.prototype.slice.call(totalRow.querySelectorAll('[data-object-code]')).forEach(function(cell){cell.removeAttribute('data-object-code');cell.textContent='';});
       var mobileLabel=totalRow.querySelector('[data-wc-mobile-label]');
+      if(!mobileLabel&&categoryCell&&categoryCell.nextElementSibling&&categoryCell.nextElementSibling.nextElementSibling&&!categoryCell.nextElementSibling.nextElementSibling.classList.contains('wc-num')) mobileLabel=categoryCell.nextElementSibling.nextElementSibling;
       if(mobileLabel) mobileLabel.setAttribute('data-wc-mobile-label','Capital Outlay Total');
       capitalRows.forEach(function(row){if(row!==totalRow) row.remove();});
       var grandTotal=body.querySelector('.wc-table-total-row');
@@ -1107,20 +1167,20 @@
       var requestedPositions=staffing.filter(function(row){return (Number(row['2027'])||0)-(Number(row['2026'])||0)>0;}).map(function(row){return {name:row.Position_Name||'Position',delta:(Number(row['2027'])||0)-(Number(row['2026'])||0)};}).sort(function(a,b){return b.delta-a.delta;});
       var requestedPositionsHtml=requestedPositions.length?'<div class="wc-profile-snapshot-fte-requests"><span class="wc-profile-snapshot-fte-requests-title">Additional FTE requested</span><ul>'+requestedPositions.map(function(item){return '<li><span>'+escapeHtml(item.name)+'</span><strong>+'+item.delta.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></li>';}).join('')+'</ul></div>':'';
       var showStaffingCard=fte>0;
-      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
+      var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+departmentDirectorHtml(officeKey)+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
 
       // Same Capital Outlay / Total Department Budget lines as a regular
       // department snapshot, for offices that carry capital (e.g. Beach
       // Renourishment's $10.75M), so the expenditure side ties to revenue.
       var snapshot=document.createElement('section');
       snapshot.className='wc-profile-snapshot wc-board-department-profile wc-profile-snapshot--office';
-      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Department Snapshot</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
-        '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span>'+expenditureTotalHtml(cardBudget,cardPriorBudget,capitalGroup?capitalGroup.amount:0,capitalGroup?(capitalGroup.prior||0):0)+'</div></div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,item.prior,false,null,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
+      snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+(officeKey==='beach renourishment'?'Program Snapshot':'Department Snapshot')+'</h2></div><div class="wc-profile-snapshot-grid'+(showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
+        '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span>'+expenditureTotalHtml(cardBudget,cardPriorBudget,capitalGroup?capitalGroup.amount:0,capitalGroup?(capitalGroup.prior||0):0)+'</div></div><div class="wc-profile-snapshot-table">'+(function(bars){return bars.groups.map(function(item){return snapshotDeltaRow(item.label,item.amount,bars.total,item.prior,false,null,null);});})(withCapitalBar(cardExpenseGroups,cardBudget,capitalGroup)).join('')+'</div>'+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-office-graph-trigger>View Budget Graph</button><button type="button" class="wc-profile-snapshot-sheet" data-office-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-office-contracts-trigger>View Contractual Services</button></div></article>'+
         '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-office-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-office-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>'+
         staffingCardHtml+
         '</div>';
 
-      var officeGoalChain=(officeKey==='tourism administration'||officeKey==='beach operations')?officeSection.querySelector('.wc-dept-goal-chain'):null;
+      var officeGoalChain=(officeKey==='tourism administration'||officeKey==='beach operations'||officeKey==='beach tram')?officeSection.querySelector('.wc-dept-goal-chain'):null;
       if(officeGoalChain) officeGoalChain.insertAdjacentElement('afterend',snapshot); else if(narrativeBlock) narrativeBlock.insertAdjacentElement('afterend',snapshot); else if(heading) heading.insertAdjacentElement('afterend',snapshot); else officeSection.insertAdjacentElement('afterbegin',snapshot);
 
       bindSnapshotTooltips(snapshot);
@@ -1221,12 +1281,28 @@
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile wc-independent-office-snapshot';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">Court Innovations Snapshot</h2></div><div class="wc-profile-snapshot-grid wc-profile-snapshot-grid--no-staffing">'+
-      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong></div><div class="wc-profile-snapshot-table">'+expenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,null);}).join('')+'</div></article>'+
-      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal,null,false,null,null);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div></article>'+
+      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Expenditures Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(budget)+'</strong></div><div class="wc-profile-snapshot-table">'+expenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,budget,null,false,null,null);}).join('')+'</div>'+
+        '<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-court-innovations-ledger-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-court-innovations-graph-trigger>View Budget Graph</button></div></article>'+
+      '<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(revenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(revenueGroups.length?revenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,revenueTotal,null,false,null,null);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div>'+
+        '<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-court-innovations-who-pays>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-court-innovations-revenue-trigger>View Revenue Budget Ledger</button></div></article>'+
       '</div>';
     section.insertAdjacentElement('afterend',snapshot);
     if(oldCards) oldCards.classList.add('wc-independent-source-grid');
     bindSnapshotTooltips(snapshot);
+    // Same snapshot actions as every other office: the ledgers read Court
+    // Innovations' own (hidden) expense/revenue cards; the graph and Who
+    // Pays use its own rows.
+    var label='Court Innovations';
+    var expenseCard=oldCards&&oldCards.querySelector('.wc-print-kind-expense');
+    var revenueCard=oldCards&&oldCards.querySelector('.wc-print-kind-revenue');
+    var ledgerButton=snapshot.querySelector('[data-court-innovations-ledger-trigger]');
+    if(ledgerButton) bindSnapshotOperatingBudgetSheet(ledgerButton,expenseCard,label,expenses);
+    var graphButton=snapshot.querySelector('[data-court-innovations-graph-trigger]');
+    if(graphButton) bindSnapshotBudgetGraph(graphButton,expenses,[],'court innovations',label);
+    var whoPaysButton=snapshot.querySelector('[data-court-innovations-who-pays]');
+    if(whoPaysButton) bindSnapshotWhoPaysSheet(whoPaysButton,fundingPayerSummary(revenues,'court innovations'),label);
+    var revenueButton=snapshot.querySelector('[data-court-innovations-revenue-trigger]');
+    if(revenueButton) bindSnapshotRevenueSheet(revenueButton,revenueCard,label);
   }
 
   function render(){
@@ -1332,7 +1408,7 @@
         if(child.matches&&child.matches('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,.libraries-video-frame,.wc-omb-award-top,.wc-plaque-card,figure,a[class*="iframe-link"]')) supportingMedia.push(child);
       });
     }
-    document.querySelectorAll('main#content > a.environmental-iframe-link,main#content > a.lifeguard-iframe-link,main#content > .recreation-parks-section').forEach(function(item){
+    document.querySelectorAll('main#content > a.environmental-iframe-link,main#content > a.lifeguard-iframe-link').forEach(function(item){
       if(supportingMedia.indexOf(item)===-1) supportingMedia.push(item);
     });
     // Treat every YouTube embed on a department page as top-of-page
@@ -1342,6 +1418,8 @@
     // that should remain in their own content sections.
     document.querySelectorAll('main#content iframe[src*="youtube.com/embed"],main#content iframe[src*="youtube-nocookie.com/embed"],main#content .wc-lazy-video').forEach(function(videoFrame){
       if(supportingMedia.some(function(item){return item===videoFrame||item.contains(videoFrame);})) return;
+      // The Recreation parks videos run as their own full-width row below.
+      if(videoFrame.closest('.recreation-parks-section')) return;
       var videoWrapper=videoFrame.closest('.wc-video-frame,.extension-video-frame,.mosquito-video-frame,[class*="video-frame"]')||videoFrame;
       if(supportingMedia.indexOf(videoWrapper)===-1) supportingMedia.push(videoWrapper);
     });
@@ -1378,6 +1456,11 @@
         functionHeading.insertAdjacentElement('afterend',mediaRail);
       }
     }
+    // Recreation's three parks videos read best side by side, so the section
+    // sits full width directly under the Statement of Function text (the
+    // core services are appended after it below) instead of in the rail.
+    var parksSection=document.querySelector('main#content .recreation-parks-section');
+    if(parksSection&&functionSection) functionSection.appendChild(parksSection);
     var expenses=window.WCBudgetData.getDepartmentExpenses(title.textContent.trim())||[];
     // The Solid Waste Transfer (interfund transfer to other funds, e.g. the
     // Small County Surtax transfers to Transportation and Mossy Head WWTF)
@@ -1405,28 +1488,34 @@
       if(serviceIndex===undefined||!row.Objective||!rowsByService[serviceIndex]) return;
       rowsByService[serviceIndex].push(row);
     });
-    function performanceMeasureHtml(row){
-      var trendColumns=PERFORMANCE_HISTORY_COLUMNS.slice(0,4);
-      var trend=trendColumns.filter(function(item){return row[item[1]]!==''&&row[item[1]]!=null;}).map(function(item){return '<span><b>'+escapeHtml(row[item[1]])+'</b>'+escapeHtml(item[0])+'</span>';}).join('');
-      var target=row.Projected_2027!==''&&row.Projected_2027!=null?row.Projected_2027:'Not listed';
-      return '<article class="wc-dept-measure-item">'+
-        '<p class="wc-dept-measure-name">'+escapeHtml(row.Measure||'Performance measure')+'</p>'+
-        '<div class="wc-dept-measure-trend">'+trend+'<span class="is-target"><b>'+escapeHtml(target)+'</b>FY27 Target</span></div>'+
-        (row.ContextNote?'<p class="wc-performance-note">'+escapeHtml(row.ContextNote)+'</p>':'')+
-        '</article>';
+    // Each core service lists its measures in one table: the measure name,
+    // 2022-2025 actuals and the FY27 target, so years line up down the
+    // column. A measure's context note sits in its own row underneath.
+    function performanceMeasureTableHtml(rows){
+      var yearColumns=PERFORMANCE_HISTORY_COLUMNS.slice(0,4);
+      function cell(value){return value!==''&&value!=null?escapeHtml(value):'<span class="wc-dept-measure-empty" aria-label="Not reported">&mdash;</span>';}
+      var head='<thead><tr><th scope="col">Measure</th>'+yearColumns.map(function(item){return '<th scope="col" class="wc-num">'+escapeHtml(item[0])+'</th>';}).join('')+'<th scope="col" class="wc-num is-target">FY27 Target</th></tr></thead>';
+      var body=rows.map(function(row){
+        var target=row.Projected_2027!==''&&row.Projected_2027!=null?row.Projected_2027:'';
+        return '<tr'+(row.ContextNote?' class="has-note"':'')+'><th scope="row">'+escapeHtml(row.Measure||'Performance measure')+'</th>'+
+          yearColumns.map(function(item){return '<td class="wc-num">'+cell(row[item[1]])+'</td>';}).join('')+
+          '<td class="wc-num is-target">'+cell(target)+'</td></tr>'+
+          (row.ContextNote?'<tr class="wc-dept-measure-note-row"><td colspan="'+(yearColumns.length+2)+'"><p class="wc-performance-note">'+escapeHtml(row.ContextNote)+'</p></td></tr>':'');
+      }).join('');
+      return '<div class="wc-dept-measure-table-scroll" tabindex="0" role="region" aria-label="Performance measures"><table class="wc-dept-measure-table">'+head+'<tbody>'+body+'</tbody></table></div>';
     }
     var matchedPerformanceRows=[];
     var serviceBlocksHtml=services.map(function(service,serviceIndex){
       var rows=rowsByService[serviceIndex];
       if(!rows.length) return '';
       rows.forEach(function(row){if(matchedPerformanceRows.indexOf(row)===-1) matchedPerformanceRows.push(row);});
-      return '<section class="wc-dept-service-block"><div class="wc-dept-service-head"><h3>'+escapeHtml(service[0])+'</h3><p>'+escapeHtml(service[1])+'</p></div>'+rows.map(performanceMeasureHtml).join('')+'</section>';
+      return '<section class="wc-dept-service-block"><div class="wc-dept-service-head"><h3>'+escapeHtml(service[0])+'</h3><p>'+escapeHtml(service[1])+'</p></div>'+performanceMeasureTableHtml(rows)+'</section>';
     }).join('');
     var unmatchedPerformanceRows=performanceRows.filter(function(row){return matchedPerformanceRows.indexOf(row)===-1;});
-    var departmentWideHtml=unmatchedPerformanceRows.length?'<section class="wc-dept-service-block is-department-wide"><div class="wc-dept-service-head"><h3>Department-wide Measures</h3><p>Tracked across the department rather than tied to one core service.</p></div>'+unmatchedPerformanceRows.map(performanceMeasureHtml).join('')+'</section>':'';
+    var departmentWideHtml=unmatchedPerformanceRows.length?'<section class="wc-dept-service-block is-department-wide"><div class="wc-dept-service-head"><h3>Department-wide Measures</h3><p>Tracked across the department rather than tied to one core service.</p></div>'+performanceMeasureTableHtml(unmatchedPerformanceRows)+'</section>':'';
     var serviceCardsHtml='<div class="wc-dept-service-measure-list">'+serviceBlocksHtml+departmentWideHtml+'</div>';
     var noMeasuresHtml=performanceRows.length?'':'<p class="wc-dept-no-measures">No verified performance series is currently available for publication.</p>';
-    var servicesListHtml='<section class="wc-dept-goal-chain"><p class="wc-profile-section-title wc-dept-services-label">Department Goal and Challenges</p>'+goalHtml+challengeHtml+'<div class="wc-dept-core-services-head"><h3>Core Services &amp; Performance</h3></div>'+serviceCardsHtml+noMeasuresHtml+'<p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all services provided by the department, but identifies its core public services and the measures used to track results.</p></section>';
+    var servicesListHtml='<section class="wc-dept-goal-chain"><p class="wc-profile-section-title wc-dept-services-label">Department Goal and Challenges</p>'+((goalHtml||challengeHtml)?'<div class="wc-dept-goal-pair'+(goalHtml&&challengeHtml?'':' is-single')+'">'+goalHtml+challengeHtml+'</div>':'')+'<div class="wc-dept-core-services-head"><h3>Core Services &amp; Performance</h3></div>'+'<p class="wc-profile-service-note"><strong>No new services are being added.</strong> The budget continues the department&rsquo;s existing responsibilities. This list may not include all services provided by the department, but identifies its core public services and the measures used to track results.</p>'+serviceCardsHtml+noMeasuresHtml+'</section>';
     if(!isLifeguardProgram) functionSection.insertAdjacentHTML('beforeend',servicesListHtml);
     // Tourism Administration is a combined page. Place its department-wide
     // goal, services, and measures directly below the lead office statement
@@ -1447,6 +1536,20 @@
       var requestedOffice='';
       try{requestedOffice=new URLSearchParams(window.location.search).get('office')||'';}catch(e){}
       if(requestedOffice==='beach-renourishment'&&beachGoalChain) beachGoalChain.remove();
+      // Beach Tram's own view: the goal and challenge sit directly under the
+      // tram's statement of function (ahead of its snapshot), and only the
+      // tram's own core service -- moving visitors to the beach -- is shown.
+      if(requestedOffice==='beach-tram'&&beachGoalChain){
+        var tramSection=document.getElementById('beach-tram');
+        var tramNarrative=tramSection&&tramSection.querySelector('.tourism-admin-section-narrative');
+        var tramSnapshot=tramSection&&tramSection.querySelector('.wc-profile-snapshot');
+        if(tramSnapshot) tramSnapshot.insertAdjacentElement('beforebegin',beachGoalChain);
+        else if(tramNarrative) tramNarrative.insertAdjacentElement('afterend',beachGoalChain);
+        beachGoalChain.querySelectorAll('.wc-dept-service-block').forEach(function(block){
+          var heading=block.querySelector('h3');
+          if(!heading||!/move visitors/i.test(heading.textContent)) block.remove();
+        });
+      }
     }
     // These two page-specific summary boxes belong with the introductory
     // narrative, not beside the page title or in the media rail. Place them
@@ -1581,7 +1684,7 @@
       cardBudgetChange=lifeguardSummary.change;
     }
     var showStaffingCard=!isLifeguardProgram&&fte>0;
-    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
+    var staffingCardHtml=showStaffingCard?'<article class="wc-profile-snapshot-card wc-profile-snapshot-staffing"><span class="wc-profile-snapshot-kicker">Position Summary</span><div class="wc-profile-snapshot-total"><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+'</strong><small class="'+(fteChange>0?'is-up':fteChange<0?'is-down':'')+'">'+(fteChange===0?'Unchanged':(fteChange>0?'+':'−')+Math.abs(fteChange).toLocaleString('en-US',{maximumFractionDigits:2})+' FTE')+'</small></div><p class="wc-profile-snapshot-fte-label">Authorized full-time equivalent positions</p><div class="wc-profile-snapshot-fte-compare"><div><span>Prior year</span><strong>'+priorFte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div><i aria-hidden="true">&rarr;</i><div><span>FY 2027</span><strong>'+fte.toLocaleString('en-US',{maximumFractionDigits:2})+' FTE</strong></div></div>'+requestedPositionsHtml+departmentDirectorHtml(key)+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-personnel-ledger-trigger>View Personnel Ledger</button></div></article>':'';
     var additionalExpenseActions=isLifeguardProgram?'':'<button type="button" class="wc-profile-snapshot-sheet" data-profile-capital-trigger>View Capital Investments</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-contracts-trigger>View Contractual Services</button>';
     var revenueCardHtml=isLifeguardProgram?'':'<article class="wc-profile-snapshot-card"><span class="wc-profile-snapshot-kicker">Revenue Summary</span><div class="wc-profile-snapshot-total"><strong>'+compactMoney(snapshotRevenueTotal)+'</strong></div><div class="wc-profile-snapshot-table">'+(snapshotRevenueGroups.length?snapshotRevenueGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,snapshotRevenueTotal);}).join(''):'<p>No dedicated revenue is listed.</p>')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-who-pays-trigger>View Who Pays</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-revenue-sheet-trigger>View Revenue Budget Ledger</button></div></article>';
     var lifeguardMapHtml=isLifeguardProgram?'<a class="wc-lifeguard-summary-map" href="https://www.google.com/maps/d/viewer?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw" target="_blank" rel="noopener noreferrer" aria-label="Open Walton County lifeguard map"><iframe src="https://www.google.com/maps/d/embed?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw&amp;ehbc=2E312F" title="Walton County Lifeguard Locations Map" loading="lazy" tabindex="-1"></iframe><span>Open Walton County Map</span></a>':'';
@@ -1590,7 +1693,7 @@
     var snapshot=document.createElement('section');
     snapshot.className='wc-profile-snapshot wc-board-department-profile';
     snapshot.innerHTML='<div class="wc-profile-snapshot-label"><h2 class="wc-profile-section-title">'+(isLifeguardProgram?'Program Snapshot':'Department Snapshot')+'</h2></div><div class="wc-profile-snapshot-grid'+(isLifeguardProgram?' wc-profile-snapshot-grid--lifeguard':showStaffingCard?'':' wc-profile-snapshot-grid--no-staffing')+'">'+
-      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span>'+(isLifeguardProgram?lifeguardTotalHtml:expenditureTotalHtml(cardBudget,cardPriorBudget,capitalGroup?capitalGroup.amount:0,capitalGroup?(capitalGroup.prior||0):0))+'</div></div><div class="wc-profile-snapshot-table">'+cardExpenseGroups.map(function(item){return snapshotDeltaRow(item.label,item.amount,cardBudget,null,false,item.sublines,null);}).join('')+'</div><div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-graph-trigger>View Budget Graph</button>'+additionalExpenseActions+'</div></article>'+
+      '<article class="wc-profile-snapshot-card"><div class="wc-profile-snapshot-head"><div><span class="wc-profile-snapshot-kicker">Expenditures Summary</span>'+(isLifeguardProgram?lifeguardTotalHtml:expenditureTotalHtml(cardBudget,cardPriorBudget,capitalGroup?capitalGroup.amount:0,capitalGroup?(capitalGroup.prior||0):0))+'</div></div><div class="wc-profile-snapshot-table">'+(function(bars){return bars.groups.map(function(item){return snapshotDeltaRow(item.label,item.amount,bars.total,null,false,item.sublines,null);});})(withCapitalBar(cardExpenseGroups,cardBudget,isLifeguardProgram?null:capitalGroup)).join('')+'</div>'+'<div class="wc-profile-snapshot-actions"><button type="button" class="wc-profile-snapshot-sheet" data-profile-operating-budget-sheet-trigger>View Budget Ledger</button><button type="button" class="wc-profile-snapshot-sheet" data-profile-graph-trigger>View Budget Graph</button>'+additionalExpenseActions+'</div></article>'+
       lifeguardMapHtml+
       revenueCardHtml+
       staffingCardHtml+

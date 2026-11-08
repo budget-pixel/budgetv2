@@ -105,22 +105,32 @@
     // Popups other than the landing page hide that footer (nav.js
     // wc-popup-no-footer), so fall back to the lowest bottom edge among the
     // body's visible children.
+    // getBoundingClientRect() is relative to the frame's current scroll
+    // position, so add that back -- otherwise re-measuring a page the reader
+    // has scrolled down makes it look short enough to "fit" and locks its
+    // scrolling (html.wc-popup-fits).
+    var scrolled = doc.defaultView ? (doc.defaultView.scrollY || doc.documentElement.scrollTop || 0) : 0;
     var contentHeight = 0;
     var footer = doc.querySelector('footer[role="contentinfo"]');
     if (footer && footer.getBoundingClientRect().height > 0) {
-      contentHeight = Math.ceil(footer.getBoundingClientRect().bottom);
+      contentHeight = Math.ceil(footer.getBoundingClientRect().bottom + scrolled);
     } else if (doc.getElementById("layout") && doc.getElementById("layout").getBoundingClientRect().height > 0) {
-      contentHeight = Math.ceil(doc.getElementById("layout").getBoundingClientRect().bottom);
+      contentHeight = Math.ceil(doc.getElementById("layout").getBoundingClientRect().bottom + scrolled);
     } else if (doc.body) {
       Array.prototype.forEach.call(doc.body.children, function (child) {
         var rect = child.getBoundingClientRect();
-        if (rect.height > 0) contentHeight = Math.max(contentHeight, Math.ceil(rect.bottom));
+        if (rect.height > 0) contentHeight = Math.max(contentHeight, Math.ceil(rect.bottom + scrolled));
       });
     }
     if (!contentHeight) contentHeight = doc.documentElement.scrollHeight;
     var maxHeight = (window.visualViewport ? window.visualViewport.height : window.innerHeight) - 36;
     var desired = Math.min(maxHeight, Math.max(320, Math.ceil(contentHeight + headHeight)));
     panel.style.height = desired + "px";
+    // When the whole page fits inside the popup, turn off its scrolling so
+    // the content doesn't drift a few pixels under a wheel or trackpad
+    // gesture (see html.wc-popup-fits in style.css). Long pages keep
+    // scrolling normally.
+    doc.documentElement.classList.toggle("wc-popup-fits", Math.ceil(contentHeight + headHeight) <= maxHeight);
   }
 
   // Watches an iframe's loaded document for size changes (budget data
@@ -391,18 +401,40 @@
         }, 0);
         return sum + amount;
       }, 0);
+      var hasFy2027Funding = function (project) {
+        return (project.funding_by_year || []).some(function (year) {
+          return year.year === "FY2027" && (Number(year.amount_value) || 0) > 0;
+        });
+      };
+      var projectBadge = function (count) {
+        return count + (count === 1 ? " FY 2027 project" : " FY 2027 projects");
+      };
+      // Tourist Development: the ledger's main FY2027 table only -- the
+      // projects it breaks out as budgeted elsewhere (see the
+      // budgetedElsewhereTitles list in cip-tourist-development.html) are
+      // not new FY2027 Tourist Development Fund spending.
+      var touristBudgetedElsewhere = ["us 331 bridge lighting", "boardwalk dune walkover repair/replacement", "deer lake path realignment", "dune allen hardscaping project", "miramar beach parking facility", "multi-use path - 30a rebuild 395 to eastern lake", "multi-use path - 30a rebuild 83 to 393", "santa rosa beach performing arts park", "transit program gulfview & blue mountain", "walton dunes beach access"];
+      var touristProjects = projects.filter(function (project) {
+        if (!project || project.is_legacy_in_house_engineering_row) return false;
+        if (String(project.funding || "").trim().toLowerCase() !== "tourist development fund") return false;
+        var title = String(project.title || "").toLowerCase();
+        if (touristBudgetedElsewhere.some(function (fragment) { return title.indexOf(fragment) !== -1; })) return false;
+        return hasFy2027Funding(project);
+      });
+      var sheriffProjects = projects.filter(function (project) {
+        return project && !project.is_legacy_in_house_engineering_row &&
+          String(project.department_filter || "").trim().toLowerCase() === "sheriff" &&
+          String(project.funding || "").trim().toLowerCase() === "capital projects fund";
+      });
+      var sheriffFy2027Count = sheriffProjects.filter(hasFy2027Funding).length;
       var cards = [
-        { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: transportationInfrastructureTotal, badge: activeProjects + " active projects" },
-        { title: "Tourist Development Fund Capital Ledger", href: "pages/cip-tourist-development.html", amount: byFund["111"] || 0 },
-        { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: projects.filter(function (project) {
-          return project && !project.is_legacy_in_house_engineering_row &&
-            String(project.department_filter || "").trim().toLowerCase() === "sheriff" &&
-            String(project.funding || "").trim().toLowerCase() === "capital projects fund";
-        }).reduce(function (sum, project) {
+        { title: "Transportation and Infrastructure Capital Ledger", href: "pages/cip-capital-projects.html", amount: transportationInfrastructureTotal, badge: projectBadge(activeProjects) },
+        { title: "Tourist Development Fund Capital Ledger", href: "pages/cip-tourist-development.html", amount: byFund["111"] || 0, badge: projectBadge(touristProjects.length) },
+        { title: "Sheriff Capital Project Ledger", href: "pages/cip-sheriff.html", amount: sheriffProjects.reduce(function (sum, project) {
           return sum + (project.funding_by_year || []).filter(function (year) {
             return year.year === "FY2027";
           }).reduce(function (yearSum, year) { return yearSum + (Number(year.amount_value) || 0); }, 0);
-        }, 0) },
+        }, 0), badge: projectBadge(sheriffFy2027Count) },
         { title: "Machinery, Vehicles, & Equipment Ledger", href: "pages/summary-of-machinery-vehicles-and-equipment.html", amount: machinery, badge: machineryRows.length + " items" },
         { title: "Recreation Plat Fee Fund Capital Ledger", href: "pages/recreation-plat-fee-fund.html", amount: byFund["114"] || 0 },
         { title: "Sidewalk Fund Capital Ledger", href: "pages/sidewalk-fund.html", amount: byFund["115"] || 0 }
@@ -413,44 +445,35 @@
           (card.badge ? '<div class="wc-revenue-card-badge-stack"><span class="wc-personnel-dept-fte-badge">' + escapeHtml(card.badge) + '</span></div>' : '') +
           '</div></a>';
       }).join("");
-      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Find a capital project or choose a ledger to explore infrastructure, facilities, machinery, and equipment.</p></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>County capital outlay</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
-        '<section class="wc-home-search wc-capital-project-search" aria-labelledby="wcCapitalSearchTitle">' +
-          '<div><h2 id="wcCapitalSearchTitle">Search Capital Projects</h2><p>Find a specific capital project by name, department, or fund.</p></div>' +
-          '<div class="wc-home-search-input-wrap">' +
-            '<form class="wc-home-search-form" data-capital-project-search-form role="search">' +
+      modalBody.innerHTML = '<section class="wc-department-explorer"><div class="wc-department-explorer-head"><div><h2>Capital Budget</h2><p>Find a capital project or choose a ledger to explore infrastructure, facilities, machinery, and equipment. Ledgers can cover overlapping scopes, so their totals should not be added together.</p>' +
+          '<div class="wc-capital-head-tools">' +
+          '<div class="wc-home-search-input-wrap wc-capital-head-search">' +
+            '<form class="wc-home-search-form" data-capital-project-search-form role="search" aria-label="Search capital projects">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg>' +
               '<label class="wc-sr-only" for="wcCapitalProjectSearchInput">Search capital projects</label>' +
-              '<input id="wcCapitalProjectSearchInput" name="q" type="search" placeholder="Search projects" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcCapitalSearchDropdown" aria-autocomplete="list">' +
+              '<input id="wcCapitalProjectSearchInput" name="q" type="search" placeholder="Search capital projects by name, department, or fund" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcCapitalSearchDropdown" aria-autocomplete="list">' +
               '<button type="submit">Search</button>' +
             '</form>' +
             '<div id="wcCapitalSearchDropdown" class="wc-home-search-dropdown" role="listbox" aria-label="Matching capital projects" hidden></div>' +
           '</div>' +
-        '</section>' +
-        '<details class="wc-explorer-help wc-capital-help"><summary>About capital projects</summary><p>Project schedules and annual appropriations can cover different scopes. These are overlapping views, not amounts to add together.</p><section class="wc-capital-what-counts" aria-labelledby="wcCapitalWhatCountsTitle">' +
-          '<div class="wc-capital-what-counts-head"><h3 id="wcCapitalWhatCountsTitle">What is a capital project?</h3><p>Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not.</p></div>' +
-          '<div class="wc-capital-what-counts-grid">' +
-            '<article class="wc-capital-what-counts-card is-included"><span>Counted as capital</span><ul>' +
-              '<li>Road, bridge, sidewalk, and drainage construction</li>' +
-              '<li>New or expanded County buildings and facilities</li>' +
-              '<li>Major renovations and system replacements</li>' +
-              '<li>Land, rights-of-way, and easement purchases</li>' +
-              '<li>Machinery, vehicles, and equipment above the capital threshold</li>' +
-            '</ul></article>' +
-            '<article class="wc-capital-what-counts-card is-excluded"><span>Not capital</span><ul>' +
-              '<li>Routine maintenance and repairs</li>' +
-              '<li>Operating supplies and consumables</li>' +
-              '<li>Salaries and day-to-day service delivery</li>' +
-              '<li>Studies with no resulting asset</li>' +
-              '<li>Items below the capitalization threshold</li>' +
-            '</ul></article>' +
-          '</div>' +
-          '<p class="wc-capital-what-counts-note"><a href="pages/capital-improvement-plan.html#wc-cip-what-counts" data-explorer-popup-trigger="Capital Improvement Plan">Read the full explanation</a> &mdash; including the four tests for what qualifies, how projects are financed, and what counts toward the capitalization threshold.</p>' +
-        '</section></details>' +
+          '<button type="button" class="wc-capital-about-button" data-capital-about-open>About capital projects</button>' +
+          '</div></div><aside class="wc-revenue-total-budget"><div class="wc-revenue-total-primary"><span>County capital outlay</span><strong>' + escapeHtml(formatCurrency(total)) + '</strong><small class="wc-revenue-total-change ' + (total >= prior ? 'is-increase' : 'is-decrease') + '">' + (total >= prior ? "+" : "−") + escapeHtml(compactCurrency(Math.abs(total - prior))) + '</small></div></aside></div>' +
         '<div class="wc-department-budget-cards">' + cardHtml + '</div>' +
         '<section class="wc-capital-search-results" data-capital-search-results hidden>' +
           '<div class="wc-capital-search-results-head"><h3 data-capital-search-results-title>Search results</h3><button type="button" class="wc-capital-search-clear" data-capital-search-clear>Clear search</button></div>' +
           '<div class="wc-department-budget-cards" data-capital-search-results-list></div>' +
         '</section></section>';
+      // "About capital projects" opens in the centered info popup (the same
+      // dialog as the office picker and asset record) instead of expanding
+      // in place.
+      var capitalAboutButton = modalBody.querySelector('[data-capital-about-open]');
+      if (capitalAboutButton) {
+        capitalAboutButton.addEventListener('click', function () {
+          if (window.WCBudgetData && typeof window.WCBudgetData.openInfoPopupPage === 'function') {
+            window.WCBudgetData.openInfoPopupPage('pages/capital-improvement-plan.html', 'About Capital Projects', 'Capital Budget', capitalAboutButton);
+          }
+        });
+      }
       var capitalSearchForm = modalBody.querySelector('[data-capital-project-search-form]');
       var capitalSearchInput = capitalSearchForm ? capitalSearchForm.querySelector('input[name="q"]') : null;
       var capitalSearchDropdown = modalBody.querySelector('#wcCapitalSearchDropdown');
@@ -715,14 +738,17 @@
     departmentModal.setAttribute("aria-modal", "true");
     departmentModal.setAttribute("aria-labelledby", "wcHomeDepartmentModalTitle");
     departmentModal.innerHTML = '<video class="wc-home-department-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
-      '<div class="wc-home-department-modal-backdrop" data-department-popup-close></div>' +
+      // The backdrop (over the background video) is not a close control:
+      // a stray click there should not drop the reader back to the main
+      // popup. The X button and Escape still close the department popup.
+      '<div class="wc-home-department-modal-backdrop" aria-hidden="true"></div>' +
       '<section class="wc-home-department-modal-panel">' +
         '<header class="wc-home-department-modal-head wc-popup-header">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
-        '<iframe class="wc-home-department-modal-frame" title="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
+        '<iframe class="wc-home-department-modal-frame" aria-label="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
     document.body.appendChild(departmentModal);
     if (window.WCBudgetNav && typeof window.WCBudgetNav.initNavSearchBar === "function") {
@@ -731,6 +757,14 @@
     departmentFrame = departmentModal.querySelector("iframe");
     departmentModal.querySelector("[data-department-popup-back]").addEventListener("click", function () {
       var target = departmentNavigationStack.pop();
+      // A page opened from an Info Popup (e.g. TRIM ads from Supporting
+      // Documentation) goes back by reopening that Info Popup.
+      if (!target && departmentReturnTo && typeof departmentReturnTo.reopen === "function") {
+        var reopen = departmentReturnTo.reopen;
+        closeDepartmentModal();
+        reopen();
+        return;
+      }
       if (!target) {
         // A scripted iframe navigation can bypass the link listener that
         // records an explicit return target. Closing is safer than sending
@@ -747,7 +781,7 @@
       targetUrl.searchParams.set("embed", "department-popup");
       departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = target.title;
       departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + target.title);
-      departmentFrame.title = target.title + " budget page";
+      departmentFrame.setAttribute("aria-label", target.title + " budget page");
       updateDepartmentBackButton();
       departmentModal.classList.add("is-loading");
       departmentModalOpenedAt = Date.now();
@@ -828,7 +862,7 @@
             var closeButtonEl = departmentModal.querySelector(".wc-home-department-modal-close");
             if (titleEl) titleEl.textContent = derivedTitle;
             if (closeButtonEl) closeButtonEl.setAttribute("aria-label", "Close " + derivedTitle);
-            departmentFrame.title = derivedTitle + " budget page";
+            departmentFrame.setAttribute("aria-label", derivedTitle + " budget page");
           }
           // A same-iframe link click (handled below, or a plain in-page
           // link this handler doesn't specially intercept) lands here too.
@@ -930,10 +964,30 @@
             if (resolvedUrl.origin === window.location.origin && /\.html$/i.test(resolvedUrl.pathname) && !isSamePageAnchor && !link.hasAttribute("download") && (!link.target || link.target === "_self")) {
               var currentReturnUrl = currentEmbeddedUrl ? new URL(currentEmbeddedUrl.href) : null;
               if (currentReturnUrl) currentReturnUrl.searchParams.delete("embed");
-              departmentNavigationStack.push({
-                href: currentReturnUrl ? currentReturnUrl.href : embeddedDocument.location.href,
-                title: departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent || "Budget Page"
+              // A link to a page already in the Back history (an in-page
+              // "Back to ..." link) rewinds to it instead of stacking, so
+              // the popup's Back never cycles through earlier pages again.
+              var destinationKey = new URL(resolvedUrl.href);
+              destinationKey.searchParams.delete("embed");
+              destinationKey.hash = "";
+              var existingIndex = -1;
+              departmentNavigationStack.forEach(function (entry, index) {
+                try {
+                  var entryUrl = new URL(entry.href, window.location.href);
+                  entryUrl.searchParams.delete("embed");
+                  entryUrl.hash = "";
+                  if (entryUrl.pathname === destinationKey.pathname && entryUrl.search === destinationKey.search) existingIndex = index;
+                } catch (entryError) {}
               });
+              if (existingIndex !== -1) {
+                departmentNavigationStack.length = existingIndex;
+              } else {
+                departmentNavigationStack.push({
+                  href: currentReturnUrl ? currentReturnUrl.href : embeddedDocument.location.href,
+                  title: departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent || "Budget Page"
+                });
+              }
+              updateDepartmentBackButton();
               departmentModal.classList.add("is-loading");
               var navigatingPanel = departmentModal.querySelector(".wc-home-department-modal-panel");
               if (navigatingPanel) navigatingPanel.style.height = popupRevealDelay() ? "360px" : "";
@@ -1012,6 +1066,13 @@
   }
 
   function openDepartmentModal(href, title, trigger, returnTo) {
+    // A native modal <dialog> (e.g. a Revenue explorer source popup) sits in
+    // the browser's top layer and makes everything beneath it inert, so a
+    // page popup opened from a link inside it would be unreachable. Close
+    // it first; the page popup then opens over the explorer as usual.
+    Array.prototype.forEach.call(document.querySelectorAll("dialog[open]"), function (openDialog) {
+      if (typeof openDialog.close === "function") openDialog.close();
+    });
     ensureDepartmentModal();
     departmentNavigationStack = [];
     departmentTrigger = trigger;
@@ -1055,7 +1116,7 @@
     departmentModal.querySelector("#wcHomeDepartmentModalTitle").textContent = departmentTitle;
     departmentModal.querySelector(".wc-home-department-modal-close").setAttribute("aria-label", "Close " + departmentTitle);
     updateDepartmentBackButton();
-    departmentFrame.title = departmentTitle + " budget page";
+    departmentFrame.setAttribute("aria-label", departmentTitle + " budget page");
     departmentModal.dataset.standalone = openedWithoutExplorer ? "true" : "false";
     if (openedWithoutExplorer) lockBackgroundPage();
     if (!openedWithoutExplorer) {
@@ -1077,6 +1138,10 @@
     departmentFrame.src = url.href;
     syncPopupUrlState(url);
     departmentModal.hidden = false;
+    // A detail popup open underneath (e.g. a "Choose an office" picker)
+    // marks the rest of the page inert, including this popup while it was
+    // hidden; it opens on top, so it must stay interactive.
+    departmentModal.inert = false;
     modal.inert = true;
     modal.classList.add("is-department-popup-open");
     // The budget book hides this popup's own header (it supplies its own
@@ -1085,10 +1150,10 @@
     else departmentModal.querySelector(".wc-home-department-modal-close").focus();
   }
 
-  // The popup's own close controls (X, backdrop, Escape): step back to the
+  // The popup's own close controls (X, Escape): step back to the
   // page a utility page was opened from when there is one, otherwise close.
   function dismissDepartmentModal() {
-    if (departmentReturnTo && departmentModal && !departmentModal.hidden) {
+    if (departmentReturnTo && departmentModal && !departmentModal.hidden && typeof departmentReturnTo.reopen !== "function") {
       var returnTo = departmentReturnTo;
       openDepartmentModal(returnTo.href, returnTo.title, departmentTrigger);
       return;
@@ -1147,7 +1212,7 @@
     departmentTrigger = null;
   }
 
-  // The explorer popup's own close controls (X, backdrop, Escape): when a
+  // The explorer popup's own close controls (X, Escape): when a
   // footer page (Glossary & FAQ, Accessibility, ...) is showing, go back to
   // the explorer it was opened from instead of closing the whole popup.
   function dismissModal() {
@@ -1190,6 +1255,9 @@
     activeCard = card;
     activeExplorerType = type;
     modal.classList.remove("is-utility-page");
+    // The Capital Budget explorer has its own project search under its
+    // intro, so its header doesn't also show the general budget search.
+    modal.classList.toggle("is-capital-explorer", type === "capital");
     var panelToUnsize = modal.querySelector(".wc-home-explorer-modal-panel");
     if (panelToUnsize) panelToUnsize.style.height = "";
     if (explorerUtilityPanelResizeObserver) {
@@ -1236,7 +1304,7 @@
     modal.setAttribute("aria-labelledby", "wcHomeExplorerModalTitle");
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
-      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head wc-popup-header"><div class="wc-home-explorer-modal-heading"><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
+      '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head wc-popup-header"><div class="wc-home-explorer-modal-heading"><span class="wc-home-explorer-modal-seal wc-seal-mark" aria-hidden="true"></span><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
       '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';
@@ -1264,6 +1332,9 @@
         openDepartmentModal(explorerPopupUrl.href, explorerPopupTitle, link);
         return;
       }
+      // Board department cards open their Info Popup (budget-data.js); the
+      // full page opens from that popup's own button.
+      if (link.hasAttribute("data-dept-info-card")) return;
       var inDepartmentExplorer = modalBody.contains(link) && link.closest(".wc-department-budget-cards");
       var inOfficePicker = link.closest(".wc-budget-detail-modal .wc-department-office-picker-list");
       var inSearchResults = link.closest(".wc-home-search-result,.wc-nav-search-result,.wc-nav-search-bar-result");
@@ -1332,7 +1403,7 @@
         // opened utility page had settled on.
         var utilityPanelToReset = modal.querySelector(".wc-home-explorer-modal-panel");
         if (utilityPanelToReset) utilityPanelToReset.style.height = "";
-        modalBody.innerHTML = '<iframe class="wc-home-explorer-utility-frame" title="' + escapeHtml(pageAction.title) + '"></iframe>';
+        modalBody.innerHTML = '<iframe class="wc-home-explorer-utility-frame" aria-label="' + escapeHtml(pageAction.title) + '"></iframe>';
         var utilityFrame = modalBody.querySelector(".wc-home-explorer-utility-frame");
         if (explorerUtilityPanelResizeObserver) {
           explorerUtilityPanelResizeObserver.disconnect();
@@ -1349,7 +1420,6 @@
         modal.querySelector(".wc-home-explorer-modal-close").focus();
       }
     });
-    modal.addEventListener("click", function (event) { if (event.target === modal) dismissModal(); });
     document.addEventListener("keydown", function (event) {
       if (modal.hidden && (!departmentModal || departmentModal.hidden)) return;
       var nestedDialog = modal.querySelector("dialog[open]");

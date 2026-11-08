@@ -17,8 +17,8 @@ const backgrounds = [
   // Do not regenerate it from board-budget-image.png; that would replace
   // the approved cover with the commissioners photograph.
   ["divider-bg-constitutional.jpg", "opengov-defuniak-water-tower.jpg", "center 60%"],
-  ["divider-bg-other-agencies.jpg", "overview-walton-waterway.png", "center 65%"],
-  ["divider-bg-program-services.jpg", "overview-beach-community.png", "center 55%"],
+  ["divider-bg-other-agencies.jpg", "overview-walton-waterway.jpg", "center 65%"],
+  ["divider-bg-program-services.jpg", "overview-beach-community.jpg", "center 55%"],
   // Board Department Budgets uses the approved bridge cover committed in
   // divider-bg-departments.jpg. Do not regenerate it from
   // overview-county-districts.jpg; that would replace the approved cover

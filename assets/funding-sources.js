@@ -25,5 +25,5 @@
     if(Math.abs(groups.reduce(function(sum,g){return sum+g.amount;},0)-total)>.01)throw new Error('Funding sources do not reconcile');
     return {rows:groups.filter(function(g){return g.amount!==0;}),total:total};
   }
-  root.WCFundingSources={summarize:summarize,buildingNote:buildingNote};
+  root.WCFundingSources={classify:classify,summarize:summarize,buildingNote:buildingNote};
 })(typeof globalThis!=='undefined'?globalThis:this);

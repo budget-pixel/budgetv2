@@ -5,7 +5,7 @@
 
   const CENSUS_DATA_JSON_URL = "../assets/census-data.json";
   const CENSUS_NARRATIVES_CSV_URL =
-    "../assets/static-data/census-narratives.csv?v=20261004-static-final";
+    "../assets/static-data/census-narratives.csv?v=df2b444e5f";
 
   // One block per row in the Census narrative publication. Each block pairs the
   // saved census figures with that row's narrative.
@@ -211,23 +211,62 @@
     return result;
   }
 
-  const CENSUS_SUMMARY_FIELDS = {
-    population: [["2010 population", "population2010"], ["2020 population", "population2020"], ["Median age", "waltonMedianAge"], ["Population growth", "populationGrowthPct", "%"]],
-    Income: [["Median household income", "waltonMedianHouseholdIncome"], ["Family income", "waltonFamilyIncome"], ["Nonfamily income", "waltonNonfamilyIncome"]],
-    Education: [["Bachelor's degree or higher", "waltonBachelorOrHigherPct", "%"], ["Associate degree", "waltonAssociatePct", "%"], ["Some college", "waltonSomeCollegePct", "%"]],
-    Employment: [["Private workers", "privateWorkerPct", "%"], ["Government workers", "governmentWorkerPct", "%"], ["Nonprofit workers", "nonprofitWorkerPct", "%"]],
-    Housing: [["Housing units", "housingUnits"], ["Occupied units", "occupiedUnits"], ["Vacant units", "vacantUnits"], ["Homeownership rate", "homeownershipRate", "%"], ["Median rent", "waltonMedianRent"]],
-    "Business and Economy": [["Professional services", "professionalServicesPct", "%"], ["Hospitality", "hospitalityPct", "%"], ["Health and education", "healthEducationPct", "%"], ["Construction", "constructionPct", "%"], ["Retail", "retailPct", "%"]]
+  // Bar charts drawn from the saved Census figures (census-data.json), in
+  // place of the live data.census.gov widgets the page used to embed. Each
+  // bar is [label, value key, highlight?]; Walton County bars are green,
+  // comparison areas are muted.
+  const CENSUS_CHARTS = {
+    population: [
+      { title: "Population", bars: [["2010 Census", "population2010", true], ["2020 Census", "population2020", true]] },
+      { title: "Median age", unit: " yrs", bars: [["Walton County", "waltonMedianAge", true], ["Florida", "floridaMedianAge"], ["Okaloosa County", "okaloosaMedianAge"]] },
+      { title: "Veterans, share of adults", unit: "%", bars: [["Walton County", "waltonVeteranPct", true], ["Florida", "floridaVeteranPct"], ["Okaloosa County", "okaloosaVeteranPct"]] }
+    ],
+    Income: [
+      { title: "Median income by household type, Walton County", bars: [["All households", "waltonMedianHouseholdIncome", true], ["Families", "waltonFamilyIncome", true], ["Married-couple families", "waltonMarriedCoupleIncome", true], ["Nonfamily households", "waltonNonfamilyIncome", true]] },
+      { title: "Median household income", bars: [["Walton County", "waltonMedianHouseholdIncome", true], ["Florida", "floridaMedianHouseholdIncome"], ["Okaloosa County", "okaloosaMedianHouseholdIncome"]] }
+    ],
+    Education: [
+      { title: "Highest education, adults 25 and older", unit: "%", bars: [["High school graduate", "waltonHsPct", true], ["Some college", "waltonSomeCollegePct", true], ["Associate degree", "waltonAssociatePct", true], ["Bachelor's degree", "waltonBachelorPct", true], ["Graduate or professional degree", "waltonGraduatePct", true]] },
+      { title: "Bachelor's degree or higher", unit: "%", bars: [["Walton County", "waltonBachelorOrHigherPct", true], ["Florida", "floridaBachelorOrHigherPct"], ["Okaloosa County", "okaloosaBachelorOrHigherPct"]] },
+      { title: "School enrollment", unit: "%", bars: [["Kindergarten to 12th grade", "waltonK12Pct", true], ["College, undergraduate", "waltonUndergradPct", true], ["Graduate or professional school", "waltonGraduateEnrollPct", true]] }
+    ],
+    Employment: [
+      { title: "Class of worker, Walton County", unit: "%", bars: [["Private company workers", "privateWorkerPct", true], ["Government workers", "governmentWorkerPct", true], ["Self-employed, incorporated", "incorporatedSelfEmpPct", true], ["Self-employed, not incorporated", "unincorporatedSelfEmpPct", true], ["Nonprofit workers", "nonprofitWorkerPct", true]] },
+      { title: "Government workers", unit: "%", bars: [["Walton County", "governmentWorkerPct", true], ["Florida", "floridaGovernmentWorkerPct"], ["Okaloosa County", "okaloosaGovernmentPct"]] }
+    ],
+    Housing: [
+      { title: "Value of owner-occupied homes", unit: "%", bars: [["Less than $50,000", "housingUnder50kPct", true], ["$50,000 to $99,999", "housing50to100kPct", true], ["$100,000 to $149,999", "housing100to150kPct", true], ["$150,000 to $199,999", "housing150to200kPct", true], ["$200,000 to $299,999", "housing200to300kPct", true], ["$300,000 to $499,999", "housing300to500kPct", true], ["$500,000 to $999,999", "housing500to1mPct", true], ["$1,000,000 or more", "housingOver1mPct", true]] },
+      { title: "Housing units", bars: [["Occupied", "occupiedUnits", true], ["Vacant (incl. seasonal)", "vacantUnits", true]] },
+      { title: "Homeownership rate", unit: "%", bars: [["Walton County", "homeownershipRate", true], ["Florida", "floridaHomeownershipRate"], ["Okaloosa County", "okaloosaHomeownershipRate"]] }
+    ],
+    "Business and Economy": [
+      { title: "Employment by industry, Walton County", unit: "%", sort: true, bars: [["Professional services", "professionalServicesPct", true], ["Arts, entertainment &amp; hospitality", "hospitalityPct", true], ["Education &amp; health care", "healthEducationPct", true], ["Construction", "constructionPct", true], ["Retail trade", "retailPct", true], ["Finance &amp; real estate", "financeRealEstatePct", true], ["Public administration", "publicAdministrationPct", true], ["Transportation", "transportationPct", true], ["Other services", "otherServicesPct", true], ["Manufacturing", "manufacturingPct", true]] }
+    ]
   };
 
+  function censusNumber(value) {
+    const n = parseFloat(String(value === undefined || value === null ? "" : value).replace(/[^0-9.\-]/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function renderCensusChart(chart, values) {
+    let bars = chart.bars.map(([label, key, highlight]) => ({ label, raw: values[key], value: censusNumber(values[key]), highlight: !!highlight }))
+      .filter((bar) => bar.value !== null);
+    if (!bars.length) return "";
+    if (chart.sort) bars = bars.slice().sort((x, y) => y.value - x.value);
+    const max = Math.max.apply(null, bars.map((bar) => bar.value)) || 1;
+    return '<figure class="wc-census-chart"><figcaption>' + chart.title + '</figcaption><div class="wc-census-bars">' +
+      bars.map((bar) => {
+        const text = escapeHtml(String(bar.raw)) + (chart.unit && String(bar.raw).indexOf(chart.unit.trim()) === -1 ? chart.unit : "");
+        return '<div class="wc-census-bar' + (bar.highlight ? "" : " is-comparison") + '"><span class="wc-census-bar-label">' + bar.label + '</span>' +
+          '<span class="wc-census-bar-track"><i style="width:' + (bar.value / max * 100).toFixed(1) + '%"></i></span>' +
+          '<b>' + text + '</b></div>';
+      }).join("") + '</div></figure>';
+  }
+
   function renderSavedCensusSummary(section, values) {
-    const fields = CENSUS_SUMMARY_FIELDS[section.sheetTitle] || [];
-    return '<div class="wc-census-viz-card"><h3>' + escapeHtml(section.title) + '</h3><dl>' + fields.map(([label, key, suffix]) => {
-      const value = values[key];
-      return '<dt>' + escapeHtml(label) + '</dt><dd><strong>' +
-        (value === undefined || value === null ? 'Data unavailable' : escapeHtml(String(value) + (suffix || ''))) +
-        '</strong></dd>';
-    }).join('') + '</dl></div>';
+    const charts = (CENSUS_CHARTS[section.sheetTitle] || []).map((chart) => renderCensusChart(chart, values)).join("");
+    return charts ? '<div class="wc-census-viz-card"><div class="wc-census-charts">' + charts + '</div></div>' : "";
   }
 
   function renderCensusSections(container, sections, narrativeRows, censusValues, metadata, dataLoadFailed) {

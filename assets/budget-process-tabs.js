@@ -8,11 +8,13 @@
   const resources = {
     calendar: ['Budget Calendar', 'budget-calendar.html'],
     policies: ['Financial Policies', 'financial-policies.html'],
-    funds: ['Fund Structure', 'fund-descriptions-and-structure.html'],
-    relationships: ['Department to Fund', 'department-to-fund-relationship.html']
+    funds: ['Fund Structure', 'fund-descriptions-and-structure.html']
   };
   const frames = new Map();
-  let active = 'overview';
+  // No combined "Overview" tab: the page opens on the first topic and
+  // readers click through one topic at a time.
+  const defaultKey = tabs[0].dataset.bpTab;
+  let active = defaultKey;
 
   sections.forEach(section => {
     const key = section.getAttribute('aria-labelledby');
@@ -48,7 +50,7 @@
   }
 
   function select(key, updateUrl) {
-    if (key !== 'overview' && !resources[key] && !sections.some(s => s.id === 'bp-panel-' + key)) key = 'overview';
+    if (!resources[key] && !sections.some(s => s.id === 'bp-panel-' + key)) key = defaultKey;
     active = key;
     const isResource = !!resources[key];
     tabs.forEach(tab => {
@@ -57,10 +59,9 @@
       tab.tabIndex = selected ? 0 : -1;
     });
     overview.hidden = isResource;
-    overview.setAttribute('aria-labelledby', 'bp-tab-' + key);
     sections.forEach(section => {
-      section.hidden = key !== 'overview' && section.id !== 'bp-panel-' + key;
-      if (key !== 'overview' && !section.hidden) {
+      section.hidden = section.id !== 'bp-panel-' + key;
+      if (!section.hidden) {
         section.setAttribute('role', 'tabpanel');
         section.setAttribute('aria-labelledby', 'bp-tab-' + key);
         section.tabIndex = 0;
@@ -81,7 +82,7 @@
       status.hidden = frame.dataset.loaded === 'true';
       if (frame._resize) frame._resize();
     }
-    if (updateUrl) history.replaceState(null, '', key === 'overview' ? location.pathname + location.search : '#' + key);
+    if (updateUrl) history.replaceState(null, '', key === defaultKey ? location.pathname + location.search : '#' + key);
   }
 
   tabs.forEach((tab, index) => {
@@ -107,5 +108,5 @@
     document.querySelector('.bp-jump-links').scrollIntoView({block: 'start'});
   });
   window.addEventListener('hashchange', () => select(location.hash.slice(1), false));
-  select(location.hash.slice(1) || 'overview', false);
+  select(location.hash.slice(1) || defaultKey, false);
 })();

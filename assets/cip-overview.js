@@ -45,6 +45,75 @@ function normalizeFilterValue(value){
 // off department_filter instead of a literal fund name.
 const SHERIFF_PROJECTS_FUND_VALUE = normalizeFilterValue("Sheriff Projects");
 
+// Green click-to-play cover for YouTube iframes (srcdoc), the same cover the
+// department pages use: dark green (#003f28) play button, brighter on hover.
+function wcVideoCoverSrcdoc(videoId, playUrl, label){
+  const attr = (v) => String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const html = '<style>*{margin:0;padding:0;overflow:hidden}html,body{height:100%;background:#000}a{position:absolute;inset:0;display:block}img{width:100%;height:100%;object-fit:cover}span{position:absolute;left:50%;top:50%;width:68px;height:48px;margin:-24px 0 0 -34px;border-radius:12px;background:rgba(0,63,40,.92);box-shadow:0 4px 16px rgba(0,0,0,.35)}span:after{content:"";position:absolute;left:27px;top:14px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}a:hover span,a:focus span{background:#006231}</style>' +
+    '<a href="' + attr(playUrl) + '" aria-label="' + attr("Play video: " + label) + '"><img src="https://i.ytimg.com/vi/' + attr(videoId) + '/hqdefault.jpg" alt=""><span></span></a>';
+  return attr(html);
+}
+
+// Capital Improvement Plan overview: one site-standard tab per story section
+// (.wc-click-through-tabs). The page also opens as the "About Capital Projects"
+// Info Popup from the Capital Budget explorer.
+let cipActiveStoryTab = "";
+function setupCipStoryTabs(){
+  const main = document.querySelector(".wc-cip-main-section");
+  if(!main) return;
+  const sections = Array.from(main.querySelectorAll(".wc-cip-story-section"));
+  if(sections.length < 2) return;
+  const labels = {
+    "wc-cip-what-counts": "What Counts",
+    "wc-cip-elements": "What Goes Into It",
+    "wc-cip-why-new-projects": "Why New Projects",
+    "wc-cip-spending-level": "How Spending Is Set",
+    "wc-cip-trend": "Spending Trend",
+    "wc-cip-major-projects": "Largest Projects",
+    "wc-cip-process": "How Projects Are Added"
+  };
+  const tabs = sections.map((section, index) => {
+    if(!section.id) section.id = "wc-cip-story-" + (index + 1);
+    const label = labels[section.id] || (index === sections.length - 1 ? "How Projects Are Added" : (section.querySelector("h2") || {}).textContent || "Section " + (index + 1));
+    section.setAttribute("role", "tabpanel");
+    section.setAttribute("aria-labelledby", "tab-" + section.id);
+    section.setAttribute("data-cip-panel", section.id);
+    return { key: section.id, label };
+  });
+  const bar = document.createElement("div");
+  bar.className = "wc-click-through-tabs wc-cip-story-tabs";
+  bar.setAttribute("role", "tablist");
+  bar.setAttribute("aria-label", "Capital Improvement Plan topics");
+  bar.innerHTML = tabs.map(tab =>
+    `<button type="button" role="tab" id="tab-${tab.key}" aria-controls="${tab.key}" data-cip-tab="${tab.key}" aria-selected="false" tabindex="-1">${escapeHtml(tab.label)}</button>`
+  ).join("");
+  main.parentNode.insertBefore(bar, main);
+  const buttons = Array.from(bar.querySelectorAll("[data-cip-tab]"));
+  function select(key, focus){
+    if(!tabs.some(tab => tab.key === key)) key = tabs[0].key;
+    cipActiveStoryTab = key;
+    buttons.forEach(button => {
+      const on = button.dataset.cipTab === key;
+      button.setAttribute("aria-selected", String(on));
+      button.tabIndex = on ? 0 : -1;
+      if(on && focus) button.focus();
+    });
+    sections.forEach(section => { section.hidden = section.id !== key; });
+  }
+  bar.addEventListener("click", event => {
+    const button = event.target.closest("[data-cip-tab]");
+    if(button) select(button.dataset.cipTab, false);
+  });
+  bar.addEventListener("keydown", event => {
+    const index = buttons.indexOf(document.activeElement);
+    if(index === -1 || !["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length;
+    select(buttons[next].dataset.cipTab, true);
+  });
+  select(cipActiveStoryTab || (location.hash || "").replace(/^#/, ""), false);
+}
+
 function escapeHtml(value){
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -1152,9 +1221,8 @@ function renderProjects(){
         margin:0;
         padding:16px 16px 16px 54px;
         border:1px solid var(--border);
-        border-radius:16px;
+        border-radius:var(--radius-card);
         background:#fff;
-        box-shadow:0 8px 20px rgba(0,63,40,.05);
         color:#4a5a6a;
         font-size:13.5px;
         line-height:1.55;
@@ -1981,7 +2049,7 @@ function renderProjects(){
 
       .wc-project-filter-label{
         color:var(--muted);
-        font-size:10px;
+        font-size:var(--fs-small);
         font-weight:800;
         letter-spacing:.12em;
         text-transform:uppercase;
@@ -2010,9 +2078,9 @@ function renderProjects(){
       }
 
       .wc-project-filter.active{
-        background:#003f28;
+        background:var(--green-deep);
         color:#ffffff;
-        border-color:#003f28;
+        border-color:var(--green-deep);
       }
 
       .wc-project-results-row{
@@ -2129,11 +2197,11 @@ function renderProjects(){
         border-radius:999px;
         background:#f7fbf7;
         color:var(--green);
-        font-size:9px;
+        font-size:var(--fs-small);
         font-weight:700;
         letter-spacing:.08em;
         text-transform:uppercase;
-        white-space:nowrap;
+        overflow-wrap:anywhere;
       }
 
       .wc-project-description{
@@ -2216,7 +2284,7 @@ function renderProjects(){
         display:block;
         margin-bottom:4px;
         color:var(--muted);
-        font-size:9px;
+        font-size:var(--fs-small);
         font-weight:700;
         letter-spacing:.10em;
         text-transform:uppercase;
@@ -2281,7 +2349,7 @@ function renderProjects(){
         width:max-content;
         padding:7px 10px;
         border-radius:999px;
-        font-size:10px;
+        font-size:var(--fs-small);
         font-weight:700;
         letter-spacing:.06em;
         text-transform:uppercase;
@@ -2565,7 +2633,6 @@ function renderProjects(){
         .wc-project-filter-label{
           width:100%;
           margin-bottom:2px;
-          font-size:11px;
         }
 
         .wc-project-filter{
@@ -2626,7 +2693,7 @@ function renderProjects(){
         }
 
         .wc-project-description{
-          font-size:12px;
+          font-size:var(--fs-row);
           line-height:1.5;
         }
 
@@ -2654,7 +2721,6 @@ function renderProjects(){
           justify-content:center;
           text-align:center;
           padding:8px 10px;
-          font-size:10px;
         }
 
         .wc-project-card-badge{
@@ -2710,7 +2776,6 @@ function renderProjects(){
         .wc-project-filter{
           flex:1 1 calc(50% - 8px);
           padding:0 8px;
-          font-size:11px;
         }
 
         .wc-project-card{
@@ -2720,6 +2785,163 @@ function renderProjects(){
         .wc-project-card h3{
           font-size:16px;
         }
+      }
+
+      /* Site-standard styling so this page reads like the rest of the
+         budget site: gold-bar section headings (.wc-fund-section-heading),
+         small uppercase subheadings (.wc-profile-section-title), one plain
+         card style, and the gold rounded video frame. */
+      .wc-cip-story-header h2,
+      .wc-cip-story-copy h2,
+      .wc-cip-definition-tests h3,
+      .wc-cip-subhead,
+      .wc-cip-finance-copy h3{
+        margin:0 0 12px;
+        padding-left:10px;
+        border-left:4px solid var(--gold);
+        color:var(--navy);
+        font-size:.92rem;
+        line-height:1.3;
+        font-weight:800;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+      }
+
+      .wc-cip-definition-card,
+      .wc-cip-element-card,
+      .wc-cip-factor-card,
+      .wc-cip-benefit-card,
+      .wc-cip-process-card{
+        padding:20px;
+        border:1px solid var(--border);
+        border-radius:var(--radius-card);
+        background:#ffffff;
+        box-shadow:none;
+      }
+
+      .wc-cip-story-section[hidden]{
+        display:none !important;
+      }
+
+      .wc-cip-story-tabs + .wc-cip-main-section .wc-cip-story-section{
+        margin-top:0;
+        padding-top:0;
+      }
+
+      /* Four tests (left) and Counted / Not capital (right) share one height
+         so their tops and bottoms line up. */
+      .wc-cip-definition-grid{
+        align-items:stretch;
+      }
+
+      .wc-cip-definition-grid > .wc-cip-definition-tests,
+      .wc-cip-definition-grid .wc-cip-test-list{
+        display:grid;
+        height:100%;
+      }
+
+      .wc-cip-definition-grid .wc-cip-test-list{
+        grid-auto-rows:1fr;
+      }
+
+      .wc-cip-definition-contrast{
+        grid-auto-rows:1fr;
+      }
+
+      /* Sources of Financing sits on the page, not in a tinted card. */
+      .wc-cip-finance-panel{
+        padding:0;
+        border:0;
+        border-radius:0;
+        background:none;
+      }
+
+      /* Sources of Financing follows the spending factors in "How Spending Is Set". */
+      #wc-cip-spending-level .wc-cip-finance-panel{
+        margin-top:40px;
+      }
+
+      /* "What benefit will they provide?" needs room after the cards above. */
+      .wc-cip-subhead{
+        margin-top:40px;
+      }
+
+      /* Body text in the normal text color, not muted gray. */
+      .wc-cip-story-header p,
+      .wc-cip-story-copy p,
+      .wc-cip-subhead-note{
+        color:var(--text);
+      }
+
+      /* ONE TYPE SCALE for this page, using the site tokens:
+         1. Section heading  -- small uppercase gold bar (above)
+         2. Card title       -- 16px / 800 / green
+         3. Body text        -- 14px / 400 / normal text color (intros, card text, lists)
+         4. Small note       -- 12px / supporting gray (footnotes, chart labels, legend, project meta)
+         5. Label chip       -- 11px uppercase (Counted / Not capital), unchanged */
+      .wc-cip-process-card h3,
+      .wc-cip-element-card strong,
+      .wc-cip-factor-card h3,
+      .wc-cip-benefit-card strong,
+      .wc-cip-test-list li strong,
+      .wc-cip-finance-list li strong,
+      .wc-cip-major-body strong,
+      .wc-cip-major-item > b{
+        color:var(--green);
+        font-family:Arial, Helvetica, sans-serif;
+        font-size:var(--fs-lede);
+        font-weight:800;
+        line-height:1.3;
+        letter-spacing:normal;
+        text-transform:none;
+      }
+
+      .wc-cip-story-header p,
+      .wc-cip-story-copy p,
+      .wc-cip-subhead-note,
+      .wc-cip-process-card p,
+      .wc-cip-element-card p,
+      .wc-cip-factor-card p,
+      .wc-cip-benefit-card p,
+      .wc-cip-test-list li,
+      .wc-cip-finance-list li,
+      .wc-cip-definition-card li{
+        color:var(--text);
+        font-size:var(--fs-body);
+        font-weight:400;
+        line-height:1.6;
+      }
+
+      .wc-cip-story-header p strong{
+        font-size:inherit;
+        color:var(--navy);
+      }
+
+      .wc-cip-section-note,
+      .wc-cip-section-note a,
+      .wc-cip-trend-legend span,
+      .wc-cip-trend-column span,
+      .wc-cip-trend-column b,
+      .wc-cip-major-body small{
+        font-size:var(--fs-small);
+        line-height:1.5;
+      }
+
+      .wc-cip-section-note,
+      .wc-cip-trend-legend span,
+      .wc-cip-major-body small{
+        color:var(--muted);
+        font-weight:700;
+      }
+
+      .wc-cip-section-note{
+        font-weight:400;
+      }
+
+      .wc-cip-gfoa-video{
+        border:6px solid var(--gold);
+        border-radius:26px;
+        box-shadow:0 18px 42px rgba(36,52,77,.16),0 6px 16px rgba(36,52,77,.08);
       }
     </style>
 
@@ -2732,14 +2954,44 @@ function renderProjects(){
     <section class="wc-cip-main-section">
       <div class="wc-cip-main-inner">
         ${!isStandaloneSearchPage ? `
+        <section class="wc-cip-story-section" id="wc-cip-process" aria-label="How projects move into the capital plan">
+          <div class="wc-cip-story-header">
+            <h2>How projects move into the capital plan</h2>
+          </div>
+          <div class="wc-cip-process-grid">
+            <article class="wc-cip-process-card">
+              <strong>1</strong>
+              <h3>Identify Need</h3>
+              <p>Departments identify infrastructure, facility, equipment, mobility, and public service needs.</p>
+            </article>
+            <article class="wc-cip-process-card">
+              <strong>2</strong>
+              <h3>Evaluate Funding</h3>
+              <p>OMB reviews available revenues, restrictions, grants, timing, and long-term financial impact.</p>
+            </article>
+            <article class="wc-cip-process-card">
+              <strong>3</strong>
+              <h3>Prioritize Projects</h3>
+              <p>Projects are reviewed against community needs, operational priorities, readiness, and policy direction.</p>
+            </article>
+            <article class="wc-cip-process-card">
+              <strong>4</strong>
+              <h3>Adopt Budget</h3>
+              <p>Appropriated projects become part of the annual budget, while the five-year CIP remains a planning guide.</p>
+            </article>
+          </div>
+        </section>
+
         <section class="wc-cip-story-section" id="wc-cip-what-counts" aria-label="What is a capital project">
           <div class="wc-cip-story-header">
             <h2>What is a capital project?</h2>
             <p>Walton County defines a capital project as a significant, non-recurring expenditure for the construction, expansion, purchase, major repair, or replacement of buildings, utility systems, streets, infrastructure, or public property. Capital projects create or extend the life of a public asset; routine operating costs do not.</p>
           </div>
+          <div class="wc-cip-definition-tests">
+            <h3>A request is capital when it meets all four tests</h3>
+          </div>
           <div class="wc-cip-definition-grid">
             <div class="wc-cip-definition-tests">
-              <h3>A request is capital when it meets all four tests</h3>
               <ol class="wc-cip-test-list">
                 <li><strong>Non-recurring</strong>A one-time or infrequent expenditure rather than an annual operating cost.</li>
                 <li><strong>Significant cost</strong>Large enough to plan, schedule, and fund deliberately rather than absorb in a department&rsquo;s operating budget.</li>
@@ -2763,8 +3015,6 @@ function renderProjects(){
                 <ul>
                   <li>Routine maintenance and repairs</li>
                   <li>Operating supplies and consumables</li>
-                  <li>Salaries and day-to-day service delivery</li>
-                  <li>Studies with no resulting asset</li>
                   <li>Items below the capitalization threshold</li>
                 </ul>
               </article>
@@ -2775,7 +3025,7 @@ function renderProjects(){
 
         <section class="wc-cip-story-section" id="wc-cip-elements" aria-label="What goes into a capital project">
           <div class="wc-cip-story-header">
-            <h2>What goes into a capital project.</h2>
+            <h2>What goes into a capital project?</h2>
             <p>A capital project is more than construction. Each one combines property, physical work, professional services, and oversight, paid for through one or more sources of financing.</p>
           </div>
           <div class="wc-cip-element-grid">
@@ -2795,24 +3045,6 @@ function renderProjects(){
               <strong>Construction Engineering &amp; Inspection</strong>
               <p>Plan reviews, material testing, supervision, quality assurance, and compliance oversight that keep a project on specification through construction.</p>
             </article>
-          </div>
-          <div class="wc-cip-finance-panel">
-            <div class="wc-cip-finance-copy">
-              <h3>Sources of Financing</h3>
-              <ul class="wc-cip-finance-list">
-                <li><strong>Current Revenues</strong>The County primarily funds capital on a cash basis from available revenue streams, including resources legally restricted to specific purposes.</li>
-                <li><strong>Grants</strong>Capital grants from federal, state, and regional agencies support eligible projects and carry local match, compliance, and reporting requirements.</li>
-                <li><strong>Debt</strong>Where appropriate, the County issues debt for major projects using structures designed to manage cost and risk.</li>
-              </ul>
-            </div>
-            <div class="wc-cip-finance-media">
-              <div class="wc-cip-gfoa-video">
-                <iframe src="https://www.youtube-nocookie.com/embed/2ha4PCBgw2Y?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Capital Improvement Plan Elements" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
-              </div>
-              <div class="wc-cip-gfoa-video">
-                <iframe src="https://www.youtube-nocookie.com/embed/UI4QSqOn7o0?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Sources of Financing" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -2909,6 +3141,24 @@ function renderProjects(){
               <p>Every new facility, road, or vehicle adds ongoing cost to maintain, staff, and insure. That recurring impact is weighed before a project is added to the plan.</p>
             </article>
           </div>
+          <div class="wc-cip-finance-panel">
+            <div class="wc-cip-finance-copy">
+              <h3>Sources of Financing</h3>
+              <ul class="wc-cip-finance-list">
+                <li><strong>Current Revenues</strong>The County primarily funds capital on a cash basis from available revenue streams, including resources legally restricted to specific purposes.</li>
+                <li><strong>Grants</strong>Capital grants from federal, state, and regional agencies support eligible projects and carry local match, compliance, and reporting requirements.</li>
+                <li><strong>Debt</strong>Where appropriate, the County issues debt for major projects using structures designed to manage cost and risk.</li>
+              </ul>
+            </div>
+            <div class="wc-cip-finance-media">
+              <div class="wc-cip-gfoa-video">
+                <iframe src="https://www.youtube-nocookie.com/embed/2ha4PCBgw2Y?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Capital Improvement Plan Elements" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen srcdoc="${wcVideoCoverSrcdoc("2ha4PCBgw2Y", "https://www.youtube-nocookie.com/embed/2ha4PCBgw2Y?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1", "Capital Improvement Plan Elements")}"></iframe>
+              </div>
+              <div class="wc-cip-gfoa-video">
+                <iframe src="https://www.youtube-nocookie.com/embed/UI4QSqOn7o0?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Sources of Financing" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen srcdoc="${wcVideoCoverSrcdoc("UI4QSqOn7o0", "https://www.youtube-nocookie.com/embed/UI4QSqOn7o0?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1", "Sources of Financing")}"></iframe>
+              </div>
+            </div>
+          </div>
         </section>
 
         ${cipYearTotals.length ? `
@@ -2937,12 +3187,11 @@ function renderProjects(){
         ${majorProjects.length ? `
         <section class="wc-cip-story-section" id="wc-cip-major-projects" aria-label="Major capital projects">
           <div class="wc-cip-story-header">
-            <h2>The largest commitments in FY 2027.</h2>
+            <h2>The largest commitments in FY 2027</h2>
             <p>The biggest capital projects budgeted for FY 2027. Together these account for ${escapeHtml(formatMoneyShort(majorProjects.reduce((sum, project) => sum + projectYearValue(project, majorProjectYear), 0)))} of the ${escapeHtml(formatMoneyShort(majorProjectYearTotal))} planned for the year.</p>
           </div>
           <ol class="wc-cip-major-list">
             ${majorProjects.map((project, index) => {
-              const url = String(project.slug || "").trim() ? buildProjectUrl(project) : "";
               const inner = `
                 <span class="wc-cip-major-rank">${index + 1}</span>
                 <span class="wc-cip-major-body">
@@ -2951,41 +3200,11 @@ function renderProjects(){
                 </span>
                 <b>${escapeHtml(formatMoneyShort(projectYearValue(project, majorProjectYear)))}</b>
               `;
-              return url
-                ? `<li><a class="wc-cip-major-item" href="${escapeHtml(url)}">${inner}</a></li>`
-                : `<li><span class="wc-cip-major-item is-static">${inner}</span></li>`;
+              return `<li><span class="wc-cip-major-item is-static">${inner}</span></li>`;
             }).join("")}
           </ol>
         </section>
         ` : ""}
-
-        <section class="wc-cip-story-section">
-          <div class="wc-cip-story-header">
-            <h2>How projects move into the capital plan.</h2>
-          </div>
-          <div class="wc-cip-process-grid">
-            <article class="wc-cip-process-card">
-              <strong>1</strong>
-              <h3>Identify Need</h3>
-              <p>Departments identify infrastructure, facility, equipment, mobility, and public service needs.</p>
-            </article>
-            <article class="wc-cip-process-card">
-              <strong>2</strong>
-              <h3>Evaluate Funding</h3>
-              <p>OMB reviews available revenues, restrictions, grants, timing, and long-term financial impact.</p>
-            </article>
-            <article class="wc-cip-process-card">
-              <strong>3</strong>
-              <h3>Prioritize Projects</h3>
-              <p>Projects are reviewed against community needs, operational priorities, readiness, and policy direction.</p>
-            </article>
-            <article class="wc-cip-process-card">
-              <strong>4</strong>
-              <h3>Adopt Budget</h3>
-              <p>Appropriated projects become part of the annual budget, while the five-year CIP remains a planning guide.</p>
-            </article>
-          </div>
-        </section>
 
         ` : ""}
       </div>
@@ -3085,6 +3304,8 @@ function renderProjects(){
     </section>
     ` : ""}
   `;
+
+  setupCipStoryTabs();
 
   const searchField = document.querySelector(".wc-project-search");
 

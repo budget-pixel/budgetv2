@@ -53,7 +53,9 @@ var wcCoreBudgetPages = [
   { title:"Public Defender", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd71fca7e3dc1ad0fa" },
   { title:"South Walton Fire & State Control", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd799cff81b62a9d04" },
   { title:"State Attorney", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdfba867c19eddf0d3" },
-  { title:"Statutory & Other Agency Funding", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdd8b75e8172b9646a" },
+  { title:"Statutory Agency Funding", section:"Autonomous Entities", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdd8b75e8172b9646a" },
+  { title:"Other Agency Funding", section:"Autonomous Entities", href:"other-agency-funding.html" },
+  { title:"DeFuniak Springs CRA", section:"Autonomous Entities", href:"defuniak-springs-cra.html" },
   { title:"E911 Fund", section:"Autonomous Entities", href:"e911-fund.html" },
   { title:"Municipal Service Benefit Unit Fund", section:"Autonomous Entities", href:"municipal-service-benefit-unit-fund.html" },
   { title:"Recreation Plat Fee Fund Capital Ledger", section:"Capital Improvement Plan", href:"recreation-plat-fee-fund.html" },
@@ -278,17 +280,19 @@ var wcHiddenBudgetPageTitles = new Set([
       "state attorney", "prosecutor", "prosecution", "criminal justice", "court", "judicial"
     ],
 
-    "Statutory & Other Agency Funding": [
-      "statutory funding", "agency funding", "outside agencies", "mandated funding", "state required", "other agencies", "intergovernmental",
-      "argyle volunteer fire department", "argyle volunteer fire", "argyle fire",
-      "economic development alliance", "eda",
-      "community redevelopment agency", "cra",
-      "defuniak springs interlocal", "life enrichment center",
-      "gulf coast kids house",
+    "Other Agency Funding": [
+      "other agency funding", "agency funding", "outside agencies", "other agencies", "intergovernmental", "eda", "liberty fire district", "argyle fire", "defuniak springs interlocal", "volunteer fire", "volunteer fire department", "liberty volunteer fire", "argyle volunteer fire", "economic development alliance", "life enrichment center", "indigent cremation", "opioid settlement"
+    ],
+    "DeFuniak Springs CRA": [
+      "defuniak springs cra", "community redevelopment agency", "cra", "redevelopment", "tax increment", "downtown defuniak springs"
+    ],
+    "Statutory Agency Funding": [
+      "statutory funding", "statutory agency funding", "mandated funding", "state required",
+      "medicaid", "medicaid services", "health care responsibility act", "hcra", "health care response",
+      "gulf coast kids house", "child advocacy",
       "lakeview center", "lakeview center baker act", "lakeview center backer act", "baker act",
       "lakeview center mental health",
-      "lakeview center women and children", "lakeview center women & children",
-      "liberty volunteer fire department", "liberty volunteer fire", "liberty fire district"
+      "lakeview center women and children", "lakeview center women & children"
     ],
 
     "E911 Fund": [
@@ -518,7 +522,9 @@ var wcHiddenBudgetPageTitles = new Set([
     "Public Defender": "public-defender.html",
     "South Walton Fire & State Control": "south-walton-fire-and-state-control.html",
     "State Attorney": "state-attorney.html",
-    "Statutory & Other Agency Funding": "statutory-and-other-agency-funding.html",
+    "Statutory Agency Funding": "statutory-and-other-agency-funding.html",
+    "Other Agency Funding": "other-agency-funding.html",
+    "DeFuniak Springs CRA": "defuniak-springs-cra.html",
     "E911 Fund": "e911-fund.html",
     "Municipal Service Benefit Unit Fund": "municipal-service-benefit-unit-fund.html",
     "Recreation Plat Fee Fund Capital Ledger": "recreation-plat-fee-fund.html",

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Search — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261104-popup-footer">
+<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
 <style>
   .wc-txn-page{max-width:1280px;margin:0 auto}
   .wc-txn-intro{max-width:900px;margin:0 0 8px;color:var(--muted);font-size:1.05rem;line-height:1.65}
@@ -15,7 +15,7 @@
   .wc-txn-field label{color:var(--text);font-size:12px;font-weight:800;letter-spacing:.02em}
   .wc-txn-field input,.wc-txn-field select{min-height:42px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface,#fff);color:var(--text);font:inherit;font-size:14px}
   .wc-txn-field input:disabled{opacity:.5;cursor:not-allowed;background:var(--light)}
-  .wc-txn-field small{color:var(--muted);font-size:11px;line-height:1.4}
+  .wc-txn-field small{color:var(--muted);font-size:var(--fs-row);line-height:1.5}
   .wc-txn-keyword{grid-column:1/-1}
   .wc-txn-keyword input{min-height:48px;font-size:16px}
   .wc-txn-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -29,7 +29,7 @@
   .wc-txn-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:18px}
   .wc-txn-table{width:100%;min-width:720px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif}
   .wc-txn-table th,.wc-txn-table td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border);font-size:13px}
-  .wc-txn-table th{background:var(--green);color:#fff;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .wc-txn-table th{background:var(--green-deep);color:#fff;font-size:var(--fs-small);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
   .wc-txn-table td{color:var(--muted)}
   .wc-txn-table td.wc-txn-vendor{color:var(--text);font-weight:800}
   .wc-txn-table td.wc-txn-amount{color:var(--text);font-weight:800;text-align:right;white-space:nowrap}
@@ -49,7 +49,6 @@
   .wc-txn-filters{border-radius:14px}
   .wc-txn-field label{font-size:14px}
   .wc-txn-field input,.wc-txn-field select{box-sizing:border-box;width:100%;min-width:0;min-height:48px;font-size:16px}
-  .wc-txn-field small{font-size:12px;line-height:1.5}
   .wc-txn-actions button,.wc-txn-page-btn{min-height:48px;border-radius:12px;font-size:14px}
   .wc-txn-page :is(input,select,button,summary):focus-visible{outline:3px solid #79b99a;outline-offset:3px}
   .wc-txn-pagination[hidden]{display:none!important}
@@ -185,10 +184,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/supabase-data.js?v=20261101-raw-view"></script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261105-attorney-salary"></script>
-<script src="../assets/transaction-search.js?v=20261101-department-names"></script>
-<script src="../assets/search-data.js?v=20261101-agency-names"></script>
-<script src="../assets/nav.js?v=20261104-popup-footer"></script>
+<script src="../assets/supabase-data.js?v=841a21655e"></script>
+<script src="../assets/performance-context.js?v=0b1ba7b92f"></script><script src="../assets/budget-data.js?v=7320bf0322"></script>
+<script src="../assets/transaction-search.js?v=ba031e498f"></script>
+<script src="../assets/search-data.js?v=d307e7cdd2"></script>
+<script src="../assets/nav.js?v=c62ffef8c6"></script>
 </body>
 </html>

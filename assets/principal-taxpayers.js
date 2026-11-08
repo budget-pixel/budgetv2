@@ -7,7 +7,7 @@
   "use strict";
 
   const TAXPAYERS_CSV_URL =
-    "../assets/static-data/principal-taxpayers.csv?v=20261004-static-final";
+    "../assets/static-data/principal-taxpayers.csv?v=1ebfaa4299";
 
   function escapeHtml(value) {
     return String(value === undefined || value === null ? "" : value)

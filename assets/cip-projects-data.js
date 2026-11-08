@@ -1,8 +1,13 @@
 (function () {
   "use strict";
 
-  const CAPITAL_PROJECTS_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1388930304&single=true&output=csv";
+  // Frozen copy of the published capital project sheet (snapshot taken
+  // 2026-11-06), served with the site like assets/static-data/budget.json,
+  // so pages no longer download the live Google Sheet on every visit and a
+  // later edit to that sheet can't change the published budget. Re-export
+  // the sheet to this file to update it.
+  const CIP_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || window.location.href;
+  const CAPITAL_PROJECTS_CSV_URL = new URL("static-data/cip-projects.csv?v=bfc371a604", new URL("./", CIP_SCRIPT_SRC)).href;
   const FISCAL_YEARS = ["FY2027", "FY2028", "FY2029", "FY2030", "FY2031"];
   // Completed/historical years the sheet also carries dollar columns for
   // (see the "Capital Improvement Plan" tab's FY2022-FY2026 Proposed
@@ -15,13 +20,12 @@
     "amaryllis-lane-dirt-to-pave-project.jpg",
     "arbour-street-dirt-to-pave.jpg",
     "bluebottle-court-dirt-to-pave.jpg",
-    "chat-holley-road-resurfacing.png",
+    "chat-holley-road-resurfacing.jpg",
     "clover-lane-dirt-to-pave.jpg",
     "cook-road-reconstruction.jpg",
-    "cook-road-reconstruction.png",
     "cowslip-court-dirt-to-pave.jpg",
     "daisy-lane-dirt-to-pave.jpg",
-    "dalton-drive.png",
+    "dalton-drive.jpg",
     "hewett-bayou-connector-rd-e-lamb-drive-extension.jpg",
     "huckaba-road-604114-bridge-replacement.jpg",
     "iris-lane-resurfacing.jpg",
@@ -31,9 +35,9 @@
     "nancy-darby-rd-paving-resurfacing.jpg",
     "north-lake-drive.jpg",
     "oak-grove-road-phase-2-reconstruction-resurfacing.jpg",
-    "oakwood-lakes-hwy-331-south-turn-lane.png",
+    "oakwood-lakes-hwy-331-south-turn-lane.jpg",
     "passion-flower-street-dirt-to-pave.jpg",
-    "pinetree-lane-dirt-to-pave.png",
+    "pinetree-lane-dirt-to-pave.jpg",
     "rio-ranchero-road-dirt-to-pave.jpg"
   ];
 
@@ -910,7 +914,7 @@
   }
 
   function fetchTextOnce(url) {
-    return fetch(url, { cache: "no-store" }).then((response) => {
+    return fetch(url).then((response) => {
       if (!response.ok) {
         throw new Error("Capital projects sheet request failed with status " + response.status);
       }

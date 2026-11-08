@@ -194,6 +194,11 @@
       fundCode: param("fundCode"),
       projectCode: param("projectCode"),
       program: param("program"),
+      // payee: "|"-separated payee names. Some budget lines' prior-year
+      // actuals were paid from an older shared account alongside other
+      // recipients (see TRANSACTION_SOURCE_OVERRIDES in budget-data.js);
+      // this limits the list to this line's own payee.
+      payee: param("payee"),
       kind: param("kind") || "expense",
       selectedActual: parseAmount(param("selectedActual"))
     };
@@ -262,6 +267,13 @@
     catch (error) {
       if (status) status.textContent = "Transaction data could not be loaded. Please try again after the database connection is restored.";
       return;
+    }
+    const payees = String(context.payee || "").split("|").map((name) => name.trim().toLowerCase()).filter(Boolean);
+    if (payees.length) {
+      rows = rows.filter((row) => {
+        const payee = String(row.vendor_payee_public || "").toLowerCase();
+        return payees.some((name) => payee.indexOf(name) !== -1);
+      });
     }
 
     const transactionTotal = rows.reduce((sum, row) => sum + displayAmount(row.amount, context), 0);

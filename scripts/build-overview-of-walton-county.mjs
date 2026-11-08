@@ -19,9 +19,9 @@ const imageDataUri = (name, mime) => {
   return `data:${mime};base64,` + readFileSync(filePath).toString("base64");
 };
 
-const WATERWAY = imageDataUri("overview-walton-waterway.png", "image/png");
+const WATERWAY = imageDataUri("overview-walton-waterway.jpg", "image/png");
 const DEFUNIAK_MAP = imageDataUri("overview-defuniak-historic-map.jpg", "image/jpeg");
-const BEACH = imageDataUri("overview-beach-community.png", "image/png");
+const BEACH = imageDataUri("overview-beach-community.jpg", "image/png");
 const HERITAGE = imageDataUri("overview-cultural-heritage.jpg", "image/jpeg");
 const DISTRICTS_MAP = imageDataUri("overview-county-districts.jpg", "image/jpeg");
 

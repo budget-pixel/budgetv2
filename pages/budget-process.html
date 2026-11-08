@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Process — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261104-popup-footer">
+<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
 <style>
   .bp-section{margin:0 0 40px;scroll-margin-top:24px}
   .bp-section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,1fr);gap:24px;align-items:start;margin-bottom:20px}
@@ -12,10 +12,7 @@
   .bp-section-head h2{margin:0}
   .bp-section p{color:var(--muted);font-size:var(--fs-body);line-height:1.7;text-align:left}
   .bp-section-head p{margin:0}
-  .bp-section a:focus-visible,.bp-jump-links button:focus-visible{outline:3px solid #79b99a;outline-offset:4px}
-  .bp-jump-links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:24px 0 32px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--light)}
-  .bp-jump-links button{display:flex;align-items:center;box-sizing:border-box;height:64px;min-height:64px;justify-content:center;text-align:center;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-inner);background:#fff;color:var(--green);font:700 var(--fs-body)/1.4 Arial,Helvetica,sans-serif;text-decoration:none;cursor:pointer}
-  .bp-jump-links button:hover{border-color:var(--green);background:#edf4ef}
+  .bp-section a:focus-visible{outline:3px solid #79b99a;outline-offset:4px}
   .bp-phases,.bp-after,.bp-request,.bp-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
   .bp-phases{grid-template-columns:repeat(4,minmax(0,1fr))}
   .bp-phase,.bp-after article,.bp-request article,.bp-link,.bp-role-main,.bp-public{min-width:0;padding:24px;border:1px solid var(--border);border-radius:var(--radius-card);background:#fff}
@@ -41,17 +38,16 @@
   .bp-link span{color:var(--muted);font-size:var(--fs-body);line-height:1.6}
   .bp-link b{align-self:flex-end;margin-top:auto;padding-top:12px;color:var(--green);font-size:var(--fs-figure-md)}
   .bp-link:hover{border-color:var(--green);box-shadow:var(--shadow-card)}
-  @media(max-width:1050px){.bp-jump-links{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-phases,.bp-request{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-role-grid{grid-template-columns:1fr}}
+  @media(max-width:1050px){.bp-phases,.bp-request{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-role-grid{grid-template-columns:1fr}}
   @media(max-width:700px){
     .bp-section{margin-bottom:32px}.bp-section-head{grid-template-columns:1fr;gap:12px}
     .bp-section h2{font-size:var(--fs-card-title)}.bp-section p{font-size:var(--fs-lede)}
     .bp-phases,.bp-after,.bp-request,.bp-links,.bp-roles{grid-template-columns:1fr}
     .bp-phase,.bp-after article,.bp-request article,.bp-link,.bp-role-main,.bp-public,.bp-participation{padding:20px}
-    .bp-jump-links{padding:12px;gap:8px}.bp-jump-links button{min-width:0;justify-content:center;text-align:center}
+
     .bp-role+.bp-role{padding-top:20px;border-top:1px solid var(--border)}
   }
   @media(prefers-reduced-motion:reduce){.bp-link{transition:none}}
-  .bp-jump-links button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff}
   .bp-section[hidden],.bp-resource-panel[hidden],[role="tabpanel"][hidden]{display:none!important}
   .bp-resource-panel>h2{color:var(--navy);font:700 var(--fs-figure-md)/1.3 Arial,Helvetica,sans-serif;margin:0 0 20px}
   .bp-resource-frame{display:block;width:100%;border:0;min-height:300px}
@@ -66,9 +62,8 @@
   <h1 class="page-title">Budget Process</h1>
   <p class="page-intro">See how a department request becomes Walton County's adopted annual spending plan—and how residents can follow the decisions along the way.</p>
 
-  <div class="bp-jump-links" role="tablist" aria-label="Budget process topics">
-    <button type="button" role="tab" id="bp-tab-overview" data-bp-tab="overview" aria-controls="bp-panel-overview" aria-selected="true" tabindex="0">Overview</button>
-    <button type="button" role="tab" id="bp-tab-phases-title" data-bp-tab="phases-title" aria-controls="bp-panel-phases-title" aria-selected="false" tabindex="-1">Budget phases</button>
+  <div class="bp-jump-links wc-click-through-tabs wc-dept-beta-tabs" role="tablist" aria-label="Budget process topics">
+    <button type="button" role="tab" id="bp-tab-phases-title" data-bp-tab="phases-title" aria-controls="bp-panel-phases-title" aria-selected="true" tabindex="0">Budget phases</button>
     <button type="button" role="tab" id="bp-tab-roles-title" data-bp-tab="roles-title" aria-controls="bp-panel-roles-title" aria-selected="false" tabindex="-1">Responsibilities</button>
     <button type="button" role="tab" id="bp-tab-request-title" data-bp-tab="request-title" aria-controls="bp-panel-request-title" aria-selected="false" tabindex="-1">Department requests</button>
     <button type="button" role="tab" id="bp-tab-adoption-title" data-bp-tab="adoption-title" aria-controls="bp-panel-adoption-title" aria-selected="false" tabindex="-1">After adoption</button>
@@ -76,9 +71,8 @@
     <button type="button" role="tab" id="bp-tab-calendar" data-bp-tab="calendar" aria-controls="bp-resource-panel" aria-selected="false" tabindex="-1">Calendar</button>
     <button type="button" role="tab" id="bp-tab-policies" data-bp-tab="policies" aria-controls="bp-resource-panel" aria-selected="false" tabindex="-1">Financial Policies</button>
     <button type="button" role="tab" id="bp-tab-funds" data-bp-tab="funds" aria-controls="bp-resource-panel" aria-selected="false" tabindex="-1">Fund Structure</button>
-    <button type="button" role="tab" id="bp-tab-relationships" data-bp-tab="relationships" aria-controls="bp-resource-panel" aria-selected="false" tabindex="-1">Department to Fund</button>
   </div>
-  <div id="bp-panel-overview" role="tabpanel" aria-labelledby="bp-tab-overview" tabindex="0">
+  <div id="bp-panel-overview">
   <section class="bp-section" aria-labelledby="phases-title">
     <div class="bp-section-head"><div><h2 id="phases-title">How the budget is developed</h2></div><p>The proposed budget evolves as forecasts are refined, requests are reviewed, and the Board considers priorities in public meetings.</p></div>
     <div class="bp-phases">
@@ -138,10 +132,10 @@
     <div id="bp-resource-content"></div>
   </section>
 </main></div>
-<script src="../assets/search-data.js?v=20261101-agency-names"></script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261105-attorney-salary"></script>
-<script src="../assets/nav.js?v=20261104-popup-footer"></script>
-<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
-<script src="../assets/budget-process-tabs.js"></script>
+<script src="../assets/search-data.js?v=d307e7cdd2"></script>
+<script src="../assets/performance-context.js?v=0b1ba7b92f"></script><script src="../assets/budget-data.js?v=7320bf0322"></script>
+<script src="../assets/nav.js?v=c62ffef8c6"></script>
+<script src="../assets/budget-pdf.js?v=8987ba5f2b"></script>
+<script src="../assets/budget-process-tabs.js?v=b802272ccf"></script>
 </body>
 </html>

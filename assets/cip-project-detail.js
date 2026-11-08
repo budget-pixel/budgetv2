@@ -1,5 +1,14 @@
 const app = document.getElementById("app");
 
+// Green click-to-play cover for YouTube iframes (srcdoc), the same cover the
+// department pages use: dark green (#003f28) play button, brighter on hover.
+function wcVideoCoverSrcdoc(videoId, playUrl, label){
+  const attr = (v) => String(v).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const html = '<style>*{margin:0;padding:0;overflow:hidden}html,body{height:100%;background:#000}a{position:absolute;inset:0;display:block}img{width:100%;height:100%;object-fit:cover}span{position:absolute;left:50%;top:50%;width:68px;height:48px;margin:-24px 0 0 -34px;border-radius:12px;background:rgba(0,63,40,.92);box-shadow:0 4px 16px rgba(0,0,0,.35)}span:after{content:"";position:absolute;left:27px;top:14px;border-style:solid;border-width:10px 0 10px 17px;border-color:transparent transparent transparent #fff}a:hover span,a:focus span{background:#006231}</style>' +
+    '<a href="' + attr(playUrl) + '" aria-label="' + attr("Play video: " + label) + '"><img src="https://i.ytimg.com/vi/' + attr(videoId) + '/hqdefault.jpg" alt=""><span></span></a>';
+  return attr(html);
+}
+
 function escapeHtml(value){
   return String(value ?? "")
     .replace(/&/g,"&amp;")
@@ -276,7 +285,7 @@ function renderProjectVideo(project){
     <section class="wc-project-panel wc-project-video-panel">
       <h2>Project Video</h2>
       <div class="wc-project-video-frame">
-        <iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(project.title || "Capital project")} video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(project.title || "Capital project")} video" srcdoc="${wcVideoCoverSrcdoc((embedUrl.match(/embed\/([^?]+)/) || [])[1] || "", embedUrl + "&autoplay=1", (project.title || "Capital project") + " video")}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
     </section>
   `;
@@ -651,7 +660,7 @@ function renderProjectPage(){
 
       </div>
 
-      <div id="wcProjectLightbox" class="wc-project-lightbox" aria-hidden="true" onclick="if(event.target === this){ closeProjectLightbox(); }">
+      <div id="wcProjectLightbox" class="wc-project-lightbox" aria-hidden="true">
         <div class="wc-project-lightbox-inner">
           <button class="wc-project-lightbox-close" type="button" aria-label="Close image" onclick="closeProjectLightbox()">x</button>
           <img id="wcProjectLightboxImage" src="" alt="">

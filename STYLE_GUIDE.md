@@ -6,7 +6,7 @@ Single reference for site and print-book styling. The CSS tokens named here live
 | Role | Font | Where |
 |---|---|---|
 | UI / body / data / buttons / navigation | Arial, Helvetica, sans-serif | Everything by default |
-| Editorial display (`--font-editorial`) | Georgia, "Times New Roman", serif | Goal/challenge quotes, service titles, measure-trend figures, budget detail headers, editorial titles. **Nothing else.** |
+| Editorial display (`--font-editorial`) | Georgia, "Times New Roman", serif | Editorial titles and quotes. Working popup titles, department section titles, and all on-screen figures use Arial. |
 
 Rule: data, navigation, controls and supporting copy are always Arial. Do not use Georgia for card titles, headline figures or buttons.
 
@@ -17,7 +17,7 @@ Rule: data, navigation, controls and supporting copy are always Arial. Do not us
 | `--fs-small` | 12px | Notes, change labels, sub-lines |
 | `--fs-row` | 13px | Table/list rows, row amounts, button text |
 | `--fs-body` | 14px | Paragraphs, measure names, section titles (uppercase, 800, +.04em tracking) |
-| `--fs-quote` | 17px | Goal/challenge quotes, service titles (Georgia) |
+| `--fs-quote` | 17px | Editorial subheadings, including Tourism "Highlights" |
 | `--fs-card-title` | 19px | Card titles (Expenditures / Revenue / Position Summary) |
 | `--fs-figure` | 34px | Headline figure on a snapshot card (900 weight, -.03em) |
 | `--fs-figure-md` | 26px | Figure on a department/revenue/workforce list card inside an explorer popup |
@@ -27,12 +27,23 @@ Rule: data, navigation, controls and supporting copy are always Arial. Do not us
 
 Weights: 400 body, 700 emphasis, 800 titles/labels, 900 figures and row amounts. Do not introduce sizes outside this scale; if a new role is needed, add a token here first.
 
+### Minimum font sizes (screen)
+Nothing on screen goes below these floors unless there is a specific, documented reason (say so in a CSS comment next to the rule):
+
+| Floor | Applies to |
+|---|---|
+| **13px** (`--fs-row`) | Any sentence text: paragraphs, notes, footnotes, captions, explanations (e.g. the Who Pays "Illustrative homeowner contribution" note, chart notes) |
+| **12px** (`--fs-small`) | Short in-table sub-notes, tags/badges, change pills, compact toggle buttons, table header labels |
+| **11px** (`--fs-eyebrow`) | Uppercase micro labels only (kickers, column eyebrows) |
+
+Never size text in `em` below these floors (e.g. `.78em` inside a 13px row is 10px). Print styles may go smaller.
+
 ## Color
 | Token | Value | Use |
 |---|---|---|
 | `--green` | #006231 | Primary brand, buttons, links, card titles, bars |
 | `--green2` | #0b7741 | Hover/secondary green |
-| (deep green) | #003f28 | Print-book brand green, dark panels |
+| `--green-deep` | #003f28 | Selected tabs and filters, financial table headers, print-book brand green |
 | `--gold` / `--gold2` | #d1be78 / #c2ac5f | Accents, rules, borders on callouts, QR frames |
 | `--ink` (= `--navy`) | #172033 | Headings, figures, strong text |
 | `--body-text` (= `--text`) | #24344d | Body copy |
@@ -57,6 +68,8 @@ Weights: 400 body, 700 emphasis, 800 titles/labels, 900 figures and row amounts.
 - **Button** (`.wc-profile-snapshot-sheet`): green pill, white 13px/800 Arial, min-height 48px. All action buttons in a card are equal height.
 - **Snapshot card**: 19px title, 34px figure, optional 11px uppercase label directly under the figure, change line beneath (green up, `--flag` down), rows at 13px with 12px sub-lines, buttons last.
 - **Section title**: 14px uppercase Arial 800, gold left bar.
+- **Department Goal and Challenge**: no box; goal and challenge side by side with a 1px divider; labels use the shared section title style (14px uppercase Arial with a gold left rule). Descriptions use 14px Arial. Stacks on phones; a goal alone spans full width.
+- **Core Services & Performance**: one full-width block per service with no surrounding box (14px uppercase Arial title with a gold left rule, 14px description), 32px between services, then one measure table: Measure (44%), 2022–2025, FY27 Target (14%, light green). 12px uppercase headers, 13px/700 measure names, 14px/800 tabular figures right-aligned, "—" for unreported years, context notes as 13px italic rows under their measure. On phones the measure column is pinned and the years scroll.
 - **QR codes**: rounded square (radius 8–12px), never circular — circular masks clip the corner finder patterns and the code will not scan. Always link to `https://final2027.budget-waltoncountyfl.com/...`.
 
 - **Explorer landing page**: the four large cards carry their own one-line description under the title (no separate intro list). Shortcut links (Ledger Directory etc.) are plain icon + text links, not pills. Revenue and Workforce are slim single-row cards: title left, 26px figure and change on the right, round arrow button. The print budget button is gold, top-right beside the heading.

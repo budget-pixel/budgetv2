@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Property Tax Allocation Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=20261104-popup-footer">
+<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
 <script>if(new URLSearchParams(window.location.search).get("embed")==="calculator")document.documentElement.classList.add("wc-property-tax-calculator-embed");</script>
 <style>
   html.wc-property-tax-calculator-embed body #nav-menu,
@@ -24,6 +24,21 @@
   html.wc-property-tax-calculator-embed body.property-tax-fund-page #content { max-width:none; padding:0; }
   html.wc-property-tax-calculator-embed .wc-tax-grid { margin:0; }
   html.wc-property-tax-calculator-embed .wc-tax-panel { padding:24px 28px 30px; border:0; border-radius:0; box-shadow:none; }
+  /* Popup cleanup: white panel (no tinted card), no repeated title (the popup
+     header already says it), and the site type scale -- 14px body text,
+     13px bold field label, 12px hints, standard gold-bar section heading. */
+  html.wc-property-tax-calculator-embed .wc-tax-panel { padding:6px 24px 28px; background:#fff; }
+  html.wc-property-tax-calculator-embed .wc-tax-calc-panel > .wc-millage-panel-head:first-child { justify-content:flex-end; margin:0 0 10px; }
+  html.wc-property-tax-calculator-embed .wc-tax-calc-panel > .wc-millage-panel-head:first-child h3 { display:none; }
+  html.wc-property-tax-calculator-embed .wc-tax-disclaimer { margin:0 0 20px; color:var(--text); font-size:var(--fs-body); line-height:1.6; }
+  html.wc-property-tax-calculator-embed .wc-tax-disclaimer-emphasis { font-size:inherit; }
+  html.wc-property-tax-calculator-embed .wc-tax-calc-field label { display:block; margin:0 0 8px; color:var(--navy); font-size:var(--fs-row); font-weight:800; }
+  html.wc-property-tax-calculator-embed .wc-tax-calc-field small,
+  html.wc-property-tax-calculator-embed .wc-property-search-status,
+  html.wc-property-tax-calculator-embed .wc-tax-columns-prompt { color:var(--muted); font-size:var(--fs-small); line-height:1.5; }
+  html.wc-property-tax-calculator-embed #taxSupportBreakdownSection { display:block; margin:0 0 12px; padding:0; border:0; }
+  html.wc-property-tax-calculator-embed #taxSupportBreakdownSection h4 { margin:0 0 8px; padding:0 0 0 10px; border:0; border-left:4px solid var(--gold); color:var(--navy); font-size:.92rem; font-weight:800; letter-spacing:.05em; line-height:1.3; text-transform:uppercase; }
+  html.wc-property-tax-calculator-embed #personalTaxTotal { display:none; }
   /* The personalized "What does your own property tax pay for?" calculator
      lives on the Property Taxes revenue card as its own popup (which
      embeds this same page with ?embed=calculator, styled above) -- showing
@@ -116,7 +131,7 @@
   #wc-ptax-flow .wc-ptax-agency-detail td:first-child{
     padding-left:2.25rem;
     color:var(--muted);
-    font-size:.9em;
+    font-size:12px;
   }
   #wc-ptax-flow .wc-ptax-agency-detail td:first-child::before{
     content:"↳ ";
@@ -673,89 +688,8 @@
 
 <!-- nav.js will inject footer[role="contentinfo"] here -->
 
-<script>
-/* set wcBudgetPages before nav script runs so search is fully populated */
-window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/gfoa-distinguished-budget-presentation-award.html"},
-  {title:"Transmittal Letter",section:"Introduction and Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/transmittal-letter.html"},
-  {title:"Our County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/our-county.html"},
-  {title:"Overview of Walton County",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/overview-of-walton-county.html"},
-  {title:"Organizational Structure",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/organizational-structure.html"},
-  {title:"Budget Ledgers",section:"Financial Overview",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
-  {title:"Constitutional Officers",section:"Constitutional Officers",href:"../index.html?explorer=constitutional"},
-  {title:"Departments",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/departments.html"},
-  {title:"Budget Process & Calendar",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-process.html"},
-  {title:"Fund Descriptions and Structure",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-descriptions-and-structure.html"},
-  {title:"Department to Fund Relationship",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/department-to-fund-relationship.html"},
-  {title:"Financial Policies",section:"Financial Structure, Policies, and Process",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-policies.html"},
-  {title:"Consolidated Budget Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/consolidated-financial-schedules.html"},
-  {title:"Fund Financial Schedules",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/fund-financial-schedules.html"},
-  {title:"Summary of Revenues",section:"Financial Summaries",href:"../index.html?explorer=revenue"},
-  {title:"Expenditure Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-expenses.html"},
-  {title:"Summary of Interfund Transfers",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-interfund-transfers.html"},
-  {title:"Summary of Personnel",section:"Financial Summaries",href:"../index.html?explorer=personnel"},
-  {title:"Summary of Machinery, Vehicles & Equipment",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-machinery-vehicles-and-equipment.html"},
-  {title:"Property Tax Allocation Ledger",section:"Financial Summaries",href:"https://budget-pixel.github.io/budget-fy2027/../pages/summary-of-property-tax-allocations.html"},
-  {title:"Financials",section:"Financials",href:"https://budget-pixel.github.io/budget-fy2027/../pages/budget-overview.html"},
-  {title:"Board of County Commissioners",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/board-of-county-commissioners.html"},
-  {title:"Clerk of Courts & County Comptroller",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/clerk-of-courts-and-county-comptroller.html"},
-  {title:"Property Appraiser",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/property-appraiser.html"},
-  {title:"Sheriff's Office",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/sheriffs-office.html"},
-  {title:"Supervisor of Elections",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/supervisor-of-elections.html"},
-  {title:"Tax Collector",section:"Constitutional Officers",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tax-collector.html"},
-  {title:"Circuit Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/circuit-court.html"},
-  {title:"County Court",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-court.html"},
-  {title:"Court Technology & Innovations",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/court-technology-and-innovations.html"},
-  {title:"Guardian Ad Litem",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/guardian-ad-litem.html"},
-  {title:"Medical Examiner",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/medical-examiner.html"},
-  {title:"Non-Profit Funding Program",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/non-profit-funding-program.html"},
-  {title:"Public Defender",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-defender.html"},
-  {title:"South Walton Fire & State Control",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/south-walton-fire-and-state-control.html"},
-  {title:"State Attorney",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/state-attorney.html"},
-  {title:"Statutory & Other Agency Funding",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statutory-and-other-agency-funding.html"},
-  {title:"Walton County Health Department",section:"Autonomous Entities",href:"https://budget-pixel.github.io/budget-fy2027/../pages/walton-county-health-department.html"},
-  {title:"Building Construction and Maintenance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-construction-and-maintenance.html"},
-  {title:"Building Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/building-department.html"},
-  {title:"Code Compliance",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/code-compliance.html"},
-  {title:"County Administration Offices",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/county-administration.html"},
-  {title:"Eagle Springs Golf and Recreation Center",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-golf-and-recreation-center.html"},
-  {title:"Eagle Springs Grill",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/eagle-springs-grill.html"},
-  {title:"Emergency Management",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/emergency-management.html"},
-  {title:"Engineering Department",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/engineering-department.html"},
-  {title:"Environmental Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/environmental-resources.html"},
-  {title:"Extension Office",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/extension-office.html"},
-  {title:"Geographic Info Systems",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/geographic-info-systems.html"},
-  {title:"Housing & Urban Development",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/housing-and-urban-development.html"},
-  {title:"Human Resources",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/human-resources.html"},
-  {title:"Libraries",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/libraries.html"},
-  {title:"Mosquito Control",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mosquito-control.html"},
-  {title:"Mossy Head Wastewater Treatment Facility",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/mossy-head-wastewater-treatment-facility.html"},
-  {title:"Office of Management and Budget",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-management-and-budget.html"},
-  {title:"Office of the County Attorney",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/office-of-the-county-attorney.html"},
-  {title:"Planning",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/planning.html"},
-  {title:"Probation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/probation.html"},
-  {title:"Public Works",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/public-works.html"},
-  {title:"Purchasing",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/purchasing.html"},
-  {title:"Recreation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/recreation.html"},
-  {title:"Soil Conservation",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/soil-conservation.html"},
-  {title:"Solid Waste",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/solid-waste.html"},
-  {title:"Tourism Administration",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-administration.html"},
-  {title:"Tourism Beach Operations",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-beach-operations.html"},
-  {title:"Tourism Lifeguard Services and Beach Safety",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/tourism-lifeguard-services-and-beach-safety.html"},
-  {title:"Veteran Services",section:"Departments",href:"https://budget-pixel.github.io/budget-fy2027/../pages/veteran-services.html"},
-  {title:"Capital Projects",section:"Capital Improvement Plan",href:"../index.html?explorer=capital"},
-  {title:"Capital Improvement Plan Overview",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/capital-improvement-plan.html"},
-  {title:"CIP Project Search",section:"Capital Improvement Plan",href:"../index.html?explorer=capital"},
-  {title:"Capital Projects Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-capital-projects.html"},
-  {title:"Sheriff Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-sheriff.html"},
-  {title:"Tourist Development Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-tourist-development.html"},
-  {title:"Transportation Fund Schedule",section:"Capital Improvement Plan",href:"https://budget-pixel.github.io/budget-fy2027/../pages/cip-transportation.html"},
-  {title:"Debt Ledger",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/debt-overview.html"},
-  {title:"Financial Forecast",section:"Debt and Financial Forecast",href:"https://budget-pixel.github.io/budget-fy2027/../pages/financial-forecast.html"},
-  {title:"Glossary, Acronyms, and Frequently Asked Questions",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/glossary-acronyms-and-frequently-asked-questions.html"},
-  {title:"Statistical & Supplemental Information",section:"Our County",href:"https://budget-pixel.github.io/budget-fy2027/../pages/statistical-and-supplemental-information.html"}
-];
-</script>
-<script src="../assets/performance-context.js?v=20261005-wording-review"></script><script src="../assets/budget-data.js?v=20261105-attorney-salary"></script>
+<script src="../assets/budget-pages.js?v=0f06b8ad36"></script>
+<script src="../assets/performance-context.js?v=0b1ba7b92f"></script><script src="../assets/budget-data.js?v=7320bf0322"></script>
 <script>
 (function(){
   function $(selector){
@@ -793,7 +727,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     "south walton fire": "south walton fire & state control",
     "state fire": "south walton fire & state control",
     "volunteer fire": "south walton fire & state control",
-    "statutory & other": "statutory & other agency funding",
+    "statutory & other": "statutory agency funding",
     "probation services": "probation",
     "walton county sheriff's office": "sheriff's office"
   };
@@ -898,7 +832,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   // and the personalized calculator below, so there's exactly one
   // definition of "the property tax allocation" on this page.
   let adValoremRowsPromise = null;
-  let statutoryAgencyNames = [];
+  // Recipients listed under each agency-funding row (by Note tag).
+  let agencyNamesByPage = {};
   function loadAdValoremRows(){
     if (adValoremRowsPromise) return adValoremRowsPromise;
     if (!window.WCBudgetData || typeof window.WCBudgetData.loadBudgetData !== "function"){
@@ -907,17 +842,26 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     adValoremRowsPromise = window.WCBudgetData.loadBudgetData().then(function(data){
       const totalsByName = new Map();
       const interfundTransferAmounts = [];
-      statutoryAgencyNames = Array.from(new Set((data.expenditures || [])
-        .filter(function(row){ return String(row.Note || "").trim() === "Statutory & Other"; })
-        .map(function(row){ return String(row.Project_Name || "").trim(); })
-        .filter(Boolean))).sort(function(a, b){ return a.localeCompare(b); });
+      const agencyNamesFor = function(tag){
+        return Array.from(new Set((data.expenditures || [])
+          .filter(function(row){ return String(row.Note || "").trim() === tag && (Number(row.FY2027_Proposed) || 0) > 0; })
+          .map(function(row){ return String(row.Project_Name || "").trim(); })
+          .filter(Boolean))).sort(function(a, b){ return a.localeCompare(b); });
+      };
+      agencyNamesByPage = {
+        "statutory agency funding": agencyNamesFor("Statutory & Other"),
+        "other agency funding": agencyNamesFor("Other Agency Funding")
+      };
       (data.revenues || []).forEach(function(row){
         if (AD_VALOREM_REVENUE_CODES.indexOf(String(row.Revenue_Code || "").trim()) === -1) return;
         if (fundCodeForRow(row) === MOSQUITO_CONTROL_FUND_CODE){
           return;
         }
-        const rawName = String(row.Dept_Name || "").trim();
+        let rawName = String(row.Dept_Name || "").trim();
         if (!rawName) return;
+        // The revenue sheet still carries the internal "Statutory & Other"
+        // name; show the page's own title.
+        if (rawName === "Statutory & Other") rawName = "Statutory Agency Funding";
         const amount = Number(row.FY2027_Proposed) || 0;
         if (normalizeMatchName(rawName) === INTERFUND_TRANSFER_DEPT_NAME){
           if (amount > 0) interfundTransferAmounts.push(amount);
@@ -961,7 +905,9 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
     "public defender": true,
     "south walton fire & state control": true,
     "state attorney": true,
-    "statutory & other agency funding": true,
+    "statutory agency funding": true,
+    "other agency funding": true,
+    "defuniak springs cra": true,
     "e911 fund": true,
     "municipal service benefit unit fund": true,
     "walton county health department": true
@@ -1032,8 +978,8 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
       bodyRows.push('<tr class="wc-table-group-row"><td colspan="3">' + escapeHtml(group.label) + '</td></tr>');
       groupRows.forEach(function(d){
         bodyRows.push(rowHtml(d));
-        if (normalizeMatchName(d.name) === "statutory & other agency funding") {
-          statutoryAgencyNames.forEach(function(name){
+        if (agencyNamesByPage[normalizeMatchName(d.name)]) {
+          agencyNamesByPage[normalizeMatchName(d.name)].forEach(function(name){
             bodyRows.push('<tr class="wc-ptax-agency-detail"><td>' + escapeHtml(name) + '</td><td class="wc-num">—</td><td class="wc-num">—</td></tr>');
           });
         }
@@ -1578,7 +1524,7 @@ window.wcBudgetPages = [  {title:"GFOA Distinguished Budget Presentation Award",
   });
 })();
 </script>
-<script src="../assets/nav.js?v=20261104-popup-footer"></script>
-<script src="../assets/budget-pdf.js?v=20260723-asset-path-cleanup"></script>
+<script src="../assets/nav.js?v=c62ffef8c6"></script>
+<script src="../assets/budget-pdf.js?v=8987ba5f2b"></script>
 </body>
 </html>

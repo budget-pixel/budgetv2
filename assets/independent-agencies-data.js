@@ -14,7 +14,9 @@
     ["Public Defender", "public-defender.html"],
     ["South Walton Fire & State Control", "south-walton-fire-and-state-control.html"],
     ["State Attorney", "state-attorney.html"],
-    ["Statutory & Other Agency Funding", "statutory-and-other-agency-funding.html"],
+    ["Statutory Agency Funding", "statutory-and-other-agency-funding.html"],
+    ["Other Agency Funding", "other-agency-funding.html"],
+    ["DeFuniak Springs CRA", "defuniak-springs-cra.html"],
     ["E911 Fund", "e911-fund.html"],
     ["Municipal Service Benefit Unit Fund", "municipal-service-benefit-unit-fund.html"],
     ["Walton County Health Department", "walton-county-health-department.html"]
@@ -29,7 +31,8 @@
       "court innovations"
     ],
     "south walton fire and state control": ["south walton fire", "state fire"],
-    "statutory and other agency funding": [
+    "statutory agency funding": [
+      "statutory and other agency funding",
       "statutory and other agency fund",
       "statutory other agency funding",
       "statutory other agency fund",
@@ -112,16 +115,27 @@
     return breakdowns;
   }
 
-  // Statutory & Other recipients are tagged by Note; the published-budget
-  // reconciliation row (Human Services, $41,041) is tagged by Dept_Name.
-  function isStatutoryRow(row){
-    return String(row && row.Note || "").trim() === "Statutory & Other" ||
-      normalize(row && row.Dept_Name) === "statutory and other";
+  // Agency-funding pages (Statutory Agency Funding, Other Agency Funding,
+  // DeFuniak Springs CRA) collect recipients tagged by Note; some rows
+  // carry only the matching Dept_Name.
+  var AGENCY_FUNDING_TAGS = {
+    "statutory agency funding": "Statutory & Other",
+    "other agency funding": "Other Agency Funding",
+    "defuniak springs cra": "DeFuniak Springs CRA"
+  };
+  function agencyRowFilter(item){
+    var tag = AGENCY_FUNDING_TAGS[normalize(item.name)];
+    if(!tag) return null;
+    var tagName = normalize(tag);
+    return function(row){
+      return String(row && row.Note || "").trim() === tag || normalize(row && row.Dept_Name) === tagName;
+    };
   }
 
   function expenditureRowsForItem(rows, item){
-    if(normalize(item.name) === "statutory and other agency funding"){
-      return rows.filter(isStatutoryRow);
+    var agencyFilter = agencyRowFilter(item);
+    if(agencyFilter){
+      return rows.filter(agencyFilter);
     }
     return rows.filter(function(row){
       return rowMatches(row, item.name);
@@ -139,8 +153,9 @@
   // the raw rows -- its many recipients already sit on distinct
   // Project_Codes, which are part of that grain, so they don't collapse.
   function priorBudgetRowsForItem(dedupedRows, rawRows, item){
-    if(normalize(item.name) === "statutory and other agency funding"){
-      return rawRows.filter(isStatutoryRow);
+    var agencyFilter = agencyRowFilter(item);
+    if(agencyFilter){
+      return rawRows.filter(agencyFilter);
     }
     return dedupedRows.filter(function(row){
       return rowMatches(row, item.name);

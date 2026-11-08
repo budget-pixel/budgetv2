@@ -14,6 +14,13 @@
     try { embedMode = new URLSearchParams(window.location.search).get("embed"); }
     catch(error) { return; }
     if(embedMode === "department-popup") document.documentElement.classList.add("wc-embedded-department");
+    // Capital project pages shown in the ledger's centered project popup
+    // (cip-project-popup.js) are chromeless the same way.
+    if(embedMode === "project-popup") document.documentElement.classList.add("wc-embedded-department","wc-embedded-project");
+    // Overview pages (Overview of Walton County, Org Structure, GFOA Award,
+    // Budget Adjustments, Budget Process) shown inside an info popup card,
+    // which supplies the title, so the page drops its own heading too.
+    if(embedMode === "info-popup") document.documentElement.classList.add("wc-embedded-department","wc-embedded-info");
   })();
 
   // Only the main landing popup (?embed=landing) keeps the sitewide footer.
@@ -95,7 +102,7 @@
   });
   var mobileStylesheetId = "wc-budget-mobile-styles";
   var splitLogoScriptId = "wc-split-logo-script";
-  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=20260910-launch-review";
+  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=19a0634d30";
   // The publication has one editorial color system. Clear any legacy theme
   // state saved by earlier releases so old visitors cannot remain in dark mode.
   document.documentElement.removeAttribute("data-theme");
@@ -107,7 +114,7 @@
       mobileStylesheet.id = mobileStylesheetId;
       mobileStylesheet.rel = "stylesheet";
     }
-    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=29";
+    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=5f48713e9b";
     document.head.appendChild(mobileStylesheet);
   }
   function loadWcScriptOnce(scriptId, src, onload){
@@ -159,11 +166,11 @@
   function loadWaltonBudgetSearchModules(onReady){
     loadWcScriptOnce(
       "wc-budget-search-data-script",
-      wcBudgetAssetBaseUrl + "search-data.js?v=20261001-search-links",
+      wcBudgetAssetBaseUrl + "search-data.js?v=d307e7cdd2",
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
-          wcBudgetAssetBaseUrl + "search.js?v=20260910-launch-review",
+          wcBudgetAssetBaseUrl + "search.js?v=3073435ccd",
           function(){
             var fallbackSlot = document.querySelector(".wc-nav-search-slot-fallback");
             if(fallbackSlot && fallbackSlot.parentNode){
@@ -525,7 +532,7 @@
   function loadWaltonPerformanceMobile(){
     loadWcScriptOnce(
       "wc-performance-mobile-script",
-      wcBudgetAssetBaseUrl + "performance-mobile.js?v=2"
+      wcBudgetAssetBaseUrl + "performance-mobile.js?v=033e8baaf4"
     );
   }
   var WC_PDF_EXCLUDED_PAGE_NAMES = {
@@ -549,7 +556,7 @@
     }
     loadWcScriptOnce(
       "wc-budget-pdf-script",
-      wcBudgetAssetBaseUrl + "budget-pdf.js?v=20260824-revenue-ledger-print"
+      wcBudgetAssetBaseUrl + "budget-pdf.js?v=8987ba5f2b"
     );
   }
   var css = `
@@ -1174,7 +1181,8 @@
     outline:0 !important;
   }
   .wc-nav-search-bar-form input::placeholder{
-    color:#78899a !important;
+    color:var(--muted,#5a6e7f) !important;
+    opacity:1 !important;
   }
   .wc-nav-search-bar-form button{
     flex:0 0 auto !important;
@@ -1617,7 +1625,7 @@
     background:#ffffff !important;
     color:#003f28 !important;
     font-family:Arial, Helvetica, sans-serif !important;
-    font-size:10px !important;
+    font-size:11px !important;
     line-height:1 !important;
     font-weight:800 !important;
     font-style:normal !important;
@@ -2590,6 +2598,15 @@
         if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey) return;
         var hostsHomePopups = isEmbeddedPage && window.WCHomeExplorer && typeof window.WCHomeExplorer.openDepartmentModal === 'function';
         if(isEmbeddedPage && !hostsHomePopups) return;
+        // Footer pages open as Info Popups where the budget scripts are
+        // loaded (the explorer landing and most pages).
+        var infoPopups = window.WCBudgetData && window.WCBudgetData.openInfoPopupPage;
+        if(infoPopups){
+          event.preventDefault();
+          var kicker = /transaction-search/i.test(link.pathname) ? 'Budget Tools' : /(accessibility|privacy)\.html$/i.test(link.pathname) ? 'Website Information' : 'Budget Reference';
+          infoPopups(link.href, link.getAttribute('data-wc-utility-popup')||link.textContent.trim(), kicker, link);
+          return;
+        }
         if(hostsHomePopups){
           event.preventDefault();
           window.WCHomeExplorer.openDepartmentModal(link.href,link.getAttribute('data-wc-utility-popup')||link.textContent.trim(),link);
@@ -2646,7 +2663,6 @@
         }catch(error){}
       });
       utilityDialog.querySelector('.wc-footer-utility-close').addEventListener('click',closeUtilityDialog);
-      utilityDialog.addEventListener('click',function(event){if(event.target===utilityDialog)closeUtilityDialog();});
       utilityDialog.addEventListener('cancel',function(event){event.preventDefault();closeUtilityDialog();});
     }
   }
@@ -2738,15 +2754,6 @@
         window.console.error("Walton County budget nav repair failed:", error);
       }
     }
-  }
-  function queueWcBudgetNavRepair(){
-    if(wcRepairTimer){
-      clearTimeout(wcRepairTimer);
-    }
-    wcRepairTimer = setTimeout(function(){
-      wcRepairTimer = null;
-      repairWcBudgetNavAfterOpenGovNavigation();
-    }, 700);
   }
   lockHorizontalPageScroll();
   setTimeout(lockHorizontalPageScroll, 500);

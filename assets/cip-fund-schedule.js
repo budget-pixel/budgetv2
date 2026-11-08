@@ -251,6 +251,10 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   }
 
   const yearLabel = displayYear(year);
+  // options.omitYearLabel: a sub-ledger of prior/other commitments (e.g. the
+  // Tourist Development Fund Ledger) that is not new funding for the year,
+  // so its heading, column, and total do not carry the year label.
+  const headingYear = options && options.omitYearLabel ? "" : yearLabel + " ";
   const leadColumns = 1 + (showProjectNumberColumn ? 1 : 0) + (showPastCipYearsColumn ? 1 : 0) + (showDistrictColumn ? 1 : 0) + (showFundingColumn ? 1 : 0) + (showRevenueSourceColumn ? 1 : 0) + (showPhaseColumn ? 1 : 0) + (showStatusColumn ? 1 : 0) + (showDateColumns ? 2 : 0);
 
   const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -359,7 +363,7 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
   return `
     <div class="wc-table-wrap wc-cip-year-table">
       <div class="wc-cip-table-label-row">
-        <p class="wc-table-label">${escapeHtml(yearLabel)} ${escapeHtml(label)}</p>
+        <p class="wc-table-label">${escapeHtml(headingYear)}${escapeHtml(label)}</p>
         ${toggleHtml}
       </div>
       <div class="wc-data-table-scroll">
@@ -376,17 +380,17 @@ function renderYearScheduleTable(year, label, projects, totalLabel, options){
               ${showStatusColumn ? "<th>Current Status</th>" : ""}
               ${showDateColumns ? "<th>Started</th><th>Completed</th>" : ""}
               ${showBudgetColumn ? `<th class="wc-num">Budget/Actual</th>` : ""}
-              ${showAmountColumn ? `<th class="wc-num">${escapeHtml(yearLabel)}</th>` : ""}
+              ${showAmountColumn ? `<th class="wc-num">${escapeHtml(headingYear ? yearLabel : "Amount")}</th>` : ""}
             </tr>
           </thead>
           <tbody>
             ${rowsHtml.join("")}
             ${showAmountColumn ? `<tr class="wc-table-total-row">
-              <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
+              <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(headingYear)}${escapeHtml(totalLabel || label)}</td>
               <td class="wc-num">${money(total)}</td>
             </tr>` : ""}
             ${showBudgetColumn && year !== "PAST_CIP" ? `<tr class="wc-table-total-row">
-              <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(yearLabel)} ${escapeHtml(totalLabel || label)}</td>
+              <td${leadColumns > 1 ? ` colspan="${leadColumns}"` : ""}>Total ${escapeHtml(headingYear)}${escapeHtml(totalLabel || label)}</td>
               <td class="wc-num">${money(total)}</td>
             </tr>` : ""}
           </tbody>
@@ -572,8 +576,8 @@ function renderFundSchedule(config){
         border:1px solid rgba(0,63,40,.14);
         border-radius:999px;
         background:#ffffff;
-        color:#24344d;
-        font-size:13px;
+        color:var(--text);
+        font-size:var(--fs-row);
         font-weight:800;
         cursor:pointer;
         transition:background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
@@ -581,8 +585,8 @@ function renderFundSchedule(config){
 
       .wc-cip-year-button:hover,
       .wc-cip-year-button.is-active{
-        border-color:#003f28;
-        background:#003f28;
+        border-color:var(--green-deep);
+        background:var(--green-deep);
         color:#ffffff;
       }
 
@@ -594,12 +598,11 @@ function renderFundSchedule(config){
         display:block;
         margin-top:2px;
         color:inherit;
-        font-size:9px;
+        font-size:var(--fs-eyebrow);
         font-weight:800;
         font-style:normal;
         letter-spacing:.06em;
         text-transform:uppercase;
-        opacity:.65;
       }
 
       .wc-cip-historical-tag{
@@ -679,10 +682,10 @@ function renderFundSchedule(config){
         gap:5px;
         height:22px;
         padding:0 10px;
-        border:1px solid rgba(0,63,40,.35);
+        border:1px solid rgba(0,98,49,.14);
         border-radius:999px;
         background:#ffffff;
-        color:#24344d;
+        color:var(--text);
         font-family:Arial, Helvetica, sans-serif;
         font-size:11px;
         font-weight:600;
@@ -690,13 +693,16 @@ function renderFundSchedule(config){
         line-height:1;
         white-space:nowrap;
         cursor:pointer;
-        transition:background .2s ease, border-color .2s ease, color .2s ease;
+        transition:background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
       }
 
-      .wc-cip-district-toggle:hover,
+      .wc-cip-district-toggle:hover{
+        transform:translateY(-1px);
+      }
+
       .wc-cip-district-toggle.is-active{
-        border-color:#003f28;
-        background:#003f28;
+        border-color:var(--green-deep);
+        background:var(--green-deep);
         color:#ffffff;
       }
 
@@ -1111,7 +1117,9 @@ function renderFundSchedule(config){
         // and future phases with matching names now share one project page.
         disableLinks: Boolean(config.disableLinks)
       });
-      const districtToggleHtml = isHistoricalYear ? "" : `
+      // config.hideDistrictSort (Tourist Development, Sheriff) drops the
+      // "Sort by District" control from the ledger.
+      const districtToggleHtml = isHistoricalYear || config.hideDistrictSort ? "" : `
         <button type="button" class="wc-cip-district-toggle${sortByDistrict ? " is-active" : ""}" id="wcCipDistrictToggle" aria-pressed="${sortByDistrict ? "true" : "false"}">
           <span class="wc-cip-district-toggle-indicator" aria-hidden="true">${sortByDistrict ? "✓" : ""}</span>
           <span>${sortByDistrict ? "District Subtotals" : "Sort by District"}</span>
@@ -1169,7 +1177,7 @@ function renderFundSchedule(config){
             renderYearScheduleTable(activeYear, config.label + " Ledger", sortProjects(data.projects), config.label, Object.assign({}, tableOptions, { toggleHtml: districtToggleHtml })),
             renderYearScheduleTable(activeYear, "Ledger", sortProjects(data.noAmountProjects), "Ledger", tableOptions),
             renderYearScheduleTable(activeYear, config.grantLedgerLabel || "Grant Funded Ledger", sortProjects(data.grantProjects), config.grantLedgerLabel || "Grant Funded", tableOptions),
-            renderYearScheduleTable(activeYear, config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere Ledger", sortProjects(data.budgetedElsewhereProjects), config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere", tableOptions),
+            renderYearScheduleTable(activeYear, config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere Ledger", sortProjects(data.budgetedElsewhereProjects), config.budgetedElsewhereLedgerLabel || "Budgeted Elsewhere", Object.assign({}, tableOptions, { omitYearLabel: true })),
             renderYearScheduleTable(activeYear, "In-House Engineering Ledger", sortProjects(data.inHouseProjects), "In-House Engineering", Object.assign({}, tableOptions, { hideFundColumns: true }))
           ].join("");
 
@@ -1189,7 +1197,7 @@ function renderFundSchedule(config){
                 ${config.pdfExport ? `<button type="button" class="wc-cip-export-pdf" id="wcCipExportPdf" aria-label="Export ${escapeHtml(yearLabel)} ${escapeHtml(config.label)} ledger as PDF">Export PDF</button>` : ""}
               </div>
             </div>
-            <div class="wc-cip-year-picker" role="tablist" aria-label="Select capital schedule year">
+            <div class="wc-cip-year-picker wc-click-through-tabs wc-dept-beta-tabs" role="tablist" aria-label="Select capital schedule year">
               ${availableYears.map(year => `
                 <button class="wc-cip-year-button${year === activeYear ? " is-active" : ""}" type="button" data-cip-year="${escapeHtml(year)}" role="tab" aria-selected="${year === activeYear ? "true" : "false"}">
                   ${escapeHtml(displayYear(year))}

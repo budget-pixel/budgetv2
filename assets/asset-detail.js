@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "../assets/static-data/asset-detail.csv?v=20261004-static-final";
+  const DATA_URL = "../assets/static-data/asset-detail.csv?v=cf785aa16a";
   const container = document.getElementById("asset-record");
   // Temporary display fallback until the Fleet Note column is included in
   // the published machinery-request CSV. A nonblank request note passed in
@@ -73,13 +73,18 @@
     return match ? Number(match[0]) : 0;
   }
 
-  function render(record) {
+  // opts.container / opts.params let the Machinery ledger render a record
+  // inside its centered popup (see WCAssetDetail below); opts.popup drops
+  // the page-level title since the popup header carries it.
+  function render(record, opts) {
+    opts = opts || {};
+    const target = opts.container || container;
     const pmFields = ["PM Labor Cost", "PM Equipment Cost", "PM Inventory Cost", "PM Supplies Cost", "PM Outsourcing Cost", "PM Overhead Cost"];
     const nonPmFields = ["Non-PM Labor Cost", "Non-PM Equip Cost", "Non-PM Inv Cost", "Non-PM Supply Cost", "Non-PM Outsource Cost", "Non-PM Overhead Cost"];
     const pmTotal = sum(record, pmFields);
     const repairTotal = sum(record, nonPmFields);
     const assetNumber = record["Equip Code"];
-    const params = new URLSearchParams(window.location.search);
+    const params = opts.params || new URLSearchParams(window.location.search);
     const replacementCost = numberValue(params.get("amount"));
     const replacementDescription = params.get("replacement") || "Replacement equipment";
     const fleetNote = params.get("fleetNote") || FALLBACK_FLEET_NOTES[String(assetNumber || "").trim()] || "";
@@ -90,11 +95,11 @@
     const maintenanceShare = replacementCost > 0 ? maintenanceTotal / replacementCost : 0;
     const vehicleYear = parseVehicleYear(record["Asset Desc."]);
     const vehicleAge = vehicleYear ? Math.max(0, new Date().getFullYear() - vehicleYear) : null;
-    document.title = "Asset " + assetNumber + " — Walton County FY 2027 Budget";
+    if (!opts.popup) document.title = "Asset " + assetNumber + " — Walton County FY 2027 Budget";
 
-    container.innerHTML =
+    target.innerHTML =
       '<header class="wc-fleet-header">' +
-        '<div class="wc-fleet-title-row"><div><h1>' + escapeHtml(record["Asset Desc."] || "County vehicle") + "</h1></div></div>" +
+        (opts.popup ? "" : '<div class="wc-fleet-title-row"><div><h1>' + escapeHtml(record["Asset Desc."] || "County vehicle") + "</h1></div></div>") +
         '<div class="wc-fleet-metadata">' + metadata("Asset ID", assetNumber) + metadata("Department", record["Equip Group"] || "Not listed") + metadata("Mileage", quantity(currentMileage, "miles")) + metadata("Vehicle age", vehicleAge == null ? "Not available" : vehicleAge + (vehicleAge === 1 ? " year" : " years")) + "</div>" +
       "</header>" +
       '<section class="wc-fleet-section" aria-labelledby="fleetConditionTitle"><div class="wc-fleet-section-heading"><div><h2 id="fleetConditionTitle">Fleet Notes</h2></div></div>' +
@@ -183,5 +188,30 @@
       });
   }
 
-  loadAssetRecord();
+  // Shared loader for the Machinery ledger's popup: renders one asset into
+  // the given element and resolves with the record (or null if missing).
+  window.WCAssetDetail = {
+    open: function (target, params) {
+      const requestedAsset = String(params.get("asset") || "").trim();
+      target.innerHTML = '<div class="wc-data-loading">Loading equipment record…</div>';
+      return fetchAssetSheetText(DATA_URL)
+        .then(parseCSV)
+        .then((records) => {
+          const record = records.find((item) => String(item["Equip Code"] || "").trim() === requestedAsset);
+          if (!record) {
+            target.innerHTML = '<div class="wc-data-empty"><strong>No equipment record was found for BCC asset ' + escapeHtml(requestedAsset) + '.</strong><br>The asset may not yet be included in the published equipment history.</div>';
+            return null;
+          }
+          render(record, { container: target, params: params, popup: true });
+          return record;
+        })
+        .catch((error) => {
+          console.error("Asset detail failed to load", error);
+          target.innerHTML = '<div class="wc-data-error">The equipment record could not be loaded right now. Please try again.</div>';
+          return null;
+        });
+    }
+  };
+
+  if (container) loadAssetRecord();
 }());

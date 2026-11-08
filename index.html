@@ -1569,6 +1569,8 @@
   .wc-budget-landing-close:hover{background:#eaf3ed}
   .wc-budget-landing-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-close{display:none}
+  .wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-wave,.wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-close{filter:blur(8px)}
+  .wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-close{pointer-events:none}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
   @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-dialog,.wc-budget-landing-panel,.wc-budget-landing-shade,.wc-budget-landing-frame,.wc-budget-landing-close{transition:none!important}}
@@ -1626,11 +1628,11 @@
   <div class="wc-budget-landing-shade" aria-hidden="true"></div>
   <section class="wc-budget-landing-panel">
     <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
-    <iframe class="wc-budget-landing-frame" data-budget-landing-frame data-src="budget-explorer.html?embed=landing" title="Walton County Budget Explorer"></iframe>
+    <iframe class="wc-budget-landing-frame" data-budget-landing-frame data-src="budget-explorer.html?embed=landing" aria-label="Walton County Budget Explorer"></iframe>
   </section>
 </div>
 
-<script src="assets/brand-logo.js?v=20260910-launch-review"></script>
+<script src="assets/brand-logo.js?v=19a0634d30"></script>
 <script>
   (function(){
     function initLogo(){
@@ -1941,6 +1943,10 @@
             var popupOpen = embeddedDocument.documentElement.classList.contains("wc-home-explorer-open") ||
               embeddedDocument.body.classList.contains("wc-home-explorer-open");
             dialog.classList.toggle("is-inner-popup-open", popupOpen);
+            // An Info Popup opened straight from the landing page blurs the
+            // landing inside the frame; blur the wave video and close button
+            // out here too so the whole background reads as one layer.
+            dialog.classList.toggle("is-inner-detail-open", !popupOpen && embeddedDocument.body.classList.contains("wc-budget-detail-open"));
             fitPanelHeight();
           }
           syncInnerPopupState();

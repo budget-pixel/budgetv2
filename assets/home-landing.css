@@ -68,7 +68,7 @@ html.wc-embedded-budget-landing .wc-explorer-intro{padding-top:16px}
 .wc-home-search-form:focus-within{border-color:var(--home-green);box-shadow:0 0 0 3px rgba(0,98,49,.12),0 5px 16px rgba(0,63,40,.08)}
 .wc-home-search-form svg{width:19px;height:19px;flex:0 0 auto;color:var(--home-green)}
 .wc-home-search-form input{min-width:0;flex:1;padding:8px 11px;border:0;outline:0;background:transparent;color:var(--home-ink);font:inherit;font-size:.85rem}
-.wc-home-search-form input::placeholder{color:#78899a}
+.wc-home-search-form input::placeholder{color:var(--muted);opacity:1}
 .wc-home-search-form button{flex:0 0 auto;padding:10px 20px;border:0;border-radius:999px;background:var(--home-green);color:#fff;cursor:pointer;font:inherit;font-size:.76rem;font-weight:850}
 .wc-home-search-form button:hover{background:var(--home-green-dark)}
 .wc-home-search-input-wrap{position:relative;min-width:0}
@@ -206,7 +206,12 @@ body.wc-home-explorer-open footer[role="contentinfo"]{display:none!important}
 .wc-home-explorer-modal-head .wc-nav-search-bar-wrap{width:min(600px,48vw)!important;flex:0 0 min(600px,48vw)!important}
 .wc-home-explorer-modal-head .wc-nav-search-bar-form{padding:3px 4px 3px 13px!important;box-shadow:none!important}
 .wc-home-explorer-modal-head .wc-nav-search-bar-form svg{width:19px!important;height:19px!important}
-.wc-home-explorer-modal-heading{flex:1 1 auto;min-width:0;overflow:hidden}
+.wc-home-explorer-modal-heading{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0;overflow:hidden}
+.wc-home-explorer-modal-heading .wc-home-explorer-modal-seal{width:46px!important;height:46px!important;flex-basis:46px!important;background-size:42px 42px!important;cursor:default!important}
+.wc-home-explorer-modal.is-utility-page .wc-home-explorer-modal-seal{display:none!important}
+@media(max-width:760px){
+  .wc-home-explorer-modal-heading .wc-home-explorer-modal-seal{width:40px!important;height:40px!important;flex-basis:40px!important;background-size:36px 36px!important}
+}
 .wc-home-explorer-modal-heading h2{margin:0;overflow:hidden;color:var(--navy);font-size:1.45rem;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
 .wc-home-explorer-modal-close:hover{background:#eaf3ed}
 .wc-home-explorer-modal-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
