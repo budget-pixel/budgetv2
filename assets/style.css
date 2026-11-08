@@ -6401,3 +6401,16 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-beta-contract-detail{display:block;margin-top:3px;color:var(--muted);font-size:var(--fs-small);line-height:1.5}
 .wc-beta-contract-detail a.wc-beta-contract-doc{display:inline;padding:0;border:0;border-radius:0;background:none;color:var(--green);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .wc-beta-contract-detail a.wc-beta-contract-doc:hover{color:var(--green-deep)}
+/* Machinery, Vehicles & Equipment Ledger header card -- same card as the
+   capital ledgers (styles normally injected by cip-fund-schedule.js). */
+.wc-machinery-controls.wc-cip-schedule-controls{margin:0 0 22px;padding:22px;border:1px solid rgba(0,63,40,.12);border-radius:24px;background:#f7fbf7}
+.wc-machinery-controls .wc-cip-schedule-control-top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:18px}
+.wc-machinery-controls .wc-cip-schedule-control-top h2{margin:0 0 6px;color:#172033;font-family:Georgia,"Times New Roman",serif;font-size:clamp(26px,3vw,40px);line-height:1.08;font-weight:500;border:0;padding:0;text-transform:none;letter-spacing:normal}
+.wc-machinery-controls .wc-cip-schedule-control-top p{max-width:640px;margin:0;color:#607184;font-size:14px;line-height:1.65}
+.wc-machinery-controls .wc-cip-control-actions{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.wc-machinery-controls .wc-cip-active-total{min-width:190px;text-align:right}
+.wc-machinery-controls .wc-cip-active-total strong{display:block;color:#003f28;font-size:28px;line-height:1}
+.wc-machinery-controls .wc-cip-active-total span{display:block;margin-top:7px;color:#607184;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.wc-machinery-controls .wc-cip-export-pdf{margin:0}
+.wc-machinery-controls .wc-cip-year-picker.wc-click-through-tabs{margin:0;background:#fff}
+@media(max-width:700px){.wc-machinery-controls .wc-cip-schedule-control-top{flex-direction:column}.wc-machinery-controls .wc-cip-control-actions{align-items:flex-start}.wc-machinery-controls .wc-cip-active-total{text-align:left}}

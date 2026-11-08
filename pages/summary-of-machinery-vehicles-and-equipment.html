@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Machinery, Vehicles, &amp; Equipment Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.css?v=3091aa6a2a">
+<link rel="stylesheet" href="../assets/style.css?v=1ae6dabb14">
 </head>
 <body>
 
@@ -28,14 +28,26 @@
   }
 </style>
 
-<div class="wc-machinery-controls">
+<div class="wc-machinery-controls wc-cip-schedule-controls">
+<div class="wc-cip-schedule-control-top">
+  <div>
+    <h2 id="machineryLedgerTitle">FY 2027 Ledger</h2>
+    <p>Use the year controls to review past machinery, vehicles &amp; equipment budgets.</p>
+  </div>
+  <div class="wc-cip-control-actions">
+    <div class="wc-cip-active-total">
+      <strong id="machineryYearTotal">&mdash;</strong>
+      <span id="machineryYearTotalLabel">FY 2027 Total</span>
+    </div>
+    <button id="machineryExportPdf" class="wc-cip-export-pdf" type="button" aria-label="Export selected machinery, vehicles, and equipment ledger as PDF">Export PDF</button>
+  </div>
+</div>
 <div class="wc-cip-year-picker wc-click-through-tabs wc-dept-beta-tabs" role="tablist" aria-label="Select machinery, vehicles &amp; equipment ledger year" id="machineryYearPicker">
   <button class="wc-cip-year-button" type="button" data-machinery-year="FY2025" role="tab" aria-selected="false">FY 2025<i class="wc-cip-year-button-tag">Past</i></button>
   <button class="wc-cip-year-button" type="button" data-machinery-year="FY2026" role="tab" aria-selected="false">FY 2026<i class="wc-cip-year-button-tag">Past</i></button>
   <button class="wc-cip-year-button is-active" type="button" data-machinery-year="FY2027" role="tab" aria-selected="true">FY 2027</button>
 </div>
 
-<button id="machineryExportPdf" class="wc-cip-export-pdf" type="button" aria-label="Export selected machinery, vehicles, and equipment ledger as PDF">Export PDF</button>
 </div>
 <h2 id="machineryPrintYear" hidden>FY 2027 Machinery, Vehicles &amp; Equipment</h2>
 
@@ -46,8 +58,6 @@
   #machinery-historical-body{ margin-top: 6px; }
   /* Same Export PDF pill as the Transportation and Capital ledgers:
      white with a green outline, top right beside the year picker. */
-  .wc-machinery-controls{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px 18px; flex-wrap:wrap; }
-  .wc-machinery-controls .wc-cip-year-picker{ flex:1 1 360px; }
   .wc-cip-export-pdf{ flex:none; margin:0 0 16px; padding:10px 16px; border:1px solid #003f28; border-radius:999px; background:#ffffff; color:#003f28; font:800 12px/1.2 Arial,Helvetica,sans-serif; cursor:pointer; }
   .wc-cip-export-pdf:hover,.wc-cip-export-pdf:focus-visible{ background:#003f28; color:#ffffff; }
   @page{ size:letter landscape; margin:.45in; }
@@ -101,6 +111,25 @@ window.wcBudgetPages.forEach(function(p,i,a){if(p.title==="Summary of Machinery,
       }, { once:true });
       window.print();
     });
+    // Header card: "FY 20xx Ledger" title and the selected year's total,
+    // read from the visible funding table's Total row once it renders.
+    const titleEl = document.getElementById("machineryLedgerTitle");
+    const totalEl = document.getElementById("machineryYearTotal");
+    const totalLabelEl = document.getElementById("machineryYearTotalLabel");
+    function updateHeader(){
+      const selected = picker.querySelector('[data-machinery-year][aria-selected="true"]');
+      const label = (selected ? selected.getAttribute("data-machinery-year") : "FY2027").replace("FY", "FY ");
+      const visible = liveEl.hidden ? historicalEl : liveEl;
+      const totalRow = visible.querySelector("tr.wc-table-total-row");
+      const cells = totalRow ? totalRow.querySelectorAll("td") : [];
+      // Only write when the text changes, so this observer doesn't retrigger itself.
+      const set = function(el, text){ if(el.textContent !== text) el.textContent = text; };
+      set(titleEl, label + " Ledger");
+      set(totalLabelEl, label + " Total");
+      set(totalEl, cells.length ? cells[cells.length - 1].textContent.trim() : "\u2014");
+    }
+    new MutationObserver(updateHeader).observe(document.getElementById("content"), { childList:true, subtree:true });
+    updateHeader();
     picker.querySelectorAll("[data-machinery-year]").forEach(function(button){
       button.addEventListener("click", function(){
         const year = button.getAttribute("data-machinery-year");
