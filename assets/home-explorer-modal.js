@@ -52,7 +52,7 @@
   // to grow -- deliberate, so the reveal reads as a consistent flourish
   // rather than something that only happens to appear on slow-loading pages.
   function popupRevealDelay(){
-    return window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches ? 0 : 900;
+    return window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches ? 0 : 400;
   }
 
   function playBackgroundVideo(video){

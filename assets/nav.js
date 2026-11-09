@@ -57,6 +57,24 @@
   // Privacy) that load into an embedded frame in place of the page that
   // linked them get no ?embed flag, so mark them as chromeless right away.
   // Otherwise the sitewide header flashes until the outer page catches up.
+  // Links to outside websites always open in a new browser tab, including
+  // links that scripts build after the page loads. The budget site's own
+  // published hosts count as this site, not outside.
+  (function openOutsideLinksInNewTab(){
+    var ownHosts = [window.location.host, "final2027.budget-waltoncountyfl.com", "budget-pixel.github.io"];
+    document.addEventListener("click", function(event){
+      var link = event.target && event.target.closest ? event.target.closest("a[href]") : null;
+      if(!link || link.hasAttribute("download")) return;
+      var url;
+      try { url = new URL(link.getAttribute("href"), window.location.href); } catch(error) { return; }
+      if(!/^https?:$/.test(url.protocol) || ownHosts.indexOf(url.host) !== -1) return;
+      link.target = "_blank";
+      var rel = (link.getAttribute("rel") || "").split(/\s+/);
+      ["noopener", "noreferrer"].forEach(function(value){ if(rel.indexOf(value) === -1) rel.push(value); });
+      link.setAttribute("rel", rel.join(" ").trim());
+    }, true);
+  })();
+
   // Preview frames for outside sites (GIS maps, the library website) carry
   // data-deferred-src instead of src. A frame's src would hold the page's
   // load event -- and with it the popup's "Loading budget page..." screen --
@@ -113,10 +131,21 @@
     if(!wcIsEmbeddedFrame || document.readyState === "complete"){ fn(); return; }
     window.addEventListener("load", function(){ setTimeout(fn, 0); }, { once:true });
   }
+  // Analytics (Clarity, Google Analytics) start once the page has loaded
+  // and the browser is idle, on every page, so they never compete with the
+  // page's own first render. Visits are still recorded.
+  function wcAnalyticsWhenIdle(fn){
+    function whenIdle(){
+      if("requestIdleCallback" in window) window.requestIdleCallback(fn, { timeout: 3000 });
+      else setTimeout(fn, 200);
+    }
+    if(document.readyState === "complete"){ whenIdle(); return; }
+    window.addEventListener("load", whenIdle, { once:true });
+  }
   if(!wcIsSearchResultsPage){
     (function(c,l,a,r,i,t,y){
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-      wcAfterPageLoad(function(){
+      wcAnalyticsWhenIdle(function(){
         t=l.createElement(r);
         t.async=1;
         t.src="https://www.clarity.ms/tag/"+i;
@@ -137,7 +166,7 @@
   var gaScript = document.createElement("script");
   gaScript.async = true;
   gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-Z7W0K4BTDP";
-  wcAfterPageLoad(function(){ document.head.appendChild(gaScript); });
+  wcAnalyticsWhenIdle(function(){ document.head.appendChild(gaScript); });
 
   gtag("js", new Date());
   gtag("config", "G-Z7W0K4BTDP", {
@@ -172,6 +201,22 @@
           existingScript.addEventListener("load", onload, { once:true });
         }
       }
+      return;
+    }
+    // The page may already include the same file with its own <script> tag
+    // (e.g. budget-explorer.html loads search-data). Reuse it rather than
+    // downloading and running the file a second time.
+    var fileName = function(url){ return String(url || "").split(/[?#]/)[0].split("/").pop().replace(/\.min\.js$/, ".js"); };
+    var wanted = fileName(src);
+    var pageScript = Array.prototype.find.call(document.scripts, function(item){ return item.src && fileName(item.src) === wanted; });
+    if(pageScript){
+      pageScript.id = pageScript.id || scriptId;
+      if(typeof onload === "function"){
+        // Parser-inserted page scripts have run by DOMContentLoaded.
+        if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ onload(); }, { once:true });
+        else onload();
+      }
+      pageScript.setAttribute("data-loaded", "true");
       return;
     }
     var script = document.createElement("script");

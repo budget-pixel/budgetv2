@@ -20,11 +20,17 @@
      Kept identical to assets/nav.js's own copy (same project id). */
   (function(c,l,a,r,i,t,y){
     c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-    t=l.createElement(r);
-    t.async=1;
-    t.src="https://www.clarity.ms/tag/"+i;
-    y=l.getElementsByTagName(r)[0];
-    y.parentNode.insertBefore(t,y);
+    // Start after the page has loaded and the browser is idle, so the
+    // recorder never delays the homepage's first render.
+    function start(){
+      t=l.createElement(r);
+      t.async=1;
+      t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];
+      y.parentNode.insertBefore(t,y);
+    }
+    function whenIdle(){ if("requestIdleCallback" in c) c.requestIdleCallback(start, { timeout: 3000 }); else setTimeout(start, 200); }
+    if(l.readyState === "complete") whenIdle(); else c.addEventListener("load", whenIdle, { once:true });
   })(window, document, "clarity", "script", "xb6teb7sh7");
   window.clarity("consentv2", {
     ad_Storage: "denied",
@@ -1556,11 +1562,11 @@
      above (which also govern the close, and should stay snappy there) --
      scoped to .is-opening only, so closing is untouched. Durations are
      picked to land together: the panel's own WAAPI transform animation
-     (see openDialog) now runs 1050ms, so these settle at or just before
+     (see openDialog) now runs 600ms, so these settle at or just before
      that finishes rather than visibly trailing it. */
-  .wc-budget-landing-dialog.is-opening{transition:background-color 1s cubic-bezier(.22,1,.36,1)}
-  .wc-budget-landing-dialog.is-opening .wc-budget-landing-wave,.wc-budget-landing-dialog.is-opening .wc-budget-landing-shade{transition:opacity .9s ease}
-  .wc-budget-landing-dialog.is-opening .wc-budget-landing-frame,.wc-budget-landing-dialog.is-opening .wc-budget-landing-close{transition:opacity .4s ease .55s}
+  .wc-budget-landing-dialog.is-opening{transition:background-color .6s cubic-bezier(.22,1,.36,1)}
+  .wc-budget-landing-dialog.is-opening .wc-budget-landing-wave,.wc-budget-landing-dialog.is-opening .wc-budget-landing-shade{transition:opacity .55s ease}
+  .wc-budget-landing-dialog.is-opening .wc-budget-landing-frame,.wc-budget-landing-dialog.is-opening .wc-budget-landing-close{transition:opacity .3s ease .3s}
   .wc-budget-landing-dialog.is-settling .wc-budget-landing-panel{transition:box-shadow .7s ease,height .6s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;max-height:none;border:0;border-radius:0;box-shadow:none}
@@ -1632,6 +1638,19 @@
   </section>
 </div>
 
+<script>
+  // Outside websites open in a new tab (same rule as assets/nav.js, which
+  // this page does not load).
+  document.addEventListener("click", function(event){
+    var link = event.target && event.target.closest ? event.target.closest("a[href]") : null;
+    if(!link || link.hasAttribute("download")) return;
+    var url;
+    try { url = new URL(link.getAttribute("href"), window.location.href); } catch(error) { return; }
+    if(!/^https?:$/.test(url.protocol) || [window.location.host, "final2027.budget-waltoncountyfl.com", "budget-pixel.github.io"].indexOf(url.host) !== -1) return;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+  }, true);
+</script>
 <script src="assets/brand-logo.min.js?v=7ad9c20ffa"></script>
 <script>
   (function(){
@@ -1688,7 +1707,7 @@
       var wave = dialog ? dialog.querySelector(".wc-budget-landing-wave") : null;
       var panel = dialog ? dialog.querySelector(".wc-budget-landing-panel") : null;
       var quickMotion = window.matchMedia("(max-width:700px), (prefers-reduced-motion:reduce)").matches;
-      var minimumRevealMs = quickMotion ? 0 : 900;
+      var minimumRevealMs = quickMotion ? 0 : 400;
       var openedAt = 0;
       var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
       var animationTimer = 0;
@@ -1898,9 +1917,9 @@
               sharedAnimation = panel.animate([
                 {transform:openingTransform,borderRadius:"999px",opacity:.7},
                 {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1}
-              ],{duration:quickMotion ? 180 : 1050,easing:"cubic-bezier(.22,1,.36,1)"});
+              ],{duration:quickMotion ? 180 : 600,easing:"cubic-bezier(.22,1,.36,1)"});
             }
-            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); fitPanelHeight(); }, quickMotion ? 200 : 1110);
+            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); fitPanelHeight(); }, quickMotion ? 200 : 650);
           });
         });
         if(!frame.getAttribute("src")) loadFrame();
