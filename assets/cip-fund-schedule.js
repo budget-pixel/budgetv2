@@ -1019,17 +1019,21 @@ function renderFundSchedule(config){
         (!selectedRevenueSource || String(project.revenue_source || "") === selectedRevenueSource)
       ).slice();
 
-      if(historicalSort === "year"){
+      // The Year/Phase/Status sorts belong to the Past CIP tab only --
+      // historicalSort defaults to "status", so without this guard it would
+      // override Sort by District (and the amount order) on FY-year tabs.
+      const pastSort = activeYear === "PAST_CIP" ? historicalSort : "";
+      if(pastSort === "year"){
         sorted.sort((a, b) =>
           earliestPastCipYear(a) - earliestPastCipYear(b) ||
           a.title.localeCompare(b.title)
         );
-      } else if(historicalSort === "phase"){
+      } else if(pastSort === "phase"){
         sorted.sort((a, b) =>
           rankIn(PHASE_ORDER, a.phase_text) - rankIn(PHASE_ORDER, b.phase_text) ||
           a.title.localeCompare(b.title)
         );
-      } else if(historicalSort === "status"){
+      } else if(pastSort === "status"){
         sorted.sort((a, b) =>
           rankIn(STATUS_ORDER, a.status_text) - rankIn(STATUS_ORDER, b.status_text) ||
           a.title.localeCompare(b.title)
