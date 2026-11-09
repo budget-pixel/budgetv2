@@ -567,6 +567,25 @@
   // FTE for 2024-2027 (unlike expense rows, which go back to 2020), so
   // the FTE-vs-cost marker below can only ever cover the FY2025-FY2027
   // transitions; earlier years render as plain, unmarked points.
+  // Every department's Budget Graph labels each line with its change since
+  // FY 2025 (the most recent full year of actuals), and adds that change to
+  // the tooltip, the heading and the data table. A department whose chart
+  // starts later uses its first year.
+  var SNAPSHOT_GROWTH_BASE_YEAR='2025';
+  function growthPercent(first,last){
+    if(!first) return null;
+    return (last-first)/Math.abs(first)*100;
+  }
+  function growthLabel(first,last){
+    var pct=growthPercent(first,last);
+    if(pct===null) return last?'New':'';
+    var rounded=Math.round(pct);
+    return (rounded>0?'+':rounded<0?'\u2212':'')+Math.abs(rounded).toLocaleString('en-US')+'%';
+  }
+  function signedMoney(value){
+    value=Math.round(value);
+    return (value>0?'+':value<0?'\u2212':'')+money(Math.abs(value));
+  }
   function renderSnapshotChart(canvas,legendEl,expenses,showCombinedTotal){
     if(!canvas||typeof window.Chart==='undefined') return;
     var existingChart=window.Chart.getChart(canvas);
@@ -622,11 +641,15 @@
       if(wrap) wrap.outerHTML='<p class="wc-data-empty">No historical spending data is available for this department.</p>';
       return;
     }
+    var showGrowth=trimmedYears.length>1;
+    var baseIndex=Math.max(0,trimmedYears.findIndex(function(y){return y.label===SNAPSHOT_GROWTH_BASE_YEAR;}));
+    var baseYear=trimmedYears[baseIndex]&&trimmedYears[baseIndex].label;
+    if(baseIndex>=trimmedYears.length-1) showGrowth=false;
     canvas.setAttribute('role','img');
     canvas.setAttribute('aria-label','Spending by fiscal year in dollars. The data table below provides the same values.');
     var table=document.createElement('details');
     table.className='wc-snapshot-chart-data';
-    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table wc-snapshot-data-table"><caption>Spending in dollars &middot; FY 2020&ndash;2025 actuals, FY 2026 adopted, FY 2027 final</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col" class="wc-num">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr'+(i===trimmedYears.length-1?' class="is-current-year"':'')+'><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+    table.innerHTML='<summary>View chart data table</summary><div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Spending chart data"><table class="wc-data-table wc-snapshot-data-table"><caption>Spending in dollars &middot; FY 2020&ndash;2025 actuals, FY 2026 adopted, FY 2027 final</caption><thead><tr><th scope="col">Fiscal year</th>'+datasets.map(function(d){return '<th scope="col" class="wc-num">'+escapeHtml(d.label)+'</th>';}).join('')+'</tr></thead><tbody>'+trimmedYears.map(function(y,i){return '<tr'+(i===trimmedYears.length-1?' class="is-current-year"':'')+'><th scope="row">'+y.label+'</th>'+datasets.map(function(d){return '<td class="wc-num">'+money(d.data[i])+'</td>';}).join('')+'</tr>';}).join('')+(showGrowth?'<tr class="wc-snapshot-growth-row"><th scope="row">Change since FY '+baseYear+'</th>'+datasets.map(function(d){var first=d.data[baseIndex],last=d.data[d.data.length-1];var pct=growthLabel(first,last);return '<td class="wc-num">'+(pct?signedMoney(last-first)+' <span>('+pct+')</span>':'&mdash;')+'</td>';}).join('')+'</tr>':'')+'</tbody></table></div>';
     if(wrap)wrap.insertAdjacentElement('afterend',table);
     var chart=new window.Chart(canvas,{
       type:'line',
@@ -639,12 +662,19 @@
           legend:{display:false},
           tooltip:{callbacks:{label:function(context){
             return context.dataset.label+': '+money(context.parsed.y);
+          },afterLabel:function(context){
+            if(!showGrowth||context.dataIndex<=baseIndex) return '';
+            var first=context.dataset.data[baseIndex];
+            var pct=growthPercent(first,context.parsed.y);
+            return pct===null?'':'  '+growthLabel(first,context.parsed.y)+' since FY '+baseYear;
           }}}
         },
+        layout:showGrowth?{padding:{right:118}}:undefined,
         // Expenditure chart: anchor the axis at $0. A negative actual (e.g. a
         // capital reversal) stays exact in the data table below.
         scales:{y:{min:0,beginAtZero:true,ticks:{callback:function(value){return compactMoney(value);}}}}
-      }
+      },
+      plugins:showGrowth?[snapshotGrowthLabels(baseYear,baseIndex)]:[]
     });
     if(legendEl){
       var isolatedIndex=-1;
@@ -663,7 +693,10 @@
           item.classList.toggle('is-dimmed',isolatedIndex!==-1&&index!==isolatedIndex);
         });
       }
-      legendEl.innerHTML=datasets.map(function(dataset,index){return '<button type="button" class="wc-snapshot-chart-legend-item" data-legend-index="'+index+'"><i style="background:'+dataset.borderColor+'"></i>'+escapeHtml(dataset.label)+'</button>';}).join('');
+      var totalFirst=showGrowth?datasets.reduce(function(sum,d){return sum+(Number(d.data[baseIndex])||0);},0):0;
+      var totalLast=datasets.reduce(function(sum,d){return sum+(Number(d.data[d.data.length-1])||0);},0);
+      var growthSummary=showGrowth&&totalFirst?'<span class="wc-snapshot-growth-total">Total '+growthLabel(totalFirst,totalLast)+' since FY '+baseYear+'</span>':'';
+      legendEl.innerHTML=growthSummary+datasets.map(function(dataset,index){return '<button type="button" class="wc-snapshot-chart-legend-item" data-legend-index="'+index+'"><i style="background:'+dataset.borderColor+'"></i>'+escapeHtml(dataset.label)+'</button>';}).join('');
       legendEl.querySelectorAll('.wc-snapshot-chart-legend-item').forEach(function(item,index){
         item.addEventListener('click',function(){
           isolatedIndex=isolatedIndex===index?-1:index;
@@ -671,6 +704,45 @@
         });
       });
     }
+  }
+  // Draws each line's change since the first year just right of its last
+  // point, nudging labels apart so close lines stay readable.
+  function snapshotGrowthLabels(baseYear,baseIndex){
+    return {id:'wcGrowthLabels',afterDatasetsDraw:function(chart){
+      var ctx=chart.ctx,labels=[];
+      chart.data.datasets.forEach(function(dataset,index){
+        var meta=chart.getDatasetMeta(index);
+        if(meta.hidden||!meta.data.length) return;
+        var point=meta.data[meta.data.length-1];
+        var text=growthLabel(dataset.data[baseIndex],dataset.data[dataset.data.length-1]);
+        if(!text) return;
+        labels.push({x:point.x+10,y:point.y,text:text,color:dataset.borderColor});
+      });
+      labels.sort(function(a,b){return a.y-b.y;});
+      for(var i=1;i<labels.length;i++){
+        if(labels[i].y-labels[i-1].y<30) labels[i].y=labels[i-1].y+30;
+      }
+      // Keep the stack inside the chart: if it runs past the bottom, slide
+      // it back up (labels keep their 30px spacing).
+      var bottom=chart.chartArea.bottom-8;
+      if(labels.length&&labels[labels.length-1].y>bottom){
+        labels[labels.length-1].y=bottom;
+        for(var j=labels.length-2;j>=0;j--){
+          if(labels[j+1].y-labels[j].y<30) labels[j].y=labels[j+1].y-30;
+        }
+      }
+      ctx.save();
+      ctx.textBaseline='middle';
+      labels.forEach(function(label){
+        ctx.fillStyle=label.color;
+        ctx.font='800 13px Arial, Helvetica, sans-serif';
+        ctx.fillText(label.text,label.x,label.y-7);
+        ctx.font='600 11px Arial, Helvetica, sans-serif';
+        ctx.fillStyle='#5b6b63';
+        ctx.fillText('since FY '+baseYear,label.x,label.y+8);
+      });
+      ctx.restore();
+    }};
   }
   function hexToRgba(hex,alpha){
     var normalized=hex.replace('#','');
@@ -1352,7 +1424,6 @@
     if((!combinedOffices||!combinedOffices.length)&&key==='tourism beach operations'){
       var beachOfficeSpecs=[
         {label:'Beach Operations',staffingLabel:'Tourism Beach Operations'},
-        {label:'Beach Renourishment',staffingLabel:'Beach Renourishment'},
         {label:'Beach Tram',staffingLabel:'Tourism Beach Tram'}
       ];
       combinedOffices=beachOfficeSpecs.map(function(spec){
@@ -1835,10 +1906,6 @@
     var contractsButton=snapshot.querySelector('[data-profile-contracts-trigger]');
     if(contractsButton) bindSnapshotInformationSheet(contractsButton,'Contractual Services',contractSheetHtml,title.textContent.trim(),'wc-contract-sheet-body');
     enhanceFinanceSheets(expenseQuestion,null,null);
-    if(key==='libraries'){
-      var libraryWebsite=document.querySelector('main#content > a.libraries-iframe-link');
-      if(libraryWebsite) document.querySelector('main#content').appendChild(libraryWebsite);
-    }
     document.body.classList.remove('wc-board-department-loading');
     var profileMain=document.querySelector('main#content');
     if(profileMain) profileMain.removeAttribute('aria-busy');

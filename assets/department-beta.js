@@ -104,8 +104,8 @@
   var TOURISM_OFFICE_MEASURES = {
     "sales-and-visitor-center": [
       [0, "Meeting leads generated for partners", "185", "209", "234", "234", "234", "234", ""],
-      [1, "Visitor Center visitor count", "17,712", "17,313", "18,309", "18,309", "18,309", "18,309", "2024 is year-to-date as of the 2024 Annual Report."],
-      [1, "Visitor Center merchandise sales", "$188,961", "$219,627", "$231,804", "$231,804", "$231,804", "$231,804", "2024 is year-to-date as of the 2024 Annual Report."]
+      [1, "Visitor Center visitor count", "17,712", "17,313", "18,309", "18,309", "18,309", "18,309", ""],
+      [1, "Visitor Center merchandise sales", "$188,961", "$219,627", "$231,804", "$231,804", "$231,804", "$231,804", ""]
     ],
     "marketing": [
       [0, "Total paid media impressions", "300,732,064", "251,223,913", "171,549,291", "171,549,291", "171,549,291", "171,549,291", ""],
@@ -114,7 +114,7 @@
       [1, "BookDirect visits", "33,020", "25,270", "22,263", "22,263", "22,263", "22,263", ""]
     ],
     "communications": [
-      [0, "Earned media value", "$8,894,798", "$3,800,572", "$2,069,323", "$2,069,323", "$2,069,323", "$2,069,323", "2024 covers October 2023 through June 2024 only."],
+      [0, "Earned media value", "$8,894,798", "$3,800,572", "$2,069,323", "$2,069,323", "$2,069,323", "$2,069,323", ""],
       [1, "Beach safety texts sent", "6,730,695", "7,939,656", "6,109,270", "6,109,270", "6,109,270", "6,109,270", ""]
     ]
   };
@@ -128,6 +128,27 @@
         (row[8] ? '<tr class="wc-dept-measure-note-row"><td colspan="6"><p class="wc-performance-note">' + escapeHtml(row[8]) + '</p></td></tr>' : '');
     }).join("");
     return '<div class="wc-dept-measure-table-scroll" tabindex="0" role="region" aria-label="Performance measures"><table class="wc-dept-measure-table" data-trend-kind="steady">' + head + '<tbody>' + body + '</tbody></table></div>';
+  }
+  // Beach Operations' offices keep their own Statement of Function text but
+  // add the print book's goal and challenge, and use the full Personnel
+  // Ledger of the staffing department their positions are budgeted under.
+  // Their core services come from the department's performance measures.
+  var BEACH_OFFICE_PROFILES = {
+    "beach-operations": {
+      keepNarrative: true,
+      goal: "Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
+      workload: "Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.",
+      staffing: "Tourism Beach Operations"
+    },
+    "beach-tram": {
+      keepNarrative: true,
+      goal: "Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
+      workload: "Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.",
+      staffing: "Tourism Beach Tram"
+    }
+  };
+  function officeProfileFor(id) {
+    return TOURISM_OFFICE_PROFILES[id] || BEACH_OFFICE_PROFILES[id] || null;
   }
   var TOURISM_OFFICE_PROFILES = {
     "tourism-administration": {
@@ -593,7 +614,7 @@
     try { singleTourismOffice = !!new URLSearchParams(location.search).get("office") && !!content.querySelector(".tourism-admin-section"); } catch (e) {}
     var officeServiceBlocks = [];
     content.querySelectorAll(".tourism-admin-section").forEach(function (office) {
-      var profile = TOURISM_OFFICE_PROFILES[office.id];
+      var profile = officeProfileFor(office.id);
       var narrative = office.querySelector(".tourism-admin-section-narrative");
       if (!narrative) return;
       narrative.classList.add("wc-tourism-office-profile");
@@ -601,6 +622,15 @@
         // Offices without a print profile (North Walton) keep their text
         // under the same Statement of Function heading.
         narrative.insertAdjacentHTML("afterbegin", '<h3 class="wc-profile-section-title">Statement of Function</h3>');
+        return;
+      }
+      var goalPairHtml = '<div class="wc-dept-goal-pair">' +
+          '<div class="wc-dept-goal-quote"><h3 class="wc-profile-section-title">Department Goal</h3><p>' + escapeHtml(profile.goal) + '</p></div>' +
+          '<div class="wc-dept-goal-quote wc-dept-challenge-quote"><h3 class="wc-profile-section-title">Department Challenges</h3><p>' + escapeHtml(profile.workload) + '</p></div>' +
+        '</div>';
+      if (profile.keepNarrative) {
+        narrative.insertAdjacentHTML("afterbegin", '<h3 class="wc-profile-section-title">Statement of Function</h3>');
+        narrative.insertAdjacentHTML("beforeend", goalPairHtml);
         return;
       }
       narrative.innerHTML =
@@ -875,7 +905,7 @@
       var officeRevenue = addOfficeSection(revenue, "[data-office-revenue-sheet-trigger]", "Revenue Budget Ledger");
       var officePayers = addOfficeSection(revenue, "[data-office-who-pays-trigger]", "Who Pays");
       if (mergeWhoPays(officeRevenue, officePayers, label) && officePayers) officePayers.remove();
-      var officeProfile = office && TOURISM_OFFICE_PROFILES[office.id];
+      var officeProfile = office && officeProfileFor(office.id);
       var officePersonnelHtml = officeProfile && window.WCBudgetData.getDepartmentPersonnelCostDetail
         ? window.WCBudgetData.getDepartmentPersonnelCostDetail(officeProfile.staffing) : "";
       var officeStaffing = null;
@@ -962,6 +992,9 @@
     tabs = tabs.filter(function ([key]) {
       if (key === "submitted") return !!submittedDoc;
       if (key === "budget-graph") return budgetGraph.hasChildNodes();
+      // No core services or measures (e.g. Tourism Administration): the
+      // tab would only hold boilerplate, so leave it out.
+      if (key === "services") return !!services.querySelector(".wc-dept-service-block, table");
       return !independent || key === "overview" || key === "budget" || panels[key].textContent.trim();
     });
     bar.querySelectorAll("[data-dept-tab]").forEach(function (button) {
@@ -992,8 +1025,9 @@
     if (publicSafety) budget.appendChild(publicSafety);
     var lifeguardMap = snapshot.querySelector(".wc-lifeguard-summary-map");
     if (lifeguardMap) overview.appendChild(lifeguardMap);
-    var publicWorksMap = content.querySelector(".public-works-map-section");
-    if (publicWorksMap) overview.appendChild(publicWorksMap);
+    content.querySelectorAll(".public-works-map-section").forEach(function (section) {
+      overview.appendChild(section);
+    });
     var stateAid = content.querySelector("#department-state-aid-tables");
     if (stateAid) budget.appendChild(stateAid);
     if (placeholder && !placeholder.textContent.trim()) placeholder.hidden = true;

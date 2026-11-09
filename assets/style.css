@@ -5612,6 +5612,9 @@ main:has(.wc-profile-snapshot-card) .wc-profile-snapshot-fte-label{font-size:var
 .public-works-map-section .public-works-iframe-link{max-width:none;margin:0}
 .public-works-map-section .public-works-iframe-preview{border-width:3px;border-radius:16px}
 .public-works-map-section .public-works-iframe-preview iframe{height:320px}
+.libraries-website-section .libraries-iframe-link{max-width:none;margin:0}
+.libraries-website-section .libraries-iframe-preview{border-width:3px;border-radius:16px}
+.libraries-website-section .libraries-iframe-preview iframe{height:320px}
 
 /* Expenditures Summary: total department budget headline with the
    Personnel & Operating / Capital Outlay split beneath it. */
@@ -6222,7 +6225,8 @@ html.wc-dept-beta .wc-dept-beta-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:
 }
 @media print{.wc-dept-beta-tabs{display:none!important}.wc-dept-beta-panel[hidden]{display:block!important}}
 html.wc-dept-beta [data-dept-panel="services"] .wc-profile-service-note{margin:24px 0 0;padding-top:14px;border-top:1px solid var(--border);color:var(--muted);font-size:var(--fs-row)}
-html.wc-dept-beta [data-dept-panel="services"] .wc-dept-service-block+.wc-dept-service-block{margin-top:28px}
+html.wc-dept-beta [data-dept-panel="services"] .wc-dept-service-block+.wc-dept-service-block{margin-top:0}
+html.wc-dept-beta [data-dept-panel="services"] .wc-dept-service-measure-list{gap:24px}
 /* Beta: keep the site's standard rounded gold video frame (same as
    .eagle-springs-statement-media .wc-video-frame above), which the beta
    layout moves out of that wrapper. */
@@ -6250,6 +6254,8 @@ html.wc-dept-beta .wc-dept-beta-single .wc-profile-snapshot-grid{grid-template-c
 /* Beta round 4: neutral FY 2027 column in the inline ledgers, Who Pays
    under the revenue ledger, personnel note under its table. */
 html.wc-dept-beta .wc-dept-beta-ledger-body>.wc-data-source-note:last-child{margin:14px 0 0}
+html.wc-dept-beta .wc-dept-beta-ledger-body .wc-data-source-note{margin:14px 0 0}
+html.wc-dept-beta .wc-dept-beta-ledger-body .wc-data-source-note+.wc-data-source-note{margin-top:10px}
 
 /* Beta round 5: ledgers open as page sections. */
 .wc-dept-beta-ledger-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 14px}
@@ -6444,3 +6450,13 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-budget-detail-modal.has-seal .wc-budget-detail-seal{display:block!important;width:46px!important;height:46px!important;flex:0 0 46px!important;background-size:42px 42px!important;cursor:default!important;align-self:center}
 .wc-budget-detail-modal.has-seal .wc-budget-detail-header{gap:14px}
 .wc-budget-detail-modal.has-seal .wc-budget-detail-heading{flex:1 1 auto;min-width:0}
+.wc-snapshot-growth-total{align-self:center;margin-right:6px;padding:4px 10px;border-radius:999px;background:#edf4ef;color:#003f28;font:800 12px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap}
+.wc-snapshot-growth-row th,.wc-snapshot-growth-row td{border-top:2px solid var(--border);font-weight:800;color:#003f28}
+.wc-snapshot-growth-row td span{color:var(--muted);font-weight:700}
+/* Personnel ledger with COLA / health insurance (or FY 2024-25 FTE)
+   columns shown: let headers wrap and tighten padding so the wider
+   table fits the popup without side scrolling. */
+.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols thead th.wc-num,.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-fte-history thead th.wc-num{white-space:normal;vertical-align:bottom;line-height:1.25}
+.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols th,.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols td{padding-left:8px;padding-right:8px}
+.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols thead th:first-child{min-width:150px}
+.wc-dept-beta-ledger table.wc-personnel-position-detail thead th:nth-child(6){white-space:nowrap}
