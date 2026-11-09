@@ -4,6 +4,10 @@
 // the scripts that reference other assets (e.g. nav.js -> search-data.js,
 // budget-data.js -> static-data/budget.json).
 //
+// It also rebuilds the minified copies the pages load (assets/*.min.js and
+// *.min.css, see minify-assets.mjs): sources are versioned first, then
+// minified, then the minified copies are versioned.
+//
 // Run after changing any file in assets/:
 //   node scripts/bump-asset-versions.mjs          (rewrite)
 //   node scripts/bump-asset-versions.mjs --check  (exit 1 if anything is stale)
@@ -14,6 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { minifyAssets } from './minify-assets.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const check = process.argv.includes('--check');
@@ -24,16 +29,16 @@ function listFiles(dir, test) {
     .map((entry) => path.join(dir, entry.name));
 }
 
-const assets = [
+const listAssets = () => [
   ...listFiles('assets', (name) => /\.(js|css)$/.test(name)),
   ...listFiles('assets/static-data', (name) => /\.(json|csv)$/.test(name))
 ];
-function computeVersions() { return new Map(assets.map((file) => {
+function computeVersions() { return new Map(listAssets().map((file) => {
   const hash = crypto.createHash('sha1').update(fs.readFileSync(path.join(root, file))).digest('hex').slice(0, 10);
   return [path.basename(file), hash];
 })); }
 
-const targets = [
+const listTargets = () => [
   ...listFiles('.', (name) => name.endsWith('.html')),
   ...listFiles('pages', (name) => name.endsWith('.html') && name !== 'full-budget-document.html'),
   ...listFiles('assets', (name) => name.endsWith('.js'))
@@ -44,6 +49,8 @@ const escapeRe = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // rewritten, so repeat until every version string is stable.
 let changedFiles = 0;
 let changedRefs = 0;
+function runPasses() {
+const targets = listTargets();
 for (let pass = 0; pass < 6; pass += 1) {
 const versions = computeVersions();
 const pattern = new RegExp('(^|[/"\'\\s])(' + Array.from(versions.keys()).map(escapeRe).join('|') + ')\\?v=[A-Za-z0-9._-]+', 'g');
@@ -64,6 +71,13 @@ for (const file of targets) {
 }
 if (!passRefs || check) break;
 }
+}
+
+runPasses();
+const minified = minifyAssets({ check });
+if (minified) changedFiles += minified;
+if (!check) runPasses();
+if (check && minified) changedRefs += minified;
 
 if (check) {
   if (changedRefs) {

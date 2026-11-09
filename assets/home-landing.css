@@ -507,3 +507,6 @@ html.wc-embedded-budget-landing .wc-home-department-modal-head{box-sizing:border
 
 /* Only the main landing popup keeps a footer; the explorer popups drop theirs. */
 .wc-home-explorer-modal-footer{display:none!important}
+.wc-home-department-modal .wc-home-department-modal-seal{display:none!important;width:42px!important;height:42px!important;flex:0 0 42px!important;background-size:38px 38px!important;cursor:default!important}
+.wc-home-department-modal.is-board-department .wc-home-department-modal-seal{display:block!important}
+@media(max-width:700px){.wc-home-department-modal.is-board-department .wc-home-department-modal-seal{display:none!important}}

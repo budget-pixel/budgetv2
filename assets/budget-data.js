@@ -4206,6 +4206,7 @@
       '<div class="wc-budget-detail-backdrop" aria-hidden="true"></div>' +
       '<section class="wc-budget-detail-card" role="dialog" aria-modal="true" aria-labelledby="wc-budget-detail-title">' +
         '<div class="wc-budget-detail-header">' +
+          '<span class="wc-budget-detail-seal wc-seal-mark" aria-hidden="true"></span>' +
           '<div class="wc-budget-detail-heading">' +
             '<p class="wc-budget-detail-kicker">Budget Detail</p>' +
             '<h2 id="wc-budget-detail-title">Budget Lines</h2>' +
@@ -4498,6 +4499,7 @@
     const title = modal.querySelector("#wc-budget-detail-title");
     const kicker = modal.querySelector(".wc-budget-detail-kicker");
     const body = modal.querySelector(".wc-budget-detail-body");
+    modal.classList.remove("has-seal");
     if (title) title.textContent = options.title || "Detail";
     if (card) card.classList.toggle("wc-budget-detail-card--ledger", /ledger/i.test(options.title || ""));
     if (kicker) kicker.textContent = options.kicker !== undefined ? options.kicker : "Budget Detail";
@@ -4789,6 +4791,7 @@
     const body = modal.querySelector(".wc-budget-detail-body");
     if (kicker) kicker.textContent = opts.kicker || "";
     if (title) title.textContent = opts.title || "";
+    modal.classList.toggle("has-seal", !!opts.seal);
     body.className = "wc-budget-detail-body wc-info-popup-body" + (opts.bodyClass ? " " + opts.bodyClass : "");
     body.innerHTML = opts.html || "";
     if (opts.ledgerInHeader) {
@@ -4820,6 +4823,7 @@
       title: title || "",
       html: '<iframe class="wc-info-page-frame" allowfullscreen title="' + escapeHtml(title || "") + '" src="' + escapeHtml(url.href) + '"></iframe>',
       trigger,
+      seal: true,
       bodyClass: "wc-info-page-popup"
     });
     const frame = document.querySelector(".wc-info-page-frame");

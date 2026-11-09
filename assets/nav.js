@@ -70,14 +70,26 @@
     ? document.currentScript.src.replace(/[^/]+$/, "")
     : "../assets/";
   var wcIsSearchResultsPage = /\/search\.html$/.test(window.location.pathname);
+  // A page shown inside a popup frame reveals once its load event fires, so
+  // scripts it doesn't need to draw (analytics, search index, PDF export)
+  // start right after that instead of holding the popup open. They still
+  // load and run; only their start moves.
+  var wcIsEmbeddedFrame = false;
+  try { wcIsEmbeddedFrame = window.self !== window.top; } catch (frameError) { wcIsEmbeddedFrame = true; }
+  function wcAfterPageLoad(fn){
+    if(!wcIsEmbeddedFrame || document.readyState === "complete"){ fn(); return; }
+    window.addEventListener("load", function(){ setTimeout(fn, 0); }, { once:true });
+  }
   if(!wcIsSearchResultsPage){
     (function(c,l,a,r,i,t,y){
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-      t=l.createElement(r);
-      t.async=1;
-      t.src="https://www.clarity.ms/tag/"+i;
-      y=l.getElementsByTagName(r)[0];
-      y.parentNode.insertBefore(t,y);
+      wcAfterPageLoad(function(){
+        t=l.createElement(r);
+        t.async=1;
+        t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t,y);
+      });
     })(window, document, "clarity", "script", "xb6teb7sh7");
     window.clarity("consentv2", {
       ad_Storage: "denied",
@@ -92,7 +104,7 @@
   var gaScript = document.createElement("script");
   gaScript.async = true;
   gaScript.src = "https://www.googletagmanager.com/gtag/js?id=G-Z7W0K4BTDP";
-  document.head.appendChild(gaScript);
+  wcAfterPageLoad(function(){ document.head.appendChild(gaScript); });
 
   gtag("js", new Date());
   gtag("config", "G-Z7W0K4BTDP", {
@@ -102,7 +114,7 @@
   });
   var mobileStylesheetId = "wc-budget-mobile-styles";
   var splitLogoScriptId = "wc-split-logo-script";
-  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=19a0634d30";
+  var splitLogoScriptUrl = wcBudgetAssetBaseUrl + "brand-logo.js?v=2a9476030b";
   // The publication has one editorial color system. Clear any legacy theme
   // state saved by earlier releases so old visitors cannot remain in dark mode.
   document.documentElement.removeAttribute("data-theme");
@@ -170,7 +182,7 @@
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
-          wcBudgetAssetBaseUrl + "search.js?v=3073435ccd",
+          wcBudgetAssetBaseUrl + "search.js?v=32633e7d8c",
           function(){
             var fallbackSlot = document.querySelector(".wc-nav-search-slot-fallback");
             if(fallbackSlot && fallbackSlot.parentNode){
@@ -556,7 +568,7 @@
     }
     loadWcScriptOnce(
       "wc-budget-pdf-script",
-      wcBudgetAssetBaseUrl + "budget-pdf.js?v=8987ba5f2b"
+      wcBudgetAssetBaseUrl + "budget-pdf.js?v=87c5a2c589"
     );
   }
   var css = `
@@ -2182,7 +2194,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
             </svg>
             <label class="wc-sr-only" for="wcNavBudgetSearch">Search the Walton County budget</label>
-            <input id="wcNavBudgetSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
+            <input id="wcNavBudgetSearch" type="search" placeholder="Search the budget site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
             <button type="submit">Search</button>
           </form>
           <div id="wcNavSearchBarDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
@@ -2678,11 +2690,13 @@
     }
     wcBudgetNavStarted = true;
     if(document.querySelector("nav#nav-menu.nav-menu")){
-      loadWaltonBudgetSearchModules(function(){
-        initWcNavSearch();
+      wcAfterPageLoad(function(){
+        loadWaltonBudgetSearchModules(function(){
+          initWcNavSearch();
+        });
+        loadWaltonPerformanceMobile();
+        loadWaltonBudgetPdfPrintHelper();
       });
-      loadWaltonPerformanceMobile();
-      loadWaltonBudgetPdfPrintHelper();
       ensureWcNavChrome();
       removeWcBreadcrumb();
       setTimeout(initWcNavSearch, 800);
@@ -2695,8 +2709,10 @@
       return;
     }
     renderStandaloneBudgetNav();
-    loadWaltonPerformanceMobile();
-    loadWaltonBudgetPdfPrintHelper();
+    wcAfterPageLoad(function(){
+      loadWaltonPerformanceMobile();
+      loadWaltonBudgetPdfPrintHelper();
+    });
     removeWcBreadcrumb();
     setTimeout(removeWcBreadcrumb, 800);
     setTimeout(removeWcBreadcrumb, 2000);

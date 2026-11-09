@@ -1498,8 +1498,8 @@ function renderProjects(){
         width:28px;
         height:28px;
         border-radius:999px;
-        background:#e8f3eb;
-        color:#08663f;
+        background:#f5eed6;
+        color:#6b5a1e;
         place-items:center;
         font-size:12px;
         font-weight:900;
@@ -1509,7 +1509,7 @@ function renderProjects(){
 
       .wc-cip-major-body strong{
         display:block;
-        color:#003f28;
+        color:var(--navy, #1f2a44);
         font-size:15px;
         line-height:1.3;
       }
@@ -1523,7 +1523,7 @@ function renderProjects(){
       }
 
       .wc-cip-major-item > b{
-        color:var(--green);
+        color:var(--navy, #1f2a44);
         font-size:17px;
         font-weight:900;
         white-space:nowrap;
@@ -2895,6 +2895,9 @@ function renderProjects(){
         letter-spacing:normal;
         text-transform:none;
       }
+      /* Largest Projects list reads in navy, not green. */
+      .wc-cip-major-list .wc-cip-major-body strong,
+      .wc-cip-major-list .wc-cip-major-item > b{ color:var(--navy, #1f2a44); }
 
       .wc-cip-story-header p,
       .wc-cip-story-copy p,

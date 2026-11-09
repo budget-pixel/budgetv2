@@ -634,7 +634,7 @@
     }else{
       var projectScript = document.createElement("script");
       projectScript.id = "wc-cip-projects-loader";
-      projectScript.src = wcCipAssetBaseUrl + "cip-projects-data.js?v=f82ef1a6f2";
+      projectScript.src = wcCipAssetBaseUrl + "cip-projects-data.js?v=38bf771faf";
       projectScript.onload = loadProjectsWhenReady;
       document.head.appendChild(projectScript);
     }

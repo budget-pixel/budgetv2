@@ -387,7 +387,7 @@
         var cells = Array.prototype.slice.call(row.cells);
         // Rows that don't follow the column layout (subtotals spanning
         // columns): widen their first cell instead.
-        if (cells.length < headCells.length) { if (cells[0]) cells[0].colSpan = (cells[0].colSpan || 1) + 1; return; }
+        if (cells.length < headCells.length) { if (cells[0]) { cells[0].colSpan = (cells[0].colSpan || 1) + 1; cells[0].dataset.whoPaysSpan = "1"; } return; }
         var td = document.createElement("td");
         td.className = "wc-beta-who-pays-col";
         var info = bySource[norm(cells[nameAt].textContent)];
@@ -411,9 +411,29 @@
     });
     Array.prototype.forEach.call(revTable.tFoot ? revTable.tFoot.rows : [], function (row) {
       var cells = Array.prototype.slice.call(row.cells);
-      if (cells.length < headCells.length) { if (cells[0]) cells[0].colSpan = (cells[0].colSpan || 1) + 1; return; }
-      row.insertBefore(document.createElement("td"), cells[firstYear]);
+      if (cells.length < headCells.length) { if (cells[0]) { cells[0].colSpan = (cells[0].colSpan || 1) + 1; cells[0].dataset.whoPaysSpan = "1"; } return; }
+      var footTd = document.createElement("td");
+      footTd.className = "wc-beta-who-pays-col";
+      row.insertBefore(footTd, cells[firstYear]);
     });
+    // Who Pays drops out while prior years are shown (the table is already
+    // wide); widened subtotal cells give the column back.
+    var card = revTable.closest(".wc-budget-lines-card");
+    if (card) {
+      var syncWhoPays = function () {
+        var hide = card.classList.contains("show-prior-years");
+        revTable.classList.toggle("wc-who-pays-hidden", hide);
+        revTable.querySelectorAll("[data-who-pays-span]").forEach(function (cell) {
+          var widened = cell.dataset.whoPaysSpan === "1";
+          if (hide === widened) {
+            cell.colSpan = Math.max(1, (cell.colSpan || 1) + (hide ? -1 : 1));
+            cell.dataset.whoPaysSpan = hide ? "0" : "1";
+          }
+        });
+      };
+      syncWhoPays();
+      new MutationObserver(syncWhoPays).observe(card, { attributes: true, attributeFilter: ["class"] });
+    }
     return matched > 0;
   }
 

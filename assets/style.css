@@ -6437,3 +6437,10 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-program-popup .wc-rev-panel{gap:24px}
 .wc-program-popup .wc-program-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (max-width:700px){.wc-program-popup .wc-program-summary{grid-template-columns:1fr}}
+
+.wc-who-pays-hidden .wc-beta-who-pays-col{display:none}
+/* County seal in Info Popups opened as site pages (Ledger Directory, etc.) */
+.wc-budget-detail-modal .wc-budget-detail-seal{display:none!important}
+.wc-budget-detail-modal.has-seal .wc-budget-detail-seal{display:block!important;width:46px!important;height:46px!important;flex:0 0 46px!important;background-size:42px 42px!important;cursor:default!important;align-self:center}
+.wc-budget-detail-modal.has-seal .wc-budget-detail-header{gap:14px}
+.wc-budget-detail-modal.has-seal .wc-budget-detail-heading{flex:1 1 auto;min-width:0}

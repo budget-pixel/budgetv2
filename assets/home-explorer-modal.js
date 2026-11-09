@@ -218,6 +218,32 @@
     doc.body.scrollTop = departmentDetailLayerScroll;
   }
 
+  // Calls done once the frame's page has gone 150ms without DOM changes
+  // (or after 2s at most), i.e. once its scripts have drawn the page.
+  function waitForFrameToSettle(frame, done) {
+    var doc = null;
+    try { doc = frame.contentDocument; } catch (error) {}
+    if (!doc || !doc.body || typeof MutationObserver !== "function") { done(); return; }
+    var finished = false;
+    var quietTimer = null;
+    var observer = new MutationObserver(restart);
+    var capTimer = window.setTimeout(finish, 2000);
+    function finish() {
+      if (finished) return;
+      finished = true;
+      observer.disconnect();
+      window.clearTimeout(quietTimer);
+      window.clearTimeout(capTimer);
+      done();
+    }
+    function restart() {
+      window.clearTimeout(quietTimer);
+      quietTimer = window.setTimeout(finish, 150);
+    }
+    observer.observe(doc.body, { childList: true, subtree: true });
+    restart();
+  }
+
   function updateDepartmentModalHeight() {
     if (!departmentModal || !departmentFrame || departmentModal.hidden) return;
     var panel = departmentModal.querySelector(".wc-home-department-modal-panel");
@@ -745,8 +771,9 @@
       '<section class="wc-home-department-modal-panel">' +
         '<header class="wc-home-department-modal-head wc-popup-header">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
+        '<span class="wc-home-department-modal-seal wc-seal-mark" aria-hidden="true"></span>' +
         '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
-        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" aria-label="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
       '</section>';
@@ -790,10 +817,15 @@
         departmentPanelResizeObserver.disconnect();
         departmentPanelResizeObserver = null;
       }
+      syncDepartmentSeal(targetUrl);
       departmentFrame.src = targetUrl.href;
       syncPopupUrlState(targetUrl);
     });
     departmentFrame.addEventListener("load", function () {
+      try {
+        var loadedUrl = new URL(departmentFrame.contentWindow.location.href);
+        if (loadedUrl.protocol !== "about:") syncDepartmentSeal(loadedUrl);
+      } catch (sealError) {}
       // openDepartmentModal already set the modal's title from the trigger
       // that opened it (an explorer card's label, an "Environmental
       // Resources" override, etc.), so leave that alone on this first load.
@@ -1019,10 +1051,17 @@
         // content reveal and the size grow happen together as one motion,
         // rather than the real (still small, internally-scrolled) page
         // flashing into view before the box has grown to show it properly.
-        var loadingRemoveDelay = isUtilityOrBookLoad ? 0 : Math.max(0, popupRevealDelay() - (Date.now() - departmentModalOpenedAt));
-        window.setTimeout(function () {
-          window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
-        }, loadingRemoveDelay);
+        // The frame's load event can fire before the page has finished
+        // building itself from the budget data (tabs, ledgers), so also
+        // wait for its content to settle before revealing it.
+        var revealLoadedPage = function () {
+          var loadingRemoveDelay = isUtilityOrBookLoad ? 0 : Math.max(0, popupRevealDelay() - (Date.now() - departmentModalOpenedAt));
+          window.setTimeout(function () {
+            window.requestAnimationFrame(function () { departmentModal.classList.remove("is-loading"); });
+          }, loadingRemoveDelay);
+        };
+        if (isUtilityOrBookLoad) revealLoadedPage();
+        else waitForFrameToSettle(departmentFrame, revealLoadedPage);
       }
       if (departmentPanelResizeObserver) {
         departmentPanelResizeObserver.disconnect();
@@ -1063,6 +1102,16 @@
       stateUrl.searchParams.set("popup", popupValue);
       history.replaceState(history.state, "", stateUrl.href);
     } catch (error) {}
+  }
+
+  // Every budget page opened in this popup carries the county seal beside
+  // its title; utility pages (Glossary, Privacy, ...) and the page-turn
+  // budget book do not.
+  function syncDepartmentSeal(url) {
+    if (!departmentModal) return;
+    var path = String(url && url.pathname || "");
+    var showSeal = !!path && !UTILITY_POPUP_PAGE_PATTERN.test(path) && !/\/budget-book\.html$/i.test(path);
+    departmentModal.classList.toggle("is-board-department", showSeal);
   }
 
   function openDepartmentModal(href, title, trigger, returnTo) {
@@ -1135,6 +1184,7 @@
     else if (panelToReset) panelToReset.style.height = "";
     departmentModalOpenedAt = Date.now();
     departmentFrameAwaitingInitialLoad = true;
+    syncDepartmentSeal(url);
     departmentFrame.src = url.href;
     syncPopupUrlState(url);
     departmentModal.hidden = false;
@@ -1305,7 +1355,7 @@
     modal.innerHTML = '<video class="wc-home-explorer-modal-wave" muted loop playsinline preload="none" aria-hidden="true"><source data-src="assets/images/page-images/grok-video-a964bba7-boomerang-loop.mp4" type="video/mp4"></video>' +
       '<div class="wc-home-explorer-modal-backdrop" aria-hidden="true"></div>' +
       '<div class="wc-home-explorer-modal-panel"><header class="wc-home-explorer-modal-head wc-popup-header"><div class="wc-home-explorer-modal-heading"><span class="wc-home-explorer-modal-seal wc-seal-mark" aria-hidden="true"></span><h2 id="wcHomeExplorerModalTitle"></h2></div>' +
-        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
+        '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcExplorerModalSearch">Search the Walton County budget</label><input id="wcExplorerModalSearch" type="search" placeholder="Search the budget site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcExplorerModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcExplorerModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-explorer-modal-close" aria-label="Close explorer">&times;</button></header><div class="wc-home-explorer-modal-body"></div>' +
       '<footer class="wc-home-explorer-modal-footer"><details class="wc-explorer-more-info" open><summary>More information</summary><nav aria-label="Explorer footer links"><button type="button" data-explorer-footer-action="glossary">Glossary &amp; FAQ</button><button type="button" data-explorer-footer-action="documentation">Supporting Documentation</button><button type="button" data-explorer-footer-action="transactions">Transaction Search</button><button type="button" data-explorer-footer-action="accessibility">Accessibility</button><button type="button" data-explorer-footer-action="privacy">Privacy</button></nav></details></footer></div>';
     document.body.appendChild(modal);

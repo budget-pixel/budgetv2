@@ -344,7 +344,7 @@ function normalizeProjectImages(project){
 
   if(fallbackSlugs.some(slug => /hu(?:ck|ch)aba/.test(slug) && /(?:^|-)r(?:oa)?d(?:-|$)|bridge/.test(slug))){
     return [{
-      url:"../assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.jpg",
+      url:"../assets/images/project-images/huckaba-road-604114-bridge-replacement-featured.webp",
       caption:"Project image"
     }];
   }
