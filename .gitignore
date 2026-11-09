@@ -11,6 +11,9 @@ output/pdf/*.tmp.pdf
 !/output/pdf/walton-county-fy2027-budget-book.pdf
 !/output/pdf/walton-county-fy2027-budget-in-brief.pdf
 !/GFOA budget award critera.pdf
+# Documents the site links to (submitted budgets, program requests) must
+# be published with it.
+!/assets/documents/**/*.pdf
 
 # Local tool downloads (e.g. a portable Node.js) -- never committed.
 .tools/

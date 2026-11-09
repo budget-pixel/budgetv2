@@ -87,7 +87,7 @@
 
   // Tourism Administration offices: the same Statement of Function, goal,
   // workload and core services printed in the FY 2027 budget book
-  // (scripts/build-departments-and-services.mjs), plus the staffing
+  // (scripts/print/build-departments-and-services.mjs), plus the staffing
   // department each office's positions are budgeted under.
   var TOURISM_OFFICE_LABELS = {
     "tourism-administration": "Tourism Administration",

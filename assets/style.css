@@ -5046,7 +5046,7 @@ html.wc-embedded-utility .wc-budget-process-back { display: none !important; }
 .wc-dept-goal-chain{clear:both;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:34px;padding-top:4px}
 .wc-dept-goal-chain>.wc-dept-services-label{grid-column:1/-1;margin:0!important}
 /* Department goal, challenge, service, and measure cards use the print
-   budget book palette (scripts/build-departments-and-services.mjs). */
+   budget book palette (scripts/print/build-departments-and-services.mjs). */
 .wc-dept-goal-quote{min-height:132px;margin:0;padding:20px 22px;border:1px solid var(--border);border-radius:16px;border-color:#b8cec0;background:#edf4ef;box-shadow:none}
 .wc-dept-challenge-quote{margin:0;border-color:#d7e2dc;background:#f2f6f3}
 .wc-dept-function-services .wc-dept-goal-quote span{display:block;margin-bottom:6px;color:#756018;font-size:12px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
