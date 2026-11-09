@@ -6184,7 +6184,7 @@ html.wc-embedded-info .wc-skip-link{display:none!important}
 .wc-dept-info-office-cards b{color:var(--green);font-size:var(--fs-card-title);font-weight:900}
 .wc-dept-info-office-cards small{color:var(--muted);font-size:var(--fs-small);font-weight:700}
 .wc-dept-info-office-cards span{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--green);font-weight:800}
-.wc-dept-info-back{margin-top:4px;padding:0;border:0;background:none;color:var(--green);font:800 var(--fs-row)/1.3 Arial,Helvetica,sans-serif;cursor:pointer;justify-self:start}
+.wc-dept-info-back{margin-top:28px;padding:0;border:0;background:none;color:var(--green);font:800 var(--fs-row)/1.3 Arial,Helvetica,sans-serif;cursor:pointer;justify-self:start}
 .wc-dept-info-back:hover{text-decoration:underline}
 /* Department page layout beta (assets/department-beta.js, Emergency
    Management only): topic tabs, statement beside the video, trend column. */
@@ -6414,3 +6414,26 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-machinery-controls .wc-cip-export-pdf{margin:0}
 .wc-machinery-controls .wc-cip-year-picker.wc-click-through-tabs{margin:0;background:#fff}
 @media(max-width:700px){.wc-machinery-controls .wc-cip-schedule-control-top{flex-direction:column}.wc-machinery-controls .wc-cip-control-actions{align-items:flex-start}.wc-machinery-controls .wc-cip-active-total{text-align:left}}
+/* Tourism Administration offices: print-matching profile in the Overview. */
+.wc-tourism-office-profile>.wc-profile-section-title{margin:18px 0 10px}
+.wc-tourism-office-profile>.wc-profile-section-title:first-child{margin-top:4px}
+.wc-tourism-office-profile>p{margin:0 0 16px;color:var(--text);font-size:var(--fs-body);line-height:1.65}
+.wc-tourism-office-profile .wc-dept-goal-pair{margin:0 0 6px}
+.wc-tourism-office-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.wc-tourism-office-service{padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-card);background:#fff}
+.wc-tourism-office-service strong{display:block;margin:0 0 4px;color:var(--green);font-size:var(--fs-lede);font-weight:800}
+.wc-tourism-office-service p{margin:0;color:var(--text);font-size:var(--fs-body);line-height:1.55}
+@media(max-width:800px){.wc-tourism-office-services{grid-template-columns:1fr}}
+
+/* Tourism program Info Popup (North Walton, Lifeguard, Public Safety) */
+.wc-program-popup .wc-program-profile{max-width:none;margin:22px 0 0}
+.wc-program-popup .wc-rev-panel{padding-top:18px}
+
+.wc-program-popup .wc-program-subhead{margin:14px 0 4px;font-size:14px;font-weight:800;color:var(--green-deep,#0b5a35)}
+.wc-program-lines th small,.wc-program-lines td small{display:block;margin-top:2px;font-size:12px;font-weight:400;color:var(--muted,#5b6770)}
+.wc-program-lines tbody th{font-weight:600}
+.wc-program-doc-frame{display:block;width:100%;height:70vh;min-height:480px;border:1px solid var(--border,#e0e8e4);border-radius:12px;background:#fff}
+.wc-program-popup .wc-rev-panel > section{margin:0}
+.wc-program-popup .wc-rev-panel{gap:24px}
+.wc-program-popup .wc-program-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:700px){.wc-program-popup .wc-program-summary{grid-template-columns:1fr}}

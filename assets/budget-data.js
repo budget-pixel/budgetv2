@@ -18166,10 +18166,6 @@
           else office.operating += amount;
         });
         const offices = Array.from(officesByKey.values()).filter((office) => office.current || office.prior).sort((a, b) => b.current - a.current);
-        if (dept.key === "tourism administration") {
-          const publicSafetyIndex = offices.findIndex((office) => normalizeDeptName(office.name) === "tourism public safety");
-          if (publicSafetyIndex !== -1) offices.splice(publicSafetyIndex, 1);
-        }
         if (dept.key === "code compliance" && offices.length === 1) offices[0].prior = dept.prior;
         // Lead with County Administration in its office picker while keeping
         // the remaining offices in their existing budget-based order.
@@ -18375,6 +18371,7 @@
           contracts: sum.contracts,
           capital: sum.capital,
           changing: buildChangingText(sum),
+          rows: office.rows,
           services: [],
           offices: null
         };
@@ -18447,7 +18444,11 @@
           offices: distinctHrefs.length > 1 ? officeChoices : null,
           officeInfos: distinctHrefs.length > 1 ? officeChoices.map((choice) => {
             const office = offices.find((item) => officeDisplayName(item.name) === choice.name);
-            return { name: choice.name, href: choice.href, info: office ? officeInfoFor(office) : null };
+            // Funding programs (North Walton TDT, South Walton Fire lifeguard
+            // and public safety services) have no office page of their own;
+            // their summary Info Popup is the whole view.
+            const isProgram = /north walton tourist development tax|lifeguard|public safety|beach safety/i.test(choice.name);
+            return { name: choice.name, href: choice.href, isProgram, info: office ? officeInfoFor(office) : null };
           }) : null,
           href: distinctHrefs[0] || pageHref(dept.name)
         });
@@ -18545,7 +18546,7 @@
           '<div><span>FY 2027 operating budget</span><b>' + escapeHtml(formatCurrency(info.budget)) + '</b><small>' + info.share.toFixed(1) + '% of Board department budget</small></div>' +
           '<div><span>Change from FY 2026</span><b class="' + (info.change < 0 ? "is-decrease" : "is-increase") + '">' + signed(info.change, escapeHtml(compactCurrency(Math.abs(info.change)))) + '</b><small>' + (info.changePct === null ? "No FY 2026 base" : signed(info.changePct, Math.abs(info.changePct).toFixed(1) + "%") + " from " + escapeHtml(formatCurrency(info.prior))) + '</small></div>' +
           (info.staffed === false
-            ? '<div><span>Budgeted positions</span><b>&mdash;</b><small>No positions budgeted in this office</small></div>'
+            ? '<div><span>Budgeted positions</span><b>&mdash;</b><small>No positions budgeted in this ' + (info.isProgram ? "program" : "office") + '</small></div>'
             : '<div><span>Budgeted positions</span><b>' + escapeHtml(formatNumber(info.fte)) + ' FTE</b><small>' + (info.fteDelta === 0 ? "No change from FY 2026" : signed(info.fteDelta, escapeHtml(formatNumber(Math.abs(info.fteDelta)))) + " FTE from " + escapeHtml(formatNumber(info.priorFte))) + '</small></div>') +
         '</div>';
         const parts = [
@@ -18561,20 +18562,86 @@
         const changing = info.changing ? '<section><h3>What&rsquo;s Changing</h3><p class="wc-dept-info-text">' + escapeHtml(info.changing) + '</p></section>' : "";
         const services = info.services.length ? '<section><h3>Core Services</h3><ul class="wc-dept-info-services">' + info.services.map((item) => '<li>' + escapeHtml(item[0]) + '</li>').join("") + '</ul></section>' : "";
         const offices = info.offices ? '<section><h3>Offices</h3><div class="wc-dept-info-offices">' + info.offices.map((choice) => '<a href="' + escapeHtml(pageLinkBase + choice.href) + '" data-info-popup-open-page="' + escapeHtml(choice.name) + '">' + escapeHtml(choice.name) + ' <span aria-hidden="true">&rarr;</span></a>').join("") + '</div></section>' : "";
-        const action = info.offices ? "" : '<div class="wc-personnel-dept-actions"><a class="wc-ledger-card-button" href="' + escapeHtml(pageLinkBase + info.href) + '" data-info-popup-open-page="' + escapeHtml(info.name) + '">' + (info.isOffice ? "Open Full Office" : "Open Full Department") + '</a></div>';
+        const action = info.offices || info.isProgram ? "" : '<div class="wc-personnel-dept-actions"><a class="wc-ledger-card-button" href="' + escapeHtml(pageLinkBase + info.href) + '" data-info-popup-open-page="' + escapeHtml(info.name) + '">' + (info.isOffice ? "Open Full Office" : "Open Full Department") + '</a></div>';
         const backToOffices = info.parentKey ? '<button type="button" class="wc-dept-info-back" data-dept-info-offices="' + escapeHtml(info.parentKey) + '">&larr; All ' + escapeHtml(info.parentName) + ' offices</button>' : "";
         return '<div class="wc-personnel-explainer-popup wc-personnel-dept-popup wc-dept-info-popup">' + summary + mix + changing + services + offices + backToOffices + action + '</div>';
       };
       // A department split across several pages opens an office picker
       // first (with the department's totals); each office then opens its
       // own Info Popup.
+      const officeCountText = (officeInfos) => {
+        const programs = officeInfos.filter((office) => office.isProgram).length;
+        const offices = officeInfos.length - programs;
+        return offices + (offices === 1 ? " office" : " offices") + (programs ? " and " + programs + (programs === 1 ? " program" : " programs") : "");
+      };
+      // Tourism funding programs (no office page of their own): one Info
+      // Popup with tabs for the program, its budget lines and its source
+      // documents (local copies; the County site blocks embedding).
+      const PROGRAM_PROFILES = {
+        "north walton tourist development tax": {
+          narrative: "North Walton",
+          funding: "Tourist Development Tax collected on short-term lodging stays north of Choctawhatchee Bay, through the Tourist Development Fund. Visitors pay it; it is not a household tax.",
+          docs: []
+        },
+        "south walton fire lifeguard services": {
+          narrative: "South Walton Fire Lifeguard Services",
+          funding: "Tourist Development Tax collected on short-term lodging stays, through the Tourist Development Fund. Visitors pay it; it is not a household tax.",
+          docs: [["agreement", "Lifeguard Agreement", "south-walton-lifeguard-agreement.pdf"]]
+        },
+        "tourism public safety": {
+          narrative: "Public Safety",
+          funding: "Tourist Development Tax collected on short-term lodging stays, through the Tourist Development Fund. Visitors pay it; it is not a household tax.",
+          docs: [["sheriff-request", "Sheriff Request", "sheriff-beach-safety-request.pdf"], ["code-request", "Code Request", "beach-code-compliance-request.pdf"]],
+          // The FY 2026 original budget split by project (10284 Code
+          // Compliance; 10621 Beach Ambassadors + 10622 Beach Safety for the
+          // Sheriff); the line data carries the whole $4.42M on one line.
+          priorByLine: { "code enforcement beach": 1370000, "sheriff beach patrol": 3050000 }
+        }
+      };
+      const programProfileFor = (name) => PROGRAM_PROFILES[normalizeDeptName(name)] || null;
+      const programPopupHtml = (name, info) => {
+        const profile = programProfileFor(name) || { narrative: "", funding: "", docs: [] };
+        const signed = (value, text) => (value > 0 ? "+" : value < 0 ? "&minus;" : "") + text;
+        const money = (value) => escapeHtml(formatCurrency(Math.round(value || 0)));
+        const summary = '<div class="wc-personnel-dept-summary wc-program-summary">' +
+          '<div><span>FY 2027 budget</span><b>' + money(info.budget) + '</b><small>Tourist Development Fund</small></div>' +
+          '<div><span>Change from FY 2026</span><b class="' + (info.change < 0 ? "is-decrease" : "is-increase") + '">' + signed(info.change, escapeHtml(compactCurrency(Math.abs(info.change)))) + '</b><small>' + (info.changePct === null ? "No FY 2026 base" : signed(info.changePct, Math.abs(info.changePct).toFixed(1) + "%") + " from " + money(info.prior)) + '</small></div>' +
+        '</div>';
+        // About: the program's narrative, minus links (documents get tabs).
+        const narrativeRow = (cache.departmentNarratives || []).find((row) => normalizeDeptName(row.Dept_Name) === normalizeDeptName(profile.narrative));
+        const paragraphs = narrativeRow ? splitIntoParagraphs(narrativeRow.Narrative).filter((p) => !/^\s*\[[^\]]+\]\([^)]+\)\s*$/.test(p)) : [];
+        const aboutHtml = paragraphs.length ? '<section><h3>About This Program</h3>' + paragraphs.map((p) => {
+          const heading = p.match(/^\s*\*\*(.+?)\*\*\s*$/);
+          return heading ? '<h4 class="wc-program-subhead">' + escapeHtml(heading[1]) + '</h4>' : '<p class="wc-dept-info-text">' + formatNarrativeText(p) + '</p>';
+        }).join("") + '</section>' : "";
+        const rows = (info.rows || []).filter((row) => (Number(row.FY2027_Proposed) || 0) || (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0));
+        const lineLabel = (row) => {
+          const note = String(row.Note || "").trim();
+          return note && note.length < 60 ? note : (row.Project_Name || row.Object_Name || "Budget line");
+        };
+        const priorFor = (row) => {
+          const override = profile.priorByLine && profile.priorByLine[String(row.Note || "").trim().toLowerCase()];
+          return override !== undefined ? override : Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0;
+        };
+        const linesHtml = rows.length ? '<section><h3>Budget Lines</h3><div class="wc-data-table-scroll"><table class="wc-data-table wc-program-lines"><thead><tr><th scope="col">Line</th><th scope="col" class="wc-num">FY 2026</th><th scope="col" class="wc-num">FY 2027</th></tr></thead><tbody>' +
+          rows.map((row) => '<tr><th scope="row">' + escapeHtml(lineLabel(row)) + '<small>' + escapeHtml(row.Object_Name || "") + '</small></th><td class="wc-num">' + money(priorFor(row)) + '</td><td class="wc-num">' + money(Number(row.FY2027_Proposed) || 0) + '</td></tr>').join("") +
+          '<tr class="wc-table-total-row"><td>Total</td><td class="wc-num">' + money(info.prior) + '</td><td class="wc-num">' + money(info.budget) + '</td></tr></tbody></table></div></section>' : "";
+        const fundingHtml = profile.funding ? '<section><h3>How It Is Paid For</h3><p class="wc-dept-info-text">' + escapeHtml(profile.funding) + '</p></section>' : "";
+        const changing = info.changing ? '<section><h3>What&rsquo;s Changing</h3><p class="wc-dept-info-text">' + escapeHtml(info.changing) + '</p></section>' : "";
+        const docBase = (pageLinkBase ? "" : "../") + "assets/documents/program-requests/";
+        const tabs = [["overview", "Overview", aboutHtml + fundingHtml + changing], ["budget", "Budget", linesHtml]].concat(profile.docs.map((doc) =>
+          [doc[0], doc[1], '<iframe class="wc-program-doc-frame" src="' + escapeHtml(docBase + doc[2]) + '#view=FitH" title="' + escapeHtml(doc[1]) + '" loading="lazy"></iframe>']));
+        const backToOffices = info.parentKey ? '<button type="button" class="wc-dept-info-back" data-dept-info-offices="' + escapeHtml(info.parentKey) + '">&larr; All ' + escapeHtml(info.parentName) + ' offices</button>' : "";
+        return '<div class="wc-personnel-explainer-popup wc-personnel-dept-popup wc-dept-info-popup wc-program-popup">' + summary +
+          '<div class="wc-rev-profile wc-program-profile">' + revenueProfileTabsHtml("program-" + slugifyId(name), tabs) + '</div>' + backToOffices + '</div>';
+      };
       const deptOfficePickerHtml = (key, info) => {
         const signed = (value, text) => (value > 0 ? "+" : value < 0 ? "&minus;" : "") + text;
         return '<div class="wc-personnel-explainer-popup wc-personnel-dept-popup wc-dept-info-popup">' +
-          '<p class="wc-dept-info-text">' + escapeHtml(info.name) + ' budgets ' + escapeHtml(formatCurrency(info.budget)) + ' for FY 2027 (' + signed(info.change, escapeHtml(compactCurrency(Math.abs(info.change)))) + ' from FY 2026) across ' + info.officeInfos.length + ' offices with ' + escapeHtml(formatNumber(info.fte)) + ' FTE. Choose an office to see its budget.</p>' +
+          '<p class="wc-dept-info-text">' + escapeHtml(info.name) + ' budgets ' + escapeHtml(formatCurrency(info.budget)) + ' for FY 2027 (' + signed(info.change, escapeHtml(compactCurrency(Math.abs(info.change)))) + ' from FY 2026) across ' + officeCountText(info.officeInfos) + ' with ' + escapeHtml(formatNumber(info.fte)) + ' FTE. Choose an office to see its budget.</p>' +
           '<div class="wc-dept-info-office-cards">' + info.officeInfos.map((office, index) =>
             '<button type="button" data-dept-info-office="' + escapeHtml(key) + '" data-office-index="' + index + '"><strong>' + escapeHtml(office.name) + '</strong>' +
-            (office.info ? '<b>' + escapeHtml(compactCurrency(office.info.budget)) + '</b><small>' + (office.info.staffed === false ? "No budgeted positions" : escapeHtml(formatNumber(office.info.fte)) + " FTE") + '</small>' : '') +
+            (office.info ? '<b>' + escapeHtml(compactCurrency(office.info.budget)) + '</b>' + (office.isProgram ? "" : '<small>' + (office.info.staffed === false ? "No budgeted positions" : escapeHtml(formatNumber(office.info.fte)) + " FTE") + '</small>') : '') +
             '<span aria-hidden="true">&rarr;</span></button>').join("") + '</div></div>';
       };
       const openDeptOfficePicker = (key, trigger) => {
@@ -18589,9 +18656,9 @@
         const office = parent && parent.officeInfos && parent.officeInfos[index];
         if (!office) return false;
         if (!office.info) return false;
-        const info = Object.assign({}, office.info, { href: office.href, isOffice: true, parentKey: key, parentName: parent.name });
+        const info = Object.assign({}, office.info, { href: office.href, isOffice: true, isProgram: !!office.isProgram, parentKey: key, parentName: parent.name });
         infoPopupReopen = () => openOfficeInfoPopup(key, index, trigger);
-        openInfoDialog({ kicker: parent.name, title: office.name, html: deptInfoPopupHtml(info), trigger, ledgerInHeader: true });
+        openInfoDialog({ kicker: office.isProgram ? parent.name + " · Program" : parent.name, title: office.name, html: office.isProgram ? programPopupHtml(office.name, info) : deptInfoPopupHtml(info), trigger, ledgerInHeader: !office.isProgram });
         return true;
       };
       document.addEventListener("click", (event) => {

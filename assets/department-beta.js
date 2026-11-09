@@ -85,6 +85,133 @@
     '</div>';
   }
 
+  // Tourism Administration offices: the same Statement of Function, goal,
+  // workload and core services printed in the FY 2027 budget book
+  // (scripts/build-departments-and-services.mjs), plus the staffing
+  // department each office's positions are budgeted under.
+  var TOURISM_OFFICE_LABELS = {
+    "tourism-administration": "Tourism Administration",
+    "sales-and-visitor-center": "Sales and Visitors Center",
+    "communications": "Communications",
+    "marketing": "Marketing",
+    "north-walton": "North Walton"
+  };
+  // Tourism office performance measures from the Tourism Department pages
+  // of the Walton County Annual Reports (2022 p. 26, 2023 p. 34, 2024
+  // p. 38). 2025-2027 are projected flat at the 2024 level, since the
+  // direction of these measures isn't known; their trend reads Steady.
+  // Each row: [service index, measure, 2022, 2023, 2024, 2025, 2026, 2027, note].
+  var TOURISM_OFFICE_MEASURES = {
+    "sales-and-visitor-center": [
+      [0, "Meeting leads generated for partners", "185", "209", "234", "234", "234", "234", ""],
+      [1, "Visitor Center visitor count", "17,712", "17,313", "18,309", "18,309", "18,309", "18,309", "2024 is year-to-date as of the 2024 Annual Report."],
+      [1, "Visitor Center merchandise sales", "$188,961", "$219,627", "$231,804", "$231,804", "$231,804", "$231,804", "2024 is year-to-date as of the 2024 Annual Report."]
+    ],
+    "marketing": [
+      [0, "Total paid media impressions", "300,732,064", "251,223,913", "171,549,291", "171,549,291", "171,549,291", "171,549,291", ""],
+      [1, "Website visits", "1,375,592", "1,423,420", "1,894,677", "1,894,677", "1,894,677", "1,894,677", ""],
+      [1, "YouTube video views", "6,438,932", "6,185,756", "4,197,623", "4,197,623", "4,197,623", "4,197,623", ""],
+      [1, "BookDirect visits", "33,020", "25,270", "22,263", "22,263", "22,263", "22,263", ""]
+    ],
+    "communications": [
+      [0, "Earned media value", "$8,894,798", "$3,800,572", "$2,069,323", "$2,069,323", "$2,069,323", "$2,069,323", "2024 covers October 2023 through June 2024 only."],
+      [1, "Beach safety texts sent", "6,730,695", "7,939,656", "6,109,270", "6,109,270", "6,109,270", "6,109,270", ""]
+    ]
+  };
+  function tourismMeasureTableHtml(rows) {
+    function cell(value) { return value ? escapeHtml(value) : '<span class="wc-dept-measure-empty" aria-label="Not reported">&mdash;</span>'; }
+    var head = '<thead><tr><th scope="col">Measure</th><th scope="col" class="wc-num">2022</th><th scope="col" class="wc-num">2023</th><th scope="col" class="wc-num">2024</th><th scope="col" class="wc-num">2025</th><th scope="col" class="wc-num is-target">FY27 Target</th></tr></thead>';
+    var body = rows.map(function (row) {
+      return '<tr' + (row[8] ? ' class="has-note"' : '') + '><th scope="row">' + escapeHtml(row[1]) + '</th>' +
+        [row[2], row[3], row[4], row[5]].map(function (value) { return '<td class="wc-num">' + cell(value) + '</td>'; }).join("") +
+        '<td class="wc-num is-target">' + cell(row[7]) + '</td></tr>' +
+        (row[8] ? '<tr class="wc-dept-measure-note-row"><td colspan="6"><p class="wc-performance-note">' + escapeHtml(row[8]) + '</p></td></tr>' : '');
+    }).join("");
+    return '<div class="wc-dept-measure-table-scroll" tabindex="0" role="region" aria-label="Performance measures"><table class="wc-dept-measure-table" data-trend-kind="steady">' + head + '<tbody>' + body + '</tbody></table></div>';
+  }
+  var TOURISM_OFFICE_PROFILES = {
+    "tourism-administration": {
+      "sof": "Tourism Administration provides executive leadership, financial stewardship, strategic coordination, and administrative support for Walton County Tourism. The office sustains the revenue base needed for visitor services and tourism-funded community investments while coordinating the work of marketing, communications, sales, visitor services, beach operations, and industry partners.",
+      "goal": "Steward visitor-funded resources and coordinate tourism programs that support a strong economy and community quality of life.",
+      "workload": "Four positions oversee the $59.0M Tourist Development Fund, whose uses are restricted by state law to tourism-related purposes.",
+      "services": [
+        [
+          "Lead tourism strategy",
+          "Sets priorities and coordinates tourism programs and investments."
+        ],
+        [
+          "Steward tourism resources",
+          "Oversees Tourist Development Tax-supported budgets, contracts, and compliance."
+        ],
+        [
+          "Support partners and offices",
+          "Aligns staff, industry partners, and community stakeholders around a year-round destination strategy."
+        ]
+      ],
+      "staffing": "Tourism Administration"
+    },
+    "sales-and-visitor-center": {
+      "sof": "The Group Sales team generates new business opportunities and builds awareness of Walton County for meetings and conventions, incentives, weddings, and consumer travel. Visitor Center staff provide trusted destination information and help connect guests with local places, services, and experiences.",
+      "goal": "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
+      "workload": "Nine positions handle group sales for meetings, weddings, and travel, and staff the visitor center.",
+      "services": [
+        [
+          "Develop group business",
+          "Builds relationships with meeting, wedding, incentive, and travel planners."
+        ],
+        [
+          "Operate visitor services",
+          "Provides in-person destination guidance, materials, and referrals."
+        ],
+        [
+          "Represent the destination",
+          "Participates in sales missions, trade activity, and partner outreach."
+        ]
+      ],
+      "staffing": "Tourism Sales and Visitors Center"
+    },
+    "communications": {
+      "sof": "The Communications Division supports Walton County Tourism through earned and owned media that inspire travel and inform visitors, residents, partners, and stakeholders. The division manages strategic communications, public relations, media activities, familiarization tours, press visits, industry relations, and community education about tourism's local value.",
+      "goal": "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
+      "workload": "Five positions manage media relations, press visits, and tourism communications, supported by a $114,000 public relations contract.",
+      "services": [
+        [
+          "Manage public relations",
+          "Coordinates media relations, press visits, releases, and destination storytelling."
+        ],
+        [
+          "Inform partners and residents",
+          "Shares timely tourism information with community and industry stakeholders."
+        ],
+        [
+          "Build owned content",
+          "Develops useful content across County tourism communication channels."
+        ]
+      ],
+      "staffing": "Tourism Communications"
+    },
+    "marketing": {
+      "sof": "The Marketing Division uses research, creative campaigns, digital channels, social media, and travel-trade coordination to communicate Walton County's destination experiences to priority audiences. This work supports visitor spending, local employment, and a diversified tourism economy.",
+      "goal": "Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
+      "workload": "Four positions manage $12.5M in contracted advertising, research, and digital marketing services.",
+      "services": [
+        [
+          "Plan and place destination advertising",
+          "Develops integrated campaigns and media investments for priority markets."
+        ],
+        [
+          "Manage digital visitor engagement",
+          "Operates web, social, email, customer-relationship, and digital-asset platforms."
+        ],
+        [
+          "Measure market performance",
+          "Uses tourism research and analytics to guide audiences, timing, and investment."
+        ]
+      ],
+      "staffing": "Tourism Marketing"
+    }
+  };
+
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]; });
   }
@@ -183,7 +310,7 @@
           if (last[k] > first[k]) up++;
           else if (last[k] < first[k]) down++;
         }
-        var kind = up && !down ? "up" : down && !up ? "down" : up && down ? "mixed" : "steady";
+        var kind = table.dataset.trendKind || (up && !down ? "up" : down && !up ? "down" : up && down ? "mixed" : "steady");
         var label = { up: "Rising", down: "Falling", mixed: "Mixed", steady: "Steady" }[kind];
         var arrow = { up: "↗", down: "↘", mixed: "↕", steady: "→" }[kind];
         cell.innerHTML = sparkline(years) + ' <span class="wc-beta-trend is-' + kind + '"><b aria-hidden="true">' + arrow + "</b>" + label + "</span>";
@@ -440,6 +567,46 @@
     var measureList = goalChain && goalChain.querySelector(".wc-dept-service-measure-list");
     var snapshot = content.querySelector(".wc-board-department-profile:not(.wc-profile-snapshot--office)");
     var officeSnapshots = Array.from(content.querySelectorAll(".wc-profile-snapshot--office"));
+    // A single Tourism office popup (?office=...) is laid out exactly like a
+    // one-office department; the combined page names each office.
+    var singleTourismOffice = false;
+    try { singleTourismOffice = !!new URLSearchParams(location.search).get("office") && !!content.querySelector(".tourism-admin-section"); } catch (e) {}
+    var officeServiceBlocks = [];
+    content.querySelectorAll(".tourism-admin-section").forEach(function (office) {
+      var profile = TOURISM_OFFICE_PROFILES[office.id];
+      var narrative = office.querySelector(".tourism-admin-section-narrative");
+      if (!narrative) return;
+      narrative.classList.add("wc-tourism-office-profile");
+      if (!profile) {
+        // Offices without a print profile (North Walton) keep their text
+        // under the same Statement of Function heading.
+        narrative.insertAdjacentHTML("afterbegin", '<h3 class="wc-profile-section-title">Statement of Function</h3>');
+        return;
+      }
+      narrative.innerHTML =
+        '<h3 class="wc-profile-section-title">Statement of Function</h3>' +
+        '<p>' + escapeHtml(profile.sof) + '</p>' +
+        '<div class="wc-dept-goal-pair">' +
+          '<div class="wc-dept-goal-quote"><h3 class="wc-profile-section-title">Department Goal</h3><p>' + escapeHtml(profile.goal) + '</p></div>' +
+          '<div class="wc-dept-goal-quote wc-dept-challenge-quote"><h3 class="wc-profile-section-title">Department Challenges</h3><p>' + escapeHtml(profile.workload) + '</p></div>' +
+        '</div>';
+      // Core services go in Services & Performance, one block per service,
+      // the same as every other department.
+      var officeName = TOURISM_OFFICE_LABELS[office.id] || "";
+      var officeMeasures = TOURISM_OFFICE_MEASURES[office.id] || [];
+      profile.services.forEach(function (service, serviceIndex) {
+        // A service with no performance measure is left out.
+        var serviceMeasures = officeMeasures.filter(function (row) { return row[0] === serviceIndex; });
+        if (!serviceMeasures.length) return;
+        var block = document.createElement("section");
+        block.className = "wc-dept-service-block";
+        block.innerHTML = '<div class="wc-dept-service-head"><h2 class="wc-profile-section-title">' +
+          escapeHtml((singleTourismOffice || !officeName ? "" : officeName + " · ") + service[0]) +
+          '</h2><p>' + escapeHtml(service[1]) + '</p></div>';
+        block.insertAdjacentHTML("beforeend", tourismMeasureTableHtml(serviceMeasures));
+        officeServiceBlocks.push(block);
+      });
+    });
     var narrativeBlock = document.getElementById("department-narrative") || functionSection || snapshot;
     while (narrativeBlock.parentElement !== content) narrativeBlock = narrativeBlock.parentElement;
     var placeholder = content.querySelector("#department-performance-table");
@@ -488,6 +655,25 @@
     if (statementTitle) {
       statementTitle.classList.add("wc-profile-section-title");
       introText.appendChild(statementTitle);
+    }
+    // Tourism Administration has no department-wide paragraph of its own
+    // (each office carries its own Statement of Function below), so give the
+    // heading a short summary drawn from the print profiles.
+    // A single Tourism office popup (?office=...) shows only that office's
+    // own statement, goal and services, not the department-wide ones.
+    if (singleTourismOffice) {
+      if (statementTitle) statementTitle.remove();
+      statementTitle = null;
+      statementText.forEach(function (p) { p.remove(); });
+      statementText = [];
+      if (goalPair) goalPair.remove();
+      goalPair = null;
+      if (goalLabel) goalLabel.remove();
+    }
+    if (statementTitle && !statementText.length && content.querySelector("#tourism-administration.tourism-admin-section")) {
+      var tourismStatement = document.createElement("p");
+      tourismStatement.textContent = "Walton County Tourism promotes the county as a year-round destination and stewards Tourist Development Tax revenue, which state law restricts to tourism-related purposes. Its four offices, Tourism Administration, Sales and Visitor Center, Communications, and Marketing, share leadership, group sales and visitor services, public relations, and destination advertising.";
+      statementText.push(tourismStatement);
     }
     statementText.forEach(function (p) { introText.appendChild(p); });
     if (goalPair) {
@@ -642,10 +828,12 @@
     officeSnapshots.forEach(function (officeSnapshot) {
       var office = officeSnapshot.closest(".tourism-admin-section");
       var officeHeading = office && office.querySelector(".tourism-admin-section-title");
-      var label = officeHeading ? officeHeading.textContent.trim() : departmentName;
+      var label = officeHeading ? officeHeading.textContent.trim() : (office && TOURISM_OFFICE_LABELS[office.id]) || departmentName;
+      // One office on its own uses the plain titles every department uses.
+      var titlePrefix = singleTourismOffice ? "" : label + " · ";
       var captured = new Set();
       function addOfficeSection(target, selector, title) {
-        var section = ledgerSection(officeSnapshot.querySelector(selector), label + " · " + title);
+        var section = ledgerSection(officeSnapshot.querySelector(selector), titlePrefix + title);
         if (section) {
           target.appendChild(section);
           captured.add(selector);
@@ -653,7 +841,9 @@
         return section;
       }
       var officeBudget = addOfficeSection(budget, "[data-office-operating-budget-sheet-trigger]", "Budget Ledger");
-      addOfficeSection(budgetGraph, "[data-office-graph-trigger]", "Budget Graph");
+      var officeGraph = addOfficeSection(budgetGraph, "[data-office-graph-trigger]", "Budget Graph");
+      var officeLegend = officeGraph && officeGraph.querySelector(".wc-snapshot-chart-legend");
+      if (officeLegend) officeGraph.querySelector(".wc-dept-beta-ledger-tools").appendChild(officeLegend);
       var officeCapital = addOfficeSection(budget, "[data-office-capital-trigger]", "Capital Investments");
       var officeContracts = addOfficeSection(budget, "[data-office-contracts-trigger]", "Contractual Services");
       if (officeBudget) {
@@ -665,11 +855,30 @@
       var officeRevenue = addOfficeSection(revenue, "[data-office-revenue-sheet-trigger]", "Revenue Budget Ledger");
       var officePayers = addOfficeSection(revenue, "[data-office-who-pays-trigger]", "Who Pays");
       if (mergeWhoPays(officeRevenue, officePayers, label) && officePayers) officePayers.remove();
-      var officeStaffing = addOfficeSection(staffing, "[data-office-personnel-ledger-trigger]", "Personnel Ledger");
-      if (officeStaffing) {
-        officeSnapshot.querySelectorAll(".wc-profile-snapshot-director").forEach(function (detail) {
-          officeStaffing.appendChild(detail);
-        });
+      var officeProfile = office && TOURISM_OFFICE_PROFILES[office.id];
+      var officePersonnelHtml = officeProfile && window.WCBudgetData.getDepartmentPersonnelCostDetail
+        ? window.WCBudgetData.getDepartmentPersonnelCostDetail(officeProfile.staffing) : "";
+      var officeStaffing = null;
+      if (officePersonnelHtml) {
+        // Full position-by-position Personnel Ledger, same as single-office
+        // departments, instead of the office's short FTE list.
+        officeStaffing = document.createElement("section");
+        officeStaffing.className = "wc-dept-beta-ledger";
+        officeStaffing.innerHTML = '<h2 class="wc-profile-section-title">' + escapeHtml(titlePrefix + "Personnel Ledger") + '</h2><div class="wc-dept-beta-ledger-body"></div>';
+        var officeStaffingBody = officeStaffing.querySelector(".wc-dept-beta-ledger-body");
+        officeStaffingBody.innerHTML = officePersonnelHtml;
+        var officeStaffingNote = officeStaffingBody.querySelector(":scope > .wc-data-source-note");
+        if (officeStaffingNote) officeStaffingBody.appendChild(officeStaffingNote);
+        var officeStaffingTitle = officeStaffingBody.querySelector(".wc-staffing-notes-title");
+        var officeStaffingHeader = officeStaffingTitle && officeStaffingTitle.closest(".wc-staffing-notes-title-row");
+        if (officeStaffingHeader) {
+          officeStaffingHeader.classList.add("wc-dept-beta-personnel-header");
+          officeStaffingTitle.replaceWith(officeStaffing.querySelector("h2"));
+        } else if (officeStaffingTitle) officeStaffingTitle.remove();
+        staffing.appendChild(officeStaffing);
+        captured.add("[data-office-personnel-ledger-trigger]");
+      } else {
+        officeStaffing = addOfficeSection(staffing, "[data-office-personnel-ledger-trigger]", "Personnel Ledger");
       }
       if (Array.from(officeSnapshot.querySelectorAll(".wc-profile-snapshot-actions button")).every(function (button) {
         return Array.from(captured).some(function (selector) { return button.matches(selector); });
@@ -699,6 +908,18 @@
       });
       measureList.querySelectorAll("table.wc-dept-measure-table").forEach(enhanceMeasureTable);
       services.appendChild(measureList);
+    }
+    if (officeServiceBlocks.length) {
+      var officeServiceList = measureList || document.createElement("div");
+      officeServiceList.classList.add("wc-dept-service-measure-list");
+      officeServiceBlocks.forEach(function (block) {
+        block.querySelectorAll("table.wc-dept-measure-table").forEach(enhanceMeasureTable);
+        officeServiceList.appendChild(block);
+      });
+      if (officeServiceList.querySelector("table.wc-dept-measure-table")) {
+        if (goalChain) goalChain.querySelectorAll(".wc-dept-no-measures").forEach(function (el) { el.remove(); });
+      }
+      if (!officeServiceList.parentNode) services.appendChild(officeServiceList);
     }
     // An empty "no verified performance series" box says nothing; drop it.
     services.querySelectorAll(".wc-data-empty, .wc-dept-measure-empty").forEach(function (el) {
