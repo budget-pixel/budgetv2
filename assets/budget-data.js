@@ -13134,7 +13134,7 @@
     return (
       '<a class="lifeguard-iframe-link" href="https://www.google.com/maps/d/viewer?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw" target="_blank" rel="noopener noreferrer" aria-label="Open Walton County Map">' +
         '<div class="lifeguard-iframe-preview">' +
-          '<iframe src="https://www.google.com/maps/d/embed?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw&amp;ehbc=2E312F" title="Walton County Map" loading="lazy" tabindex="-1"></iframe>' +
+          '<iframe data-deferred-src="https://www.google.com/maps/d/embed?mid=1cEvWmwqVy53RIwJ43HT4ein3KUw&amp;ehbc=2E312F" title="Walton County Map" loading="lazy" tabindex="-1"></iframe>' +
           '<div class="lifeguard-iframe-overlay">' +
             '<div class="lifeguard-iframe-button">Open Walton County Map</div>' +
           "</div>" +

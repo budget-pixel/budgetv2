@@ -57,6 +57,39 @@
   // Privacy) that load into an embedded frame in place of the page that
   // linked them get no ?embed flag, so mark them as chromeless right away.
   // Otherwise the sitewide header flashes until the outer page catches up.
+  // Preview frames for outside sites (GIS maps, the library website) carry
+  // data-deferred-src instead of src. A frame's src would hold the page's
+  // load event -- and with it the popup's "Loading budget page..." screen --
+  // until the outside site finished loading (the county GIS app takes 30+
+  // seconds). Start them only after the page has loaded, once near view.
+  (function loadDeferredFrames(){
+    function load(frame){
+      if(frame.getAttribute("src")) return;
+      frame.setAttribute("src", frame.getAttribute("data-deferred-src"));
+    }
+    function start(){
+      var observer = "IntersectionObserver" in window ? new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){ load(entry.target); observer.unobserve(entry.target); }
+        });
+      }, { rootMargin: "400px 0px" }) : null;
+      var watched = new WeakSet();
+      function scan(){
+        Array.prototype.forEach.call(document.querySelectorAll("iframe[data-deferred-src]:not([src])"), function(frame){
+          if(watched.has(frame)) return;
+          watched.add(frame);
+          if(observer) observer.observe(frame); else load(frame);
+        });
+      }
+      scan();
+      // Frames that scripts add later (e.g. the lifeguard map built from
+      // the budget data) are picked up as they appear.
+      if("MutationObserver" in window && document.body) new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+    }
+    if(document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+  })();
+
   (function markEmbeddedUtilityPage(){
     if(window.top === window.self) return;
     if(!/\/(accessibility|privacy|transaction-search|glossary-acronyms-and-frequently-asked-questions|supporting-budget-documentation)\.html$/i.test(window.location.pathname)) return;
