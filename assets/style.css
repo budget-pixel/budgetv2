@@ -6460,3 +6460,15 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols th,.wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols td{padding-left:8px;padding-right:8px}
 .wc-dept-beta-ledger table.wc-personnel-position-detail.is-showing-optional-cols thead th:first-child{min-width:150px}
 .wc-dept-beta-ledger table.wc-personnel-position-detail thead th:nth-child(6){white-space:nowrap}
+
+/* Fund Financial Ledger click-through: group bar plus fund bar, one sticky block. */
+.wc-fund-schedule-tabs{position:sticky;top:0;z-index:20;display:grid;gap:8px;margin:6px 0 26px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--light);box-shadow:0 6px 14px rgba(23,32,51,.06)}
+.wc-fund-schedule-tabs .wc-click-through-tabs{position:static;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.wc-fund-schedule-tabs .wc-fund-tabs{padding-top:8px;border-top:1px solid var(--border)}
+.wc-fund-schedule-tabs .wc-fund-tabs{display:grid;grid-template-columns:repeat(var(--fund-cols,5),minmax(0,1fr))}
+.wc-fund-schedule-tabs .wc-fund-tabs[hidden]{display:none}
+.wc-fund-schedule-tabs .wc-fund-tabs button{min-height:38px;font-size:.92em}
+@media(max-width:900px){.wc-fund-schedule-tabs .wc-fund-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.wc-fund-schedule-tabs .wc-fund-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.wc-fund-schedule-tabs .wc-fund-group-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media print{.wc-fund-schedule-tabs{display:none!important}#consolidated-fund-financial-schedule[hidden],#major-fund-financial-schedules[hidden],#non-major-fund-financial-schedules[hidden],#consolidated-fund-financial-schedule .wc-budget-lines-card[hidden],#major-fund-financial-schedules .wc-budget-lines-card[hidden],#non-major-fund-financial-schedules .wc-budget-lines-card[hidden]{display:block!important}}

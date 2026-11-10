@@ -8891,6 +8891,105 @@
       .join("");
   }
 
+  // Fund Financial Ledger click-through: a group bar (Consolidated / Major
+  // Funds / Non-Major Funds) and, for groups with more than one fund, a fund
+  // bar beneath it. One schedule shows at a time; the selection is kept in
+  // the URL hash (e.g. #tourist-development-fund) so links can open a fund.
+  function setupFundScheduleTabs(consolidatedEl, majorEl, nonMajorEl) {
+    if (!consolidatedEl || !majorEl || !nonMajorEl) return;
+    const slug = (text) => String(text).toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const groups = [
+      { key: "consolidated", label: "Consolidated", el: consolidatedEl },
+      { key: "major", label: "Major Funds", el: majorEl },
+      { key: "non-major", label: "Non-Major Funds", el: nonMajorEl }
+    ].map((group) => Object.assign(group, {
+      funds: Array.from(group.el.querySelectorAll(":scope > .wc-budget-lines-card")).map((card) => {
+        const title = (card.querySelector(".wc-fund-financial-table-title")?.textContent || "").trim();
+        return { card: card, title: title, key: slug(title) };
+      }).filter((fund) => fund.key)
+    })).filter((group) => group.funds.length);
+    if (!groups.length) return;
+
+    // The group bar replaces the "Major Funds" / "Non-Major Funds" headings.
+    [majorEl, nonMajorEl].forEach((el) => {
+      const heading = el.previousElementSibling;
+      if (heading && heading.classList.contains("wc-fund-section-heading")) heading.hidden = true;
+    });
+
+    const tabButton = (attr, key, label, controls) =>
+      '<button type="button" role="tab" ' + attr + '="' + key + '" aria-selected="false" tabindex="-1"' +
+      (controls ? ' aria-controls="' + controls + '"' : "") + '>' + escapeHtml(label) + "</button>";
+    const nav = document.createElement("div");
+    nav.className = "wc-fund-schedule-tabs";
+    nav.innerHTML =
+      '<div class="wc-click-through-tabs wc-fund-group-tabs" role="tablist" aria-label="Fund groups">' +
+        groups.map((group) => tabButton("data-fund-group", group.key, group.label, group.el.id)).join("") +
+      "</div>" +
+      '<div class="wc-click-through-tabs wc-fund-tabs" role="tablist" aria-label="Funds" hidden></div>';
+    consolidatedEl.parentNode.insertBefore(nav, consolidatedEl);
+    const groupBar = nav.querySelector(".wc-fund-group-tabs");
+    const fundBar = nav.querySelector(".wc-fund-tabs");
+
+    function select(groupKey, fundKey, focusBar, keepHash) {
+      const group = groups.find((g) => g.key === groupKey) || groups[0];
+      const fund = group.funds.find((f) => f.key === fundKey) || group.funds[0];
+      groupBar.querySelectorAll("[data-fund-group]").forEach((button) => {
+        const on = button.dataset.fundGroup === group.key;
+        button.setAttribute("aria-selected", String(on));
+        button.tabIndex = on ? 0 : -1;
+      });
+      fundBar.hidden = group.funds.length < 2;
+      // Even columns: up to six funds in one row, otherwise two balanced rows.
+      fundBar.style.setProperty("--fund-cols", String(group.funds.length <= 6 ? group.funds.length : Math.ceil(group.funds.length / 2)));
+      fundBar.innerHTML = group.funds.map((f) => tabButton("data-fund-key", f.key, f.title)).join("");
+      fundBar.querySelectorAll("[data-fund-key]").forEach((button) => {
+        const on = button.dataset.fundKey === fund.key;
+        button.setAttribute("aria-selected", String(on));
+        button.tabIndex = on ? 0 : -1;
+      });
+      groups.forEach((g) => {
+        g.el.hidden = g !== group;
+        g.funds.forEach((f) => { f.card.hidden = f !== fund; });
+      });
+      if (focusBar) {
+        const active = (focusBar === "fund" ? fundBar : groupBar).querySelector('[aria-selected="true"]');
+        if (active) active.focus();
+      }
+      if (!keepHash) { try { history.replaceState(null, "", "#" + fund.key); } catch (e) {} }
+    }
+
+    function moveWithin(bar, event, activate) {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      const all = Array.from(bar.querySelectorAll('[role="tab"]'));
+      const index = all.indexOf(event.target.closest('[role="tab"]'));
+      if (index < 0) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? all.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + all.length) % all.length;
+      activate(all[next]);
+    }
+
+    groupBar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-fund-group]");
+      if (button) select(button.dataset.fundGroup, null, null);
+    });
+    fundBar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-fund-key]");
+      if (!button) return;
+      const group = groups.find((g) => g.funds.some((f) => f.key === button.dataset.fundKey));
+      select(group.key, button.dataset.fundKey, null);
+    });
+    groupBar.addEventListener("keydown", (event) => moveWithin(groupBar, event, (button) => select(button.dataset.fundGroup, null, "group")));
+    fundBar.addEventListener("keydown", (event) => moveWithin(fundBar, event, (button) => {
+      const group = groups.find((g) => g.funds.some((f) => f.key === button.dataset.fundKey));
+      select(group.key, button.dataset.fundKey, "fund");
+    }));
+
+    const hashKey = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    const start = groups.find((g) => g.key === hashKey || g.funds.some((f) => f.key === hashKey)) || groups[0];
+    select(start.key, hashKey, null, !hashKey);
+  }
+
   function initFundFinancialSchedulesPage() {
     const consolidatedEl = document.getElementById("consolidated-fund-financial-schedule");
     const majorEl = document.getElementById("major-fund-financial-schedules");
@@ -8912,6 +9011,7 @@
         bindPriorYearsToggle(consolidatedEl);
         bindPriorYearsToggle(majorEl);
         bindPriorYearsToggle(nonMajorEl);
+        setupFundScheduleTabs(consolidatedEl, majorEl, nonMajorEl);
       })
       .catch((err) => {
         console.error("WCBudgetData: failed to load budget data", err);

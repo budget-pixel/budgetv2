@@ -60,13 +60,19 @@ ${footer(18)}</section>`);
 // budgets (transfers, capital, grants and aid, and contingency excluded).
 // The General Fund target also holds the FY 2028 debt payment (Debt Ledger)
 // and $10 million for storm-debris cleanup ahead of FEMA reimbursement,
-// the 12.5% local share FEMA and the State do not cover, and an estimated
+// and an estimated
 // named-storm deductible of 5% of each insured building's value, per
 // building and per occurrence (Risk Management; FMIT asset survey, current
 // building limits, or survey value for newly scheduled assets), and the
-// survey reconstruction cost of uninsured assets. Beach access sites, Beach
+// 25% of the survey reconstruction cost of uninsured assets (the share left
+// after FEMA Public Assistance's 75%) in the General Fund; the tourism
+// target holds the full replacement cost. Beach access sites, Beach
 // Operations, the Tourist Development Building, and the Grayton Beach parking
-// facility are assigned to the Tourist Development Fund.
+// facility are assigned to the Tourist Development Fund. Sites paid for by
+// other funds are left out: Public Works and district road departments,
+// the Mossy Head wastewater plant (Transportation), the landfill and transfer
+// station (Solid Waste), the Building Department (Building Fund), Mosquito
+// Control, and the auto shop at 116 Montgomery Circle.
 // The tourism target adds $80M for beach renourishment, the strategic plan's
 // $5M destination development and $15M mobility/congestion reserves, and
 // $10M for hurricane recovery and cleanup. The tourism target follows the Walton County Tourism
@@ -74,7 +80,7 @@ ${footer(18)}</section>`);
 // half a year of operating costs.
 const RESERVE = {
   general: {
-    personnel: 48433574, operating: 23728411, debt2028: 2507824, debris: 8750000, localShare: 1250000, deductible: 7611668, uninsured: 21656460,
+    personnel: 48433574, operating: 23728411, debt2028: 2507824, debris: 10000000, deductible: 6243920, uninsured: 17008730,
     ending: values(generalFund, "Estimated Ending Fund Balance")[7],
     ending2028: values(generalFund, "Estimated Ending Fund Balance")[8]
   },
@@ -92,10 +98,11 @@ const gfRows = [
   ["Personnel services", `Six months of ${currency(RESERVE.general.personnel)} personnel services`, half(RESERVE.general.personnel)],
   ["Operating expenses", `Six months of ${currency(RESERVE.general.operating)} operating expenses`, half(RESERVE.general.operating)],
   ["Debt service", "FY 2028 scheduled payment", RESERVE.general.debt2028],
-  ["Hurricane recovery and cleanup", "Reimbursable share of $10.0M countywide debris removal", RESERVE.general.debris],
-  ["Local share", "12.5% of $10.0M not reimbursed by FEMA or the State", RESERVE.general.localShare],
-  ["Insurance deductibles", "5% named-storm deductible on $152.2M of insured buildings", RESERVE.general.deductible],
-  ["Uninsured assets", "Replacement cost of uninsured sheds, fences, lighting, and park structures", RESERVE.general.uninsured]
+  { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
+    ["Debris removal", "Countywide debris removal after a named storm", RESERVE.general.debris],
+    ["Insurance deductibles", "5% named-storm deductible on $124.9M of insured buildings", RESERVE.general.deductible],
+    ["Uninsured assets", `25% of ${millions(RESERVE.general.uninsured)} uninsured sheds, fences, lighting, and park structures`, Math.round(RESERVE.general.uninsured * 0.25)]
+  ] }
 ];
 const tdRows = [
   ["Personnel services", `Six months of ${currency(RESERVE.tourism.personnel)} personnel services`, half(RESERVE.tourism.personnel)],
@@ -103,24 +110,32 @@ const tdRows = [
   ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
   ["Destination development", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.destination],
   ["Mobility and congestion", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.mobility],
-  ["Hurricane recovery and cleanup", "Beach and tourism facility recovery after a named storm", RESERVE.tourism.recovery],
-  ["Insurance deductibles", "5% named-storm deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible],
-  ["Uninsured assets", "Replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured]
+  { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
+    ["Beach and facility cleanup", "Beach and tourism facility recovery after a named storm", RESERVE.tourism.recovery],
+    ["Insurance deductibles", "5% named-storm deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible],
+    ["Uninsured assets", "Full replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured]
+  ] }
 ];
-const gfTarget = gfRows.reduce((sum, r) => sum + r[2], 0);
-const tdTarget = tdRows.reduce((sum, r) => sum + r[2], 0);
-const reserveTable = (rows, total) => `<div class="rp-table">${rows.map(([label, basis, amount]) => `<div class="rp-row"><strong>${label}</strong><span>${basis}</span><b>${currency(amount)}</b></div>`).join('')}<div class="rp-row rp-total"><strong>Reserve target</strong><span></span><b>${currency(total)}</b></div></div>`;
-const reserveStats = (target, ending, endingLabel) => `<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div><div class="stat"><b>${ending >= target ? '+' : '&minus;'}${millions(Math.abs(ending - target))}</b><span>${ending >= target ? 'Above target' : 'Below target'}</span></div></div>`;
+// A row is [label, basis, amount] or a { group, basis, children } block whose
+// amount is the sum of its indented child rows.
+const rowAmount = r => r.children ? r.children.reduce((sum, c) => sum + c[2], 0) : r[2];
+const gfTarget = gfRows.reduce((sum, r) => sum + rowAmount(r), 0);
+const tdTarget = tdRows.reduce((sum, r) => sum + rowAmount(r), 0);
+const reserveRow = ([label, basis, amount], cls = '') => `<div class="rp-row${cls}"><strong>${label}</strong><span>${basis}</span><b>${currency(amount)}</b></div>`;
+const reserveTable = (rows, total) => `<div class="rp-table">${rows.map(r => r.children
+  ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group') + r.children.map(c => reserveRow(c, ' rp-sub')).join('')
+  : reserveRow(r)).join('')}<div class="rp-row rp-total"><strong>Reserve target</strong><span></span><b>${currency(total)}</b></div></div>`;
+const reserveStats = (target, ending, endingLabel) => `<div class="stats" style="grid-template-columns:repeat(2,1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div></div>`;
 pages.push(`<section class="page reserve-page">${header('Financial Overview','Reserve Position','Reserves keep services running through a revenue shortfall or a disaster. Each target below holds six months of personnel and operating costs. The General Fund target also holds next year&rsquo;s debt payment and storm-recovery costs.')}
 <h2>General Fund</h2>
 ${reserveStats(gfTarget, RESERVE.general.ending, 'Estimated FY 2027 ending balance')}
 ${reserveTable(gfRows, gfTarget)}
-<div class="card"><strong>Storm recovery</strong><p>The County pays debris haulers before FEMA reimbursement arrives, often a year or more later. FEMA covers 75% of eligible costs and the State usually half the rest, leaving a 12.5% local share. Uninsured damage and the named-storm deductible on County property are paid in full.</p></div>
+<div class="card"><strong>Hurricane recovery and cleanup</strong><p>The County pays debris haulers up front, and FEMA reimbursement often arrives a year or more later. FEMA also covers 75% of eligible repairs to uninsured County facilities, so the reserve holds the other 25%. Insured buildings carry a 5% named-storm deductible per building, which the County pays in full.</p></div>
 <h2>Tourist Development Fund</h2>
 ${reserveStats(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects, 'FY 2027 ending balance after capital')}
 ${reserveTable(tdRows, tdTarget)}
 <div class="grid2"><div class="card"><strong>Basis for the target</strong><p>The Walton County Tourism 2026&ndash;2030 strategic plan, reviewed at a joint Board of County Commissioners and Tourist Development Council workshop, recommended an operating reserve of about half a year of operating costs, a $5.0M destination development balance, and a $15.0M mobility and congestion reserve.</p></div><div class="card"><strong>Use of the balance</strong><p>Tourist development tax is restricted by Section 125.0104, Florida Statutes, to tourism promotion, beach and visitor facilities, and related uses. The balance above the target is held for those purposes and cannot support General Fund services.</p></div></div>
-<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}</style>
+<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-group strong,.reserve-page .rp-group b{color:#003f28;font-weight:800}.reserve-page .rp-sub{padding:.03in 0}.reserve-page .rp-sub strong{padding-left:.16in;font-weight:600;color:#3b5249}.reserve-page .rp-sub span,.reserve-page .rp-sub b{font-size:7.6pt}.reserve-page .rp-sub b{font-weight:600;color:#53665d}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}</style>
 ${footer(41)}</section>`);
 
 pages.push(`<section class="page map-page">${header('Capital Budget','Where FY 2027 Capital Investment Serves','The funded program combines place-specific projects with countywide asset preservation. Markers identify broad service areas, not surveyed project coordinates.')}
