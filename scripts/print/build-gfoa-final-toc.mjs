@@ -77,7 +77,7 @@ departments.groups = departments.groups.map(([label, page, children]) =>
   [label, page == null ? null : departmentPage(page), children.map(([name, number]) => [name, departmentPage(number)])]);
 const financialOverview = sections.find((s) => s.title === "Financial Overview");
 financialOverview.items.splice(1, 0, ["How the Budget Works", 18], ["How to Read the Financial Schedules", 19]);
-financialOverview.items.splice(financialOverview.items.findIndex(([label]) => label === "Long-Term Outlook"), 0, ["General Fund Reserve Position", 40]);
+financialOverview.items.splice(financialOverview.items.findIndex(([label]) => label === "Long-Term Outlook"), 0, ["Reserve Position", 40]);
 const capitalBudget = sections.find((s) => s.title === "Capital Budget");
 capitalBudget.items.splice(1, 0, ["Capital Investment Map", 110], ["Capital Funding and Delivery Dashboard", 111]);
 // Organizational challenges and responses now occupy two pages.
@@ -102,6 +102,15 @@ for (const section of sections) {
 capitalBudget.items = capitalBudget.items.filter(item => !(Array.isArray(item) && item[0] === "Capital Investment Map"));
 for (const section of sections) {
   if (section.items) section.items = section.items.map(item => Array.isArray(item) ? [item[0], item[1] > 112 ? item[1] - 1 : item[1], item[2]] : item);
+}
+// The Financial Overview now opens with its roadmap (page 18), followed by
+// Budget in Brief (19) and How the Budget Works (20); the roadmap replaces
+// the former "How to Read the Financial Schedules" page.
+{
+  const order = { "Financial Overview Roadmap": 18, "Budget in Brief": 19, "How the Budget Works": 20 };
+  financialOverview.items = financialOverview.items.filter((item) => !(Array.isArray(item) && item[0] === "How to Read the Financial Schedules"));
+  financialOverview.items.unshift(["Financial Overview Roadmap", 18]);
+  financialOverview.items = financialOverview.items.map((item) => Array.isArray(item) && order[item[0]] ? [item[0], order[item[0]], item[2]] : item);
 }
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.

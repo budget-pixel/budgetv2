@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=8ec659c0a0";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=3ee63f5f22";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -16370,17 +16370,10 @@
       // personnelCostDeptDetailHtml (both are the same kind of thing: a real,
       // known dollar gap between the formula estimate and the department's
       // actual budgeted total that isn't tied to any individual roster row).
-      // Office of the County Attorney: its budgeted salary line is below the
-      // positions' pay rates plus COLA, so spreading that gap over Salaries
-      // made every position's pay look like it excluded the COLA. Keep each
-      // position's salary at its rate plus COLA and carry the salary gap in
-      // the Retirement & Other Benefits column instead (the total still ties
-      // to the department budget).
-      const salaryGapToBenefits = normalizeDeptName(deptName) === "office of the county attorney";
-      const perPositionSalaries = isBocc || salaryGapToBenefits ? (overtimeTotal / reconcilableCount) : (salariesGap + overtimeTotal) / reconcilableCount;
+      const perPositionSalaries = isBocc ? (overtimeTotal / reconcilableCount) : (salariesGap + overtimeTotal) / reconcilableCount;
       const perPositionRetirement = isBocc ? 0 : retirementGap / reconcilableCount;
       const perPositionHealthInsurance = isBocc ? 0 : healthInsuranceGap / reconcilableCount;
-      const perPositionOtherBenefits = isBocc ? 0 : (otherBenefitsGap + (salaryGapToBenefits ? salariesGap : 0)) / reconcilableCount;
+      const perPositionOtherBenefits = isBocc ? 0 : otherBenefitsGap / reconcilableCount;
       reconcilablePositions.forEach((p) => {
         p.Cost.Salaries += perPositionSalaries;
         p.Cost.Retirement += perPositionRetirement;
@@ -19163,7 +19156,7 @@
   function downloadBudgetImportCsv() {
     // Account-level import captured directly from the published sheet;
     // display data merges accounts and applies publication adjustments.
-    return fetch(assetBaseUrl + "static-data/budget-import-fy2027.csv?v=3531bebcaf", { cache: "default" })
+    return fetch(assetBaseUrl + "static-data/budget-import-fy2027.csv?v=96f49d51f8", { cache: "default" })
       .then((response) => {
         if (!response.ok) throw new Error("Budget import file could not be loaded.");
         return response.text();

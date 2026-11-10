@@ -482,8 +482,8 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Office of the County Attorney", fte: 9, ftePrior: 10, ftePositions: ["Paralegal"], personnel: 1052925, operating: 100000, contractual: 650000, capital: 0,
-    deltaP: -188551, deltaO: -1999, deltaC: 0, video: null, fund: "General Fund",
+    name: "Office of the County Attorney", fte: 9, ftePrior: 10, ftePositions: ["Paralegal"], personnel: 1118514, operating: 100000, contractual: 650000, capital: 0,
+    deltaP: -122961, deltaO: -1999, deltaC: 0, video: null, fund: "General Fund",
     sof: "Under the direction of the County Attorney, the Office of the County Attorney provides legal services to the County across three primary areas: Contracts (drafting or reviewing all documents that legally bind the County), Litigation (representing the Board in all court cases involving the County), and Public Records (records management and support for public records requests).",
     goal: "Provide effective legal services, contract support, and public records management to ensure compliance, accountability, and transparency.",
     services: [
@@ -502,8 +502,8 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Planning", fte: 47, ftePrior: 45, ftePositions: ["Code Compliance Officer - STR", "Livability & Tourism Technician I"], personnel: 4961086, operating: 656025, contractual: 1222000, capital: 209000,
-    deltaP: 347042, deltaO: -78017, deltaC: 0, video: "lKTWu2Q-6ug", fund: "General Fund",
+    name: "Planning", fte: 47, ftePrior: 45, ftePositions: ["Code Compliance Officer - STR", "Livability & Tourism Technician I"], personnel: 4945497, operating: 656025, contractual: 1222000, capital: 209000,
+    deltaP: 331453, deltaO: -78017, deltaC: 0, video: "lKTWu2Q-6ug", fund: "General Fund",
     sof: "The Walton County Planning & Development Services Department serves as staff and provides professional land use planning advice to the Board of County Commissioners, implementing and updating the Comprehensive Plan and Land Development Code, concurrency and floodplain management, and development review. The Department also staffs the Planning Commission, Zoning Board of Adjustments, Design Review Board, and Affordable Housing Committee.",
     goal: "Provide timely, customer-focused planning and permitting services that promote sustainable growth, protect natural resources, and ensure compliance.",
     services: [

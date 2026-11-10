@@ -62,14 +62,14 @@ const BOARD = [
   ["Engineering Department", "Transportation Fund", "17", "15", "−2", "$2,263,438", "$2,177,918", "−$85,520"],
   ["Environmental Services", "Multiple Funds", "42", "42", "0", "$3,666,506", "$3,651,064", "−$15,442"],
   ["Office of Management and Budget", "General Fund", "9", "9", "0", "$1,041,958", "$1,017,276", "−$24,682"],
-  ["Office of the County Attorney", "General Fund", "10", "9", "−1", "$1,241,475", "$1,052,925", "−$188,551"],
+  ["Office of the County Attorney", "General Fund", "10", "9", "−1", "$1,241,475", "$1,118,514", "−$122,961"],
   ["Parks & Recreation", "General Fund", "24.5", "24", "−0.5", "$1,826,237", "$1,879,813", "+$53,576"],
-  ["Planning", "General Fund", "45", "47", "+2", "$4,614,044", "$4,961,086", "+$347,042"],
+  ["Planning", "General Fund", "45", "47", "+2", "$4,614,044", "$4,945,497", "+$331,453"],
   ["Public Works", "Transportation Fund", "148", "148", "0", "$13,044,919", "$13,083,100", "+$38,181"],
   ["Purchasing", "General Fund", "10", "10", "0", "$888,295", "$888,999", "+$704"],
   ["Tourism Administration", "Tourism Fund", "22", "22", "0", "$2,395,702", "$2,419,413", "+$23,711"]
 ];
-const BOARD_TOTAL = ["Total", "", "655", "667", "+12", "$56,902,515", "$59,751,103", "+$2,848,588"];
+const BOARD_TOTAL = ["Total", "", "655", "667", "+12", "$56,902,515", "$59,801,103", "+$2,898,588"];
 
 function row(cells, cls) {
   const isDown = cells[7].trim().startsWith("−") || cells[7].trim().startsWith("-");

@@ -16,8 +16,10 @@ def put(start, name, count=1, first=1):
     for i in range(count): manifest[start+i] = {'file': name, 'page': first+i}
 put(2,'award-revised'); put(3,'transmittal-letter-revised',2); put(5,'page-order-toc',3)
 put(9,'county-revised',3); put(12,'organization-revised'); put(13,'strategic-revised')
-put(14,'community-priorities-revised',3); put(18,'budget-in-brief-revised')
-put(19,'visual-storytelling-revised',2); put(21,'consolidated-ledger-revised',2)
+put(14,'community-priorities-revised',3)
+# Financial Overview opens with its roadmap, then Budget in Brief and How the Budget Works.
+put(18,'visual-storytelling-revised',1,2); put(19,'budget-in-brief-revised')
+put(20,'visual-storytelling-revised',1,1); put(21,'consolidated-ledger-revised',2)
 put(23,'change-summary-revised',2); put(25,'gfoa-enhancements-revised',1,8)
 put(26,'gfoa-enhancements-revised',1,7); put(27,'revenue-ledger-revised',4)
 put(31,'property-tax-revised',2); put(33,'gfoa-enhancements-revised',1,9)
@@ -50,7 +52,7 @@ for annotation in writer.pages[134].get('/Annots',[]):
         uri=str(action['/URI'])
         if any(host in uri for host in ('co.walton.fl.us','waltoncountyfl.gov','mywaltonfl.gov')):
             action[NameObject('/URI')]=TextStringObject('https://mywaltonfl.gov/')
-        if 'full-budget-document.html' in uri: action[NameObject('/URI')]=TextStringObject('https://final2027.budget-waltoncountyfl.com/pages/full-budget-document.html')
+        if 'full-budget-document.html' in uri: action[NameObject('/URI')]=TextStringObject('https://final2027.budget-waltoncountyfl.com/')
 chapters=[(3,'Budget Message'),(8,'Introduction and Our County'),(17,'Financial Overview'),(44,'Budget Process'),(51,'Constitutional Officer Budget'),(59,'Other Agencies and Court-Related Functions Budget'),(63,'Program and Service Budget'),(69,'Board Department Budgets'),(103,'Workforce Budget'),(107,'Capital Budget'),(124,'Glossary, Statistical, and Supplemental Information')]
 parents={start:writer.add_outline_item(title,start-1) for start,title in chapters}
 # Build sorted, unique destinations so repeated assembly is idempotent.
@@ -63,7 +65,7 @@ def collect(items):
         if any(item.title==title for _,title in chapters):continue
         details.add((number,item.title))
 collect(source.outline)
-for number,title in [(20,'How to Read the Financial Schedules'),(114,'Transportation and Infrastructure Capital Ledger'),(117,'Tourist Development Fund Capital Ledger'),(118,'Sheriff Capital Project Ledger'),(119,'Recreation Plat Fee Fund Capital Ledger'),(120,'Sidewalk Fund Capital Ledger'),(121,'Machinery, Vehicles, and Equipment Ledger')]:details.add((number,title))
+for number,title in [(18,'Financial Overview Roadmap'),(114,'Transportation and Infrastructure Capital Ledger'),(117,'Tourist Development Fund Capital Ledger'),(118,'Sheriff Capital Project Ledger'),(119,'Recreation Plat Fee Fund Capital Ledger'),(120,'Sidewalk Fund Capital Ledger'),(121,'Machinery, Vehicles, and Equipment Ledger')]:details.add((number,title))
 profile_html=(SCRATCH/'departments-value-revised.html').read_text()
 profile_titles=re.findall(r'<h1\b[^>]*>(.*?)</h1>',profile_html,re.S)[1:]
 for number,title in enumerate(profile_titles,71):

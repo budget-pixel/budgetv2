@@ -31,12 +31,12 @@ const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Ac
 
 // [function, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
 const ROWS = [
-  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$59,410,254"],
+  ["General Government", "$53,689,718", "$56,037,956", "$50,769,465", "$57,653,480", "$58,963,062", "$59,460,254"],
   ["Public Safety", "$73,956,672", "$89,648,696", "$118,293,187", "$134,981,059", "$126,652,374", "$126,571,918"],
   ["Physical Environment", "$15,448,028", "$17,139,861", "$20,480,144", "$20,797,576", "$23,738,840", "$24,559,033"],
   ["Transportation", "$41,530,734", "$36,422,624", "$42,302,193", "$39,852,608", "$48,143,047", "$58,121,849"],
   ["Economic Environment", "$41,878,146", "$51,789,996", "$55,678,766", "$51,137,982", "$54,818,996", "$62,761,100"],
-  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$6,178,822"],
+  ["Human Services", "$8,549,206", "$10,130,937", "$5,961,827", "$5,923,141", "$7,676,272", "$6,128,822"],
   ["Culture and Recreation", "$5,564,360", "$5,348,253", "$5,953,833", "$5,476,961", "$6,306,200", "$6,106,603"],
   ["Court-Related Cost", "$492,465", "$601,473", "$697,756", "$653,352", "$1,146,297", "$1,113,929"],
   ["Other Uses", "$0", "$0", "$0", "$0", "$500,000", "$400,000"]
@@ -57,9 +57,9 @@ const DEPT_GROUPS = [
     ["Planning", "$5,463,634"],
     ["Property Appraiser", "$4,954,338"],
     ["County Administration", "$2,260,039"],
-    ["Office of the County Attorney", "$1,802,925"],
+    ["Office of the County Attorney", "$1,868,514"],
     ["Supervisor of Elections", "$1,663,865"],
-    ["Planning Short-Term Rental", "$1,584,477"],
+    ["Planning Short-Term Rental", "$1,568,888"],
     ["Human Resources", "$1,426,936"],
     ["Procurement", "$1,076,499"],
     ["Office of Management and Budget", "$1,075,026"],
@@ -108,7 +108,7 @@ const DEPT_GROUPS = [
     ["Veteran Services", "$316,650"],
   ]],
   ["Human Services", [
-    ["Human Services", "$2,366,300"],
+    ["Human Services", "$2,316,300"],
     ["Walton County Health Department", "$1,724,397"],
     ["Mosquito Control", "$1,426,937"],
     ["Non-Profit Funding Program", "$268,500"],

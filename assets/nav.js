@@ -256,7 +256,7 @@
   function loadWaltonBudgetSearchModules(onReady){
     loadWcScriptOnce(
       "wc-budget-search-data-script",
-      wcBudgetAssetBaseUrl + "search-data.js?v=d307e7cdd2",
+      wcBudgetAssetBaseUrl + "search-data.js?v=4b0ff0a58a",
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",

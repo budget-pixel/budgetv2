@@ -228,7 +228,7 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Future Reserve Pressure</h2>
-    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See General Fund Reserve Position on page 41 for the current reserve comparison.</p>
+    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See Reserve Position on page 41 for the reserve targets.</p>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">

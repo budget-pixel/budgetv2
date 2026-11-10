@@ -42,7 +42,7 @@ const CONSTITUTIONAL = [
 const CONSTITUTIONAL_TOTAL = ["Total Constitutional Officers", "$120,615,587", "79.45%"];
 
 const INDEPENDENT = [
-  ["Statutory & Other Agency Funding", "$3,247,957", "2.14%"],
+  ["Statutory & Other Agency Funding", "$3,197,957", "2.11%"],
   ["Walton County Health Department", "$1,724,397", "1.14%"],
   ["South Walton Fire", "$980,074", "0.65%"],
   ["Medical Examiner", "$881,930", "0.58%"],
@@ -52,7 +52,7 @@ const INDEPENDENT = [
   ["Circuit Court", "$111,493", "0.07%"],
   ["County Court", "$70,056", "0.05%"]
 ];
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$7,872,351", "5.20%"];
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$7,822,351", "5.17%"];
 
 // These are the named recipients in the published expenditure sheet's
 // Statutory & Other rollup. The revenue sheet assigns property tax to the
@@ -75,12 +75,12 @@ const CAPITAL_TOTAL = ["Total Capital", "$16,988,464", "11.21%"];
 const BOARD_DEPTS = [
   ["County Administration", "$1,847,203", "1.22%"],
   ["Building Construction and Maintenance", "$1,426,130", "0.94%"],
-  ["Planning", "$1,195,917", "0.79%"],
-  ["Office of the County Attorney", "$674,542", "0.44%"],
+  ["Planning", "$1,180,328", "0.78%"],
+  ["Office of the County Attorney", "$740,131", "0.49%"],
   ["Environmental Services", "$640,922", "0.42%"],
   ["Code Compliance", "$331,009", "0.22%"]
 ];
-const BOARD_TOTAL = ["Total Board Departments", "$6,115,723", "4.03%"];
+const BOARD_TOTAL = ["Total Board Departments", "$6,165,723", "4.07%"];
 
 const GRAND_TOTAL = ["Total Countywide Ad Valorem Allocation", "$151,592,125", "100.00%"];
 const COUNTY_ALLOCATION_TOTAL = 151592125;

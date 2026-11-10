@@ -10,6 +10,7 @@ import subprocess
 import sys
 
 from pypdf import PdfReader, PdfWriter
+from pypdf.generic import ArrayObject, DictionaryObject, FloatObject, NameObject, NumberObject
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -117,7 +118,61 @@ def copy_outline(items, parent=None):
 
 
 copy_outline(reader.outline)
-metadata = {key: str(value) for key, value in (reader.metadata or {}).items() if value is not None}
+
+# Clickable table of contents. The contents pages are rendered separately
+# (build-main-toc.mjs), so their rows carry no PDF links of their own. Each
+# row is a small (6-8pt) title in one of the two columns followed by its page
+# number; cover the row with an internal link to that page. Earlier internal
+# links are removed first so re-running this script never stacks them.
+CONTENTS_PAGES = (5, 6, 7)
+CONTENTS_COLUMN_END = {"left": 300, "right": 571}
+
+
+def link_contents_page(page_number):
+    page = writer.pages[page_number - 1]
+    annots = page.get("/Annots")
+    if annots:
+        kept = [a for a in annots if a.get_object().get("/Subtype") != "/Link" or "/Dest" not in a.get_object()]
+        if kept:
+            page[NameObject("/Annots")] = ArrayObject(kept)
+        else:
+            del page["/Annots"]
+    runs = []
+    page.extract_text(visitor_text=lambda text, cm, tm, font, size: runs.append(
+        (text.strip(), tm[4]*cm[0] + tm[5]*cm[2] + cm[4], tm[4]*cm[1] + tm[5]*cm[3] + cm[5], size * abs(cm[0] or 1))))
+    runs = [run for run in runs if run[0]]
+    links = 0
+    for index, (title, x, y, size) in enumerate(runs[:-1]):
+        target = runs[index + 1][0]
+        # A department rollup heading ("Environmental Services" over its
+        # offices) has no page of its own; link it to its first office.
+        if target == "DEPARTMENT ROLLUP":
+            target = next((run[0] for run in runs[index + 2:index + 6] if run[0].isdigit()), "")
+        # y > 60 skips the page footer ("FY 2027 FINAL BUDGET" and its number).
+        if not 6 <= size <= 8.2 or not (40 < x < 345) or y < 60 or not target.isdigit():
+            continue
+        target = int(target)
+        if not 1 <= target <= len(writer.pages):
+            continue
+        column_end = CONTENTS_COLUMN_END["left" if x < 300 else "right"]
+        # An explicit page reference, not a bare page index, so every viewer
+        # (Preview, Acrobat, browsers) follows the link.
+        link = DictionaryObject({
+            NameObject("/Type"): NameObject("/Annot"),
+            NameObject("/Subtype"): NameObject("/Link"),
+            NameObject("/Rect"): ArrayObject([FloatObject(v) for v in (x - 3, y - 3, column_end, y + size + 1.5)]),
+            NameObject("/Border"): ArrayObject([NumberObject(0), NumberObject(0), NumberObject(0)]),
+            NameObject("/Dest"): ArrayObject([writer.pages[target - 1].indirect_reference, NameObject("/Fit")]),
+        })
+        page.setdefault(NameObject("/Annots"), ArrayObject()).append(writer._add_object(link))
+        links += 1
+    return links
+
+
+contents_links = sum(link_contents_page(number) for number in CONTENTS_PAGES)
+if contents_links < 40:
+    raise RuntimeError(f"Only {contents_links} contents links found; check the contents page layout")
+metadata ={key: str(value) for key, value in (reader.metadata or {}).items() if value is not None}
 metadata["/DepartmentProfileOrder"] = "grouped-v1" if already_grouped or not renumber_only else "original"
 writer.add_metadata(metadata)
 # Deduplicate embedded resources after page replacements and footer overlays.
@@ -127,7 +182,7 @@ with temporary.open("wb") as handle:
     writer.write(handle)
 assert len(PdfReader(temporary).pages) == PUBLISHED_PAGES
 temporary.replace(BOOK)
-print(f"Updated {PUBLISHED_PAGES}-page budget book: grouped profiles, contents, guide, bookmarks, and footer numbers.")
+print(f"Updated {PUBLISHED_PAGES}-page budget book: grouped profiles, contents ({contents_links} links), guide, bookmarks, and footer numbers.")
 # Keep the web copy small: merged sections otherwise carry duplicate images
 # and fonts (see optimize-budget-book.py).
 subprocess.run([sys.executable, str(ROOT / "scripts/print/optimize-budget-book.py"), str(BOOK)], check=True)

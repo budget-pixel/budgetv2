@@ -21,14 +21,14 @@ import { chromium } from "playwright";
 // funding anywhere in this section.
 
 const STATS = [
-  ["$9.05M", "Total FY 2027 Budget"],
-  ["-$241K", "Net Change from FY 2026"],
-  ["-2.6%", "Net Percent Change"]
+  ["$9.00M", "Total FY 2027 Budget"],
+  ["-$291K", "Net Change from FY 2026"],
+  ["-3.1%", "Net Percent Change"]
 ];
 
 // [entity, fy26, fy27, fund]
 const SUMMARY_ROWS = [
-  ["Statutory & Other Agency Funding", 3109643, 3502844, "General Fund"],
+  ["Statutory & Other Agency Funding", 3109643, 3452844, "General Fund"],
   ["Walton County Health Department", 1724397, 1724397, "General Fund"],
   ["South Walton Fire & State Control", 952483, 980074, "General Fund"],
   ["Medical Examiner", 1351698, 881930, "General Fund"],
@@ -42,11 +42,11 @@ const SUMMARY_ROWS = [
   ["Daughette MSBU Fund", 43225, 43225, "Daughette MSBU Fund"],
   ["Guardian Ad Litem", 9000, 9000, "General Fund"]
 ];
-const SUMMARY_TOTAL = ["Total Independent Agencies", 9295563, 9054899];
+const SUMMARY_TOTAL = ["Total Independent Agencies", 9295563, 9004899];
 
 const AGENCIES = [
   {
-    name: "Statutory & Other Agency Funding", fy26: 3109643, fy27: 3502844, fund: "General Fund", personnel: 0, operating: 3502844,
+    name: "Statutory & Other Agency Funding", fy26: 3109643, fy27: 3452844, fund: "General Fund", personnel: 0, operating: 3452844,
     narrative: "The Board of County Commissioners has allocated funding to support a range of statutory and agency services that contribute to the community's well-being, including mental health services, volunteer fire departments, healthcare response initiatives, redevelopment efforts, and other related services.",
     breakdown: [
       ["Medicaid Services", 1243475],
@@ -56,7 +56,7 @@ const AGENCIES = [
       ["Opioid Settlement Year 4", 254887],
       ["Liberty Volunteer Fire Department", 175000],
       ["Argyle Volunteer Fire Department", 175000],
-      ["Health Care Response (HCRA)", 100000],
+      ["Health Care Response (HCRA)", 50000],
       ["Gulf Coast Kid's House", 98100],
       ["Lakeview Center (Women & Children)", 75000],
       ["Indigent Cremation Program", 50000],
@@ -314,7 +314,7 @@ const overviewPage = `
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
       <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change${SUMMARY_TOTAL[2] < SUMMARY_TOTAL[1] ? " is-down" : ""}">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div><div class="rfund"></div></div>
     </div>
-    <p class="footnote">Scope: the $9.05M total includes $460,000 of E911 resources transferred to the Sheriff. The $8.59M Budget Change Summary excludes that transfer to avoid double counting. Its FY 2026 comparison also shows $300,000 of court equipment under capital. The $7.87M Property Tax Allocation covers only support from the County operating levy.</p>
+    <p class="footnote">Scope: the $9.00M total includes $460,000 of E911 resources transferred to the Sheriff. The $8.54M Budget Change Summary excludes that transfer to avoid double counting. Its FY 2026 comparison also shows $300,000 of court equipment under capital. The $7.87M Property Tax Allocation covers only support from the County operating levy.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>
   </section>
 `;

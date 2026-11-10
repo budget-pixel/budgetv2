@@ -221,16 +221,16 @@ const html = `<!doctype html>
     <div class="layout">
       <div class="col-main">
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
-        <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million and maintains current services while funding public safety, infrastructure, and the staffing needed to serve a growing county.</p>
-        <p>The Board&rsquo;s most consequential decision came at the tentative hearing. It reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills, with an estimated $8,584,562 effect in the tentative-hearing comparison. The final funding schedule uses $8,047,270 of General Fund balance after all revenue updates, while the expenditure plan remains unchanged. This uses accumulated resources, not new recurring revenue. The County will need to monitor reserve use and future recurring costs.</p>
-        <p>The final budget carries out that decision through four principal commitments:</p>
+        <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million. It maintains current services while funding public safety, infrastructure, and the staffing a growing county needs.</p>
+        <p>The Board shaped this budget most directly at the tentative hearing, where it reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills. That change lowers estimated property tax revenue by about $8.6 million. Rather than reduce services to absorb it, the Board kept the expenditure plan as proposed and balanced the difference with $8,047,270 of General Fund balance. Because that draws on accumulated reserves rather than new recurring revenue, the County will need to watch reserve levels and future recurring costs closely.</p>
+        <p>Within that framework, the final budget makes four principal commitments:</p>
         <ul>
-          <li>Maintain current services and fund the Sheriff, other Constitutional Officers, and statutory obligations</li>
-          <li>Provide $43.8 million for funded capital projects, including roads, drainage, facilities, and other public assets</li>
-          <li>Add a net 15 positions where the adopted workload plan requires capacity, while funding a 3% cost-of-living adjustment</li>
-          <li>Preserve a General Fund emergency cushion after the planned use of fund balance</li>
+          <li><strong>Services:</strong> maintain current service levels and fully fund the Sheriff, the other Constitutional Officers, and statutory obligations.</li>
+          <li><strong>Capital:</strong> invest $43.8 million in funded capital projects, including roads, drainage, facilities, and other public assets.</li>
+          <li><strong>Staffing:</strong> add a net 15 positions where workload requires it, fund a 3% cost-of-living adjustment, and increase the Self-Insurance Fund balance to meet the required 60-day claims reserve.</li>
+          <li><strong>Reserves:</strong> keep a General Fund emergency cushion in place after the planned use of fund balance.</li>
         </ul>
-        <p>The pages that follow show the revenue assumptions, reserve effects, staffing changes, capital projects, and performance measures behind those commitments.</p>
+        <p>The pages that follow detail the revenue assumptions, reserve effects, staffing changes, capital projects, and performance measures behind these commitments.</p>
       </div>
       <div class="col-side">
         <div class="stat-card">

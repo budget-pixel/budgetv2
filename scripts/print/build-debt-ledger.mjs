@@ -193,11 +193,6 @@ const html = `<!doctype html>
     </div>
 
     <div class="callout">
-      <h3>FY 2027 Final Debt-Service Budget</h3>
-      <p>The Capital Projects Fund includes $2,581,997 for debt service.</p>
-    </div>
-
-    <div class="callout">
       <h3>Why So Little Debt?</h3>
       <p>Walton County funds the large majority of its capital program on a pay-as-you-go basis from current revenues and legally restricted funding sources rather than borrowing &mdash; see the Capital Improvement Plan chapter for how the County determines the level of capital spending and when debt is used. This conservative approach preserves borrowing capacity for future needs and keeps debt service to a small share of the annual budget.</p>
     </div>

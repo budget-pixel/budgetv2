@@ -23,9 +23,10 @@ import { chromium } from "playwright";
 // just the General Fund's. The schedule excludes the Self-Insurance Fund,
 // an internal service fund.
 
+// Each heading stacks: fund name on top, "Fund"/"Funds" on the line below.
 const FUND_COLUMNS = [
-  "General Fund", "Transportation Fund", "Sheriff Fund", "Tourist Development Fund", "Solid Waste Fund",
-  "Capital Projects Fund", "Mosquito Control Fund", "Non-Major Governmental Funds", "Total All Funds"
+  ["General", "Fund"], ["Transportation", "Fund"], ["Sheriff", "Fund"], ["Tourist Development", "Fund"], ["Solid Waste", "Fund"],
+  ["Capital Projects", "Fund"], ["Mosquito Control", "Fund"], ["Non-Major Governmental", "Funds"], ["Total All", "Funds"]
 ];
 const PAGE_SPLITS = [[0, 1, 2, 3, 4], [5, 6, 7, 8]];
 
@@ -47,12 +48,12 @@ const FUND_BALANCE_USE = ["Balance Brought Forward", "$8,047,270", "$4,881,906",
 const REVENUE_GRAND = ["Total Budget Funding", "$206,861,095", "$30,668,118", "$114,116,228", "$58,965,950", "$40,701,564", "$27,617,731", "$1,426,937", "$8,529,869", "$488,887,492"];
 
 const EXPENDITURE_ROWS = [
-  ["General Government", "$58,946,254", "$464,000", "–", "–", "–", "–", "–", "–", "$59,410,254"],
+  ["General Government", "$58,996,254", "$464,000", "–", "–", "–", "–", "–", "–", "$59,460,254"],
   ["Public Safety", "$8,455,690", "–", "$114,116,228", "–", "–", "–", "–", "$4,000,000", "$126,571,918"],
   ["Physical Environment", "$1,396,241", "–", "–", "–", "$23,119,567", "–", "–", "$43,225", "$24,559,033"],
   ["Transportation", "$0", "$30,204,118", "–", "–", "–", "$27,617,731", "–", "$300,000", "$58,121,849"],
   ["Economic Environment", "$738,094", "–", "–", "$58,965,950", "–", "–", "–", "$3,057,056", "$62,761,100"],
-  ["Human Services", "$4,682,297", "–", "–", "–", "–", "–", "$1,426,937", "$69,588", "$6,178,822"],
+  ["Human Services", "$4,632,297", "–", "–", "–", "–", "–", "$1,426,937", "$69,588", "$6,128,822"],
   ["Culture and Recreation", "$5,506,603", "–", "–", "–", "–", "–", "–", "$600,000", "$6,106,603"],
   ["Court Related Cost", "$1,113,929", "–", "–", "–", "–", "–", "–", "–", "$1,113,929"],
   ["Other Uses", "$400,000", "–", "–", "–", "–", "–", "–", "–", "$400,000"]
@@ -138,7 +139,7 @@ const sharedCss = `
     padding-bottom:.07in;
     align-items:end;
   }
-  .lrow.head .rnum{ text-align:right; }
+  .lrow.head .rnum{ display:flex; flex-direction:column; align-items:flex-end; text-align:right; }
   .rlabel{ color:#173229; font-size:7.6pt; }
   .rnum{
     text-align:right;
@@ -191,7 +192,7 @@ const sharedCss = `
 function buildPage(colIdx, pageNumber, isFirst) {
   const cls = colIdx.length === 4 ? " cols4" : "";
   const cols = FUND_COLUMNS.filter((_, i) => colIdx.includes(i));
-  const head = `<div class="lrow head${cls}"><div class="rlabel">Row Labels</div>${cols.map((f) => `<div class="rnum">${f}</div>`).join("")}</div>`;
+  const head = `<div class="lrow head${cls}"><div class="rlabel"></div>${cols.map(([name, word]) => `<div class="rnum"><span>${name}</span><span>${word}</span></div>`).join("")}</div>`;
   const millage = dataRow(pick(MILLAGE_ROW, colIdx), `millage${cls}`);
   const revRows = REVENUE_ROWS.map((r) => dataRow(pick(r, colIdx), cls.trim()));
   const revTotal = dataRow(pick(REVENUE_TOTAL, colIdx), `subtotal${cls}`);
@@ -209,8 +210,8 @@ function buildPage(colIdx, pageNumber, isFirst) {
     <small class="kicker">Financial Overview</small>
     <h1>Consolidated Budget Ledger${isFirst ? "" : ` <span class="sub">(continued)</span>`}</h1>
     <p class="intro">${isFirst
-      ? "FY 2027 revenue and expenditures across Walton County's governmental funds, by category. Continued on the next page with the remaining funds and the countywide total."
-      : "Continued from the previous page, in the same row order &mdash; the remaining Capital Projects, Mosquito Control, and Non-Major Governmental Funds, plus the countywide Total All Funds column. These fund-schedule categories preserve fund reporting; the Revenue Ledger is the control for countywide Uniform Accounting System category totals."}</p>
+      ? "FY 2027 revenues and expenditures for Walton County's governmental funds, by category. The remaining funds and the countywide total appear on the next page."
+      : "The Capital Projects, Mosquito Control, and Non-Major Governmental Funds, with the countywide total for all funds. Rows follow the same order as the previous page."}</p>
     <div class="ledger">
       ${head}
       ${millage}

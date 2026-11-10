@@ -175,12 +175,52 @@ const page1 = `
   </section>
 `;
 
+// Organizational Challenges and FY 2027 Response are a matched pair: the
+// same six numbered items, in the same order and with the same titles,
+// laid out in the same row format (number and title on the left, detail
+// on the right; gold for community, green for organizational), so the
+// reader can move straight from each challenge to its response.
+const PAIRS = [
+  { kind: "community", title: "Growth, mobility, and aging assets", tag: "Mitigate / renew capacity",
+    challenge: "Population grew 20.2% from 2020 to the April 2025 BEBR estimate, while development and visitation add demand to roads, drainage, facilities, parks, public-safety infrastructure, and coastal access.",
+    action: "Fund the FY 2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.",
+    result: "Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.",
+    money: "$43.8M funded capital", review: "Project milestones and year-end measures" },
+  { kind: "community", title: "Seasonal demand and coastal stewardship", tag: "Mitigate / expand capacity",
+    challenge: "Approximately 4.5 million annual visitors intensify peak-season transportation, lifeguard, tram, beach-access, maintenance, and natural-resource demands.",
+    action: "Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.",
+    result: "Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.",
+    money: "+13 Beach Operations FTE", review: "Peak-season monitoring and FY 2027 year end" },
+  { kind: "community", title: "Housing affordability and access", tag: "Mitigate / maintain access",
+    challenge: "Growth in housing cost and demand affects workforce stability and residents seeking rental assistance, attainable housing, and access to essential community services.",
+    action: "Continue HUD rental-assistance and Housing Choice Voucher administration.",
+    result: "Serve about 300 families and achieve 75% utilization of available housing vouchers.",
+    money: "$3.1M program budget", review: "Program reporting throughout FY 2027" },
+  { kind: "org", title: "Capacity, asset delivery, and coordination", tag: "Maintain / targeted adjustment",
+    challenge: "The County must fill critical positions, coordinate work across departments, and deliver a large capital program without materially expanding core service commitments.",
+    action: "Maintain major core services while making targeted staffing changes tied to workload and service need.",
+    result: "No major core service expansion or reduction; department targets show whether planned service levels are sustained.",
+    money: "+15 net countywide FTE", review: "Budget monitoring and annual personnel review" },
+  { kind: "org", title: "Revenue uncertainty and recurring cost", tag: "Monitor / limit recurring cost",
+    challenge: "Potential property-tax changes, grant uncertainty, and continuing personnel and operating costs require conservative assumptions and limits on new recurring obligations.",
+    action: "Assume no specific Amendment 3 reduction, limit new recurring commitments, and update forecasts as facts change.",
+    result: "Material revenue changes are reported and carried into the FY 2028 forecast.",
+    money: "3.2500 mills; $8.0M General Fund balance planned", review: "FY 2027 monitoring and FY 2028 forecast update" },
+  { kind: "org", title: "Emergency readiness and financial flexibility", tag: "Monitor / preserve flexibility",
+    challenge: "The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and the FY 2027 plan using that unassigned balance as its opening assumption.",
+    action: "Protect reserves.",
+    result: "Report material impacts on reserves and keep the reserve position visible against GFOA's two-month guideline.",
+    money: "$58.4M FY 2025 unassigned; $31.0M two-month audited-base reference", review: "FY 2027 monitoring and year-end close" }
+];
+
+const pairHead = (item, i, withTag) => `<div class="pair-head"><span class="pair-num">${String(i + 1).padStart(2, "0")}</span><small>${item.kind === "org" ? "Organizational" : "Community"} challenge</small><b>${item.title}</b>${withTag ? `<span class="pair-tag">${item.tag}</span>` : ""}</div>`;
+
 const page2 = `
-  <section>
+  <section class="pair-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Our County</small>
+    <small class="kicker">Our County <span class="pair-step">Challenges and Response &middot; 1 of 2</span></small>
     <h1>Organizational Challenges</h1>
-    <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. The FY 2027 plan connects these pressures to specific actions, funding sources, expected results, and review dates.</p>
+    <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. Each numbered challenge below is matched by a funded response on the next page.</p>
 
     <div class="context-grid">
       <div class="context-card"><b>How the challenges were identified</b><p>The County used the Strategic Plan 2027&ndash;2032 process, online surveys and public workshops, FY 2027 budget workshops, departmental workload and staffing analysis, capital-condition needs, and the multi-year financial forecast. The review considered both the FY 2027 budget period and the longer strategic and capital horizon through FY 2032.</p></div>
@@ -188,33 +228,27 @@ const page2 = `
     </div>
 
     <h2>What Is Creating Pressure</h2>
-    <div class="challenge-grid">
-      <div class="challenge-card"><small>Community challenge</small><b>Growth, mobility, and aging assets</b><p>Population grew 20.2% from 2020 to the April 2025 BEBR estimate, while development and visitation add demand to roads, drainage, facilities, parks, public-safety infrastructure, and coastal access.</p></div>
-      <div class="challenge-card"><small>Community challenge</small><b>Seasonal demand and coastal stewardship</b><p>Approximately 4.5 million annual visitors intensify peak-season transportation, lifeguard, tram, beach-access, maintenance, and natural-resource demands.</p></div>
-      <div class="challenge-card"><small>Community challenge</small><b>Housing affordability and access</b><p>Growth in housing cost and demand affects workforce stability and residents seeking rental assistance, attainable housing, and access to essential community services.</p></div>
-      <div class="challenge-card org"><small>Organizational challenge</small><b>Capacity, asset delivery, and coordination</b><p>The County must fill critical positions, coordinate work across departments, and deliver a large capital program without materially expanding core service commitments.</p></div>
-      <div class="challenge-card org"><small>Organizational challenge</small><b>Revenue uncertainty and recurring cost</b><p>Potential property-tax changes, grant uncertainty, and continuing personnel and operating costs require conservative assumptions and limits on new recurring obligations.</p></div>
-      <div class="challenge-card org"><small>Organizational challenge</small><b>Emergency readiness and financial flexibility</b><p>The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and the FY 2027 plan using that unassigned balance as its opening assumption.</p></div>
+    <div class="pair-list">
+      ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, false)}<p class="pair-body">${item.challenge}</p></div>`).join("")}
     </div>
+    <p class="pair-next">Continued: FY 2027 Response, page ${startPage + 2} &rarr;</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
 `;
 
 const page3 = `
-  <section class="response-page">
+  <section class="pair-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Our County</small>
+    <small class="kicker">Our County <span class="pair-step">Challenges and Response &middot; 2 of 2</span></small>
     <h1>FY 2027 Response</h1>
-    <p class="intro">The FY 2027 budget addresses the challenges on the preceding page through funded actions, service targets, and regular review.</p>
-    <div class="conn-table">
-      <div class="crow"><div class="carea">Infrastructure demand<span class="effect">Mitigate / renew capacity</span></div><div class="cresp"><strong>Action</strong>Fund the FY 2027 capital program and maintain road, drainage, facility, vehicle, and equipment work.</div><div class="money"><strong>Budget commitment</strong>$43.8M funded capital</div><div class="result"><strong>Expected result</strong>Advance funded projects; Public Works targets 1,049 road miles maintained or improved and 23 capital projects completed.</div><div class="when"><strong>Review</strong>Project milestones and year-end measures</div></div>
-      <div class="crow"><div class="carea">Seasonal coastal demand<span class="effect">Mitigate / expand capacity</span></div><div class="cresp"><strong>Action</strong>Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.</div><div class="money"><strong>Budget commitment</strong>+13 Beach Operations FTE</div><div class="result"><strong>Expected result</strong>Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.</div><div class="when"><strong>Review</strong>Peak-season monitoring and FY 2027 year end</div></div>
-      <div class="crow"><div class="carea">Housing access<span class="effect">Mitigate / maintain access</span></div><div class="cresp"><strong>Action</strong>Continue HUD rental-assistance and Housing Choice Voucher administration.</div><div class="money"><strong>Budget commitment</strong>$3.1M program budget</div><div class="result"><strong>Expected result</strong>Serve about 300 families and achieve 75% utilization of available housing vouchers.</div><div class="when"><strong>Review</strong>Program reporting throughout FY 2027</div></div>
-      <div class="crow"><div class="carea">Capacity and continuity<span class="effect">Maintain / targeted adjustment</span></div><div class="cresp"><strong>Action</strong>Maintain major core services while making targeted staffing changes tied to workload and service need.</div><div class="money"><strong>Budget commitment</strong>+15 net countywide FTE</div><div class="result"><strong>Expected result</strong>No major core service expansion or reduction; department targets show whether planned service levels are sustained.</div><div class="when"><strong>Review</strong>Budget monitoring and annual personnel review</div></div>
-      <div class="crow"><div class="carea">Fiscal uncertainty<span class="effect">Monitor / preserve flexibility</span></div><div class="cresp"><strong>Action</strong>Assume no specific Amendment 3 reduction, protect reserves, limit new recurring commitments, and update forecasts as facts change.</div><div class="money"><strong>Budget commitment</strong>$58.4M FY 2025 unassigned; $31.0M two-month audited-base reference</div><div class="result"><strong>Expected result</strong>Track unassigned and unrestricted balances separately from total projected balance and report material impacts.</div><div class="when"><strong>Review</strong>FY 2027 monitoring and FY 2028 forecast update</div></div>
+    <p class="intro">The FY 2027 budget answers each numbered challenge on page ${startPage + 1} with a funded action, an expected result, and a scheduled review.</p>
+
+    <h2>How the FY 2027 Budget Responds</h2>
+    <div class="pair-list">
+      ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, true)}<div class="pair-fields"><div><strong>Action</strong>${item.action}</div><div><strong>Expected result</strong>${item.result}</div><div><strong>Budget commitment</strong><span class="pair-money">${item.money}</span><strong class="pair-review">Review</strong><span class="pair-when">${item.review}</span></div></div></div>`).join("")}
     </div>
-    <p class="footnote">The priority areas and supporting direction are drawn from the Walton County Strategic Plan 2027&ndash;2032. Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this final budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
+    <p class="footnote">Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this final budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 2}</b></footer>
   </section>
@@ -223,22 +257,31 @@ const page3 = `
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Community Priorities and Organizational Challenges</title>
 <style>${sharedCss}
-  .challenge-grid{gap:.17in;margin:.12in 0;}
-  .challenge-card{padding:.16in .17in;}
-  .challenge-card small{font-size:8pt;margin-bottom:.06in;}
-  .challenge-card b{font-size:11pt;line-height:1.2;}
-  .challenge-card p{font-size:9.5pt;line-height:1.42;margin-top:.07in;}
-  .context-grid{gap:.17in;margin:.13in 0 .2in;}
-  .context-card{padding:.14in .16in;}
-  .context-card b{font-size:10pt;margin-bottom:.06in;}
-  .context-card p{font-size:9pt;line-height:1.42;}
-  .response-page .conn-table{border:0;margin-top:.13in;}
-  .response-page .crow:not(.head){grid-template-columns:1fr 1fr;gap:.06in .2in;margin-top:.07in;padding:.09in .16in;}
-  .response-page .carea{grid-column:1 / -1;font:800 11pt/1.2 Georgia,serif;}
-  .response-page .effect{display:inline;margin-left:.12in;font:800 7.5pt Arial,sans-serif;}
-  .response-page .cresp,.response-page .money,.response-page .result,.response-page .when{font-size:8.5pt;line-height:1.3;}
-  .response-page .cresp strong,.response-page .money strong,.response-page .result strong,.response-page .when strong{display:block;color:#52665c;font-size:7.5pt;text-transform:uppercase;margin-bottom:3px;}
-  .response-page .footnote{font-size:8pt;}
+  .context-grid{gap:.17in;margin:.13in 0 .16in;}
+  .context-card{padding:.12in .16in;}
+  .context-card b{font-size:10pt;margin-bottom:.05in;}
+  .context-card p{font-size:8.6pt;line-height:1.4;}
+  /* Matched pair: Organizational Challenges + FY 2027 Response. */
+  .pair-step{margin-left:.1in;padding-left:.1in;border-left:1px solid #d1be78;color:#68786f;letter-spacing:.1em;}
+  .pair-list{display:grid;gap:.09in;margin:.1in 0 0;}
+  .pair-row{display:grid;grid-template-columns:2.25in 1fr;gap:.2in;align-items:start;padding:.12in .16in .12in .14in;border-left:4px solid #d1be78;border-radius:0 8px 8px 0;background:#f9f8f2;}
+  .pair-row.org{border-left-color:#006231;background:#f3f8f5;}
+  .pair-head{position:relative;padding-left:.42in;}
+  .pair-num{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;width:.3in;height:.3in;border-radius:50%;background:#d1be78;color:#003f28;font:800 9pt/1 Georgia,serif;}
+  .pair-row.org .pair-num{background:#006231;color:#ffffff;}
+  .pair-head small{display:block;margin-bottom:.03in;color:#a88418;font-size:6.6pt;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
+  .pair-row.org .pair-head small{color:#006231;}
+  .pair-head b{display:block;color:#003f28;font:800 10.5pt/1.2 Georgia,serif;}
+  .pair-tag{display:block;margin-top:.05in;color:#9a7815;font-size:6.6pt;font-weight:900;letter-spacing:.06em;text-transform:uppercase;}
+  .pair-row.org .pair-tag{color:#4f6b5d;}
+  .pair-body{margin:0;color:#33453c;font-size:8.6pt;line-height:1.42;}
+  .pair-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.16in;color:#33453c;font-size:7.8pt;line-height:1.32;}
+  .pair-fields strong{display:block;margin-bottom:2px;color:#52665c;font-size:6.6pt;letter-spacing:.04em;text-transform:uppercase;}
+  .pair-fields .pair-review{margin-top:.06in;}
+  .pair-money{display:block;color:#006231;font-weight:900;}
+  .pair-when{display:block;color:#68786f;}
+  .pair-next{margin:.1in 0 0;text-align:right;color:#a88418;font-size:8pt;font-weight:900;letter-spacing:.04em;}
+  .pair-page .footnote{font-size:7.6pt;}
 </style></head>
 <body>${page1}${page2}${page3}</body></html>`;
 

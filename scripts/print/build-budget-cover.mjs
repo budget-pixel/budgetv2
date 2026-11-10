@@ -8,12 +8,9 @@ import { readFileSync } from "fs";
 // (see build-budget-toc.mjs, build-department-book.mjs, build-county-
 // overview.mjs for the other pieces of that same pipeline). Kept as a
 // standalone HTML document with its own zero-margin @page, the same
-// approach build-budget-toc.mjs uses, rather than reusing
-// pages/full-budget-document.html's cover markup -- that page's cover is
-// still there for the self-serve "Print / Save as PDF" browser flow, but it
-// has to live inside the sitewide nav.js/budget-pdf.js print pipeline
-// (@page margin, injected print headers, etc.), which fights a true
-// full-bleed photo cover. This script has no such constraints.
+// approach build-budget-toc.mjs uses, so it is free of the sitewide
+// nav.js/budget-pdf.js print pipeline (@page margin, injected print
+// headers, etc.), which fights a true full-bleed photo cover.
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");

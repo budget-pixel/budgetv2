@@ -1,7 +1,7 @@
 {
   "board": {
     "prior": 56902515,
-    "current": 59751103
+    "current": 59801103
   },
   "offices": {
     "prior": 98788928,
@@ -9,13 +9,13 @@
   },
   "total": {
     "prior": 155691443,
-    "current": 164179771
+    "current": 164229771
   },
   "components": [
     {
       "label": "Salaries and wages, including overtime",
       "prior": 39198452,
-      "current": 40700289
+      "current": 40750289
     },
     {
       "label": "Health insurance",

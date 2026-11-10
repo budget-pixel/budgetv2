@@ -9,7 +9,6 @@ window.wcProjectSearchBaseUrl = window.location.pathname.indexOf("/pages/") !== 
 var wcCoreBudgetPages = [
   { title:"Privacy Statement", section:"Website Information", href:"privacy.html", keywords:["privacy","cookies","analytics","public records","data"] },
   { title:"GFOA Distinguished Budget Presentation Award", section:"Our County", href:"gfoa-distinguished-budget-presentation-award.html" },
-  { title:"Transmittal Letter", section:"Introduction and Overview", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbdc3a5aa570050fba9" },
   { title:"Our County", section:"Our County", href:"our-county.html" },
   { title:"Overview of Walton County", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd2e29b2249e0a5b99" },
   { title:"Organizational Structure", section:"Our County", href:"https://stories.opengov.com/countyofwaltonfl/cf6eaa7a-a98d-479a-9869-b20398ee38e5/published/re0lJHwus?currentPageId=6989dbbd1af21806371d68e7" },
@@ -104,7 +103,6 @@ var wcCoreBudgetPages = [
 
 // Temporarily hidden while pages are in draft. Remove the title here to restore.
 var wcHiddenBudgetPageTitles = new Set([
-  "Transmittal Letter",
   // Merged into the homepage Personnel Budget Explorer popup,
   // which now covers both FTE counts and personnel dollar cost -- the old
   // page is a redirect stub, kept out of search so it doesn't show up as a
@@ -124,10 +122,6 @@ var wcHiddenBudgetPageTitles = new Set([
 
     "GFOA Distinguished Budget Presentation Award": [
       "gfoa", "distinguished budget award", "budget presentation award", "award", "recognition", "government finance officers association", "budget award criteria"
-    ],
-
-    "Transmittal Letter": [
-      "letter", "budget message", "county administrator message", "executive message", "introduction", "overview letter", "budget highlights", "recommended budget"
     ],
 
     "Our County": [
@@ -479,7 +473,6 @@ var wcHiddenBudgetPageTitles = new Set([
 
   const localHrefMap = {
     "GFOA Distinguished Budget Presentation Award": "gfoa-distinguished-budget-presentation-award.html",
-    "Transmittal Letter": "transmittal-letter.html",
     "Our County": "our-county.html",
     "Overview of Walton County": "overview-of-walton-county.html",
     "Organizational Structure": "organizational-structure.html",

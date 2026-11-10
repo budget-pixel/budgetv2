@@ -46,7 +46,7 @@ const INDEPENDENT = [
   ["Public Defender", "$152,439", "$290,833", "+$138,394", "+90.8%"],
   ["South Walton Fire", "$919,693", "$947,284", "+$27,591", "+3.0%"],
   ["State Attorney", "$260,633", "$297,111", "+$36,478", "+14.0%"],
-  ["Statutory & Other", "$3,109,643", "$3,502,844", "+$393,201", "+12.6%"]
+  ["Statutory & Other", "$3,109,643", "$3,452,844", "+$343,201", "+11.0%"]
 ];
 INDEPENDENT.push(
   ["Walton County Health Department", "$1,724,397", "$1,724,397", "$0", "0.0%"],
@@ -54,7 +54,7 @@ INDEPENDENT.push(
   ["State Fire", "$32,790", "$32,790", "$0", "0.0%"],
   ["Guardian Ad Litem", "$9,000", "$9,000", "$0", "0.0%"]
 );
-const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,555,563", "$8,594,899", "+$39,336", "+0.5%"];
+const INDEPENDENT_TOTAL = ["Total Independent Agencies", "$8,555,563", "$8,544,899", "-$10,664", "-0.1%"];
 
 const BOARD_DEPTS = [
   ["Tourism Administration", "$27,447,176", "$29,673,729", "+$2,226,553", "+8.1%"],
@@ -63,17 +63,17 @@ const BOARD_DEPTS = [
   ["Beach Operations", "$12,971,943", "$16,082,721", "+$3,110,778", "+24.0%"],
   ["County Administration Offices", "$10,488,035", "$10,887,378", "+$399,343", "+3.8%"],
   ["Building Construction & Maintenance", "$8,639,168", "$8,596,305", "-$42,863", "-0.5%"],
-  ["Planning", "$6,570,086", "$6,839,111", "+$269,025", "+4.1%"],
+  ["Planning", "$6,570,086", "$6,823,522", "+$253,436", "+3.9%"],
   ["Code Compliance", "$4,449,159", "$4,811,854", "+$362,695", "+8.2%"],
   ["Building", "$4,035,000", "$4,000,000", "-$35,000", "-0.9%"],
   ["Parks & Recreation", "$2,919,737", "$2,972,948", "+$53,211", "+1.8%"],
   ["Engineering Department", "$2,876,106", "$2,798,118", "-$77,988", "-2.7%"],
-  ["Office of the County Attorney", "$1,993,475", "$1,802,925", "-$190,550", "-9.6%"],
+  ["Office of the County Attorney", "$1,993,475", "$1,868,514", "-$124,961", "-6.3%"],
   ["Office of Management and Budget", "$1,374,708", "$1,075,026", "-$299,682", "-21.8%"],
   ["Purchasing", "$1,033,795", "$1,026,499", "-$7,296", "-0.7%"],
   ["Emergency Management", "$804,151", "$887,455", "+$83,304", "+10.4%"]
 ];
-const BOARD_TOTAL = ["Total Board Department Operating & Personnel", "$130,148,972", "$135,794,083", "+$5,645,111", "+4.3%"];
+const BOARD_TOTAL = ["Total Board Department Operating & Personnel", "$130,148,972", "$135,844,083", "+$5,695,111", "+4.4%"];
 
 const CAPITAL = [
   ["Machinery, Vehicles, & Equipment", "$6,106,459", "$7,120,300", "+$1,013,841", "+16.6%"],
@@ -251,7 +251,7 @@ const page1 = `
   <section>
     ${pageHeader()}
     <small class="kicker">Financial Overview</small>
-    <h1>Budget Adjustments</h1>
+    <h1>Budget Change Summary</h1>
     <p class="intro">A comparison of the FY 2026 and FY 2027 budgets by Constitutional Officer, Independent Agency, Board Department, and capital fund.</p>
     <div class="stat-strip">
       ${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}
@@ -280,7 +280,7 @@ const page1 = `
 const page2 = `
   <section>
     ${pageHeader()}
-    <h1 class="continued">Budget Adjustments <span>(continued)</span></h1>
+    <h1 class="continued">Budget Change Summary <span>(continued)</span></h1>
 
     <h2 class="group" style="margin-top:.12in">Board Department Operating & Personnel Budgets</h2>
     <div class="dept-table">
@@ -304,7 +304,7 @@ const page2 = `
 
 const startPage = Number(process.argv[3] || 168);
 const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Budget Adjustments</title>
+<html><head><meta charset="utf-8"><title>Budget Change Summary</title>
 <style>${sharedCss}</style></head>
 <body>${page1.replace("PAGE_A", startPage)}${page2.replace("PAGE_B", startPage + 1)}</body></html>`;
 

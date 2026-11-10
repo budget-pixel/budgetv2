@@ -43,17 +43,17 @@ const SUMMARY_ROWS = [
   ["Environmental Services", 23695761, 23514014, 42, 42],
   ["County Administration Offices", 10488035, 10887378, 76, 76],
   ["Building Construction & Maintenance", 8639168, 8596305, 68, 68],
-  ["Planning", 6570086, 6839111, 45, 47],
+  ["Planning", 6570086, 6823522, 45, 47],
   ["Code Compliance", 4449159, 4811854, 43, 43],
   ["Building", 4035000, 4000000, 21, 21],
   ["Parks & Recreation", 2919737, 2972948, 24.5, 24],
   ["Engineering Department", 2876106, 2798118, 17, 15],
-  ["Office of the County Attorney", 1993475, 1802925, 10, 9],
+  ["Office of the County Attorney", 1993475, 1868514, 10, 9],
   ["Purchasing", 1033795, 1026499, 10, 10],
   ["Office of Management and Budget", 1374708, 1075026, 9, 9],
   ["Emergency Management", 804151, 887455, 5.5, 6]
 ];
-const SUMMARY_TOTAL = ["Total Board Departments", 130148972, 135794083, 655, 667];
+const SUMMARY_TOTAL = ["Total Board Departments", 130148972, 135844083, 655, 667];
 for (const [rowIndex, totalIndex] of [[1, 1], [2, 2], [3, 3], [4, 4]]) {
   if (SUMMARY_ROWS.reduce((sum, row) => sum + row[rowIndex], 0) !== SUMMARY_TOTAL[totalIndex]) {
     throw new Error("Department summary rows do not reconcile to the printed total");
@@ -135,8 +135,8 @@ const DEPARTMENTS = [
     changes: "The primary change is Infrastructure decreasing by $855,000."
   },
   {
-    name: "Planning", fy26: 6570086, fy27: 6839111,
-    personnel: 4961086, contractual: 1222000, operating: 656025,
+    name: "Planning", fy26: 6570086, fy27: 6823522,
+    personnel: 4945497, contractual: 1222000, operating: 656025,
     fte26: 45, fte27: 47,
     services: [
       ["Guide long-range growth", "Maintains planning policies that shape future land use and community development."],
@@ -195,8 +195,8 @@ const DEPARTMENTS = [
     changes: "The primary change is Infrastructure decreasing by $891,000."
   },
   {
-    name: "Office of the County Attorney", fy26: 1993475, fy27: 1802925,
-    personnel: 1052925, contractual: 650000, operating: 100000,
+    name: "Office of the County Attorney", fy26: 1993475, fy27: 1868514,
+    personnel: 1118514, contractual: 650000, operating: 100000,
     fte26: 10, fte27: 9,
     services: [
       ["Advise county government", "Provides legal counsel to the Board and Board-controlled departments."],

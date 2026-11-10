@@ -16,37 +16,112 @@ const header = (k,t,d='') => `<header><span>Walton County, Florida</span><span>F
 const footer = (number = "") => `<footer><span>FY 2027 Final Budget</span><b>${number}</b></footer>`;
 
 const pages = [];
-const reserveDraws = individualFunds.filter(fund => values(fund, "Change in Fund Balance")[7] < 0);
-const reserveMillions = amount => "$" + (amount / 1000000).toFixed(1) + "M";
-const generalOpening = millions(values(generalFund, "Beginning Fund Balance")[7]);
-const generalDraw = millions(-values(generalFund, "Change in Fund Balance")[7]);
-const generalEnding = millions(values(generalFund, "Estimated Ending Fund Balance")[7]);
 pages.push(`<section class="page budget-works">${header('Financial Overview','How the Budget Works','The budget moves through connected stages. Revenue is recorded by source, placed in legally separate funds, and authorized for services, capital, transfers, and reserves.')}
 <div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>$324.0M</b><span>Current-year revenue and other sources</span></div><div class="stat"><b>$345.2M</b><span>Net expenditure budget</span></div><div class="stat"><b>$143.7M</b><span>Internal transfers, eliminated from net total</span></div></div>
 <h2>From resources to public services</h2><div class="flow"><div class="flow-col"><div class="pill"><span>Property taxes</span><b>$153.0M</b></div><div class="pill"><span>Tourist taxes</span><b>$59.0M</b></div><div class="pill"><span>Sales taxes</span><b>$56.8M</b></div><div class="pill"><span>Other revenue</span><b>$55.1M</b></div></div><div class="arrow">›</div><div class="flow-col"><div class="card green"><strong>General Fund</strong><p>Countywide operations, constitutional support, transfers, and shared services.</p></div><div class="card"><strong>Restricted funds</strong><p>Tourism, transportation, solid waste, mosquito control, E911, housing, and other legally limited purposes.</p></div><div class="card"><strong>Capital funds</strong><p>Resources reserved for facilities, roads, safety, recreation, and other long-lived assets.</p></div></div><div class="arrow">›</div><div class="flow-col"><div class="card"><strong>Operating services</strong><p>Public safety, transportation, environmental, human, recreation, court, and government services.</p></div><div class="card"><strong>Capital investment</strong><p>$43.8M funded FY 2027 program, plus separately disclosed projects.</p></div><div class="card gold"><strong>Ending balance</strong><p>Resources not spent in the year remain within their respective funds and restrictions.</p></div></div></div>
 <div class="band"><strong>Why gross fund budgets exceed the $345.2M net budget</strong><p>Transfers are recorded once as a use in the sending fund and again as a source in the receiving fund. Gross fund schedules therefore total $488.9M. Eliminating $143.7M of internal transfers produces the $345.2M net expenditure budget.</p></div>
-${footer(19)}</section>`);
+${footer(20)}</section>`);
 
-pages.push(`<section class="page">${header('Financial Overview','How to Read the Financial Schedules','Each schedule answers a different question. Read them together rather than treating any single total as the whole budget.')}
-<div class="step-row"><div class="step"><b>Start</b><strong>Budget in Brief</strong><p>Headline choices, funding sources, service uses, and major fund totals.</p></div><div class="step"><b>Then</b><strong>Revenue</strong><p>What resources are expected, how reliable they are, and what restrictions apply.</p></div><div class="step"><b>Then</b><strong>Expenditures</strong><p>How spending changes by function, fund, department, and service.</p></div><div class="step"><b>Reconcile</b><strong>Transfers</strong><p>Which fund supplies resources and which fund receives them.</p></div><div class="step"><b>Finish</b><strong>Outlook</strong><p>Reserve capacity, recurring commitments, debt, and future capital effects.</p></div></div>
-<h2>Key budget totals</h2><div class="compare"><div class="card"><span class="big">$324.0M</span><span class="label">Revenue and other sources</span><p>Resources expected during FY 2027 before using prior-year fund balance.</p></div><div class="card green"><span class="big">$345.2M</span><span class="label">Net expenditure budget</span><p>Countywide service and capital spending after eliminating internal transfers.</p></div><div class="card"><span class="big">$488.9M</span><span class="label">Gross fund schedules</span><p>Balanced fund-level sources and uses, including both sides of transfers.</p></div></div>
+// Financial Overview Roadmap: the first page of the Financial Overview
+// (ahead of Budget in Brief), listing the section's schedules in reading
+// order with their page numbers.
+const ROADMAP = [
+  ["Start with the big picture", [
+    ["Budget in Brief", 19, "Where each dollar comes from and where it goes"],
+    ["How the Budget Works", 20, "How revenue moves through funds to services, and why gross fund totals exceed the net budget"]]],
+  ["See the whole budget", [
+    ["Consolidated Budget Ledger", 21, "Every fund's sources and uses side by side"],
+    ["Budget Change Summary", 23, "What changed from FY 2026 and why"]]],
+  ["Follow the money in", [
+    ["Revenue Portfolio", 25, "The mix of revenue sources and how dependable each is"],
+    ["Revenue Strategy", 26, "How FY 2027 resources were estimated"],
+    ["Revenue Ledger", 27, "Every revenue line by fund"],
+    ["Property Tax Allocation Ledger", 31, "How each property tax dollar is divided"],
+    ["Florida Amendment 3 Risk", 33, "Exposure to a possible property tax change"]]],
+  ["Follow the money out", [
+    ["Expenditure Ledger", 34, "Spending by fund, function, and department"],
+    ["Fund Financial Ledger", 37, "Each fund's opening balance, sources, uses, and ending balance"],
+    ["Interfund Transfer Ledger", 39, "Which funds pay which, so nothing is counted twice"]]],
+  ["Look ahead", [
+    ["Debt Ledger", 40, "Outstanding debt and this year's payments"],
+    ["Reserve Position", 41, "Six-month reserve targets for the General Fund and tourism"],
+    ["Long-Term Outlook", 42, "The multi-year forecast and recurring-cost pressure"]]]
+];
+pages.push(`<section class="page roadmap-page">${header('Financial Overview','Financial Overview Roadmap','This section moves from the big picture to the detail. Start with the one-page summary, then follow the schedules in order. Each one answers a different question, so read them together rather than treating any single total as the whole budget.')}
+<div class="step-row">${ROADMAP.map(([stage, items], i) => `<div class="step"><b>${i === 0 ? 'Start' : i === ROADMAP.length - 1 ? 'Finish' : 'Then'} &middot; p. ${items[0][1]}${items.length > 1 ? '&ndash;' + items[items.length - 1][1] : ''}</b><strong>${stage}</strong><p>${items.map(item => item[0]).join(', ')}</p></div>`).join('')}</div>
+<h2>What each schedule answers</h2>
+<div class="roadmap">${ROADMAP.map(([stage, items]) => `<div class="roadmap-group"><span class="roadmap-stage">${stage}</span>${items.map(([title, page, question]) => `<div class="roadmap-row"><strong>${title}</strong><span>${question}</span><b>${page}</b></div>`).join('')}</div>`).join('')}</div>
 <h2>What can and cannot be combined</h2><div class="grid2"><div class="card green"><strong>Can be compared</strong><p>Current-year revenue plus fund balance brought forward can be compared with the net expenditure budget. Department and program totals can be traced to their supporting fund schedules.</p></div><div class="card gold"><strong>Should not be added together</strong><p>Gross fund budgets should not be added to the net budget. Restricted tourism, transportation, solid-waste, grant, or assessment balances cannot be treated as generally available cash.</p></div></div>
-<h2>Why the General Fund matters</h2><div class="band"><strong>The General Fund is the County's primary operating fund, but not the entire County budget.</strong><p>It supports Board operations, constitutional officers, courts, agencies, and transfers. Other funds exist to preserve legal and accounting restrictions. The next schedules retain those fund boundaries so readers can see both countywide totals and the source of each commitment.</p></div>
-<h2>Reader checkpoints</h2><div class="grid3"><div class="card"><strong>Follow the source</strong><p>Ask whether funding is unrestricted, purpose-restricted, grant-dependent, or supported by a fee.</p></div><div class="card"><strong>Follow the transfer</strong><p>Use the transfer ledger to avoid counting the same resource twice.</p></div><div class="card"><strong>Follow the future effect</strong><p>Look for reserve use, recurring costs, debt, and operating impacts of capital projects.</p></div></div>${footer(20)}</section>`);
+<style>.roadmap-page .roadmap{display:grid;gap:.07in;margin:.06in 0 .1in}.roadmap-page .roadmap-group{padding:.06in .12in;border:1px solid #e4ebe7;border-left:4px solid #d1be78;border-radius:0 8px 8px 0;background:#fbfcfa}.roadmap-page .roadmap-group:nth-child(even){border-left-color:#0b7741}.roadmap-page .roadmap-stage{display:block;margin:.02in 0 .03in;color:#a88418;font-size:6.6pt;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.roadmap-page .roadmap-row{display:grid;grid-template-columns:2.15in 1fr .4in;gap:.12in;align-items:baseline;padding:.035in 0;border-top:1px solid #eef1ee;font-size:8pt}.roadmap-page .roadmap-row strong{color:#003f28}.roadmap-page .roadmap-row span{color:#33453c}.roadmap-page .roadmap-row b{color:#003f28;text-align:right}</style>
+${footer(18)}</section>`);
 
-pages.push(`<section class="page">${header('Financial Overview','General Fund Reserve Position','The GFOA two-month guideline is the reserve reference shown here. Reserve capacity is measured using the audited unassigned balance.')}
-<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>$58.4M</b><span>FY 2025 audited unassigned balance</span></div><div class="stat"><b>$31.0M</b><span>Two-month reference using FY 2025 audited spending</span></div><div class="stat"><b>3.8</b><span>Months represented by audited unassigned balance</span></div></div>
-<h2>GFOA guidance and the audited comparison</h2>
-<div class="compare" style="grid-template-columns:repeat(2,1fr)"><div class="card green"><span class="big">2 months</span><span class="label">GFOA recommended minimum</span><p>GFOA recommends unrestricted budgetary General Fund balance of at least two months of regular operating revenues or expenditures. This is a professional guideline; the County has not adopted it as a reserve target.</p></div><div class="card"><span class="big">$58.4M</span><span class="label">Audited unassigned balance</span><p>The FY 2025 ACFR reports $58.4M of unassigned balance and $185.9M of expenditures and other uses. Using that audited spending base produces a $31.0M two-month reference; unassigned balance represents about 3.8 months.</p></div></div>
-<p style="margin:.09in 0;font-size:7.2pt">The comparison uses FY 2025 audited spending. GFOA guidance uses regular operating revenues or expenditures, including recurring transfers and excluding unusual one-time items.</p>
-<h2>FY 2027 General Fund plan</h2>
-<div class="compare"><div class="card green"><span class="big">${generalOpening}</span><span class="label">FY 2027 opening unassigned assumption</span></div><div class="card gold"><span class="big">${generalDraw}</span><span class="label">FY 2027 planned use of fund balance</span></div><div class="card green"><span class="big">${generalEnding}</span><span class="label">FY 2027 estimated remaining balance</span></div></div>
-<p style="margin:.09in 0">The General Fund plans to use $8.0M of accumulated fund balance in FY 2027, included in the $21.3M countywide total below.</p>
-<h2>Where the countywide FY 2027 draw occurs</h2>
-<table style="width:100%;border-collapse:collapse;font-size:8pt"><thead><tr style="border-bottom:2px solid #d1be78"><th style="text-align:left;padding:6px">Fund</th><th style="text-align:right;padding:6px">Planned fund-balance use</th></tr></thead><tbody>
-${reserveDraws.map(fund => `<tr style="border-bottom:1px solid #dfe7e2"><td style="padding:6px">${fund.name}</td><td style="text-align:right;padding:6px">${reserveMillions(-values(fund, "Change in Fund Balance")[7])}</td></tr>`).join('')}
-<tr style="border-top:2px solid #003f28;font-weight:800"><td style="padding:7px">Countywide total</td><td style="text-align:right;padding:7px">${reserveMillions(reserveDraws.reduce((sum, fund) => sum - values(fund, "Change in Fund Balance")[7], 0))}</td></tr></tbody></table>
-<div class="note"><b>Balance basis:</b> The FY 2025 audited unassigned balance is used as the FY 2027 opening assumption, with the planned draw charged against it. Sources: FY 2025 ACFR; FY 2027 Fund Financial Ledger; GFOA, <i>Fund Balance Guidelines for the General Fund</i>.</div>${footer(41)}</section>`);
+// Reserve Position: six-month reserve targets for the General Fund and the
+// Tourist Development Fund, built from FY 2027 personnel and operating
+// budgets (transfers, capital, grants and aid, and contingency excluded).
+// The General Fund target also holds the FY 2028 debt payment (Debt Ledger)
+// and $10 million for storm-debris cleanup ahead of FEMA reimbursement,
+// the 12.5% local share FEMA and the State do not cover, and an estimated
+// named-storm deductible of 5% of each insured building's value, per
+// building and per occurrence (Risk Management; FMIT asset survey, current
+// building limits, or survey value for newly scheduled assets), and the
+// survey reconstruction cost of uninsured assets. Beach access sites, Beach
+// Operations, the Tourist Development Building, and the Grayton Beach parking
+// facility are assigned to the Tourist Development Fund.
+// The tourism target adds $80M for beach renourishment, the strategic plan's
+// $5M destination development and $15M mobility/congestion reserves, and
+// $10M for hurricane recovery and cleanup. The tourism target follows the Walton County Tourism
+// 2026-2030 strategic plan's recommendation of an operating reserve of about
+// half a year of operating costs.
+const RESERVE = {
+  general: {
+    personnel: 48433574, operating: 23728411, debt2028: 2507824, debris: 8750000, localShare: 1250000, deductible: 7611668, uninsured: 21656460,
+    ending: values(generalFund, "Estimated Ending Fund Balance")[7],
+    ending2028: values(generalFund, "Estimated Ending Fund Balance")[8]
+  },
+  tourism: {
+    personnel: 11224417, operating: 34532033, beach: 80000000, destination: 5000000, mobility: 15000000, recovery: 10000000, deductible: 417475, uninsured: 4418480,
+    // FY 2027 tourism capital ($13.2M) is already appropriated, so this
+    // ending balance is net of it. FY 2026 projects still open ($27,774,099)
+    // are subtracted below.
+    ending: values(individualFunds.find(f => f.name === "Tourist Development Fund"), "Estimated Ending Fund Balance")[7],
+    fy2026Projects: 27774099
+  }
+};
+const half = n => Math.round(n / 2);
+const gfRows = [
+  ["Personnel services", `Six months of ${currency(RESERVE.general.personnel)} personnel services`, half(RESERVE.general.personnel)],
+  ["Operating expenses", `Six months of ${currency(RESERVE.general.operating)} operating expenses`, half(RESERVE.general.operating)],
+  ["Debt service", "FY 2028 scheduled payment", RESERVE.general.debt2028],
+  ["Hurricane recovery and cleanup", "Reimbursable share of $10.0M countywide debris removal", RESERVE.general.debris],
+  ["Local share", "12.5% of $10.0M not reimbursed by FEMA or the State", RESERVE.general.localShare],
+  ["Insurance deductibles", "5% named-storm deductible on $152.2M of insured buildings", RESERVE.general.deductible],
+  ["Uninsured assets", "Replacement cost of uninsured sheds, fences, lighting, and park structures", RESERVE.general.uninsured]
+];
+const tdRows = [
+  ["Personnel services", `Six months of ${currency(RESERVE.tourism.personnel)} personnel services`, half(RESERVE.tourism.personnel)],
+  ["Operating expenses", `Six months of ${currency(RESERVE.tourism.operating)} operating expenses`, half(RESERVE.tourism.operating)],
+  ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
+  ["Destination development", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.destination],
+  ["Mobility and congestion", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.mobility],
+  ["Hurricane recovery and cleanup", "Beach and tourism facility recovery after a named storm", RESERVE.tourism.recovery],
+  ["Insurance deductibles", "5% named-storm deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible],
+  ["Uninsured assets", "Replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured]
+];
+const gfTarget = gfRows.reduce((sum, r) => sum + r[2], 0);
+const tdTarget = tdRows.reduce((sum, r) => sum + r[2], 0);
+const reserveTable = (rows, total) => `<div class="rp-table">${rows.map(([label, basis, amount]) => `<div class="rp-row"><strong>${label}</strong><span>${basis}</span><b>${currency(amount)}</b></div>`).join('')}<div class="rp-row rp-total"><strong>Reserve target</strong><span></span><b>${currency(total)}</b></div></div>`;
+const reserveStats = (target, ending, endingLabel) => `<div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div><div class="stat"><b>${ending >= target ? '+' : '&minus;'}${millions(Math.abs(ending - target))}</b><span>${ending >= target ? 'Above target' : 'Below target'}</span></div></div>`;
+pages.push(`<section class="page reserve-page">${header('Financial Overview','Reserve Position','Reserves keep services running through a revenue shortfall or a disaster. Each target below holds six months of personnel and operating costs. The General Fund target also holds next year&rsquo;s debt payment and storm-recovery costs.')}
+<h2>General Fund</h2>
+${reserveStats(gfTarget, RESERVE.general.ending, 'Estimated FY 2027 ending balance')}
+${reserveTable(gfRows, gfTarget)}
+<div class="card"><strong>Storm recovery</strong><p>The County pays debris haulers before FEMA reimbursement arrives, often a year or more later. FEMA covers 75% of eligible costs and the State usually half the rest, leaving a 12.5% local share. Uninsured damage and the named-storm deductible on County property are paid in full.</p></div>
+<h2>Tourist Development Fund</h2>
+${reserveStats(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects, 'FY 2027 ending balance after capital')}
+${reserveTable(tdRows, tdTarget)}
+<div class="grid2"><div class="card"><strong>Basis for the target</strong><p>The Walton County Tourism 2026&ndash;2030 strategic plan, reviewed at a joint Board of County Commissioners and Tourist Development Council workshop, recommended an operating reserve of about half a year of operating costs, a $5.0M destination development balance, and a $15.0M mobility and congestion reserve.</p></div><div class="card"><strong>Use of the balance</strong><p>Tourist development tax is restricted by Section 125.0104, Florida Statutes, to tourism promotion, beach and visitor facilities, and related uses. The balance above the target is held for those purposes and cannot support General Fund services.</p></div></div>
+<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}</style>
+${footer(41)}</section>`);
 
 pages.push(`<section class="page map-page">${header('Capital Budget','Where FY 2027 Capital Investment Serves','The funded program combines place-specific projects with countywide asset preservation. Markers identify broad service areas, not surveyed project coordinates.')}
 <div class="stats"><div class="stat"><b>$43.8M</b><span>Funded FY 2027 program</span></div><div class="stat"><b>30</b><span>Funded projects</span></div><div class="stat"><b>$15.3M</b><span>Grant-funded projects shown separately</span></div><div class="stat"><b>$10.25M</b><span>Prior-funded tourism work</span></div></div>

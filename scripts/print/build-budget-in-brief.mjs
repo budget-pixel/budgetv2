@@ -32,7 +32,7 @@ const BUDGET_EXPLORER_QR = await QRCode.toDataURL(BUDGET_EXPLORER_URL, {
 // $43,795,734;
 // department totals from the Board Department Operating and Personnel
 // Budgets list, including Building Construction & Maintenance
-// ($8,596,305), Planning ($6,839,111), and Code Compliance ($4,811,854).
+// ($8,596,305), Planning ($6,823,522), and Code Compliance ($4,811,854).
 const EXPENSE_CATEGORIES = [
   ["Sheriff's Office", 114.12],
   ["Other Officers & Board Office", 33.224609],

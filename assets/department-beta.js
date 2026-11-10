@@ -834,6 +834,15 @@
     if (budgetPreparer) staffing.appendChild(budgetPreparer);
     var personnelHtml = window.WCBudgetData && typeof window.WCBudgetData.getDepartmentPersonnelCostDetail === "function"
       ? window.WCBudgetData.getDepartmentPersonnelCostDetail(departmentName) : "";
+    // A page titled differently from its data department (e.g. "County
+    // Administration Offices" vs. "County Administration") finds no ledger by
+    // title; retry with the staffing rows' own department name.
+    if (!personnelHtml && window.WCBudgetData && typeof window.WCBudgetData.getDepartmentStaffing === "function") {
+      var staffingDeptNames = Array.from(new Set((window.WCBudgetData.getDepartmentStaffing(departmentName) || []).map(function (row) {
+        return String(row.Dept_Name || "").trim();
+      }).filter(Boolean)));
+      if (staffingDeptNames.length === 1) personnelHtml = window.WCBudgetData.getDepartmentPersonnelCostDetail(staffingDeptNames[0]) || "";
+    }
     content.querySelectorAll(".wc-profile-snapshot-fte-requests").forEach(function (callout) {
       callout.remove();
     });

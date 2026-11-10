@@ -13,8 +13,7 @@
 //   node scripts/bump-asset-versions.mjs --check  (exit 1 if anything is stale)
 //
 // An unchanged asset keeps the same version, so browsers only re-download
-// files that actually changed. pages/full-budget-document.html is skipped
-// (it is regenerated, not edited by hand).
+// files that actually changed.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -40,7 +39,7 @@ function computeVersions() { return new Map(listAssets().map((file) => {
 
 const listTargets = () => [
   ...listFiles('.', (name) => name.endsWith('.html')),
-  ...listFiles('pages', (name) => name.endsWith('.html') && name !== 'full-budget-document.html'),
+  ...listFiles('pages', (name) => name.endsWith('.html')),
   ...listFiles('assets', (name) => name.endsWith('.js'))
 ];
 

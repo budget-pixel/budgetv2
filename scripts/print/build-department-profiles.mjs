@@ -140,14 +140,14 @@ const OFFICES = [
     narrative: "Provides comprehensive financial planning, the annual budget process, and public budget information for the County. Recipient of the GFOA Distinguished Budget Presentation Award for FY 2025 and FY 2026."
   },
   {
-    name: "Office of the County Attorney", fte: 9, personnel: 1052925, operating: 100000, capital: 0,
-    deltaP: -188551, deltaO: -2000, deltaC: 0,
+    name: "Office of the County Attorney", fte: 9, personnel: 1118514, operating: 100000, capital: 0,
+    deltaP: -122961, deltaO: -2000, deltaC: 0,
     video: null,
     narrative: "Under the direction of the County Attorney, provides legal services to the County, including counsel, document review, and representation in litigation and proceedings."
   },
   {
-    name: "Planning", fte: 47, personnel: 4961086, operating: 1878025, capital: 209000,
-    deltaP: 347042, deltaO: -78017, deltaC: 0,
+    name: "Planning", fte: 47, personnel: 4945497, operating: 1878025, capital: 209000,
+    deltaP: 331453, deltaO: -78017, deltaC: 0,
     video: "lKTWu2Q-6ug",
     narrative: "Serves as staff and provides professional land use planning advice to the Board of County Commissioners, including review of development proposals and the Short-Term Rental program."
   },
