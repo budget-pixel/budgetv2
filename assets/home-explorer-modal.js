@@ -772,7 +772,11 @@
         '<header class="wc-home-department-modal-head wc-popup-header">' +
         '<button type="button" class="wc-home-department-modal-back" data-department-popup-back hidden>&larr; Back</button>' +
         '<span class="wc-home-department-modal-seal wc-seal-mark" aria-hidden="true"></span>' +
-        '<h2 id="wcHomeDepartmentModalTitle">Code Compliance</h2>' +
+        // The page shows its own large title, so the header names the
+        // section the page belongs to; the page title stays in the h2
+        // (screen readers, Back labels) but is visually hidden.
+        '<div class="wc-home-department-modal-context" aria-hidden="true"><strong data-department-popup-section></strong><span>Walton County FY 2027 Budget</span></div>' +
+        '<h2 id="wcHomeDepartmentModalTitle" class="wc-sr-only">Code Compliance</h2>' +
         '<div class="wc-nav-search-bar-wrap"><form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path></svg><label class="wc-sr-only" for="wcDepartmentModalSearch">Search the Walton County budget</label><input id="wcDepartmentModalSearch" type="search" placeholder="Search the budget site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcDepartmentModalSearchDropdown" aria-autocomplete="list"><button type="submit">Search</button></form><div id="wcDepartmentModalSearchDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div></div>' +
         '<button type="button" class="wc-home-department-modal-close" data-department-popup-close aria-label="Close Code Compliance">&times;</button></header>' +
         '<iframe class="wc-home-department-modal-frame" aria-label="Code Compliance department page" allow="fullscreen" allowfullscreen></iframe>' +
@@ -826,6 +830,7 @@
         var loadedUrl = new URL(departmentFrame.contentWindow.location.href);
         if (loadedUrl.protocol !== "about:") syncDepartmentSeal(loadedUrl);
       } catch (sealError) {}
+      syncDepartmentSection();
       // openDepartmentModal already set the modal's title from the trigger
       // that opened it (an explorer card's label, an "Environmental
       // Resources" override, etc.), so leave that alone on this first load.
@@ -875,9 +880,12 @@
           : ('nav#nav-menu,.wc-breadcrumb{display:none!important}' +
             (isUtilityEmbed ? '' : 'footer[role="contentinfo"]{display:block!important}') +
             '#layout{display:block!important;min-height:0!important}' +
-            '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:44px 28px 28px!important}' +
+            '#content{width:min(1380px,100%)!important;max-width:none!important;margin:0 auto!important;padding:30px 28px 28px!important}' +
             '#content.wc-transaction-page{padding-top:16px!important}' +
-            '#content>.page-eyebrow,#content>.page-title,#content>.wc-page-title-row{display:none!important}' +
+            // Every page shows its own eyebrow and large title (the site
+            // heading standard); only its in-page back link is hidden, since
+            // the popup header has its own Back button.
+            '#content>.wc-page-title-row>.wc-asset-back{display:none!important}' +
             '.wc-budget-process-back{display:none!important}' +
             '[data-constitutional-ledger-close]{display:none!important}' +
             '.wc-dept-function-services--with-video>.wc-dept-supporting-media{margin-top:-34px!important}');
@@ -1112,6 +1120,28 @@
     var path = String(url && url.pathname || "");
     var showSeal = !!path && !UTILITY_POPUP_PAGE_PATTERN.test(path) && !/\/budget-book\.html$/i.test(path);
     departmentModal.classList.toggle("is-board-department", showSeal);
+  }
+
+  // Header label: the loaded page's own section eyebrow (e.g. "Departments",
+  // "Financial Overview"), falling back to the page list's section.
+  function syncDepartmentSection() {
+    if (!departmentModal) return;
+    var label = departmentModal.querySelector("[data-department-popup-section]");
+    if (!label) return;
+    var section = "";
+    try {
+      var doc = departmentFrame.contentDocument;
+      var eyebrow = doc && doc.querySelector("#content .page-eyebrow");
+      section = eyebrow ? eyebrow.textContent.trim() : "";
+      if (!section && doc) {
+        var file = doc.location.pathname.split("/").pop();
+        var page = (window.wcBudgetPages || []).find(function (item) {
+          try { return new URL(item.href, window.location.href).pathname.split("/").pop() === file; } catch (e) { return false; }
+        });
+        section = page ? page.section : "";
+      }
+    } catch (error) {}
+    label.textContent = section || "Budget";
   }
 
   function openDepartmentModal(href, title, trigger, returnTo) {

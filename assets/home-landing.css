@@ -510,3 +510,11 @@ html.wc-embedded-budget-landing .wc-home-department-modal-head{box-sizing:border
 .wc-home-department-modal .wc-home-department-modal-seal{display:none!important;width:42px!important;height:42px!important;flex:0 0 42px!important;background-size:38px 38px!important;cursor:default!important}
 .wc-home-department-modal.is-board-department .wc-home-department-modal-seal{display:block!important}
 @media(max-width:700px){.wc-home-department-modal.is-board-department .wc-home-department-modal-seal{display:none!important}}
+/* Popup header: the page's section, with the budget name beneath. */
+.wc-home-department-modal-context{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1 1 auto;line-height:1.2}
+.wc-home-department-modal-context strong{overflow:hidden;color:var(--navy);font-size:1.05rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.wc-home-department-modal-context span{margin-top:2px;color:var(--muted,#5b6770);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.wc-home-department-modal.is-utility-page .wc-home-department-modal-context{display:none}
+.wc-home-department-modal.is-utility-page #wcHomeDepartmentModalTitle{position:static!important;width:auto!important;height:auto!important;clip:auto!important;margin:0!important;overflow:hidden!important;white-space:nowrap!important}
+@media(max-width:700px){.wc-home-department-modal-context{grid-column:1;grid-row:2}}
+.wc-home-department-modal:not(.is-utility-page) #wcHomeDepartmentModalTitle{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}

@@ -19,7 +19,9 @@
   if (!heading) return;
   var departmentName = heading.textContent.trim();
   var profileType = content.querySelector(".page-eyebrow")?.textContent.trim();
-  var independent = profileType !== "Departments";
+  // Board department pages are labeled "Board Departments" (formerly
+  // "Departments"); anything else is an independent office or agency.
+  var independent = !/^(board )?departments$/i.test(profileType || "");
 
   function ready() {
     return (independent || content.querySelector(".wc-dept-function-services")) &&
@@ -480,7 +482,10 @@
       var service = normalizedText(contract.cells[0]);
       var matches = expenseRows.filter(function (row) {
         var description = normalizedText(row.querySelector(".wc-itemized-description-column"));
-        return (description === service || description.split(/\s+—\s+|;\s+/).includes(service)) &&
+        // Some contracts are their own account (e.g. 534001 Guardrail
+        // Services), named in the account-name cell with no description.
+        var accountNameMatch = Array.prototype.some.call(row.cells, function (cell) { return normalizedText(cell) === service; });
+        return (description === service || description.split(/\s+—\s+|;\s+/).includes(service) || accountNameMatch) &&
           normalizedText(row.cells[row.cells.length - 1]) === normalizedText(contract.cells[4]);
       });
       // One consistent second line under the description:
@@ -503,7 +508,7 @@
         detail.append(part);
       });
       if (matches.length === 1) {
-        if (parts.length) matches[0].querySelector(".wc-itemized-description-column").append(detail);
+        if (parts.length) (matches[0].querySelector(".wc-itemized-description-column") || matches[0].cells[matches[0].cells.length - 2]).append(detail);
       } else {
         // Some contracts sit inside a combined account line. Show the
         // reference in the same table without adding another budget amount.

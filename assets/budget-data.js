@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=4f273b6e8a";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=62322e3bd7";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -1012,7 +1012,9 @@
   // lines hide the earlier actual columns entirely (the underlying data is
   // left as-is) and carry a note saying when the department began.
   const DEPARTMENT_FIRST_ACTUAL_YEAR = new Map([
-    ["beach tram", 2025]
+    ["beach tram", 2025],
+    // Engineering Services became its own department in FY 2023.
+    ["engineering services", 2023]
   ]);
 
   const DEPARTMENT_DATA_NOTES = new Map([
@@ -1041,7 +1043,7 @@
   // simply didn't exist yet in those early years, as opposed to one whose
   // historical actuals were genuinely lost to a later accounting change.
   const GENERATED_ACTUALS_NOTE_EXCLUDED_DEPT_NAMES = new Set(
-    ["Eagle Springs Grill"].map(normalizeDeptName)
+    ["Eagle Springs Grill", "Engineering Services"].map(normalizeDeptName)
   );
 
   function applyActualsToRows(rows, rawActualRows) {
@@ -4956,6 +4958,20 @@
     toggle.setAttribute("aria-expanded", "false");
   }
 
+  // Fund Financial Schedules open on FY 2027-FY 2029; one button shows or
+  // hides the prior years in every schedule on the page together.
+  let fundSchedulePriorYearsShown = false;
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".wc-fund-prior-toggle");
+    if (!button) return;
+    fundSchedulePriorYearsShown = !fundSchedulePriorYearsShown;
+    document.querySelectorAll(".wc-fund-schedule-card").forEach((card) => card.classList.toggle("show-prior-years", fundSchedulePriorYearsShown));
+    document.querySelectorAll(".wc-fund-prior-toggle").forEach((b) => {
+      b.textContent = fundSchedulePriorYearsShown ? "Hide Prior Years" : "View Prior Years";
+      b.setAttribute("aria-pressed", String(fundSchedulePriorYearsShown));
+    });
+  });
+
   document.addEventListener("click", (event) => {
     const groupToggle = event.target.closest(".wc-fund-activity-group-toggle");
     if (groupToggle) {
@@ -8305,10 +8321,10 @@
     const panel = (key, html) =>
       '<section class="wc-forecast-panel" id="forecast-panel-' + key + '" role="tabpanel" aria-labelledby="forecast-tab-' + key + '" data-forecast-panel="' + key + '"' + (key === firstKey ? "" : " hidden") + '>' + html + '</section>';
     return (
-      '<section class="wc-department-explorer wc-budget-forecast-explorer" aria-labelledby="budget-forecast-explorer-heading">' +
-      '<div class="wc-department-explorer-head wc-budget-forecast-head">' +
-        '<div><span>Long-range planning view</span><h2 id="budget-forecast-explorer-heading">Budget Forecast Explorer</h2><p>Explore projected revenues, expenditures, reserves, and the assumptions supporting each major fund through FY 2031.</p></div>' +
-      '</div>' +
+      // The page title comes from the page (and the popup header), like
+      // every other ledger; only the one-line description is kept here.
+      '<section class="wc-department-explorer wc-budget-forecast-explorer" aria-label="Budget Forecast Explorer">' +
+      '<p class="page-intro wc-ledger-intro-wide wc-budget-forecast-intro">Explore projected revenues, expenditures, reserves, and the assumptions supporting each major fund through FY 2031.</p>' +
       '<div class="wc-click-through-tabs wc-dept-beta-tabs wc-forecast-tabs" role="tablist" aria-label="Forecast funds">' +
         tabs.map(([key, label]) =>
           '<button type="button" role="tab" id="forecast-tab-' + key + '" aria-controls="forecast-panel-' + key + '" data-forecast-tab="' + key + '" aria-selected="' + (key === firstKey) + '" tabindex="' + (key === firstKey ? 0 : -1) + '">' + escapeHtml(label) + '</button>'
@@ -8665,14 +8681,15 @@
       );
     }
 
-    // The Revenues/Expenditures group header and each activity row below it
-    // are collapsed by default -- clicking the group header reveals its
+    // The Revenues/Expenditures groups open expanded (their activity rows
+    // visible); each activity row's own breakdown stays collapsed. Formerly
+    // collapsed by default -- clicking the group header reveals its
     // activity rows (see the delegated click handler further down), and
     // clicking a visible activity row expands its own breakdown inline,
     // closing whichever other activity in the same table was already open.
     function groupHeaderHtml(label, groupKey) {
       return (
-        '<tr class="wc-table-group-row wc-fund-activity-group-toggle" data-fund-activity-group="' + groupKey + '" tabindex="0" role="button" aria-expanded="false">' +
+        '<tr class="wc-table-group-row wc-fund-activity-group-toggle" data-fund-activity-group="' + groupKey + '" tabindex="0" role="button" aria-expanded="true">' +
         "<td><span class=\"wc-fund-activity-chevron\" aria-hidden=\"true\"></span>" + escapeHtml(label) + "</td>" +
         FUND_SCHEDULE_YEAR_COLUMNS.map((c, i) => '<td class="' + fundScheduleColumnCellClass(i).trim() + '"></td>').join("") +
         "</tr>"
@@ -8685,7 +8702,7 @@
       const toggleClass = detailHtml ? " wc-fund-activity-toggle" : "";
       const toggleAttrs = detailHtml ? ' data-target="' + rowId + '" tabindex="0" role="button" aria-expanded="false"' : "";
       const row =
-        '<tr class="wc-fund-activity-row' + toggleClass + '" data-fund-activity-group="' + groupKey + '"' + toggleAttrs + " hidden><td>" +
+        '<tr class="wc-fund-activity-row' + toggleClass + '" data-fund-activity-group="' + groupKey + '"' + toggleAttrs + "><td>" +
         (detailHtml ? '<span class="wc-fund-activity-chevron" aria-hidden="true"></span>' : "") + escapeHtml(label) + "</td>" +
         values.map((v, i) => '<td class="wc-num' + fundScheduleColumnCellClass(i) + '">' + formatCurrency(v) + "</td>").join("") +
         "</tr>";
@@ -8818,18 +8835,18 @@
     const endingValues = changeValues.map((v, i) => v + beginningValues[i]);
     bodyRows.push(rowHtml("Estimated Ending Fund Balance", endingValues, "wc-table-subtotal-row"));
 
-    // Fund Financial Schedules always show every historical year -- there
-    // is no prior-years toggle on this page (see [fund financial schedule
-    // years always visible]).
+    // Prior years (FY 2020-FY 2026) are hidden by default; the View Prior
+    // Years button in the title row shows them in every schedule on the page.
     const headerCells = ["ROW LABELS"].concat(
       FUND_SCHEDULE_YEAR_COLUMNS.map((c) => ({ label: c.label.toUpperCase() }))
     );
 
     return (
-      '<div class="wc-budget-lines-card show-prior-years">' +
+      '<div class="wc-budget-lines-card wc-fund-schedule-card' + (fundSchedulePriorYearsShown ? " show-prior-years" : "") + '">' +
       '<div class="wc-table-wrap">' +
       '<div class="wc-table-label-row wc-fund-financial-label-row">' +
       '<p class="wc-table-label wc-fund-financial-table-title">' + escapeHtml(caption) + "</p>" +
+      '<button type="button" class="wc-fund-prior-toggle" aria-pressed="' + fundSchedulePriorYearsShown + '">' + (fundSchedulePriorYearsShown ? "Hide Prior Years" : "View Prior Years") + "</button>" +
       "</div>" +
       '<div class="wc-data-table-scroll wc-fund-financial-schedule-scroll">' +
       '<table class="wc-data-table wc-fund-financial-schedule-table">' +
@@ -8839,7 +8856,6 @@
       "<tbody>" + bodyRows.join("") + "</tbody>" +
       "</table>" +
       "</div>" +
-      (fundCodes.includes("001") ? '<p class="wc-budget-note"><strong>Balance basis:</strong> FY 2027 starts with $58,393,573 of FY 2025 audited unassigned General Fund balance. Planned fund-balance use reduces this opening assumption; later projections roll forward from it. Other funds retain their total balance basis.</p>' : "") +
       "</div>" +
       "</div>"
     );
@@ -16657,7 +16673,7 @@
           '<td class="wc-num">' + personnelSplitAmountHtml(subtotal.Salaries, baseSalaries) + "</td>" +
           '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.Cola) + "</td>" +
           '<td class="wc-num">' + personnelSplitAmountHtml(benefits, baseBenefits) + "</td>" +
-          '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsurance) + "</td>" +
+          '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsurance - subtotal.HealthInsuranceIncrease) + "</td>" +
           '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(subtotal.HealthInsuranceIncrease) + "</td>" +
           '<td class="wc-num">' + formatCurrency(subtotal.Total) + "</td></tr>"
         );
@@ -16697,7 +16713,7 @@
         // cost with 0 FTE here -- show that cost, which the total already
         // includes, instead of dashes.
         const dollarCellsHtml = currentFte > 0 || (position.Total || 0) > 0
-          ? '<td class="wc-num">' + personnelSplitAmountHtml(position.Salaries, position.Salaries - cola) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + personnelSplitAmountHtml(benefits, position.Retirement + position.OtherBenefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(position.HealthInsurance) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
+          ? '<td class="wc-num">' + personnelSplitAmountHtml(position.Salaries, position.Salaries - cola) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(cola) + '</td><td class="wc-num">' + personnelSplitAmountHtml(benefits, position.Retirement + position.OtherBenefits) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency((position.HealthInsurance || 0) - (healthInsuranceIncrease || 0)) + '</td><td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(healthInsuranceIncrease) + '</td><td class="wc-num">' + formatCurrency(position.Total) + '</td>'
           : eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + eliminatedCellHtml + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + '<td class="wc-num wc-personnel-position-optional-col"><span class="wc-visually-muted">&mdash;</span></td>' + totalCellHtml;
         return {
           html: '<tr><td>' + escapeHtml(position.title) + '</td>' + fteHistoryHtml + '<td class="wc-num">' + formatNumber(priorFte) + '</td><td class="wc-num">' + formatNumber(currentFte) + '</td><td class="wc-num' + tone + '">' + sign + formatNumber(Math.abs(change)) + '</td>' + dollarCellsHtml + '</tr>',
@@ -16834,7 +16850,7 @@
         '<td class="wc-num">' + personnelSplitAmountHtml(positionsGrand.Salaries, totalBaseSalaries) + "</td>" +
         '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.Cola) + "</td>" +
         '<td class="wc-num">' + personnelSplitAmountHtml(totalBenefits, totalBaseBenefits) + "</td>" +
-        '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsurance) + "</td>" +
+        '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsurance - positionsGrand.HealthInsuranceIncrease) + "</td>" +
         '<td class="wc-num wc-personnel-position-optional-col">' + formatCurrency(positionsGrand.HealthInsuranceIncrease) + "</td>" +
         '<td class="wc-num">' + formatCurrency(positionsGrand.Total) + "</td></tr>"
       );
@@ -16849,7 +16865,7 @@
         "</div>" +
         '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-label="Budget table; scroll horizontally for more columns">' +
         '<table class="wc-data-table wc-staffing-table wc-personnel-position-detail">' +
-        "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\"><span class=\"wc-personnel-full-amt\">Retirement, Health Insurance &amp; Other Benefits</span><span class=\"wc-personnel-base-amt\">Retirement &amp; Other Benefits</span></th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\" title=\"A hypothetical 5% active-employee premium increase, shown for reference only -- not part of Total Personnel Cost.\">Health Insurance Increase (not in Total)</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
+        "<thead><tr><th>Position</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2024 FTE</th><th class=\"wc-num wc-personnel-position-fte-optional-col\">FY 2025 FTE</th><th class=\"wc-num\">FY 2026 FTE</th><th class=\"wc-num\">FY 2027 FTE</th><th class=\"wc-num\">+/−</th><th class=\"wc-num\">Salaries &amp; Wages</th><th class=\"wc-num wc-personnel-position-optional-col\">3% COLA</th><th class=\"wc-num\"><span class=\"wc-personnel-full-amt\">Retirement, Health Insurance &amp; Other Benefits</span><span class=\"wc-personnel-base-amt\">Retirement &amp; Other Benefits</span></th><th class=\"wc-num wc-personnel-position-optional-col\">Health Insurance</th><th class=\"wc-num wc-personnel-position-optional-col\" title=\"The budgeted 5% active-employee premium increase. Health Insurance plus this increase equals the budgeted health insurance cost, which is included in Total Personnel Cost.\">Health Insurance Increase</th><th class=\"wc-num\">Total Personnel Cost</th></tr></thead>" +
         "<tbody>" + positionRows.join("") + "</tbody></table></div>";
     } else {
       positionsHtml = '<div class="wc-data-empty">No position-level cost data is available yet for this department.</div>';
@@ -17347,7 +17363,7 @@
           '<td class="wc-num">' + formatCurrency(salariesDisplay) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(cola) + "</td>" +
           '<td class="wc-num">' + formatCurrency(benefitsDisplay) + "</td>" +
-          '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance) + "</td>" +
+          '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(activeHealthInsurance - healthInsuranceIncrease) + "</td>" +
           '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(healthInsuranceIncrease) + "</td>" +
           '<td class="wc-num">' + formatCurrency(priorTotal) + "</td>" +
           totalCellHtml +
@@ -17380,7 +17396,7 @@
             '<td class="wc-num">' + formatCurrency(grandSalariesDisplay) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.Cola) + "</td>" +
             '<td class="wc-num">' + formatCurrency(grandBenefitsDisplay) + "</td>" +
-            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsurance) + "</td>" +
+            '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsurance - grand.HealthInsuranceIncrease) + "</td>" +
             '<td class="wc-num wc-personnel-cost-optional-col">' + formatCurrency(grand.HealthInsuranceIncrease) + "</td>" +
             '<td class="wc-num">' + formatCurrency(grand.PriorTotal) + "</td>" +
             '<td class="wc-num">' + formatCurrency(grandTotal) + "</td>" +
@@ -17430,7 +17446,7 @@
             { label: "3% COLA", num: true, classes: ["wc-personnel-cost-optional-col"] },
             { label: combinedColumnLabel, num: true },
             { label: "Health Insurance", num: true, classes: ["wc-personnel-cost-optional-col"] },
-            { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"], tooltip: "A hypothetical 5% active-employee premium increase, shown for reference only -- not part of Total Personnel Cost." },
+            { label: "Health Insurance Increase", num: true, classes: ["wc-personnel-cost-optional-col"], tooltip: "The budgeted 5% active-employee premium increase. Health Insurance plus this increase equals the budgeted health insurance cost, which is included in Total Personnel Cost." },
             { label: "FY 2026 Total Personnel Cost", num: true },
             { label: "FY 2027 Total Personnel Cost", num: true },
             { label: "+/−", num: true }
