@@ -1,0 +1,1350 @@
+{
+  "Building Construction and Maintenance": {
+    "goal": "Provide safe, clean, and efficient public facilities for staff, citizens, and visitors",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Maintain public buildings",
+        "description": "Keeps county facilities safe, functional, and available for the people who use them.",
+        "measures": [
+          {
+            "name": "Number of work orders completed within the department’s established timeframe per fiscal year",
+            "values": {
+              "2022": "3,000",
+              "2023": "3,200",
+              "2024": "3,439",
+              "2025": "3,600",
+              "FY27 Target": "3,800"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Manage facility systems",
+        "description": "Coordinates building systems, preventive maintenance, and service requests across county operations.",
+        "measures": [
+          {
+            "name": "Number of facilities maintained and inspected per year",
+            "values": {
+              "2022": "113",
+              "2023": "116",
+              "2024": "115",
+              "2025": "115",
+              "FY27 Target": "115"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Building Department": {
+    "goal": "Ensure safe, quality construction",
+    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "services": [
+      {
+        "title": "Issue permits",
+        "description": "Processes permits that authorize eligible construction, alteration, and related work.",
+        "measures": [
+          {
+            "name": "Number of contractor licenses issued and/or renewed per fiscal year",
+            "values": {
+              "2022": "1364",
+              "2023": "1,468",
+              "2024": "1,664",
+              "2025": "1,700",
+              "FY27 Target": "1,700"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Inspect construction",
+        "description": "Verifies permitted work at required stages before completion or occupancy.",
+        "measures": [
+          {
+            "name": "Number of building inspections conducted successfully per fiscal year",
+            "values": {
+              "2022": "27,304",
+              "2023": "27,502",
+              "2024": "25,767",
+              "2025": "28,000",
+              "FY27 Target": "28,000"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Code Compliance": {
+    "goal": "Promote voluntary compliance to maintain community standards and resolve code violations",
+    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "services": [
+      {
+        "title": "Respond to code concerns",
+        "description": "Receives and investigates reported conditions that may violate county codes.",
+        "measures": [
+          {
+            "name": "Total number of street and beach code cases resolved annually",
+            "values": {
+              "2022": "10,643",
+              "2023": "10,865",
+              "2024": "10,215",
+              "2025": "11,500",
+              "FY27 Target": "8,000"
+            },
+            "note": "The FY 2027 projection is 8,000 cases versus 11,500 reported in 2025. The published schedule does not explain the lower projection; case volume alone does not establish a change in enforcement effort or service quality."
+          }
+        ]
+      },
+      {
+        "title": "Resolve property violations",
+        "description": "Works with property owners to correct documented violations and restore compliance.",
+        "measures": [
+          {
+            "name": "Percentage of code violations resolved through voluntary compliance without formal enforcement action",
+            "values": {
+              "2022": "93.50%",
+              "2023": "93.50%",
+              "2024": "94%",
+              "2025": "94%",
+              "FY27 Target": "95%"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "County Administration": {
+    "goal": "Deliver effective and transparent administration to support County operations",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Carry out Board direction",
+        "description": "Coordinates implementation of policies and decisions adopted by the Board of County Commissioners.",
+        "measures": [
+          {
+            "name": "Number of BCC directives, task orders, and agreements processed annually",
+            "values": {
+              "2022": "213",
+              "2023": "215",
+              "2024": "368",
+              "2025": "350",
+              "FY27 Target": "360"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Support public accountability",
+        "description": "Provides executive oversight, issue resolution, and communication about county operations.",
+        "measures": [
+          {
+            "name": "Total watch time on social media platforms measured in hours",
+            "values": {
+              "2022": "3,000",
+              "2023": "3,200",
+              "2024": "3,019",
+              "2025": "3,000",
+              "FY27 Target": "3,100"
+            },
+            "note": ""
+          },
+          {
+            "name": "Number of public videos created on social media platforms",
+            "values": {
+              "2022": "65",
+              "2023": "83",
+              "2024": "105",
+              "2025": "128",
+              "FY27 Target": "130"
+            },
+            "note": "Source: 2025 Annual Report, p. 11."
+          }
+        ]
+      }
+    ]
+  },
+  "Eagle Springs Golf and Recreation Center": {
+    "goal": "Provide high-quality and accessible recreational opportunities for all residents and visitors",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Operate the golf course",
+        "description": "Provides and maintains the public golf experience at Eagle Springs.",
+        "measures": [
+          {
+            "name": "Total number of rounds played per fiscal year",
+            "values": {
+              "2022": "29,878",
+              "2023": "31,153",
+              "2024": "33,589",
+              "2025": "37,722",
+              "FY27 Target": "43,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 17."
+          }
+        ]
+      },
+      {
+        "title": "Host community recreation",
+        "description": "Provides access, programming, and gathering opportunities at the recreation center.",
+        "measures": [
+          {
+            "name": "Total number of pool attendees during the open season",
+            "values": {
+              "2022": "2,858",
+              "2023": "3,018",
+              "2024": "2,606",
+              "2025": "1,332",
+              "FY27 Target": "2,750"
+            },
+            "note": "Source: 2025 Annual Report, p. 31. Figure is for the 2025 season."
+          }
+        ]
+      }
+    ]
+  },
+  "Eagle Springs Grill": {
+    "goal": "Provide exceptional dining and event services that enhance community engagement",
+    "challenges": "Maintaining dependable customer service while managing food, supply, labor, and operating costs that can change quickly.",
+    "services": [
+      {
+        "title": "Provide food service",
+        "description": "Prepares and serves food and beverages for Eagle Springs patrons and guests.",
+        "measures": [
+          {
+            "name": "Total number of guest checks processed per fiscal year",
+            "values": {
+              "2022": "7,824",
+              "2023": "39,048",
+              "2024": "50,206",
+              "2025": "55,000",
+              "FY27 Target": "60,000"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Support events and outings",
+        "description": "Provides hospitality support for golf, recreation, and community events.",
+        "measures": [
+          {
+            "name": "Number of events hosted",
+            "values": {
+              "2022": "5",
+              "2023": "42",
+              "2024": "50",
+              "2025": "39",
+              "FY27 Target": "65"
+            },
+            "note": "Source: 2025 Annual Report, p. 17."
+          }
+        ]
+      }
+    ]
+  },
+  "Emergency Management": {
+    "goal": "Enhance community preparedness, readiness, and resilience through education, training, outreach, and volunteer engagement to effectively mitigate and respond to disasters",
+    "challenges": "Maintaining year-round readiness for unpredictable events, seasonal demand, severe weather, and competition for trained personnel and specialized equipment.",
+    "services": [
+      {
+        "title": "Prepare for emergencies",
+        "description": "Develops plans, training, and coordination arrangements before disasters occur.",
+        "measures": [
+          {
+            "name": "Number of community outreach events held, and total participants reached per fiscal year",
+            "values": {
+              "2022": "23 & 20,000",
+              "2023": "23 & 20,000",
+              "2024": "23 & 21,000",
+              "2025": "22 & 25,000+",
+              "FY27 Target": "24 & 22,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 19. Report describes more than 25,000 residents reached."
+          }
+        ]
+      },
+      {
+        "title": "Coordinate emergency response",
+        "description": "Connects agencies, information, and resources during an emergency activation.",
+        "measures": [
+          {
+            "name": "Number of CERT volunteer hours contributed per fiscal year",
+            "values": {
+              "2022": "2,500",
+              "2023": "2,500",
+              "2024": "2,500",
+              "2025": "2,500",
+              "FY27 Target": "2,500"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Engineering Department": {
+    "goal": "Support infrastructure planning and delivery by maintaining and updating the Capital Improvement Plan (CIP), providing transparent reporting, and coordinating engineering support for County projects",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Design public infrastructure",
+        "description": "Develops and reviews plans for roads, drainage, and other county infrastructure.",
+        "measures": [
+          {
+            "name": "Was the five-year Capital Improvement Plan (CIP) updated and approved?",
+            "values": {
+              "2022": "N/A",
+              "2023": "N/A",
+              "2024": "Yes",
+              "2025": "Yes",
+              "FY27 Target": "Yes"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Manage infrastructure projects",
+        "description": "Coordinates engineering work from scope and permitting through construction.",
+        "measures": [
+          {
+            "name": "Have the quarterly reports and the annual reports been published and approved?",
+            "values": {
+              "2022": "N/A",
+              "2023": "N/A",
+              "2024": "Yes",
+              "2025": "Yes",
+              "FY27 Target": "Yes"
+            },
+            "note": ""
+          },
+          {
+            "name": "Has the department website been updated to reflect the current status of active projects?",
+            "values": {
+              "2022": "N/A",
+              "2023": "N/A",
+              "2024": "Yes",
+              "2025": "Yes",
+              "FY27 Target": "Yes"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Environmental Resources": {
+    "goal": "Protect and enhance Walton County’s natural resources through proactive conservation, compliance, and restoration initiatives",
+    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "services": [
+      {
+        "title": "Manage environmental projects",
+        "description": "Plans and coordinates restoration, monitoring, and resource-management initiatives.",
+        "measures": [
+          {
+            "name": "Number of environmental conservation projects completed per fiscal year (e.g. reef deployments, habitat plans)",
+            "values": {
+              "2022": "10",
+              "2023": "10",
+              "2024": "10",
+              "2025": "12",
+              "FY27 Target": "13"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Provide environmental review",
+        "description": "Supplies technical review and guidance for county projects and environmental responsibilities.",
+        "measures": [
+          {
+            "name": "Number of stormwater inspections performed and compliance with NPDES regulations",
+            "values": {
+              "2022": "77",
+              "2023": "77",
+              "2024": "78",
+              "2025": "80",
+              "FY27 Target": "80"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Extension Office": {
+    "goal": "Provide relevant, research-based education and outreach to improve the quality of life for Walton County residents and visitors",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Share research-based education",
+        "description": "Connects residents with practical information from the University of Florida extension system.",
+        "measures": [
+          {
+            "name": "Number of participants attending extension educational programs per calendar year",
+            "values": {
+              "2022": "6,582",
+              "2023": "6,582",
+              "2024": "5,110",
+              "2025": "5,000",
+              "FY27 Target": "5,000"
+            },
+            "note": ""
+          },
+          {
+            "name": "Number of people reached through social media engagement per calendar year",
+            "values": {
+              "2022": "40,373",
+              "2023": "40,373",
+              "2024": "37,000",
+              "2025": "40,000",
+              "FY27 Target": "40,000"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Support agriculture and landscapes",
+        "description": "Provides education and assistance for farms, gardens, natural resources, and pest management.",
+        "measures": [
+          {
+            "name": "Number of client consultations performed per calendar year (email, text, field, office, telephone)",
+            "values": {
+              "2022": "2,675",
+              "2023": "2,675",
+              "2024": "2,899",
+              "2025": "2,600",
+              "FY27 Target": "2,600"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Geographic Info Systems": {
+    "goal": "Provide accessible, accurate, and innovative GIS resources to support decision-making and improve customer service",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Maintain county map data",
+        "description": "Creates and maintains geographic information used across county operations.",
+        "measures": [
+          {
+            "name": "GIS data added and maintained, including streets, building footprints, address, etc.",
+            "values": {
+              "2022": "9,865",
+              "2023": "9,865",
+              "2024": "9,953",
+              "2025": "10,252",
+              "FY27 Target": "10,500"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Provide public mapping",
+        "description": "Makes location-based county information available through maps and online tools.",
+        "measures": [
+          {
+            "name": "Customer GIS assistance (Walk-ins, Email, Phone) for address, GIS maps, website, & interactive maps",
+            "values": {
+              "2022": "3,782",
+              "2023": "3,782",
+              "2024": "3,900",
+              "2025": "4,000",
+              "FY27 Target": "4,250"
+            },
+            "note": ""
+          },
+          {
+            "name": "Maps produced (Paper & Digital)",
+            "values": {
+              "2022": "2,497",
+              "2023": "2,497",
+              "2024": "2,350",
+              "2025": "2,420",
+              "FY27 Target": "2,700"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Housing & Urban Development": {
+    "goal": "Provide safe, affordable housing opportunities and manage resources efficiently to assist low-income families",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Support housing stability",
+        "description": "Administers eligible housing assistance and improvement activities for residents.",
+        "measures": [
+          {
+            "name": "Total number of families served by HUD rental assistance programs per fiscal year",
+            "values": {
+              "2022": "296",
+              "2023": "298",
+              "2024": "300",
+              "2025": "300",
+              "FY27 Target": "300"
+            },
+            "note": ""
+          },
+          {
+            "name": "Percentage of available housing vouchers utilized per fiscal year",
+            "values": {
+              "2022": "70%",
+              "2023": "70%",
+              "2024": "75%",
+              "2025": "75%",
+              "FY27 Target": "75%"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Human Resources": {
+    "goal": "Attract, develop, and support a qualified workforce by delivering effective HR services and ensuring timely personnel actions",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Recruit and support employees",
+        "description": "Coordinates hiring, onboarding, employee records, and workplace support.",
+        "measures": [
+          {
+            "name": "Number of employees onboarded and trained per fiscal year",
+            "values": {
+              "2022": "210",
+              "2023": "226",
+              "2024": "231",
+              "2025": "240",
+              "FY27 Target": "260"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Administer pay and benefits",
+        "description": "Manages compensation, benefits, classification, and related personnel processes.",
+        "measures": [
+          {
+            "name": "Number of personnel action forms and benefits changes processed per fiscal year",
+            "values": {
+              "2022": "874 & 331",
+              "2023": "961 & 437",
+              "2024": "932 & 425",
+              "2025": "900 & 450",
+              "FY27 Target": "900 & 450"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Libraries": {
+    "goal": "Deliver high-quality library services, resources, and programs that foster learning, literacy, and community engagement",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Provide books and information",
+        "description": "Connects residents with collections, research help, technology, and digital resources.",
+        "measures": [
+          {
+            "name": "Number of new items added to the library collection (physical and digital) annually",
+            "values": {
+              "2022": "5,873",
+              "2023": "6,467",
+              "2024": "8,844",
+              "2025": "9,100",
+              "FY27 Target": "7,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 34."
+          }
+        ]
+      },
+      {
+        "title": "Support learning at every age",
+        "description": "Offers literacy, educational, and cultural programs for children, adults, and families.",
+        "measures": [
+          {
+            "name": "Total number of visitors and program attendees annually",
+            "values": {
+              "2022": "136,843",
+              "2023": "143,477",
+              "2024": "215,223",
+              "2025": "220,000",
+              "FY27 Target": "230,000"
+            },
+            "note": "Reported visits and program attendance are not presented as a verified count of distinct residents; repeat attendance may be included."
+          }
+        ]
+      }
+    ]
+  },
+  "Mosquito Control": {
+    "goal": "Protect public health and enhance quality of life by managing mosquito populations through effective, innovative, and environmentally responsible practices",
+    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "services": [
+      {
+        "title": "Monitor mosquito activity",
+        "description": "Uses surveillance and field information to identify mosquito populations and conditions.",
+        "measures": [
+          {
+            "name": "Number of site inspections performed per fiscal year",
+            "values": {
+              "2022": "4,936",
+              "2023": "5,303",
+              "2024": "8,289",
+              "2025": "9,600",
+              "FY27 Target": "9,750"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Reduce mosquito populations",
+        "description": "Applies appropriate treatment and source-control practices in the service area.",
+        "measures": [
+          {
+            "name": "Total number of acres treated per fiscal year",
+            "values": {
+              "2022": "355,025",
+              "2023": "473,516",
+              "2024": "575,734",
+              "2025": "≈309,000",
+              "FY27 Target": "610,000"
+            },
+            "note": "This is a treatment-activity measure. The published schedule does not specify how repeat treatments are counted; it should not be interpreted as verified unique land area. Source: 2025 Annual Report, p. 25. Annual report gives approximate treatment acreage."
+          }
+        ]
+      }
+    ]
+  },
+  "Mossy Head Wastewater Treatment Facility": {
+    "goal": "Operate and maintain the wastewater treatment facility and sewer system to ensure reliable service, regulatory compliance, and readiness for future growth",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Maintain the treatment system",
+        "description": "Inspects, repairs, and maintains facility equipment and supporting infrastructure.",
+        "measures": [
+          {
+            "name": "Number of lift station inspections or repairs completed per fiscal year",
+            "values": {
+              "2022": "30",
+              "2023": "30",
+              "2024": "30",
+              "2025": "30",
+              "FY27 Target": "30"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Office of Management and Budget": {
+    "goal": "Maintain Walton County’s financial stability and integrity through effective planning, compliance, transparency, and innovation in budget management",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Build the annual budget",
+        "description": "Coordinates department requests, revenue estimates, balancing, and the final county budget.",
+        "measures": [
+          {
+            "name": "Percentage of budget prepared in compliance with Florida Statutes and Truth in Millage requirements",
+            "values": {
+              "2022": "100%",
+              "2023": "100%",
+              "2024": "100%",
+              "2025": "100%",
+              "FY27 Target": "100%"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Monitor public spending",
+        "description": "Tracks budget performance and supports amendments throughout the fiscal year.",
+        "measures": [
+          {
+            "name": "Total amount of grant expenditures managed per fiscal year",
+            "values": {
+              "2022": "$14.3M",
+              "2023": "$10.4M",
+              "2024": "$16.7M",
+              "2025": "$15.6M",
+              "FY27 Target": "$10M"
+            },
+            "note": ""
+          },
+          {
+            "name": "Number of budget transfers and amendments processed per fiscal year",
+            "values": {
+              "2022": "83",
+              "2023": "98",
+              "2024": "66",
+              "2025": "70",
+              "FY27 Target": "60"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Explain financial decisions",
+        "description": "Produces schedules, forecasts, analysis, and public budget information for decision-making.",
+        "measures": [
+          {
+            "name": "Number of engaged sessions on the budget website per fiscal year",
+            "values": {
+              "2022": "N/A",
+              "2023": "N/A",
+              "2024": "328",
+              "2025": "500",
+              "FY27 Target": "600"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Office of the County Attorney": {
+    "goal": "Provide effective legal services, contract support, and public records management to ensure compliance, accountability, and transparency",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Prepare and review legal documents",
+        "description": "Reviews ordinances, resolutions, agreements, contracts, and other county instruments.",
+        "measures": [
+          {
+            "name": "Number of contracts, agreements, and procurement documents reviewed per fiscal year",
+            "values": {
+              "2022": "380",
+              "2023": "380",
+              "2024": "380",
+              "2025": "390",
+              "FY27 Target": "400"
+            },
+            "note": ""
+          },
+          {
+            "name": "Average response time for processing public records requests measured in days",
+            "values": {
+              "2022": "5",
+              "2023": "5",
+              "2024": "5",
+              "2025": "4.5",
+              "FY27 Target": "4.5"
+            },
+            "note": ""
+          },
+          {
+            "name": "Number of processed public records requests per fiscal year",
+            "values": {
+              "2022": "400",
+              "2023": "400",
+              "2024": "415",
+              "2025": "425",
+              "FY27 Target": "450"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Planning": {
+    "goal": "Provide timely, customer-focused planning and permitting services that promote sustainable growth, protect natural resources, and ensure compliance with County regulations",
+    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "services": [
+      {
+        "title": "Review development proposals",
+        "description": "Evaluates applications for consistency with county plans and land-development requirements.",
+        "measures": [
+          {
+            "name": "Percentage of development projects that meet MS4 permitting requirements",
+            "values": {
+              "2022": "100%",
+              "2023": "100%",
+              "2024": "100%",
+              "2025": "100%",
+              "FY27 Target": "100%"
+            },
+            "note": ""
+          },
+          {
+            "name": "Number of permits processed through the new EnerGov system",
+            "values": {
+              "2022": "3,973",
+              "2023": "4,646",
+              "2024": "4,782",
+              "2025": "4,750",
+              "FY27 Target": "5,800"
+            },
+            "note": "Permit volume measures workload. It does not demonstrate shorter review times or improved turnaround."
+          }
+        ]
+      }
+    ]
+  },
+  "Probation": {
+    "goal": "Ensure compliance with court-ordered probation conditions and provide effective supervision and support for probationers to promote accountability and rehabilitation.",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Report to the court",
+        "description": "Provides compliance information and case updates needed for judicial decisions.",
+        "measures": [
+          {
+            "name": "County court hearings attended by probation officers",
+            "values": {
+              "2022": "83",
+              "2023": "83",
+              "2024": "62",
+              "2025": "53",
+              "FY27 Target": "60"
+            },
+            "note": "Source: 2025 Annual Report, p. 33. Annual report period is October 2024–September 2025."
+          }
+        ]
+      }
+    ]
+  },
+  "Public Works": {
+    "goal": "Provide, maintain, and improve Walton County’s public infrastructure in a sustainable, innovative, and efficient manner to support safety, mobility, environmental stewardship, and economic development",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Maintain roads and rights-of-way",
+        "description": "Repairs and maintains county roads, shoulders, signs, and related transportation assets.",
+        "measures": [
+          {
+            "name": "Number of miles of road maintained or improved per fiscal year (unpaved and paved roads)",
+            "values": {
+              "2022": "1,046",
+              "2023": "1,046",
+              "2024": "1,046",
+              "2025": "1,046",
+              "FY27 Target": "1,049"
+            },
+            "note": "Source: 2025 Annual Report, p. 35."
+          }
+        ]
+      },
+      {
+        "title": "Deliver transportation improvements",
+        "description": "Coordinates paving, resurfacing, bridge, and other road improvement work.",
+        "measures": [
+          {
+            "name": "Number of capital improvement projects completed per fiscal year",
+            "values": {
+              "2022": "11",
+              "2023": "10",
+              "2024": "18",
+              "2025": "17",
+              "FY27 Target": "23"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Purchasing": {
+    "goal": "Enhance efficiency, transparency, and effectiveness of procurement operations to support County departments and deliver value to the community",
+    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "services": [
+      {
+        "title": "Run fair solicitations",
+        "description": "Coordinates competitive purchasing processes for county goods, services, and construction.",
+        "measures": [
+          {
+            "name": "Total number of formal solicitations per fiscal year",
+            "values": {
+              "2022": "18",
+              "2023": "21",
+              "2024": "30",
+              "2025": "30+",
+              "FY27 Target": "28"
+            },
+            "note": "Source: 2025 Annual Report, p. 30. Report includes ITBs, RFPs, RFQs, ITQs, and ITNs."
+          }
+        ]
+      },
+      {
+        "title": "Support county purchasing",
+        "description": "Helps departments obtain needed resources under adopted rules and contracts.",
+        "measures": [
+          {
+            "name": "Total number of purchase orders processed per fiscal year",
+            "values": {
+              "2022": "4,389",
+              "2023": "5,900",
+              "2024": "4,596",
+              "2025": "6,136",
+              "FY27 Target": "5,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 30."
+          }
+        ]
+      },
+      {
+        "title": "Maintain procurement records",
+        "description": "Documents awards, contracts, vendor information, and purchasing compliance.",
+        "measures": [
+          {
+            "name": "Number of inventory issues processed per fiscal year",
+            "values": {
+              "2022": "4,731",
+              "2023": "5,149",
+              "2024": "1,317",
+              "2025": "3,000",
+              "FY27 Target": "3,300"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Recreation": {
+    "goal": "Provide diverse recreational programs that enhance community health, engagement, and quality of life",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Provide recreation programs",
+        "description": "Coordinates activities, leagues, and opportunities for residents of different ages.",
+        "measures": [
+          {
+            "name": "Total number of participants in recreational programs per fiscal year (Rec Soccer, Basketball, Kickball, etc.)",
+            "values": {
+              "2022": "3,378",
+              "2023": "3,786",
+              "2024": "3,891",
+              "2025": "4,214",
+              "FY27 Target": "4,500"
+            },
+            "note": "Source: 2025 Annual Report, p. 31. Sum of seven County-run basketball, soccer, camp, and adult kickball participation counts. Excludes separately listed County-supported and travel programs; participants may appear in multiple programs."
+          }
+        ]
+      }
+    ]
+  },
+  "Soil Conservation": {
+    "goal": "Support sustainable land and water management practices by promoting soil conservation, protecting natural resources, and assisting landowners.",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Support conservation planning",
+        "description": "Provides local assistance for soil, water, and natural-resource conservation practices.",
+        "measures": [
+          {
+            "name": "Number of CSP contracts approved and total acreage managed under the program per fiscal year",
+            "values": {
+              "2022": "4 & 1,782",
+              "2023": "8 & 2,183",
+              "2024": "18 & 9,782",
+              "2025": "19 & 9,987",
+              "FY27 Target": "20 & 10,000"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Connect landowners with technical help",
+        "description": "Links agricultural and rural property needs with conservation information and partners.",
+        "measures": [
+          {
+            "name": "Number of EQIP contracts approved and total acreage managed under the program per fiscal year",
+            "values": {
+              "2022": "66 & 14,768",
+              "2023": "84 & 17,553",
+              "2024": "80 & 13,918",
+              "2025": "76 & 15,189",
+              "FY27 Target": "80 & 15,500"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Solid Waste": {
+    "goal": "Ensure regulatory compliance, operational efficiency, and protection of natural resources across all waste streams",
+    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "services": [
+      {
+        "title": "Operate waste facilities",
+        "description": "Maintains transfer, convenience, recycling, and related solid-waste sites and equipment.",
+        "measures": [
+          {
+            "name": "Total tons of Class I waste processed per year",
+            "values": {
+              "2022": "93,752",
+              "2023": "94,525",
+              "2024": "94,732",
+              "2025": "96,147",
+              "FY27 Target": "97,376"
+            },
+            "note": ""
+          },
+          {
+            "name": "Total tons of Class III waste processed per year",
+            "values": {
+              "2022": "30,047",
+              "2023": "30,047",
+              "2024": "36,662",
+              "2025": "34,806",
+              "FY27 Target": "40,572"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Reduce improper disposal",
+        "description": "Supports recycling, public information, and responsible handling of eligible materials.",
+        "measures": [
+          {
+            "name": "Total tons of yard waste processed per year",
+            "values": {
+              "2022": "8,513",
+              "2023": "11,416",
+              "2024": "12,504",
+              "2025": "10,673",
+              "FY27 Target": "13,426"
+            },
+            "note": ""
+          },
+          {
+            "name": "Total tons of recyclable material processed per year",
+            "values": {
+              "2022": "1,517",
+              "2023": "1,412",
+              "2024": "1,267",
+              "2025": "1,137",
+              "FY27 Target": "1,150"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Veteran Services": {
+    "goal": "Deliver timely, effective, and informative assistance to veterans and their families",
+    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "services": [
+      {
+        "title": "Help veterans navigate benefits",
+        "description": "Provides information and assistance with eligible federal, state, and local benefits.",
+        "measures": [
+          {
+            "name": "Percentage of staff completing annual training",
+            "values": {
+              "2022": "100%",
+              "2023": "100%",
+              "2024": "100%",
+              "2025": "100%",
+              "FY27 Target": "100%"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Prepare and track claims",
+        "description": "Assists veterans and families with applications, evidence, and claim follow-up.",
+        "measures": [
+          {
+            "name": "Number of claims processed for veterans per fiscal year",
+            "values": {
+              "2022": "752",
+              "2023": "1,023",
+              "2024": "1,074",
+              "2025": "1,151",
+              "FY27 Target": "1,100"
+            },
+            "note": "Source: 2025 Annual Report, p. 41."
+          }
+        ]
+      },
+      {
+        "title": "Connect families with support",
+        "description": "Refers veterans, dependents, and survivors to appropriate services and resources.",
+        "measures": [
+          {
+            "name": "Number of outreach presentations or events held for veterans",
+            "values": {
+              "2022": "3",
+              "2023": "2",
+              "2024": "3",
+              "2025": "3",
+              "FY27 Target": "5"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Tourism Administration": {
+    "goal": "Steward visitor-funded resources and coordinate tourism programs that support a strong economy and community quality of life.",
+    "challenges": "Four positions oversee the $59.0M Tourist Development Fund, whose uses are restricted by state law to tourism-related purposes.",
+    "services": []
+  },
+  "Sales and Visitors Center": {
+    "goal": "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
+    "challenges": "Nine positions handle group sales for meetings, weddings, and travel, and staff the visitor center.",
+    "services": [
+      {
+        "title": "Develop group business",
+        "description": "Builds relationships with meeting, wedding, incentive, and travel planners.",
+        "measures": [
+          {
+            "name": "Meeting leads generated for partners",
+            "values": {
+              "2022": "185",
+              "2023": "209",
+              "2024": "234",
+              "2025": "234",
+              "FY27 Target": "234"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Operate visitor services",
+        "description": "Provides in-person destination guidance, materials, and referrals.",
+        "measures": [
+          {
+            "name": "Visitor Center visitor count",
+            "values": {
+              "2022": "17,712",
+              "2023": "17,313",
+              "2024": "18,309",
+              "2025": "18,309",
+              "FY27 Target": "18,309"
+            },
+            "note": ""
+          },
+          {
+            "name": "Visitor Center merchandise sales",
+            "values": {
+              "2022": "$188,961",
+              "2023": "$219,627",
+              "2024": "$231,804",
+              "2025": "$231,804",
+              "FY27 Target": "$231,804"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Communications": {
+    "goal": "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
+    "challenges": "Five positions manage media relations, press visits, and tourism communications, supported by a $114,000 public relations contract.",
+    "services": [
+      {
+        "title": "Manage public relations",
+        "description": "Coordinates media relations, press visits, releases, and destination storytelling.",
+        "measures": [
+          {
+            "name": "Earned media value",
+            "values": {
+              "2022": "$8,894,798",
+              "2023": "$3,800,572",
+              "2024": "$2,069,323",
+              "2025": "$2,069,323",
+              "FY27 Target": "$2,069,323"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Inform partners and residents",
+        "description": "Shares timely tourism information with community and industry stakeholders.",
+        "measures": [
+          {
+            "name": "Beach safety texts sent",
+            "values": {
+              "2022": "6,730,695",
+              "2023": "7,939,656",
+              "2024": "6,109,270",
+              "2025": "6,109,270",
+              "FY27 Target": "6,109,270"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Marketing": {
+    "goal": "Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
+    "challenges": "Four positions manage $12.5M in contracted advertising, research, and digital marketing services.",
+    "services": [
+      {
+        "title": "Plan and place destination advertising",
+        "description": "Develops integrated campaigns and media investments for priority markets.",
+        "measures": [
+          {
+            "name": "Total paid media impressions",
+            "values": {
+              "2022": "300,732,064",
+              "2023": "251,223,913",
+              "2024": "171,549,291",
+              "2025": "171,549,291",
+              "FY27 Target": "171,549,291"
+            },
+            "note": ""
+          }
+        ]
+      },
+      {
+        "title": "Manage digital visitor engagement",
+        "description": "Operates web, social, email, customer-relationship, and digital-asset platforms.",
+        "measures": [
+          {
+            "name": "Website visits",
+            "values": {
+              "2022": "1,375,592",
+              "2023": "1,423,420",
+              "2024": "1,894,677",
+              "2025": "1,894,677",
+              "FY27 Target": "1,894,677"
+            },
+            "note": ""
+          },
+          {
+            "name": "YouTube video views",
+            "values": {
+              "2022": "6,438,932",
+              "2023": "6,185,756",
+              "2024": "4,197,623",
+              "2025": "4,197,623",
+              "FY27 Target": "4,197,623"
+            },
+            "note": ""
+          },
+          {
+            "name": "BookDirect visits",
+            "values": {
+              "2022": "33,020",
+              "2023": "25,270",
+              "2024": "22,263",
+              "2025": "22,263",
+              "FY27 Target": "22,263"
+            },
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Beach Operations": {
+    "goal": "Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
+    "challenges": "Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.",
+    "services": [
+      {
+        "title": "Maintain public beach access",
+        "description": "Supports cleanliness, amenities, and daily operations at county beach locations.",
+        "measures": [
+          {
+            "name": "Number of beach and bay public access facilities cleaned daily",
+            "values": {
+              "2022": "60",
+              "2023": "60",
+              "2024": "62",
+              "2025": "62",
+              "FY27 Target": "66"
+            },
+            "note": "Source: 2025 Annual Report, p. 39. 15 regional and 47 neighborhood beach/bay access points cleaned twice daily, 363 days per year."
+          }
+        ]
+      },
+      {
+        "title": "Protect and restore beaches",
+        "description": "Coordinates eligible renourishment, shoreline, and beach-preservation work.",
+        "measures": [
+          {
+            "name": "Number of maintenance work orders completed per fiscal year",
+            "values": {
+              "2022": "4,177",
+              "2023": "5,111",
+              "2024": "5,970",
+              "2025": "5,183",
+              "FY27 Target": "6,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 39."
+          }
+        ]
+      },
+      {
+        "title": "Move visitors to the beach",
+        "description": "Operates eligible transportation and tram activities that support beach access.",
+        "measures": [
+          {
+            "name": "Total number of passengers transported annually by the shuttle service",
+            "values": {
+              "2022": "77,282",
+              "2023": "193,725",
+              "2024": "168,203",
+              "2025": "224,352",
+              "FY27 Target": "250,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 40."
+          }
+        ]
+      }
+    ]
+  },
+  "Beach Tram": {
+    "goal": "Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
+    "challenges": "Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.",
+    "services": [
+      {
+        "title": "Move visitors to the beach",
+        "description": "Operates eligible transportation and tram activities that support beach access.",
+        "measures": [
+          {
+            "name": "Total number of passengers transported annually by the shuttle service",
+            "values": {
+              "2022": "77,282",
+              "2023": "193,725",
+              "2024": "168,203",
+              "2025": "224,352",
+              "FY27 Target": "250,000"
+            },
+            "note": "Source: 2025 Annual Report, p. 40."
+          }
+        ]
+      }
+    ]
+  }
+}

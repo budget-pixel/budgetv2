@@ -287,12 +287,20 @@ const sharedCss = `
   .split-card span{ display:block; color:#68786f; font-size:6.8pt; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
   .split-card em{ display:block; margin-top:.02in; color:#33453c; font-style:normal; font-size:7pt; }
   .ledger{ border-top:2px solid #d1be78; }
-  .lrow{ display:grid; grid-template-columns:1fr .5in .8in .8in .8in .8in .8in; gap:.06in; align-items:center; padding:.06in 0; border-bottom:1px solid #eef1ee; }
-  .lrow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.1pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; line-height:1.2; padding-bottom:.06in; align-items:end; }
+  .lrow{ display:grid; grid-template-columns:1fr .45in .9in .9in .9in .85in .85in; gap:0; align-items:stretch; padding:0; border-bottom:1px solid #eef1ee; }
+.lrow > div{ display:flex; align-items:center; justify-content:flex-end; padding:.06in .06in; }
+.lrow > div.rlabel{ justify-content:flex-start; padding-left:0; }
+/* Personnel, Operating, and Capital & Other read as one cost breakdown. */
+.lrow > div:nth-child(n+5){ background:#f1f6f2; }
+.lrow.head > div:nth-child(n+5){ background:#e1ede5; color:#0b5a35; }
+.lrow.grand > div:nth-child(n+5){ background:#e1ede5; }
+  .lrow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.1pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; line-height:1.2; }
+.lrow.head > div{ align-items:flex-end; }
   .lrow.head .rnum{ text-align:right; }
   .rlabel{ color:#173229; font-size:7.6pt; }
   .rnum{ text-align:right; color:#33453c; font-size:7.3pt; font-variant-numeric:tabular-nums; }
-  .lrow.grand{ margin-top:.04in; border-top:1.5px solid #003f28; border-bottom:0; padding:.07in 0; }
+  .lrow.grand{ margin-top:.04in; border-top:1.5px solid #003f28; border-bottom:0; }
+.lrow.grand > div{ padding-top:.07in; padding-bottom:.07in; }
   .lrow.grand .rlabel, .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:7.8pt; }
   p.footnote{ margin:.12in 0 0; color:#68786f; font-size:7.1pt; line-height:1.4; font-style:italic; }
   footer{

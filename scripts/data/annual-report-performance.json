@@ -1,22 +1,4 @@
 {
-  "Building Department": [
-    {
-      "index": 0,
-      "value": "12,199",
-      "reportPage": 13,
-      "note": "Annual report covers January\u2013July 2025; this is a partial-year result.",
-      "latestLabel": "Jan\u2013Jul 2025",
-      "comparable": false
-    },
-    {
-      "index": 1,
-      "value": "847",
-      "reportPage": 13,
-      "note": "Annual report covers January\u2013July 2025; this is a partial-year result.",
-      "latestLabel": "Jan\u2013Jul 2025",
-      "comparable": false
-    }
-  ],
   "County Administration": [
     {
       "index": 1,
@@ -78,7 +60,7 @@
   "Mosquito Control": [
     {
       "index": 0,
-      "value": "\u2248309,000",
+      "value": "≈309,000",
       "reportPage": 25,
       "note": "Annual report gives approximate treatment acreage.",
       "latestLabel": "2025",
@@ -90,7 +72,7 @@
       "index": 0,
       "value": "53",
       "reportPage": 33,
-      "note": "Annual report period is October 2024\u2013September 2025.",
+      "note": "Annual report period is October 2024–September 2025.",
       "latestLabel": "FY 2025",
       "comparable": false
     }

@@ -1,5 +1,6 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
+import { newPage } from "./readers-guide.mjs"; // page references follow the book's current numbering
 
 // Builds the FY 2027 Budget Book's Transmittal Letter as its own two-page
 // PDF -- meant to be inserted right after the GFOA award page (see
@@ -82,6 +83,7 @@ const html = `<!doctype html>
   .col-side{
     flex:0 0 2.05in;
     width:2.05in;
+    margin-top:.3in;
   }
   p{
     margin:0 0 .11in;
@@ -125,9 +127,22 @@ const html = `<!doctype html>
     text-transform:uppercase;
   }
   .stat{
-    margin:0 0 .17in;
+    margin:0 0 .11in;
+  }
+  .stat-group{
+    margin:.14in 0 .08in;
+    padding-top:.08in;
+    border-top:1px solid #e4ebe7;
+    color:#b89521;
+    font-size:6.6pt;
+    font-weight:900;
+    letter-spacing:.1em;
+    text-transform:uppercase;
   }
   .stat:last-child{ margin-bottom:0; }
+  /* Where each figure is explained in the book. */
+  .stat{ position:relative; }
+  .stat-page{ position:absolute; top:.03in; right:0; color:#a88418; font-size:6.6pt; font-style:normal; font-weight:800; letter-spacing:.04em; }
   .stat b{
     display:block;
     color:#003f28;
@@ -215,11 +230,11 @@ const html = `<!doctype html>
 
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Introduction and Budget Overview</small>
-    <h1>Transmittal Letter</h1>
-    <p class="byline">A budget message from the Chief Financial Officer</p>
     <div class="layout">
       <div class="col-main">
+        <small class="kicker">Introduction and Budget Overview</small>
+        <h1>Transmittal Letter</h1>
+        <p class="byline">A budget message from the Chief Financial Officer</p>
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
         <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million. It maintains current services while funding public safety, infrastructure, and the staffing a growing county needs.</p>
         <p>The Board shaped this budget most directly at the tentative hearing, where it reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills. That change lowers estimated property tax revenue by about $8.6 million. Rather than reduce services to absorb it, the Board kept the expenditure plan as proposed and balanced the difference with $8,047,270 of General Fund balance. Because that draws on accumulated reserves rather than new recurring revenue, the County will need to watch reserve levels and future recurring costs closely.</p>
@@ -228,7 +243,7 @@ const html = `<!doctype html>
           <li><strong>Services:</strong> maintain current service levels and fully fund the Sheriff, the other Constitutional Officers, and statutory obligations.</li>
           <li><strong>Capital:</strong> invest $43.8 million in funded capital projects, including roads, drainage, facilities, and other public assets.</li>
           <li><strong>Staffing:</strong> add a net 15 positions where workload requires it, fund a 3% cost-of-living adjustment, and increase the Self-Insurance Fund balance to meet the required 60-day claims reserve.</li>
-          <li><strong>Reserves:</strong> keep a General Fund emergency cushion in place after the planned use of fund balance.</li>
+          <li><strong>Reserves:</strong> fund $50.3 million of the General Fund&rsquo;s $51.7 million target and the Tourist Development Fund&rsquo;s full $137.7 million target.</li>
         </ul>
         <p>The pages that follow detail the revenue assumptions, reserve effects, staffing changes, capital projects, and performance measures behind these commitments.</p>
       </div>
@@ -238,22 +253,70 @@ const html = `<!doctype html>
           <div class="stat">
             <b>$345.2M</b>
             <span>Net Expenditure Budget</span>
+            <i class="stat-page">p. ${newPage(19)}</i>
+          </div>
+          <p class="stat-group">Spending by area</p>
+          <div class="stat">
+            <b>$135.8M</b>
+            <span>Board Department Budgets</span>
+            <i class="stat-page">p. ${newPage(70)}</i>
           </div>
           <div class="stat">
-            <b>$81.2M</b>
-            <span>General Fund Expense <em class="is-down">&minus;2.7%</em></span>
+            <b>$149.0M</b>
+            <span>Constitutional Officers Budgets</span>
+            <i class="stat-page">p. ${newPage(52)}</i>
           </div>
+          <div class="stat">
+            <b>$51.1M</b>
+            <span>Capital Budget</span>
+            <i class="stat-page">p. ${newPage(109)}</i>
+          </div>
+          <div class="stat">
+            <b>$9.0M</b>
+            <span>Other Agencies and Court-Related Budgets</span>
+            <i class="stat-page">p. ${newPage(60)}</i>
+          </div>
+          <p class="stat-group">Revenues</p>
+          <div class="stat">
+            <b>$153.0M</b>
+            <span>Property Tax</span>
+            <i class="stat-page">p. ${newPage(31)}</i>
+          </div>
+          <div class="stat">
+            <b>$59.0M</b>
+            <span>Tourist Development Tax</span>
+            <i class="stat-page">p. ${newPage(27)}</i>
+          </div>
+          <div class="stat">
+            <b>$40.0M</b>
+            <span>Discretionary Sales Surtax</span>
+            <i class="stat-page">p. ${newPage(27)}</i>
+          </div>
+          <div class="stat">
+            <b>$16.8M</b>
+            <span>Local Government &frac12;&#8209;Cent Sales Tax</span>
+            <i class="stat-page">p. ${newPage(27)}</i>
+          </div>
+          <div class="stat">
+            <b>$76.5M</b>
+            <span>All Other Revenues</span>
+            <i class="stat-page">p. ${newPage(27)}</i>
+          </div>
+          <p class="stat-group">Millage and positions</p>
           <div class="stat">
             <b>3.2500</b>
             <span>County Millage Rate</span>
+            <i class="stat-page">p. ${newPage(31)}</i>
           </div>
           <div class="stat">
             <b>667</b>
             <span>Board Department Positions <em>+12</em></span>
+            <i class="stat-page">p. ${newPage(105)}</i>
           </div>
           <div class="stat">
             <b>848</b>
             <span>Constitutional Officers and Court Position <em>+3</em></span>
+            <i class="stat-page">p. ${newPage(105)}</i>
           </div>
         </div>
       </div>
@@ -264,7 +327,7 @@ const html = `<!doctype html>
   <section>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <h2 style="margin-top:.4in">Budget Summary</h2>
-    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. County operating property taxes remain the County&rsquo;s largest revenue source at $151.6 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
+    <p>The Board has adopted a $345.2 million FY 2027 final budget, an increase of $17.3 million, or 5.3%, over the FY 2026 final budget of $327.9 million. The County operating millage rate is reduced to 3.2500 mills, following rates of 3.6000 in FY 2024, 3.5750 in FY 2025, and 3.5190 in FY 2026. Property taxes remain the County&rsquo;s largest revenue source at $153.0 million. Public Safety remains the largest expenditure function at $126.6 million, reflecting the Sheriff&rsquo;s Office budget and the County&rsquo;s own public-safety operations.</p>
 
     <h2>Fund Highlights</h2>
     <div class="fund-grid">

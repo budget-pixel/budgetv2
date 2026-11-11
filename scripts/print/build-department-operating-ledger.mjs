@@ -29,31 +29,39 @@ const OVERVIEW_STATS = [
   ["+4.3%", "Net Percent Change"],
   ["667", "Total FTE, 15 Departments"]
 ];
-const SPLIT = [
-  ["Personnel", "$59.75M", "44.1%"],
-  ["Contractual Services", "$39.33M", "29.0%"],
-  ["Operating", "$36.72M", "27.0%"]
-];
+// Filled in from the summary rows (SPLIT_TOTALS).
+let SPLIT = [];
 
-// [name, fy26, fy27, fte26, fte27]
+// [name, fy26, fy27, fte26, fte27, personnel, operating, capital & other]
+// The FY 2027 split follows the final budget data (Object_Type), rolled up
+// with the site's Board department grouping; capital outlay is excluded
+// except library materials, matching the $135.8M department total.
 const SUMMARY_ROWS = [
-  ["Tourism Administration", 27447176, 29673729, 22, 22],
-  ["Beach Operations", 12971943, 16082721, 114, 127],
-  ["Public Works", 20850672, 20826000, 148, 148],
-  ["Environmental Services", 23695761, 23514014, 42, 42],
-  ["County Administration Offices", 10488035, 10887378, 76, 76],
-  ["Building Construction & Maintenance", 8639168, 8596305, 68, 68],
-  ["Planning", 6570086, 6823522, 45, 47],
-  ["Code Compliance", 4449159, 4811854, 43, 43],
-  ["Building", 4035000, 4000000, 21, 21],
-  ["Parks & Recreation", 2919737, 2972948, 24.5, 24],
-  ["Engineering Department", 2876106, 2798118, 17, 15],
-  ["Office of the County Attorney", 1993475, 1868514, 10, 9],
-  ["Purchasing", 1033795, 1026499, 10, 10],
-  ["Office of Management and Budget", 1374708, 1075026, 9, 9],
-  ["Emergency Management", 804151, 887455, 5.5, 6]
+  ["Tourism Administration", 27447176, 29673729, 22, 22, 2419413, 27254316, 0],
+  ["Beach Operations", 12971943, 16082721, 114, 127, 8805004, 7277717, 0],
+  ["Public Works", 20850672, 20826000, 148, 148, 13083100, 7742900, 0],
+  ["Environmental Services", 23695761, 23514014, 42, 42, 3651064, 19862950, 0],
+  ["County Administration Offices", 10488035, 10887378, 76, 76, 7109279, 3625099, 153000],
+  ["Building Construction & Maintenance", 8639168, 8596305, 68, 68, 5427755, 3168550, 0],
+  ["Planning", 6570086, 6823522, 45, 47, 4945497, 1878025, 0],
+  ["Code Compliance", 4449159, 4811854, 43, 43, 4260744, 551110, 0],
+  ["Building", 4035000, 4000000, 21, 21, 2312201, 1687799, 0],
+  ["Parks & Recreation", 2919737, 2972948, 24.5, 24, 1879813, 1093135, 0],
+  ["Engineering Department", 2876106, 2798118, 17, 15, 2177918, 620200, 0],
+  ["Office of the County Attorney", 1993475, 1868514, 10, 9, 1118514, 750000, 0],
+  ["Purchasing", 1033795, 1026499, 10, 10, 888999, 137500, 0],
+  ["Office of Management and Budget", 1374708, 1075026, 9, 9, 1017276, 57750, 0],
+  ["Emergency Management", 804151, 887455, 5.5, 6, 704526, 182929, 0]
 ];
 const SUMMARY_TOTAL = ["Total Board Departments", 130148972, 135844083, 655, 667];
+for (const row of SUMMARY_ROWS) {
+  if (row[5] + row[6] + row[7] !== row[2]) throw new Error(`${row[0]}: personnel, operating, and other do not add to the FY 2027 total`);
+}
+const SPLIT_TOTALS = [5, 6, 7].map((i) => SUMMARY_ROWS.reduce((sum, row) => sum + row[i], 0));
+// Board department totals exclude capital (it is in the Capital Budget);
+// the only non-personnel, non-operating amounts are $150,000 of library
+// materials and $3,000 of grants and aid, shown with Operating.
+SPLIT = [["Personnel", SPLIT_TOTALS[0]], ["Operating", SPLIT_TOTALS[1] + SPLIT_TOTALS[2]]].map(([label, amount]) => [label, `$${(amount / 1e6).toFixed(2)}M`, `${(amount / SUMMARY_TOTAL[2] * 100).toFixed(1)}%`]);
 for (const [rowIndex, totalIndex] of [[1, 1], [2, 2], [3, 3], [4, 4]]) {
   if (SUMMARY_ROWS.reduce((sum, row) => sum + row[rowIndex], 0) !== SUMMARY_TOTAL[totalIndex]) {
     throw new Error("Department summary rows do not reconcile to the printed total");
@@ -331,7 +339,7 @@ const sharedCss = `
   }
   .split-row{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:.14in;
     margin:0 0 .2in;
   }
@@ -345,41 +353,22 @@ const sharedCss = `
   .split-card span{ display:block; color:#68786f; font-size:6.8pt; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
   .split-card em{ display:block; margin-top:.02in; color:#33453c; font-style:normal; font-size:7pt; }
   .ledger{ border-top:2px solid #d1be78; }
-  .lrow{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) .48in .48in .48in .85in .85in .5in;
-    gap:.07in;
-    align-items:center;
-    padding:.05in 0;
-    border-bottom:1px solid #eef1ee;
-  }
-  .lrow.head{
-    border-bottom:1px solid #003f28;
-    color:#68786f;
-    font-size:6.3pt;
-    font-weight:800;
-    letter-spacing:.01em;
-    text-transform:uppercase;
-    line-height:1.2;
-    padding-bottom:.06in;
-    align-items:end;
-  }
-  .lrow.head .rnum{ text-align:right; }
+  .lrow{ display:grid; grid-template-columns:1fr .5in 1in 1in 1in 1in; gap:0; align-items:stretch; padding:0; border-bottom:1px solid #eef1ee; }
+  .lrow > div{ display:flex; align-items:center; justify-content:flex-end; padding:.055in .06in; }
+  .lrow > div.rlabel{ justify-content:flex-start; padding-left:0; }
+  /* Personnel and Operating read as one cost breakdown,
+     shaded the same way as the Constitutional Officers ledger. */
+  .lrow > div:nth-child(n+5){ background:#f1f6f2; }
+  .lrow.head > div:nth-child(n+5){ background:#e1ede5; color:#0b5a35; }
+  .lrow.grand > div:nth-child(n+5){ background:#e1ede5; }
+  .lrow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.3pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; line-height:1.2; }
+  .lrow.head > div{ align-items:flex-end; }
   .rlabel{ color:#173229; font-size:7.5pt; }
-  .rnum{
-    text-align:right;
-    color:#33453c;
-    font-size:7.2pt;
-    font-variant-numeric:tabular-nums;
-  }
+  .rnum{ text-align:right; color:#33453c; font-size:7.2pt; font-variant-numeric:tabular-nums; }
   .change{ color:#0b7741; font-weight:700; }
   .change.is-down{ color:#a24b1e; }
-  .lrow.grand{
-    margin-top:.04in;
-    border-top:1.5px solid #003f28;
-    border-bottom:0;
-    padding:.06in 0;
-  }
+  .lrow.grand{ margin-top:.04in; border-top:1.5px solid #003f28; border-bottom:0; }
+  .lrow.grand > div{ padding-top:.07in; padding-bottom:.07in; }
   .lrow.grand .rlabel, .lrow.grand .rnum{ color:#003f28; font-weight:800; font-size:7.6pt; }
   footer{
     position:absolute;
@@ -452,10 +441,8 @@ const sharedCss = `
 
 const fteChange = value => (value > 0 ? "+" : "") + fte(value);
 function summaryRowHtml(r) {
-  const [name, fy26, fy27] = r;
-  const delta = fy27 - fy26;
-  const isDown = delta < 0;
-  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${fte(r[3])}</div><div class="rnum">${fte(r[4])}</div><div class="rnum">${fteChange(r[4] - r[3])}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum change${isDown ? " is-down" : ""}">${pct(delta, fy26)}</div></div>`;
+  const [name, fy26, fy27, , fte27, personnel, operating, other] = r;
+  return `<div class="lrow"><div class="rlabel">${name}</div><div class="rnum">${fte(fte27)}</div><div class="rnum">${money(fy26)}</div><div class="rnum">${money(fy27)}</div><div class="rnum">${money(personnel)}</div><div class="rnum">${money(operating + other)}</div></div>`;
 }
 
 function deptCardHtml(d) {
@@ -505,9 +492,9 @@ const overviewPage = `
     <div class="split-row">${SPLIT.map(([l, v, p]) => `<div class="split-card"><b>${v}</b><span>${l}</span><em>${p} of the total</em></div>`).join("")}</div>
     <h2>Department Summary</h2>
     <div class="ledger">
-      <div class="lrow head"><div class="rlabel">Department</div><div class="rnum">FY26 FTE</div><div class="rnum">FY27 FTE</div><div class="rnum">FTE +/&minus;</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">+/&minus;</div></div>
+      <div class="lrow head"><div class="rlabel">Department</div><div class="rnum">FTE</div><div class="rnum">FY26 Total</div><div class="rnum">FY27 Total</div><div class="rnum">Personnel</div><div class="rnum">Operating</div></div>
       ${SUMMARY_ROWS.map(summaryRowHtml).join("")}
-      <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[3])}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${fteChange(SUMMARY_TOTAL[4] - SUMMARY_TOTAL[3])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum change">${pct(SUMMARY_TOTAL[2] - SUMMARY_TOTAL[1], SUMMARY_TOTAL[1])}</div></div>
+      <div class="lrow grand"><div class="rlabel">${SUMMARY_TOTAL[0]}</div><div class="rnum">${fte(SUMMARY_TOTAL[4])}</div><div class="rnum">${money(SUMMARY_TOTAL[1])}</div><div class="rnum">${money(SUMMARY_TOTAL[2])}</div><div class="rnum">${money(SPLIT_TOTALS[0])}</div><div class="rnum">${money(SPLIT_TOTALS[1] + SPLIT_TOTALS[2])}</div></div>
     </div>
     <p class="footnote"><b>Department budgets:</b> The table summarizes operating and personnel budgets for 15 Board departments. The following pages show the related offices and programs, including their capital requests.</p>
     <footer><span>FY 2027 Final Budget</span><b>${pageCounter}</b></footer>

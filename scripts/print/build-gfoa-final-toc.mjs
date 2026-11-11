@@ -1,6 +1,7 @@
 import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
+import { newPage, guidePage, GUIDES } from "./readers-guide.mjs";
 const pageOrder = JSON.parse(readFileSync(new URL("../data/budget-book-page-order.json", import.meta.url), "utf8"));
 
 // Builds the FY 2027 Budget Book's Table of Contents as a three-page PDF.
@@ -91,7 +92,7 @@ for (const section of sections) {
 }
 capitalBudget.items.unshift(["Capital Budget Chapter Cover", 107]);
 const county = sections.find(s => s.title === "Introduction and Our County");
-county.items.push(["Organizational Challenges", 15], ["FY 2027 Response", 16]);
+county.items.push(["Organizational Challenges", 15], ["Budget Response", 16]);
 // The transportation ledger now spans three pages. The shorter glossary
 // offsets the extra capital page, preserving the 135-page publication.
 for (const section of sections) {
@@ -111,6 +112,26 @@ for (const section of sections) {
   financialOverview.items = financialOverview.items.filter((item) => !(Array.isArray(item) && item[0] === "How to Read the Financial Schedules"));
   financialOverview.items.unshift(["Financial Overview Roadmap", 18]);
   financialOverview.items = financialOverview.items.map((item) => Array.isArray(item) && order[item[0]] ? [item[0], order[item[0]], item[2]] : item);
+}
+// Reader's Guides (readers-guide.mjs): an overall guide after the contents
+// and one at the start of every section. Shift later pages past the new
+// guide pages, then list each section's guide first.
+{
+  const shift = (n) => newPage(n);
+  for (const section of sections) {
+    if (section.items) section.items = section.items.map((item) => Array.isArray(item) ? [item[0] === "Financial Overview Roadmap" ? "Reader’s Guide" : item[0], item[0] === "Financial Overview Roadmap" ? guidePage(GUIDES.find((g) => g.key === "financial")) : shift(item[1]), item[2]] : item);
+    if (section.groups) section.groups = section.groups.map(([label, number, children]) => [label, number == null ? null : shift(number), children.map(([child, page]) => [child, shift(page)])]);
+  }
+  const guideFor = (key) => guidePage(GUIDES.find((g) => g.key === key));
+  const sectionGuides = { "Introduction and Our County": "introduction", "Budget Process": "process", "Constitutional Officer Budget": "constitutional", "Other Agencies and Court-Related Functions Budget": "agencies", "Program and Service Budget": "program", "Board Department Budgets": "departments", "Workforce Budget": "workforce", "Capital Budget": "capital", "Glossary, Statistical, and Supplemental Information": "reference" };
+  for (const section of sections) {
+    const key = sectionGuides[section.title];
+    if (key) section.items = [...(section.items || []), ["Reader’s Guide", guideFor(key)]];
+  }
+  county.items.push(["Reader’s Guide to the FY 2027 Budget", guideFor("overall")]);
+  // The capital dashboard page was removed (readers-guide.mjs REMOVED).
+  capitalBudget.items = capitalBudget.items.filter((item) => !(Array.isArray(item) && item[0] === "Capital Funding and Delivery Dashboard"));
+  for (const section of sections) if (section.items) section.items.sort((a, b) => (Array.isArray(a) ? a[1] : 0) - (Array.isArray(b) ? b[1] : 0));
 }
 sections.forEach((section, index) => { section.number = String(index + 1).padStart(2, "0"); });
 // List department groups in the order their first page appears in the book.

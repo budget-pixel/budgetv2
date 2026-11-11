@@ -12,8 +12,14 @@ assembly-numbered logic keeps working unchanged.
 """
 from pypdf import PageObject
 
-ASSEMBLY_PAGES = 135
-REMOVED_PAGE = 112
+# Nine Reader's Guide pages were inserted on 2026-11-10 (an overall guide
+# after the contents and one after each section divider; see
+# readers-guide.mjs), taking the published book from 134 to 143 pages. The
+# removed map page sat at assembly 112 before them; eight guides precede it.
+# The Capital Funding and Delivery Dashboard (published page 120) was then
+# removed, taking the book to 142 pages.
+ASSEMBLY_PAGES = 143
+REMOVED_PAGE = 120
 REMOVED_TITLE = "Where FY 2027 Capital Investment Serves"
 PUBLISHED_PAGES = ASSEMBLY_PAGES - 1
 

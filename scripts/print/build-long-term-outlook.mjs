@@ -1,5 +1,6 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
+import { newPage } from "./readers-guide.mjs"; // in-text page references follow the Reader's Guide numbering
 import { consolidated, generalFund, values, millions } from "./fund-schedule-data.mjs";
 
 // New chapter: "Long-Term Outlook" -- closes the Financial Plan and
@@ -228,7 +229,7 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Future Reserve Pressure</h2>
-    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See Reserve Position on page 41 for the reserve targets.</p>
+    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See Reserve Position on page ${newPage(41)} for the reserve targets.</p>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">
@@ -239,7 +240,7 @@ const page2 = `
     <p class="warn"><b>Deferred and Contingent Items</b>No major project in the funded $43.8M FY 2027 capital program was postponed. Outside that total are $15.3M of grant-dependent projects, $2.0M of Sheriff projects funded separately, and $10.25M of prior-funded tourism work that remains active. A $600,000 recreational-plat allocation and $300,000 sidewalk allocation await project selection. Future phases and costs shown as pending are not assumed funded.</p>
 
     <h2>Debt Payoff and Future Commitments</h2>
-    <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page 40 for payment amounts and funding details.</p>
+    <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page ${newPage(40)} for payment amounts and funding details.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
     <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>

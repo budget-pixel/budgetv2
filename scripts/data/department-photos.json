@@ -92,6 +92,7 @@
   },
   "Veteran Services": {
     "file": "assets/images/annual-report-2025/veteran-services.jpg",
+    "objectPosition": "center 18%",
     "reportPage": 41,
     "imageIndex": 0,
     "caption": "Veteran Services \u00b7 2025 Annual Report"

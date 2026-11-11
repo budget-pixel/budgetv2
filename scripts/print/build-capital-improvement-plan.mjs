@@ -370,7 +370,7 @@ const page3 = `
         ["Tourist Development Fund", "$11,350,000"],
         ["Recreation Plat Fee and Sidewalk Funds", "$900,000"],
         ["Funded FY 2027 Capital Program", "$43,795,734"]
-      ].map(([name, amount]) => `<div class="prow"><div class="plabel">${name}</div><div class="pnum">${amount}</div></div>`).join("")}
+      ].map(([name, amount], i, rows) => `<div class="prow${i === rows.length - 1 ? " total" : ""}"><div class="plabel">${name}</div><div class="pnum">${amount}</div></div>`).join("")}
     </div>
     <p class="footnote"><b>Presented separately and excluded from the funded FY 2027 program:</b> $15,299,176 of grant-funded projects; $2,000,000 in the Sheriff/Fine and Forfeiture Fund; and $10,250,000 of tourism projects funded in prior years. Including those items produces a broader identified project inventory of $71,344,910.</p>
 
@@ -389,7 +389,10 @@ const page3 = `
 
 const html = `<!doctype html>
 <html><head><meta charset="utf-8"><title>Capital Improvement Plan</title>
-<style>${sharedCss}</style></head>
+<style>${sharedCss}  /* The reconciliation total stands apart from the fund rows. */
+  .reconciliation .prow.total{ margin-top:.02in; border-top:1.5px solid #003f28; border-bottom:1.5px solid #003f28; background:#e1ede5; }
+  .reconciliation .prow.total .plabel, .reconciliation .prow.total .pnum{ color:#003f28; font-weight:800; }
+</style></head>
 <body>${page1}${page2}${page3}</body></html>`;
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-cip.pdf";

@@ -1,5 +1,6 @@
 import { capturePublicationHtml } from "./publication-print.mjs";
 import { chromium } from "playwright";
+import { newPage } from "./readers-guide.mjs"; // in-text page references follow the Reader's Guide numbering
 
 // Builds the FY 2027 Budget Book's "Budget Process" section as its own
 // three-page PDF -- a GFOA Distinguished Budget Presentation Award Policy
@@ -15,7 +16,7 @@ import { chromium } from "playwright";
 
 const PHASES = [
   ["Phase 1", "Preparation", "Departments prepare operating and capital requests identifying service needs, staffing, projects, funding assumptions, and proposed service changes.", "February–April"],
-  ["Phase 2", "Review", "OMB and County Administration evaluate requests, reduction options, revenue estimates, fund capacity, policy guidance, and the Board's strategic priorities on pages 13–14.", "April–June"],
+  ["Phase 2", "Review", "OMB and County Administration evaluate requests, reduction options, revenue estimates, fund capacity, policy guidance, and the Board's strategic priorities on pages " + newPage(13) + "–" + newPage(14) + ".", "April–June"],
   ["Phase 3", "Review & Workshops", "Staff review continues in June; public Board workshops in July address funding requests, service levels, strategic priorities, and the proposed millage rate.", "June–July"],
   ["Phase 4", "Adoption", "Required public hearings are held before the Board adopts the final millage rate and annual operating budget.", "September"]
 ];
@@ -418,7 +419,7 @@ const page2 = `
       <div class="request-grid">
         ${REQUEST.map(([tag, title, desc, note]) => `<div class="request-card${note ? " note" : ""}"><span>${tag}</span><h3>${title}</h3><p>${desc}</p></div>`).join("")}
       </div>
-      <p class="intro" style="margin:.12in 0 0;font-size:8pt;line-height:1.35;">OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages 13&ndash;14. Public comments and budget effects are documented on page 48.</p>
+      <p class="intro" style="margin:.12in 0 0;font-size:8pt;line-height:1.35;">OMB and County Administration reviewed requests against available resources, adopted financial policies, and the Board priorities on pages ${newPage(13)}&ndash;${newPage(14)}. Public comments and budget effects are documented on page ${newPage(48)}.</p>
     </div>
 
     <div class="section-block" style="margin-bottom:0;">

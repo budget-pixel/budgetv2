@@ -953,35 +953,29 @@ const sharedCss = `
     gap:.12in;
     margin:.1in 0 0;
   }
+  /* Department Goal and Department Challenges share one style. */
   .goal-quote{
     margin:0;
     min-height:.76in;
-    padding:.1in .12in .11in;
-    border:1px solid #b8cec0;
-    border-radius:8px;
-    background:#edf4ef;
+    padding:.1in .13in .11in;
+    border:1px solid #e7e0c8;
+    border-left:4px solid #d1be78;
+    border-radius:10px;
+    background:#faf8f1;
   }
   .goal-quote span{
     display:block;
-    margin-bottom:.025in;
-    color:#465a46;
+    margin-bottom:.035in;
+    color:#a88418;
     font-size:6pt;
     font-weight:800;
     text-transform:uppercase;
-    letter-spacing:.05em;
+    letter-spacing:.08em;
   }
   .goal-quote p{
     margin:0;
     color:#173229;
-    font:700 8pt/1.35 Georgia, serif;
-  }
-  .goal-quote.mid{
-    border-color:#d7e2dc;
-    background:#f2f6f3;
-  }
-  .goal-quote.mid p{
-    color:#33453c;
-    font:400 7.8pt/1.4 Arial, Helvetica, sans-serif;
+    font:400 8pt/1.4 Georgia, serif;
   }
   .achv-line{
     display:flex;
@@ -1210,11 +1204,11 @@ async function buildDeptPage(d, pageNumber) {
     return parts.length === 2 ? `<span class="paired-figure">${parts[0]}<small>${labels[0]}</small></span><span class="paired-figure">${parts[1]}<small>${labels[1]}</small></span>` : v;
   };
   const pmBlock = (originalPm) => {
-    const projection = (performanceProjections[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
-    const revision = (annualReportPerformance[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
+    const projection = d.fromSite ? null : (performanceProjections[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
+    const revision = d.fromSite ? null : (annualReportPerformance[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
     const pm = revision ? {...originalPm, y: [...originalPm.y.slice(0, 3), revision.value]} : originalPm;
     const pairLabels = /outreach events/.test(pm.q) ? ["Events", "People"] : /personnel action forms/.test(pm.q) ? ["Forms", "Benefits"] : /contracts approved/.test(pm.q) ? ["Contracts", "Acres"] : null;
-    const contextNote = globalThis.WCPerformanceContext.noteFor({Dept_Name:d.name,Measure:pm.q});
+    const contextNote = d.fromSite ? pm.siteNote : globalThis.WCPerformanceContext.noteFor({Dept_Name:d.name,Measure:pm.q});
     return `
     <div class="pm-item${pairLabels ? " paired-measure" : ""}${pm.context ? " economic-context" : ""}">
       <div class="pm-title-row"><p class="pm-q">${pm.q}</p></div>
@@ -1230,6 +1224,11 @@ async function buildDeptPage(d, pageNumber) {
       ${contextNote ? `<p class="pm-context-note">${contextNote}</p>` : ""}
     </div>`;
   };
+
+  // Site-matched measures print as the same table the department pages
+  // show: one row per measure, 2022-2025 actuals, then the FY27 target.
+  const pmTable = (pms) => `<table class="pm-table"><thead><tr><th>Measure</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th><th class="tgt">FY27 Target</th></tr></thead><tbody>${pms.map((pm) =>
+    `<tr><th>${pm.q}</th>${pm.y.map((v) => `<td${String(v).length > 9 ? ' class="long"' : ""}>${v}</td>`).join("")}<td class="tgt${String(pm.target).length > 9 ? " long" : ""}">${pm.target}</td></tr>${pm.siteNote ? `<tr class="pm-note"><td colspan="6">${pm.siteNote}</td></tr>` : ""}`).join("")}</tbody></table>`;
 
   // Pairs each core service with the performance measure(s) that track it
   // (via each pm's optional svc index into d.services), so the page reads
@@ -1249,7 +1248,7 @@ async function buildDeptPage(d, pageNumber) {
     const linked = hasExplicitServices ? d.pms.filter((pm) => pm.svc === i) : d.pms;
     if (!linked.length) return d.pms.length ? null : `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div></div>`;
     linked.forEach((pm) => matchedPms.add(pm));
-    return `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div><div class="svc-kpis">${linked.map(pmBlock).join("")}</div></div>`;
+    return `<div class="svc-block"><div class="svc-head"><b>${t}</b><span>${desc}</span></div>${d.fromSite ? pmTable(linked) : `<div class="svc-kpis">${linked.map(pmBlock).join("")}</div>`}</div>`;
   }).filter(Boolean).join("");
   const leftoverPms = hasExplicitServices ? d.pms.filter((pm) => !matchedPms.has(pm)) : [];
   const leftoverHtml = leftoverPms.length
@@ -1296,7 +1295,7 @@ async function buildDeptPage(d, pageNumber) {
   ].filter(([, amount]) => amount !== 0).map(([label, amount]) => `<div class="composition-row"><div class="composition-label"><span>${label}</span><b>${money(amount)}</b></div><div class="composition-track"><i style="width:${((amount / fy27) * 100).toFixed(2)}%"></i></div></div>`).join("");
 
   return `
-  <section class="profile-page${d.name === "Building Construction and Maintenance" ? " building-photo-top" : d.name === "Public Works" ? " public-works-photo" : ["Eagle Springs Golf and Recreation Center", "Office of the County Attorney", "Planning", "Beach Operations"].includes(d.name) ? " dense-performance" : ""}">
+  <section class="profile-page${d.name === "Building Construction and Maintenance" ? " building-photo-top" : d.name === "Public Works" ? " public-works-photo" : ["Eagle Springs Golf and Recreation Center", "Office of the County Attorney", "Planning", "Beach Operations", "Solid Waste", "Marketing"].includes(d.name) ? " dense-performance" : ""}">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <div class="top-grid">
       <div>
@@ -1309,7 +1308,7 @@ async function buildDeptPage(d, pageNumber) {
         </div>
         <div class="profile-context">${parentDepartment ? `<span>Included in <b>${parentDepartment}</b> in summary reports.</span> ` : ""}<span><b>Strategic priority:</b> ${strategicPriority}.</span></div>
         ${d.achievement ? `<p class="achv-line"><span class="achv-star">&#9733;</span><span><b>${d.achievement.label}.</b> ${d.achievement.detail}</span></p>` : ""}
-        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>FY 2027 Workload and Constraints</span><p>${d.challenges}${d.serviceChange ? " " + d.serviceChange : ""}</p></div>` : ""}</div>` : ""}
+        ${(d.goal || d.challenges) ? `<div class="editorial-cards">${d.goal ? `<div class="goal-quote"><span>Department Goal</span><p>${d.goal}</p></div>` : ""}${d.challenges ? `<div class="goal-quote mid"><span>Department Challenges</span><p>${d.challenges}${d.serviceChange ? " " + d.serviceChange : ""}</p></div>` : ""}</div>` : ""}
         ${sideCardsHtml}
 
       </div>
@@ -1336,7 +1335,7 @@ async function buildDeptPage(d, pageNumber) {
         <div class="goal-chain goal-chain-inline"${d.name === "Tourism Administration" ? ' style="display:none"' : ""}>
           <h2>${d.performanceHeading || (d.pms.length ? "Core Services &amp; Performance" : "Core Services")}</h2>
           ${d.performanceNote ? `<p class="sof">${d.performanceNote}</p><p class="source-trace">Reference: <a href="https://www.visitsouthwalton.com/news/press-release/walton-county-tourism-celebrates-national-travel-tourism-week/">Tourism's 2025 economic-impact summary</a>.</p>` : ""}
-          ${d.valueExplanation ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
+          ${d.valueExplanation && !d.fromSite ? `<div class="tourism-value-context">${d.valueExplanation}</div>` : ""}
           <div class="svc-measure-list">${svcBlocks}${leftoverHtml}</div>
 
         </div>
@@ -1391,6 +1390,26 @@ async function main() {
   pageCounter++;
 
   const pageOrder = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/budget-book-page-order.json"), "utf8"));
+  // Goal, challenges, and services & performance come from what the site's
+  // department pages show (capture-department-site-content.mjs), so the
+  // print profiles and the website never drift apart.
+  const siteContent = JSON.parse(readFileSync(path.join(repoRoot, "scripts/data/department-site-content.json"), "utf8"));
+  for (const d of DEPARTMENTS) {
+    const site = siteContent[d.name];
+    if (!site) throw new Error(`No site content captured for ${d.name}`);
+    d.goal = site.goal;
+    d.challenges = site.challenges;
+    d.serviceChange = "";
+    d.services = site.services.map((service) => [service.title, service.description]);
+    d.pms = site.services.flatMap((service, i) => service.measures.map((m) => ({
+      q: m.name,
+      y: ["2022", "2023", "2024", "2025"].map((year) => m.values[year] ?? ""),
+      target: m.values["FY27 Target"] ?? "",
+      svc: i,
+      siteNote: m.note
+    })));
+    d.fromSite = true;
+  }
   const orderedDepartments = pageOrder.departmentProfileOriginalPages.map((oldPage) => DEPARTMENTS[oldPage - 70]);
   const deptPages = [];
   for (const d of orderedDepartments) {
@@ -1427,7 +1446,7 @@ async function main() {
   .profile-page .annual-department-photo{margin-bottom:0}
   .profile-page .profile-context{margin:.10in 0 0}
   .profile-page .editorial-cards{margin:.10in 0 .12in}
-  .profile-page .goal-quote span{color:#465a46;font-weight:800}
+  .profile-page .goal-quote span{color:#a88418;font-weight:800}
   .no-contracts,.no-capital{margin:.04in 0;color:#52665c;font-size:7pt;line-height:1.4}
   .primary-change{margin:.06in 0 .03in;padding-top:.05in;border-top:1px solid rgba(255,255,255,.2)}
   .primary-change>b{display:block;color:#dce9e2;font-size:6.5pt;margin-bottom:.035in}
@@ -1466,6 +1485,27 @@ async function main() {
   .dense-performance .budget-composition{gap:.02in}
   .dense-performance .qr-wrap{margin-top:.05in}
   .dense-performance .qr-wrap img{width:.68in;height:.68in}
+  .pm-table{width:100%;margin:.04in 0 .02in;border-collapse:separate;border-spacing:0;border:1px solid #dfe8e2;border-radius:8px;overflow:hidden;font-size:7.4pt;font-variant-numeric:tabular-nums;table-layout:fixed}
+  /* Fixed value columns so every service's table lines up. */
+  .pm-table thead th{width:.66in}
+  .pm-table thead th:first-child{width:auto}
+  .pm-table thead th.tgt{width:.85in}
+  .pm-table th,.pm-table td{padding:.035in .07in;border-top:1px solid #edf1ee;text-align:right;white-space:nowrap;color:#33453c}
+  .pm-table thead th{border-top:0;background:#003f28;color:#fff;font-size:6.2pt;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+  .pm-table tbody th{text-align:left;white-space:normal;font-weight:700;color:#173229}
+  .pm-table thead th:first-child{text-align:left}
+  .pm-table .tgt{background:#e6f1ea;color:#0b5a35;font-weight:800}
+  .pm-table thead th.tgt{background:#0b7741;color:#fff}
+  .dense-performance .pm-table th,.dense-performance .pm-table td{padding:.026in .07in}
+  .pm-table td.long{font-size:6.4pt;letter-spacing:-.01em}
+  .dense-performance .pm-table tbody th{font-size:7pt}
+  .dense-performance .pm-table .pm-note td{font-size:6.2pt;line-height:1.2;padding:.014in .07in}
+  .dense-performance .con-row{padding-top:.022in;padding-bottom:.022in}
+  .dense-performance .pm-table{margin:.025in 0 0}
+  .dense-performance .svc-block{padding:.025in 0}
+  .dense-performance .con-row .con-name,.dense-performance .con-row b{font-size:7pt;line-height:1.2}
+  .dense-performance .svc-head span{font-size:7pt}
+  .pm-table .pm-note td{text-align:left;white-space:normal;font-style:italic;font-size:6.8pt;color:#52665c;background:#fafbf9}
 </style></head>
 <body>${dividerHtml}${overviewHtml}${deptPages.join("\n")}</body></html>`;
 
@@ -1481,7 +1521,9 @@ async function main() {
     return panel && footer && panel.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 5
       ? [(section.querySelector('h1')?.textContent || 'Department funding panel') + ' overflow=' + Math.round(panel.getBoundingClientRect().bottom-footer.getBoundingClientRect().top)] : [];
   }));
-  if (fundingOverflows.length) throw new Error(`Funding panels overlap the footer: ${fundingOverflows.join(', ')}`);
+  // ALLOW_OVERFLOW=1 writes the PDF anyway, for inspecting layout problems.
+  if (fundingOverflows.length && !process.env.ALLOW_OVERFLOW) throw new Error(`Funding panels overlap the footer: ${fundingOverflows.join(', ')}`);
+  if (fundingOverflows.length) console.warn(`Overflow (inspection build): ${fundingOverflows.join(', ')}`);
   await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
   await browser.close();

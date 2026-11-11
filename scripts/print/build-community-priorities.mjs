@@ -158,15 +158,15 @@ const sharedCss = `
 const startPage = Number(process.argv[3] || 14);
 
 const page1 = `
-  <section>
+  <section class="pair-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Our County</small>
     <h1>Community Priorities</h1>
     <p class="intro">The Walton County Strategic Plan 2027&ndash;2032 establishes six priority areas. For FY 2027, the Board&rsquo;s direction is continuity, capital investment, and financial preparedness: maintain core services, address infrastructure needs, and avoid unnecessary recurring commitments while the revenue outlook remains uncertain.</p>
 
     <h2>Strategic Priority Areas, FY 2027&ndash;FY 2032</h2>
-    <div class="area-grid">
-      ${PRIORITY_AREAS.map((a, i) => `<div class="area-card"><span class="num">${i + 1}</span><b>${a.t}</b><p>${a.d}</p></div>`).join("")}
+    <div class="pair-list">
+      ${PRIORITY_AREAS.map((a, i) => `<div class="pair-row"><div class="pair-head"><span class="pair-num">${String(i + 1).padStart(2, "0")}</span><small>Priority area</small><b>${a.t}</b></div><p class="pair-body">${a.d}</p></div>`).join("")}
     </div>
 
     <p class="footnote">The priority areas and supporting direction are drawn from the Walton County Strategic Plan 2027&ndash;2032.</p>
@@ -175,7 +175,7 @@ const page1 = `
   </section>
 `;
 
-// Organizational Challenges and FY 2027 Response are a matched pair: the
+// Organizational Challenges and Budget Response are a matched pair: the
 // same six numbered items, in the same order and with the same titles,
 // laid out in the same row format (number and title on the left, detail
 // on the right; gold for community, green for organizational), so the
@@ -207,10 +207,10 @@ const PAIRS = [
     result: "Material revenue changes are reported and carried into the FY 2028 forecast.",
     money: "3.2500 mills; $8.0M General Fund balance planned", review: "FY 2027 monitoring and FY 2028 forecast update" },
   { kind: "org", title: "Emergency readiness and financial flexibility", tag: "Monitor / preserve flexibility",
-    challenge: "The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance, about 3.77 months of audited expenditures and other uses. The reserve discussion presents GFOA's two-month guideline and the FY 2027 plan using that unassigned balance as its opening assumption.",
-    action: "Protect reserves.",
-    result: "Report material impacts on reserves and keep the reserve position visible against GFOA's two-month guideline.",
-    money: "$58.4M FY 2025 unassigned; $31.0M two-month audited-base reference", review: "FY 2027 monitoring and year-end close" }
+    challenge: "The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance. The County's reserve targets hold six months of personnel and operating costs, next year's debt payment, and storm-recovery costs, and the planned use of fund balance draws on that cushion.",
+    action: "Fund debt service and storm recovery first, then hold the remaining balance for personnel and operating costs.",
+    result: "Hold $50.3M toward the General Fund's $51.7M reserve target and fully fund the Tourist Development Fund's $137.7M target.",
+    money: "$50.3M of $51.7M General Fund target; $137.7M tourism target", review: "FY 2027 monitoring and year-end close" }
 ];
 
 const pairHead = (item, i, withTag) => `<div class="pair-head"><span class="pair-num">${String(i + 1).padStart(2, "0")}</span><small>${item.kind === "org" ? "Organizational" : "Community"} challenge</small><b>${item.title}</b>${withTag ? `<span class="pair-tag">${item.tag}</span>` : ""}</div>`;
@@ -218,7 +218,7 @@ const pairHead = (item, i, withTag) => `<div class="pair-head"><span class="pair
 const page2 = `
   <section class="pair-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Our County <span class="pair-step">Challenges and Response &middot; 1 of 2</span></small>
+    <small class="kicker">Our County</small>
     <h1>Organizational Challenges</h1>
     <p class="intro">The County must respond to growing service demand while protecting financial flexibility, coordinating major projects, and maintaining emergency readiness. Each numbered challenge below is matched by a funded response on the next page.</p>
 
@@ -231,7 +231,7 @@ const page2 = `
     <div class="pair-list">
       ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, false)}<p class="pair-body">${item.challenge}</p></div>`).join("")}
     </div>
-    <p class="pair-next">Continued: FY 2027 Response, page ${startPage + 2} &rarr;</p>
+    <p class="pair-next">Continued: Budget Response, page ${startPage + 2} &rarr;</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
@@ -240,11 +240,11 @@ const page2 = `
 const page3 = `
   <section class="pair-page">
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
-    <small class="kicker">Our County <span class="pair-step">Challenges and Response &middot; 2 of 2</span></small>
-    <h1>FY 2027 Response</h1>
+    <small class="kicker">Our County</small>
+    <h1>Budget Response</h1>
     <p class="intro">The FY 2027 budget answers each numbered challenge on page ${startPage + 1} with a funded action, an expected result, and a scheduled review.</p>
 
-    <h2>How the FY 2027 Budget Responds</h2>
+    <h2>How the Budget Responds</h2>
     <div class="pair-list">
       ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, true)}<div class="pair-fields"><div><strong>Action</strong>${item.action}</div><div><strong>Expected result</strong>${item.result}</div><div><strong>Budget commitment</strong><span class="pair-money">${item.money}</span><strong class="pair-review">Review</strong><span class="pair-when">${item.review}</span></div></div></div>`).join("")}
     </div>
@@ -261,7 +261,7 @@ const html = `<!doctype html>
   .context-card{padding:.12in .16in;}
   .context-card b{font-size:10pt;margin-bottom:.05in;}
   .context-card p{font-size:8.6pt;line-height:1.4;}
-  /* Matched pair: Organizational Challenges + FY 2027 Response. */
+  /* Matched pair: Organizational Challenges + Budget Response. */
   .pair-step{margin-left:.1in;padding-left:.1in;border-left:1px solid #d1be78;color:#68786f;letter-spacing:.1em;}
   .pair-list{display:grid;gap:.09in;margin:.1in 0 0;}
   .pair-row{display:grid;grid-template-columns:2.25in 1fr;gap:.2in;align-items:start;padding:.12in .16in .12in .14in;border-left:4px solid #d1be78;border-radius:0 8px 8px 0;background:#f9f8f2;}

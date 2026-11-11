@@ -30,7 +30,10 @@ function listFiles(dir, test) {
 
 const listAssets = () => [
   ...listFiles('assets', (name) => /\.(js|css)$/.test(name)),
-  ...listFiles('assets/static-data', (name) => /\.(json|csv)$/.test(name))
+  ...listFiles('assets/static-data', (name) => /\.(json|csv)$/.test(name)),
+  // Published PDFs (budget book, budget in brief): pages are swapped into
+  // them in place, so their links need content versions too.
+  ...listFiles('output/pdf', (name) => name.endsWith('.pdf'))
 ];
 function computeVersions() { return new Map(listAssets().map((file) => {
   const hash = crypto.createHash('sha1').update(fs.readFileSync(path.join(root, file))).digest('hex').slice(0, 10);

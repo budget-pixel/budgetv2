@@ -3,17 +3,15 @@ import { chromium } from "playwright";
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { individualFunds, generalFund, values, currency, millions } from "./fund-schedule-data.mjs";
+import { css, header, footer } from "./story-style.mjs";
+import { GUIDES, guidePageHtml } from "./readers-guide.mjs";
 
 const outPath = process.argv[2] || "/private/tmp/budget-book-visual-storytelling.pdf";
 const countyMapPath = path.resolve("assets/images/page-images/overview-county-districts.jpg");
 const countyMap = `data:image/jpeg;base64,${readFileSync(countyMapPath).toString("base64")}`;
 
-const css = `
-@page{size:letter portrait;margin:0}*{box-sizing:border-box}html,body{margin:0}body{font-family:Arial,Helvetica,sans-serif;color:#173229}.page{position:relative;width:8.5in;height:11in;padding:.56in .62in .52in;page-break-after:always;overflow:hidden}.page:last-child{page-break-after:auto}header{display:flex;justify-content:space-between;padding-bottom:9px;border-bottom:1px solid #63736b;color:#53665d;font-size:8pt;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.kicker{display:block;margin-top:.22in;color:#b89521;font-size:8pt;font-weight:900;letter-spacing:.14em;text-transform:uppercase}h1{margin:7px 0 .07in;color:#003f28;font:800 23pt/1.05 Georgia,serif;letter-spacing:-.02em}h2{margin:.16in 0 .07in;color:#003f28;font:800 11.5pt/1.2 Georgia,serif;border-bottom:2px solid #d1be78;padding-bottom:.05in}p{margin:0;color:#33453c;font-size:8.25pt;line-height:1.4}.intro{font-size:8.8pt;margin-bottom:.14in}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.1in;margin:.1in 0 .16in}.stat{padding:.11in .08in;border-radius:10px;background:#003f28;text-align:center}.stat b{display:block;color:#fff;font:800 13pt/1.05 Georgia,serif}.stat span{display:block;margin-top:.04in;color:#e7c95f;font-size:5.8pt;font-weight:800;line-height:1.22;text-transform:uppercase}.card{padding:.12in .14in;border:1px solid #dfe8e2;border-radius:10px;background:#fbfcfa}.card strong{display:block;margin-bottom:.035in;color:#003f28;font:800 8.2pt Georgia,serif}.card p{font-size:7.3pt;line-height:1.34}.gold{background:#faf7ec;border-color:#d1be78}.green{background:#edf5f0;border-color:#a9c8b7}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.13in}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:.12in}.flow{display:grid;grid-template-columns:1fr .32in 1fr .32in 1fr;align-items:stretch;gap:.05in;margin:.08in 0}.flow-col{display:flex;flex-direction:column;gap:.08in}.arrow{display:flex;align-items:center;justify-content:center;color:#b89521;font-size:24pt;font-weight:900}.pill{display:flex;justify-content:space-between;align-items:center;gap:.08in;min-height:.52in;padding:.12in .14in;border:1px solid #dfe8e2;border-radius:10px;background:#fbfcfa;font-size:7.3pt}.pill span{color:#003f28;font:800 8.2pt Georgia,serif}.pill b{color:#003f28;white-space:nowrap}.band{margin:.12in 0;padding:.12in .15in;border-radius:10px;background:#003f28;color:#fff}.band strong{font:800 10pt Georgia,serif}.band p{color:#e7efe9;font-size:7.3pt}.step-row{display:grid;grid-template-columns:repeat(5,1fr);gap:.08in;margin:.1in 0}.step{position:relative;padding:.12in .1in;border-top:4px solid #0b7741;border-radius:8px;background:#f4f8f5}.step b{display:block;color:#b89521;font-size:7pt;text-transform:uppercase}.step strong{display:block;margin:.025in 0;color:#003f28;font:800 8pt Georgia,serif}.step p{font-size:6.7pt}.gauge{position:relative;height:.48in;margin:.15in .1in .28in;background:linear-gradient(90deg,#edf2ee 0 30%,#cfe2d6 30% 56.5%,#f1df9e 56.5% 100%);border-radius:12px}.gauge .tick{position:absolute;top:-.08in;height:.64in;border-left:2px solid #003f28}.gauge .tick b{position:absolute;top:.62in;transform:translateX(-50%);white-space:nowrap;color:#003f28;font-size:7pt}.gauge .marker{position:absolute;top:-.13in;width:.16in;height:.16in;transform:translateX(-50%) rotate(45deg);background:#a24b1e;border:2px solid white;box-shadow:0 0 0 1px #a24b1e}.gauge .marker span{position:absolute;left:.14in;top:-.03in;transform:rotate(-45deg);white-space:nowrap;color:#a24b1e;font-weight:800;font-size:7pt}.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:.12in}.compare .card{text-align:center}.compare .big{display:block;color:#003f28;font:800 18pt Georgia,serif}.compare .label{display:block;margin:.04in 0;color:#a88418;font-size:6.3pt;font-weight:900;text-transform:uppercase}.waterfall{display:grid;grid-template-columns:repeat(4,1fr);align-items:end;gap:.14in;height:1.42in;margin:.1in .2in .2in;border-bottom:1.5px solid #003f28}.wf{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}.wf b{font-size:7pt;color:#003f28}.wf span{width:72%;margin:.04in 0 0;border-radius:4px 4px 0 0;background:#0b7741}.wf.neg span{background:#a24b1e}.wf small{margin-top:.04in;color:#63736b;font-size:6.3pt;text-align:center}.map-layout{display:grid;grid-template-columns:2.4in 1fr;gap:.24in;align-items:start}.map{position:relative;height:5.7in;border:1px solid #dfe8e2;border-radius:14px;background:#f7faf8;overflow:hidden}.map img{width:100%;height:100%;object-fit:contain;filter:saturate(.65) contrast(.95)}.pin{position:absolute;width:.32in;height:.32in;border-radius:50%;background:#003f28;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid #e7c95f;font-size:7pt;font-weight:900;box-shadow:0 2px 5px #0004}.legend{display:flex;flex-direction:column;gap:.09in}.project{padding:.09in .11in;border-left:4px solid #0b7741;background:#f4f8f5;border-radius:0 8px 8px 0}.project b{display:block;color:#003f28;font-size:7.4pt}.project span{display:block;color:#63736b;font-size:6.5pt;line-height:1.3}.stack{display:flex;height:.38in;border-radius:9px;overflow:hidden;margin:.1in 0}.stack span{display:flex;align-items:center;justify-content:center;color:white;font-size:6pt;font-weight:800}.source-row{display:grid;grid-template-columns:1.8in 1fr .8in;gap:.1in;align-items:center;padding:.065in 0;border-bottom:1px solid #e5ece7;font-size:7pt}.source-row .bar{height:.14in;background:#0b7741;border-radius:7px}.source-row b{text-align:right;color:#003f28}.phase{display:grid;grid-template-columns:repeat(4,1fr);gap:.1in}.phase .card{text-align:center}.phase b{display:block;color:#003f28;font:800 14pt Georgia,serif}.phase span{font-size:6.3pt;color:#63736b;font-weight:800;text-transform:uppercase}.note{margin-top:.1in;padding:.09in .12in;border-left:4px solid #d1be78;background:#faf7ec;font-size:6.8pt;line-height:1.35}footer{position:absolute;left:.62in;right:.62in;bottom:.29in;display:flex;justify-content:space-between;border-top:1px solid #cbd8d1;padding-top:7px;color:#68786f;font-size:7.5pt;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-`;
+
 const budgetWorksCss = `.budget-works .stats{margin:.2in 0 .3in}.budget-works .stat{padding:.17in .12in}.budget-works .stat b{font-size:18pt}.budget-works .stat span{font-size:8pt;line-height:1.35}.budget-works h2{font-size:14pt;margin:.25in 0 .15in}.budget-works .flow{margin:.15in 0 .3in}.budget-works .flow-col{gap:.16in}.budget-works .pill{min-height:.75in;font-size:9pt}.budget-works .pill span,.budget-works .card strong{font-size:10pt}.budget-works .card{padding:.18in .14in}.budget-works .card p{font-size:9pt;line-height:1.45}.budget-works .band{padding:.2in}.budget-works .band strong{font-size:12pt}.budget-works .band p{font-size:9pt;line-height:1.45;margin-top:.08in}`;
-const header = (k,t,d='') => `<header><span>Walton County, Florida</span><span>Fiscal Year 2027</span></header><small class="kicker">${k}</small><h1>${t}</h1>${d?`<p class="intro">${d}</p>`:''}`;
-const footer = (number = "") => `<footer><span>FY 2027 Final Budget</span><b>${number}</b></footer>`;
 
 const pages = [];
 pages.push(`<section class="page budget-works">${header('Financial Overview','How the Budget Works','The budget moves through connected stages. Revenue is recorded by source, placed in legally separate funds, and authorized for services, capital, transfers, and reserves.')}
@@ -22,38 +20,9 @@ pages.push(`<section class="page budget-works">${header('Financial Overview','Ho
 <div class="band"><strong>Why gross fund budgets exceed the $345.2M net budget</strong><p>Transfers are recorded once as a use in the sending fund and again as a source in the receiving fund. Gross fund schedules therefore total $488.9M. Eliminating $143.7M of internal transfers produces the $345.2M net expenditure budget.</p></div>
 ${footer(20)}</section>`);
 
-// Financial Overview Roadmap: the first page of the Financial Overview
-// (ahead of Budget in Brief), listing the section's schedules in reading
-// order with their page numbers.
-const ROADMAP = [
-  ["Start with the big picture", [
-    ["Budget in Brief", 19, "Where each dollar comes from and where it goes"],
-    ["How the Budget Works", 20, "How revenue moves through funds to services, and why gross fund totals exceed the net budget"]]],
-  ["See the whole budget", [
-    ["Consolidated Budget Ledger", 21, "Every fund's sources and uses side by side"],
-    ["Budget Change Summary", 23, "What changed from FY 2026 and why"]]],
-  ["Follow the money in", [
-    ["Revenue Portfolio", 25, "The mix of revenue sources and how dependable each is"],
-    ["Revenue Strategy", 26, "How FY 2027 resources were estimated"],
-    ["Revenue Ledger", 27, "Every revenue line by fund"],
-    ["Property Tax Allocation Ledger", 31, "How each property tax dollar is divided"],
-    ["Florida Amendment 3 Risk", 33, "Exposure to a possible property tax change"]]],
-  ["Follow the money out", [
-    ["Expenditure Ledger", 34, "Spending by fund, function, and department"],
-    ["Fund Financial Ledger", 37, "Each fund's opening balance, sources, uses, and ending balance"],
-    ["Interfund Transfer Ledger", 39, "Which funds pay which, so nothing is counted twice"]]],
-  ["Look ahead", [
-    ["Debt Ledger", 40, "Outstanding debt and this year's payments"],
-    ["Reserve Position", 41, "Six-month reserve targets for the General Fund and tourism"],
-    ["Long-Term Outlook", 42, "The multi-year forecast and recurring-cost pressure"]]]
-];
-pages.push(`<section class="page roadmap-page">${header('Financial Overview','Financial Overview Roadmap','This section moves from the big picture to the detail. Start with the one-page summary, then follow the schedules in order. Each one answers a different question, so read them together rather than treating any single total as the whole budget.')}
-<div class="step-row">${ROADMAP.map(([stage, items], i) => `<div class="step"><b>${i === 0 ? 'Start' : i === ROADMAP.length - 1 ? 'Finish' : 'Then'} &middot; p. ${items[0][1]}${items.length > 1 ? '&ndash;' + items[items.length - 1][1] : ''}</b><strong>${stage}</strong><p>${items.map(item => item[0]).join(', ')}</p></div>`).join('')}</div>
-<h2>What each schedule answers</h2>
-<div class="roadmap">${ROADMAP.map(([stage, items]) => `<div class="roadmap-group"><span class="roadmap-stage">${stage}</span>${items.map(([title, page, question]) => `<div class="roadmap-row"><strong>${title}</strong><span>${question}</span><b>${page}</b></div>`).join('')}</div>`).join('')}</div>
-<h2>What can and cannot be combined</h2><div class="grid2"><div class="card green"><strong>Can be compared</strong><p>Current-year revenue plus fund balance brought forward can be compared with the net expenditure budget. Department and program totals can be traced to their supporting fund schedules.</p></div><div class="card gold"><strong>Should not be added together</strong><p>Gross fund budgets should not be added to the net budget. Restricted tourism, transportation, solid-waste, grant, or assessment balances cannot be treated as generally available cash.</p></div></div>
-<style>.roadmap-page .roadmap{display:grid;gap:.07in;margin:.06in 0 .1in}.roadmap-page .roadmap-group{padding:.06in .12in;border:1px solid #e4ebe7;border-left:4px solid #d1be78;border-radius:0 8px 8px 0;background:#fbfcfa}.roadmap-page .roadmap-group:nth-child(even){border-left-color:#0b7741}.roadmap-page .roadmap-stage{display:block;margin:.02in 0 .03in;color:#a88418;font-size:6.6pt;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.roadmap-page .roadmap-row{display:grid;grid-template-columns:2.15in 1fr .4in;gap:.12in;align-items:baseline;padding:.035in 0;border-top:1px solid #eef1ee;font-size:8pt}.roadmap-page .roadmap-row strong{color:#003f28}.roadmap-page .roadmap-row span{color:#33453c}.roadmap-page .roadmap-row b{color:#003f28;text-align:right}</style>
-${footer(18)}</section>`);
+// The Financial Overview's Reader's Guide (readers-guide.mjs), the first
+// page of the section ahead of Budget in Brief.
+pages.push(guidePageHtml(GUIDES.find((g) => g.key === "financial"), header, footer));
 
 // Reserve Position: six-month reserve targets for the General Fund and the
 // Tourist Development Fund, built from FY 2027 personnel and operating
@@ -78,9 +47,19 @@ ${footer(18)}</section>`);
 // $10M for hurricane recovery and cleanup. The tourism target follows the Walton County Tourism
 // 2026-2030 strategic plan's recommendation of an operating reserve of about
 // half a year of operating costs.
+// The General Fund's six months covers only the Board of County
+// Commissioners' own departments and the Commission office (account
+// 00101000). Constitutional officers, courts, and outside agencies that are
+// also budgeted in the General Fund are left out; they hold their own
+// reserves or are funded by others.
+const GF_BOARD_OFFICES = new Set(["Board of County Commissioners", "Building Construction and Maintenance", "Planning", "Planning Short-Term Rental", "Code Compliance", "Code Compliance Beach", "County Administration", "Libraries", "Office of the County Attorney", "Eagle Springs Golf and Recreation Center", "Eagle Springs Grill", "Recreation", "Human Resources", "Office of Management and Budget", "Procurement", "Emergency Management", "Geographic Info Systems", "Environmental Services", "Extension Office", "Probation Services", "Veteran Services", "Soil Conservation", "Engineering Services"]);
+const budgetRows = JSON.parse(readFileSync(path.resolve("assets/static-data/budget.json"), "utf8")).data.expenditures;
+const gfBoardTotal = type => budgetRows
+  .filter(r => String(r.Dept_Code || "").startsWith("001") && GF_BOARD_OFFICES.has(r.Dept_Name) && r.Object_Type === type)
+  .reduce((sum, r) => sum + (Number(r.FY2027_Proposed) || 0), 0);
 const RESERVE = {
   general: {
-    personnel: 48433574, operating: 23728411, debt2028: 2507824, debris: 10000000, deductible: 6243920, uninsured: 17008730,
+    personnel: gfBoardTotal("Personnel Services"), operating: gfBoardTotal("Operating Expenditures"), debt2028: 2507824, debris: 15000000, deductible: 6243920, uninsured: 17008730,
     ending: values(generalFund, "Estimated Ending Fund Balance")[7],
     ending2028: values(generalFund, "Estimated Ending Fund Balance")[8]
   },
@@ -95,8 +74,8 @@ const RESERVE = {
 };
 const half = n => Math.round(n / 2);
 const gfRows = [
-  ["Personnel services", `Six months of ${currency(RESERVE.general.personnel)} personnel services`, half(RESERVE.general.personnel)],
-  ["Operating expenses", `Six months of ${currency(RESERVE.general.operating)} operating expenses`, half(RESERVE.general.operating)],
+  ["Personnel services", `Six months of ${currency(RESERVE.general.personnel)} Board personnel services`, half(RESERVE.general.personnel)],
+  ["Operating expenses", `Six months of ${currency(RESERVE.general.operating)} Board operating expenses`, half(RESERVE.general.operating)],
   ["Debt service", "FY 2028 scheduled payment", RESERVE.general.debt2028],
   { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
     ["Debris removal", "Countywide debris removal after a named storm", RESERVE.general.debris, true],
@@ -108,8 +87,8 @@ const tdRows = [
   ["Personnel services", `Six months of ${currency(RESERVE.tourism.personnel)} personnel services`, half(RESERVE.tourism.personnel)],
   ["Operating expenses", `Six months of ${currency(RESERVE.tourism.operating)} operating expenses`, half(RESERVE.tourism.operating)],
   ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
-  ["Destination development", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.destination],
-  ["Mobility and congestion", "Tourism 2026&ndash;2030 strategic plan", RESERVE.tourism.mobility],
+  ["Destination development", "New attractions, cultural venues, and outdoor recreation", RESERVE.tourism.destination],
+  ["Mobility and congestion", "Visitor parking, shuttle and tram service, and transit", RESERVE.tourism.mobility],
   { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
     ["Beach and facility cleanup", "Beach and tourism facility recovery after a named storm", RESERVE.tourism.recovery, true],
     ["Insurance deductibles", "5% named-storm deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible, true],
@@ -121,27 +100,43 @@ const tdRows = [
 const rowAmount = r => r.children ? r.children.reduce((sum, c) => sum + c[2], 0) : r[2];
 const gfTarget = gfRows.reduce((sum, r) => sum + rowAmount(r), 0);
 const tdTarget = tdRows.reduce((sum, r) => sum + rowAmount(r), 0);
+// The General Fund balance does not reach its target. It is applied in
+// priority order: the FY 2028 debt payment and hurricane recovery are funded
+// in full (both are owed before any reimbursement arrives), and the rest is
+// split between personnel and operating in proportion to their targets.
+const gfShortfall = Math.max(0, gfTarget - RESERVE.general.ending);
+const gfPriority = rowAmount(gfRows[2]) + rowAmount(gfRows[3]);
+const gfOperatingPool = Math.max(0, RESERVE.general.ending - gfPriority);
+const gfOperatingTarget = gfRows[0][2] + gfRows[1][2];
+const gfPersonnelFunded = Math.round(gfOperatingPool * gfRows[0][2] / gfOperatingTarget);
+const gfFunded = new Map([
+  ["Personnel services", gfPersonnelFunded],
+  ["Operating expenses", gfOperatingPool - gfPersonnelFunded]
+]);
+const fundedFor = (label, amount) => gfShortfall && gfFunded.has(label) ? gfFunded.get(label) : amount;
+const gfMonthsFunded = Math.round(gfOperatingPool / ((RESERVE.general.personnel + RESERVE.general.operating) / 12) * 10) / 10;
 // A fourth element of true marks a cost FEMA Public Assistance can reimburse
 // at 75% after a declared disaster.
-const reserveRow = ([label, basis, amount, fema], cls = '') => `<div class="rp-row${cls}${fema ? ' rp-fema' : ''}"><strong>${label}${fema ? ' <em>FEMA</em>' : ''}</strong><span>${basis}</span><b>${currency(amount)}</b></div>`;
+// With funded set, a row also shows how much of its target the balance covers.
+const reserveRow = ([label, basis, amount, fema], cls = '', funded) => `<div class="rp-row${cls}${fema ? ' rp-fema' : ''}${funded ? ' rp-funded' : ''}"><strong>${label}</strong><span>${basis}</span><b>${fema ? '<em>FEMA</em>' : ''}${currency(amount)}</b>${funded ? `<b>${currency(funded(label, amount))}</b>` : ''}</div>`;
 const femaEligible = rows => rows.flatMap(r => r.children || [r]).filter(r => r[3]).reduce((sum, r) => sum + r[2], 0);
 const femaLine = rows => `<p class="rp-fema-note"><em>FEMA</em> Eligible for FEMA reimbursement after a declared disaster: ${currency(femaEligible(rows))}, of which about ${millions(femaEligible(rows) * 0.75)} (75%) would be returned.</p>`;
-const reserveTable = (rows, total) => `<div class="rp-table">${rows.map(r => r.children
-  ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group') + r.children.map(c => reserveRow(c, ' rp-sub')).join('')
-  : reserveRow(r)).join('')}<div class="rp-row rp-total"><strong>Reserve target</strong><span></span><b>${currency(total)}</b></div></div>`;
-const reserveStats = (target, ending, endingLabel) => `<div class="stats" style="grid-template-columns:repeat(2,1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div></div>`;
+const reserveTable = (rows, total, funding) => `<div class="rp-table${funding ? ' rp-has-funded' : ''}">${funding ? '<div class="rp-row rp-head rp-funded"><strong></strong><span></span><b>Target</b><b>Funded</b></div>' : ''}${rows.map(r => r.children
+  ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group', funding && funding.fundedFor) + r.children.map(c => reserveRow(c, ' rp-sub', funding && funding.fundedFor)).join('')
+  : reserveRow(r, '', funding && funding.fundedFor)).join('')}<div class="rp-row rp-total${funding ? ' rp-funded' : ''}"><strong>Reserve target</strong><span></span><b>${currency(total)}</b>${funding ? `<b>${currency(Math.min(total, funding.ending))}</b>` : ''}</div>${funding && funding.shortfall ? `<div class="rp-row rp-shortfall rp-funded"><strong>Reserve shortfall</strong><span>Target not covered by the estimated ending balance</span><b></b><b>${currency(funding.shortfall)}</b></div>` : ''}</div>`;
+const reserveStats = (target, ending, endingLabel, shortfall) => `<div class="stats" style="grid-template-columns:repeat(${shortfall ? 3 : 2},1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div>${shortfall ? `<div class="stat rp-stat-short"><b>${millions(shortfall)}</b><span>Reserve shortfall</span></div>` : ''}</div>`;
 pages.push(`<section class="page reserve-page">${header('Financial Overview','Reserve Position','Reserves keep services running through a revenue shortfall or a disaster. Each target below holds six months of personnel and operating costs. The General Fund target also holds next year&rsquo;s debt payment and storm-recovery costs.')}
 <h2>General Fund</h2>
-${reserveStats(gfTarget, RESERVE.general.ending, 'Estimated FY 2027 ending balance')}
-${reserveTable(gfRows, gfTarget)}
+${reserveStats(gfTarget, Math.min(gfTarget, RESERVE.general.ending), 'Funded')}
+${reserveTable(gfRows, gfTarget, { fundedFor, ending: RESERVE.general.ending })}
 ${femaLine(gfRows)}
-<div class="card"><strong>Hurricane recovery and cleanup</strong><p>The County pays debris haulers up front, and FEMA reimbursement often arrives a year or more later. FEMA also covers 75% of eligible repairs to uninsured County facilities, so the reserve holds the other 25%. Insured buildings carry a 5% named-storm deductible per building, which the County pays in full.</p></div>
+<div class="grid2"><div class="card"><strong>What the six months covers</strong><p>Personnel and operating cover the Board of County Commissioners&rsquo; departments and the Commission office: ${millions(RESERVE.general.personnel + RESERVE.general.operating)} a year in the General Fund. Constitutional officers, courts, and outside agencies are not included.${gfShortfall ? ` With debt and storm recovery funded first, the balance covers about ${gfMonthsFunded} months; ${millions(gfShortfall)} more restores six.` : ''}</p></div><div class="card"><strong>Hurricane recovery and cleanup</strong><p>The County pays debris haulers up front, and FEMA reimbursement often arrives a year or more later. FEMA also covers 75% of eligible repairs to uninsured County facilities. Insured buildings carry a 5% named-storm deductible per building, which the County pays in full.</p></div></div>
 <h2>Tourist Development Fund</h2>
-${reserveStats(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects, 'FY 2027 ending balance after capital')}
-${reserveTable(tdRows, tdTarget)}
+${reserveStats(tdTarget, Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects), 'Funded')}
+${reserveTable(tdRows, tdTarget, { fundedFor: (label, amount) => amount, ending: Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects) })}
 ${femaLine(tdRows)}
 <div class="grid2"><div class="card"><strong>Basis for the target</strong><p>The Walton County Tourism 2026&ndash;2030 strategic plan, reviewed at a joint Board of County Commissioners and Tourist Development Council workshop, recommended an operating reserve of about half a year of operating costs, a $5.0M destination development balance, and a $15.0M mobility and congestion reserve.</p></div><div class="card"><strong>Use of the balance</strong><p>Tourist development tax is restricted by Section 125.0104, Florida Statutes, to tourism promotion, beach and visitor facilities, and related uses. The balance above the target is held for those purposes and cannot support General Fund services.</p></div></div>
-<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-group strong,.reserve-page .rp-group b{color:#003f28;font-weight:800}.reserve-page .rp-sub{padding:.03in 0}.reserve-page .rp-sub strong{padding-left:.16in;font-weight:600;color:#3b5249}.reserve-page .rp-sub span,.reserve-page .rp-sub b{font-size:7.6pt}.reserve-page .rp-sub b{font-weight:600;color:#53665d}.reserve-page .rp-row em,.reserve-page .rp-fema-note em{display:inline-block;margin-left:.05in;padding:0 .05in;border-radius:3px;background:#dcefe3;color:#0b6b3a;font-style:normal;font-size:6.2pt;font-weight:800;letter-spacing:.04em;vertical-align:1px}.reserve-page .rp-fema-note em{margin:0 .04in 0 0}.reserve-page .rp-fema{background:#f3faf5}.reserve-page .rp-fema-note{margin:.02in 0 .08in;font-size:7.2pt;color:#3b5249}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}</style>
+<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-group strong,.reserve-page .rp-group b{color:#003f28;font-weight:800}.reserve-page .rp-sub{padding:.03in 0}.reserve-page .rp-sub strong{padding-left:.16in;font-weight:600;color:#3b5249}.reserve-page .rp-sub span,.reserve-page .rp-sub b{font-size:7.6pt}.reserve-page .rp-sub b{font-weight:600;color:#53665d}.reserve-page .rp-row em,.reserve-page .rp-fema-note em{display:inline-block;margin-left:.05in;padding:0 .05in;border-radius:3px;background:#dcefe3;color:#0b6b3a;font-style:normal;font-size:6.2pt;font-weight:800;letter-spacing:.04em;vertical-align:1px}.reserve-page .rp-fema-note em{margin:0 .04in 0 0}.reserve-page .rp-fema{background:#f3faf5}.reserve-page .rp-fema-note{margin:.02in 0 .08in;font-size:7.2pt;color:#3b5249}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}.reserve-page .rp-row.rp-funded{grid-template-columns:1.75in 1fr 1.05in 1.05in}.reserve-page .rp-row b:has(em){display:flex;justify-content:space-between;align-items:baseline}.reserve-page .rp-row em{margin:0}.reserve-page .rp-head{padding:.03in 0;border-bottom:1px solid #003f28}.reserve-page .rp-head b{font-size:6.6pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#003f28}.reserve-page .rp-row b.rp-short{color:#9a3d1f}.reserve-page .rp-shortfall{background:#fbf3ec;border-bottom:1.5px solid #9a3d1f}.reserve-page .rp-shortfall strong,.reserve-page .rp-shortfall b{color:#9a3d1f;font-weight:800}.reserve-page .rp-stat-short{background:#7a2f17}.reserve-page .rp-row.rp-funded{grid-template-columns:1.85in 1fr 1.15in .9in}.reserve-page .rp-row b{white-space:nowrap}.reserve-page .rp-row{padding:.028in 0}.reserve-page .rp-sub{padding:.022in 0}.reserve-page .stat{padding:.075in .08in}.reserve-page h2{margin-top:.08in}.reserve-page .card{padding:.08in .12in}.reserve-page .card p{line-height:1.35}.reserve-page .rp-fema-note{margin:.02in 0 .06in}.reserve-page .intro{margin-bottom:.04in}</style>
 ${footer(41)}</section>`);
 
 pages.push(`<section class="page map-page">${header('Capital Budget','Where FY 2027 Capital Investment Serves','The funded program combines place-specific projects with countywide asset preservation. Markers identify broad service areas, not surveyed project coordinates.')}
