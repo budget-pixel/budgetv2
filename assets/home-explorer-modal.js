@@ -991,7 +991,10 @@
             openDepartmentModal(resolvedUrl.href, linkedTitle, departmentTrigger);
             return;
           }
-          if (!/\/(search|index)\.html$/i.test(resolvedUrl.pathname)) {
+          // Only this site's own index/search pages close the popup; an
+          // outside link whose path also ends in index.html (the county
+          // ArcGIS map app) must open normally in its new tab.
+          if (resolvedUrl.origin !== window.location.origin || !/\/(search|index)\.html$/i.test(resolvedUrl.pathname)) {
             // Ordinary same-site links navigate this iframe directly. Hide
             // it before navigation so the destination's legacy nav cannot
             // flash for a frame while the load handler installs the popup-
