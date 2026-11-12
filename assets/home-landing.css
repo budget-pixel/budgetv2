@@ -15,9 +15,7 @@
 .wc-home-landing-page #content{max-width:none;padding:0}
 html.wc-embedded-budget-landing nav#nav-menu:not(.is-search-open){display:none!important}
 html.wc-embedded-budget-landing nav#nav-menu.is-search-open{display:flex!important;position:fixed!important;inset:0!important;height:0!important;min-height:0!important;padding:0!important;border:0!important;background:transparent!important;z-index:20000!important}
-html.wc-embedded-budget-landing nav#nav-menu.is-search-open>.logo-container,
-html.wc-embedded-budget-landing nav#nav-menu.is-search-open>.wc-nav-links,
-html.wc-embedded-budget-landing nav#nav-menu.is-search-open>.wc-nav-actions{visibility:hidden!important}
+html.wc-embedded-budget-landing nav#nav-menu.is-search-open>.logo-container{visibility:hidden!important}
 html.wc-embedded-budget-landing{overscroll-behavior-y:contain}
 html.wc-embedded-budget-landing body{display:flex;min-height:100vh;min-height:100dvh;flex-direction:column;overscroll-behavior-y:contain}
 html.wc-embedded-budget-landing #layout{display:block!important;min-height:0;flex:1 0 auto;padding-top:94px}
@@ -405,8 +403,7 @@ html.wc-embedded-budget-landing #layout{padding-top:0!important}
 }
 
 /* Four-views intro: numbered to match the four cards below */
-@media(min-width:761px){
-}
+
 
 /* One popup header: close button (outer, absolutely positioned) never overlaps the search */
 html.wc-embedded-budget-landing .wc-explorer-popup-header{padding-right:92px}
