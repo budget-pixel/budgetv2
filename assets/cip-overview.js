@@ -2857,6 +2857,24 @@ function renderProjects(){
         background:none;
       }
 
+      /* Sources of Financing: heading across the top, then the three cards and
+         the video side by side, with the video's top and bottom lined up with
+         the cards. */
+      #wc-cip-spending-level .wc-cip-finance-panel{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+        align-items:stretch;
+        row-gap:0;
+      }
+      #wc-cip-spending-level .wc-cip-finance-copy{ display:contents; }
+      #wc-cip-spending-level .wc-cip-finance-copy h3{ grid-column:1 / -1; }
+      #wc-cip-spending-level .wc-cip-finance-media{ grid-template-rows:1fr; }
+      #wc-cip-spending-level .wc-cip-finance-media .wc-cip-gfoa-video{ min-height:0; height:100%; box-sizing:border-box; }
+      #wc-cip-spending-level .wc-cip-finance-media .wc-cip-gfoa-video iframe{ height:100%; min-height:220px; }
+      @media(max-width:900px){
+        #wc-cip-spending-level .wc-cip-finance-panel{ grid-template-columns:1fr; row-gap:20px; }
+        #wc-cip-spending-level .wc-cip-finance-media .wc-cip-gfoa-video iframe{ height:220px; }
+      }
+
       /* Sources of Financing follows the spending factors in "How Spending Is Set". */
       #wc-cip-spending-level .wc-cip-finance-panel{
         margin-top:40px;
@@ -3159,9 +3177,6 @@ function renderProjects(){
               </ul>
             </div>
             <div class="wc-cip-finance-media">
-              <div class="wc-cip-gfoa-video">
-                <iframe src="https://www.youtube-nocookie.com/embed/2ha4PCBgw2Y?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Capital Improvement Plan Elements" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen srcdoc="${wcVideoCoverSrcdoc("2ha4PCBgw2Y", "https://www.youtube-nocookie.com/embed/2ha4PCBgw2Y?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1", "Capital Improvement Plan Elements")}"></iframe>
-              </div>
               <div class="wc-cip-gfoa-video">
                 <iframe src="https://www.youtube-nocookie.com/embed/UI4QSqOn7o0?controls=1&amp;modestbranding=1&amp;rel=0&amp;playsinline=1" title="Sources of Financing" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen srcdoc="${wcVideoCoverSrcdoc("UI4QSqOn7o0", "https://www.youtube-nocookie.com/embed/UI4QSqOn7o0?autoplay=1&controls=1&modestbranding=1&rel=0&playsinline=1", "Sources of Financing")}"></iframe>
               </div>
