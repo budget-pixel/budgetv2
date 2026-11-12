@@ -22,10 +22,17 @@ fitReaderHeight();window.setTimeout(fitReaderHeight,0);window.addEventListener("
 var loader=document.getElementById("budgetBookLoader"),progressFill=document.getElementById("budgetBookProgressFill"),progressStep=document.getElementById("budgetBookProgressStep"),progressValue=document.getElementById("budgetBookProgressValue");
 function setProgress(percent,step,detail){if(!loader)return;if(percent===null){loader.classList.add("is-indeterminate");loader.removeAttribute("aria-valuenow");}else{loader.classList.remove("is-indeterminate");percent=Math.max(0,Math.min(100,percent));progressFill.style.width=percent+"%";loader.setAttribute("aria-valuenow",String(Math.round(percent)));}if(step)progressStep.textContent=step;progressValue.textContent=detail||"";}
 function megabytes(bytes){return (bytes/1048576).toFixed(1);}
-function finishLoading(){setProgress(100,"Ready","");window.setTimeout(function(){loading.classList.add("is-done");window.setTimeout(function(){loading.hidden=true;loading.classList.remove("is-done");},260);},180);}
-setProgress(2,"Downloading","");
+function finishLoading(){stopFunSteps();setProgress(100,"Ready","");window.setTimeout(function(){loading.classList.add("is-done");window.setTimeout(function(){loading.hidden=true;loading.classList.remove("is-done");},260);},180);}
+/* While the book downloads, the step label rotates through light-hearted
+   budget messages, and a few numbers float up around the book icon. */
+var FUN_STEPS=["Crunching the numbers","Charting the graphs","Balancing the funds","Counting every penny","Lining up the ledgers","Double-checking the math","Sharpening the pencils","Tallying the totals","Stacking the spreadsheets","Rounding to the nearest dollar"];
+var funIndex=0,funTimer=null;
+function showFunStep(){if(!progressStep)return;progressStep.classList.remove("is-fresh");void progressStep.offsetWidth;progressStep.textContent=FUN_STEPS[funIndex%FUN_STEPS.length];progressStep.classList.add("is-fresh");funIndex++;}
+function stopFunSteps(){if(funTimer){window.clearInterval(funTimer);funTimer=null;}if(loader)loader.classList.remove("is-crunching");}
+(function startFunSteps(){if(!loader)return;var icon=loader.querySelector(".wc-book-loader-icon");if(icon){["$","1","%","7","$","2","0","+"].forEach(function(glyph,index){var bit=document.createElement("span");bit.className="wc-book-loader-bit";bit.setAttribute("aria-hidden","true");bit.textContent=glyph;bit.style.setProperty("--bit-x",(index%2?1:-1)*(14+(index*9)%26)+"px");bit.style.animationDelay=(index*0.32)+"s";icon.appendChild(bit);});}loader.classList.add("is-crunching");showFunStep();funTimer=window.setInterval(showFunStep,1700);})();
+setProgress(2,null,"");
 var loadingTask=window.pdfjsLib.getDocument({url:PDF_URL,disableStream:true,disableAutoFetch:true});
 var bookOpened=false;
-loadingTask.onProgress=function(p){if(bookOpened)return;if(p&&p.total){setProgress(2+(p.loaded/p.total)*88,"Downloading",megabytes(p.loaded)+" of "+megabytes(p.total)+" MB");}else if(p&&p.loaded){setProgress(null,"Downloading",megabytes(p.loaded)+" MB");}};
-loadingTask.promise.then(function(doc){pdf=doc;bookOpened=true;setProgress(94,"Preparing "+doc.numPages+" pages","");window.requestAnimationFrame(function(){window.setTimeout(function(){try{init();}catch(error){fail(error);}},30);});}).catch(fail);
+loadingTask.onProgress=function(p){if(bookOpened)return;if(p&&p.total){setProgress(2+(p.loaded/p.total)*88,null,megabytes(p.loaded)+" of "+megabytes(p.total)+" MB");}else if(p&&p.loaded){setProgress(null,null,megabytes(p.loaded)+" MB");}};
+loadingTask.promise.then(function(doc){pdf=doc;bookOpened=true;stopFunSteps();setProgress(94,"Binding "+doc.numPages+" pages","");window.requestAnimationFrame(function(){window.setTimeout(function(){try{init();}catch(error){fail(error);}},30);});}).catch(fail);
 })();

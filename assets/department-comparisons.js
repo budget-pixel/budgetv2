@@ -15,10 +15,27 @@ window.WCDepartmentComparisons = {
       budget: "https://www.baycountyfl.gov/DocumentCenter/View/21091/FY-2027-Final-Budget-Detailed-Revenues-and-Expenditures",
       staffing: "https://www.baycountyfl.gov/DocumentCenter/View/21090/FY-2027-Tentative-Budget-Commissioner-Book---09-15-26",
     },
+    "Fort Walton Beach": {
+      budget: "https://fwb.org/Archive.aspx?ADID=149",
+    },
+    "Indian River": {
+      budget: "https://indianriver.gov/Document%20Center/Services/Management%20&%20Budget/Annual%20Budget%20Documents/2026-27/Budget-Workshop-Book-2026-27.pdf",
+    },
+    "Palm Beach Gardens": {
+      budget: "https://stories.opengov.com/pbgfl/published/XK5rj6uMdRu",
+    },
     Nassau: {
       staffing: "https://www.nassaucountyfl.com/DocumentCenter/View/32050/Budget-Presentation-092826-v2",
       budget: "https://www.nassaucountyfl.com/DocumentCenter/View/32063/FY26-27-Adopted-Budget",
     },
+  },
+  // Board departments with no meaningful peer; these get no Comparison tab.
+  excluded: ["eagle-springs-grill"],
+  // Departments compared on total budget only (no personnel/operating split).
+  totalOnly: ["eagle-springs-golf-and-recreation-center"],
+  // Extra wording added to a department's comparison note.
+  notes: {
+    "eagle-springs-golf-and-recreation-center": "Golf peers are city- and county-run golf courses. Fort Walton Beach (36 holes) and Palm Beach Gardens (Sandhill Crane, 18 holes plus a par-3 course) include pro shop and course maintenance. Indian River County (Sandridge, 36 holes) budgets food and beverage and the clubhouse separately, so its figure is golf operations only, from the proposed FY 2026/27 budget. Totals are personnel and operating, without capital. Golf staffing for Fort Walton Beach is reported within Recreation Services, so it is not shown.",
   },
   departments: {
     "board-of-county-commissioners": [
@@ -101,6 +118,11 @@ window.WCDepartmentComparisons = {
       { county: "Bay", scope: "Extension Service", personnel: 421461, operating: 225118, budgetPage: 19, staffPage: 141, positions: 7.2, estimatedFte: 6.7 },
       { county: "Nassau", scope: "Cooperative Extension", personnel: 446594, operating: 64792, budgetPage: 96, positions: 2, staffPage: 10 },
       { county: "Monroe", scope: "Extension Services", personnel: 0, operating: 172334, budgetPage: 119, countyBudgetSource: "https://www.monroecounty-fl.gov/DocumentCenter/View/42541", proposedBudget: true },
+    ],
+    "eagle-springs-golf-and-recreation-center": [
+      { county: "Fort Walton Beach", scope: "Fort Walton Beach Golf Club", totalBudget: 3049847, budgetPage: 153, custom: true },
+      { county: "Palm Beach Gardens", scope: "Sandhill Crane Golf Club", totalBudget: 6868910, budgetLabel: "Budget", custom: true },
+      { county: "Indian River", scope: "Sandridge Golf Club operations", totalBudget: 2185748, budgetPage: 39, proposedBudget: true, custom: true },
     ],
     "geographic-info-systems": [
       { county: "Bay", scope: "G.I.S.", personnel: 654332, operating: 189416, budgetPage: 14, staffPage: 140, positions: 5.5 },

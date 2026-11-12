@@ -75,10 +75,12 @@
     return (Math.round(value * 10) / 10).toLocaleString("en-US");
   }
 
-  function comparisonHtml(stats, peers, sources) {
+  function comparisonHtml(stats, peers, sources, extraNote, totalOnly) {
     var heading = '<h2 class="wc-profile-section-title" id="dept-comparison-heading">FY 2027 Budget and Staffing Comparison</h2>';
     var amount = function (value) { return value == null ? "—" : money(value); };
-    var showTotalBudget = /^constitutional officers$/i.test(profileType || "");
+    var isConstitutional = /^constitutional officers$/i.test(profileType || "");
+    // Constitutional offices, and departments listed in totalOnly, show one Total Budget column.
+    var showTotalBudget = isConstitutional || !!totalOnly;
     var rows = [{
       county: "Walton",
       scope: departmentName,
@@ -93,7 +95,7 @@
       if (source) {
         var budgetLabel = row.budgetLabel || (row.proposedBudget ? "Proposed budget" :
           row.officeBudget || row.countyBudget != null ? "County budget" : "Budget");
-        links = '<a href="' + escapeHtml(row.countyBudgetSource || source.budget) + '#page=' + row.budgetPage +
+        links = '<a href="' + escapeHtml(row.countyBudgetSource || source.budget) + (row.budgetPage ? '#page=' + row.budgetPage : '') +
           '" target="_blank" rel="noopener" aria-label="' + row.county + ' ' + budgetLabel.toLowerCase() + '">' + budgetLabel + '</a>';
         if (row.officeBudget) {
           links += ' · <a href="' + escapeHtml(row.officeBudget) +
@@ -105,7 +107,8 @@
             '" target="_blank" rel="noopener" aria-label="' + row.county + ' staffing">Staffing</a>';
         }
       }
-      var total = row.personnel == null || row.operating == null ? null : row.personnel + row.operating;
+      // row.total covers peers that publish only a combined figure.
+      var total = row.total != null ? row.total : row.personnel == null || row.operating == null ? null : row.personnel + row.operating;
       var staffing = "—";
       if (row.fte != null) staffing = row.fte.toLocaleString("en-US") + " FTE";
       else if (row.positions != null) staffing = "≈" + (row.estimatedFte ?? row.positions).toLocaleString("en-US") + " FTE";
@@ -118,7 +121,7 @@
         '<td>' + links + '</td></tr>';
     }).join("");
     var note = "Services and costs can be organized differently across counties. A dash indicates a figure that could not be verified for the listed office or division.";
-    if (showTotalBudget) {
+    if (isConstitutional) {
       note += " Totals use the published office budget where available and the amount in the county budget otherwise. The scope may differ by county. Prior-year staffing is labeled by fiscal year.";
     }
     if (peers.some(function (peer) { return peer.county === "Bay" && peer.staffPage; })) {
@@ -133,6 +136,7 @@
         return peer.county + ", " + peer.staffingScope.replace(/ · /g, ", ").replace(/^Proposed/, "proposed").replace(/Entire/, "entire");
       }).join("; ") + ".";
     }
+    if (extraNote) note += " " + extraNote;
     var intro = showTotalBudget ? "Compare FY 2027 budget totals and staffing." :
       "Compare budgeted staffing and spending on personnel and operations, including contracted services.";
     return heading + '<p>' + intro + '</p>' +
@@ -752,6 +756,8 @@
     var comparisonSlug = location.pathname.split("/").pop().replace(/\.html$/, "");
     var comparisonData = window.WCDepartmentComparisons;
     if (independent && !comparisonData?.departments[comparisonSlug]) comparisonData = null;
+    // Departments with no meaningful peer (e.g. the Eagle Springs Grill) get no Comparison tab.
+    if (comparisonData && (comparisonData.excluded || []).indexOf(comparisonSlug) !== -1) comparisonData = null;
     if (comparisonTemplate || comparisonData) tabs.splice(2, 0, ["comparison", "Comparison"]);
     var bar = document.createElement("div");
     bar.className = "wc-click-through-tabs wc-dept-beta-tabs";
@@ -1080,10 +1086,12 @@
       comparison.querySelector("[data-comparison-fte]").textContent = stats?.staffing.length ? fteText(stats.fte) + " FTE" : "—";
     } else if (comparisonData) {
       var peers = comparisonData.departments[comparisonSlug] || [];
-      if (!peers.some(function (peer) { return peer.county === "Monroe"; })) {
+      // Custom peer sets (e.g. city and county golf courses) skip the standard Monroe row.
+      if (!peers.some(function (peer) { return peer.county === "Monroe" || peer.custom; })) {
         peers = peers.concat({ county: "Monroe", scope: "No comparable figures verified", budgetPage: 4, budgetLabel: "County organization" });
       }
-      comparison.innerHTML = comparisonHtml(stats, peers, comparisonData.sources);
+      comparison.innerHTML = comparisonHtml(stats, peers, comparisonData.sources, (comparisonData.notes || {})[comparisonSlug],
+        (comparisonData.totalOnly || []).indexOf(comparisonSlug) !== -1);
     }
     if (submittedDoc) {
       var pdfUrl = "../assets/documents/submitted-budgets/" + submittedDoc.file;
