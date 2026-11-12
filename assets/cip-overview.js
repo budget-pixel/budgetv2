@@ -67,6 +67,7 @@ function setupCipStoryTabs(){
     "wc-cip-what-counts": "What Counts",
     "wc-cip-elements": "What Goes Into It",
     "wc-cip-why-new-projects": "Why New Projects",
+    "wc-cip-benefits": "Benefits",
     "wc-cip-spending-level": "How Spending Is Set",
     "wc-cip-trend": "Spending Trend",
     "wc-cip-major-projects": "Largest Projects",
@@ -3082,9 +3083,13 @@ function renderProjects(){
               <p>State and federal awards come with deadlines and matching requirements. Having a designed, permitted project ready is what allows the County to capture that funding rather than pay the full cost locally.</p>
             </article>
           </div>
+        </section>
 
-          <h3 class="wc-cip-subhead">What benefit will they provide?</h3>
-          <p class="wc-cip-subhead-note">Capital spending is what turns revenue into something residents and visitors use every day. Each project is expected to deliver at least one of these.</p>
+        <section class="wc-cip-story-section" id="wc-cip-benefits" aria-label="What benefit capital projects provide">
+          <div class="wc-cip-story-header">
+            <h2>What benefit will they provide?</h2>
+            <p>Capital spending is what turns revenue into something residents and visitors use every day. Each project is expected to deliver at least one of these.</p>
+          </div>
           <div class="wc-cip-benefit-grid">
             <article class="wc-cip-benefit-card">
               <strong>Safer travel</strong>

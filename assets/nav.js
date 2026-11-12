@@ -42,6 +42,9 @@
   // requests remain intact.
   (function redirectStandalonePopupPage(){
     if(window.top !== window.self) return;
+    // Pages marked <meta name="wc-standalone"> are meant to be linked from
+    // outside the budget site (e.g. the County website) and open on their own.
+    if(document.querySelector('meta[name="wc-standalone"]')) return;
     if(!/\/pages\/[^/]+\.html$/i.test(window.location.pathname)) return;
     var directParams;
     try { directParams = new URLSearchParams(window.location.search); }
