@@ -2082,14 +2082,6 @@
   }
   style.textContent = css;
   loadWaltonMobileStylesheet();
-  var WC_NAV_LINKS = [
-    { label:"Our County", href:"our-county.html" },
-    { label:"Budget Ledgers", href:"budget-overview.html" },
-    { label:"Full Budget Document", href:"budget-book.html" }
-  ];
-  function wcPageHref(href){
-    return /\/pages\//.test(window.location.pathname) ? href : "pages/" + href;
-  }
   // A live, in-place results dropdown for the visible search bar in the top
   // nav -- the same look and behavior as the search bar on the homepage
   // popup's own header, just driven from window.wcBudgetPages (the same
@@ -2292,134 +2284,10 @@
       skipLink.textContent = "Skip to main content";
       document.body.insertBefore(skipLink, document.body.firstChild);
     }
-    if(!nav.querySelector(".wc-nav-links")){
-      var linksWrap = document.createElement("div");
-      linksWrap.className = "wc-nav-links";
-      linksWrap.innerHTML =
-        '<button type="button" class="wc-nav-links-search" aria-label="Search">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-            '<path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>' +
-          '</svg>' +
-          '<span>Search</span>' +
-        '</button>' +
-        WC_NAV_LINKS.map(function(link){
-          return '<a href="' + wcPageHref(link.href) + '">' + link.label + '</a>';
-        }).join("");
-      nav.appendChild(linksWrap);
-    }
-    if(!nav.querySelector(".wc-nav-actions")){
-      var actions = document.createElement("div");
-      actions.className = "wc-nav-actions";
-      actions.innerHTML = `
-        <div class="wc-nav-search-bar-wrap">
-          <form class="wc-nav-search-bar-form" role="search" aria-label="Search the Budget">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
-            </svg>
-            <label class="wc-sr-only" for="wcNavBudgetSearch">Search the Walton County budget</label>
-            <input id="wcNavBudgetSearch" type="search" placeholder="Search the budget site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="wcNavSearchBarDropdown" aria-autocomplete="list">
-            <button type="submit">Search</button>
-          </form>
-          <div id="wcNavSearchBarDropdown" class="wc-nav-search-bar-dropdown" role="listbox" aria-label="Search suggestions" hidden></div>
-        </div>
-        <button type="button" class="wc-nav-search-toggle" aria-label="Search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.15 6.15a7.5 7.5 0 0 0 10.5 10.5Z"></path>
-          </svg>
-        </button>
-        <button type="button" class="wc-nav-menu-toggle" aria-label="Open navigation menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      `;
-      nav.appendChild(actions);
-      initNavSearchBar(actions.querySelector(".wc-nav-search-bar-wrap"));
-      var searchToggle = actions.querySelector(".wc-nav-search-toggle");
-      var menuToggle = actions.querySelector(".wc-nav-menu-toggle");
-      function syncNavSearchTop(){
-        var navRect = nav.getBoundingClientRect();
-        document.documentElement.style.setProperty("--wc-nav-search-top", navRect.height + "px");
-        var logo = nav.querySelector(".logo-container");
-        if(logo){
-          var logoRect = logo.getBoundingClientRect();
-          document.documentElement.style.setProperty("--wc-search-left", Math.max(0, logoRect.right - navRect.left + 24) + "px");
-        }
-      }
-      function closeNavSearch(){
-        if(window.WaltonBudgetGlobalSearch && window.WaltonBudgetGlobalSearch.nav === nav){
-          window.WaltonBudgetGlobalSearch.close();
-        }else{
-          nav.classList.remove("is-search-open");
-          document.body.classList.remove("wc-global-search-open");
-          document.body.style.overflow = "";
-        }
-      }
-      function openNavSearch(){
-        syncNavSearchTop();
-        if(window.WaltonBudgetGlobalSearch && window.WaltonBudgetGlobalSearch.nav === nav){
-          window.WaltonBudgetGlobalSearch.open();
-        }else{
-          nav.classList.add("is-search-open");
-          document.body.classList.add("wc-global-search-open");
-          document.body.style.overflow = "hidden";
-          setTimeout(function(){
-            var input = nav.querySelector("#wcTocSearch");
-            if(input){
-              input.focus();
-            }
-          }, 60);
-        }
-      }
-      searchToggle.addEventListener("click", function(){
-        if(nav.classList.contains("is-search-open")){
-          closeNavSearch();
-        }else{
-          openNavSearch();
-        }
-      });
-      var linksSearchToggle = nav.querySelector(".wc-nav-links-search");
-      if(linksSearchToggle){
-        linksSearchToggle.addEventListener("click", function(){
-          nav.classList.remove("is-menu-open");
-          menuToggle.setAttribute("aria-expanded", "false");
-          openNavSearch();
-        });
-      }
-      menuToggle.addEventListener("click", function(){
-        var open = !nav.classList.contains("is-menu-open");
-        nav.classList.toggle("is-menu-open", open);
-        menuToggle.setAttribute("aria-expanded", String(open));
-      });
-      window.addEventListener("resize", function(){
-        if(nav.classList.contains("is-search-open")){
-          syncNavSearchTop();
-        }
-      });
-      document.addEventListener("click", function(e){
-        var resultsEl = nav.querySelector(".wc-nav-search-results");
-        if(resultsEl && e.target === resultsEl){
-          closeNavSearch();
-          return;
-        }
-        if(e.target.closest && e.target.closest(".wc-search-footer")){
-          return;
-        }
-        if(!nav.contains(e.target)){
-          closeNavSearch();
-          nav.classList.remove("is-menu-open");
-          menuToggle.setAttribute("aria-expanded", "false");
-        }
-      });
-      document.addEventListener("keydown", function(e){
-        if(e.key === "Escape" && nav.classList.contains("is-search-open")){
-          closeNavSearch();
-        }
-        if(e.key === "Escape" && nav.classList.contains("is-menu-open")){
-          nav.classList.remove("is-menu-open");
-          menuToggle.setAttribute("aria-expanded", "false");
-          menuToggle.focus({ preventScroll:true });
-        }
-      });
-    }
+    // The old top menu (Our County / Budget Ledgers / Full Budget Document
+    // links and the nav search bar) was retired; the Budget Explorer header
+    // carries search, and pages now only show the Walton County logo bar.
+
     if(!nav.dataset.wcScrollBound){
       nav.dataset.wcScrollBound = "true";
       var onScroll = function(){
