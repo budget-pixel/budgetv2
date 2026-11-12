@@ -29,8 +29,8 @@ window.WCDepartmentComparisons = {
     ],
     "clerk-of-courts-and-county-comptroller": [
       { county: "Okaloosa", scope: "Clerk to the Board of County Commissioners", countyBudget: 4400243, budgetPage: 41 },
-      { county: "Bay", scope: "Clerk of Circuit Court (county budget)", countyBudget: 3006127, budgetPage: 28 },
-      { county: "Nassau", scope: "Clerk of Courts (county budget)", countyBudget: 4668664, budgetPage: 72, fte: 74, staffingScope: "FY 2025 · Entire office", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196" },
+      { county: "Bay", scope: "Clerk of Circuit Court", countyBudget: 3006127, budgetPage: 28 },
+      { county: "Nassau", scope: "Clerk of Courts", countyBudget: 4668664, budgetPage: 72, fte: 74, staffingScope: "FY 2025 · Entire office", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196" },
       { county: "Monroe", scope: "Clerk of Courts", countyBudget: 11369918, budgetPage: 23, fte: 101, staffPage: 70, staffingScope: "Proposed FY 2027" },
     ],
     "property-appraiser": [
@@ -40,21 +40,21 @@ window.WCDepartmentComparisons = {
       { county: "Monroe", scope: "Property Appraiser", countyBudget: 7314191, budgetPage: 23, fte: 43, staffPage: 70, staffingScope: "Proposed FY 2027" },
     ],
     "sheriffs-office": [
-      { county: "Okaloosa", scope: "Sheriff (county budget line)", countyBudget: 74273309, budgetPage: 41 },
-      { county: "Bay", scope: "Sheriff and Jail (county budget)", countyBudget: 82695786, budgetPage: 9 },
-      { county: "Nassau", scope: "Sheriff (taxing-fund budget summary)", countyBudget: 59555186, fte: 362, staffingScope: "FY 2025", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196", budgetPage: 12, countyBudgetSource: "https://www.nassaucountyfl.com/DocumentCenter/View/32050/Budget-Presentation-092826-v2" },
-      { county: "Monroe", scope: "Sheriff’s Office (county budget)", countyBudget: 98498314, budgetPage: 23, fte: 491.5, staffPage: 70, staffingScope: "Proposed FY 2027" },
+      { county: "Okaloosa", scope: "Sheriff's Office", countyBudget: 74273309, budgetPage: 41 },
+      { county: "Bay", scope: "Sheriff's Office", countyBudget: 82695786, budgetPage: 9 },
+      { county: "Nassau", scope: "Sheriff's Office", countyBudget: 59555186, fte: 362, staffingScope: "FY 2025", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196", budgetPage: 12, countyBudgetSource: "https://www.nassaucountyfl.com/DocumentCenter/View/32050/Budget-Presentation-092826-v2" },
+      { county: "Monroe", scope: "Sheriff's Office", countyBudget: 98498314, budgetPage: 23, fte: 491.5, staffPage: 70, staffingScope: "Proposed FY 2027" },
     ],
     "supervisor-of-elections": [
       { county: "Okaloosa", scope: "Supervisor of Elections", countyBudget: 2619313, budgetPage: 41 },
-      { county: "Bay", scope: "Supervisor of Elections (county budget)", countyBudget: 4007407, budgetPage: 8 },
-      { county: "Nassau", scope: "Supervisor of Elections (administration and registration)", countyBudget: 3081032, budgetPage: 73, fte: 12, staffingScope: "FY 2025 · Entire office", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196" },
+      { county: "Bay", scope: "Supervisor of Elections", countyBudget: 4007407, budgetPage: 8 },
+      { county: "Nassau", scope: "Supervisor of Elections", countyBudget: 3081032, budgetPage: 73, fte: 12, staffingScope: "FY 2025 · Entire office", staffingSource: "https://www.nassauclerk.com/DocumentCenter/View/591/Fiscal-Year-2025--PDF-#page=196" },
       { county: "Monroe", scope: "Supervisor of Elections", countyBudget: 3191561, budgetPage: 23, fte: 12, staffPage: 70, staffingScope: "Proposed FY 2027" },
     ],
     "tax-collector": [
       { county: "Okaloosa", scope: "Tax Collector", totalBudget: 8966002, budgetPage: 41, officeBudget: "https://okaloosatax.com/download/19529/", positions: 83 },
       { county: "Bay", scope: "Tax Collector", totalBudget: 7958692, budgetPage: 8, officeBudget: "https://baycountyfltax.gov/uploads/2026/10/BAY-2026-27-9.15.26.pdf", positions: 82 },
-      { county: "Nassau", scope: "Tax Collector (county budget)", countyBudget: 5319354, budgetPage: 73, positions: 46, staffingScope: "FY 2026", staffingSource: "https://www.nassautaxes.com/Documents/FINAL%20BUDGET%202025-2026.pdf" },
+      { county: "Nassau", scope: "Tax Collector", countyBudget: 5319354, budgetPage: 73, positions: 46, staffingScope: "FY 2026", staffingSource: "https://www.nassautaxes.com/Documents/FINAL%20BUDGET%202025-2026.pdf" },
       { county: "Monroe", scope: "Tax Collector", totalBudget: 7755412, budgetPage: 23, officeBudget: "https://monroetaxcollector.com/wp-content/uploads/2026/10/FY-2026-2027-Approved-Budget.pdf#page=2", positions: 61 },
     ],
     "building-construction-and-maintenance": [
