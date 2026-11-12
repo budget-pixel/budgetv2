@@ -47,15 +47,16 @@
       rows = rows.concat(api.getBccOtherUsesContingencyExpenses() || []);
     }
     if (!rows.length) return null;
-    var stats = { current: 0, prior: 0, personnel: 0, priorPersonnel: 0, lines: {} };
+    var stats = { current: 0, prior: 0, personnel: 0, operating: 0, priorPersonnel: 0, lines: {} };
     rows.forEach(function (row) {
       var type = String(row.Object_Type || "").toLowerCase();
-      if (!independent && type.indexOf("capital") >= 0) return;
       var now = Number(row.FY2027_Proposed) || 0;
+      if (!independent && type.indexOf("capital") >= 0) return;
       var before = Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0;
       stats.current += now;
       stats.prior += before;
       if (type.indexOf("personnel") >= 0) { stats.personnel += now; stats.priorPersonnel += before; return; }
+      if (type === "operating expenditures" || type === "contractual services") stats.operating += now;
       var key = String(row.Object_Code || row.Object_Name || "").trim();
       if (!stats.lines[key]) stats.lines[key] = { name: String(row.Object_Name || "Budget line").replace(/\s+/g, " ").trim(), diff: 0 };
       stats.lines[key].diff += now - before;
@@ -72,6 +73,76 @@
 
   function fteText(value) {
     return (Math.round(value * 10) / 10).toLocaleString("en-US");
+  }
+
+  function comparisonHtml(stats, peers, sources) {
+    var heading = '<h2 class="wc-profile-section-title" id="dept-comparison-heading">FY 2027 Budget and Staffing Comparison</h2>';
+    var amount = function (value) { return value == null ? "—" : money(value); };
+    var showTotalBudget = /^constitutional officers$/i.test(profileType || "");
+    var rows = [{
+      county: "Walton",
+      scope: departmentName,
+      personnel: stats?.personnel,
+      operating: stats?.operating,
+      totalBudget: stats?.current,
+      fte: stats?.staffing.length ? stats.fte : null
+    }].concat(peers);
+    var body = rows.map(function (row) {
+      var source = sources[row.county];
+      var links = "";
+      if (source) {
+        var budgetLabel = row.budgetLabel || (row.proposedBudget ? "Proposed budget" :
+          row.officeBudget || row.countyBudget != null ? "County budget" : "Budget");
+        links = '<a href="' + escapeHtml(row.countyBudgetSource || source.budget) + '#page=' + row.budgetPage +
+          '" target="_blank" rel="noopener" aria-label="' + row.county + ' ' + budgetLabel.toLowerCase() + '">' + budgetLabel + '</a>';
+        if (row.officeBudget) {
+          links += ' · <a href="' + escapeHtml(row.officeBudget) +
+            '" target="_blank" rel="noopener" aria-label="' + row.county + ' office budget and staffing">Office budget</a>';
+        }
+        if (row.staffingSource || row.staffPage) {
+          var staffingUrl = row.staffingSource || (source.staffing || source.budget) + "#page=" + row.staffPage;
+          links += ' · <a href="' + escapeHtml(staffingUrl) +
+            '" target="_blank" rel="noopener" aria-label="' + row.county + ' staffing">Staffing</a>';
+        }
+      }
+      var total = row.personnel == null || row.operating == null ? null : row.personnel + row.operating;
+      var staffing = "—";
+      if (row.fte != null) staffing = row.fte.toLocaleString("en-US") + " FTE";
+      else if (row.positions != null) staffing = "≈" + (row.estimatedFte ?? row.positions).toLocaleString("en-US") + " FTE";
+      return '<tr><th scope="row">' + row.county + '</th><td>' + escapeHtml(row.scope) + '</td>' +
+        (showTotalBudget
+          ? '<td class="wc-num">' + amount(row.totalBudget ?? row.countyBudget) + '</td>'
+          : '<td class="wc-num">' + amount(row.personnel) + '</td><td class="wc-num">' + amount(row.operating) + '</td>' +
+            '<td class="wc-num">' + amount(total) + '</td>') +
+        '<td class="wc-num">' + staffing + '</td>' +
+        '<td>' + links + '</td></tr>';
+    }).join("");
+    var note = "Services and costs can be organized differently across counties. A dash indicates a figure that could not be verified for the listed office or division.";
+    if (showTotalBudget) {
+      note += " Totals use the published office budget where available and the amount in the county budget otherwise. The scope may differ by county. Prior-year staffing is labeled by fiscal year.";
+    }
+    if (peers.some(function (peer) { return peer.county === "Bay" && peer.staffPage; })) {
+      note += " Bay’s position counts come from its tentative staffing schedule.";
+    }
+    if (peers.some(function (peer) { return peer.positions != null; })) {
+      note += " Estimated FTE (≈) uses budgeted positions and prorates listed hours using a 40-hour week where available.";
+    }
+    var scoped = peers.filter(function (peer) { return peer.staffingScope; });
+    if (scoped.length) {
+      note += " Staffing basis: " + scoped.map(function (peer) {
+        return peer.county + ", " + peer.staffingScope.replace(/ · /g, ", ").replace(/^Proposed/, "proposed").replace(/Entire/, "entire");
+      }).join("; ") + ".";
+    }
+    var intro = showTotalBudget ? "Compare FY 2027 budget totals and staffing." :
+      "Compare budgeted staffing and spending on personnel and operations, including contracted services.";
+    return heading + '<p>' + intro + '</p>' +
+      '<div class="wc-data-table-scroll" tabindex="0" role="region" aria-labelledby="dept-comparison-heading">' +
+      '<table class="wc-data-table"><thead><tr><th scope="col">County</th><th scope="col">Office or division</th>' +
+      (showTotalBudget ? '<th scope="col" class="wc-num">Total Budget</th>' :
+        '<th scope="col" class="wc-num">Personnel</th><th scope="col" class="wc-num">Operating</th><th scope="col" class="wc-num">Total</th>') +
+      '<th scope="col" class="wc-num">Staffing</th>' +
+      '<th scope="col">Sources</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+      '<p class="wc-data-source-note">' + note + '</p>';
   }
 
   // Key figures shown above the tabs (same three boxes as the Info Popup).
@@ -677,6 +748,11 @@
     ];
     // Supporting Document sits right after Budget.
     tabs.splice(2, 0, ["submitted", "Supporting Document"]);
+    var comparisonTemplate = content.querySelector("template[data-department-comparison]");
+    var comparisonSlug = location.pathname.split("/").pop().replace(/\.html$/, "");
+    var comparisonData = window.WCDepartmentComparisons;
+    if (independent && !comparisonData?.departments[comparisonSlug]) comparisonData = null;
+    if (comparisonTemplate || comparisonData) tabs.splice(2, 0, ["comparison", "Comparison"]);
     var bar = document.createElement("div");
     bar.className = "wc-click-through-tabs wc-dept-beta-tabs";
     bar.setAttribute("role", "tablist");
@@ -994,6 +1070,21 @@
     var anchor = narrativeBlock;
     if (independent && placeholder?.querySelector("table")) services.appendChild(placeholder);
     var submitted = panel("submitted");
+    var comparison = panel("comparison");
+    comparison.classList.add("wc-dept-beta-comparison");
+    if (comparisonTemplate) {
+      comparison.appendChild(comparisonTemplate.content.cloneNode(true));
+      comparison.querySelector("[data-comparison-personnel]").textContent = stats ? money(stats.personnel) : "Unavailable";
+      comparison.querySelector("[data-comparison-operating]").textContent = stats ? money(stats.current - stats.personnel) : "Unavailable";
+      comparison.querySelector("[data-comparison-budget]").textContent = stats ? money(stats.current) : "Unavailable";
+      comparison.querySelector("[data-comparison-fte]").textContent = stats?.staffing.length ? fteText(stats.fte) + " FTE" : "—";
+    } else if (comparisonData) {
+      var peers = comparisonData.departments[comparisonSlug] || [];
+      if (!peers.some(function (peer) { return peer.county === "Monroe"; })) {
+        peers = peers.concat({ county: "Monroe", scope: "No comparable figures verified", budgetPage: 4, budgetLabel: "County organization" });
+      }
+      comparison.innerHTML = comparisonHtml(stats, peers, comparisonData.sources);
+    }
     if (submittedDoc) {
       var pdfUrl = "../assets/documents/submitted-budgets/" + submittedDoc.file;
       submitted.innerHTML =
@@ -1002,7 +1093,7 @@
         '</div>' +
         '<iframe class="wc-dept-beta-submitted-frame" src="' + pdfUrl + '#view=FitH" title="' + escapeHtml(departmentName) + ' submitted budget request" loading="lazy"></iframe>';
     }
-    var panels = { overview: overview, budget: budget, "budget-graph": budgetGraph, revenue: revenue, staffing: staffing, services: services, submitted: submitted };
+    var panels = { overview: overview, budget: budget, "budget-graph": budgetGraph, revenue: revenue, staffing: staffing, services: services, submitted: submitted, comparison: comparison };
     tabs = tabs.filter(function ([key]) {
       if (key === "submitted") return !!submittedDoc;
       if (key === "budget-graph") return budgetGraph.hasChildNodes();

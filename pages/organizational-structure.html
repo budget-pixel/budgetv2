@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Organizational Structure — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.min.css?v=aa46efe899">
+<link rel="stylesheet" href="../assets/style.min.css?v=98c2b546c0">
 </head>
 <body>
 
@@ -281,7 +281,41 @@
     if(fullscreenElement() === container) exitFs();
   }
 
+  /* Inside a popup frame the overlay would be confined to that frame, so
+     show the chart on the top-level page instead. */
+  function openInTopWindow(){
+    var topDoc;
+    try { topDoc = window.top !== window ? window.top.document : null; } catch(e){ topDoc = null; }
+    if(!topDoc) return false;
+    var img = document.getElementById("wcImage");
+    var overlay = topDoc.createElement("div");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Walton County Organizational Chart");
+    overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(6,24,18,.94);box-sizing:border-box";
+    var big = topDoc.createElement("img");
+    big.src = img.currentSrc || img.src;
+    big.alt = img.alt;
+    big.style.cssText = "max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.4)";
+    var x = topDoc.createElement("button");
+    x.type = "button";
+    x.setAttribute("aria-label", "Close full-size chart");
+    x.innerHTML = "&times;";
+    x.style.cssText = "position:absolute;top:18px;right:18px;width:44px;height:44px;border:0;border-radius:50%;background:#fff;color:#003f28;font:700 26px/1 Arial,sans-serif;cursor:pointer";
+    function dismiss(){ overlay.remove(); topDoc.removeEventListener("keydown", onKey, true); btn.focus(); }
+    function onKey(event){ if(event.key === "Escape"){ event.stopPropagation(); dismiss(); } }
+    x.addEventListener("click", dismiss);
+    overlay.addEventListener("click", function(event){ if(event.target === overlay) dismiss(); });
+    topDoc.addEventListener("keydown", onKey, true);
+    overlay.appendChild(big);
+    overlay.appendChild(x);
+    topDoc.body.appendChild(overlay);
+    x.focus();
+    return true;
+  }
+
   btn.addEventListener("click", function(){
+    if(openInTopWindow()) return;
     if(container.classList.contains("wc-is-fullscreen")) close();
     else open();
   });
@@ -303,6 +337,6 @@
   });
 })();
 </script>
-<script src="../assets/nav.min.js?v=3c04f85e68"></script>
+<script src="../assets/nav.min.js?v=f9e9db250c"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Office of Management and Budget — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.min.css?v=aa46efe899">
+<link rel="stylesheet" href="../assets/style.min.css?v=98c2b546c0">
 </head>
 <body>
 
@@ -18,6 +18,26 @@
 
 <div class="page-eyebrow">Board Departments</div>
 <h1 class="page-title">Office of Management and Budget</h1>
+
+<template data-department-comparison>
+  <h2 class="wc-profile-section-title" id="omb-comparison-heading">FY 2027 Budget Office Comparison</h2>
+  <p>Compare budgeted staffing and spending on personnel and operations, including contracted services.</p>
+  <div class="wc-data-table-scroll" tabindex="0" role="region" aria-labelledby="omb-comparison-heading">
+    <table class="wc-data-table">
+      <thead>
+        <tr><th scope="col">County</th><th scope="col">Office or division</th><th scope="col" class="wc-num">Personnel</th><th scope="col" class="wc-num">Operating</th><th scope="col" class="wc-num">Total</th><th scope="col" class="wc-num">Staffing</th><th scope="col">Sources</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Walton</th><td>Management and Budget</td><td class="wc-num" data-comparison-personnel></td><td class="wc-num" data-comparison-operating></td><td class="wc-num" data-comparison-budget></td><td class="wc-num" data-comparison-fte></td><td></td></tr>
+        <tr><th scope="row">Okaloosa</th><td>Management and Budget</td><td class="wc-num">$948,223</td><td class="wc-num">$65,451</td><td class="wc-num">$1,013,674</td><td class="wc-num">≈8 FTE</td><td><a href="https://myokaloosa.gov/sites/default/files/Users/piouser/FY27%20Budget%20Book%20FINALsized.pdf#page=41" target="_blank" rel="noopener">Budget</a> · <a href="https://myokaloosa.gov/sites/default/files/Users/piouser/FY27%20Budget%20Book%20FINALsized.pdf#page=72" target="_blank" rel="noopener">Staffing</a></td></tr>
+        <tr><th scope="row">Bay</th><td>Management and Budget</td><td class="wc-num">$788,521</td><td class="wc-num">$57,810</td><td class="wc-num">$846,331</td><td class="wc-num">≈6 FTE</td><td><a href="https://www.baycountyfl.gov/DocumentCenter/View/21091/FY-2027-Final-Budget-Detailed-Revenues-and-Expenditures#page=13" target="_blank" rel="noopener">Budget</a> · <a href="https://www.baycountyfl.gov/DocumentCenter/View/21090/FY-2027-Tentative-Budget-Commissioner-Book---09-15-26#page=139" target="_blank" rel="noopener">Staffing</a></td></tr>
+        <tr><th scope="row">Nassau</th><td>Management and Budget</td><td class="wc-num">$955,195</td><td class="wc-num">$94,602</td><td class="wc-num">$1,049,797</td><td class="wc-num">≈11 FTE</td><td><a href="https://www.nassaucountyfl.com/DocumentCenter/View/32063/FY26-27-Adopted-Budget#page=84" target="_blank" rel="noopener">Budget</a> · <a href="https://www.nassaucountyfl.com/DocumentCenter/View/32050/Budget-Presentation-092826-v2#page=10" target="_blank" rel="noopener">Staffing</a></td></tr>
+        <tr><th scope="row">Monroe</th><td>Management and Budget</td><td class="wc-num">$835,976</td><td class="wc-num">$24,389</td><td class="wc-num">$860,365</td><td class="wc-num">5 FTE</td><td><a href="https://www.monroecounty-fl.gov/DocumentCenter/View/42541#page=116" target="_blank" rel="noopener">Proposed budget and staffing</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="wc-data-source-note">Estimated FTE (≈) assumes one FTE per budgeted position. Bay’s count comes from its tentative staffing schedule. Nassau’s count comes from its final budget hearing presentation. Monroe’s count comes from its proposed FY 2027 budget.</p>
+</template>
 
 <div class="eagle-springs-statement-media">
   <div id="department-narrative"></div>
@@ -47,10 +67,10 @@
 <!-- nav.js will inject footer[role="contentinfo"] here -->
 
 <script src="../assets/budget-pages.min.js?v=208d98f98f"></script>
-<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=274f9c2a0c"></script>
-<script src="../assets/nav.min.js?v=3c04f85e68"></script>
+<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=80ec117886"></script>
+<script src="../assets/nav.min.js?v=f9e9db250c"></script>
 <script src="../assets/funding-sources.min.js?v=b474168f39"></script><script src="../assets/department-services.min.js?v=1eb76cee1d"></script>
-<script src="../assets/department-beta.min.js?v=426a2e33d3" data-board-department-template></script>
+<script src="../assets/department-beta.min.js?v=6ae1572b6e" data-board-department-template></script>
 <script src="../assets/budget-pdf.min.js?v=b23abf0acb"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Consolidated Budget Ledger — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.min.css?v=aa46efe899">
+<link rel="stylesheet" href="../assets/style.min.css?v=98c2b546c0">
 </head>
 <body>
 <nav id="nav-menu" class="nav-menu"><div class="logo-container"></div></nav>
@@ -12,7 +12,6 @@
 <div class="page-eyebrow">Financial Overview</div>
 <div class="wc-page-title-row"><h1 class="page-title">Consolidated Budget Ledger</h1><a class="wc-asset-back" href="budget-overview.html">&larr; Back to Ledger Directory</a></div>
 <p class="page-intro wc-ledger-intro-wide">See how Walton County's FY2027 revenue and expenditure budgets break down fund by fund, from the General Fund and Sheriff Fund to Tourist Development, Transportation, Solid Waste, Capital Projects, and Mosquito Control. Millage rates and each major revenue and expenditure category are shown side by side across every fund, with a Total All Funds column so you can see the full countywide picture at a glance.</p>
-<div class="wc-ledger-export-row"><button type="button" class="wc-cip-export-pdf" id="consolidatedExportPdf" aria-label="Export the revenue and expenditure budgets as PDF">Export PDF</button></div>
 <div id="consolidated-revenue-budget-table"></div>
 <div id="consolidated-expenditure-budget-table"></div>
 </main></div>
@@ -20,15 +19,32 @@
 <script>
 /* Export PDF: the same pill and print approach as the capital ledgers. The
    revenue and expenditure budgets each print on their own landscape page. */
-document.getElementById("consolidatedExportPdf").addEventListener("click", function () {
+/* The button sits on the Revenue Budget label row, so there is no extra
+   row of white space above the table. */
+var exportButton = document.createElement("button");
+exportButton.type = "button";
+exportButton.className = "wc-cip-export-pdf";
+exportButton.id = "consolidatedExportPdf";
+exportButton.setAttribute("aria-label", "Export the revenue and expenditure budgets as PDF");
+exportButton.textContent = "Export PDF";
+(function placeExportButton(attempt) {
+  var label = document.querySelector("#consolidated-revenue-budget-table .wc-table-label");
+  if (!label) { if (attempt < 80) setTimeout(function () { placeExportButton(attempt + 1); }, 100); return; }
+  var row = document.createElement("div");
+  row.className = "wc-ledger-export-row";
+  label.parentNode.insertBefore(row, label);
+  row.appendChild(label);
+  row.appendChild(exportButton);
+})(0);
+exportButton.addEventListener("click", function () {
   document.body.classList.add("wc-ledger-print");
   window.addEventListener("afterprint", function () { document.body.classList.remove("wc-ledger-print"); }, { once: true });
   window.print();
 });
 </script>
 <script src="../assets/search-data.min.js?v=c0b881b570"></script>
-<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=274f9c2a0c"></script>
-<script src="../assets/nav.min.js?v=3c04f85e68"></script>
+<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=80ec117886"></script>
+<script src="../assets/nav.min.js?v=f9e9db250c"></script>
 <script src="../assets/budget-pdf.min.js?v=b23abf0acb"></script>
 </body>
 </html>

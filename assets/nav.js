@@ -2158,8 +2158,21 @@
       }).filter(Boolean).sort(function(a, b){
         return a.rank - b.rank || a.index - b.index;
       }).slice(0, 8).map(function(entry){ return entry.page; });
+      // Capital projects are searchable here too (cip-projects-data.js,
+      // loaded on first focus where the page doesn't already have it).
+      var seenProjects = {};
+      var projectMatches = (Array.isArray(window.wcCipProjects) ? window.wcCipProjects : []).map(function(project, index){
+        if(!project || !project.slug || !project.title || seenProjects[project.slug]) return null;
+        var title = normalize(project.title);
+        var haystack = normalize([project.title, project.department, project.dept, project.funding, project.category].filter(Boolean).join(" "));
+        if(haystack.indexOf(normalizedQuery) === -1) return null;
+        seenProjects[project.slug] = true;
+        return { project:project, rank:title === normalizedQuery ? 0 : title.indexOf(normalizedQuery) === 0 ? 1 : title.indexOf(normalizedQuery) !== -1 ? 2 : 3, index:index };
+      }).filter(Boolean).sort(function(a, b){
+        return a.rank - b.rank || a.index - b.index;
+      }).slice(0, Math.max(3, 10 - matches.length)).map(function(entry){ return entry.project; });
       activeIndex = -1;
-      if(!matches.length){
+      if(!matches.length && !projectMatches.length){
         dropdown.innerHTML = '<div class="wc-nav-search-bar-empty">No matching pages found.</div>';
         dropdown.hidden = false;
         input.setAttribute("aria-expanded", "true");
@@ -2172,10 +2185,39 @@
           "<strong>" + title + "</strong>" +
           (section ? "<span>" + section + "</span>" : "") +
           "</a>";
+      }).join("") + projectMatches.map(function(project, i){
+        var esc = function(value){ return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+        var href = new URL("../pages/cip-project.html?project=" + encodeURIComponent(project.slug), wcBudgetAssetBaseUrl).href;
+        var detail = ["Capital Project", project.department || project.dept || project.funding].filter(Boolean).join(" \u00b7 ");
+        return '<a class="wc-nav-search-bar-result" role="option" aria-selected="false" href="' + esc(href) + '" data-nav-search-project="' + i + '">' +
+          "<strong>" + esc(project.title) + "</strong><span>" + esc(detail) + "</span></a>";
       }).join("");
+      dropdown.querySelectorAll("[data-nav-search-project]").forEach(function(link){
+        link.addEventListener("click", function(event){
+          var host = window.WCHomeExplorer;
+          if(!host || typeof host.openDepartmentModal !== "function") return;
+          event.preventDefault();
+          event.stopPropagation();
+          var project = projectMatches[Number(link.getAttribute("data-nav-search-project"))];
+          hideDropdown();
+          host.openDepartmentModal(link.href, project.title, link);
+        });
+      });
       dropdown.hidden = false;
       input.setAttribute("aria-expanded", "true");
     }
+    function ensureCapitalProjects(){
+      if(Array.isArray(window.wcCipProjects) && window.wcCipProjects.length) return;
+      if(document.getElementById("wc-cip-projects-loader")) return;
+      var script = document.createElement("script");
+      script.id = "wc-cip-projects-loader";
+      script.src = wcBudgetAssetBaseUrl + "cip-projects-data.js?v=38bf771faf";
+      script.onload = function(){
+        Promise.resolve(window.wcCipProjectsReady).then(function(){ if(input.value) renderDropdown(input.value); });
+      };
+      document.head.appendChild(script);
+    }
+    input.addEventListener("focus", ensureCapitalProjects);
     input.addEventListener("input", function(){
       renderDropdown(input.value);
     });

@@ -6495,7 +6495,8 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
 .wc-budget-forecast-intro{margin-top:0}
 
 /* Export PDF pill shared by ledgers (matches the capital ledgers'). */
-.wc-ledger-export-row{display:flex;justify-content:flex-end;margin:0 0 -8px}
+.wc-ledger-export-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 10px}
+.wc-ledger-export-row .wc-table-label{margin:0}
 .wc-ledger-export-row .wc-cip-export-pdf{flex:none;padding:10px 16px;border:1px solid #003f28;border-radius:999px;background:#fff;color:#003f28;font:800 12px/1.2 Arial,Helvetica,sans-serif;cursor:pointer}
 .wc-ledger-export-row .wc-cip-export-pdf:hover,.wc-ledger-export-row .wc-cip-export-pdf:focus-visible{background:#003f28;color:#fff}
 @media print{
@@ -6527,7 +6528,8 @@ html body #content :is(
   .recreation-parks-section h2,
   .wc-ptax-largest > h2,
   .wc-ptax-flow-head h2,
-  .wc-census-narrative-card h2
+  .wc-census-narrative-card h2,
+  .wc-public-involvement > h2
 ){
   margin: 0 0 10px !important;
   padding: 0 0 0 10px !important;
@@ -6548,3 +6550,72 @@ html body #content .wc-gfoa-hero-copy > h1{display:none !important}
 /* Board department pages: never show the intermediate profile that the
    tabbed layout (department-beta.js, html.wc-dept-beta) is built from. */
 html.wc-board-dept-page:not(.wc-dept-beta) main#content>:not(.page-eyebrow):not(.page-title):not(.wc-page-title-row){display:none!important}
+/* Pages shown inside a popup frame: the skip link (and its shadow) would
+   show at the top of the frame; the popup handles keyboard focus itself. */
+html.wc-embedded-department .wc-skip-link,html.wc-embedded-info .wc-skip-link,html.wc-embedded-utility .wc-skip-link{display:none!important}
+
+/* Assumptions tab: two large choices; nothing shows until one is picked. */
+.wc-forecast-assumption-choice{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0 26px}
+.wc-forecast-assumption-choice button{display:flex;flex-direction:column;gap:6px;padding:22px 24px;border:1.5px solid rgba(0,63,40,.18);border-radius:16px;background:#fff;color:var(--navy);text-align:left;font:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(0,63,40,.06);transition:border-color .15s,background .15s,transform .15s,box-shadow .15s}
+.wc-forecast-assumption-choice button strong{font-size:1.2rem;font-weight:800}
+.wc-forecast-assumption-choice button span{color:var(--muted,#5b6770);font-size:.9rem;line-height:1.45}
+.wc-forecast-assumption-choice button:hover{border-color:var(--green);transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,63,40,.1)}
+.wc-forecast-assumption-choice button[aria-pressed="true"]{border-color:#003f28;background:#003f28;color:#fff}
+.wc-forecast-assumption-choice button[aria-pressed="true"] span{color:rgba(255,255,255,.85)}
+@media(max-width:700px){.wc-forecast-assumption-choice{grid-template-columns:1fr}}
+/* The two broad assumption summaries share column widths so they line up. */
+.wc-forecast-assumption-summary .wc-data-table{table-layout:fixed;width:100%}
+.wc-forecast-assumption-summary .wc-data-table th:nth-child(1),.wc-forecast-assumption-summary .wc-data-table td:nth-child(1){width:30%}
+.wc-forecast-assumption-summary .wc-data-table th:nth-child(2),.wc-forecast-assumption-summary .wc-data-table td:nth-child(2){width:16%}
+
+/* Forecast line Info Popup: summary tiles, then forecast and history strips. */
+.wc-forecast-info-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:4px 0 22px}
+.wc-forecast-info-tile{padding:14px 16px;border:1px solid #e1e7e3;border-radius:14px;background:#f7f9f8}
+.wc-forecast-info-tile span,.wc-forecast-info-strip span{display:block;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.wc-forecast-info-tile strong{display:block;margin-top:4px;color:#003f28;font-size:22px;font-weight:800;line-height:1.2}
+.wc-forecast-info-tile small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.wc-forecast-info-heading{margin:0 0 10px!important;padding-left:10px!important;border-left:4px solid var(--gold);color:var(--navy);font-size:.82rem!important;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.wc-forecast-info-strip{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));margin:0 0 20px;border:1px solid #e1e7e3;border-radius:14px;overflow:hidden}
+.wc-forecast-info-strip>div{padding:12px 10px;text-align:center;border-left:1px solid #e1e7e3}
+.wc-forecast-info-strip>div:first-child{border-left:0}
+.wc-forecast-info-strip strong{display:block;margin-top:4px;color:var(--navy);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.wc-forecast-info-strip small{display:block;color:#006231;font-size:12px;font-weight:700}
+.wc-forecast-info-note{margin:-8px 0 0;color:var(--muted);font-size:13px}
+@media (max-width:640px){
+  .wc-forecast-info-tiles{grid-template-columns:1fr}
+  .wc-forecast-info-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wc-forecast-info-strip>div{border-left:0;border-top:1px solid #e1e7e3}
+}
+
+/* Forecast fund tables and their drop-down tables share column widths so
+   the year columns line up. */
+.wc-budget-forecast-explorer [data-forecast-panel] .wc-data-table{table-layout:fixed;width:100%;min-width:0}
+.wc-budget-forecast-explorer [data-forecast-panel] .wc-data-table th:first-child{width:34%}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row > td{padding:12px 0!important}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-table-label{padding-left:14px}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-data-table td:first-child{overflow-wrap:anywhere}
+.wc-forecast-line-detail-row .wc-forecast-group-row th{padding:14px 14px 8px!important;background:#fff!important;color:var(--navy);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-align:left;text-transform:uppercase;border-bottom:2px solid var(--gold)}
+
+/* Forecast Revenue/Expenditure breakdown: sub-rows of the fund table rather
+   than a second green table. Shares the parent's columns, hides its own
+   header, and shows each line's share of the FY 2027 total. */
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row > td{padding:0 0 10px!important;background:#fff!important}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-data-table-wrap{margin:0;box-shadow:inset 4px 0 0 var(--gold);background:#fbfcfb}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-table-label{margin:0;padding:12px 14px 6px!important;color:var(--muted);font-size:11px;letter-spacing:.1em}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-data-table-scroll{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-data-table{background:transparent;border:0;box-shadow:none}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row thead th{height:0!important;padding-top:0!important;padding-bottom:0!important;border:0!important;font-size:0!important;line-height:0!important;color:transparent!important;background:transparent!important;box-shadow:none!important}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row thead tr{border:0!important;box-shadow:none!important;background:transparent!important}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row tbody td{padding-top:9px!important;padding-bottom:9px!important;background:transparent!important;border-bottom:1px solid #edf1ee;color:#3b4a5a;font-size:13.5px}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row tbody tr:hover td{background:rgba(0,98,49,.05)!important}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row tbody td:first-child{padding-left:24px!important}
+.wc-forecast-breakdown-name{display:grid;grid-template-columns:minmax(0,1fr) 72px 44px;align-items:center;gap:10px}
+.wc-forecast-breakdown-name .wc-forecast-assumption-link{font-weight:700;font-size:13.5px;line-height:1.3}
+.wc-forecast-breakdown-share{display:block;height:6px;border-radius:99px;background:#e6ece8;overflow:hidden}
+.wc-forecast-breakdown-share i{display:block;height:100%;min-width:2px;border-radius:99px;background:#006231}
+.wc-forecast-breakdown-name small{color:var(--muted);font-size:12px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.wc-budget-forecast-explorer .wc-forecast-line-detail-row .wc-forecast-group-row th{padding:16px 14px 6px 24px!important;background:transparent!important;border-bottom:1px solid var(--gold);color:var(--navy);font-size:11px}
+@media (max-width:700px){.wc-forecast-breakdown-name{grid-template-columns:1fr}.wc-forecast-breakdown-share,.wc-forecast-breakdown-name small{display:none}}
+/* Comparison tab: room between the intro, table and closing note. */
+html.wc-dept-beta .wc-dept-beta-comparison>p:not(.wc-data-source-note){margin:0 0 16px}
+html.wc-dept-beta .wc-dept-beta-comparison>.wc-data-source-note{margin:18px 0 0}

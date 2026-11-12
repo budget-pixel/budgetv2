@@ -31,7 +31,7 @@
       const doc = frame.contentDocument;
       if (!doc) return;
       const style = doc.createElement('style');
-      style.textContent = 'html,body{height:auto!important;min-height:0!important;overflow:hidden!important;background:transparent!important}.wc-budget-process-back,nav#nav-menu,footer,.wc-breadcrumb,.page-eyebrow,.page-title,.wc-page-title-row{display:none!important}#layout{display:block!important;margin:0!important;padding:0!important}main#content{box-sizing:border-box!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 2px 20px!important}';
+      style.textContent = 'html,body{height:auto!important;min-height:0!important;overflow:hidden!important;background:transparent!important}.wc-budget-process-back,nav#nav-menu,footer,.wc-breadcrumb,.page-eyebrow,.page-title,.wc-page-title-row{display:none!important}#layout{display:block!important;margin:0!important;padding:0!important}main#content{box-sizing:border-box!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 2px 20px!important}main#content>.page-intro{margin:0 0 18px!important;padding:0!important;background:none!important;box-shadow:none!important;border:0!important;max-width:none!important}main#content>.page-intro::before,main#content>.page-intro::after,main#content>.wc-sr-only,.wc-skip-link{display:none!important}';
       doc.head.appendChild(style);
       const main = doc.querySelector('main#content');
       function resize() {

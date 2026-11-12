@@ -50,6 +50,28 @@
 
   const fundOverrides = {
     "001": {
+      revenue: {
+        "General Government Taxes": [0.01, 0.01, 0.01, 0.01],
+        "Intergovernmental Revenues": [0.01, 0.01, 0.01, 0.01],
+        "Charges for Services": [0.01, 0.01, 0.01, 0.01],
+        "Miscellaneous Revenue": [0.01, 0.01, 0.01, 0.01],
+        "Permits Fees and Special Assessments": [0.01, 0.01, 0.01, 0.01]
+      },
+      expense: {
+        "Personnel Services": [0.005, 0.005, 0.005, 0.005],
+        "Operating Expenses": [0.005, 0.005, 0.005, 0.005],
+        "Capital Outlay": [0.005, 0.005, 0.005, 0.005],
+        "Grants and Aids": [0.005, 0.005, 0.005, 0.005],
+        "Debt Service": [0, 0, 0, 0],
+        "Other Uses / Transfers": [0.005, 0.005, 0.005, 0.005]
+      },
+      method: "revenue-constrained growth",
+      notes: "General Fund revenues are held to 1% annual growth and department expenditures to 0.5%, so recurring costs stay below projected recurring revenue and the fund balance increases modestly each year. BCC Contingency remains flat, and separately linked interfund transfers retain their shared-revenue assumptions."
+    },
+    "101": {
+      revenue: {
+        "Other Sources": [0.025, 0.025, 0.025, 0.025]
+      },
       expense: {
         "Personnel Services": [0.02, 0.02, 0.02, 0.02],
         "Operating Expenses": [0.02, 0.02, 0.02, 0.02],
@@ -58,15 +80,8 @@
         "Debt Service": [0, 0, 0, 0],
         "Other Uses / Transfers": [0.02, 0.02, 0.02, 0.02]
       },
-      method: "revenue-constrained growth",
-      notes: "General Fund department expenditures are limited to 2% annual growth so recurring costs remain supportable by projected recurring revenue. BCC Contingency remains flat, and separately linked interfund transfers retain their shared-revenue assumptions."
-    },
-    "101": {
-      revenue: {
-        "Other Sources": [0.025, 0.025, 0.025, 0.025]
-      },
       method: "shared revenue growth",
-      notes: "Transportation's share of the Local Discretionary Sales Surtax is recorded as an Interfund Transfer In. The transfer is forecast at the same 2.5% annual growth rate as the shared sales-tax revenue while fund balance remains free to increase or decrease."
+      notes: "Transportation's share of the Local Discretionary Sales Surtax is recorded as an Interfund Transfer In. The transfer is forecast at the same 2.5% annual growth rate as the shared sales-tax revenue, and Transportation expenditures are limited to 2% annual growth so the fund balance increases modestly each year."
     },
     "107": {
       method: "transfer-supported forecast",
