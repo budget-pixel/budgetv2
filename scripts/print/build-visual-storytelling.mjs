@@ -80,7 +80,7 @@ const gfRows = [
   { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
     ["Debris removal", "Countywide debris removal after a named storm", RESERVE.general.debris, true],
     ["Insurance deductibles", "5% named-storm deductible on $124.9M of insured buildings", RESERVE.general.deductible, true],
-    ["Uninsured assets", `25% of ${millions(RESERVE.general.uninsured)} uninsured sheds, fences, lighting, and park structures`, Math.round(RESERVE.general.uninsured * 0.25)]
+    ["Uninsured assets", "Replacement cost of uninsured sheds, fences, lighting, and park structures", Math.round(RESERVE.general.uninsured * 0.25), true]
   ] }
 ];
 const tdRows = [
@@ -92,7 +92,7 @@ const tdRows = [
   { group: "Hurricane recovery and cleanup", basis: "Costs after a named storm", children: [
     ["Beach and facility cleanup", "Beach and tourism facility recovery after a named storm", RESERVE.tourism.recovery, true],
     ["Insurance deductibles", "5% named-storm deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible, true],
-    ["Uninsured assets", "Full replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured]
+    ["Uninsured assets", "Replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured, true]
   ] }
 ];
 // A row is [label, basis, amount] or a { group, basis, children } block whose
@@ -120,7 +120,7 @@ const gfMonthsFunded = Math.round(gfOperatingPool / ((RESERVE.general.personnel 
 // With funded set, a row also shows how much of its target the balance covers.
 const reserveRow = ([label, basis, amount, fema], cls = '', funded) => `<div class="rp-row${cls}${fema ? ' rp-fema' : ''}${funded ? ' rp-funded' : ''}"><strong>${label}</strong><span>${basis}</span><b>${fema ? '<em>FEMA</em>' : ''}${currency(amount)}</b>${funded ? `<b>${currency(funded(label, amount))}</b>` : ''}</div>`;
 const femaEligible = rows => rows.flatMap(r => r.children || [r]).filter(r => r[3]).reduce((sum, r) => sum + r[2], 0);
-const femaLine = rows => `<p class="rp-fema-note"><em>FEMA</em> Eligible for FEMA reimbursement after a declared disaster: ${currency(femaEligible(rows))}, of which about ${millions(femaEligible(rows) * 0.75)} (75%) would be returned.</p>`;
+const femaLine = rows => `<p class="rp-fema-note"><em>FEMA</em> Eligible for FEMA reimbursement after a declared disaster: ${currency(femaEligible(rows))}, of which 75%, about ${millions(femaEligible(rows) * 0.75)}, could potentially be reimbursed.</p>`;
 const reserveTable = (rows, total, funding) => `<div class="rp-table${funding ? ' rp-has-funded' : ''}">${funding ? '<div class="rp-row rp-head rp-funded"><strong></strong><span></span><b>Target</b><b>Funded</b></div>' : ''}${rows.map(r => r.children
   ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group', funding && funding.fundedFor) + r.children.map(c => reserveRow(c, ' rp-sub', funding && funding.fundedFor)).join('')
   : reserveRow(r, '', funding && funding.fundedFor)).join('')}<div class="rp-row rp-total${funding ? ' rp-funded' : ''}"><strong>Reserve target</strong><span></span><b>${currency(total)}</b>${funding ? `<b>${currency(Math.min(total, funding.ending))}</b>` : ''}</div>${funding && funding.shortfall ? `<div class="rp-row rp-shortfall rp-funded"><strong>Reserve shortfall</strong><span>Target not covered by the estimated ending balance</span><b></b><b>${currency(funding.shortfall)}</b></div>` : ''}</div>`;
@@ -130,7 +130,7 @@ pages.push(`<section class="page reserve-page">${header('Financial Overview','Re
 ${reserveStats(gfTarget, Math.min(gfTarget, RESERVE.general.ending), 'Funded')}
 ${reserveTable(gfRows, gfTarget, { fundedFor, ending: RESERVE.general.ending })}
 ${femaLine(gfRows)}
-<div class="grid2"><div class="card"><strong>What the six months covers</strong><p>Personnel and operating cover the Board of County Commissioners&rsquo; departments and the Commission office: ${millions(RESERVE.general.personnel + RESERVE.general.operating)} a year in the General Fund. Constitutional officers, courts, and outside agencies are not included.${gfShortfall ? ` With debt and storm recovery funded first, the balance covers about ${gfMonthsFunded} months; ${millions(gfShortfall)} more restores six.` : ''}</p></div><div class="card"><strong>Hurricane recovery and cleanup</strong><p>The County pays debris haulers up front, and FEMA reimbursement often arrives a year or more later. FEMA also covers 75% of eligible repairs to uninsured County facilities. Insured buildings carry a 5% named-storm deductible per building, which the County pays in full.</p></div></div>
+<div class="grid2"><div class="card"><strong>What the six months covers</strong><p>Personnel and operating cover the Board of County Commissioners&rsquo; departments and the Commission office: ${millions(RESERVE.general.personnel + RESERVE.general.operating)} a year in the General Fund.${gfShortfall ? ` With debt and storm recovery funded first, the balance covers about ${gfMonthsFunded} months; ${millions(gfShortfall)} more restores six.` : ''}</p></div><div class="card"><strong>Hurricane recovery and cleanup</strong><p>After a named storm, the County pays for debris removal and repairs up front. FEMA may reimburse up to 75% of eligible costs, including the 5% insurance deductible on each damaged building and repairs to uninsured facilities, but that money often takes a year or more to arrive.</p></div></div>
 <h2>Tourist Development Fund</h2>
 ${reserveStats(tdTarget, Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects), 'Funded')}
 ${reserveTable(tdRows, tdTarget, { fundedFor: (label, amount) => amount, ending: Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects) })}

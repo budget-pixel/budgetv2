@@ -1,13 +1,14 @@
 (function () {
   "use strict";
 
-  // Frozen copy of the published capital project sheet (snapshot taken
-  // 2026-11-06), served with the site like assets/static-data/budget.json,
-  // so pages no longer download the live Google Sheet on every visit and a
-  // later edit to that sheet can't change the published budget. Re-export
-  // the sheet to this file to update it.
+  // Capital projects load live from the published Google Sheet, so sheet
+  // edits (project numbers, descriptions, amounts) appear on the site without
+  // a code change. The copy in static-data/cip-projects.csv is only a fallback
+  // used when the sheet can't be reached.
   const CIP_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || window.location.href;
-  const CAPITAL_PROJECTS_CSV_URL = new URL("static-data/cip-projects.csv?v=bfc371a604", new URL("./", CIP_SCRIPT_SRC)).href;
+  const CAPITAL_PROJECTS_LIVE_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc6KHhTwcdREn_SvLONy_cucXH8NxF45hgdyn8IoFGSeTbIVKtDGMMWsbgSFpMizxtxy_fE-pAMmiu/pub?gid=1388930304&single=true&output=csv";
+  const CAPITAL_PROJECTS_CSV_URL = new URL("static-data/cip-projects.csv?v=f346b16cb4", new URL("./", CIP_SCRIPT_SRC)).href;
   const FISCAL_YEARS = ["FY2027", "FY2028", "FY2029", "FY2030", "FY2031"];
   // Completed/historical years the sheet also carries dollar columns for
   // (see the "Capital Improvement Plan" tab's FY2022-FY2026 Proposed
@@ -890,7 +891,7 @@
   // scratch with no retry, and a slow/failed request fell straight through
   // to the placeholder project list below with no way to recover once the
   // network hiccup passed.
-  const CIP_FETCH_CACHE_TTL_MS = 5 * 60 * 1000;
+  const CIP_FETCH_CACHE_TTL_MS = 60 * 1000;
 
   function cipFetchCacheKey(url) {
     return "wcFetchCache:" + url;
@@ -914,7 +915,7 @@
   }
 
   function fetchTextOnce(url) {
-    return fetch(url).then((response) => {
+    return fetch(url, { cache: "no-store" }).then((response) => {
       if (!response.ok) {
         throw new Error("Capital projects sheet request failed with status " + response.status);
       }
@@ -942,7 +943,11 @@
   }
 
   function fetchCapitalProjects() {
-    return fetchCapitalProjectsText(CAPITAL_PROJECTS_CSV_URL)
+    return fetchCapitalProjectsText(CAPITAL_PROJECTS_LIVE_URL)
+      .catch((error) => {
+        console.warn("Walton CIP: live sheet unavailable, using the saved copy", error);
+        return fetchCapitalProjectsText(CAPITAL_PROJECTS_CSV_URL);
+      })
       .then(parseCSV)
       .then(normalizeCapitalProjects)
       .then((projects) => {

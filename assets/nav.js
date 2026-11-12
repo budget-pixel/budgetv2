@@ -265,7 +265,7 @@
       function(){
         loadWcScriptOnce(
           "wc-budget-search-script",
-          wcBudgetAssetBaseUrl + "search.js?v=32633e7d8c",
+          wcBudgetAssetBaseUrl + "search.js?v=2fd26d1cb3",
           function(){
             var fallbackSlot = document.querySelector(".wc-nav-search-slot-fallback");
             if(fallbackSlot && fallbackSlot.parentNode){
@@ -2075,7 +2075,7 @@
       if(document.getElementById("wc-cip-projects-loader")) return;
       var script = document.createElement("script");
       script.id = "wc-cip-projects-loader";
-      script.src = wcBudgetAssetBaseUrl + "cip-projects-data.js?v=38bf771faf";
+      script.src = wcBudgetAssetBaseUrl + "cip-projects-data.js?v=252bf6f2f0";
       script.onload = function(){
         Promise.resolve(window.wcCipProjectsReady).then(function(){ if(input.value) renderDropdown(input.value); });
       };

@@ -30,7 +30,9 @@ for (const entry of fs.readdirSync(path.join(root, 'output/pdf'), { withFileType
   }
 }
 // Only CIP may use an external spreadsheet connection. Publication and import downloads stay local.
-const cipFile = path.join(root, 'assets/cip-projects-data.js');
+// The capital projects sheet is the one live data source; the minified
+// build carries the same URL.
+const cipFiles = new Set([path.join(root, 'assets/cip-projects-data.js'), path.join(root, 'assets/cip-projects-data.min.js')]);
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   if (/^(?:<{7}(?:\s|$)|={7}\s*$|>{7}(?:\s|$))/m.test(source)) {
@@ -41,7 +43,7 @@ for (const file of files) {
   }
   const sheetUrls = [...source.matchAll(/https?:\/\/(?:docs|sheets)\.google\.com\/spreadsheets[^\s"'<>]*/g)];
   for (const match of sheetUrls) {
-    if (file !== cipFile || new URL(match[0]).searchParams.get('gid') !== '1388930304') {
+    if (!cipFiles.has(file) || new URL(match[0]).searchParams.get('gid') !== '1388930304') {
       failures.push(path.relative(root, file) + ': External spreadsheet connection outside CIP');
     }
   }
