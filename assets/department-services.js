@@ -1570,10 +1570,10 @@
       var head='<thead><tr><th scope="col">Measure</th>'+yearColumns.map(function(item){return '<th scope="col" class="wc-num">'+escapeHtml(item[0])+'</th>';}).join('')+'<th scope="col" class="wc-num is-target">FY27 Target</th></tr></thead>';
       var body=rows.map(function(row){
         var target=row.Projected_2027!==''&&row.Projected_2027!=null?row.Projected_2027:'';
-        return '<tr'+(row.ContextNote?' class="has-note"':'')+'><th scope="row">'+escapeHtml(row.Measure||'Performance measure')+'</th>'+
+        return '<tr><th scope="row">'+escapeHtml(row.Measure||'Performance measure')+'</th>'+
           yearColumns.map(function(item){return '<td class="wc-num">'+cell(row[item[1]])+'</td>';}).join('')+
           '<td class="wc-num is-target">'+cell(target)+'</td></tr>'+
-          (row.ContextNote?'<tr class="wc-dept-measure-note-row"><td colspan="'+(yearColumns.length+2)+'"><p class="wc-performance-note">'+escapeHtml(row.ContextNote)+'</p></td></tr>':'');
+          '';
       }).join('');
       return '<div class="wc-dept-measure-table-scroll" tabindex="0" role="region" aria-label="Performance measures"><table class="wc-dept-measure-table">'+head+'<tbody>'+body+'</tbody></table></div>';
     }

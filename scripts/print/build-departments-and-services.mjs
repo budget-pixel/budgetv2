@@ -463,7 +463,7 @@ const DEPARTMENTS = [
     ]
   },
   {
-    name: "Office of Management and Budget", fte: 9, personnel: 1017276, operating: 57750, contractual: 0, capital: 0,
+    name: "Office of Management and Budget", fte: 7, personnel: 1017276, operating: 57750, contractual: 0, capital: 0,
     deltaP: -24682, deltaO: -275000, deltaC: -150000, video: null, fund: "General Fund",
     sof: "The Office of Management and Budget (OMB) provides comprehensive financial and administrative support to the Board of County Commissioners, overseeing all authorized funds, preparing and monitoring the annual operating and capital budget, overseeing grant budgets and reporting, and maintaining the inventory of capital assets.",
     goal: "Maintain Walton County's financial stability and integrity through effective planning, compliance, transparency, and innovation in budget management.",

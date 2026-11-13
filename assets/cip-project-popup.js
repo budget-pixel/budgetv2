@@ -57,6 +57,13 @@
   }
 
   function openModal(href, label, trigger) {
+    // Phones open the project page itself instead of a popup.
+    if (window.top === window.self && window.matchMedia("(max-width: 760px)").matches) {
+      var page = new URL(href, window.location.href);
+      page.searchParams.delete("embed");
+      window.location.href = page.href;
+      return;
+    }
     var m = ensureModal();
     var url = new URL(href, window.location.href);
     url.searchParams.set("embed", "project-popup");

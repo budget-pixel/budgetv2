@@ -309,7 +309,7 @@ const html = `<!doctype html>
             <i class="stat-page">p. ${newPage(31)}</i>
           </div>
           <div class="stat">
-            <b>667</b>
+            <b>665</b>
             <span>Board Department Positions <em>+12</em></span>
             <i class="stat-page">p. ${newPage(105)}</i>
           </div>
@@ -340,7 +340,7 @@ const html = `<!doctype html>
     </div>
 
     <h2>Investing in Our Workforce</h2>
-    <p>The budget includes 1,515 positions, a net increase of 15: 667 Board department positions (up 12) and 848 positions assigned to constitutional officers and the County-funded court position (up 3). Countywide, 1,508 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The added positions support existing services.</p>
+    <p>The budget includes 1,513 positions, a net increase of 15: 665 Board department positions (up 12) and 848 positions assigned to constitutional officers and the County-funded court position (up 3). Countywide, 1,506 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The added positions support existing services.</p>
 
     <h2>Continuity, Capital Investment and Preparedness</h2>
     <p><strong>Service continuity.</strong> The FY 2027 budget maintains current core services while investing in infrastructure and preserving financial flexibility.</p>

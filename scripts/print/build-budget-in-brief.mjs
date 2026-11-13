@@ -357,7 +357,7 @@ const html = `<!doctype html>
     <div class="stat-strip">
       <div class="stat-card"><b>$345.2M</b><span>Net Expenditure Budget</span></div>
       <div class="stat-card"><b>3.2500</b><span>County Millage Rate</span></div>
-      <div class="stat-card"><b>667</b><span>Board Department FTE</span></div>
+      <div class="stat-card"><b>665</b><span>Board Department FTE</span></div>
       <div class="stat-card"><b>848</b><span>Constitutional Officers and Court Position</span></div>
     </div>
 

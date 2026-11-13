@@ -25,3 +25,7 @@ output/**
 !output/pdf/
 !/output/pdf/walton-county-fy2027-budget-book.pdf
 !/output/pdf/walton-county-fy2027-budget-in-brief.pdf
+
+# GFOA award reference forms (local only)
+/GFOA budget award critera.pdf
+/Budget-Criteria-Guide-Form*.pdf

@@ -199,10 +199,10 @@
     function cell(value) { return value ? escapeHtml(value) : '<span class="wc-dept-measure-empty" aria-label="Not reported">&mdash;</span>'; }
     var head = '<thead><tr><th scope="col">Measure</th><th scope="col" class="wc-num">2022</th><th scope="col" class="wc-num">2023</th><th scope="col" class="wc-num">2024</th><th scope="col" class="wc-num">2025</th><th scope="col" class="wc-num is-target">FY27 Target</th></tr></thead>';
     var body = rows.map(function (row) {
-      return '<tr' + (row[8] ? ' class="has-note"' : '') + '><th scope="row">' + escapeHtml(row[1]) + '</th>' +
+      return '<tr><th scope="row">' + escapeHtml(row[1]) + '</th>' +
         [row[2], row[3], row[4], row[5]].map(function (value) { return '<td class="wc-num">' + cell(value) + '</td>'; }).join("") +
         '<td class="wc-num is-target">' + cell(row[7]) + '</td></tr>' +
-        (row[8] ? '<tr class="wc-dept-measure-note-row"><td colspan="6"><p class="wc-performance-note">' + escapeHtml(row[8]) + '</p></td></tr>' : '');
+        '';
     }).join("");
     return '<div class="wc-dept-measure-table-scroll" tabindex="0" role="region" aria-label="Performance measures"><table class="wc-dept-measure-table" data-trend-kind="steady">' + head + '<tbody>' + body + '</tbody></table></div>';
   }
@@ -379,6 +379,20 @@
 
   // Adds a Trend column (first reported year to 2025) and marks a FY27
   // target that differs from 2025.
+  // Each value cell carries its column name so phones can show a measure as
+  // a small card ("2025: 6,136") instead of a squeezed table row.
+  function labelMeasureCells(table) {
+    var headRow = table.tHead && table.tHead.rows[0];
+    if (!headRow) return;
+    var labels = Array.prototype.map.call(headRow.cells, function (cell) { return cell.textContent.trim(); });
+    Array.prototype.forEach.call(table.tBodies[0] ? table.tBodies[0].rows : [], function (row) {
+      if (row.cells.length !== labels.length) return;
+      Array.prototype.forEach.call(row.cells, function (cell, index) {
+        if (index > 0) cell.setAttribute("data-label", labels[index]);
+      });
+    });
+  }
+
   function enhanceMeasureTable(table) {
     if (table.dataset.betaTrend) return;
     table.dataset.betaTrend = "1";
@@ -963,6 +977,26 @@
         staffingTitle.replaceWith(staffingLedger.querySelector("h2"));
       } else if (staffingTitle) staffingTitle.remove();
       staffing.appendChild(staffingLedger);
+      // Phones: the two ledger toggles sit to the right of the director
+      // name instead of on their own rows above the table.
+      var staffingDirector = staffing.querySelector(":scope > .wc-profile-snapshot-director");
+      var staffingToggles = staffingLedger.querySelector(".wc-staffing-notes-title-row-toggles");
+      if (staffingDirector && staffingToggles && window.matchMedia("(max-width: 760px)").matches) {
+        var staffingTopRow = document.createElement("div");
+        staffingTopRow.className = "wc-staffing-top-row";
+        var staffingTopLeft = document.createElement("div");
+        staffingTopLeft.className = "wc-staffing-top-left";
+        staffingDirector.before(staffingTopRow);
+        staffingTopRow.appendChild(staffingTopLeft);
+        staffingTopLeft.appendChild(staffingDirector);
+        // The Personnel Ledger heading moves up beside the toggles too, so
+        // the table starts right under them.
+        var staffingHeading = staffingLedger.querySelector(".wc-dept-beta-personnel-header > h2");
+        var staffingHeadingRow = staffingHeading && staffingHeading.parentElement;
+        if (staffingHeading) staffingTopLeft.appendChild(staffingHeading);
+        staffingTopRow.appendChild(staffingToggles);
+        if (staffingHeadingRow && !staffingHeadingRow.children.length) staffingHeadingRow.remove();
+      }
     } else if (positionCard && !officeSnapshots.length) {
       staffing.appendChild(positionCard);
     } else if (!officeSnapshots.length) {
@@ -1052,14 +1086,14 @@
       measureList.querySelectorAll(".wc-dept-service-head > h3").forEach(function (title) {
         retag(title, "h2").classList.add("wc-profile-section-title");
       });
-      measureList.querySelectorAll("table.wc-dept-measure-table").forEach(enhanceMeasureTable);
+      measureList.querySelectorAll("table.wc-dept-measure-table").forEach(function (table) { enhanceMeasureTable(table); labelMeasureCells(table); });
       services.appendChild(measureList);
     }
     if (officeServiceBlocks.length) {
       var officeServiceList = measureList || document.createElement("div");
       officeServiceList.classList.add("wc-dept-service-measure-list");
       officeServiceBlocks.forEach(function (block) {
-        block.querySelectorAll("table.wc-dept-measure-table").forEach(enhanceMeasureTable);
+        block.querySelectorAll("table.wc-dept-measure-table").forEach(function (table) { enhanceMeasureTable(table); labelMeasureCells(table); });
         officeServiceList.appendChild(block);
       });
       if (officeServiceList.querySelector("table.wc-dept-measure-table")) {

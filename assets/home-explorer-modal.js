@@ -290,6 +290,7 @@
   });
 
   function lockBackgroundPage() {
+    if (isMobilePages()) return;
     if (savedBodyStyles) return;
     backgroundElements = Array.from(document.body.children).filter(function(el){
       return el !== modal && el !== departmentModal && !el.inert && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName);
@@ -1147,7 +1148,20 @@
     label.textContent = section || "Budget";
   }
 
+  // Phones get plain pages instead of popups (same rule as nav.js).
+  function isMobilePages() {
+    try { return window.top === window.self && window.matchMedia("(max-width: 760px)").matches; }
+    catch (error) { return false; }
+  }
+
+  function goToPage(href) {
+    var target = new URL(href, window.location.href);
+    target.searchParams.delete("embed");
+    window.location.href = target.href;
+  }
+
   function openDepartmentModal(href, title, trigger, returnTo) {
+    if (isMobilePages()) { goToPage(href); return; }
     // A native modal <dialog> (e.g. a Revenue explorer source popup) sits in
     // the browser's top layer and makes everything beneath it inert, so a
     // page popup opened from a link inside it would be unreachable. Close
@@ -1299,6 +1313,10 @@
   // footer page (Glossary & FAQ, Accessibility, ...) is showing, go back to
   // the explorer it was opened from instead of closing the whole popup.
   function dismissModal() {
+    if (isMobilePages() && modal && !modal.hidden) {
+      window.location.href = window.location.pathname;
+      return;
+    }
     if (modal && !modal.hidden && modal.classList.contains("is-utility-page") && EXPLORERS[activeExplorerType]) {
       openModal(activeExplorerType, activeCard);
       return;
@@ -1350,6 +1368,8 @@
     modalTitle.textContent = config.title;
     modal.querySelector(".wc-home-explorer-modal-close").setAttribute("aria-label", "Close explorer");
     modal.hidden = false;
+    document.documentElement.classList.toggle("wc-mobile-explorer-view", isMobilePages());
+    if (isMobilePages()) window.scrollTo(0, 0);
     lockBackgroundPage();
     // The panel now sizes to its own content instead of always filling the
     // viewport, so content scrolls inside modalBody rather than the outer
@@ -1362,7 +1382,7 @@
       var playPromise = playBackgroundVideo(explorerWave);
       if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
     }
-    modal.querySelector(".wc-home-explorer-modal-close").focus();
+    if (!isMobilePages()) modal.querySelector(".wc-home-explorer-modal-close").focus();
     // Open small and grow -- the same deliberate reveal the department/
     // org-chart/GFOA-award popups use (see popupRevealDelay()), so every
     // popup in the explorer reads as one consistent motion instead of the
@@ -1476,6 +1496,7 @@
         accessibility: { href: "pages/accessibility.html", title: "Accessibility Statement" },
         privacy: { href: "pages/privacy.html", title: "Privacy Statement" }
       }[action];
+      if (pageAction && isMobilePages()) { goToPage(pageAction.href); return; }
       if (pageAction) {
         var utilityUrl = new URL(pageAction.href, window.location.href);
         utilityUrl.searchParams.set("embed", "utility-popup");
@@ -1547,6 +1568,7 @@
     document.querySelectorAll("[data-home-explorer]").forEach(function (card) {
       card.addEventListener("click", function (event) {
         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (isMobilePages()) return;
         event.preventDefault();
         openModal(card.dataset.homeExplorer, card);
       });

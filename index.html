@@ -1597,7 +1597,7 @@
     .wc-budget-landing-panel{height:100%;max-height:none;border:0;border-radius:0}
     .wc-budget-landing-dialog.is-visible .wc-budget-landing-panel{border-radius:0}
     .wc-budget-landing-close{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:44px;height:44px}
-    .wc-start-content{margin-bottom:max(32px,env(safe-area-inset-bottom));padding-top:110px;padding-bottom:16px}
+    .wc-start-content{align-self:center;margin-top:0;margin-bottom:0;padding-top:76px;padding-bottom:0}
     .wc-home-start{min-height:48px}
   }
   @media(max-width:700px) and (max-height:500px){
@@ -1701,6 +1701,23 @@
       else window.addEventListener('load', scheduleBackground, {once:true});
     }
     function initBudgetLandingDialog(){
+      // Phones skip the landing popup: Begin is a plain link to the explorer
+      // page, and old ?popup= / ?explorer= links go straight to their page.
+      if(window.matchMedia("(max-width: 760px)").matches){
+        try{
+          var mobileParams = new URLSearchParams(window.location.search);
+          var mobilePopup = mobileParams.get("popup");
+          if(mobilePopup){
+            var mobileTarget = new URL(mobilePopup, window.location.href);
+            if(mobileTarget.origin === window.location.origin){ mobileTarget.searchParams.delete("embed"); window.location.replace(mobileTarget.href); return; }
+          }
+          if(mobileParams.has("explorer")){
+            window.location.replace("budget-explorer.html?explorer=" + encodeURIComponent(mobileParams.get("explorer")));
+            return;
+          }
+        }catch(error){}
+        return;
+      }
       var trigger = document.querySelector(".wc-home-start");
       var dialog = document.querySelector("[data-budget-landing-dialog]");
       var frame = document.querySelector("[data-budget-landing-frame]");

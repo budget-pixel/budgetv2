@@ -218,6 +218,16 @@ const page1 = `
       <p>Each policy summarized on the following page has been formally adopted by the Board and is administered by the Office of Management and Budget. Full policy documents are available from Walton County at co.walton.fl.us.</p>
     </div>
 
+    <div class="policy-note">
+      <h3>Balanced Budget</h3>
+      <p>Walton County follows the State of Florida&rsquo;s definition in Section 129.01(2)(b), Florida Statutes: the budget must be balanced, meaning the total of estimated receipts available from taxation and other sources, including balances brought forward from prior fiscal years, must equal the total of appropriations for expenditures and reserves.</p>
+    </div>
+
+    <div class="policy-note">
+      <h3>Basis of Budgeting</h3>
+      <p>The County budgets its governmental funds on the modified accrual basis, the same basis of accounting used in its audited financial statements. Revenues are recognized when they are measurable and available, and expenditures when the related liability is incurred. Because the budget and the audited statements use the same basis, no conversion between them is needed. Unspent appropriations lapse at the end of the fiscal year.</p>
+    </div>
+
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
 `;

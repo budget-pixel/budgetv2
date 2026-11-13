@@ -1,4 +1,12 @@
 (function(){
+  // Phones get plain pages: no popup shell, no framed popups, no Info
+  // Popups. Every script checks this same rule.
+  window.WCMobilePages = (function(){try{return window.top===window.self&&window.matchMedia('(max-width: 760px)').matches;}catch(e){return false;}})();
+  if(window.WCMobilePages){
+    document.documentElement.classList.add("wc-mobile-pages");
+    // Detail pages carry their own seal and title, so phones drop the site bar there.
+    if(/\/pages\/[^/]+\.html$/i.test(window.location.pathname)) document.documentElement.classList.add("wc-mobile-detail-page");
+  }
   window.WCPlayBackgroundVideo = function(video){
     if(window.matchMedia('(max-width:700px), (prefers-reduced-motion:reduce)').matches || navigator.connection?.saveData) return Promise.resolve();
     var source = video.querySelector('source[data-src]');
@@ -44,6 +52,7 @@
   // requests remain intact.
   (function redirectStandalonePopupPage(){
     if(window.top !== window.self) return;
+    if(window.WCMobilePages) return;
     // Pages marked <meta name="wc-standalone"> are meant to be linked from
     // outside the budget site (e.g. the County website) and open on their own.
     if(document.querySelector('meta[name="wc-standalone"]')) return;
@@ -193,7 +202,7 @@
       mobileStylesheet.id = mobileStylesheetId;
       mobileStylesheet.rel = "stylesheet";
     }
-    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=6f9a6bfe2d";
+    mobileStylesheet.href = wcBudgetAssetBaseUrl + "mobile.css?v=dd92b2afbc";
     document.head.appendChild(mobileStylesheet);
   }
   function loadWcScriptOnce(scriptId, src, onload){
@@ -2468,6 +2477,7 @@
       // over the homepage inside the frame.
       link.addEventListener('click',function(event){
         if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey) return;
+        if(window.WCMobilePages) return;
         var hostsHomePopups = isEmbeddedPage && window.WCHomeExplorer && typeof window.WCHomeExplorer.openDepartmentModal === 'function';
         if(isEmbeddedPage && !hostsHomePopups) return;
         // Footer pages open as Info Popups where the budget scripts are

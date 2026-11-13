@@ -4158,6 +4158,7 @@
 
   let budgetDetailBackgroundElements = [];
   function lockBudgetDetailBackgroundScroll() {
+    if (isMobilePages()) return;
     if (budgetDetailScrollLock) return;
     budgetDetailBackgroundElements = Array.from(document.body.children).filter(el => !el.inert && !el.classList.contains('wc-budget-detail-modal') && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName));
     budgetDetailBackgroundElements.forEach(el => { el.inert = true; });
@@ -4195,6 +4196,94 @@
     document.body.style.overflow = budgetDetailScrollLock.bodyOverflow;
     budgetDetailScrollLock = null;
     window.scrollTo(0, scrollY);
+  }
+
+  // Phones get plain pages instead of popups (same rule as nav.js).
+  function isMobilePages() {
+    try { return window.top === window.self && window.matchMedia("(max-width: 760px)").matches; }
+    catch (error) { return false; }
+  }
+
+  function goToPage(href) {
+    const target = new URL(href, window.location.href);
+    target.searchParams.delete("embed");
+    window.location.href = target.href;
+  }
+
+  // The block an inline panel should follow: climb out of tables, inline
+  // text, and side-by-side rows so the panel gets the full page width.
+  function inlinePanelAnchor(trigger) {
+    if (!trigger || !trigger.isConnected) return null;
+    let anchor = trigger;
+    for (let el = trigger; el && el.parentElement && el !== document.body; el = el.parentElement) {
+      anchor = el;
+      const parentDisplay = getComputedStyle(el.parentElement).display;
+      const ownDisplay = getComputedStyle(el).display;
+      if (el.closest("table")) continue;
+      if (/^inline/.test(ownDisplay)) continue;
+      if (parentDisplay === "block" || parentDisplay === "flow-root" || parentDisplay === "list-item") break;
+    }
+    return anchor;
+  }
+
+  // On phones, a popup shell (or <dialog>) opens as its own page view: it
+  // replaces the page content, starts at the top, and the phone's Back
+  // returns to the same spot on the page underneath.
+  let mobilePagePanel = null;
+  let mobilePageScrollY = 0;
+  let mobilePagePopping = false;
+  function openPanelAsPage(panel) {
+    if (!mobilePagePanel) mobilePageScrollY = window.scrollY || 0;
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    panel.classList.add("wc-mobile-page-panel");
+    if (panel.parentElement !== document.body || document.body.firstElementChild !== panel) document.body.prepend(panel);
+    mobilePagePanel = panel;
+    document.documentElement.classList.add("wc-mobile-panel-page");
+    if (!(history.state && history.state.wcPanelPage)) history.pushState({ wcPanelPage: true }, "", window.location.href);
+    requestAnimationFrame(() => window.scrollTo(0, 0));
+  }
+  function endPanelPage() {
+    if (!mobilePagePanel) return;
+    mobilePagePanel.classList.remove("wc-mobile-page-panel");
+    mobilePagePanel = null;
+    document.documentElement.classList.remove("wc-mobile-panel-page");
+    const restoreY = mobilePageScrollY;
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, restoreY)));
+    if (!mobilePagePopping && history.state && history.state.wcPanelPage) {
+      mobilePagePopping = true;
+      history.back();
+    }
+  }
+  window.addEventListener("popstate", () => {
+    if (mobilePagePopping) { mobilePagePopping = false; return; }
+    if (!mobilePagePanel) return;
+    const panel = mobilePagePanel;
+    mobilePagePopping = true;
+    if (panel.tagName === "DIALOG") panel.close();
+    else closeBudgetDetailModal();
+    endPanelPage();
+    mobilePagePopping = false;
+  });
+
+  function placePanelInline(panel, trigger) {
+    if (!isMobilePages()) return false;
+    panel.classList.add("is-inline");
+    // Pages also open these shells in code while they build (e.g. to copy a
+    // ledger into a tab); only a real tap turns the panel into a page view.
+    const userTap = !navigator.userActivation || navigator.userActivation.isActive;
+    if (!userTap) return true;
+    openPanelAsPage(panel);
+    return true;
+  }
+
+  function showDialogForDevice(dialog, trigger) {
+    if (placePanelInline(dialog, trigger)) {
+      if (!dialog.open) dialog.show();
+      dialog.addEventListener("close", endPanelPage, { once: true });
+      return;
+    }
+    document.documentElement.classList.add("wc-modal-open");
+    dialog.showModal();
   }
 
   function ensureBudgetDetailModal() {
@@ -4239,7 +4328,6 @@
       list.appendChild(heading);
       table.querySelectorAll('tbody tr').forEach((row) => {
         if (row.hidden || row.classList.contains('wc-budget-line-zero-current') || row.classList.contains('wc-budget-line-summary-row')) return;
-        if (row.classList.contains('wc-budget-line-zero-prior-budget') && body.dataset.priorYearsDisabled !== 'true') return;
         const amount = row.querySelector('td.wc-fy-2027');
         const description = row.querySelector('.wc-itemized-description-column');
         if (!amount || !description) return;
@@ -4376,6 +4464,7 @@
     }
     modal.querySelectorAll(".wc-budget-detail-header-toggle, .wc-budget-detail-header-action").forEach((el) => el.remove());
     modal.hidden = true;
+    if (mobilePagePanel === modal) endPanelPage();
     modal.classList.remove("is-open");
     document.body.classList.remove("wc-budget-detail-open");
     unlockBudgetDetailBackgroundScroll();
@@ -4465,6 +4554,7 @@
     mountPriorYearsToggleInHeader(modal, body);
     activeBudgetDetailToggle = toggle;
     toggle.setAttribute("aria-expanded", "true");
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, activeBudgetDetailToggle);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -4529,6 +4619,7 @@
     mountPriorYearsToggleInHeader(modal, body);
     activeBudgetDetailToggle = toggle || null;
     if (toggle) toggle.setAttribute("aria-expanded", "true");
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, activeBudgetDetailToggle);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -4631,6 +4722,7 @@
         '</ul>';
     }
     activeBudgetDetailToggle = card;
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, activeBudgetDetailToggle);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -4664,6 +4756,7 @@
       if (record && title && record["Asset Desc."]) title.textContent = record["Asset Desc."];
     });
     activeBudgetDetailToggle = link;
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, activeBudgetDetailToggle);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -4737,6 +4830,7 @@
   }
 
   function openTransactionPopup(href, trigger) {
+    if (isMobilePages()) { goToPage(href); return; }
     const popup = ensureTransactionPopup();
     const url = new URL(href, window.location.href);
     url.searchParams.set("embed", "project-popup");
@@ -4805,6 +4899,7 @@
       }
     }
     activeBudgetDetailToggle = opts.trigger || null;
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, activeBudgetDetailToggle);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -4818,6 +4913,7 @@
   // chromeless (?embed=info-popup) in a frame sized to its content, so its
   // own scripts (tabs, tables, charts) keep working.
   function openInfoPopupPage(href, title, kicker, trigger) {
+    if (isMobilePages()) { goToPage(href); return; }
     const url = new URL(href, window.location.href);
     url.searchParams.set("embed", "info-popup");
     openInfoDialog({
@@ -5084,6 +5180,7 @@
       body.className = "wc-budget-detail-body wc-forecast-fund-modal-body";
       body.innerHTML = template.innerHTML;
     }
+    if (modal.classList.contains("wc-budget-detail-modal")) placePanelInline(modal, button);
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add("is-open"));
     document.body.classList.add("wc-budget-detail-open");
@@ -5304,8 +5401,7 @@
       frame.setAttribute("src", new URL((window.location.pathname.includes("/pages/") ? "" : "pages/") + "summary-of-property-tax-allocations.html?embed=calculator", window.location.href).href);
     }
     dialog._trigger = trigger || null;
-    document.documentElement.classList.add("wc-modal-open");
-    dialog.showModal();
+    showDialogForDevice(dialog, trigger);
   }
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-property-tax-calculator-open]");
@@ -12265,8 +12361,7 @@
       propertyTaxSupportOpen.addEventListener("click", () => {
         const frame = propertyTaxSupportDialog.querySelector("iframe[data-src]");
         if (frame && !frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src);
-        document.documentElement.classList.add("wc-modal-open");
-        propertyTaxSupportDialog.showModal();
+        showDialogForDevice(propertyTaxSupportDialog, propertyTaxSupportOpen);
       });
       if (propertyTaxSupportClose) propertyTaxSupportClose.addEventListener("click", () => propertyTaxSupportDialog.close());
       propertyTaxSupportDialog.addEventListener("close", () => {
@@ -12698,6 +12793,42 @@
           document.documentElement.classList.remove("wc-modal-open");
           if (explorerDialogBody) explorerDialogBody.innerHTML = "";
         };
+        // Phones: a revenue source opens as its own page view (the list is
+        // hidden, the address gets ?source=, and Back returns to the list)
+        // instead of a dialog over the list.
+        const explorerDialogClose = concentrationContainer.querySelector("[data-revenue-explorer-dialog-close]");
+        let revenueSourceScrollY = 0;
+        const revenueSourceHost = () => concentrationContainer.closest(".wc-home-explorer-modal-body") || concentrationContainer.closest("main") || document.body;
+        const isRevenueSourcePageView = () => document.documentElement.classList.contains("wc-revenue-source-page-view");
+        const showRevenueSourcePage = (slug) => {
+          revenueSourceScrollY = window.scrollY || 0;
+          const host = revenueSourceHost();
+          host.classList.add("wc-revenue-source-host");
+          host.prepend(explorerDialog);
+          explorerDialog.classList.add("is-page");
+          document.documentElement.classList.add("wc-revenue-source-page-view");
+          if (explorerDialogClose) { explorerDialogClose.textContent = "\u2190 Back"; explorerDialogClose.setAttribute("aria-label", "Back to revenue sources"); }
+          if (!explorerDialog.open) explorerDialog.show();
+          const url = new URL(window.location.href);
+          if (url.searchParams.get("source") !== slug) {
+            url.searchParams.set("source", slug);
+            history.pushState({ wcRevenueSource: slug }, "", url.href);
+          }
+          window.scrollTo(0, 0);
+        };
+        const hideRevenueSourcePage = () => {
+          document.documentElement.classList.remove("wc-revenue-source-page-view");
+          explorerDialog.classList.remove("is-page");
+          if (explorerDialogClose) { explorerDialogClose.innerHTML = "&times;"; explorerDialogClose.setAttribute("aria-label", "Close"); }
+          closeExplorerDialog();
+          concentrationContainer.appendChild(explorerDialog);
+          const url = new URL(window.location.href);
+          if (url.searchParams.has("source")) { url.searchParams.delete("source"); history.replaceState(history.state, "", url.href); }
+          const restoreY = revenueSourceScrollY;
+          requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, restoreY)));
+        };
+        if (isMobilePages() && "scrollRestoration" in history) history.scrollRestoration = "manual";
+        window.addEventListener("popstate", () => { if (isRevenueSourcePageView()) hideRevenueSourcePage(); });
         concentrationContainer.addEventListener("click", (event) => {
           const sourceCard = event.target.closest(".wc-revenue-snapshot [data-revenue-explorer-target]");
           if (!sourceCard || !explorerDialog || !explorerDialogBody) return;
@@ -12716,8 +12847,8 @@
             matches: (row) => sourceRows.includes(row)
           };
           if (explorerDialogTitle) explorerDialogTitle.textContent = source.name;
-          document.documentElement.classList.add("wc-modal-open");
-          explorerDialog.showModal();
+          if (isMobilePages()) showRevenueSourcePage(target);
+          else showDialogForDevice(explorerDialog, sourceCard);
           if (explorerDialogWave) {
             explorerDialogWave.defaultPlaybackRate = 0.25;
             explorerDialogWave.playbackRate = 0.25;
@@ -12729,7 +12860,18 @@
           bindTooltipAnchors(explorerDialogBody);
           window.setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
         });
-        concentrationContainer.querySelector("[data-revenue-explorer-dialog-close]").addEventListener("click", closeExplorerDialog);
+        explorerDialogClose.addEventListener("click", () => {
+          if (!isRevenueSourcePageView()) { closeExplorerDialog(); return; }
+          if (history.state && history.state.wcRevenueSource) history.back();
+          else hideRevenueSourcePage();
+        });
+        // A phone link with ?source= opens straight to that source.
+        const requestedSource = new URLSearchParams(window.location.search).get("source");
+        if (requestedSource && isMobilePages()) {
+          const requestedCard = Array.from(concentrationContainer.querySelectorAll(".wc-revenue-snapshot [data-revenue-explorer-target]"))
+            .find((card) => card.dataset.revenueExplorerTarget === requestedSource);
+          if (requestedCard) requestedCard.click();
+        }
         explorerDialog.addEventListener("close", () => {
           if (explorerDialogWave) {
             explorerDialogWave.pause();
@@ -18750,15 +18892,21 @@
         return '<a href="' + escapeHtml(href) + '" data-department-key="' + escapeHtml(dept.key) + '" data-dept-info-card>' + cardBodyHtml + '</a>';
       }).join("");
 
-      const ledgerChange = ledgerCurrent - ledgerPrior;
+      // Headline matches the explorer: personnel and operating only, with
+      // capital in its own card (the table keeps its Capital column).
+      const ledgerOperating = ledgerCurrent - totalCapital;
+      const ledgerPriorOperating = ledgerPrior - totalPriorCapital;
+      const ledgerChange = ledgerOperating - ledgerPriorOperating;
       const ledgerChangeSign = ledgerChange > 0 ? "+" : ledgerChange < 0 ? "−" : "";
+      const ledgerChangePct = ledgerPriorOperating ? ledgerChange / Math.abs(ledgerPriorOperating) * 100 : null;
       const ledgerFte = departments.reduce((sum, dept) => sum + (staffingByDept.get(dept.key) || 0), 0);
       const departmentLedgerSummaryHtml = departments.length
         ? '<div class="wc-personnel-dept-summary wc-dept-beta-figures">' +
-          '<div><span>FY 2027 final budget</span><b>' + formatCurrency(ledgerCurrent) + '</b><small>' +
-          (departmentLedgerSelectedFund || departmentLedgerSelectedDepartment ? 'Matching the selected filters' : 'All listed Board departments') + '</small></div>' +
+          '<div><span>FY 2027 operating budget</span><b>' + formatCurrency(ledgerOperating) + '</b><small>' +
+          (departmentLedgerSelectedFund || departmentLedgerSelectedDepartment ? 'Matching the selected filters; capital shown separately' : 'Personnel and operating; capital shown separately') + '</small></div>' +
           '<div><span>Change from FY 2026</span><b' + (ledgerChange < 0 ? ' class="is-decrease"' : '') + '>' +
-          ledgerChangeSign + formatCurrency(Math.abs(ledgerChange)) + '</b><small>FY 2026 budget: ' + formatCurrency(ledgerPrior) + '</small></div>' +
+          ledgerChangeSign + formatCurrency(Math.abs(ledgerChange)) + '</b><small>' + (ledgerChangePct === null ? 'No FY 2026 base' : (ledgerChangePct >= 0 ? '+' : '−') + Math.abs(ledgerChangePct).toFixed(1) + '% from ' + formatCurrency(ledgerPriorOperating)) + '</small></div>' +
+          '<div><span>Capital</span><b>' + formatCurrency(totalCapital) + '</b><small>Total with capital: ' + formatCurrency(ledgerCurrent) + '</small></div>' +
           '<div><span>Budgeted positions</span><b>' + formatNumber(ledgerFte) + ' FTE</b><small>FY 2027 full-time equivalents</small></div></div>'
         : "";
       const departmentLedgerFiltersHtml = isLedgerOnly
@@ -18972,6 +19120,7 @@
           const index = Number(officeButton.getAttribute("data-office-index"));
           const parent = deptInfoData.get(key);
           const office = parent && parent.officeInfos && parent.officeInfos[index];
+          if (office && isMobilePages()) { goToPage(pageLinkBase + office.href); return; }
           if (office && !office.info) {
             // No budget lines of its own to summarize: open its page.
             closeBudgetDetailModal();
@@ -19000,6 +19149,9 @@
         if (!card || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         const cardKey = card.getAttribute("data-department-key");
         const cardInfo = deptInfoData.get(cardKey);
+        // Phones: a single-office card opens its page; multi-office cards
+        // list their offices inline under the card.
+        if (isMobilePages() && !(cardInfo && cardInfo.officeInfos)) return;
         if (!(cardInfo && cardInfo.officeInfos ? openDeptOfficePicker(cardKey, card) : openDeptInfoPopup(cardKey, card))) return;
         event.preventDefault();
         event.stopPropagation();

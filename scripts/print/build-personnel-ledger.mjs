@@ -32,7 +32,7 @@ const PERSONNEL_LEDGER_QR = await QRCode.toDataURL(PERSONNEL_LEDGER_URL, {
 });
 
 const STATS = [
-  ["1,515", "Total FY 2027 Positions"],
+  ["1,513", "Total FY 2027 Positions"],
   ["+15", "Net Change in Position Equivalents"],
   ["$164.2M", "Total FY 2027 Personnel Cost"],
   ["+5.4%", "Net Percent Change"]
@@ -61,7 +61,7 @@ const BOARD = [
   ["Emergency Management", "General Fund", "5.5", "6", "+0.5", "$661,251", "$704,526", "+$43,275"],
   ["Engineering Department", "Transportation Fund", "17", "15", "−2", "$2,263,438", "$2,177,918", "−$85,520"],
   ["Environmental Services", "Multiple Funds", "42", "42", "0", "$3,666,506", "$3,651,064", "−$15,442"],
-  ["Office of Management and Budget", "General Fund", "9", "9", "0", "$1,041,958", "$1,017,276", "−$24,682"],
+  ["Office of Management and Budget", "General Fund", "7", "7", "0", "$1,041,958", "$1,017,276", "−$24,682"],
   ["Office of the County Attorney", "General Fund", "10", "9", "−1", "$1,241,475", "$1,118,514", "−$122,961"],
   ["Parks & Recreation", "General Fund", "24.5", "24", "−0.5", "$1,826,237", "$1,879,813", "+$53,576"],
   ["Planning", "General Fund", "45", "47", "+2", "$4,614,044", "$4,945,497", "+$331,453"],
@@ -69,7 +69,7 @@ const BOARD = [
   ["Purchasing", "General Fund", "10", "10", "0", "$888,295", "$888,999", "+$704"],
   ["Tourism Administration", "Tourism Fund", "22", "22", "0", "$2,395,702", "$2,419,413", "+$23,711"]
 ];
-const BOARD_TOTAL = ["Total", "", "655", "667", "+12", "$56,902,515", "$59,801,103", "+$2,898,588"];
+const BOARD_TOTAL = ["Total", "", "653", "665", "+12", "$56,902,515", "$59,801,103", "+$2,898,588"];
 
 function row(cells, cls) {
   const isDown = cells[7].trim().startsWith("−") || cells[7].trim().startsWith("-");
@@ -307,7 +307,7 @@ const html = `<!doctype html>
       ${row(BOARD_TOTAL, "grand")}
     </div>
 
-    <p class="footnote">The 1,515 authorized positions include seven part-time slots. Comparisons use budgeted position equivalents, rather than filled headcount or hours-adjusted FTE. Personnel cost includes salaries, wages, retirement, insurance, and other benefits. Office rollups follow the Department Operating Ledger; “Multiple Funds” identifies departments supported by more than one fund.</p>
+    <p class="footnote">The 1,513 authorized positions include seven part-time slots. Comparisons use budgeted position equivalents, rather than filled headcount or hours-adjusted FTE. Personnel cost includes salaries, wages, retirement, insurance, and other benefits. Office rollups follow the Department Operating Ledger; “Multiple Funds” identifies departments supported by more than one fund.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
