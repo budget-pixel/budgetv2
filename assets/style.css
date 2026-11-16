@@ -6137,6 +6137,11 @@ button.wc-personnel-explainer-link{font-family:inherit;line-height:inherit}
    (budget-data.js openInfoPopupPage, ?embed=info-popup). */
 .wc-budget-detail-modal:has(.wc-info-page-popup) .wc-budget-detail-card{width:min(1120px,calc(100vw - 32px))}
 .wc-info-page-popup{padding-top:0}
+.wc-budget-detail-modal:has(.wc-overview-info-popup) .wc-budget-detail-card{
+  display:flex;flex-direction:column;max-height:calc(100dvh - 48px);
+}
+.wc-budget-detail-modal:has(.wc-overview-info-popup) .wc-budget-detail-header{flex-shrink:0}
+.wc-budget-detail-body.wc-overview-info-popup{min-height:0;max-height:none}
 .wc-info-page-frame{display:block;width:100%;height:360px;border:0;background:transparent}
 html.wc-embedded-info,html.wc-embedded-info body{background:transparent!important;min-height:0!important;height:auto!important}
 html.wc-embedded-info #content{width:100%;max-width:none;margin:0;padding:0 0 8px}

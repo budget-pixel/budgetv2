@@ -4925,7 +4925,7 @@
       html: '<iframe class="wc-info-page-frame" allowfullscreen title="' + escapeHtml(title || "") + '" src="' + escapeHtml(url.href) + '"></iframe>',
       trigger,
       seal: true,
-      bodyClass: "wc-info-page-popup"
+      bodyClass: "wc-info-page-popup" + (/\/overview-of-walton-county\.html$/i.test(url.pathname) ? " wc-overview-info-popup" : "")
     });
     const frame = document.querySelector(".wc-info-page-frame");
     if (!frame) return;
@@ -10539,6 +10539,8 @@
         "engineering services": "engineering-department.html",
         "housing and urban development": "housing-and-urban-development.html",
         "probation services": "probation.html",
+        "planning short term rental": "planning.html",
+        "code compliance beach": "code-compliance.html",
         "building construction and maintenance": "building-construction-and-maintenance.html",
         "mosquito control state aid": "mosquito-control.html",
         "office of management and budget": "office-of-management-and-budget.html"
