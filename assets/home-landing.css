@@ -243,7 +243,7 @@ body.wc-home-explorer-open .wc-budget-detail-modal{z-index:21000}
    short page (Public Defender, State Attorney, etc.) from sitting inside a
    tall panel with empty space below its footer; max-height still caps any
    page at the viewport so a tall one behaves exactly as before. */
-.wc-home-department-modal-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:calc(100vh - 36px);height:calc(100dvh - 36px);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;margin:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34);box-sizing:border-box;transition:height .22s ease}
+.wc-home-department-modal-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:calc(100vh - 36px);height:calc(100dvh - 36px);max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;margin:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:var(--light);box-shadow:0 28px 80px rgba(0,27,17,.34);box-sizing:border-box;transition:height .32s cubic-bezier(.4,0,.2,1)}
 .wc-home-department-modal.is-loading .wc-home-department-modal-panel{transition:none}
 @media(prefers-reduced-motion:reduce){.wc-home-department-modal-panel{transition:none}}
 .wc-home-department-modal.is-loading .wc-home-department-modal-panel::after{content:"Loading budget page…";position:absolute;inset:62px 0 0;display:grid;place-items:center;background:var(--light);color:var(--green);font-size:.8rem;font-weight:800;letter-spacing:.04em}
@@ -485,6 +485,13 @@ html.wc-embedded-budget-landing .wc-explorer-home{overflow:visible}
 /* Popups opened from a landing card: same header geometry as the landing popup (height, padding, search + close position) */
 html.wc-embedded-budget-landing .wc-home-explorer-modal,
 html.wc-embedded-budget-landing .wc-home-department-modal{padding:19px}
+@media(prefers-reduced-motion:no-preference){
+  html.wc-embedded-budget-landing .wc-home-explorer-modal:not([hidden])>.wc-home-explorer-modal-panel{animation:wc-explorer-panel-enter .22s cubic-bezier(.22,1,.36,1)}
+  @keyframes wc-explorer-panel-enter{
+    from{opacity:0;translate:0 6px}
+    to{opacity:1;translate:0 0}
+  }
+}
 html.wc-embedded-budget-landing .wc-home-explorer-modal-head,
 html.wc-embedded-budget-landing .wc-home-department-modal-head{box-sizing:border-box;min-height:76px;padding:0 24px}
 @media(min-width:1000px){

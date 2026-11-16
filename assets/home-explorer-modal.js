@@ -47,6 +47,7 @@
   var departmentPanelResizeObserver = null;
   var departmentModalOpenedAt = 0;
   var explorerModalOpenedAt = 0;
+  var explorerPanelResize = null;
   var explorerUtilityPanelResizeObserver = null;
   // How long the popup stays at its small opening size before it's allowed
   // to grow -- deliberate, so the reveal reads as a consistent flourish
@@ -1328,6 +1329,7 @@
 
   function closeModal() {
     if (!modal || modal.hidden) return;
+    if (explorerPanelResize) explorerPanelResize.cancel();
     closeDepartmentModal();
     modal.hidden = true;
     modal.classList.remove("is-utility-page");
@@ -1355,14 +1357,15 @@
   function openModal(type, card) {
     var config = EXPLORERS[type];
     if (!config) return;
+    if (explorerPanelResize) explorerPanelResize.cancel();
     activeCard = card;
     activeExplorerType = type;
     modal.classList.remove("is-utility-page");
     // The Capital Budget explorer has its own project search under its
     // intro, so its header doesn't also show the general budget search.
     modal.classList.toggle("is-capital-explorer", type === "capital");
-    var panelToUnsize = modal.querySelector(".wc-home-explorer-modal-panel");
-    if (panelToUnsize) panelToUnsize.style.height = "";
+    var panel = modal.querySelector(".wc-home-explorer-modal-panel");
+    if (panel) panel.style.height = "";
     if (explorerUtilityPanelResizeObserver) {
       explorerUtilityPanelResizeObserver.disconnect();
       explorerUtilityPanelResizeObserver = null;
@@ -1395,8 +1398,19 @@
     var openedAt = explorerModalOpenedAt;
     renderExplorer(type);
     window.setTimeout(function () {
-      if (modal.hidden || explorerModalOpenedAt !== openedAt) return;
-      window.requestAnimationFrame(function () { modal.classList.remove("is-loading"); });
+      window.requestAnimationFrame(function () {
+        if (modal.hidden || explorerModalOpenedAt !== openedAt) return;
+        var animateResize = panel && panel.animate && popupRevealDelay() && !modal.classList.contains("is-utility-page");
+        var startHeight = animateResize ? getComputedStyle(panel).height : "";
+        modal.classList.remove("is-loading");
+        if (!animateResize) return;
+        var endHeight = getComputedStyle(panel).height;
+        if (startHeight === endHeight) return;
+        explorerPanelResize = panel.animate(
+          [{ height: startHeight }, { height: endHeight }],
+          { duration: 320, easing: "cubic-bezier(.4,0,.2,1)" }
+        );
+      });
     }, popupRevealDelay());
   }
 
@@ -1502,6 +1516,7 @@
       if (pageAction) {
         var utilityUrl = new URL(pageAction.href, window.location.href);
         utilityUrl.searchParams.set("embed", "utility-popup");
+        if (explorerPanelResize) explorerPanelResize.cancel();
         modal.classList.add("is-utility-page");
         modalTitle.textContent = pageAction.title;
         // Reset to auto/unsized before the new page loads -- otherwise this

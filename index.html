@@ -1554,8 +1554,9 @@
   .wc-budget-landing-dialog.is-visible .wc-budget-landing-wave,.wc-budget-landing-dialog.is-visible .wc-budget-landing-shade,.wc-budget-landing-dialog.is-visible .wc-budget-landing-panel{opacity:1}
   .wc-budget-landing-dialog.is-settling .wc-budget-landing-panel{transition:opacity .2s ease,height .6s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
-  .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;max-height:none;border:0;border-radius:0;box-shadow:none}
+  .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;max-height:none;border:0;border-radius:0;box-shadow:none;background:#0b2a20;transition:opacity .2s ease}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
+  .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-frame{background:#0b2a20}
   .wc-budget-landing-close{position:absolute;top:16px;right:24px;z-index:10;display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid var(--border,#e0e8e4);border-radius:50%;background:#f5f8f6;color:var(--navy,#172033);font:inherit;font-size:1.45rem;line-height:1;cursor:pointer}
   .wc-budget-landing-close:hover{background:#eaf3ed}
   .wc-budget-landing-close:focus-visible{outline:3px solid rgba(121,185,154,.58);outline-offset:2px}
@@ -1722,8 +1723,6 @@
       var panel = dialog ? dialog.querySelector(".wc-budget-landing-panel") : null;
       var quickMotion = window.matchMedia("(max-width:700px), (prefers-reduced-motion:reduce)").matches;
       var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
-      var previewLoading = new URLSearchParams(window.location.search).has("preview-loading");
-      var loadingPreviewTimer = null;
       if(!trigger || !dialog || !frame || !panel) return;
       var fitObserver = null;
       var phoneQuery = window.matchMedia("(max-width:700px)");
@@ -1752,7 +1751,7 @@
       var settleTimer = 0;
       var frameLoaded = false;
       function fitPanelHeight(instant){
-        if(dialog.hidden || !frameLoaded || loadingPreviewTimer !== null) return;
+        if(dialog.hidden || !frameLoaded) return;
         var doc = null;
         try{ doc = frame.contentDocument; }catch(error){}
         if(phoneQuery.matches || dialog.classList.contains("is-inner-popup-open") || !doc || !doc.body){
@@ -1813,8 +1812,6 @@
       }
       function closeDialog(){
         if(dialog.hidden || dialog.classList.contains("is-closing")) return;
-        window.clearTimeout(loadingPreviewTimer);
-        loadingPreviewTimer = null;
         dialog.classList.remove("is-visible");
         dialog.classList.add("is-closing");
         if(motionQuery && motionQuery.matches) finishClose();
@@ -1857,8 +1854,7 @@
         else window.addEventListener("load", preload, { once: true });
       }
       function revealFrame(){
-        if(!frameLoaded || loadingPreviewTimer !== null ||
-          dialog.hidden || dialog.classList.contains("is-closing")) return;
+        if(!frameLoaded || dialog.hidden || dialog.classList.contains("is-closing")) return;
         fitPanelHeight();
         dialog.classList.remove("is-loading");
         frame.focus();
@@ -1868,13 +1864,7 @@
         if(!dialog.hidden) return;
         dialog.hidden = false;
         document.querySelector('.wc-start-page').inert = true;
-        dialog.classList.toggle("is-loading", previewLoading || !frameLoaded);
-        if(previewLoading){
-          loadingPreviewTimer = window.setTimeout(function(){
-            loadingPreviewTimer = null;
-            revealFrame();
-          }, 5000);
-        }
+        dialog.classList.toggle("is-loading", !frameLoaded);
         document.documentElement.classList.add("wc-budget-landing-open");
         document.body.classList.add("wc-budget-landing-open");
         if(frameLoaded) fitPanelHeight(true);
@@ -1916,19 +1906,16 @@
             }
           }, true);
           function syncInnerPopupState(){
-            // Only explorer/detail overlays need the outer landing frame
-            // collapsed. Utility dialogs (Transaction Search,
-            // Accessibility, and Privacy) use wc-modal-open but already
-            // size themselves within the landing panel; treating them as
-            // explorers makes the first click stretch the page full-width.
+            // Explorer popups need the entire frame before their panel is painted.
             var popupOpen = embeddedDocument.documentElement.classList.contains("wc-home-explorer-open") ||
               embeddedDocument.body.classList.contains("wc-home-explorer-open");
+            var popupChanged = popupOpen !== dialog.classList.contains("is-inner-popup-open");
             dialog.classList.toggle("is-inner-popup-open", popupOpen);
             // An Info Popup opened straight from the landing page blurs the
             // landing inside the frame; blur the wave video and close button
             // out here too so the whole background reads as one layer.
             dialog.classList.toggle("is-inner-detail-open", !popupOpen && embeddedDocument.body.classList.contains("wc-budget-detail-open"));
-            fitPanelHeight();
+            fitPanelHeight(popupChanged);
           }
           syncInnerPopupState();
           new MutationObserver(syncInnerPopupState).observe(embeddedDocument.documentElement, { attributes:true, subtree:true, attributeFilter:["class"] });
