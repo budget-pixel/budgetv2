@@ -293,6 +293,8 @@
     if (isMobilePages()) return;
     if (savedBodyStyles) return;
     backgroundElements = Array.from(document.body.children).filter(function(el){
+      // The Explorer can reopen a cached budget detail popup above itself.
+      if (el.hidden && el.classList.contains("wc-budget-detail-modal")) return false;
       return el !== modal && el !== departmentModal && !el.inert && !/^(SCRIPT|STYLE|LINK)$/.test(el.tagName);
     });
     backgroundElements.forEach(function(el){ el.inert = true; });
