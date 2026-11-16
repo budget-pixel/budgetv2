@@ -15894,11 +15894,20 @@
             const abs = Math.abs(value);
             return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
           };
-          const retirementChange = retirementTotal - retirementPriorTotal;
           const drivers = [
             ['3%', 'Cost-of-Living Adjustment', 'Board department salaries and wages are adjusted for this year&rsquo;s COLA across every budgeted position.', driverAmount(totalCola) + ' estimated salary and wage impact this year.'],
-            ['5%', 'Health Premium Planning Scenario', 'A hypothetical active-employee premium increase for planning, not an additional adopted cost.', driverAmount(healthInsuranceIncrease) + ' under the 5% scenario; not added to the adopted increase.'],
-            ['FRS', 'Retirement Rate Changes', 'The State sets FRS contribution rates each year, which can raise or lower retirement cost per position regardless of staffing.', Math.abs(retirementChangePct).toFixed(1) + '% (' + driverAmount(Math.abs(retirementChange)) + ' estimated ' + (retirementChange >= 0 ? 'increase' : 'decrease') + ') this year.']
+            ['5%', 'Health Premium Planning Scenario', 'A hypothetical active-employee premium increase for planning, not an additional adopted cost.', driverAmount(healthInsuranceIncrease) + ' under the 5% scenario.'],
+            ['FRS', 'Retirement Rate Changes', 'The State sets FRS contribution rates each year, which can raise or lower retirement cost per position regardless of staffing.']
+          ];
+          const frsEmployerRates = [
+            ['Regular Class', '15.65%', '8.30%'],
+            ['Special Risk Class', '39.80%', '16.00%'],
+            ['Special Risk Administrative Support Class', '43.85%', '9.95%'],
+            ['Senior Management Service Class', '34.66%', '9.67%'],
+            ['Elected Officers — County and local officers', '57.06%', '13.34%'],
+            ['Elected Officers — Justices and judges', '48.06%', '15.23%'],
+            ['Elected Officers — Legislators, governor, lieutenant governor, cabinet officers, state attorneys and public defenders', '65.85%', '11.38%'],
+            ['Deferred Retirement Option Program (DROP)', '24.12%', 'N/A']
           ];
           const maxFunctionFte = functionRows.reduce((max, item) => Math.max(max, item[1]), 0);
           const faqs = [
@@ -15918,7 +15927,12 @@
                 '<tr><td>1 employee, 20 hrs/week</td><td>0.5 FTE</td></tr>' +
               '</tbody></table></div></section>' +
             '<section><h3>What personnel cost includes</h3><p>Personnel cost is more than salaries. Every budgeted position carries five categories of cost, and the totals on this card include all five.</p><ol class="wc-personnel-explainer-parts">' + costParts.map((part) => '<li><strong>' + part[0] + '</strong><span>' + part[1] + '</span></li>').join("") + '</ol></section>' +
-            '<section><h3>What drives cost up or down</h3><p>Even with no change in staffing, personnel cost moves every year because of countywide pay and benefit adjustments.</p><div class="wc-personnel-explainer-drivers">' + drivers.map((d) => '<article><b>' + d[0] + '</b><strong>' + d[1] + '</strong><span>' + d[2] + '</span><em>' + escapeHtml(d[3]) + '</em></article>').join("") + '</div></section>' +
+            '<section><h3>What drives cost up or down</h3><p>Even with no change in staffing, personnel cost moves every year because of countywide pay and benefit adjustments.</p><div class="wc-personnel-explainer-drivers">' + drivers.map((d) => '<article><b>' + d[0] + '</b><strong>' + d[1] + '</strong><span>' + d[2] + '</span>' + (d[3] ? '<em>' + escapeHtml(d[3]) + '</em>' : '') + '</article>').join("") + '</div></section>' +
+            '<section class="wc-personnel-explainer-frs"><h3 id="wc-personnel-frs-heading">FRS employer contribution rates</h3>' +
+              '<p>Effective July 1, 2026. The Pension Employer Rate column shows the total rate the employer pays under either plan. The Investment Employer Rate column shows the share of gross pay the employer deposits into the employee&rsquo;s Investment Plan account. DROP is a Pension Plan program.</p>' +
+              '<table aria-labelledby="wc-personnel-frs-heading"><thead><tr><th scope="col">Membership class</th><th scope="col">Pension Employer Rate</th><th scope="col">Investment Employer Rate</th></tr></thead><tbody>' +
+              frsEmployerRates.map(([label, rate, deposit]) => '<tr><th scope="row">' + escapeHtml(label) + '</th><td>' + rate + '</td><td>' + deposit + '</td></tr>').join("") +
+              '</tbody></table><p><a href="https://www.dms.myflorida.com/workforce_operations/retirement/employers/contribution_rates">Florida Division of Retirement contribution rates</a> · <a href="https://www.myfrs.com/FRSPro_ComparePlan_Contri.htm">MyFRS plan comparison</a></p></section>' +
             '<div class="wc-personnel-explainer-change">' + personnelCostChangeExplanationHtml() + '</div>' +
             (functionRows.length ? '<section><h3>Staff by functional area</h3><div class="wc-personnel-explainer-bars">' + functionRows.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b><i><em style="width:' + (maxFunctionFte ? (item[1] / maxFunctionFte * 100).toFixed(1) : 0) + '%"></em></i></div>').join("") + '</div></section>' : '') +
             '<section><h3>Good to know</h3><dl class="wc-personnel-explainer-faq">' + faqs.map((f) => '<dt>' + f[0] + '</dt><dd>' + f[1] + '</dd>').join("") + '</dl></section>' +

@@ -6054,6 +6054,14 @@ button.wc-personnel-explainer-link{font-family:inherit;line-height:inherit}
 .wc-personnel-explainer-fte td{padding:8px 12px;border-top:1px solid var(--border);color:var(--text)}
 .wc-personnel-explainer-fte tr:first-child td{border-top:0}
 .wc-personnel-explainer-fte td+td{color:var(--green);font-weight:800;text-align:right;white-space:nowrap}
+.wc-personnel-explainer-frs table{width:100%;border-collapse:collapse;border:1px solid var(--border);background:var(--light);font-size:var(--fs-row)}
+.wc-personnel-explainer-frs th,.wc-personnel-explainer-frs td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.wc-personnel-explainer-frs thead th{background:#eaf3ed;color:var(--navy)}
+.wc-personnel-explainer-frs tbody th{font-weight:500}
+.wc-personnel-explainer-frs thead th:not(:first-child),.wc-personnel-explainer-frs td{text-align:right}
+.wc-personnel-explainer-frs td{color:var(--green);font-weight:800}
+.wc-personnel-explainer-frs table+p{margin-top:8px;font-size:var(--fs-row)}
+@media(max-width:480px){.wc-personnel-explainer-frs th,.wc-personnel-explainer-frs td{padding:6px}}
 .wc-personnel-explainer-drivers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .wc-personnel-explainer-drivers article{padding:14px;border:1px solid var(--border);border-radius:var(--radius-inner);background:#fff}
 .wc-personnel-explainer-drivers b{display:block;color:var(--green);font-size:var(--fs-card-title);font-weight:800}
