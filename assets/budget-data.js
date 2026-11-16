@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=40c823f468";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=143dbde113";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -2240,6 +2240,9 @@
       // authoritative, department-confirmed signal instead.
       .filter((row) => String(row.Contract_Status || "").trim() !== "")
       .filter((row) => !CONTRACTUAL_SERVICES_EXCLUDED_DEPTS.has(normalizeDeptName(row.Dept_Name)))
+      .filter((row) => !(
+        normalizeDeptName(row.Dept_Name) === "planning short term rental" && normalizeDeptName(row.Vendor) === "govos"
+      ))
       .filter((row) => !AGENCY_FUNDING_NOTES.has(String(row.Note || "").trim()))
       .filter((row) => String(row.Project_Code || "").trim() !== ZEHNDER_PROJECT_CODE)
       .filter((row) => normalizeDeptName(row.Dept_Name) !== ENGINEERING_SERVICES_DEPT_NAME)
@@ -15113,8 +15116,6 @@
 
     container.innerHTML =
       '<section class="wc-contract-ledger-section">' +
-      "<h2>Department Services</h2>" +
-      '<p class="wc-contract-ledger-section-note">Contracted operating services procured by Board departments -- professional services, maintenance, technology, and similar agreements.</p>' +
       '<div id="wcContractualServicesDeptLedger"></div>' +
       "</section>";
 

@@ -109,8 +109,7 @@ const OFFICES = [
       { service: "Employee Benefits Consultant", provider: "The Gehring Group", amount: 95000 },
       { service: "State Lobbyist (75/25 split with Tourist Fund)", provider: "Heffley &amp; Associates, Inc.", amount: 66000 },
       { service: "Federal Lobbyist (50/50 split with Tourist Fund)", provider: "Not yet awarded", amount: 48000 },
-      { service: "County Website, ADA Compliance &amp; Archive Services", provider: "CivicPlus", amount: 50000 },
-      { service: "Commissioner &amp; Board Agenda Management Software", provider: "iCompass", amount: 30000 },
+      { service: "County Website, ADA Compliance &amp; Archive Services", provider: "CivicPlus", amount: 80000 },
       { service: "Financial Advisor Services for Debt Issuance", provider: "PFM Financial Advisors LLC", amount: 10000 },
       { service: "Cost Allocation Service Study", provider: "Maximus US Services, Inc", amount: 11100 },
       { service: "OPEB/GASB 75 Valuation", provider: "McGriff Insurance Services", amount: 8000 }
