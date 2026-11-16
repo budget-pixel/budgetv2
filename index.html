@@ -1549,25 +1549,10 @@
   .wc-budget-landing-dialog[hidden]{display:none}
   .wc-budget-landing-wave{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.72) saturate(.9);opacity:0;pointer-events:none;transition:opacity .62s ease}
   .wc-budget-landing-shade{position:absolute;z-index:1;inset:0;background:rgba(3,38,28,.22);opacity:0;pointer-events:none;transition:opacity .62s ease}
-  .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.34);transform:translate(var(--wc-open-x,0),var(--wc-open-y,0)) scale(var(--wc-open-scale-x,1),var(--wc-open-scale-y,1));transform-origin:center;opacity:.7;transition:box-shadow .7s ease,height .22s ease;will-change:transform}
+  .wc-budget-landing-panel{position:relative;z-index:2;display:flex;width:min(1500px,100%);height:100%;max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);min-height:0;flex-direction:column;overflow:hidden;border:1px solid rgba(0,63,40,.16);border-radius:22px;background:#f4f8f5;box-shadow:0 28px 80px rgba(0,27,17,.34);opacity:0;transition:opacity .2s ease,height .22s ease}
   .wc-budget-landing-dialog.is-visible{background-color:#0b2a20}
-  .wc-budget-landing-dialog.is-visible .wc-budget-landing-wave,.wc-budget-landing-dialog.is-visible .wc-budget-landing-shade{opacity:1}
-  .wc-budget-landing-dialog.is-visible .wc-budget-landing-panel{transform:translate(0,0) scale(1);border-radius:22px;opacity:1}
-  .wc-budget-landing-dialog.is-opening .wc-budget-landing-panel,.wc-budget-landing-dialog.is-closing .wc-budget-landing-panel{border-radius:999px;box-shadow:0 12px 34px rgba(0,27,17,.2)}
-  .wc-budget-landing-dialog.is-visible.is-opening .wc-budget-landing-panel{border-radius:22px;box-shadow:0 28px 80px rgba(0,27,17,.34)}
-  .wc-budget-landing-frame,.wc-budget-landing-close{opacity:0;transition:opacity .3s ease .28s}
-  .wc-budget-landing-dialog.is-visible .wc-budget-landing-frame,.wc-budget-landing-dialog.is-visible .wc-budget-landing-close{opacity:1}
-  .wc-budget-landing-dialog.is-closing .wc-budget-landing-frame,.wc-budget-landing-dialog.is-closing .wc-budget-landing-close{opacity:0;transition-delay:0s}
-  /* A slower, more deliberate reveal than the shared base transitions
-     above (which also govern the close, and should stay snappy there) --
-     scoped to .is-opening only, so closing is untouched. Durations are
-     picked to land together: the panel's own WAAPI transform animation
-     (see openDialog) now runs 600ms, so these settle at or just before
-     that finishes rather than visibly trailing it. */
-  .wc-budget-landing-dialog.is-opening{transition:background-color .6s cubic-bezier(.22,1,.36,1)}
-  .wc-budget-landing-dialog.is-opening .wc-budget-landing-wave,.wc-budget-landing-dialog.is-opening .wc-budget-landing-shade{transition:opacity .55s ease}
-  .wc-budget-landing-dialog.is-opening .wc-budget-landing-frame,.wc-budget-landing-dialog.is-opening .wc-budget-landing-close{transition:opacity .3s ease .3s}
-  .wc-budget-landing-dialog.is-settling .wc-budget-landing-panel{transition:box-shadow .7s ease,height .6s cubic-bezier(.22,1,.36,1)}
+  .wc-budget-landing-dialog.is-visible .wc-budget-landing-wave,.wc-budget-landing-dialog.is-visible .wc-budget-landing-shade,.wc-budget-landing-dialog.is-visible .wc-budget-landing-panel{opacity:1}
+  .wc-budget-landing-dialog.is-settling .wc-budget-landing-panel{transition:opacity .2s ease,height .6s cubic-bezier(.22,1,.36,1)}
   .wc-budget-landing-dialog.is-inner-popup-open{padding:0}
   .wc-budget-landing-dialog.is-inner-popup-open .wc-budget-landing-panel{width:100%;max-height:none;border:0;border-radius:0;box-shadow:none}
   .wc-budget-landing-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#f4f8f5}
@@ -1578,7 +1563,14 @@
   .wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-wave,.wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-close{filter:blur(8px)}
   .wc-budget-landing-dialog.is-inner-detail-open .wc-budget-landing-close{pointer-events:none}
   .wc-budget-landing-dialog.is-loading .wc-budget-landing-frame{visibility:hidden}
-  .wc-budget-landing-dialog.is-loading .wc-budget-landing-panel::after{content:"Loading Budget Explorer…";position:absolute;inset:0;display:grid;place-items:center;background:#f4f8f5;color:#006231;font-size:.82rem;font-weight:800;letter-spacing:.04em}
+  .wc-budget-landing-loader{display:none;position:absolute;inset:0;padding:24px;place-content:center;justify-items:center;gap:14px;text-align:center;color:#003f28;background:radial-gradient(ellipse at center,#fff 0%,#f4f8f5 72%)}
+  .wc-budget-landing-dialog.is-loading .wc-budget-landing-loader{display:grid}
+  .wc-budget-landing-loader-title{font:500 clamp(28px,4vw,42px)/1.15 Georgia,"Times New Roman",serif}
+  .wc-budget-landing-loader-message{color:#465d54;font-size:14px}
+  .wc-budget-landing-loader-track{width:min(180px,60vw);height:4px;margin-top:8px;border-radius:999px;overflow:hidden;background:#dbe8df}
+  .wc-budget-landing-loader-track::after{content:"";display:block;width:40%;height:100%;border-radius:inherit;background:#006231;animation:wc-budget-loading 1.25s ease-in-out infinite alternate}
+  @keyframes wc-budget-loading{to{transform:translateX(150%)}}
+  @media(prefers-reduced-motion:reduce){.wc-budget-landing-loader-track::after{animation:none;transform:translateX(75%)}}
   @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-dialog,.wc-budget-landing-panel,.wc-budget-landing-shade,.wc-budget-landing-frame,.wc-budget-landing-close{transition:none!important}}
   @media(max-width:700px){
     .wc-start-header{padding:18px}
@@ -1634,6 +1626,11 @@
   <div class="wc-budget-landing-shade" aria-hidden="true"></div>
   <section class="wc-budget-landing-panel">
     <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
+    <div class="wc-budget-landing-loader" role="status">
+      <span class="wc-budget-landing-loader-title">FY 2027 Budget Explorer</span>
+      <span class="wc-budget-landing-loader-message">Loading the Walton County budget…</span>
+      <span class="wc-budget-landing-loader-track" aria-hidden="true"></span>
+    </div>
     <iframe class="wc-budget-landing-frame" data-budget-landing-frame data-src="budget-explorer.html?embed=landing" aria-label="Walton County Budget Explorer"></iframe>
   </section>
 </div>
@@ -1724,11 +1721,9 @@
       var wave = dialog ? dialog.querySelector(".wc-budget-landing-wave") : null;
       var panel = dialog ? dialog.querySelector(".wc-budget-landing-panel") : null;
       var quickMotion = window.matchMedia("(max-width:700px), (prefers-reduced-motion:reduce)").matches;
-      var minimumRevealMs = quickMotion ? 0 : 400;
-      var openedAt = 0;
       var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
-      var animationTimer = 0;
-      var sharedAnimation = null;
+      var previewLoading = new URLSearchParams(window.location.search).has("preview-loading");
+      var loadingPreviewTimer = null;
       if(!trigger || !dialog || !frame || !panel) return;
       var fitObserver = null;
       var phoneQuery = window.matchMedia("(max-width:700px)");
@@ -1754,21 +1749,10 @@
         });
         return Math.ceil(total);
       }
-      // The fitted height is remembered per window size so the next opening
-      // grows straight to it instead of growing to full height and then
-      // shrinking once the explorer loads.
-      function savedHeightKey(){ return "wcLandingPanelHeight:" + window.innerWidth + "x" + window.innerHeight; }
-      function readSavedHeight(){
-        try{ var value = parseInt(window.localStorage.getItem(savedHeightKey()), 10); return value > 0 ? value : 0; }catch(error){ return 0; }
-      }
       var settleTimer = 0;
       var frameLoaded = false;
       function fitPanelHeight(instant){
-        if(dialog.hidden) return;
-        // Never resize while the opening animation runs -- its scale was
-        // measured from the starting size, so a mid-flight change jerks the
-        // panel. The timer that ends .is-opening calls this again.
-        if(dialog.classList.contains("is-opening") && instant !== true) return;
+        if(dialog.hidden || !frameLoaded || loadingPreviewTimer !== null) return;
         var doc = null;
         try{ doc = frame.contentDocument; }catch(error){}
         if(phoneQuery.matches || dialog.classList.contains("is-inner-popup-open") || !doc || !doc.body){
@@ -1776,8 +1760,9 @@
           return;
         }
         var border = panel.offsetHeight - panel.clientHeight;
-        var height = Math.min(naturalFrameHeight(doc) + border, window.innerHeight - 36);
-        if(!height) return;
+        var contentHeight = naturalFrameHeight(doc);
+        if(contentHeight <= 0) return;
+        var height = Math.min(contentHeight + border, window.innerHeight - 36);
         var next = height + "px";
         if(instant === true){
           setPanelHeightInstantly(next);
@@ -1789,7 +1774,6 @@
           settleTimer = window.setTimeout(function(){ dialog.classList.remove("is-settling"); }, 650);
         }
         if(instant !== true) panel.style.height = next;
-        try{ window.localStorage.setItem(savedHeightKey(), String(height)); }catch(error){}
       }
       function setPanelHeightInstantly(value){
         panel.style.transition = "none";
@@ -1812,32 +1796,9 @@
       }
       window.addEventListener("resize", fitPanelHeight);
       var closeButton = dialog.querySelector('.wc-budget-landing-close');
-      function setSharedElementOrigin(){
-        var triggerRect = trigger.getBoundingClientRect();
-        var panelRect = panel.getBoundingClientRect();
-        if(!panelRect.width || !panelRect.height) return "none";
-        var x = triggerRect.left + triggerRect.width / 2 - panelRect.left - panelRect.width / 2;
-        var y = triggerRect.top + triggerRect.height / 2 - panelRect.top - panelRect.height / 2;
-        var scaleX = Math.max(.04, triggerRect.width / panelRect.width);
-        var scaleY = Math.max(.04, triggerRect.height / panelRect.height);
-        panel.style.setProperty("--wc-open-x", x + "px");
-        panel.style.setProperty("--wc-open-y", y + "px");
-        panel.style.setProperty("--wc-open-scale-x", scaleX);
-        panel.style.setProperty("--wc-open-scale-y", scaleY);
-        // Commit the button-sized state before the visible class supplies
-        // the expanded state; without this read, some browsers may combine
-        // both updates into one paint and skip the shared-element motion.
-        void panel.offsetWidth;
-        return "translate(" + x + "px," + y + "px) scale(" + scaleX + "," + scaleY + ")";
-      }
       function finishClose(){
         dialog.hidden = true;
-        dialog.classList.remove("is-visible","is-opening","is-closing");
-        if(sharedAnimation){ sharedAnimation.cancel(); sharedAnimation = null; }
-        panel.style.removeProperty("--wc-open-x");
-        panel.style.removeProperty("--wc-open-y");
-        panel.style.removeProperty("--wc-open-scale-x");
-        panel.style.removeProperty("--wc-open-scale-y");
+        dialog.classList.remove("is-closing","is-loading");
         document.querySelector('.wc-start-page').inert = false;
         document.documentElement.classList.remove('wc-budget-landing-open');
         document.body.classList.remove('wc-budget-landing-open');
@@ -1852,19 +1813,12 @@
       }
       function closeDialog(){
         if(dialog.hidden || dialog.classList.contains("is-closing")) return;
-        window.clearTimeout(animationTimer);
-        var closingTransform = setSharedElementOrigin();
-        dialog.classList.remove("is-opening","is-visible");
+        window.clearTimeout(loadingPreviewTimer);
+        loadingPreviewTimer = null;
+        dialog.classList.remove("is-visible");
         dialog.classList.add("is-closing");
         if(motionQuery && motionQuery.matches) finishClose();
-        else {
-          if(sharedAnimation) sharedAnimation.cancel();
-          sharedAnimation = panel.animate([
-            {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1},
-            {transform:closingTransform,borderRadius:"999px",opacity:.7}
-          ],{duration:quickMotion ? 160 : 680,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
-          animationTimer = window.setTimeout(finishClose, quickMotion ? 180 : 720);
-        }
+        else window.setTimeout(finishClose, 220);
       }
       // A footer link inside the embedded homepage (Glossary & FAQ,
       // Accessibility, ...) loads its page into this same frame in place of
@@ -1902,45 +1856,34 @@
         if(document.readyState === "complete") preload();
         else window.addEventListener("load", preload, { once: true });
       }
+      function revealFrame(){
+        if(!frameLoaded || loadingPreviewTimer !== null ||
+          dialog.hidden || dialog.classList.contains("is-closing")) return;
+        fitPanelHeight();
+        dialog.classList.remove("is-loading");
+        frame.focus();
+      }
       function openDialog(event){
         if(event) event.preventDefault();
-        window.clearTimeout(animationTimer);
+        if(!dialog.hidden) return;
         dialog.hidden = false;
         document.querySelector('.wc-start-page').inert = true;
-        dialog.classList.remove("is-visible","is-closing");
-        dialog.classList.add("is-opening");
-        dialog.classList.add("is-loading");
-        openedAt = Date.now();
+        dialog.classList.toggle("is-loading", previewLoading || !frameLoaded);
+        if(previewLoading){
+          loadingPreviewTimer = window.setTimeout(function(){
+            loadingPreviewTimer = null;
+            revealFrame();
+          }, 5000);
+        }
         document.documentElement.classList.add("wc-budget-landing-open");
         document.body.classList.add("wc-budget-landing-open");
-        // Settle the panel at its final height before measuring the opening
-        // animation: fit to the already-loaded explorer when possible,
-        // otherwise use the height remembered for this window size.
-        if(!phoneQuery.matches){
-          if(frameLoaded) fitPanelHeight(true);
-          else {
-            var savedHeight = readSavedHeight();
-            if(savedHeight) setPanelHeightInstantly(Math.min(savedHeight, window.innerHeight - 36) + "px");
-          }
-        }
-        var openingTransform = setSharedElementOrigin();
-        // Two frames ensure the browser paints the panel at the Begin
-        // button before animating it to its final dimensions.
-        window.requestAnimationFrame(function(){
-          window.requestAnimationFrame(function(){
-            dialog.classList.add("is-visible");
-            if(!(motionQuery && motionQuery.matches)){
-              if(sharedAnimation) sharedAnimation.cancel();
-              sharedAnimation = panel.animate([
-                {transform:openingTransform,borderRadius:"999px",opacity:.7},
-                {transform:"translate(0,0) scale(1)",borderRadius:"22px",opacity:1}
-              ],{duration:quickMotion ? 180 : 600,easing:"cubic-bezier(.22,1,.36,1)"});
-            }
-            animationTimer = window.setTimeout(function(){ dialog.classList.remove("is-opening"); fitPanelHeight(); }, quickMotion ? 200 : 650);
-          });
-        });
-        if(!frame.getAttribute("src")) loadFrame();
-        else if(frameLoaded){ dialog.classList.remove('is-loading'); frame.focus(); }
+        if(frameLoaded) fitPanelHeight(true);
+        // Commit the panel's dimensions before fading it in.
+        void panel.offsetWidth;
+        dialog.classList.add("is-visible");
+        closeButton.focus();
+        if(frameLoaded) revealFrame();
+        else loadFrame();
         if(wave && !quickMotion && !navigator.connection?.saveData){
           var waveSource = wave.querySelector("source[data-src]");
           if(!waveSource.hasAttribute("src")){ waveSource.src = waveSource.dataset.src; wave.load(); }
@@ -1952,6 +1895,8 @@
       }
 
       frame.addEventListener("load", function(){
+        if(!frame.getAttribute("src") || frame.contentDocument?.URL === "about:blank") return;
+        frameLoaded = true;
         try{
           var embeddedDocument = frame.contentDocument;
           embeddedDocument.documentElement.classList.add("wc-embedded-budget-landing");
@@ -1989,13 +1934,7 @@
           new MutationObserver(syncInnerPopupState).observe(embeddedDocument.documentElement, { attributes:true, subtree:true, attributeFilter:["class"] });
           watchFrameHeight();
         }catch(error){}
-        frameLoaded = true;
-        if(dialog.hidden) return;  // background preload; revealed on open
-        var revealDelay = Math.max(0, minimumRevealMs - (Date.now() - openedAt));
-        window.setTimeout(function(){
-          dialog.classList.remove("is-loading");
-          frame.focus();
-        }, revealDelay);
+        revealFrame();
       });
       trigger.addEventListener("click", openDialog);
       try{
