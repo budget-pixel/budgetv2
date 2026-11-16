@@ -3321,6 +3321,8 @@
 
     const params = new URLSearchParams();
     const fundRevenue = usesFundRevenueTransactions(row, fields);
+    const allocatedRevenue = !isExpense && !fundRevenue &&
+      (row._actualsBackfilled || !revenueActualsAreDedicatedToDepartmentRow(row, fields.codeField));
     const category = row[fields.categoryField] || "";
     const objectCode = Array.isArray(row._mergedObjectCodes) && row._mergedObjectCodes.length
       ? row._mergedObjectCodes.join(",")
@@ -3348,6 +3350,7 @@
     params.set("category", slugParam(category));
     params.set("categoryLabel", category);
     params.set("kind", fields.kind || "expense");
+    if (allocatedRevenue) params.set("allocatedRevenue", "1");
     if (!fundRevenue) params.set("selectedActual", String((fields.kind || "expense") === "revenue" ? Math.abs(amount) : amount));
     params.set("objectCode", objectCode);
     params.set("objectName", objectName);

@@ -210,6 +210,7 @@
     const status = $("#transaction-status");
     const objectLabel = compact([context.objectName, context.objectCode]).join(" — ");
     const fundRevenue = context.kind === "revenue" && !context.org && !!context.fundCode;
+    const allocatedRevenue = context.kind === "revenue" && param("allocatedRevenue") === "1";
 
     if (title) title.textContent = "Transactions";
     const accountHeading = document.getElementById('transaction-account-title');
@@ -284,7 +285,7 @@
     if (status) {
       const metrics = '<div class="wc-transaction-metrics"><div><span>Transactions</span><strong>' + rows.length.toLocaleString("en-US") + '</strong></div><div><span>Transaction total</span><strong>' + formatCurrency(transactionTotal) + '</strong></div>' +
         (hasSelectedActual ? '<div><span>Selected actual</span><strong>' + formatCurrency(context.selectedActual) + '</strong></div>' : '') + '</div>';
-      const reconciliation = hasSelectedActual
+      const reconciliation = fundRevenue || allocatedRevenue ? "" : hasSelectedActual
         ? '<div class="wc-transaction-reconciliation ' + (withinTolerance ? 'is-match' : 'is-mismatch') + '"><strong>' +
           (withinTolerance ? 'Matches selected actual' : 'Transaction total does not match') + '</strong>' +
           (!withinTolerance ? '<span>Difference: ' + formatCurrency(difference) + ' (transaction total minus selected actual).</span>' : '') + '</div>'
