@@ -15768,23 +15768,17 @@
       const increases = Array.from(deltaByDept.entries()).filter(([, d]) => d > 0).sort((a, b) => b[1] - a[1]);
       const decreases = Array.from(deltaByDept.entries()).filter(([, d]) => d < 0).sort((a, b) => a[1] - b[1]);
 
-      // COLA and Health Insurance Increase, the two named drivers this site
-      // already quantifies per department (see PERSONNEL_COST_COLA_RATE /
-      // PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE) -- summed here for a
-      // countywide total instead of a per-department figure.
-      const totalCola = boardCostRows.reduce((sum, r) => sum + r.Salaries * (PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE)), 0);
-      const totalHealthInsurance = boardCostRows.reduce((sum, r) => sum + r.HealthInsurance, 0);
-      // Match the ledger: the Board of County Commissioners' pooled
-      // retiree-health subsidy is not an active-employee premium and is
-      // therefore excluded from the 5% planning increase.
-      const positionCostsByDept = buildPersonnelPositionCostsByDept();
-      let retireeHealthInsuranceSubsidy = 0;
-      positionCostsByDept.forEach((positions) => {
-        retireeHealthInsuranceSubsidy += positions.retireeHealthInsuranceSubsidy || 0;
-      });
-      const activeEmployeeHealthInsurance = Math.max(0, totalHealthInsurance - retireeHealthInsuranceSubsidy);
-      const healthInsuranceIncrease = activeEmployeeHealthInsurance * PERSONNEL_COST_HEALTH_INSURANCE_INCREASE_RATE;
-
+      const personnelChange = getPersonnelCostChangeAnalysis();
+      const boardSalaries = personnelChange.components.find((row) => row.field === "Salaries");
+      const boardHealth = personnelChange.components.find((row) => row.field === "HealthInsurance");
+      const boardRetirement = personnelChange.components.find((row) => row.field === "Retirement");
+      const totalCola = boardSalaries.current * PERSONNEL_COST_COLA_RATE / (1 + PERSONNEL_COST_COLA_RATE);
+      const budgetChangeText = (row) => {
+        const change = row.current - row.prior;
+        if (!change) return "No change in the Board department budget.";
+        return formatCurrency(Math.abs(change)) + (change > 0 ? " increase" : " decrease") + " in the Board department budget.";
+      };
+      const colaImpact = formatCurrency(totalCola) + " estimated COLA included in Board salaries and wages.";
 
       const fteByDept = new Map();
       const fteByFunction = new Map();
@@ -15830,10 +15824,8 @@
       const overtimeByDept = buildPersonnelCostOvertimeByDept();
       const overtimeTotal = Array.from(overtimeByDept.entries()).filter(([dept]) => boardCostRows.some((row) => row.Dept_Name === dept)).reduce((sum, [, amount]) => sum + amount, 0);
       const retirementTotal = boardCostRows.reduce((sum, row) => sum + row.Retirement, 0);
-      const retirementPriorTotal = (cache.expenditures || []).filter((row) => String(row.Object_Code || '').trim() === PERSONNEL_COST_RETIREMENT_CODE && !isConstitutionalPersonnelDept(row.Dept_Name)).reduce((sum, row) => sum + (Number(row.FY2026_Original_Budget || row.FY2026_Budget) || 0), 0);
-      const retirementChangePct = retirementPriorTotal ? ((retirementTotal - retirementPriorTotal) / retirementPriorTotal * 100) : 0;
       const otherBenefitsTotal = boardCostRows.reduce((sum, row) => sum + row.OtherBenefits, 0);
-      const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", totalHealthInsurance], ["Other benefits & taxes", otherBenefitsTotal]];
+      const costMix = [["Salaries & Wages", salaryTotal], ["Overtime & Weekend Pay", overtimeTotal], ["Retirement", retirementTotal], ["Health insurance", boardHealth.current], ["Other benefits & taxes", otherBenefitsTotal]];
       // Department-level FTE changes -- more directly useful to the Board
       // than a functional-area rollup, since each pill names the exact
       // department a reader would need to look up in the ledger.
@@ -15890,14 +15882,10 @@
             ['Health Insurance', 'The County&rsquo;s share of medical, dental, and other health plan premiums for covered employees.'],
             ['Other Benefits &amp; Taxes', 'FICA/Medicare, workers&rsquo; compensation, and unemployment compensation required for every position.']
           ];
-          const driverAmount = (value) => {
-            const abs = Math.abs(value);
-            return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
-          };
           const drivers = [
-            ['3%', 'Cost-of-Living Adjustment', 'Board department salaries and wages are adjusted for this year&rsquo;s COLA across every budgeted position.', driverAmount(totalCola) + ' estimated salary and wage impact this year.'],
-            ['5%', 'Health Premium Planning Scenario', 'A hypothetical active-employee premium increase for planning, not an additional adopted cost.', driverAmount(healthInsuranceIncrease) + ' under the 5% scenario.'],
-            ['FRS', 'Retirement Rate Changes', 'The State sets FRS contribution rates each year, which can raise or lower retirement cost per position regardless of staffing.']
+            ['3%', 'Cost-of-Living Adjustment', colaImpact, budgetChangeText(boardSalaries)],
+            ['5%', 'Health Premium Increase', 'Health insurance premiums for active employees in Board departments increased 5% for FY 2027.', budgetChangeText(boardHealth)],
+            ['FRS', 'Retirement Rate Changes', 'Florida sets FRS contribution rates by membership class. Budgeted retirement costs also depend on payroll and staffing.', budgetChangeText(boardRetirement)]
           ];
           const frsEmployerRates = [
             ['Regular Class', '15.65%', '8.30%'],
@@ -15927,13 +15915,13 @@
                 '<tr><td>1 employee, 20 hrs/week</td><td>0.5 FTE</td></tr>' +
               '</tbody></table></div></section>' +
             '<section><h3>What personnel cost includes</h3><p>Personnel cost is more than salaries. Every budgeted position carries five categories of cost, and the totals on this card include all five.</p><ol class="wc-personnel-explainer-parts">' + costParts.map((part) => '<li><strong>' + part[0] + '</strong><span>' + part[1] + '</span></li>').join("") + '</ol></section>' +
-            '<section><h3>What drives cost up or down</h3><p>Even with no change in staffing, personnel cost moves every year because of countywide pay and benefit adjustments.</p><div class="wc-personnel-explainer-drivers">' + drivers.map((d) => '<article><b>' + d[0] + '</b><strong>' + d[1] + '</strong><span>' + d[2] + '</span>' + (d[3] ? '<em>' + escapeHtml(d[3]) + '</em>' : '') + '</article>').join("") + '</div></section>' +
+            '<section><h3>What drives cost up or down</h3><p>The pay and health premium figures below apply to Board departments. Florida sets FRS rates statewide.</p><div class="wc-personnel-explainer-drivers">' + drivers.map((d) => '<article><b>' + d[0] + '</b><strong>' + d[1] + '</strong><span>' + d[2] + '</span>' + '<em>' + escapeHtml(d[3]) + '</em>' + '</article>').join("") + '</div></section>' +
             '<section class="wc-personnel-explainer-frs"><h3 id="wc-personnel-frs-heading">FRS employer contribution rates</h3>' +
               '<p>Effective July 1, 2026. The Pension Employer Rate column shows the total rate the employer pays under either plan. The Investment Employer Rate column shows the share of gross pay the employer deposits into the employee&rsquo;s Investment Plan account. DROP is a Pension Plan program.</p>' +
               '<table aria-labelledby="wc-personnel-frs-heading"><thead><tr><th scope="col">Membership class</th><th scope="col">Pension Employer Rate</th><th scope="col">Investment Employer Rate</th></tr></thead><tbody>' +
               frsEmployerRates.map(([label, rate, deposit]) => '<tr><th scope="row">' + escapeHtml(label) + '</th><td>' + rate + '</td><td>' + deposit + '</td></tr>').join("") +
               '</tbody></table><p><a href="https://www.dms.myflorida.com/workforce_operations/retirement/employers/contribution_rates">Florida Division of Retirement contribution rates</a> · <a href="https://www.myfrs.com/FRSPro_ComparePlan_Contri.htm">MyFRS plan comparison</a></p></section>' +
-            '<div class="wc-personnel-explainer-change">' + personnelCostChangeExplanationHtml() + '</div>' +
+            '<div class="wc-personnel-explainer-change">' + personnelCostChangeExplanationHtml(personnelChange) + '</div>' +
             (functionRows.length ? '<section><h3>Staff by functional area</h3><div class="wc-personnel-explainer-bars">' + functionRows.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b><i><em style="width:' + (maxFunctionFte ? (item[1] / maxFunctionFte * 100).toFixed(1) : 0) + '%"></em></i></div>').join("") + '</div></section>' : '') +
             '<section><h3>Good to know</h3><dl class="wc-personnel-explainer-faq">' + faqs.map((f) => '<dt>' + f[0] + '</dt><dd>' + f[1] + '</dd>').join("") + '</dl></section>' +
             '</div>';
@@ -16012,7 +16000,7 @@
         const functionBarsHtml = functionRows.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatNumber(item[1])) + ' FTE</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (maxFunctionFte ? (item[1] / maxFunctionFte * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         const costMixBarsHtml = costMix.map((item) => '<div class="pq-bar-row"><div class="pq-bar-row-head"><span>' + escapeHtml(item[0]) + '</span><b>' + escapeHtml(formatCurrency(item[1])) + '</b></div><div class="pq-bar-track"><span class="pq-bar-fill" style="width:' + (boardDepartmentPersonnelCost ? (item[1] / boardDepartmentPersonnelCost * 100).toFixed(1) : 0) + '%"></span></div></div>').join("");
         explainedContainer.innerHTML =
-          personnelCostChangeExplanationHtml() + '<div class="pq-stat-row">' +
+          personnelCostChangeExplanationHtml(personnelChange) + '<div class="pq-stat-row">' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(totalFte2027)) + ' FTE</b><span>Total Budgeted Workforce</span><small>FY 2026: ' + escapeHtml(formatNumber(totalFte2026)) + ' FTE · ' + (fteChange === 0 ? "no change" : "FY 2027 " + (fteChange > 0 ? "+" : "−") + formatNumber(Math.abs(fteChange)) + " FTE") + '.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(boardFte2027)) + ' FTE</b><span>Board Departments</span><small>Departments that report to the County Administrator.</small></article>' +
             '<article class="pq-stat-card"><b>' + escapeHtml(formatNumber(constitutionalFte2027)) + ' FTE</b><span>Constitutional Officers</span><small>Clerk of Courts, Property Appraiser, Supervisor of Elections, Tax Collector, and Sheriff.</small></article>' +
@@ -16070,17 +16058,12 @@
         // Live dollar amounts for the static "What drives personnel cost up
         // or down?" cards further down the page, so that section doesn't
         // duplicate a separate live cost-drivers card up here.
-        const retirementChangeAmount = retirementTotal - retirementPriorTotal;
-        const formatDriverAmount = (value) => {
-          const abs = Math.abs(value);
-          return abs >= 1000000 ? (value < 0 ? "-" : "") + "$" + (abs / 1000000).toFixed(2) + "M" : formatCurrency(value);
-        };
         const colaAmount = document.getElementById('pq-driver-cola-amount');
-        if (colaAmount) { colaAmount.textContent = formatDriverAmount(totalCola) + ' estimated salary and wage impact this year.'; colaAmount.hidden = false; }
+        if (colaAmount) { colaAmount.textContent = colaImpact + ' ' + budgetChangeText(boardSalaries); colaAmount.hidden = false; }
         const healthAmount = document.getElementById('pq-driver-health-amount');
-        if (healthAmount) { healthAmount.textContent = formatDriverAmount(healthInsuranceIncrease) + ' hypothetical 5% premium scenario; not added to the adopted personnel increase.'; healthAmount.hidden = false; }
+        if (healthAmount) { healthAmount.textContent = budgetChangeText(boardHealth); healthAmount.hidden = false; }
         const frsAmount = document.getElementById('pq-driver-frs-amount');
-        if (frsAmount) { frsAmount.textContent = Math.abs(retirementChangePct).toFixed(1) + '% (' + formatDriverAmount(Math.abs(retirementChangeAmount)) + ' estimated ' + (retirementChangeAmount >= 0 ? 'increase' : 'decrease') + ') this year.'; frsAmount.hidden = false; }
+        if (frsAmount) { frsAmount.textContent = budgetChangeText(boardRetirement); frsAmount.hidden = false; }
       }
     }).catch(() => {
       if (container) container.innerHTML = '<div class="wc-data-error">' + escapeHtml(ERROR_MESSAGE) + "</div>";
@@ -16337,14 +16320,13 @@
     const board=group(boardRows), offices=group(officeRows.filter(row=>!isBccRow(row))), commission=group(officeRows.filter(isBccRow)), total=group(ledger);
     if(Math.abs(components.reduce((sum,row)=>sum+row.prior,0)-board.prior)>.01 || Math.abs(components.reduce((sum,row)=>sum+row.current,0)-board.current)>.01)throw new Error('Personnel change components do not reconcile');
     const staffing=cache.staffing||[];
-    return {board,offices,commission,total,components:components.map(({label,prior,current})=>({label,prior,current})),positions:{prior:staffing.reduce((sum,row)=>sum+(Number(row[2026])||0),0),current:staffing.reduce((sum,row)=>sum+(Number(row[2027])||0),0)}};
+    return {board,offices,commission,total,components:components.map(({label,field,prior,current})=>({label,field,prior,current})),positions:{prior:staffing.reduce((sum,row)=>sum+(Number(row[2026])||0),0),current:staffing.reduce((sum,row)=>sum+(Number(row[2027])||0),0)}};
   }
 
-  function personnelCostChangeExplanationHtml() {
-    const analysis=getPersonnelCostChangeAnalysis();
+  function personnelCostChangeExplanationHtml(analysis) {
     const rows=[{label:'Constitutional offices and court group',...analysis.offices},{label:'Board of County Commissioners',...analysis.commission},{label:'Board departments',...analysis.board},{label:'Countywide personnel total',...analysis.total}];
     const table = items => '<div class="wc-data-table-scroll"><table class="wc-data-table"><thead><tr><th>Personnel cost</th><th class="wc-num">FY 2026</th><th class="wc-num">FY 2027</th><th class="wc-num">Change</th></tr></thead><tbody>'+items.map(row=>'<tr><td>'+escapeHtml(row.label)+'</td><td class="wc-num">'+formatCurrency(row.prior)+'</td><td class="wc-num">'+formatCurrency(row.current)+'</td><td class="wc-num">'+formatCurrency(row.current-row.prior)+'</td></tr>').join('')+'</tbody></table></div>';
-    return '<section class="pq-section" id="personnel-cost-change"><h2>Why personnel cost changes</h2><p>The countywide increase includes staffing, compensation and employer benefit costs. It is not all raises or new hires.</p>'+table(rows)+'<h3>Board department cost changes</h3>'+table(analysis.components)+'<p>Salary and wage changes combine added or reduced positions, pay adjustments, overtime and changes in staffing mix. Budgeted position equivalents rise from '+formatNumber(analysis.positions.prior)+' to '+formatNumber(analysis.positions.current)+' countywide; the aggregate records do not separately price new positions versus raises. Health, retirement and other employer costs below reflect budgeted dollar changes, not rate changes alone. Constitutional offices manage their own personnel budgets; their aggregate funding is not uniformly itemized into salary and benefit categories.</p><p>The 3% Board COLA estimate is included within salary funding, not an additional amount to add to this table. The 5% health-premium scenario shown separately is a planning illustration, not another component of the adopted increase.</p></section>';
+    return '<section class="pq-section" id="personnel-cost-change"><h2>Why personnel cost changes</h2><p>The countywide increase includes staffing, compensation and employer benefit costs. It is not all raises or new hires.</p>'+table(rows)+'<h3>Board department cost changes</h3>'+table(analysis.components)+'</section>';
   }
 
   // FTE count per department, from cache.staffing (the same source
