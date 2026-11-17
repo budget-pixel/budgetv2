@@ -1572,6 +1572,13 @@
   .wc-budget-landing-loader-track::after{content:"";display:block;width:40%;height:100%;border-radius:inherit;background:#006231;animation:wc-budget-loading 1.25s ease-in-out infinite alternate}
   @keyframes wc-budget-loading{to{transform:translateX(150%)}}
   @media(prefers-reduced-motion:reduce){.wc-budget-landing-loader-track::after{animation:none;transform:translateX(75%)}}
+  /* Loading flourish: same rotating messages and floating numbers as the print budget book loader. */
+  .wc-budget-landing-loader-bits{position:relative;display:block;width:0;height:0}
+  .wc-budget-landing-loader-bit{position:absolute;left:0;top:0;font:800 15px/1 Georgia,"Times New Roman",serif;color:#2f8a5c;opacity:0;pointer-events:none;animation:wc-budget-loader-float 2.6s ease-out infinite}
+  @keyframes wc-budget-loader-float{0%{opacity:0;transform:translate(calc(-50% + var(--bit-x,0px) * .3),2px) scale(.7)}20%{opacity:.9}100%{opacity:0;transform:translate(calc(-50% + var(--bit-x,0px)),-46px) scale(1.05)}}
+  .wc-budget-landing-loader-message.is-fresh{animation:wc-budget-loader-step .35s ease-out}
+  @keyframes wc-budget-loader-step{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.wc-budget-landing-loader-bits{display:none}.wc-budget-landing-loader-message.is-fresh{animation:none}}
   @media(prefers-reduced-motion:reduce){.wc-start-video,.wc-budget-landing-wave{display:none}.wc-budget-landing-dialog,.wc-budget-landing-panel,.wc-budget-landing-shade,.wc-budget-landing-frame,.wc-budget-landing-close{transition:none!important}}
   @media(max-width:700px){
     .wc-start-header{padding:18px}
@@ -1628,6 +1635,7 @@
   <section class="wc-budget-landing-panel">
     <button type="button" class="wc-budget-landing-close" aria-label="Close Budget Explorer">&times;</button>
     <div class="wc-budget-landing-loader" role="status">
+      <span class="wc-budget-landing-loader-bits" aria-hidden="true"></span>
       <span class="wc-budget-landing-loader-title">FY 2027 Budget Explorer</span>
       <span class="wc-budget-landing-loader-message">Loading the Walton County budget…</span>
       <span class="wc-budget-landing-loader-track" aria-hidden="true"></span>
@@ -1853,6 +1861,37 @@
         if(document.readyState === "complete") preload();
         else window.addEventListener("load", preload, { once: true });
       }
+      // Rotating messages and floating numbers while the explorer loads,
+      // matching the print budget book loader (assets/budget-book-viewer.js).
+      (function loaderMessages(){
+        var message = dialog.querySelector(".wc-budget-landing-loader-message");
+        var bits = dialog.querySelector(".wc-budget-landing-loader-bits");
+        if(!message) return;
+        var steps = ["Crunching the numbers","Charting the graphs","Balancing the funds","Counting every penny","Lining up the ledgers","Double-checking the math","Sharpening the pencils","Tallying the totals","Stacking the spreadsheets","Rounding to the nearest dollar"];
+        var original = message.textContent, index = 0, timer = null;
+        if(bits) ["$","1","%","7","$","2","0","+"].forEach(function(glyph, i){
+          var bit = document.createElement("span");
+          bit.className = "wc-budget-landing-loader-bit";
+          bit.textContent = glyph;
+          bit.style.setProperty("--bit-x", (i % 2 ? 1 : -1) * (14 + (i * 9) % 26) + "px");
+          bit.style.animationDelay = (i * 0.32) + "s";
+          bits.appendChild(bit);
+        });
+        function show(){
+          message.classList.remove("is-fresh");
+          void message.offsetWidth;
+          message.textContent = steps[index % steps.length] + "\u2026";
+          message.classList.add("is-fresh");
+          index++;
+        }
+        function sync(){
+          var loading = dialog.classList.contains("is-loading") && !dialog.hidden;
+          if(loading && !timer){ index = 0; show(); timer = window.setInterval(show, 1700); }
+          else if(!loading && timer){ window.clearInterval(timer); timer = null; message.textContent = original; message.classList.remove("is-fresh"); }
+        }
+        new MutationObserver(sync).observe(dialog, { attributes: true, attributeFilter: ["class","hidden"] });
+        sync();
+      })();
       function revealFrame(){
         if(!frameLoaded || dialog.hidden || dialog.classList.contains("is-closing")) return;
         fitPanelHeight();

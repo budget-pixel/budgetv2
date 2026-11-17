@@ -842,11 +842,19 @@
     adValoremRowsPromise = window.WCBudgetData.loadBudgetData().then(function(data){
       const totalsByName = new Map();
       const interfundTransferAmounts = [];
+      // Each recipient's FY 2027 amount. Opioid settlement lines are paid
+      // from settlement revenue, not property tax, so they are left out.
       const agencyNamesFor = function(tag){
-        return Array.from(new Set((data.expenditures || [])
-          .filter(function(row){ return String(row.Note || "").trim() === tag && (Number(row.FY2027_Proposed) || 0) > 0; })
-          .map(function(row){ return String(row.Project_Name || "").trim(); })
-          .filter(Boolean))).sort(function(a, b){ return a.localeCompare(b); });
+        const amounts = new Map();
+        (data.expenditures || []).forEach(function(row){
+          const name = String(row.Project_Name || "").trim();
+          const amount = Number(row.FY2027_Proposed) || 0;
+          if (String(row.Note || "").trim() !== tag || amount <= 0 || !name || /opioid/i.test(name)) return;
+          amounts.set(name, (amounts.get(name) || 0) + amount);
+        });
+        return Array.from(amounts.entries())
+          .map(function(entry){ return { name: entry[0], amount: entry[1] }; })
+          .sort(function(a, b){ return b.amount - a.amount || a.name.localeCompare(b.name); });
       };
       agencyNamesByPage = {
         "statutory agency funding": agencyNamesFor("Statutory & Other"),
@@ -979,8 +987,10 @@
       groupRows.forEach(function(d){
         bodyRows.push(rowHtml(d));
         if (agencyNamesByPage[normalizeMatchName(d.name)]) {
-          agencyNamesByPage[normalizeMatchName(d.name)].forEach(function(name){
-            bodyRows.push('<tr class="wc-ptax-agency-detail"><td>' + escapeHtml(name) + '</td><td class="wc-num">—</td><td class="wc-num">—</td></tr>');
+          agencyNamesByPage[normalizeMatchName(d.name)].forEach(function(item){
+            const itemAmount = window.WCBudgetData ? window.WCBudgetData.formatCurrency(item.amount) : compactCurrency(item.amount);
+            const itemPercent = total ? (item.amount / total) * 100 : 0;
+            bodyRows.push('<tr class="wc-ptax-agency-detail"><td>' + escapeHtml(item.name) + '</td><td class="wc-num">' + escapeHtml(itemAmount) + '</td><td class="wc-num">' + (itemPercent > 0 && itemPercent < 0.05 ? "&lt;0.1" : itemPercent.toFixed(1)) + '%</td></tr>');
           });
         }
       });
