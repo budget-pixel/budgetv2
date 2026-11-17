@@ -6405,9 +6405,6 @@ a.wc-ledger-card-button.wc-ledger-pill:hover,a.wc-ledger-card-button.wc-ledger-p
    Cost?, About capital projects). */
 .wc-capital-about-button{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 .wc-capital-about-button::after{content:"→";font-size:13px;color:inherit}
-/* Revenue Ledger source Info Popup: the popup header already names the source. */
-.wc-revenue-info-popup .wc-revenue-topic-title{display:none}
-.wc-revenue-info-popup .wc-rev-summary{margin-top:0}
 /* Actions row: a little room under the header, and the capital search
    sitting on the left of it. */
 .wc-explorer-actions-row{margin-top:24px}
@@ -6745,3 +6742,20 @@ html.wc-mobile-panel-page .wc-mobile-page-panel .wc-budget-detail-card{border:0!
 html.wc-mobile-panel-page .wc-mobile-page-panel .wc-budget-detail-header{padding-left:0!important;padding-right:0!important}
 html.wc-mobile-panel-page .wc-mobile-page-panel .wc-budget-detail-body{padding-left:0!important;padding-right:0!important}
 html.wc-mobile-panel-page .wc-mobile-page-panel .wc-budget-detail-close{display:none!important}
+
+/* Popup close buttons: the same green keyboard-focus ring as the explorer
+   and department popups' close buttons, instead of the browser's default
+   blue focus ring (which Safari draws partly clipped). */
+:is(.wc-revenue-source-dialog-close,.wc-budget-detail-close,.wc-fleet-score-dialog-close,.wc-footer-utility-close):focus{outline:none}
+:is(.wc-revenue-source-dialog-close,.wc-budget-detail-close,.wc-fleet-score-dialog-close,.wc-footer-utility-close):focus-visible{outline:3px solid #79b99a;outline-offset:2px}
+
+/* Revenue Ledger filter bar: Prior / Projected Future Years stacked in one
+   column, with the same white-and-green Export PDF pill as the other
+   ledgers at the far right. */
+.wc-revenue-ledger-view-toggles{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+.wc-revenue-ledger-list-view .wc-filter-bar>.wc-cip-export-pdf{flex:none;margin:0 0 0 auto;padding:10px 16px;border:1px solid #003f28;border-radius:999px;background:#fff;color:#003f28;font:800 12px/1.2 Arial,Helvetica,sans-serif;cursor:pointer}
+.wc-revenue-ledger-list-view .wc-filter-bar>.wc-cip-export-pdf:hover,.wc-revenue-ledger-list-view .wc-filter-bar>.wc-cip-export-pdf:focus-visible{background:#003f28;color:#fff}
+@media print{
+  body.wc-revenue-ledger-page.wc-ledger-print .wc-revenue-ledger-list-view .wc-filter-bar,
+  body.wc-revenue-ledger-page.wc-ledger-print .wc-page-title-row .wc-asset-back{display:none!important}
+}

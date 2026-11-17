@@ -9779,8 +9779,11 @@
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerSize", label: "Source size", options: revenueLedgerSizeOptions }) +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerRecurrence", label: "Recurrence", options: revenueLedgerRecurrenceOptions }) +
         filterComboFieldHtml({ idPrefix: "wcRevenueLedgerControl", label: "Control", options: revenueLedgerControlOptions }) +
+        '<div class="wc-revenue-ledger-view-toggles">' +
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerHistoryToggle" aria-pressed="false">View Prior Years</button>' +
         '<button type="button" class="wc-view-budget-lines-toggle" id="wcRevenueLedgerFutureToggle" aria-pressed="false">View Projected Future Years</button>' +
+        "</div>" +
+        '<button type="button" class="wc-cip-export-pdf" id="wcRevenueLedgerExportPdf" aria-label="Export the revenue ledger as PDF">Export PDF</button>' +
         "</div>" +
         '<div class="wc-revenue-ledger-filtered-table"></div>' +
         "</div>" +
@@ -9836,22 +9839,34 @@
           recurrenceLabel: /^Interest and Investment Earnings$/i.test(sourceTitle) ? "Non-recurring" : "Recurring",
           matches: (row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target
         };
-        // Opens in the standard Info Popup (same card as the revenue
-        // explorer's source popups), over the ledger, instead of swapping
-        // the table out for an inline detail view.
-        openInfoDialog({
-          kicker: "Revenue Source Detail",
-          title: sourceTitle,
-          html: '<div class="wc-revenue-source-dialog-body" data-revenue-info-body></div>',
-          trigger: sourceButton,
-          bodyClass: "wc-revenue-info-popup"
-        });
-        const infoBody = ensureBudgetDetailModal().querySelector("[data-revenue-info-body]");
-        if (!infoBody) return;
-        renderRevenueTopicCards(infoBody, [topic], "wc-chart-revenue-ledger-popup");
-        infoBody.querySelectorAll(".wc-revenue-topic-block").forEach((block) => { block.hidden = false; });
+        // Opens in the same Revenue Source Detail dialog the Revenue
+        // Explorer uses (same markup, width, and styling), so a source looks
+        // identical whichever page it is opened from.
+        const dialog = ensureLedgerSourceDialog();
+        dialog.querySelector("#wcRevenueLedgerDialogTitle").textContent = sourceTitle;
+        const dialogBody = dialog.querySelector("[data-revenue-ledger-dialog-body]");
+        showDialogForDevice(dialog, sourceButton);
+        renderRevenueTopicCards(dialogBody, [topic], "wc-chart-revenue-ledger-popup");
+        dialogBody.querySelectorAll(".wc-revenue-topic-block").forEach((block) => { block.hidden = false; });
+        bindTooltipAnchors(dialogBody);
         window.setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
       });
+      let ledgerSourceDialog = null;
+      function ensureLedgerSourceDialog() {
+        if (ledgerSourceDialog) return ledgerSourceDialog;
+        container.insertAdjacentHTML("beforeend",
+          '<dialog class="wc-revenue-source-dialog" data-revenue-ledger-dialog aria-labelledby="wcRevenueLedgerDialogTitle">' +
+          '<div class="wc-revenue-source-dialog-shell"><div class="wc-revenue-source-dialog-head"><div><span>Revenue source detail</span><h2 id="wcRevenueLedgerDialogTitle">Revenue Source Information</h2></div><button type="button" class="wc-revenue-source-dialog-close" data-revenue-ledger-dialog-close aria-label="Close">&times;</button></div>' +
+          '<div class="wc-revenue-source-dialog-body" data-revenue-ledger-dialog-body></div></div></dialog>');
+        ledgerSourceDialog = container.querySelector("[data-revenue-ledger-dialog]");
+        const body = ledgerSourceDialog.querySelector("[data-revenue-ledger-dialog-body]");
+        ledgerSourceDialog.querySelector("[data-revenue-ledger-dialog-close]").addEventListener("click", () => ledgerSourceDialog.close());
+        ledgerSourceDialog.addEventListener("close", () => {
+          document.documentElement.classList.remove("wc-modal-open");
+          body.innerHTML = "";
+        });
+        return ledgerSourceDialog;
+      }
       const backButton = container.querySelector("[data-revenue-ledger-back]");
       if (backButton) backButton.addEventListener("click", closeRevenueLedgerDetail);
       function renderFilteredLedger() {
@@ -9930,6 +9945,14 @@
         futureToggle.setAttribute("aria-pressed", String(showFutureYears));
         futureToggle.textContent = showFutureYears ? "Hide Projected Future Years" : "View Projected Future Years";
         tableContainer.classList.toggle("show-revenue-future", showFutureYears);
+      });
+      // Prints the ledger as currently filtered and expanded (prior or
+      // future years included when shown), like the other ledgers' PDF export.
+      const exportPdfButton = container.querySelector("#wcRevenueLedgerExportPdf");
+      exportPdfButton.addEventListener("click", () => {
+        document.body.classList.add("wc-ledger-print");
+        window.addEventListener("afterprint", () => document.body.classList.remove("wc-ledger-print"), { once: true });
+        window.print();
       });
       renderFilteredLedger();
     }).catch((err) => {
@@ -12420,10 +12443,32 @@
       // a single bar segment instead of one sliver per code.
       const byName = new Map();
       rowsForRevenueTopic(topic).forEach((r) => {
-        const name = topic.isAllOtherRevenue ? explorerSourceName(r) : (r.Revenue_Name || String(r.Revenue_Code || "").trim());
+        let name = topic.isAllOtherRevenue ? explorerSourceName(r) : (r.Revenue_Name || String(r.Revenue_Code || "").trim());
+        // Interest is shown by the fund that earns it ("Interest (General
+        // Fund)", "Interest (Tourist Development Fund)", ...), combining
+        // each fund's separate interest accounts into one segment.
+        if (!topic.isAllOtherRevenue && /interest|earnings/i.test(name)) name = "Interest (" + fundNameForRow(r) + ")";
         if (!byName.has(name)) byName.set(name, []);
         byName.get(name).push(r);
       });
+      // Funds earning under $100K in every year shown are pooled into one
+      // "Interest (Other Funds)" segment so the chart isn't a stack of
+      // unreadable slivers; the larger funds are listed largest first.
+      const interestGroups = Array.from(byName.keys()).filter((name) => /^Interest \(/.test(name));
+      if (interestGroups.length > 1) {
+        const yearTotals = (rowsForName) => REVENUE_TOPIC_CHART_YEARS.filter((y) => !y.projectedYear).map((y) => sumRevenueRowsForField(rowsForName, y.field, topic));
+        const otherRows = [];
+        const kept = [];
+        interestGroups.forEach((name) => {
+          const rowsForName = byName.get(name);
+          const totals = yearTotals(rowsForName);
+          if (Math.max.apply(null, totals.map(Math.abs)) < 100000) otherRows.push.apply(otherRows, rowsForName);
+          else kept.push({ name, rows: rowsForName, size: totals.reduce((sum, value) => sum + value, 0) });
+          byName.delete(name);
+        });
+        kept.sort((a, b) => b.size - a.size).forEach((item) => byName.set(item.name, item.rows));
+        if (otherRows.length) byName.set("Interest (Other Funds)", otherRows);
+      }
 
       const baseColors = Array.from(byName.keys()).map((_, i) => REVENUE_TOPIC_CHART_COLORS[i % REVENUE_TOPIC_CHART_COLORS.length]);
       const datasets = Array.from(byName.entries()).map(([name, rowsForName], i) => ({
