@@ -53,7 +53,7 @@ const AGENCIES = [
       ["DeFuniak Community Redevelopment Agency", 726897],
       ["Human Services", 41041],
       ["Economic Development Alliance", 421444],
-      ["Opioid Settlement Year 4", 254887],
+      ["Opioid Settlement", 254887],
       ["Liberty Volunteer Fire Department", 175000],
       ["Argyle Volunteer Fire Department", 175000],
       ["Health Care Response (HCRA)", 50000],

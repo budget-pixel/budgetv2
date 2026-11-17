@@ -2808,10 +2808,45 @@
         if (!data || !data.expenditures?.length || !data.revenues?.length || Object.keys(data.errors || {}).length) {
           throw new Error("The final budget publication is incomplete.");
         }
+        data.expenditures = combineOpioidSettlementRows(data.expenditures, "Project_Name");
+        data.revenues = combineOpioidSettlementRows(data.revenues, "Note");
         Object.assign(cache, data);
         return cache;
       });
     return loadPromise;
+  }
+
+  // The sheet carries each opioid settlement payment as its own line
+  // ("Opioid Settlement Year 1", "Year 3", "Year 4", "15% Opioid Settlement
+  // Year 4"). Show them as one "Opioid Settlement" line per department and
+  // account so every year's amount lands on the same row.
+  const OPIOID_SETTLEMENT_LABEL = "Opioid Settlement";
+  function combineOpioidSettlementRows(rows, labelField) {
+    if (!Array.isArray(rows)) return rows;
+    const merged = new Map();
+    const result = [];
+    rows.forEach((row) => {
+      if (!/opioid settlement/i.test(String((row && row[labelField]) || ""))) {
+        result.push(row);
+        return;
+      }
+      const key = [row.Dept_Code, row.Dept_Name, row.Object_Code || row.Revenue_Code].join("|");
+      let combined = merged.get(key);
+      if (!combined) {
+        combined = Object.assign({}, row, { [labelField]: OPIOID_SETTLEMENT_LABEL });
+        if (labelField === "Project_Name") combined.Project_Code = "";
+        else combined.Project_Name = "";
+        merged.set(key, combined);
+        result.push(combined);
+        return;
+      }
+      Object.keys(row).forEach((field) => {
+        if (/^FY\d{4}_/.test(field) && typeof row[field] === "number") {
+          combined[field] = (Number(combined[field]) || 0) + row[field];
+        }
+      });
+    });
+    return result;
   }
 
   // ---- rendering primitives ----

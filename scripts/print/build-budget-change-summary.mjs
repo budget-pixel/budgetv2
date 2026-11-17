@@ -7,7 +7,7 @@ import { chromium } from "playwright";
 // data.js's renderConsolidatedBudgetChangesTable), verified against the
 // saved publication datasets rather than retyped from a
 // flawed raw print capture (which had lost several department names).
-// The Opioid Settlement Year 4 grant is folded into Statutory & Other
+// The Opioid Settlement grant is folded into Statutory & Other
 // Agency Funding under Independent Agencies (matching the Independent
 // Agencies Ledger), not broken out as its own "Human Services" line.
 
