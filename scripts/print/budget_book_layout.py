@@ -17,9 +17,11 @@ from pypdf import PageObject
 # readers-guide.mjs), taking the published book from 134 to 143 pages. The
 # removed map page sat at assembly 112 before them; eight guides precede it.
 # The Capital Funding and Delivery Dashboard (published page 120) was then
-# removed, taking the book to 142 pages.
-ASSEMBLY_PAGES = 143
-REMOVED_PAGE = 120
+# removed, taking the book to 142 pages. A second Reserve Position page
+# (Reserve Position, continued) was inserted after published page 43 on
+# 2026-11-18, taking the book to 143 pages and moving the removed slot to 121.
+ASSEMBLY_PAGES = 144
+REMOVED_PAGE = 121
 REMOVED_TITLE = "Where FY 2027 Capital Investment Serves"
 PUBLISHED_PAGES = ASSEMBLY_PAGES - 1
 

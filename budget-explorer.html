@@ -205,6 +205,13 @@
     if(amount >= 1000) return sign + "$" + Math.round(amount / 1000).toLocaleString("en-US") + "K";
     return sign + "$" + Math.round(amount).toLocaleString("en-US");
   }
+  // Summary cards show whole millions and whole percents.
+  function roundedCompact(value){
+    var amount = Math.abs(number(value));
+    if(amount >= 1000000 && amount < 1000000000) return (number(value) < 0 ? "−" : "") + "$" + Math.round(amount / 1000000).toLocaleString("en-US") + "M";
+    return compact(value);
+  }
+  function shareOf(part, total){ return (total ? Math.round(part / total * 100) : 0) + "% of total expenditures"; }
   function whole(value){ return Math.round(number(value)).toLocaleString("en-US"); }
   function percent(value){ return (number(value) >= 0 ? "+" : "−") + Math.abs(number(value)).toFixed(1) + "%"; }
   function setText(selector, value){ var element = document.querySelector(selector); if(element) element.textContent = value; }
@@ -268,14 +275,14 @@
 
     setText("[data-card-revenue-total]", compact(totalRevenue));
     setText("[data-card-revenue-change]", signedChange(totalRevenue, priorRevenue));
-    setText("[data-card-personnel-total]", compact(totalPersonnel));
-    setText("[data-card-personnel-share]", (totalBudget ? (totalPersonnel/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-    setText("[data-card-department-total]", compact(departmentTotal));
-    setText("[data-card-department-share]", (totalBudget ? (departmentTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-    setText("[data-card-capital-total]", compact(totalCapital));
-    setText("[data-card-capital-share]", (totalBudget ? (totalCapital/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
-    setText("[data-card-constitutional-total]", compact(constitutionalTotal));
-    setText("[data-card-constitutional-share]", (totalBudget ? (constitutionalTotal/totalBudget*100).toFixed(1) : "0") + "% of total expenditures");
+    setText("[data-card-personnel-total]", roundedCompact(totalPersonnel));
+    setText("[data-card-personnel-share]", shareOf(totalPersonnel, totalBudget));
+    setText("[data-card-department-total]", roundedCompact(departmentTotal));
+    setText("[data-card-department-share]", shareOf(departmentTotal, totalBudget));
+    setText("[data-card-capital-total]", roundedCompact(totalCapital));
+    setText("[data-card-capital-share]", shareOf(totalCapital, totalBudget));
+    setText("[data-card-constitutional-total]", roundedCompact(constitutionalTotal));
+    setText("[data-card-constitutional-share]", shareOf(constitutionalTotal, totalBudget));
     if(independentAgencyItems.length) renderIndependentAgencies(independentAgencyItems);
   }
 
@@ -283,8 +290,8 @@
     var agencies = Array.isArray(items) ? items : [];
     independentAgencyItems = agencies;
     var total = agencies.reduce(function(value,item){ return value + number(item.budget); },0);
-    setText("[data-card-independent-total]", compact(total));
-    setText("[data-card-independent-share]", (countywideExpenditureTotal ? (total/countywideExpenditureTotal*100).toFixed(1) : "0") + "% of total expenditures");
+    setText("[data-card-independent-total]", roundedCompact(total));
+    setText("[data-card-independent-share]", shareOf(total, countywideExpenditureTotal));
   }
 
   document.addEventListener("DOMContentLoaded", function(){

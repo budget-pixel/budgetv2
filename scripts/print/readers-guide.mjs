@@ -13,7 +13,9 @@
 // Published pages (old numbering) that a new guide page follows. The
 // Financial Overview (18) and Capital Budget (108) guides replace pages
 // that were already guides, so they are not listed here.
-export const INSERT_AFTER = [7, 8, 44, 51, 59, 63, 69, 103, 123];
+// Old page 41 (Reserve Position) is followed by its continuation page,
+// added 2026-11-18; in a range it is written as 41.5.
+export const INSERT_AFTER = [7, 8, 41, 44, 51, 59, 63, 69, 103, 123];
 // Old pages removed from the book: the Capital Funding and Delivery
 // Dashboard (old page 112) repeated the Capital Improvement Plan's fund
 // reconciliation and largest commitments, so it was dropped.
@@ -21,7 +23,7 @@ export const REMOVED = [112];
 export const OLD_PAGE_COUNT = 134;
 export const NEW_PAGE_COUNT = OLD_PAGE_COUNT + INSERT_AFTER.length - REMOVED.length;
 
-export const newPage = (n) => n + INSERT_AFTER.filter((p) => n > p).length - REMOVED.filter((p) => n > p).length;
+export const newPage = (n) => Math.floor(n) + INSERT_AFTER.filter((p) => n > p).length - REMOVED.filter((p) => n > p).length;
 const pageLabel = (page) => Array.isArray(page)
   ? (page[0] === page[1] ? `${newPage(page[0])}` : `${newPage(page[0])}&ndash;${newPage(page[1])}`)
   : `${newPage(page)}`;
@@ -107,7 +109,7 @@ export const GUIDES = [
         ["Interfund Transfer Ledger", 39, "Which funds pay which, so nothing is counted twice"]]],
       ["Look ahead", [
         ["Debt Ledger", 40, "Outstanding debt and this year&rsquo;s payments"],
-        ["Reserve Position", 41, "Six-month reserve targets for the General Fund and tourism"],
+        ["Reserve Position", [41, 41.5], "Reserve targets, and how they are updated, used, and replenished"],
         ["Long-Term Outlook", 42, "The multi-year forecast and recurring-cost pressure"]]]
     ],
     cardsHeading: "What can and cannot be combined",
