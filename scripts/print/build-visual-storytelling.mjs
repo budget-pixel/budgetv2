@@ -189,12 +189,10 @@ const fundEnding = name => values(individualFunds.find(f => f.name === name), "E
 const SMALL_RESERVES = [
   ["Transportation Reserve", simpleReserve("Transportation Fund", fundEnding("Transportation Fund")), `Public Works, Engineering, and the Mossy Head wastewater plant. FY 2027 ending balance: ${millions(fundEnding("Transportation Fund"))}.`],
   ["Solid Waste Reserve", simpleReserve("Solid Waste Fund", fundEnding("Solid Waste Fund"), [
-    // Next year's required deposit to the landfill closure escrow. ESTIMATE
-    // until Solid Waste confirms the DEP financial-assurance amount: the
-    // unfunded closure and post-closure estimate spread over the landfill's
-    // remaining life, ($13,159,818 - $4,907,174 escrow) / 17 years (FY 2025
-    // ACFR, Notes 2 and 3).
-    ["Landfill escrow (est.)", "", Math.round((13159818 - 4907174) / 17)]
+    // Next year's required deposits to the landfill escrow, as set by Solid
+    // Waste for the DEP financial-assurance requirement.
+    ["Landfill closure", "", 139812],
+    ["Landfill long-term care", "", 284500]
   ]), `Solid Waste operations, including the franchise collection contract. FY 2027 ending balance: ${millions(fundEnding("Solid Waste Fund"))}.`]
 ];
 const smallReserveHtml = ([title, r]) => `<div class="rp-col"><h2>${title}</h2>${reserveTable(r.rows, r.target, { fundedFor: (label, amount) => amount, ending: r.ending })}</div>`;
@@ -203,7 +201,7 @@ pages.push(`<section class="page reserve-page">${header('Financial Overview','Re
 ${reserveStats(gfTarget, Math.min(gfTarget, RESERVE.general.ending), 'Funded')}
 ${reserveTable(gfRows, gfTarget, { fundedFor, ending: RESERVE.general.ending })}
 ${femaLine(gfRows)}
-<div class="grid2"><div class="card"><strong>What the six months covers</strong><p>Personnel and operating cover the Board of County Commissioners&rsquo; departments and the Commission office: ${millions(RESERVE.general.personnel + RESERVE.general.operating)} a year in the General Fund.${gfShortfall ? ` With debt and disaster recovery funded first, the balance covers about ${gfMonthsFunded} months; ${millions(gfShortfall)} more restores six.` : ''}</p></div><div class="card"><strong>Disaster relief and recovery</strong><p>After a disaster, the County pays for debris removal and repairs up front. FEMA may reimburse up to 75% of eligible costs, including the 5% insurance deductible on each damaged building and repairs to uninsured facilities, but that money often takes a year or more to arrive.</p></div></div>
+<div class="grid2"><div class="card"><strong>What the six months covers</strong><p>Personnel and operating costs of the General Fund&rsquo;s Board departments. Solid Waste and Public Works are not included because they are covered by their own funds.${gfShortfall ? ` With debt and disaster recovery funded first, the balance covers about ${gfMonthsFunded} months; ${millions(gfShortfall)} more restores six.` : ''}</p></div><div class="card"><strong>Disaster relief and recovery</strong><p>After a disaster, the County pays for debris removal and repairs up front. FEMA may reimburse up to 75% of eligible costs, including the 5% insurance deductible on each damaged building and repairs to uninsured facilities, but that money often takes a year or more to arrive.</p></div></div>
 <h2>Tourist Development Reserve</h2>
 ${reserveStats(tdTarget, Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects), 'Funded')}
 ${reserveTable(tdRows, tdTarget, { fundedFor: (label, amount) => amount, ending: Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects) })}
