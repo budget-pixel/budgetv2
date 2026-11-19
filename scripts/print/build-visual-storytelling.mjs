@@ -35,7 +35,7 @@ pages.push(guidePageHtml(GUIDES.find((g) => g.key === "financial"), header, foot
 // building limits, or survey value for newly scheduled assets), and the
 // 25% of the survey reconstruction cost of uninsured assets (the share left
 // after FEMA Public Assistance's 75%) in the General Fund; the tourism
-// target holds the full replacement cost. Beach access sites, Beach
+// target carries no uninsured-asset line. Beach access sites, Beach
 // Operations, the Tourist Development Building, and the Grayton Beach parking
 // facility are assigned to the Tourist Development Fund. Sites paid for by
 // other funds are left out: Public Works and district road departments,
@@ -44,7 +44,7 @@ pages.push(guidePageHtml(GUIDES.find((g) => g.key === "financial"), header, foot
 // Control, and the auto shop at 116 Montgomery Circle.
 // The tourism target adds $70M for beach renourishment, the strategic plan's
 // and
-// $10M for disaster relief and recovery. The tourism target follows the Walton County Tourism
+// $14,418,477 for beach and facility recovery. The tourism target follows the Walton County Tourism
 // 2026-2030 strategic plan's recommendation of an operating reserve of about
 // half a year of operating costs.
 // The General Fund's six months covers only the Board of County
@@ -69,7 +69,7 @@ const RESERVE = {
     ending2028: values(generalFund, "Estimated Ending Fund Balance")[8]
   },
   tourism: {
-    personnel: 11224417, operating: 34532033, contracts: contractTotal(r => String(r.Dept_Code || "").startsWith("111")), beach: 70000000, recovery: 10000000, deductible: 417475, uninsured: 4418480,
+    personnel: 11224417, operating: 34532033, contracts: contractTotal(r => String(r.Dept_Code || "").startsWith("111")), beach: 70000000, recovery: 14418477, deductible: 417475,
     // FY 2027 tourism capital ($13.2M) is already appropriated, so this
     // ending balance is net of it. FY 2026 projects still open ($27,774,099)
     // are subtracted below.
@@ -134,9 +134,8 @@ const tdRows = [
   ["Operating expenses", `Six months of ${currency(RESERVE.tourism.operating)} operating expenses`, half(RESERVE.tourism.operating)],
   ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
   { group: "Disaster relief and recovery", basis: "Costs after a disaster", children: [
-    ["Beach and facility cleanup", "Beach and tourism facility recovery after a disaster", RESERVE.tourism.recovery, true],
-    ["Insurance deductibles", "5% deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible, true],
-    ["Uninsured assets", "Replacement cost of uninsured dune crossovers and beach facilities", RESERVE.tourism.uninsured, true]
+    ["Beach and facility recovery", "Recovery after a disaster, including uninsured assets", RESERVE.tourism.recovery, true],
+    ["Insurance deductibles", "5% deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible, true]
   ] }
 ];
 // A row is [label, basis, amount] or a { group, basis, children } block whose
@@ -246,15 +245,14 @@ const rpOtherLines = [
   ]],
   ["Tourist Development Reserve", [
     ["Beach renourishment", RESERVE.tourism.beach, "Future beach renourishment projects, set by the Board in line with the tourism strategic plan."],
-    ["Beach and facility cleanup", RESERVE.tourism.recovery, "Based on other Florida counties: Pinellas, $10.4M after Helene for beach access, parking, sidewalks, and amenities; Brevard, $8.4M in beach damage after Ian; Bay, over $15M for parks and beach access after Michael."],
-    ["Insurance deductibles", RESERVE.tourism.deductible, "The 5% deductible on $8.3M of insured beach facilities."],
-    ["Uninsured assets", RESERVE.tourism.uninsured, "Full replacement cost of uninsured dune crossovers and beach facilities."]
+    ["Beach and facility recovery", RESERVE.tourism.recovery, "Half of Beach Operations&rsquo; estimated demolition, design, engineering, and construction cost to rebuild the regional beach accesses and boardwalks after a Category 5 hurricane, including uninsured dune crossovers and beach facilities."],
+    ["Insurance deductibles", RESERVE.tourism.deductible, "The 5% deductible on $8.3M of insured beach facilities."]
   ]],
   ["Solid Waste Reserve", [
     ["Landfill closure escrow contribution (est.)", LANDFILL_ESCROW, "Next year&rsquo;s deposit to the landfill closure escrow for state financial-assurance requirements."]
   ]]
 ];
-const otherLinesHtml = `<div class="rp-other">${rpOtherLines.map(([title, items]) => `<div><h3>${title}</h3>${items.map(([label, amount, text]) => `<p><b>${label}<i>${currency(amount)}</i></b>${text}</p>`).join('')}${title === "Solid Waste Reserve" ? '<h3 class="rp-other-next">Transportation Reserve</h3><p>Personnel and operating costs only.</p>' : ''}</div>`).join('')}</div>`;
+const otherLinesHtml = `<div class="rp-other">${rpOtherLines.map(([title, items]) => `<div><h3>${title}</h3>${items.map(([label, amount, text]) => `<p><b>${label}<i>${currency(amount)}</i></b>${text}</p>`).join('')}</div>`).join('')}</div>`;
 // Department breakdown behind every six-month target (personnel and operating).
 const deptTable = ([fund, depts]) => `<div class="rp-dept"><div class="rp-dept-row rp-dept-head"><strong>${fund}</strong><b>Personnel</b><b>Operating</b></div>${depts.map(d => `<div class="rp-dept-row"><span>${d.name}</span><b>${currency(d.personnelHalf)}</b><b>${currency(d.operatingHalf)}</b></div>`).join('')}<div class="rp-dept-row rp-dept-total"><span>Six months</span><b>${currency(depts.reduce((t, d) => t + d.personnelHalf, 0))}</b><b>${currency(depts.reduce((t, d) => t + d.operatingHalf, 0))}</b></div></div>`;
 pages.push(`<section class="page reserve-page reserve-page-2">${header('Financial Overview','Reserve Position <span class="rp-cont">(continued)</span>','What makes up each reserve target, and how the reserves are used and rebuilt.')}
