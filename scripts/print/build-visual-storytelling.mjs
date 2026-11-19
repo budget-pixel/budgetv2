@@ -80,13 +80,9 @@ const RESERVE = {
 const half = n => Math.round(n / 2);
 // Operating expenses split into contractual obligations and other operating
 // costs, each at six months.
-const operatingGroup = (fund, what) => ({ group: "Operating expenses", basis: `Six months of ${currency(fund.operating)} ${what}`, children: [
-  ["Operating", "Supplies, utilities, insurance, repairs, and other costs", half(fund.operating) - half(fund.contracts)],
-  ["Contractual obligations", `Six months of ${currency(fund.contracts)} in contracted services`, half(fund.contracts)]
-] });
 const gfRows = [
   ["Personnel services", `Six months of ${currency(RESERVE.general.personnel)} Board personnel services`, half(RESERVE.general.personnel)],
-  operatingGroup(RESERVE.general, "Board operating expenses"),
+  ["Operating expenses", `Six months of ${currency(RESERVE.general.operating)} Board operating expenses`, half(RESERVE.general.operating)],
   ["Debt service", "FY 2028 scheduled payment", RESERVE.general.debt2028],
   { group: "Disaster relief and recovery", basis: "Costs after a disaster", children: [
     ["Debris removal", "Countywide debris removal after a disaster", RESERVE.general.debris, true],
@@ -94,9 +90,48 @@ const gfRows = [
     ["Uninsured assets", "Replacement cost of uninsured sheds, fences, lighting, and park structures", Math.round(RESERVE.general.uninsured * 0.25), true]
   ] }
 ];
+// Six months of personnel and operating by department for a fund. Halves are
+// rounded so each column adds to exactly half of the fund total.
+const allocateHalves = amounts => {
+  const total = amounts.reduce((sum, n) => sum + n, 0);
+  const parts = amounts.map(n => ({ half: Math.floor(n / 2), rest: n / 2 - Math.floor(n / 2) }));
+  let shortfall = half(total) - parts.reduce((sum, d) => sum + d.half, 0);
+  [...parts].sort((a, b) => b.rest - a.rest).forEach(d => { if (shortfall > 0) { d.half += 1; shortfall -= 1; } });
+  return parts.map(d => d.half);
+};
+// Offices shown as part of their department in the breakdown.
+const DEPT_ROLLUP = {
+  "Code Compliance Beach": "Code Compliance",
+  "Planning Short-Term Rental": "Planning",
+  "Procurement": "Purchasing",
+  "Eagle Springs Grill": "Eagle Springs Golf and Recreation Center",
+  "Beach Renourishment": "Beach Operations"
+};
+const deptSplit = test => {
+  const totals = new Map();
+  budgetRows.filter(test).forEach(r => {
+    const name = DEPT_ROLLUP[r.Dept_Name] || r.Dept_Name;
+    const type = r.Object_Type === "Personnel Services" ? "personnel" : r.Object_Type === "Operating Expenditures" ? "operating" : "";
+    if (!type) return;
+    const entry = totals.get(name) || { name, personnel: 0, operating: 0 };
+    entry[type] += Number(r.FY2027_Proposed) || 0;
+    totals.set(name, entry);
+  });
+  const depts = [...totals.values()].filter(d => d.personnel + d.operating > 0).sort((a, b) => (b.personnel + b.operating) - (a.personnel + a.operating));
+  const p = allocateHalves(depts.map(d => d.personnel)), o = allocateHalves(depts.map(d => d.operating));
+  return depts.map((d, k) => ({ ...d, personnelHalf: p[k], operatingHalf: o[k] }));
+};
+const fundPrefix = code => r => String(r.Dept_Code || "").startsWith(code);
+const DEPT_SPLITS = [
+  ["General Fund", deptSplit(r => fundPrefix("001")(r) && GF_BOARD_OFFICES.has(r.Dept_Name))],
+  ["Tourist Development Fund", deptSplit(fundPrefix("111"))],
+  ["Transportation Fund", deptSplit(fundPrefix("101"))],
+  ["Solid Waste Fund", deptSplit(fundPrefix("112"))]
+];
+const splitTotal = (fund, key) => DEPT_SPLITS.find(([name]) => name === fund)[1].reduce((sum, d) => sum + d[key], 0);
 const tdRows = [
   ["Personnel services", `Six months of ${currency(RESERVE.tourism.personnel)} personnel services`, half(RESERVE.tourism.personnel)],
-  operatingGroup(RESERVE.tourism, "operating expenses"),
+  ["Operating expenses", `Six months of ${currency(RESERVE.tourism.operating)} operating expenses`, half(RESERVE.tourism.operating)],
   ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
   { group: "Disaster relief and recovery", basis: "Costs after a disaster", children: [
     ["Beach and facility cleanup", "Beach and tourism facility recovery after a disaster", RESERVE.tourism.recovery, true],
@@ -116,15 +151,12 @@ const tdTarget = tdRows.reduce((sum, r) => sum + rowAmount(r), 0);
 const gfShortfall = Math.max(0, gfTarget - RESERVE.general.ending);
 const gfPriority = rowAmount(gfRows[2]) + rowAmount(gfRows[3]);
 const gfOperatingPool = Math.max(0, RESERVE.general.ending - gfPriority);
-const gfOperatingTarget = gfRows[0][2] + rowAmount(gfRows[1]);
+const gfOperatingTarget = gfRows[0][2] + gfRows[1][2];
 const gfPersonnelFunded = Math.round(gfOperatingPool * gfRows[0][2] / gfOperatingTarget);
 const gfOperatingFunded = gfOperatingPool - gfPersonnelFunded;
-const gfContractsFunded = Math.round(gfOperatingFunded * gfRows[1].children[1][2] / rowAmount(gfRows[1]));
 const gfFunded = new Map([
   ["Personnel services", gfPersonnelFunded],
-  ["Operating expenses", gfOperatingFunded],
-  ["Operating", gfOperatingFunded - gfContractsFunded],
-  ["Contractual obligations", gfContractsFunded]
+  ["Operating expenses", gfOperatingFunded]
 ]);
 const fundedFor = (label, amount) => gfShortfall && gfFunded.has(label) ? gfFunded.get(label) : amount;
 const gfMonthsFunded = Math.round(gfOperatingPool / ((RESERVE.general.personnel + RESERVE.general.operating) / 12) * 10) / 10;
@@ -133,11 +165,39 @@ const gfMonthsFunded = Math.round(gfOperatingPool / ((RESERVE.general.personnel 
 // With funded set, a row also shows how much of its target the balance covers.
 const reserveRow = ([label, basis, amount, fema], cls = '', funded) => `<div class="rp-row${cls}${fema ? ' rp-fema' : ''}${funded ? ' rp-funded' : ''}"><strong>${label}</strong><span>${basis}</span><b>${fema ? '<em>FEMA</em>' : ''}${currency(amount)}</b>${funded ? `<b>${currency(funded(label, amount))}</b>` : ''}</div>`;
 const femaEligible = rows => rows.flatMap(r => r.children || [r]).filter(r => r[3]).reduce((sum, r) => sum + r[2], 0);
-const femaLine = rows => `<p class="rp-fema-note"><em>FEMA</em> Eligible for FEMA reimbursement after a declared disaster: ${currency(femaEligible(rows))}, of which 75%, about ${millions(femaEligible(rows) * 0.75)}, could potentially be reimbursed.</p>`;
+const femaLine = rows => `<p class="rp-fema-note"><em>FEMA</em> Eligible for FEMA reimbursement after a declared disaster: ${currency(femaEligible(rows))}, of which 75%, about ${millions(femaEligible(rows) * 0.75)}, could potentially be reimbursed. Reimbursements go back into the disaster relief and recovery line to replenish the reserve.</p>`;
 const reserveTable = (rows, total, funding) => `<div class="rp-table${funding ? ' rp-has-funded' : ''}">${funding ? '<div class="rp-row rp-head rp-funded"><strong></strong><span></span><b>Target</b><b>Funded</b></div>' : ''}${rows.map(r => r.children
-  ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group', funding && funding.fundedFor) + r.children.map(c => reserveRow(c, ' rp-sub', funding && funding.fundedFor)).join('')
+  ? reserveRow([r.group, r.basis, rowAmount(r)], ' rp-group', funding && funding.fundedFor) + (r.deptGrid
+    // Department split shown as a compact two-column list (six months each).
+    ? `<div class="rp-dept-grid">${r.children.map(c => `<div><span>${c[0]}</span><b>${currency(c[2])}</b></div>`).join('')}</div>`
+    : r.children.map(c => reserveRow(c, ' rp-sub', funding && funding.fundedFor)).join(''))
   : reserveRow(r, '', funding && funding.fundedFor)).join('')}<div class="rp-row rp-total${funding ? ' rp-funded' : ''}"><strong>Reserve target</strong><span></span><b>${currency(total)}</b>${funding ? `<b>${currency(Math.min(total, funding.ending))}</b>` : ''}</div>${funding && funding.shortfall ? `<div class="rp-row rp-shortfall rp-funded"><strong>Reserve shortfall</strong><span>Target not covered by the estimated ending balance</span><b></b><b>${currency(funding.shortfall)}</b></div>` : ''}</div>`;
 const reserveStats = (target, ending, endingLabel, shortfall) => `<div class="stats" style="grid-template-columns:repeat(${shortfall ? 3 : 2},1fr)"><div class="stat"><b>${millions(target)}</b><span>Reserve target</span></div><div class="stat"><b>${millions(ending)}</b><span>${endingLabel}</span></div>${shortfall ? `<div class="stat rp-stat-short"><b>${millions(shortfall)}</b><span>Reserve shortfall</span></div>` : ''}</div>`;
+// Transportation and Solid Waste reserves: six months of personnel and
+// operating costs for the departments each fund pays for.
+const simpleReserve = (fund, ending, extraRows = []) => {
+  const personnel = splitTotal(fund, "personnel"), operating = splitTotal(fund, "operating");
+  const rows = [
+    ["Personnel services", "", half(personnel)],
+    ["Operating expenses", "", half(operating)],
+    ...extraRows
+  ];
+  const target = rows.reduce((sum, r) => sum + r[2], 0);
+  return { rows, target, ending, personnel, operating };
+};
+const fundEnding = name => values(individualFunds.find(f => f.name === name), "Estimated Ending Fund Balance")[7];
+const SMALL_RESERVES = [
+  ["Transportation Reserve", simpleReserve("Transportation Fund", fundEnding("Transportation Fund")), `Public Works, Engineering, and the Mossy Head wastewater plant. FY 2027 ending balance: ${millions(fundEnding("Transportation Fund"))}.`],
+  ["Solid Waste Reserve", simpleReserve("Solid Waste Fund", fundEnding("Solid Waste Fund"), [
+    // Next year's required deposit to the landfill closure escrow. ESTIMATE
+    // until Solid Waste confirms the DEP financial-assurance amount: the
+    // unfunded closure and post-closure estimate spread over the landfill's
+    // remaining life, ($13,159,818 - $4,907,174 escrow) / 17 years (FY 2025
+    // ACFR, Notes 2 and 3).
+    ["Landfill escrow (est.)", "", Math.round((13159818 - 4907174) / 17)]
+  ]), `Solid Waste operations, including the franchise collection contract. FY 2027 ending balance: ${millions(fundEnding("Solid Waste Fund"))}.`]
+];
+const smallReserveHtml = ([title, r]) => `<div class="rp-col"><h2>${title}</h2>${reserveTable(r.rows, r.target, { fundedFor: (label, amount) => amount, ending: r.ending })}</div>`;
 pages.push(`<section class="page reserve-page">${header('Financial Overview','Reserve Position','Reserves keep services running through a revenue shortfall or a disaster. Each target below holds six months of personnel and operating costs. The General Reserve target also holds next year&rsquo;s debt payment and disaster-recovery costs.')}
 <h2>General Reserve</h2>
 ${reserveStats(gfTarget, Math.min(gfTarget, RESERVE.general.ending), 'Funded')}
@@ -148,8 +208,8 @@ ${femaLine(gfRows)}
 ${reserveStats(tdTarget, Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects), 'Funded')}
 ${reserveTable(tdRows, tdTarget, { fundedFor: (label, amount) => amount, ending: Math.min(tdTarget, RESERVE.tourism.ending - RESERVE.tourism.fy2026Projects) })}
 ${femaLine(tdRows)}
-<div class="grid2"><div class="card"><strong>Basis for the target</strong><p>The Walton County Tourism 2026&ndash;2030 strategic plan, reviewed at a joint Board of County Commissioners and Tourist Development Council workshop, recommended an operating reserve of about half a year of operating costs.</p></div><div class="card"><strong>Use of the balance</strong><p>Tourist development tax is restricted by Section 125.0104, Florida Statutes, to tourism promotion, beach and visitor facilities, and related uses. The balance above the target is held for those purposes and cannot support General Fund services.</p></div></div>
-<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-group strong,.reserve-page .rp-group b{color:#003f28;font-weight:800}.reserve-page .rp-sub{padding:.03in 0}.reserve-page .rp-sub strong{padding-left:.16in;font-weight:600;color:#3b5249}.reserve-page .rp-sub span,.reserve-page .rp-sub b{font-size:7.6pt}.reserve-page .rp-sub b{font-weight:600;color:#53665d}.reserve-page .rp-sub :is(strong,span,b){font-style:italic}.reserve-page .rp-sub :is(span,b){font-size:7.2pt}.reserve-page .rp-sub strong{font-size:7.6pt}.reserve-page .rp-row em,.reserve-page .rp-fema-note em{display:inline-block;margin-left:.05in;padding:0 .05in;border-radius:3px;background:#dcefe3;color:#0b6b3a;font-style:normal;font-size:6.2pt;font-weight:800;letter-spacing:.04em;vertical-align:1px}.reserve-page .rp-fema-note em{margin:0 .04in 0 0}.reserve-page .rp-fema{background:#f3faf5}.reserve-page .rp-fema-note{margin:.02in 0 .08in;font-size:7.2pt;color:#3b5249}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}.reserve-page .rp-row.rp-funded{grid-template-columns:1.75in 1fr 1.05in 1.05in}.reserve-page .rp-row b:has(em){display:flex;justify-content:space-between;align-items:baseline}.reserve-page .rp-row em{margin:0}.reserve-page .rp-head{padding:.03in 0;border-bottom:1px solid #003f28}.reserve-page .rp-head b{font-size:6.6pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#003f28}.reserve-page .rp-row b.rp-short{color:#9a3d1f}.reserve-page .rp-shortfall{background:#fbf3ec;border-bottom:1.5px solid #9a3d1f}.reserve-page .rp-shortfall strong,.reserve-page .rp-shortfall b{color:#9a3d1f;font-weight:800}.reserve-page .rp-stat-short{background:#7a2f17}.reserve-page .rp-row.rp-funded{grid-template-columns:1.85in 1fr 1.15in .9in}.reserve-page .rp-row b{white-space:nowrap}.reserve-page .rp-row{padding:.028in 0}.reserve-page .rp-sub{padding:.022in 0}.reserve-page .stat{padding:.075in .08in}.reserve-page h2{margin-top:.08in}.reserve-page .card{padding:.08in .12in}.reserve-page .card p{line-height:1.35}.reserve-page .rp-fema-note{margin:.02in 0 .06in}.reserve-page .intro{margin-bottom:.04in}</style>
+<div class="rp-pair">${SMALL_RESERVES.map(smallReserveHtml).join('')}</div>
+<style>.reserve-page h2{margin-top:.12in}.reserve-page .stats{margin:.06in 0 .06in}.reserve-page .rp-table{border-top:1px solid #003f28;margin-bottom:.08in}.reserve-page .rp-row{display:grid;grid-template-columns:2.1in 1fr 1.1in;gap:.12in;align-items:baseline;padding:.04in 0;border-bottom:1px solid #eef1ee;font-size:8pt}.reserve-page .rp-row strong{color:#003f28}.reserve-page .rp-row span{color:#53665d}.reserve-page .rp-row b{text-align:right;color:#173229;font-variant-numeric:tabular-nums}.reserve-page .rp-group strong,.reserve-page .rp-group b{color:#003f28;font-weight:800}.reserve-page .rp-sub{padding:.03in 0}.reserve-page .rp-sub strong{padding-left:.16in;font-weight:600;color:#3b5249}.reserve-page .rp-sub span,.reserve-page .rp-sub b{font-size:7.6pt}.reserve-page .rp-sub b{font-weight:600;color:#53665d}.reserve-page .rp-sub :is(strong,span,b){font-style:italic}.reserve-page .rp-sub :is(span,b){font-size:7.2pt}.reserve-page .rp-sub strong{font-size:7.6pt}.reserve-page .rp-row em,.reserve-page .rp-fema-note em{display:inline-block;margin-left:.05in;padding:0 .05in;border-radius:3px;background:#dcefe3;color:#0b6b3a;font-style:normal;font-size:6.2pt;font-weight:800;letter-spacing:.04em;vertical-align:1px}.reserve-page .rp-fema-note em{margin:0 .04in 0 0}.reserve-page .rp-fema{background:#f3faf5}.reserve-page .rp-fema-note{margin:.02in 0 .08in;font-size:7.2pt;color:#3b5249}.reserve-page .rp-total{border-top:1.5px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page .rp-total b{color:#003f28;font-weight:800}.reserve-page .grid2{gap:.1in}.reserve-page .card strong{display:block;margin-bottom:.03in;color:#003f28;font-size:8pt}.reserve-page .card p{font-size:7.2pt}.reserve-page .rp-line{margin:.06in 0 0;font-size:7.6pt}.reserve-page .rp-row.rp-funded{grid-template-columns:1.75in 1fr 1.05in 1.05in}.reserve-page .rp-row b:has(em){display:flex;justify-content:space-between;align-items:baseline}.reserve-page .rp-row em{margin:0}.reserve-page .rp-head{padding:.03in 0;border-bottom:1px solid #003f28}.reserve-page .rp-head b{font-size:6.6pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#003f28}.reserve-page .rp-row b.rp-short{color:#9a3d1f}.reserve-page .rp-shortfall{background:#fbf3ec;border-bottom:1.5px solid #9a3d1f}.reserve-page .rp-shortfall strong,.reserve-page .rp-shortfall b{color:#9a3d1f;font-weight:800}.reserve-page .rp-stat-short{background:#7a2f17}.reserve-page .rp-row.rp-funded{grid-template-columns:1.85in 1fr 1.15in .9in}.reserve-page .rp-row b{white-space:nowrap}.reserve-page .rp-row{padding:.028in 0}.reserve-page .rp-sub{padding:.022in 0}.reserve-page .stat{padding:.075in .08in}.reserve-page h2{margin-top:.08in}.reserve-page .card{padding:.08in .12in}.reserve-page .card p{line-height:1.35}.reserve-page .rp-fema-note{margin:.02in 0 .06in}.reserve-page .intro{margin-bottom:.04in}.reserve-page .stat{padding:.05in .08in}.reserve-page .card{padding:.06in .11in}.reserve-page .rp-row{padding:.022in 0}.reserve-page .rp-sub{padding:.018in 0}.reserve-page h2{margin-top:.06in}.reserve-page .rp-fema-note{margin:.02in 0 .05in}.reserve-page .rp-dept-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:.3in;padding:.03in 0 .04in .16in;border-bottom:1px solid #eef1ee}.reserve-page .rp-dept-grid div{display:flex;justify-content:space-between;gap:.1in;padding:.012in 0;font-size:7.2pt;font-style:italic;color:#3b5249}.reserve-page .rp-dept-grid span{font-weight:600}.reserve-page .rp-dept-grid b{font-weight:600;color:#53665d;font-variant-numeric:tabular-nums;white-space:nowrap}</style>
 ${footer(41)}</section>`);
 // Reserve Position (continued): how the targets are recalculated, when the
 // reserves may be used, and how they are rebuilt. Written so the Board can
@@ -178,14 +238,14 @@ const rpReplenish = [
   ["Replenishment plan", "The proposed budget shows the shortfall, the amount set aside each year to restore it, and the source: revenue growth, expenditure savings, or year-end balances."],
   ["Reporting", "The Office of Management and Budget reports each reserve against its target at final budget adoption."]
 ];
-pages.push(`<section class="page reserve-page reserve-page-2">${header('Financial Overview','Reserve Position <span class="rp-cont">(continued)</span>','How the reserve targets are recalculated each year, when the reserves may be used, and how they are rebuilt after use. These practices guide the targets on the previous page, and the Board may adopt them as a formal reserve policy.')}
-<h2>How the Targets Are Updated Each Year</h2>
-<ul class="rp-rules">${rpUpdate.map(rule).join('')}</ul>
-<h2>Using the Reserves</h2>
-<ul class="rp-rules">${rpUse.map(rule).join('')}</ul>
-<h2>Replenishing the Reserves</h2>
-<ul class="rp-rules">${rpReplenish.map(rule).join('')}</ul>
-<style>.reserve-page-2 .rp-cont{font:400 13pt Georgia,serif;color:#68786f}.reserve-page-2 h2{margin-top:.14in}.reserve-page-2 .rp-rules{display:grid;grid-template-columns:1fr 1fr;gap:.06in .26in;margin:.08in 0 .04in;padding:0;list-style:none}.reserve-page-2 .rp-rules li{padding:.05in 0 .05in .12in;border-left:2.5px solid #c8a24a;color:#33453c;font-size:7.8pt;line-height:1.38}.reserve-page-2 .rp-rules li b{display:block;margin-bottom:.015in;color:#003f28;font-size:8.2pt;font-weight:800}</style>
+// Department breakdown behind every six-month target (personnel and operating).
+const deptTable = ([fund, depts]) => `<div class="rp-dept"><div class="rp-dept-row rp-dept-head"><strong>${fund}</strong><b>Personnel</b><b>Operating</b></div>${depts.map(d => `<div class="rp-dept-row"><span>${d.name}</span><b>${currency(d.personnelHalf)}</b><b>${currency(d.operatingHalf)}</b></div>`).join('')}<div class="rp-dept-row rp-dept-total"><span>Six months</span><b>${currency(depts.reduce((t, d) => t + d.personnelHalf, 0))}</b><b>${currency(depts.reduce((t, d) => t + d.operatingHalf, 0))}</b></div></div>`;
+pages.push(`<section class="page reserve-page reserve-page-2">${header('Financial Overview','Reserve Position <span class="rp-cont">(continued)</span>','The department costs behind each reserve target, and how the reserves are used and rebuilt.')}
+<h2>How the Targets Are Built</h2>
+<div class="rp-dept-cols"><div>${deptTable(DEPT_SPLITS[0])}</div><div>${DEPT_SPLITS.slice(1).map(deptTable).join('')}</div></div>
+<h2>Using and Replenishing the Reserves</h2>
+<ul class="rp-rules">${rpUse.concat(rpReplenish).map(rule).join('')}</ul>
+<style>.reserve-page-2 .rp-cont{font:400 13pt Georgia,serif;color:#68786f}.reserve-page-2 h2{margin-top:.14in}.reserve-page-2 .rp-rules{display:grid;grid-template-columns:1fr 1fr;gap:.06in .26in;margin:.08in 0 .04in;padding:0;list-style:none}.reserve-page-2 .rp-rules li{padding:.05in 0 .05in .12in;border-left:2.5px solid #c8a24a;color:#33453c;font-size:7.8pt;line-height:1.38}.reserve-page-2 .rp-rules li b{display:block;margin-bottom:.015in;color:#003f28;font-size:8.2pt;font-weight:800}.reserve-page .rp-pair{display:grid;grid-template-columns:1fr 1fr;gap:.3in}.reserve-page .rp-col h2{margin-top:.04in}.reserve-page .rp-col .rp-row.rp-funded{grid-template-columns:1.4in 0 1fr .9in;gap:.06in}.reserve-page .rp-col .rp-row span{font-size:7.2pt}.reserve-page-2 .rp-scope{margin:.02in 0 0;font-size:7pt;color:#53665d}.reserve-page-2 .rp-build-note{margin:.04in 0 .06in;font-size:7.4pt;line-height:1.35;color:#33453c}.reserve-page-2 .rp-dept-cols{display:grid;grid-template-columns:1fr 1fr;gap:.3in;align-items:start}.reserve-page-2 .rp-dept{margin-bottom:.08in;border-top:1px solid #003f28}.reserve-page-2 .rp-dept-row{display:grid;grid-template-columns:1fr .8in .8in;gap:.06in;padding:.014in 0;border-bottom:1px solid #eef1ee;font-size:7pt;color:#33453c}.reserve-page-2 .rp-dept-row b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}.reserve-page-2 .rp-dept-head strong{color:#003f28;font-weight:800;font-size:7.6pt}.reserve-page-2 .rp-dept-head b{font-size:6.4pt;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#003f28}.reserve-page-2 .rp-dept-total{border-top:1px solid #003f28;border-bottom:1.5px solid #003f28}.reserve-page-2 .rp-dept-total span,.reserve-page-2 .rp-dept-total b{color:#003f28;font-weight:800}.reserve-page-2 .rp-rules{grid-template-columns:repeat(3,1fr);gap:.03in .18in;margin:.05in 0 .02in}.reserve-page-2 .rp-rules li{padding:.02in 0 .02in .09in;font-size:6.9pt;line-height:1.3}.reserve-page-2 .rp-rules li b{font-size:7.4pt}.reserve-page-2 h2{margin-top:.08in}</style>
 ${footer(42)}</section>`);
 
 pages.push(`<section class="page map-page">${header('Capital Budget','Where FY 2027 Capital Investment Serves','The funded program combines place-specific projects with countywide asset preservation. Markers identify broad service areas, not surveyed project coordinates.')}

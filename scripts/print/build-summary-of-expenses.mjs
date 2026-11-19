@@ -1,5 +1,7 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
+import assert from "node:assert/strict";
 
 // Builds the FY 2027 Budget Book's "Expenditure Ledger" -- the county's
 // Consolidated Expense Summary by functional classification (General
@@ -123,7 +125,7 @@ const DEPT_GROUPS = [
     ["Recreation", "$833,393"],
     ["Recreation Plat Fee", "$600,000"],
     ["Eagle Springs Grill", "$570,000"],
-    ["Board of County Commissioners", "$100,000"],
+    ["Boating Improvement Program", "$100,000"],
     ["Culture and Recreation (Senior Centers & Mainstreet)", "$42,000"],
   ]],
   ["Court Related Cost", [
@@ -216,7 +218,7 @@ const FY2026_DEPARTMENT_BUDGETS = {
 const money = (amount) => "$" + amount.toLocaleString("en-US");
 const amountOf = (value) => Number(String(value).replace(/[^0-9.-]/g, ""));
 function priorDepartmentBudget(functionName, name) {
-  if (functionName === "Culture and Recreation" && name === "Board of County Commissioners") return 0;
+  if (functionName === "Culture and Recreation" && name === "Boating Improvement Program") return 0;
   if (!(name in FY2026_DEPARTMENT_BUDGETS)) throw new Error("Missing FY 2026 department budget: " + name);
   return FY2026_DEPARTMENT_BUDGETS[name];
 }
@@ -240,8 +242,19 @@ ROWS.forEach((row) => {
 const DEPT_GROUPS_A = DEPT_GROUPS.slice(0, 4);
 const DEPT_GROUPS_B = DEPT_GROUPS.slice(4);
 
+const humanServicesExpenseRows = JSON.parse(readFileSync(new URL("../../assets/static-data/budget.json", import.meta.url), "utf8")).data.expenditures;
+const HUMAN_SERVICES_PROGRAMS = [
+  ["Medicaid Services", row => row.Project_Name === "Medicaid Services"],
+  ["Health Care Response (HCRA)", row => row.Project_Name === "Health Care Response (HCRA)"],
+  ["DeFuniak Community Redevelopment Agency", row => row.Project_Name === "DeFuniak Community Redevelopment Agency"],
+  ["Opioid Settlement Programs", row => String(row.Dept_Code) === "00102012" && /opioid settlement/i.test(row.Project_Name || "")]
+].map(([name, matches]) => [name, humanServicesExpenseRows.filter(matches).reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0)]);
+assert.equal(HUMAN_SERVICES_PROGRAMS.reduce((sum, [, amount]) => sum + amount, 0), 2316300);
+const humanServicesBreakdown = '<div class="human-services-breakdown"><b>FY 2027 program breakdown</b>' +
+  HUMAN_SERVICES_PROGRAMS.map(([name, amount]) => '<div><span>' + name + '</span><strong>' + money(amount) + '</strong></div>').join('') + '</div>';
+
 function deptRow(cells, functionName) {
-  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${money(priorDepartmentBudget(functionName, cells[0]))}</div><div class="dnum">${cells[1]}</div></div>`;
+  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${money(priorDepartmentBudget(functionName, cells[0]))}</div><div class="dnum">${cells[1]}</div></div>${functionName === "Human Services" && cells[0] === "Human Services" ? humanServicesBreakdown : ""}`;
 }
 function buildDeptSections(groups) {
   return groups.map(([fn, rows]) => `
@@ -258,6 +271,10 @@ const row = (cells, cls) => {
 const tableHead = `<div class="lrow head"><div class="rlabel">Functional Classification</div>${YEARS.map((y) => `<div class="rnum">${y === "FY 2027 Final" ? "FY 2027<br>Final" : y}</div>`).join("")}</div>`;
 
 const sharedCss = `
+  .human-services-breakdown{break-inside:avoid;margin:.03in 0 .08in;padding:.05in .06in .05in .1in;background:#f7faf8;border-left:2px solid #d1be78;font:6.7pt/1.3 Arial,Helvetica,sans-serif;color:#52665b}
+  .human-services-breakdown>b{display:block;margin-bottom:.03in;color:#003f28}
+  .human-services-breakdown>div{display:flex;justify-content:space-between;gap:.05in;padding:.015in 0}
+  .human-services-breakdown strong{white-space:nowrap}
   @page{ size:letter portrait; margin:0; }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }

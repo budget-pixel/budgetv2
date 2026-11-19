@@ -271,7 +271,7 @@ const page1 = `
     </div>
     <p class="footnote"><b>Medical Examiner:</b> The $469,768 decrease reflects facility funding included in FY 2026 that does not recur in FY 2027.</p>
     <p class="footnote"><b>Court budgets:</b> Public Defender funding includes $91,270 in IT salary reimbursements. Court Administration includes $120,678 in salaries and benefits; its $300,000 FY 2026 equipment appropriation is shown under capital.</p>
-    <p class="footnote"><b>Board of County Commissioners:</b> The $12,935,889 office budget comprises $11,230,889 shown here, including $400,000 contingency and $5,000 grants, plus $1,705,000 capital. Sheriff comparisons use the amended FY 2026 budget.</p>
+    <p class="footnote"><b>Board of County Commissioners:</b> The $12,935,889 office budget comprises $11,230,889 shown here, including $400,000 contingency and $5,000 grants, plus $1,705,000 capital.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_A</b></footer>
   </section>
@@ -296,7 +296,7 @@ const page2 = `
     </div>
     ${row(GRAND_TOTAL, "grand")}
 
-    <p class="footnote"><b>Board Department Total:</b> Board department totals include operating and personnel costs; capital is listed separately. Department profiles include their capital items. Total Capital of $53.50M comprises the $43.80M Capital Improvement Plan, $7.12M in machinery, vehicles, and equipment, and $2.58M in debt service.</p>
+    <p class="footnote"><b>Board Department Total:</b> Board department totals include operating and personnel costs; capital is listed separately. Department profiles include their capital items. Total Capital of $53.50M comprises the $43.80M Capital Improvement Plan, $7.12M in machinery, vehicles, and equipment, and $2.58M in debt payment.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>
   </section>

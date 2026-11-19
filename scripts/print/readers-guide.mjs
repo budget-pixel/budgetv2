@@ -55,7 +55,7 @@ export const GUIDES = [
         ["How large is the budget?", 19, "Budget in Brief"],
         ["What changed from FY 2026?", 23, "Budget Change Summary"],
         ["Where does the money come from?", 27, "Revenue Ledger"],
-        ["How is my property tax dollar divided?", 31, "Property Tax Allocation Ledger"],
+        ["How is my property tax dollar allocated?", 31, "Property Tax Allocation Ledger"],
         ["How much is held in reserve?", 41, "Reserve Position"]]],
       ["The detail", [
         ["What does each constitutional officer receive?", 52, "Constitutional Officers and Board Office Ledger"],
@@ -77,7 +77,8 @@ export const GUIDES = [
       ["Meet the county", [
         ["Overview of Walton County", 9, "Geography, history, and growth"],
         ["Discover Walton County", 10, "The communities and culture that shape County services"],
-        ["Board of County Commissioners", 11, "The five district commissioners"]]],
+        ["Board of County Commissioners", 11, "The five district commissioners"],
+        ["Constitutional Officers", 11, "The five independently elected officers"]]],
       ["How the County is organized", [
         ["Organizational Structure", 12, "How residents, the Board, and departments connect"],
         ["Strategic Initiatives", 13, "The County&rsquo;s mission, vision, and core values"]]],
@@ -93,20 +94,20 @@ export const GUIDES = [
     groups: [
       ["Start with the big picture", [
         ["Budget in Brief", 19, "Where each dollar comes from and where it goes"],
-        ["How the Budget Works", 20, "How revenue moves through funds to services, and why gross fund totals exceed the net budget"]]],
+        ["How the Budget Works", 20, "How revenue moves through funds to services"]]],
       ["See the whole budget", [
         ["Consolidated Budget Ledger", 21, "Every fund&rsquo;s sources and uses side by side"],
-        ["Budget Change Summary", 23, "What changed from FY 2026 and why"]]],
+        ["Budget Change Summary", 23, "What changed from FY 2026"]]],
       ["Follow the money in", [
         ["Revenue Portfolio", 25, "The mix of revenue sources and how dependable each is"],
         ["Revenue Strategy", 26, "How FY 2027 resources were estimated"],
         ["Revenue Ledger", 27, "Every revenue line by fund"],
-        ["Property Tax Allocation Ledger", 31, "How each property tax dollar is divided"],
+        ["Property Tax Allocation Ledger", 31, "How each property tax dollar is allocated"],
         ["Florida Amendment 3 Risk", 33, "Exposure to a possible property tax change"]]],
       ["Follow the money out", [
         ["Expenditure Ledger", 34, "Spending by fund, function, and department"],
-        ["Fund Financial Ledger", 37, "Each fund&rsquo;s opening balance, sources, uses, and ending balance"],
-        ["Interfund Transfer Ledger", 39, "Which funds pay which, so nothing is counted twice"]]],
+        ["Fund Financial Ledger", 37, "Each fund&rsquo;s opening balance, sources, uses, and estimated ending balance"],
+        ["Interfund Transfer Ledger", 39, "Budgeted amounts transferred from one governmental fund to another for work or services provided"]]],
       ["Look ahead", [
         ["Debt Ledger", 40, "Outstanding debt and this year&rsquo;s payments"],
         ["Reserve Position", [41, 41.5], "Reserve targets, and how they are updated, used, and replenished"],
@@ -164,7 +165,7 @@ export const GUIDES = [
       ["Start with public value", [
         ["What Residents Receive", 64, "How the budget connects to everyday services"]]],
       ["Then each service area", [
-        ["Safety, Justice and Effective Government", 65, "Purpose, full cost, funding, and FY 2027 targets"],
+        ["Public Safety and Effective Government", 65, "Purpose, full cost, funding, and FY 2027 targets"],
         ["Visitors, Mobility and Infrastructure", 66, "Purpose, full cost, funding, and FY 2027 targets"],
         ["Environment, Growth and Community Development", 67, "Purpose, full cost, funding, and FY 2027 targets"],
         ["Quality of Life and Community Wellbeing", 68, "Purpose, full cost, funding, and FY 2027 targets"]]]
@@ -251,8 +252,9 @@ function stepsHtml(guide) {
   }
   const count = guide.groups.length;
   return `<div class="step-row" style="grid-template-columns:repeat(${count},1fr)">${guide.groups.map(([stage, items], i) => {
-    const first = firstPage(items[0][1]);
-    const last = lastPage(items[items.length - 1][1]);
+    const inRange = items.filter((item) => !(item[3] && item[3].outside));
+    const first = firstPage(inRange[0][1]);
+    const last = lastPage(inRange[inRange.length - 1][1]);
     const range = first === last ? `${newPage(first)}` : `${newPage(first)}&ndash;${newPage(last)}`;
     return `<div class="step"><b>${count > 1 ? stepLabel(i, count) + " &middot; " : ""}p. ${range}</b><strong>${stage}</strong><p>${items.map((item) => item[0]).join(", ")}</p></div>`;
   }).join("")}</div>`;

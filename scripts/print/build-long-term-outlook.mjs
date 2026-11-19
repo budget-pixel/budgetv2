@@ -1,26 +1,17 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import { newPage } from "./readers-guide.mjs"; // in-text page references follow the Reader's Guide numbering
-import { consolidated, generalFund, values, millions } from "./fund-schedule-data.mjs";
+import { readFileSync } from "node:fs";
+import assert from "node:assert/strict";
 
-// New chapter: "Long-Term Outlook" -- closes the Financial Plan and
-// Capital Program chapter (placed after the Debt Ledger, before the
-// Back Cover). Addresses a GFOA Distinguished Budget Presentation
-// scoring category this book had no dedicated synthesis chapter for.
-//
-// Every number here already exists elsewhere in this book and is
-// reproduced, not recomputed from a new source: the FY22-FY29
-// consolidated Fund Financial Ledger forecast, the FY 2027-FY 2031
-// five-year Capital Improvement Plan trend, the Debt Ledger's payoff
-// schedule and pay-as-you-go policy statement, the Statistical &
-// Supplemental Information page's Census figures, and the Transmittal
-// Letter's own "Looking Ahead" paragraph. The only net-new figures are
-// two derived ratios computed directly from numbers already in the book
-// (General Fund reserve as a share of General Fund spending, and a
-// month-equivalent), and a 4-year countywide operating millage rate
-// history (FY 2024-FY 2027) confirmed via public reporting (Walton County
-// did not have a citable, confirmed FY 2023 rate, so that year is
-// intentionally omitted rather than guessed).
+// The outlook summarizes the live site's six-fund Forecast Explorer and
+// broader CIP inventory. Its scenario balances have a different scope and
+// basis from the countywide Fund Financial Ledger; keep that distinction explicit.
+const outlook = JSON.parse(readFileSync(new URL("../data/forecast-outlook-snapshot.json", import.meta.url), "utf8"));
+assert.equal(outlook.funds.length, 6);
+assert.equal(outlook.years.length, 5);
+outlook.funds.forEach(fund => assert.equal(fund.endingBalances.length, outlook.years.length));
+const millions = value => "$" + (value / 1e6).toFixed(1) + "M";
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -125,7 +116,7 @@ const sharedCss = `
   }
   p.warn b{ display:block; color:#a24b1e; font-size:6.6pt; font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin-bottom:.03in; }
   .fcast-table{ border-top:2px solid #d1be78; margin-top:.06in; font-size:7pt; }
-  .frow{ display:grid; grid-template-columns:1.9in repeat(4,1fr); gap:.06in; align-items:center; padding:.055in 0; border-bottom:1px solid #eef1ee; text-align:right; }
+  .frow{ display:grid; grid-template-columns:1.9in repeat(5,1fr); gap:.06in; align-items:center; padding:.055in 0; border-bottom:1px solid #eef1ee; text-align:right; }
   .frow.head{ border-bottom:1px solid #003f28; color:#68786f; font-size:6.1pt; font-weight:800; letter-spacing:.01em; text-transform:uppercase; }
   .frow div:first-child{ text-align:left; color:#173229; font-weight:700; }
   .frow.head div:first-child{ color:#68786f; font-weight:800; }
@@ -175,18 +166,9 @@ const sharedCss = `
 const startPage = Number(process.argv[3] || 108);
 
 const MILLAGE = [["FY 2024", 3.6000], ["FY 2025", 3.575], ["FY 2026", 3.519], ["FY 2027", 3.2500]];
-const CIP = [["FY27", 43.8, true], ["FY28", 42.7, false], ["FY29", 36.1, false], ["FY30", 43.2, false], ["FY31", 35.3, false]];
+const CIP = outlook.years.map((year, i) => ["FY" + String(year).slice(2), outlook.capitalInventoryMillions[i], i === 0]);
 
-const FORECAST_ROWS = [
-  ["Beginning Fund Balance", ...values(consolidated, "Beginning Fund Balance").slice(6, 10).map(millions)],
-  ["Total Revenue & Other Sources", ...values(consolidated, "Total Revenue and Other Financial Sources").slice(6, 10).map(millions)],
-  ["Total Expenditures & Other Uses", ...values(consolidated, "Total Expenditures and Other Financial Uses").slice(6, 10).map(millions)],
-  ["Change in Fund Balance", ...values(consolidated, "Change in Fund Balance").slice(6, 10).map(millions), values(consolidated, "Change in Fund Balance").slice(6, 10).map(v => v < 0)],
-  ["Estimated Ending Fund Balance", ...values(consolidated, "Estimated Ending Fund Balance").slice(6, 10).map(millions)]
-];
-const generalFundEnding = millions(values(generalFund, "Estimated Ending Fund Balance")[7]);
-const nextYearDraw = millions(-values(consolidated, "Change in Fund Balance")[8]);
-const followingYearDraw = millions(-values(consolidated, "Change in Fund Balance")[9]);
+const FORECAST_ROWS = outlook.funds.map(fund => [fund.name, ...fund.endingBalances.map(millions)]);
 
 const page1 = `
   <section>
@@ -211,13 +193,13 @@ const page1 = `
     <p class="trend">The countywide operating millage has fallen from 3.6000 mills in FY 2024 to a final 3.2500 mills in FY 2027 &mdash; a reduction of 9.7% &mdash; while the final budget adds a net 15 FTE and funds $43.8M in capital projects. The tentative-hearing comparison estimated an $8.6M revenue effect from lowering the rate; the final funding schedule budgets $8.0M of General Fund balance brought forward after all revenue updates.</p>
 
     <h2>The Multi-Year Financial Forecast</h2>
-    <p class="body">The Fund Financial Ledger and this table use the same Consolidated Fund Financial Schedule. That schedule extends through FY 2029. The separate six-major-fund Forecast Explorer uses fund-specific assumptions and the capital project schedule through FY 2031; it is not the same countywide projection.</p>
+    <p class="body">The site's Forecast Explorer projects six major funds through FY 2031. The table below shows each fund's estimated year-end balance under that scenario. Its coverage and assumptions differ from the countywide Fund Financial Ledger.</p>
     <div class="fcast-table">
-      <div class="frow head"><div>Consolidated, All Funds</div><div>FY 2026 Budget</div><div>FY 2027 Final</div><div>FY 2028 Proj.</div><div>FY 2029 Proj.</div></div>
-      ${FORECAST_ROWS.map((r) => { const neg = r[5] || [false, false, false, false]; return `<div class="frow"><div>${r[0]}</div><div><b${neg[0] ? " class=\"neg\"" : ""}>${r[1]}</b></div><div><b${neg[1] ? " class=\"neg\"" : ""}>${r[2]}</b></div><div><b${neg[2] ? " class=\"neg\"" : ""}>${r[3]}</b></div><div><b${neg[3] ? " class=\"neg\"" : ""}>${r[4]}</b></div></div>`; }).join("")}
+      <div class="frow head"><div>Estimated Ending Balance</div>${outlook.years.map(year => `<div>FY ${year}</div>`).join("")}</div>
+      ${FORECAST_ROWS.map(r => `<div class="frow"><div>${r[0]}</div>${r.slice(1).map(amount => `<div><b>${amount}</b></div>`).join("")}</div>`).join("")}
     </div>
-    <p class="body">Amounts are rounded to $0.1 million. From FY 2027, the General Fund uses its FY 2025 audited unassigned balance as the opening assumption; other funds retain total balances. FY 2028 and FY 2029 roll forward from the preceding projected closing balance.</p>
-    <p class="warn"><b>A Trend Worth Watching</b>The consolidated budget plans a $21.3M countywide use of fund balance in FY 2027 across operating, capital, and restricted funds, including $8.0M in the General Fund. This schedule projects further decreases of ${nextYearDraw} in FY 2028 and ${followingYearDraw} in FY 2029 as spending and transfers outpace revenue growth. These are projections under the schedule's assumptions, not current-year funding shortfalls.</p>
+    <p class="body">Amounts are rounded to $0.1 million; FY 2027 is the site scenario baseline. The General Fund starts with its audited unassigned balance; other funds use total balances, including restricted resources. Tourism uses a $60.3M revenue base drawn from recent actual collections.</p>
+    <p class="warn"><b>Different Funds Face Different Pressures</b>General Fund and Transportation balances recover after FY 2027 under the site's growth and capital-spending assumptions. Tourism begins using fund balance in FY 2029, with a $2.2M annual gap by FY 2031. Sheriff and Capital Projects balances depend on future transfers or financing being provided.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -229,11 +211,19 @@ const page2 = `
     <h1 class="continued">Long-Term Outlook <span class="sub">(continued)</span></h1>
 
     <h2 style="margin-top:.08in;">Future Reserve Pressure</h2>
-    <p class="body">Projected spending and transfers exceed revenue in FY 2028 and FY 2029, reducing the balances available for future needs. Continued use of accumulated resources would limit financial flexibility and should be considered when evaluating recurring commitments and future capital projects. See Reserve Position on pages ${newPage(41)}&ndash;${newPage(41.5)} for the reserve targets and how they are managed.</p>
+    <p class="body">The General Fund is projected to end FY 2031 at $57.3M, recovering from $50.3M after FY 2027 but remaining below its $58.4M opening balance. Tourism peaks at $168.4M in FY 2028 before declining to $164.6M in FY 2031. Fund balances include different restrictions; see Reserve Position on pages ${newPage(41)}&ndash;${newPage(41.5)} for reserve targets.</p>
+
+    <h2>Assumptions Behind the Forecast</h2>
+    <div class="two-col">
+      <div class="info-card"><b>General Fund and Transportation</b><span>General Fund revenue generally grows 1% and expenses 0.5% annually, with line-specific exceptions. Transportation expenses generally grow 2%, while its shared surtax transfer grows 2.5%. Both forecasts reduce future capital spending to avoid repeating the FY 2027 use of carried-forward balances.</span></div>
+      <div class="info-card"><b>Tourist Development</b><span>The site starts tourism revenue at recent collections of $60.3M, compared with the $59.0M adopted revenue budget. Core tourism revenue grows 1% annually while most expense lines grow 3%; flat assumptions apply to selected items, including beach renourishment.</span></div>
+      <div class="info-card"><b>Sheriff and Capital Projects</b><span>The Sheriff transfer is calculated to support projected expenses after other revenues. Capital Projects spending follows the CIP and the model supplies matching financing. Future budgets must identify and approve funding in the sending funds.</span></div>
+      <div class="info-card"><b>Solid Waste</b><span>The site projects modest annual gains, reaching $52.1M in FY 2031. Actual results depend on revenue growth, service costs, and the transfers the fund provides to other County funds.</span></div>
+    </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
     <div class="two-col">
-      <div class="info-card"><b>What FY 2027 Commits</b><span>Countywide personnel cost rises $8.49M. Drivers include a net 15-FTE increase, a 3% cost-of-living adjustment ($1.19M Board wage impact), a 5% health-premium increase ($423,319 County impact), and other pay and benefit changes. These costs, contracts, and operation of new or expanded assets continue unless changed through a later budget.</span></div>
+      <div class="info-card"><b>What FY 2027 Commits</b><span>Countywide personnel cost rises $8.54M, with a net 15-FTE increase. The change includes staffing, salaries, health insurance, retirement, and other employer costs. Personnel costs, contracts, and operation of new or expanded assets continue unless changed through a later budget.</span></div>
       <div class="info-card"><b>What Remains to Be Estimated</b><span>Capital ledgers identify whether operating effects are absorbed, immaterial, ongoing, or pending. Maintenance and operating costs marked pending &mdash; especially for future phases or newly selected projects &mdash; must be estimated before later funding decisions.</span></div>
     </div>
 
@@ -243,11 +233,11 @@ const page2 = `
     <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page ${newPage(40)} for payment amounts and funding details.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
-    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 final plan, from the Capital Improvement Plan chapter</p>
-    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / 43.8 * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-    <p class="trend">The plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030. These projected years do not include grant-funded projects or prior-year projects that may be rebudgeted, which are excluded throughout.</p>
+    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 project inventory, from the live site CIP spending trend</p>
+    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / Math.max(...outlook.capitalInventoryMillions) * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
+    <p class="trend">The site's broader project inventory moves from $71.3M in FY 2027 to $35.3M in FY 2031, with $46.2M scheduled in FY 2030. It includes grant-dependent, separately funded, and prior-funded work. The book's funded FY 2027 CIP remains $43.8M; these are different presentations of the project program.</p>
 
-    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The base forecast uses the published revenue assumptions and assumes no specific Amendment 3 reduction. Downside triggers include tax-law changes, weaker sales or tourism activity, grant delays, claims, capital timing, and hiring results. Monitoring revenue, expenditures, capital timing, and ending balances helps the Board assess service levels, capital priorities, reserves, and millage options as conditions change.</p>
+    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The site scenario assumes continued revenue growth, spending limits, capital adjustments, and future transfer funding. Tax-law changes, weaker sales or tourism activity, grant delays, claims, and new operating costs can change the outcome. Review actual results annually and reconcile transfers across funds before using projected balances to support new commitments.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>
@@ -262,6 +252,7 @@ const outPath = process.argv[2] || "/private/tmp/budget-book-long-term-outlook.p
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });
+await assertPublicationFits(page);
 await capturePublicationHtml(page, outPath);
 await page.pdf({ path: outPath, format: "Letter", printBackground: true, preferCSSPageSize: true, tagged: true, margin: { top: "0", right: "0", bottom: "0", left: "0" } });
 await browser.close();

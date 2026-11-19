@@ -178,7 +178,7 @@ const html = `<!doctype html>
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Debt Ledger</h1>
-    <p class="intro">Walton County's only long-term debt consists of a $27,000,000 Note Payable issued in 2015 and a $2,500,000 Revenue Promissory Note issued in 2020. Both notes funded public improvements, most notably the Broadband project. Together, $9.2M in remaining debt service, including principal and interest, is outstanding. FY 2027 debt payments are scheduled to end in FY 2030.</p>
+    <p class="intro">The County is repaying two long-term loans used for broadband and other public improvements. This ledger shows the original borrowing amounts and scheduled principal and interest payments. Remaining payments total $9.2M, including $2.58M in FY 2027, with final repayment scheduled for FY 2030.</p>
 
     <div class="stat-strip">${STATS.map(([v, l]) => `<div class="stat-card"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
 

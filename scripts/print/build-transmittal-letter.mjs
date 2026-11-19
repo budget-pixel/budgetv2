@@ -237,13 +237,13 @@ const html = `<!doctype html>
         <p class="byline">A budget message from the Chief Financial Officer</p>
         <p class="salutation">To the Honorable Walton County Board of County Commissioners:</p>
         <p>In accordance with Section 129.03(3), Florida Statutes, I am pleased to transmit Walton County&rsquo;s final budget for Fiscal Year 2027. The adopted plan totals $345.2 million. It maintains current services while funding public safety, infrastructure, and the staffing a growing county needs.</p>
-        <p>The Board shaped this budget most directly at the tentative hearing, where it reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills. That change lowers estimated property tax revenue by about $8.6 million. Rather than reduce services to absorb it, the Board kept the expenditure plan as proposed and balanced the difference with $8,047,270 of General Fund balance. Because that draws on accumulated reserves rather than new recurring revenue, the County will need to watch reserve levels and future recurring costs closely.</p>
+        <p>The Board shaped this budget most directly at the tentative hearing, where it reduced the proposed countywide operating millage from 3.4347 to 3.2500 mills. That change lowers estimated property tax revenue by about $8.6 million. Rather than reduce services to absorb it, the Board kept the expenditure plan as proposed and balanced the difference with about $8 million of General Fund balance. Because that draws on accumulated reserves rather than new recurring revenue, the County will need to watch reserve levels and future recurring costs closely.</p>
         <p>Within that framework, the final budget makes four principal commitments:</p>
         <ul>
           <li><strong>Services:</strong> maintain current service levels and fully fund the Sheriff, the other Constitutional Officers, and statutory obligations.</li>
-          <li><strong>Capital:</strong> invest $43.8 million in funded capital projects, including roads, drainage, facilities, and other public assets.</li>
+          <li><strong>Capital:</strong> invest $51.1 million in capital, including $43.8 million in funded projects for roads, drainage, facilities, and other public assets, along with vehicles, machinery, and equipment.</li>
           <li><strong>Staffing:</strong> add a net 15 positions where workload requires it, fund a 3% cost-of-living adjustment, and increase the Self-Insurance Fund balance to meet the required 60-day claims reserve.</li>
-          <li><strong>Reserves:</strong> fund $50.3 million of the General Fund&rsquo;s $51.7 million target and the Tourist Development Fund&rsquo;s full $137.7 million target.</li>
+          <li><strong>Reserves:</strong> fund $50.3 million of the General Fund&rsquo;s $51.7 million target and fully fund the Tourist Development ($107.7 million), Transportation ($11.8 million), and Solid Waste ($11.2 million) reserve targets.</li>
         </ul>
         <p>The pages that follow detail the revenue assumptions, reserve effects, staffing changes, capital projects, and performance measures behind these commitments.</p>
       </div>
@@ -262,7 +262,7 @@ const html = `<!doctype html>
             <i class="stat-page">p. ${newPage(70)}</i>
           </div>
           <div class="stat">
-            <b>$149.0M</b>
+            <b>$149M</b>
             <span>Constitutional Officers Budgets</span>
             <i class="stat-page">p. ${newPage(52)}</i>
           </div>
@@ -272,23 +272,23 @@ const html = `<!doctype html>
             <i class="stat-page">p. ${newPage(109)}</i>
           </div>
           <div class="stat">
-            <b>$9.0M</b>
+            <b>$9M</b>
             <span>Other Agencies and Court-Related Budgets</span>
             <i class="stat-page">p. ${newPage(60)}</i>
           </div>
           <p class="stat-group">Revenues</p>
           <div class="stat">
-            <b>$153.0M</b>
+            <b>$153M</b>
             <span>Property Tax</span>
             <i class="stat-page">p. ${newPage(31)}</i>
           </div>
           <div class="stat">
-            <b>$59.0M</b>
+            <b>$59M</b>
             <span>Tourist Development Tax</span>
             <i class="stat-page">p. ${newPage(27)}</i>
           </div>
           <div class="stat">
-            <b>$40.0M</b>
+            <b>$40M</b>
             <span>Discretionary Sales Surtax</span>
             <i class="stat-page">p. ${newPage(27)}</i>
           </div>
@@ -334,7 +334,7 @@ const html = `<!doctype html>
       <div class="fund-card"><strong>General Fund</strong><b>$81.2M</b><em class="is-down">&minus;2.7%</em></div>
       <div class="fund-card"><strong>Transportation Fund</strong><b>$30.7M</b><em>+15.3%</em></div>
       <div class="fund-card"><strong>Sheriff (Fine &amp; Forfeiture) Fund</strong><b>$114.1M</b><em>0.0%</em></div>
-      <div class="fund-card"><strong>Tourist Development Fund</strong><b>$59.0M</b><em>+14.5%</em></div>
+      <div class="fund-card"><strong>Tourist Development Fund</strong><b>$59M</b><em>+14.5%</em></div>
       <div class="fund-card"><strong>Solid Waste Fund</strong><b>$23.1M</b><em>+4.6%</em></div>
       <div class="fund-card"><strong>Capital Projects Fund</strong><b>$27.6M</b><em>+35.8%</em></div>
     </div>
@@ -342,10 +342,8 @@ const html = `<!doctype html>
     <h2>Investing in Our Workforce</h2>
     <p>The budget includes 1,513 positions, a net increase of 15: 665 Board department positions (up 12) and 848 positions assigned to constitutional officers and the County-funded court position (up 3). Countywide, 1,506 positions are full-time and 7 are part-time. The largest Board department change is in Tourism Beach Operations (up 13), supporting continued Beach Operations and Beach Tram service. The added positions support existing services.</p>
 
-    <h2>Continuity, Capital Investment and Preparedness</h2>
-    <p><strong>Service continuity.</strong> The FY 2027 budget maintains current core services while investing in infrastructure and preserving financial flexibility.</p>
-    <p><strong>Capital investment.</strong> The funded FY 2027 capital program totals $43.8 million. Grant-dependent projects, the Sheriff/Fine and Forfeiture Fund project, and previously funded tourism projects are listed separately in the project inventory.</p>
-    <p><strong>Financial preparedness.</strong> Florida voters are scheduled to consider Amendment 3 in November 2026, which could change the County's taxable property base. The adopted budget uses current law. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
+    <h2>Looking Ahead</h2>
+    <p>Florida voters are scheduled to consider Amendment 3 in November 2026, which could change the County's taxable property base. The adopted budget uses current law. The County will continue to monitor revenue, reserves, grant awards, service demand, and long-term commitments throughout FY 2027.</p>
     <p>I thank the Board for its guidance and County staff for its work developing this final budget.</p>
 
     <div class="signature-block">

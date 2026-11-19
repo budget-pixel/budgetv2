@@ -9491,6 +9491,12 @@
     }, 0);
   }
 
+  function revenueLedgerSourceLabel(name) {
+    if (name === "Federal Grant (Economic Environment)") return "Federal Grant (Section 8)";
+    if (name === "State Grant (Health)") return "State Grant (Mosquito Control State Aid)";
+    return name;
+  }
+
   function renderConsolidatedRevenueSummaryTable(rowsOverride) {
     const rows = rowsOverride || cache.revenues || [];
     if (!rows.length) return "";
@@ -9690,7 +9696,7 @@
         // collected revenue source -- it has no narrative, trend, or
         // control profile of its own, so it isn't given a detail
         // page/graph like the real sources above it.
-        '<tr><td>' + ((NON_SOURCE_REVENUE_NAME_PATTERN.test(name) || NON_CLICKABLE_SURPLUS_REVENUE_NAME_PATTERN.test(name)) ? escapeHtml(name) : '<button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(name) + ' graph and information">' + escapeHtml(name) + '</button>') + '</td>' +
+        '<tr><td>' + ((NON_SOURCE_REVENUE_NAME_PATTERN.test(name) || NON_CLICKABLE_SURPLUS_REVENUE_NAME_PATTERN.test(name)) ? escapeHtml(name) : '<button type="button" class="wc-revenue-ledger-source-link" data-revenue-ledger-source="' + escapeHtml(revenueLedgerDetailTarget(name)) + '" title="View ' + escapeHtml(revenueLedgerSourceLabel(name)) + ' graph and information">' + escapeHtml(revenueLedgerSourceLabel(name)) + '</button>') + '</td>' +
         CONSOLIDATED_REVENUE_SUMMARY_COLUMNS.map((col, i) => {
           const sum = dedupedRevenueSum(entry.rows, col.field);
           totals[i] += sum;
@@ -9832,7 +9838,7 @@
         const matchingRows = sourceRows.filter((row) => revenueTopicSlug(ledgerExplorerSourceName(row)) === target);
         const sourceTitle = matchingRows.length ? ledgerExplorerSourceName(matchingRows[0]) : sourceButton.textContent.trim();
         const topic = {
-          title: sourceTitle,
+          title: revenueLedgerSourceLabel(sourceTitle),
           narrativeKey: sourceTitle,
           useLedgerNotes: true,
           accessLabel: /^Tourist Development Taxes$/i.test(sourceTitle) ? "State Restricted" : revenueRestrictionLabel(sourceTitle),
@@ -9843,7 +9849,7 @@
         // Explorer uses (same markup, width, and styling), so a source looks
         // identical whichever page it is opened from.
         const dialog = ensureLedgerSourceDialog();
-        dialog.querySelector("#wcRevenueLedgerDialogTitle").textContent = sourceTitle;
+        dialog.querySelector("#wcRevenueLedgerDialogTitle").textContent = revenueLedgerSourceLabel(sourceTitle);
         const dialogBody = dialog.querySelector("[data-revenue-ledger-dialog-body]");
         showDialogForDevice(dialog, sourceButton);
         renderRevenueTopicCards(dialogBody, [topic], "wc-chart-revenue-ledger-popup");
@@ -10825,6 +10831,12 @@
   // department-level subtotals (with each department's category) rather
   // than individual object-code lines, since the visible table above is
   // already rolled up to the 8 broad categories.
+  function expenditureLedgerDeptName(repByCodeAndName, row) {
+    if (String(row.Dept_Code || "").trim() === "00112020" &&
+        String(row.Object_Code || "").trim() === "563000") return "Boating Improvement Program";
+    return expenseDisplayDeptName(repByCodeAndName, row);
+  }
+
   function renderExpenseDepartmentBudgetLinesFooter(rows, dedupedRows) {
     if (!rows.length) {
       return "";
@@ -10860,7 +10872,7 @@
 
     const repByCodeAndName = clusterDeptNamesByCode(rows.concat(dedupedRows || []));
     function representativeName(r) {
-      return collapsedDeptRowName(expenseDisplayDeptName(repByCodeAndName, r));
+      return collapsedDeptRowName(expenditureLedgerDeptName(repByCodeAndName, r));
     }
     // Keyed by display name alone (not Dept_Code) -- this table is meant
     // to show one row per department, but several departments (Capital
@@ -11291,7 +11303,7 @@
 
     const repByCodeAndName = clusterDeptNamesByCode(expenseRows.concat(dedupedRows || []));
     function chartDeptName(r) {
-      return expenseDisplayDeptName(repByCodeAndName, r);
+      return expenditureLedgerDeptName(repByCodeAndName, r);
     }
 
     const byDept = new Map();
@@ -12808,7 +12820,7 @@
         return source && source.name ? revenueTopicSlug(source.name) : "";
       }
       const twelveLargestSources = rankedSources
-        .filter((source) => !/surplus.*tax collector|tax collector.*surplus/i.test(source.name))
+        .filter((source) => !/surplus.*tax collector|tax collector.*surplus|^housing prisoners revenue/i.test(source.name))
         .slice(0, 12);
       const twelveLargestAmount = twelveLargestSources.reduce((sum, source) => sum + source.amount, 0);
       const twelveLargestSharePercent = total ? Math.round((twelveLargestAmount / total) * 100) : 0;

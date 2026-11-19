@@ -40,7 +40,7 @@ const sections = [
     ["State Attorney",58], ["Public Defender",58], ["Circuit Court",58], ["Court Technology & Innovations",58], ["County Court",58], ["Daughette MSBU Fund",58], ["Guardian Ad Litem",58]
   ] },
   { title: "Program and Service Budget", subtitle: "Board-administered purpose, full cost, funding, contributing services, service-level decisions, and measurable FY 2027 targets; Constitutional Officers and independent agencies are excluded.", items: [
-    ["Public Value",60],["Safety, Justice and Effective Government",61],["Visitors, Mobility and Infrastructure",62],["Environment, Growth and Community Development",63],["Quality of Life and Community Wellbeing",64]
+    ["Public Value",60],["Public Safety and Effective Government",61],["Visitors, Mobility and Infrastructure",62],["Environment, Growth and Community Development",63],["Quality of Life and Community Wellbeing",64]
   ] },
   { title: "Board Department Budgets", subtitle: "Function, goal, services, challenges, funding, contracts, staffing, and performance for each Board office and program.", items: [["Department Operating Ledger",66,{overview:true}]],
     groupsSplit: 7,
@@ -162,7 +162,7 @@ function renderRows(s){
   return `<main class="dept-groups"><div class="dept-col">${summaryHtml}${groupHtml(left)}</div><div class="dept-col">${groupHtml(right)}</div></main>`;
 }
 const byTitle = Object.fromEntries(sections.map(s => [s.title, s]));
-const renderChapter = (s) => `<div class="chapter${s.title.startsWith("Draft") ? " draft" : ""}"><div class="chapter-head"><span class="chapter-number">${s.number}</span><span class="chapter-title">${s.title}</span></div><p class="subtitle">${s.subtitle}</p>${renderRows(s)}</div>`;
+const renderChapter = (s) => `<div class="chapter${s.title.startsWith("Draft") ? " draft" : ""}"><div class="chapter-head"><span class="chapter-number">${s.number}</span><span class="chapter-title">${s.title}</span></div>${renderRows(s)}</div>`;
 const pages = PAGE_GROUPS.map((g,index) => `<section class="page toc-page-${index+1}"><header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>${g.titles.map(t => renderChapter(byTitle[t])).join('')}<footer><span>FY 2027 Final Budget</span><b>${g.footer}</b></footer></section>`).join('');
 const browser = await chromium.launch({headless:true});
 const page = await browser.newPage();

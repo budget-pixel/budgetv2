@@ -1,6 +1,7 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
+import { consolidated, values } from "./fund-schedule-data.mjs";
 
 const REVENUE_LEDGER_URL = "https://final2027.budget-waltoncountyfl.com/pages/revenue-ledger.html";
 const REVENUE_LEDGER_QR = await QRCode.toDataURL(REVENUE_LEDGER_URL, { margin: 4, width: 180, color: { dark: "#003f28", light: "#ffffff" } });
@@ -47,8 +48,14 @@ const STATS = [
 const YEARS = ["FY 2022 Actual", "FY 2023 Actual", "FY 2024 Actual", "FY 2025 Actual", "FY 2026 Budget", "FY 2027 Final"];
 
 // [category, FY 2022, FY 2023, FY 2024, FY 2025, FY 2026, FY 2027]
+const generalGovernmentTaxes = [218598479, 236486085, 257566876, 277454100, 272677953, 277164221];
+const propertyTaxes = values(consolidated, "Property Taxes (Ad Valorem)").slice(2, 8);
+const formatSummaryAmount = amount => "$" + amount.toLocaleString("en-US");
+// Property tax is part of the same UAS category; show it separately without
+// adding a second copy of it to the published category or funding totals.
 const ROWS = [
-  ["General Government Taxes", "$218,598,479", "$236,486,085", "$257,566,876", "$277,454,100", "$272,677,953", "$277,164,221"],
+  ["Property Taxes", ...propertyTaxes.map(formatSummaryAmount)],
+  ["Other General Government Taxes", ...generalGovernmentTaxes.map((total, i) => formatSummaryAmount(total - propertyTaxes[i]))],
   ["Charges for Services", "$14,601,788", "$15,616,872", "$14,403,343", "$15,251,527", "$19,414,205", "$19,985,657"],
   ["Other Sources", "$4,187,992", "$5,229,704", "$5,905,994", "$6,043,333", "$14,848,284", "$25,309,776"],
   ["Permits Fees and Special Assessments", "$3,620,226", "$4,265,672", "$5,974,512", "$7,032,365", "$6,004,785", "$7,783,225"],
@@ -160,11 +167,11 @@ const REV_GROUPS = [
   ]],
   ["Intergovernmental Revenues", [
     ["State Revenue Share Proceeds", "$3,300,000", "$3,726,334"],
-    ["Federal Grant (Economic Environment)", "$3,082,896", "$3,057,056"],
+    ["Federal Grant (Section 8)", "$3,082,896", "$3,057,056"],
     ["Racing Tax", "$224,000", "$224,000"],
     ["Florida Boating Improvement Program Allocation", "$100,000", "$100,000"],
     ["State Payment in Lieu of Tax", "$100,000", "$100,000"],
-    ["State Grant (Health)", "$61,856", "$69,588"],
+    ["State Grant (Mosquito Control State Aid)", "$61,856", "$69,588"],
     ["State Shared Cigarette Tax", "$24,870", "$25,000"],
     ["Motor Fuel Use Tax", "$3,000", "$3,000"]
   ]],
@@ -308,12 +315,12 @@ const page1 = `
 
     <div class="callout">
       <h3>Reading This Table</h3>
-      <p>These are the controlling Florida Uniform Accounting System category totals. General Government Taxes includes the $151.6M County-wide Ad Valorem levy, $1.4M Mosquito Control levy, Tourist Development Tax, discretionary surtax, and Local Government Half-Cent Sales Tax. Combined countywide property taxes are $153.0M.</p>
+      <p>Property Taxes includes the County-wide and Mosquito Control levies ($153.0M in FY 2027). Other General Government Taxes includes tourist development, sales, fuel, and other taxes. Together, the two rows make up the General Government Taxes category.</p>
     </div>
 
     <div class="revenue-qr">
       <a href="${REVENUE_LEDGER_URL}"><img src="${REVENUE_LEDGER_QR}" alt="QR code linking to the online Revenue Ledger"></a>
-      <div><b>See every revenue source in detail</b><span>Scan to open the online Revenue Ledger, with year-over-year detail, restriction, and control information for each of the 89 individual sources summarized here.</span></div>
+      <div><b>See every revenue source in detail</b><span>Scan to open the online Revenue Ledger, with year-over-year detail, restriction, and control information for the individual sources summarized here.</span></div>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>

@@ -45,7 +45,7 @@ function fRow(cells) {
   const isDown = cells[4].trim().startsWith("-");
   return `<div class="frow"><div class="flabel">${cells[0]}</div><div class="fnum">${cells[1]}</div><div class="fnum">${cells[2]}</div><div class="fnum">${cells[3]}</div><div class="fnum change${isDown ? " is-down" : ""}">${cells[4]}</div><div class="fnum">${cells[5]}</div></div>`;
 }
-const fHead = `<div class="frow head"><div class="flabel">Fund</div><div class="fnum">Beginning Balance</div><div class="fnum">Total Rev &amp; Other</div><div class="fnum">Total Exp &amp; Other</div><div class="fnum">Change</div><div class="fnum">Ending Balance</div></div>`;
+const fHead = `<div class="frow head"><div class="flabel">Fund</div><div class="fnum">Beginning Balance</div><div class="fnum">Total Rev &amp; Other</div><div class="fnum">Total Exp &amp; Other</div><div class="fnum">Change</div><div class="fnum">Estimated Ending Balance</div></div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
@@ -209,7 +209,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY 2027 uses the FY 2025 audited unassigned General Fund balance as its opening assumption. Other funds retain their total balance basis. The next page details each fund's FY 2027 schedule.</p>
+    <p class="intro">This ledger summarizes revenue, spending, and fund balances across the County's funds. Compare six fiscal years below, followed by each fund's FY 2027 budget and estimated year-end balance.</p>
     <div class="cledger">
       ${cHead}
       ${cRow(CONSOLIDATED_TOP[0])}

@@ -41,7 +41,7 @@ const REQUEST = [
   ["Proposed Budget", "Expenditure Changes", "An explanation of any change in expenditures from the prior year."],
   ["Proposed Budget", "Staffing Changes", "Any requested additions, reductions, or changes to positions."],
   ["Proposed Budget", "Revenue Changes", "Any change expected in revenues the department generates or receives."],
-  ["Equipment", "Machinery and Equipment", "Requested vehicles and equipment, with confirmation that Fleet Maintenance reviewed the request."],
+  ["Equipment and Capital", "Machinery, Equipment and Capital Projects", "Machinery and equipment requests, including Fleet Maintenance review, and capital project updates to the five-year Capital Improvement Plan."],
   ["Additional Information", "Pertinent Information and Documents", "Any other information relevant to the request, plus supporting documents."],
   ["Budget Direction", "Keep Services Constant; Identify Reductions", "Departments were told to hold services at current levels and to point out any area that could be reduced, so reviewers could weigh options.", true]
 ];
