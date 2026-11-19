@@ -1,0 +1,99 @@
+{
+  "capturedAt": "2026-11-19T04:24:15.052528+00:00",
+  "forecastSource": "https://final2027.budget-waltoncountyfl.com/pages/financial-forecast.html",
+  "capitalSource": "https://final2027.budget-waltoncountyfl.com/pages/capital-improvement-plan.html",
+  "captureMethod": "Read displayed fund-balance tables and capital spending trend on the live site; rates and financing behavior checked against repository forecast code.",
+  "years": [
+    2027,
+    2028,
+    2029,
+    2030,
+    2031
+  ],
+  "scope": "Six major funds in the site Forecast Explorer; FY 2027 is the scenario baseline. Not the countywide Fund Financial Ledger.",
+  "funds": [
+    {
+      "code": "001",
+      "name": "General Fund",
+      "endingBalances": [
+        50346303,
+        51026016,
+        52407471,
+        54502814,
+        57324313
+      ],
+      "netChange2031": 2821499
+    },
+    {
+      "code": "101",
+      "name": "Transportation Fund",
+      "endingBalances": [
+        36242361,
+        36293292,
+        36400201,
+        36568272,
+        36802825
+      ],
+      "netChange2031": 234553
+    },
+    {
+      "code": "107",
+      "name": "Fine & Forfeiture / Sheriff",
+      "endingBalances": [
+        45635273,
+        45635273,
+        45635273,
+        45635273,
+        45635273
+      ],
+      "netChange2031": 0
+    },
+    {
+      "code": "111",
+      "name": "Tourist Development Fund",
+      "endingBalances": [
+        167898489,
+        168425417,
+        168079515,
+        166822413,
+        164614466
+      ],
+      "netChange2031": -2207947
+    },
+    {
+      "code": "112",
+      "name": "Solid Waste Fund",
+      "endingBalances": [
+        50601216,
+        50750438,
+        51051678,
+        51507713,
+        52121303
+      ],
+      "netChange2031": 613590
+    },
+    {
+      "code": "300",
+      "name": "Capital Projects Fund",
+      "endingBalances": [
+        26965592,
+        26965592,
+        26965592,
+        26965592,
+        26965592
+      ],
+      "netChange2031": 0
+    }
+  ],
+  "capitalInventoryMillions": [
+    71.3,
+    49.9,
+    39.1,
+    46.2,
+    35.3
+  ],
+  "fundedFy2027CipMillions": 43.8,
+  "personnelCostChange": 8538328,
+  "netPositionChange": 15,
+  "personnelSource": "Site WCBudgetData.getPersonnelCostChangeAnalysis(), evaluated with the fixed published budget.json"
+}

@@ -1,6 +1,8 @@
 import { capturePublicationHtml, assertPublicationFits } from "./publication-print.mjs";
 import { chromium } from "playwright";
 import QRCode from "qrcode";
+import { readFileSync } from "node:fs";
+import assert from "node:assert/strict";
 
 // Builds the FY 2027 Budget Book's "Property Tax Allocation" section as
 // its own multi-page PDF. Content is the real FY 2027 Ad Valorem allocation
@@ -65,6 +67,15 @@ const STATUTORY_RECIPIENTS = [
   "Indigent Cremation Program", "Lakeview Center (Women & Children)",
   "Lakeview Center (Mental Health)", "Lakeview Center (Baker Act)"
 ];
+
+// Show each recipient's FY 2027 budget within the property-tax-funded rollup.
+const statutoryExpenseRows = JSON.parse(readFileSync(new URL("../../assets/static-data/budget.json", import.meta.url), "utf8")).data.expenditures;
+const statutoryRecipientAmounts = new Map(STATUTORY_RECIPIENTS.map(name => [name,
+  statutoryExpenseRows.filter(row => row.Project_Name === name)
+    .reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0)
+]));
+assert.equal([...statutoryRecipientAmounts.values()].reduce((sum, amount) => sum + amount, 0), 3197957,
+  "Statutory recipient amounts must reconcile to the property tax allocation");
 
 const CAPITAL = [
   ["Sheriff Projects", "$7,000,000", ""],
@@ -379,7 +390,7 @@ const page1 = `
     <h2 class="group">Independent Agencies</h2>
     <div class="dept-table">
       ${INDEPENDENT.map((r, index) => row(r) + (index === 0
-        ? '<div class="recipient-grid">' + STATUTORY_RECIPIENTS.map((name) => '<span>' + name.replace(/&/g, "&amp;") + '</span>').join("") + '</div>'
+        ? '<div class="recipient-grid">' + STATUTORY_RECIPIENTS.map((name) => '<span>' + name.replace(/&/g, "&amp;") + ' <b>$' + statutoryRecipientAmounts.get(name).toLocaleString("en-US") + '</b></span>').join("") + '</div>'
         : "")).join("")}
       ${row(INDEPENDENT_TOTAL, "total")}
     </div>

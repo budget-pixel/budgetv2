@@ -28,15 +28,16 @@ const workforceChanges = [
 ];
 
 const revenueSources = [
-  ["Property Taxes","$153.0M","44%","-2.6%","Mixed","Recurring","Moderate","Down"],
+  ["Property Taxes (County-wide)","$151.6M","43.9%","-2.6%","Unrestricted","Recurring","Moderate","Down"],
+  ["Property Taxes (Mosquito Control)","$1.4M","0.4%","+5.3%","Restricted","Recurring","Moderate","Up"],
   ["Tourist Development Taxes","$59.0M","17%","+16.0%","State restricted","Recurring","Limited","Actuals stable"],
   ["Discretionary Sales Surtax","$40.0M","12%","+0.8%","Unrestricted","Recurring","Low","Flat"],
   ["Local Government 1/2 Cent Sales Tax","$16.8M","5%","-1.4%","Unrestricted","Recurring","Low","Flat"],
   ["Interest & Investment Earnings","$5.25M","2%","-14.1%","Mixed","Rate-sensitive","Low","Down"],
   ["Indirect Administrative Fees","$4.11M","1%","+19.5%","Unrestricted","Recurring","Low","Up"],
+  ["Surplus Budget Tax Collector","$4.05M","1%","+13.7%","Unrestricted","Recurring","Low","Up"],
   ["Local Option Fuel Tax","$4.01M","1%","+6.3%","Restricted","Recurring","Low","Up"],
   ["State Revenue Share Proceeds","$3.73M","1%","+12.9%","Unrestricted","Recurring","Low","Up"],
-  ["Housing Prisoners Revenue","$3.50M","1%","0.0%","Restricted","Recurring","Low","Flat"],
   ["Federal Grant - Housing and Urban Development (HUD)","$3.06M","1%","-0.8%","Restricted","Grant-dependent","Low","Down"],
   ["Ambulance Fees","$3.00M","1%","0.0%","Restricted","Recurring","Low","Flat"]
 ];
@@ -180,7 +181,7 @@ pages.push(`<section class="page">${header('Revenue Strategy','How FY 2027 Resou
 <div class="stats" style="grid-template-columns:repeat(3,1fr)">${stat('$345.2M','Total Budget Funding')}${stat('$324.0M','Current-Year Revenue & Other Sources')}${stat('$17.3M','Increase in Total Funding')}</div>
 <h2>FY 2027 estimating methods</h2><div class="grid3">
 <div class="card"><strong>Property tax</strong><p>Certified taxable value, the final 3.2500-mill countywide rate, the Mosquito Control levy, and expected collections.</p></div>
-<div class="card"><strong>Tourist Development Tax</strong><p>Recent collections and lodging activity. The $58.97M estimate is below FY 2025 ACFR collections of approximately $60.33M.</p></div>
+<div class="card"><strong>Tourist Development Tax</strong><p>Estimated from recent tourist-tax collections and lodging activity. The FY 2027 budget expects $59.0M, compared with $60.3M collected in FY 2025.</p></div>
 <div class="card"><strong>Sales and fuel taxes</strong><p>State and local estimates, statutory distributions, recent receipts, and economic trends.</p></div>
 <div class="card"><strong>Charges, permits and fees</strong><p>Adopted rates, expected service or permit volume, program information, and collection history.</p></div>
 <div class="card"><strong>Intergovernmental and grants</strong><p>Allocation notices, executed or reasonably anticipated awards, and program eligibility.</p></div>
@@ -188,19 +189,19 @@ pages.push(`<section class="page">${header('Revenue Strategy','How FY 2027 Resou
 </div>
 <h2>What explains the largest budget changes?</h2><div class="grid2">
 <div class="card goldbar"><strong>TDT budget restored to expected collections</strong><p>The $8.12M increase is measured against an FY 2026 budget that the Tourist Development Council intentionally reduced while the tax remained imposed. It does not represent a tax-rate increase or growth over FY 2025 actual collections.</p></div>
-<div class="card"><strong>Property tax</strong><p>The main ad valorem budget falls $4.11M, reflecting the final millage decision.</p></div>
+<div class="card"><strong>Property tax</strong><p>The county-wide ad valorem budget falls $4.11M, reflecting the final millage decision.</p></div>
 <div class="card"><strong>Fees and identifiable receipts</strong><p>Short-Term Rental Certificate Fees rise $900K, Recreation Plat Fees add $600K, and surplus-equipment sales rise $476K based on source-specific estimates.</p></div>
 <div class="card warn"><strong>Variable resources</strong><p>Interest falls $810K. The budget includes $5.25M of interest and investment earnings, at least $3.23M of grant allocations, and $876K of equipment sales; these should not support permanent recurring commitments without continued review.</p></div>
 </div>
-<p class="note" style="margin-top:.07in"><b>Accounting crosswalk:</b> total funding of $345.2M equals $324.0M of current-year revenue and other sources plus $21.3M of fund balance brought forward. The planning portfolio groups $38.7M of service-related receipts; the controlling Uniform Accounting System ledger classifies $20.0M as Charges for Services and approximately $18.7M in other accounting categories. Out-year growth assumptions apply after the FY 2027 base is established.</p>${footer(26)}</section>`);
+${footer(26)}</section>`);
 
-pages.push(`<section class="page revenue-portfolio-page">${header('Revenue Portfolio','Reliability, Restriction and Local Control','Countywide property taxes total $153.0M (44%): the $151.6M main levy is generally available and the $1.4M Mosquito Control levy is dedicated to that fund. The next largest sources are the state-restricted Tourist Development Tax ($59.0M) and Discretionary Sales Surtax ($40.0M).')}
+pages.push(`<section class="page revenue-portfolio-page">${header('Revenue Portfolio','Reliability, Restriction and Local Control','Countywide property taxes total $153.0M (44%): the $151.6M county-wide levy is generally available and the $1.4M Mosquito Control levy is dedicated to that fund. The next largest sources are the state-restricted Tourist Development Tax ($59.0M) and Discretionary Sales Surtax ($40.0M).')}
 <div class="stats">${stat('$345.2M','Total Budget Funding')}${stat('$324.0M','Current-Year Revenue & Other Sources')}${stat('$21.3M','Fund Balance Brought Forward')}${stat('$97.6M','Estimated Visitor-Paid')}</div>
 <h2>Concentration of the revenue portfolio</h2><div class="stack"><span class="p" style="width:44%">Property tax 44%</span><span class="t" style="width:17%">TDT 17%</span><span class="s" style="width:17%">Sales taxes 17%</span><span class="o" style="width:22%">Other 22%</span></div>
 <div class="revtable"><div class="revrow head"><div>Major source</div><div class="num">FY 2027</div><div class="num">Share</div><div class="num">Budget change</div><div>Restriction</div><div>Reliability</div><div>Control</div><div>Trend</div></div>${revenueSources.map(r=>`<div class="revrow"><div class="source">${r[0]}<div class="bar"><i style="width:${Math.min(100,Number(r[2].replace('%',''))*2)}%"></i></div></div><div class="num">${r[1]}</div><div class="num">${r[2]}</div><div class="num">${r[3]}</div><div><span class="badge ${r[4].toLowerCase()==='unrestricted'?'green':r[4].toLowerCase().includes('restrict')?'red':''}">${r[4]}</span></div><div><span class="badge gold">${r[5]}</span></div><div>${r[6]}</div><div>${r[7]}</div></div>`).join('')}</div>
 <h2>Classification guide</h2><div class="grid3"><div class="card"><strong>Restriction</strong><p>Whether law, grant terms, levy, fee or fund purpose limits how receipts may be spent.</p></div><div class="card"><strong>Reliability</strong><p>Whether the source is expected annually, economically sensitive, rate-sensitive or dependent on an award.</p></div><div class="card"><strong>County control</strong><p>The practical ability to change the rate or base; it does not indicate forecast certainty.</p></div></div>
-<h2 style="margin-top:.08in">Flexibility and who bears the burden</h2><div class="grid3"><div class="card"><strong>Visitors &amp; consumers</strong><p>~$97.6M (28% of FY 2027 budget funding) is visitor-paid through TDT and a visitor share of sales-tax collections.</p></div><div class="card"><strong>Property taxpayers</strong><p>The combined $153.0M levy includes $151.6M of main ad valorem tax and $1.4M for Mosquito Control; an estimated $134.5M is residential and $18.5M commercial.</p></div><div class="card"><strong>Eleven largest sources</strong><p>$215.7M is generally available, $74.0M is restricted, and $5.25M is mixed. The remaining $50.3M is source- and fund-specific, including fund balance brought forward.</p></div></div>
-<p class="note" style="margin-top:.12in;padding:.07in .1in;border-left:2px solid #d1be78;background:#f8faf8;font-size:6.5pt;line-height:1.45">The TDT +16.0% is a budget-to-budget comparison, not growth in the tax rate or actual collections. FY 2025 ACFR collections were approximately $60.33M; the FY 2027 estimate is $58.97M. Visitor-paid revenue uses full TDT plus 68% of surtax and Half-Cent Sales Tax. Property estimates use the taxable-value split; $1.4B of exempt value across 22,329 homestead parcels forgoes an estimated $4.5M in county levy.</p>${footer(25)}</section>`);
+<h2 style="margin-top:.08in">Flexibility and who bears the burden</h2><div class="grid3"><div class="card"><strong>Visitors &amp; consumers</strong><p>~$97.6M (28% of FY 2027 budget funding) is visitor-paid through TDT and a visitor share of sales-tax collections.</p></div><div class="card"><strong>Property taxpayers</strong><p>The combined $153.0M levy includes $151.6M of county-wide ad valorem tax and $1.4M for Mosquito Control; an estimated $134.5M is residential and $18.5M commercial.</p></div><div class="card"><strong>Listed sources</strong><p>$220.3M is generally available, $70.5M is restricted, and $5.25M is mixed. The remaining $49.2M is source- and fund-specific, including fund balance brought forward.</p></div></div>
+${footer(25)}</section>`);
 
 pages.push(`<section class="page">${header('Revenue Risk','Florida Amendment 3: A Material Property-Tax Uncertainty','Florida voters are scheduled to consider Amendment 3 in November 2026. The measure could materially change the taxable base and the permitted use of county property-tax revenue during the planning horizon.')}
 <div class="grid2"><div class="card warn"><strong>If voters approve the amendment</strong><p>The non-school homestead exemption would increase to $150,000 in 2027 and $250,000 in 2028, then adjust for inflation. The annual assessment-growth cap for non-homestead property would decrease from 10% to 5%.</p></div><div class="card warn"><strong>County budget exposure</strong><p>Property tax is the County's largest revenue source at $153.0 million, or 44% of FY 2027 budget funding. A smaller taxable base could constrain future recurring revenue or require service, rate, capital, and reserve decisions.</p></div></div>

@@ -209,7 +209,7 @@ const page1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Financial Overview</small>
     <h1>Fund Financial Ledger</h1>
-    <p class="intro">Summary schedules outlining revenues, expenditures, and fund balances for each fund, consistent with the Florida State Uniform Accounting System Manual for Local Governments. FY 2027 uses the FY 2025 audited unassigned General Fund balance as its opening assumption. Other funds retain their total balance basis. The next page details each fund's FY 2027 schedule.</p>
+    <p class="intro">This ledger summarizes revenue, spending, and fund balances across the County's funds. Compare six fiscal years below, followed by each fund's FY 2027 budget and estimated year-end balance.</p>
     <div class="cledger">
       ${cHead}
       ${cRow(CONSOLIDATED_TOP[0])}
