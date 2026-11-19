@@ -191,11 +191,11 @@ const PAIRS = [
     action: "Maintain Beach Operations, Beach Tram, lifeguard readiness, access facilities, and eligible coastal investment.",
     result: "Clean 66 beach and bay facilities daily, complete 6,000 work orders, and transport 250,000 tram passengers.",
     money: "+13 Beach Operations FTE", review: "Peak-season monitoring and FY 2027 year end" },
-  { kind: "community", title: "Housing affordability and access", tag: "Mitigate / maintain access",
-    challenge: "Growth in housing cost and demand affects workforce stability and residents seeking rental assistance, attainable housing, and access to essential community services.",
-    action: "Continue HUD rental-assistance and Housing Choice Voucher administration.",
-    result: "Serve about 300 families and achieve 75% utilization of available housing vouchers.",
-    money: "$3.1M program budget", review: "Program reporting throughout FY 2027" },
+  { kind: "community", title: "Public safety coverage", tag: "Mitigate / expand capacity",
+    challenge: "Population growth adds demand for fire, emergency-response, and law-enforcement coverage, while Sheriff and fire rescue services must stay ready for year-round residents and peak-season visitors.",
+    action: "Fund two new fire stations, Freeport/Bear Creek and Pleasant Ridge, and fully fund the Sheriff's Office, including fire rescue and a new school resource officer.",
+    result: "Advance both stations through project development and sustain Sheriff and fire rescue service levels.",
+    money: "$7.0M fire stations; $114.1M Sheriff's Office", review: "Project milestones and FY 2027 year end" },
   { kind: "org", title: "Capacity, asset delivery, and coordination", tag: "Maintain / targeted adjustment",
     challenge: "The County must fill critical positions, coordinate work across departments, and deliver a large capital program without materially expanding core service commitments.",
     action: "Maintain major core services while making targeted staffing changes tied to workload and service need.",
@@ -203,14 +203,14 @@ const PAIRS = [
     money: "+15 net countywide FTE", review: "Budget monitoring and annual personnel review" },
   { kind: "org", title: "Revenue uncertainty and recurring cost", tag: "Monitor / limit recurring cost",
     challenge: "Potential property-tax changes, grant uncertainty, and continuing personnel and operating costs require conservative assumptions and limits on new recurring obligations.",
-    action: "Assume no specific Amendment 3 reduction, limit new recurring commitments, and update forecasts as facts change.",
+    action: "Limit new recurring commitments and update forecasts as facts change.",
     result: "Material revenue changes are reported and carried into the FY 2028 forecast.",
-    money: "3.2500 mills; $8.0M General Fund balance planned", review: "FY 2027 monitoring and FY 2028 forecast update" },
+    money: "Five-year forecast for six major funds through FY 2031", review: "FY 2027 monitoring and FY 2028 forecast update" },
   { kind: "org", title: "Emergency readiness and financial flexibility", tag: "Monitor / preserve flexibility",
     challenge: "The FY 2025 ACFR reports $58.4 million of unassigned General Fund balance. The County's reserve targets hold six months of personnel and operating costs, next year's debt payment, and storm-recovery costs, and the planned use of fund balance draws on that cushion.",
     action: "Fund debt service and storm recovery first, then hold the remaining balance for personnel and operating costs.",
-    result: "Hold $50.3M toward the General Fund's $51.7M reserve target and fully fund the Tourist Development Fund's $137.7M target.",
-    money: "$50.3M of $51.7M General Fund target; $137.7M tourism target", review: "FY 2027 monitoring and year-end close" }
+    result: "Hold $50.3M toward the General Fund's $51.7M reserve target and fully fund the Tourist Development ($107.7M), Transportation ($11.8M), and Solid Waste ($11.2M) targets.",
+    money: "$50.3M of $51.7M General Fund target; other fund targets fully funded", review: "FY 2027 monitoring and year-end close" }
 ];
 
 const pairHead = (item, i, withTag) => `<div class="pair-head"><span class="pair-num">${String(i + 1).padStart(2, "0")}</span><small>${item.kind === "org" ? "Organizational" : "Community"} challenge</small><b>${item.title}</b>${withTag ? `<span class="pair-tag">${item.tag}</span>` : ""}</div>`;
@@ -224,7 +224,7 @@ const page2 = `
 
     <div class="context-grid">
       <div class="context-card"><b>How the challenges were identified</b><p>The County used the Strategic Plan 2027&ndash;2032 process, online surveys and public workshops, FY 2027 budget workshops, departmental workload and staffing analysis, capital-condition needs, and the multi-year financial forecast. The review considered both the FY 2027 budget period and the longer strategic and capital horizon through FY 2032.</p></div>
-      <div class="context-card"><b>Who is most affected</b><p>Impacts are not uniform. Coastal communities, visitors, and seasonal workers face peak mobility and access pressures; renters, lower-income households, and the essential workforce face housing constraints. Delivery also depends on coordination with municipalities, state and federal agencies, nonprofit partners, and other service providers.</p></div>
+      <div class="context-card"><b>Who is most affected</b><p>Impacts are not uniform. Coastal communities, visitors, and seasonal workers face peak mobility and access pressures; residents in growing communities rely on expanding fire and emergency-response coverage. Delivery also depends on coordination with municipalities, state and federal agencies, nonprofit partners, and other service providers.</p></div>
     </div>
 
     <h2>What Is Creating Pressure</h2>
@@ -246,7 +246,7 @@ const page3 = `
 
     <h2>How the Budget Responds</h2>
     <div class="pair-list">
-      ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, true)}<div class="pair-fields"><div><strong>Action</strong>${item.action}</div><div><strong>Expected result</strong>${item.result}</div><div><strong>Budget commitment</strong><span class="pair-money">${item.money}</span><strong class="pair-review">Review</strong><span class="pair-when">${item.review}</span></div></div></div>`).join("")}
+      ${PAIRS.map((item, i) => `<div class="pair-row ${item.kind}">${pairHead(item, i, false)}<div class="pair-fields"><div><strong>Action</strong>${item.action}</div><div><strong>Expected result</strong>${item.result}</div><div><strong>Budget commitment</strong><span class="pair-money">${item.money}</span><strong class="pair-review">Review</strong><span class="pair-when">${item.review}</span></div></div></div>`).join("")}
     </div>
     <p class="footnote">Dollar amounts and targets reconcile to the Capital, Workforce, Program and Service, Long-Term Outlook, and department sections of this final budget. Grant-dependent projects are shown separately and are not included in the $43.8 million funded capital program.</p>
 

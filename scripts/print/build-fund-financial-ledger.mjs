@@ -45,7 +45,7 @@ function fRow(cells) {
   const isDown = cells[4].trim().startsWith("-");
   return `<div class="frow"><div class="flabel">${cells[0]}</div><div class="fnum">${cells[1]}</div><div class="fnum">${cells[2]}</div><div class="fnum">${cells[3]}</div><div class="fnum change${isDown ? " is-down" : ""}">${cells[4]}</div><div class="fnum">${cells[5]}</div></div>`;
 }
-const fHead = `<div class="frow head"><div class="flabel">Fund</div><div class="fnum">Beginning Balance</div><div class="fnum">Total Rev &amp; Other</div><div class="fnum">Total Exp &amp; Other</div><div class="fnum">Change</div><div class="fnum">Ending Balance</div></div>`;
+const fHead = `<div class="frow head"><div class="flabel">Fund</div><div class="fnum">Beginning Balance</div><div class="fnum">Total Rev &amp; Other</div><div class="fnum">Total Exp &amp; Other</div><div class="fnum">Change</div><div class="fnum">Estimated Ending Balance</div></div>`;
 
 const sharedCss = `
   @page{ size:letter portrait; margin:0; }
