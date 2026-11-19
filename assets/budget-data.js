@@ -12795,7 +12795,10 @@
       sourceAnalysisRows.forEach((row) => {
         let sourceName = String(row.Revenue_Name || "Unclassified Revenue").trim() || "Unclassified Revenue";
         if (/interest/i.test(sourceName)) sourceName = "Interest and Investment Earnings";
-        if (/^ad valorem taxes$/i.test(sourceName)) sourceName = "Property Taxes";
+        // Property Taxes is the countywide levy only; the North Walton
+        // Mosquito Control District's separate levy (fund 105) gets its own
+        // source so it is not folded into the countywide amount.
+        if (/^ad valorem taxes$/i.test(sourceName)) sourceName = fundCodeForRow(row) === "105" ? "Mosquito Control Property Taxes" : "Property Taxes";
         if (String(row.Revenue_Code || "").trim() === "312140" || normalizeDeptName(sourceName) === "tourist development tax other") {
           sourceName = "Tourist Development Tax Other";
         } else if (/^tourist development tax/i.test(sourceName)) sourceName = "Tourist Development Taxes";
