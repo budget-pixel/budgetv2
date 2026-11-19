@@ -31,7 +31,7 @@ function showFunStep(){if(!progressStep)return;progressStep.classList.remove("is
 function stopFunSteps(){if(funTimer){window.clearInterval(funTimer);funTimer=null;}if(loader)loader.classList.remove("is-crunching");}
 (function startFunSteps(){if(!loader)return;var icon=loader.querySelector(".wc-book-loader-icon");if(icon){["$","1","%","7","$","2","0","+"].forEach(function(glyph,index){var bit=document.createElement("span");bit.className="wc-book-loader-bit";bit.setAttribute("aria-hidden","true");bit.textContent=glyph;bit.style.setProperty("--bit-x",(index%2?1:-1)*(14+(index*9)%26)+"px");bit.style.animationDelay=(index*0.32)+"s";icon.appendChild(bit);});}loader.classList.add("is-crunching");showFunStep();funTimer=window.setInterval(showFunStep,1700);})();
 setProgress(2,null,"");
-var loadingTask=window.pdfjsLib.getDocument({url:PDF_URL,disableStream:true,disableAutoFetch:true});
+var loadingTask=window.pdfjsLib.getDocument({url:PDF_URL,disableRange:true,disableStream:true,disableAutoFetch:true});
 var bookOpened=false;
 loadingTask.onProgress=function(p){if(bookOpened)return;if(p&&p.total){setProgress(2+(p.loaded/p.total)*88,null,megabytes(p.loaded)+" of "+megabytes(p.total)+" MB");}else if(p&&p.loaded){setProgress(null,null,megabytes(p.loaded)+" MB");}};
 loadingTask.promise.then(function(doc){pdf=doc;bookOpened=true;stopFunSteps();setProgress(94,"Binding "+doc.numPages+" pages","");window.requestAnimationFrame(function(){window.setTimeout(function(){try{init();}catch(error){fail(error);}},30);});}).catch(fail);
