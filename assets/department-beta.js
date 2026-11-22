@@ -34,12 +34,12 @@
 
   // Operating + personnel totals (capital is budgeted separately) and the
   // per-account changes, shared by the key figures and "This year" text.
-  function budgetStats() {
+  function budgetStats(includeAllOffices) {
     var api = window.WCBudgetData;
     if (!api || typeof api.getDepartmentExpenses !== "function") return null;
     var offices = api.getCombinedDepartmentOffices && api.getCombinedDepartmentOffices(departmentName);
     var visibleOffices = (offices || []).filter(function (office) {
-      return document.getElementById(office.id);
+      return includeAllOffices || document.getElementById(office.id);
     });
     var rows = visibleOffices.length ? visibleOffices.flatMap(function (office) { return office.expenses; })
       : api.getDepartmentExpenses(departmentName) || [];
@@ -83,7 +83,7 @@
     var showTotalBudget = isConstitutional || !!totalOnly;
     var rows = [{
       county: "Walton",
-      scope: departmentName,
+      scope: stats?.scope || departmentName,
       personnel: stats?.personnel,
       operating: stats?.operating,
       totalBudget: stats?.current,
@@ -670,6 +670,16 @@
     if (content.dataset.deptBeta) return;
     content.dataset.deptBeta = "1";
     document.documentElement.classList.add("wc-dept-beta");
+    // Office views share their parent's URL and data loader. Change only
+    // display labels, retaining departmentName for the parent data lookup.
+    var pageSlug = location.pathname.split("/").pop().replace(/\.html$/, "");
+    var requestedOffice = new URLSearchParams(location.search).get("office") || "";
+    var officeTitle = pageSlug === "tourism-administration" ? TOURISM_OFFICE_LABELS[requestedOffice] :
+      pageSlug === "tourism-beach-operations" && requestedOffice === "beach-tram" ? "Beach Tram" : "";
+    if (officeTitle) {
+      heading.textContent = officeTitle;
+      document.title = officeTitle + " — Walton County FY 2027 Budget";
+    }
 
     var functionSection = content.querySelector(".wc-dept-function-services");
     var statementTitle = functionSection && functionSection.querySelector("#wc-dept-function-services-title");
@@ -769,14 +779,20 @@
     var comparisonTemplate = content.querySelector("template[data-department-comparison]");
     var comparisonSlug = location.pathname.split("/").pop().replace(/\.html$/, "");
     var comparisonData = window.WCDepartmentComparisons;
+    var tourismOfficeComparison = comparisonSlug === "tourism-administration" &&
+      requestedOffice && requestedOffice !== "tourism-administration";
     if (independent && !comparisonData?.departments[comparisonSlug]) comparisonData = null;
     // Departments with no meaningful peer (e.g. the Eagle Springs Grill) get no Comparison tab.
     if (comparisonData && (comparisonData.excluded || []).indexOf(comparisonSlug) !== -1) comparisonData = null;
+    if (tourismOfficeComparison) {
+      comparisonData = null;
+      comparisonTemplate = null;
+    }
     if (comparisonTemplate || comparisonData) tabs.splice(2, 0, ["comparison", "Comparison"]);
     var bar = document.createElement("div");
     bar.className = "wc-click-through-tabs wc-dept-beta-tabs";
     bar.setAttribute("role", "tablist");
-    bar.setAttribute("aria-label", departmentName + " topics");
+    bar.setAttribute("aria-label", heading.textContent.trim() + " topics");
     bar.innerHTML = tabs.map(function (tab) {
       return '<button type="button" role="tab" id="dept-tab-' + tab[0] + '" aria-controls="dept-panel-' + tab[0] + '" data-dept-tab="' + tab[0] + '" aria-selected="false" tabindex="-1">' + tab[1] + "</button>";
     }).join("");
@@ -1124,7 +1140,11 @@
       if (!peers.some(function (peer) { return peer.county === "Monroe" || peer.custom; })) {
         peers = peers.concat({ county: "Monroe", scope: "No comparable figures verified", budgetPage: 4, budgetLabel: "County organization" });
       }
-      comparison.innerHTML = comparisonHtml(stats, peers, comparisonData.sources, (comparisonData.notes || {})[comparisonSlug],
+      var comparisonStats = comparisonSlug === "tourism-administration" ? budgetStats(true) : stats;
+      if (comparisonStats && comparisonSlug === "tourism-administration") {
+        comparisonStats.scope = "Tourism administration and promotion (all offices)";
+      }
+      comparison.innerHTML = comparisonHtml(comparisonStats, peers, comparisonData.sources, (comparisonData.notes || {})[comparisonSlug],
         (comparisonData.totalOnly || []).indexOf(comparisonSlug) !== -1);
     }
     if (submittedDoc) {

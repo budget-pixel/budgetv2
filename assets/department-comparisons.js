@@ -30,11 +30,12 @@ window.WCDepartmentComparisons = {
     },
   },
   // Board departments with no meaningful peer; these get no Comparison tab.
-  excluded: ["eagle-springs-grill"],
+  excluded: ["eagle-springs-grill", "tourism-beach-operations"],
   // Departments compared on total budget only (no personnel/operating split).
   totalOnly: ["eagle-springs-golf-and-recreation-center"],
   // Extra wording added to a department's comparison note.
   notes: {
+    "tourism-administration": "Walton combines Tourism Administration, Marketing, Communications, Sales and Visitors Center, and North Walton. Personnel and operating budgets and staffing cover all five offices; capital is shown separately. Comparisons appear only on the Tourism Administration page, not on individual office pages.",
     "eagle-springs-golf-and-recreation-center": "Golf peers are city- and county-run golf courses. Fort Walton Beach (36 holes) and Palm Beach Gardens (Sandhill Crane, 18 holes plus a par-3 course) include pro shop and course maintenance. Indian River County (Sandridge, 36 holes) budgets food and beverage and the clubhouse separately, so its figure is golf operations only, from the proposed FY 2026/27 budget. Totals are personnel and operating, without capital. Golf staffing for Fort Walton Beach is reported within Recreation Services, so it is not shown.",
   },
   departments: {
@@ -188,10 +189,7 @@ window.WCDepartmentComparisons = {
     "tourism-administration": [
       { county: "Bay", scope: "Tourism Administration and Promotion", personnel: 0, operating: 31929694, budgetPage: 53 },
       { county: "Nassau", scope: "Tourism administration and marketing programs", personnel: 168901, operating: 18147027, budgetPage: 139 },
-      { county: "Monroe", scope: "Tourist Development Council – Two Penny Generic", personnel: 222305, operating: 32707254, budgetPage: 287, countyBudgetSource: "https://www.monroecounty-fl.gov/DocumentCenter/View/42541", proposedBudget: true, fte: 0.75, staffPage: 287, staffingScope: "Proposed FY 2027" },
-    ],
-    "tourism-beach-operations": [
-      { county: "Bay", scope: "Beach Nourishment", personnel: 0, operating: 8604631, budgetPage: 58 },
+      { county: "Monroe", scope: "Tourist Development Council", personnel: 222305, operating: 32707254, budgetPage: 287, countyBudgetSource: "https://www.monroecounty-fl.gov/DocumentCenter/View/42541", proposedBudget: true, fte: 0.75, staffPage: 287, staffingScope: "Proposed FY 2027" },
     ],
     "tourism-lifeguard-services-and-beach-safety": [
       { county: "Bay", scope: "Beach & Surf Rescue", personnel: 1060790, operating: 206139, budgetPage: 79, staffPage: 149, positions: 9.38 },

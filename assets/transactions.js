@@ -150,11 +150,9 @@
       return;
     }
 
-    const hasProgram = rows.some((row) => firstValue(row, ["program_name", "program_code"]) || context.program);
     const bodyRows = rows.map((row) => {
       const vendor = firstValue(row, ["vendor_payee_public"]) || "Not available";
       const description = firstValue(row, ["description_public"]) || "No description provided";
-      const project = firstValue(row, ["program_name", "program_code"]) || context.program || "";
       const amount = displayAmount(row.amount, context);
       return (
         "<tr>" +
@@ -162,7 +160,6 @@
         "<td>" + escapeHtml(vendor) + "</td>" +
         "<td>" + escapeHtml(description) + "</td>" +
         '<td class="wc-num">' + escapeHtml(formatCurrency(amount)) + "</td>" +
-        (hasProgram ? "<td>" + escapeHtml(project || "Not available") + "</td>" : "") +
         "</tr>"
       );
     }).join("");
@@ -175,7 +172,6 @@
       "<th>Vendor / Payee</th>" +
       "<th>Description</th>" +
       '<th class="wc-num">Amount</th>' +
-      (hasProgram ? "<th>Program</th>" : "") +
       "</tr></thead>" +
       "<tbody>" + bodyRows + "</tbody>" +
       "</table>" +
