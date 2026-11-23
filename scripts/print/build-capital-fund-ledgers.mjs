@@ -334,7 +334,6 @@ const machineryPage3 = `
       ${itemTable(TOURISM_ADMIN_ITEMS, "Tourism Administration &mdash; $50,000")}
       ${itemTable(BEACH_TRAM_ITEMS, "Beach Tram &mdash; $507,000")}
       ${itemTable(BEACH_OPERATIONS_ITEMS, "Beach Operations &mdash; $1,302,500")}
-      <p class="note"><b>Truck Wash System:</b> The budget includes $200,000 for new Beach Operations equipment funded by Tourist Development Taxes. Operating costs and expected savings have not been estimated.</p>
     </div>
     <footer><span>FY 2027 Final Budget</span><b>${"{{PAGE3}}"}</b></footer>
   </section>
@@ -441,7 +440,7 @@ const PROJECT_DETAILS = {
   "CR 280 Bob Sikes Roadway Resurfacing Project Phase 1": ["Rehabilitation", "Construction anticipated in 2027", "No material new operating cost; rehabilitation may reduce near-term repairs.", "Adds safety and drainage improvements while extending pavement life."]
   ,"Beach Renourishment (Additional Funds for Future Project)": ["Recurring capital commitment", "Future project reserve", "No new FY 2027 operating cost; future project costs will be defined with scope.", "Preserves shoreline, storm protection, public beaches, and the tourism asset.", "Funded in FY 2027"]
   ,"30A Gateway Improvements": ["Improvement", "Project development", "Operating impact will be evaluated with the final scope.", "Improves a major visitor gateway and supporting public infrastructure.", "Funded in FY 2027"]
-  ,"US 331 Bridge Lighting": ["Improvement", "Previously funded", "Future energy and maintenance responsibilities should be confirmed before activation.", "Improves nighttime visibility and the appearance of a major gateway.", "Funded in a prior year"]
+  ,"US 331 Bridge Lighting": ["Improvement", "Previously funded", "The state owns and operates the bridge. The lighting adds no County operating costs.", "Improves nighttime visibility and the appearance of a major gateway.", "Funded in a prior year"]
   ,"Boardwalk Dune Walkover Repair/Replacement": ["Rehabilitation", "Previously funded", "Replacement may reduce near-term repair exposure.", "Preserves safe public beach access and protects sensitive dunes.", "Funded in a prior year"]
   ,"Multi-use Path, 30A Rebuild 83 to 393": ["Rehabilitation", "Previously funded", "Path maintenance remains within the existing tourism infrastructure program.", "Preserves a heavily used pedestrian and bicycle connection.", "Funded in a prior year"]
   ,"Transit Program, Gulfview &amp; Blue Mountain": ["Service infrastructure", "Previously funded", "Any continuing service cost is managed through the applicable tourism program.", "Supports visitor mobility and reduces parking and roadway pressure.", "Funded in a prior year"]
@@ -491,7 +490,7 @@ const transPage1 = `
     <header><span>Walton County, Florida</span><em>Fiscal Year 2027</em></header>
     <small class="kicker">Capital Improvement Plan</small>
     <h1>Transportation and Infrastructure Capital Ledger</h1>
-    <p class="intro">This schedule presents the FY 2027 transportation and infrastructure appropriations funded through the Capital Projects, Transportation, and General Funds. It is one component of the County's $43.8 million funded FY 2027 capital program. Sheriff projects are excluded from this ledger subtotal but remain included in the countywide program and are presented separately in the Sheriff Capital Project Ledger.</p>
+    <p class="intro">Walton County has budgeted $24.5 million for 30 transportation and infrastructure projects in FY 2027. The ledger shows how much each project will receive and which revenues will pay for it.</p>
     <div class="stat-strip">
       <div class="stat-card"><b>${money(TRANS_TOTAL)}</b><span>FY 2027 Final Total</span></div>
       <div class="stat-card"><b>30</b><span>Projects</span></div>

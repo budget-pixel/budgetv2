@@ -20,8 +20,10 @@ from pypdf import PageObject
 # removed, taking the book to 142 pages. A second Reserve Position page
 # (Reserve Position, continued) was inserted after published page 43 on
 # 2026-11-18, taking the book to 143 pages and moving the removed slot to 121.
-ASSEMBLY_PAGES = 144
-REMOVED_PAGE = 121
+# The table of contents went from three pages to two on 2026-11-22, taking
+# the book to 142 pages and moving the removed slot to 120.
+ASSEMBLY_PAGES = 143
+REMOVED_PAGE = 120
 REMOVED_TITLE = "Where FY 2027 Capital Investment Serves"
 PUBLISHED_PAGES = ASSEMBLY_PAGES - 1
 

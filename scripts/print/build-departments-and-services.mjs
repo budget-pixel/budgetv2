@@ -5,6 +5,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { homeownerValueExample } from "./homeowner-value-example.mjs";
+import { newPage } from "./readers-guide.mjs";
 import "../../assets/funding-sources.js";
 import "../../assets/performance-context.js";
 
@@ -570,7 +571,8 @@ const DEPARTMENTS = [
       { item: "21-Yard Dump Trucks (New) &times;5 &mdash; Districts 1&ndash;5", amount: 1225000 },
       { item: "Remaining vehicles and equipment", amount: 1274000 }
     ],
-    capitalNote: "For individual equipment requests, see the Machinery, Vehicles, and Equipment Ledger (pp. 121&ndash;123). For roadway projects and funding, see the Transportation and Infrastructure Capital Ledger (pp. 114&ndash;116).",
+    // Old-numbering pages converted with newPage() so they follow the book.
+    capitalNote: `For individual equipment requests, see the Machinery, Vehicles, and Equipment Ledger (pp. ${newPage(120)}&ndash;${newPage(122)}). For roadway projects and funding, see the Transportation and Infrastructure Capital Ledger (pp. ${newPage(113)}&ndash;${newPage(115)}).`,
     pms: [
       { q: "Number of capital improvement projects completed per fiscal year", obj: "Plan and complete capital improvement projects that enhance infrastructure sustainability", y: ["11", "10", "18", "17"], target: "23", svc: 2 },
       { q: "Number of miles of road maintained or improved per fiscal year (unpaved and paved roads)", obj: "Maintain and improve paved and unpaved roadways to enhance mobility and safety", y: ["1,046", "1,046", "1,046", "1,049"], target: "1,049", svc: 0 }
@@ -677,7 +679,7 @@ const DEPARTMENTS = [
     sof: "Tourism Administration provides executive leadership, financial stewardship, strategic coordination, and administrative support for Walton County Tourism. The office sustains the revenue base needed for visitor services and tourism-funded community investments while coordinating the work of marketing, communications, sales, visitor services, beach operations, and industry partners.",
     goal: "Steward visitor-funded resources and coordinate tourism programs that support a strong economy and community quality of life.",
     services: [["Lead tourism strategy","Sets priorities and coordinates tourism programs and investments."],["Steward tourism resources","Oversees Tourist Development Tax-supported budgets, contracts, and compliance."],["Support partners and offices","Aligns staff, industry partners, and community stakeholders around a year-round destination strategy."]],
-    challenges: "Four positions oversee the $59.0M Tourist Development Fund, whose uses are restricted by state law to tourism-related purposes.",
+    challenges: "Match competing tourism requests to eligible uses of lodging-tax revenue and document how each expense qualifies.",
     changeNote: "Funding for other purchased services increases by $180,000 from FY 2026.",
     revenue: "Tourist Development Tax on eligible short-term lodging stays",
     capitalItems: [{item:"SUV (Replacement)",amount:50000}],
@@ -691,7 +693,7 @@ const DEPARTMENTS = [
     sof: "The Group Sales team generates new business opportunities and builds awareness of Walton County for meetings and conventions, incentives, weddings, and consumer travel. Visitor Center staff provide trusted destination information and help connect guests with local places, services, and experiences.",
     goal: "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
     services: [["Develop group business","Builds relationships with meeting, wedding, incentive, and travel planners."],["Operate visitor services","Provides in-person destination guidance, materials, and referrals."],["Represent the destination","Participates in sales missions, trade activity, and partner outreach."]],
-    challenges: "Nine positions handle group sales for meetings, weddings, and travel, and staff the visitor center.", changeNote:"Tourism promotion funding increases by $98,111 from FY 2026.",
+    challenges: "Follow up on group sales leads while keeping the visitor center available for walk-in questions.", changeNote:"Tourism promotion funding increases by $98,111 from FY 2026.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:137438}], pms:[]
   },
   {
@@ -700,7 +702,7 @@ const DEPARTMENTS = [
     sof: "The Communications Division supports Walton County Tourism through earned and owned media that inspire travel and inform visitors, residents, partners, and stakeholders. The division manages strategic communications, public relations, media activities, familiarization tours, press visits, industry relations, and community education about tourism's local value.",
     goal: "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
     services: [["Manage public relations","Coordinates media relations, press visits, releases, and destination storytelling."],["Inform partners and residents","Shares timely tourism information with community and industry stakeholders."],["Build owned content","Develops useful content across County tourism communication channels."]],
-    challenges:"Five positions manage media relations, press visits, and tourism communications, supported by a $114,000 public relations contract.", changeNote:"Employee life and health insurance funding increases by $19,589 from FY 2026.",
+    challenges:"Keep beach safety messages current as conditions change and respond promptly to media inquiries.", changeNote:"Employee life and health insurance funding increases by $19,589 from FY 2026.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", contracts:[{service:"Public Relations Services",provider:"Turner Public Relations, LLC · Contract 25-17",amount:114000}], pms:[]
   },
   {
@@ -709,7 +711,7 @@ const DEPARTMENTS = [
     sof: "The Marketing Division uses research, creative campaigns, digital channels, social media, and travel-trade coordination to communicate Walton County's destination experiences to priority audiences. This work supports visitor spending, local employment, and a diversified tourism economy.",
     goal:"Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
     services:[["Plan and place destination advertising","Develops integrated campaigns and media investments for priority markets."],["Manage digital visitor engagement","Operates web, social, email, customer-relationship, and digital-asset platforms."],["Measure market performance","Uses tourism research and analytics to guide audiences, timing, and investment."]],
-    challenges:"Four positions manage $12.5M in contracted advertising, research, and digital marketing services.", changeNote:"Tourism promotion funding increases by $611,612 from FY 2026.",
+    challenges:"Determine which paid campaigns bring visitors to local businesses so future advertising dollars go where they work best.", changeNote:"Tourism promotion funding increases by $611,612 from FY 2026.",
     valueExplanation: `<h3>What the advertising allocation funds</h3><p>The $11,951,147 advertising-services appropriation is part of this office's $14,502,450 budget, not an additional amount or an agency fee alone. Published Contract 24-27 with Zehnder Communications covers media placements, campaign planning, creative and digital work, and website support. Media costs pass through at net cost; the agreement sets a 12% service fee on approved net media-plan budgets and $155 per hour for approved non-media work.</p><h3>How delivery is documented</h3><p>The contract requires monthly billing backup, work reports, and media proof of performance.</p><p class="source-trace">Source: <a href="https://walton.civicweb.net/document/467546/">County agenda item 24-1175, Contract 24-27, Section 5 and Exhibit A</a>.</p>`,
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
     contracts:[{service:"Advertising Services",provider:"Zehnder, Inc · Contract 24-27",amount:11951147},{service:"Regional Tourism Communications Partnership",provider:"Florida's Coastal Northwest Communications Council",amount:265500},{service:"Tourism Analytics Platform",provider:"Key Data Dashboard, Inc",amount:84600},{service:"Public Relations",provider:"Turner Public Relations, LLC · Contract 25-17",amount:86000},{service:"Marketing Research",provider:"Not listed",amount:65000},{service:"Digital Asset Management",provider:"Not listed",amount:25000},{service:"Customer Relationship Management",provider:"Not listed",amount:25000}],
@@ -724,10 +726,9 @@ const DEPARTMENTS = [
     goal:"Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
     services:[["Maintain beach and bay facilities","Cleans, repairs, and supports public access facilities throughout the visitor season."],["Care for scenic corridors","Maintains landscaping and public-facing infrastructure along major tourism corridors."],["Deliver access improvements","Coordinates equipment and capital work that improves safety, function, and accessibility."]],
     serviceChange:"Adds staffing and capital capacity to support growing maintenance demands and expanded public infrastructure.",
-    challenges:"Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.", changeNote:"Funding for other purchased services increases by $704,875 from FY 2026.",
+    challenges:"Keep beach and bay access sites clean during peak season while completing repairs at heavily used facilities.", changeNote:"Funding for other purchased services increases by $704,875 from FY 2026.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays",
     capitalItems:[{item:"Beach Operations vehicles, machinery and equipment",amount:1902500}],
-    capitalNote: "The budget includes $200,000 for a new Truck Wash System. Operating costs and expected savings have not been estimated.",
     contracts:[{service:"SR 83 (US 331) Landscaping Improvements",provider:"C&A Landscape Maintenance, LLC · Contract 25-26",amount:515000},{service:"US Highway 331 Median & Right-of-Way Maintenance",provider:"Harper Landscaping, LLC · Contract 22-028",amount:455000},{service:"Highway 98 Median & Right-of-Way Maintenance",provider:"ZIIC Outdoors, LLC · Contract 020-016",amount:300000},{service:"Task Order Services",provider:"Multiple providers as authorized",amount:200000}],
     sideCards: [{ label: "Beach Renourishment", amount: 11000000, detail: "$10,750,000 capital program plus $250,000 in task-order services to preserve and restore Walton County's 26 miles of beach, tracked separately from Beach Operations' totals above." }],
     pms:[{q:"Beach and bay public access facilities cleaned daily",obj:"Clean all beach and bay public access facilities daily during peak season",y:["60","60","62","63"],target:"66",svc:0},{q:"Maintenance work orders completed",obj:"Complete at least 6,000 maintenance work orders annually",y:["4,177","5,111","5,970","6,000"],target:"6,000",svc:2}]
@@ -741,7 +742,7 @@ const DEPARTMENTS = [
     services:[["Operate beach shuttles","Transports passengers between designated parking and beach access locations."],["Maintain fleet readiness","Coordinates drivers, mechanics, dispatch, inspections, and vehicle availability."],["Improve coastal mobility","Reduces parking demand and expands access for residents and visitors."]],
     serviceChange:"Expands driver and crew capacity and provides capital funding to support a higher FY 2027 ridership target.",
 
-    challenges:"Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.", changeNote:"The $1,726,095 increase includes personnel $1,118,929, operating $139,000, indirect allocation $177,166, and capital $291,000.",
+    challenges:"Match shuttle frequency to peak demand so riders can reach the beach without long waits.", changeNote:"The $1,726,095 increase includes personnel $1,118,929, operating $139,000, indirect allocation $177,166, and capital $291,000.",
     revenue:"Tourist Development Tax on eligible short-term lodging stays", capitalItems:[{item:"Beach Tram vehicles and transportation equipment",amount:507000}], capitalNote:"The $507,000 capital allocation includes three replacement ADA shuttles and one new pickup.", contracts:[],
     pms:[{q:"Passengers transported annually by the shuttle service",obj:"Transport at least 200,000 passengers annually",y:["77,282","193,725","168,203","200,000"],target:"250,000",svc:0}]
   }
@@ -1208,6 +1209,7 @@ async function buildDeptPage(d, pageNumber) {
     const revision = d.fromSite ? null : (annualReportPerformance[d.name] || []).find(item => item.index === d.pms.indexOf(originalPm));
     const pm = revision ? {...originalPm, y: [...originalPm.y.slice(0, 3), revision.value]} : originalPm;
     const pairLabels = /outreach events/.test(pm.q) ? ["Events", "People"] : /personnel action forms/.test(pm.q) ? ["Forms", "Benefits"] : /contracts approved/.test(pm.q) ? ["Contracts", "Acres"] : null;
+    const omitTreatmentNote = d.name === "Mosquito Control" && /acres treated/i.test(pm.q);
     const contextNote = d.fromSite ? pm.siteNote : globalThis.WCPerformanceContext.noteFor({Dept_Name:d.name,Measure:pm.q});
     return `
     <div class="pm-item${pairLabels ? " paired-measure" : ""}${pm.context ? " economic-context" : ""}">
@@ -1220,8 +1222,8 @@ async function buildDeptPage(d, pageNumber) {
         ${projection ? `<span class="projection"><b>${pmVal(projection.value, pairLabels)}</b>FY26 Projection</span>` : ""}
         <span class="target"><b>${pmVal(pm.target, pairLabels)}</b>${pm.targetLabel || "FY27 Target"}</span>
       </div>
-      ${revision ? `<p class="source-trace">Source: 2025 Annual Report, p. ${revision.reportPage}.${revision.note ? " " + revision.note : ""}</p>` : ""}
-      ${contextNote ? `<p class="pm-context-note">${contextNote}</p>` : ""}
+      ${revision && !omitTreatmentNote ? `<p class="source-trace">Source: 2025 Annual Report, p. ${revision.reportPage}.${revision.note ? " " + revision.note : ""}</p>` : ""}
+      ${contextNote && !omitTreatmentNote ? `<p class="pm-context-note">${contextNote}</p>` : ""}
     </div>`;
   };
 
@@ -1406,7 +1408,7 @@ async function main() {
       y: ["2022", "2023", "2024", "2025"].map((year) => m.values[year] ?? ""),
       target: m.values["FY27 Target"] ?? "",
       svc: i,
-      siteNote: m.note
+      siteNote: d.name === "Mosquito Control" && /acres treated/i.test(m.name) ? "" : m.note
     })));
     d.fromSite = true;
   }

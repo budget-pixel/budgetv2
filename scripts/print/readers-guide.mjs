@@ -19,7 +19,9 @@ export const INSERT_AFTER = [7, 8, 41, 44, 51, 59, 63, 69, 103, 123];
 // Old pages removed from the book: the Capital Funding and Delivery
 // Dashboard (old page 112) repeated the Capital Improvement Plan's fund
 // reconciliation and largest commitments, so it was dropped.
-export const REMOVED = [112];
+// The table of contents went from three pages to two (old page 6 removed
+// 2026-11-22), so every later page moves up one.
+export const REMOVED = [6, 112];
 export const OLD_PAGE_COUNT = 134;
 export const NEW_PAGE_COUNT = OLD_PAGE_COUNT + INSERT_AFTER.length - REMOVED.length;
 
@@ -130,7 +132,7 @@ export const GUIDES = [
         ["Public Participation and Decision Record", 48, "Workshops, hearings, and the Board&rsquo;s decisions"]]],
       ["The rules that guide it", [
         ["Financial Policies", 49, "The framework for sound financial management"],
-        ["Summary of Financial Policies", 50, "The nine adopted policies at a glance"]]]
+        ["Summary of Financial Policies", 50, "The ten adopted policies and spending authority at a glance"]]]
     ]
   },
   {
@@ -160,7 +162,7 @@ export const GUIDES = [
   },
   {
     key: "program", insertAfter: 63, kicker: "Program and Service Budget", title: "Reader&rsquo;s Guide",
-    intro: "This section connects the adopted budget to the services residents receive. Board-administered services are grouped into four areas, each with its purpose, full cost, funding, and FY 2027 targets.",
+    intro: "This section connects the adopted budget to the services residents receive. County services, including the Sheriff’s Office, are grouped into four areas, each with its purpose, full cost, property-tax share, funding, and FY 2027 targets.",
     groups: [
       ["Start with public value", [
         ["What Residents Receive", 64, "How the budget connects to everyday services"]]],

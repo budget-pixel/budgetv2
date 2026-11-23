@@ -166,7 +166,11 @@ const sharedCss = `
 const startPage = Number(process.argv[3] || 108);
 
 const MILLAGE = [["FY 2024", 3.6000], ["FY 2025", 3.575], ["FY 2026", 3.519], ["FY 2027", 3.2500]];
-const CIP = outlook.years.map((year, i) => ["FY" + String(year).slice(2), outlook.capitalInventoryMillions[i], i === 0]);
+// Funded five-year capital plan, matching the Capital Improvement Plan chapter
+// (build-capital-improvement-plan.mjs) so the book shows one capital program.
+const CAPITAL_PLAN = [43.8, 42.7, 36.1, 43.2, 35.3];
+assert.equal(CAPITAL_PLAN[0], outlook.fundedFy2027CipMillions);
+const CIP = outlook.years.map((year, i) => ["FY" + String(year).slice(2), CAPITAL_PLAN[i], i === 0]);
 
 const FORECAST_ROWS = outlook.funds.map(fund => [fund.name, ...fund.endingBalances.map(millions)]);
 
@@ -199,7 +203,7 @@ const page1 = `
       ${FORECAST_ROWS.map(r => `<div class="frow"><div>${r[0]}</div>${r.slice(1).map(amount => `<div><b>${amount}</b></div>`).join("")}</div>`).join("")}
     </div>
     <p class="body">Amounts are rounded to $0.1 million; FY 2027 is the site scenario baseline. The General Fund starts with its audited unassigned balance; other funds use total balances, including restricted resources. Tourism uses a $60.3M revenue base drawn from recent actual collections.</p>
-    <p class="warn"><b>Different Funds Face Different Pressures</b>General Fund and Transportation balances recover after FY 2027 under the site's growth and capital-spending assumptions. Tourism begins using fund balance in FY 2029, with a $2.2M annual gap by FY 2031. Sheriff and Capital Projects balances depend on future transfers or financing being provided.</p>
+    <p class="warn"><b>Different Funds Face Different Pressures</b>General Fund and Transportation balances recover after FY 2027 under the site's growth and capital-spending assumptions. Tourism begins using fund balance in FY 2029 because the forecast assumes spending will grow faster than revenue. These are planning assumptions, not historical trends: the forecast assumes core tourism revenue grows about 1% a year and most operating costs about 3%, which produces a $2.2M annual gap by FY 2031. Sheriff and Capital Projects balances depend on future transfers or financing being provided.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage}</b></footer>
   </section>
@@ -214,11 +218,12 @@ const page2 = `
     <p class="body">The General Fund is projected to end FY 2031 at $57.3M, recovering from $50.3M after FY 2027 but remaining below its $58.4M opening balance. Tourism peaks at $168.4M in FY 2028 before declining to $164.6M in FY 2031. Fund balances include different restrictions; see Reserve Position on pages ${newPage(41)}&ndash;${newPage(41.5)} for reserve targets.</p>
 
     <h2>Assumptions Behind the Forecast</h2>
+    <p class="body">The growth rates below are planning assumptions chosen for the forecast. They are not historical growth rates, and actual results will differ.</p>
     <div class="two-col">
-      <div class="info-card"><b>General Fund and Transportation</b><span>General Fund revenue generally grows 1% and expenses 0.5% annually, with line-specific exceptions. Transportation expenses generally grow 2%, while its shared surtax transfer grows 2.5%. Both forecasts reduce future capital spending to avoid repeating the FY 2027 use of carried-forward balances.</span></div>
-      <div class="info-card"><b>Tourist Development</b><span>The site starts tourism revenue at recent collections of $60.3M, compared with the $59.0M adopted revenue budget. Core tourism revenue grows 1% annually while most expense lines grow 3%; flat assumptions apply to selected items, including beach renourishment.</span></div>
+      <div class="info-card"><b>General Fund and Transportation</b><span>The forecast assumes General Fund revenue grows 1% and expenses 0.5% a year, with line-specific exceptions. It assumes Transportation expenses grow 2% and the shared surtax transfer 2.5% a year. Both forecasts reduce future capital spending to avoid repeating the FY 2027 use of carried-forward balances.</span></div>
+      <div class="info-card"><b>Tourist Development</b><span>The site starts tourism revenue at recent collections of $60.3M, compared with the $59.0M adopted revenue budget. The forecast assumes core tourism revenue grows 1% a year and most expense lines 3%; selected items, including beach renourishment, are held flat.</span></div>
       <div class="info-card"><b>Sheriff and Capital Projects</b><span>The Sheriff transfer is calculated to support projected expenses after other revenues. Capital Projects spending follows the CIP and the model supplies matching financing. Future budgets must identify and approve funding in the sending funds.</span></div>
-      <div class="info-card"><b>Solid Waste</b><span>The site projects modest annual gains, reaching $52.1M in FY 2031. Actual results depend on revenue growth, service costs, and the transfers the fund provides to other County funds.</span></div>
+      <div class="info-card"><b>Solid Waste</b><span>The forecast assumes modest annual gains, reaching $52.1M in FY 2031. Actual results depend on revenue growth, service costs, and the transfers the fund provides to other County funds.</span></div>
     </div>
 
     <h2>Recurring Commitments and Annual Monitoring</h2>
@@ -227,17 +232,17 @@ const page2 = `
       <div class="info-card"><b>What Remains to Be Estimated</b><span>Capital ledgers identify whether operating effects are absorbed, immaterial, ongoing, or pending. Maintenance and operating costs marked pending &mdash; especially for future phases or newly selected projects &mdash; must be estimated before later funding decisions.</span></div>
     </div>
 
-    <p class="warn"><b>Deferred and Contingent Items</b>No major project in the funded $43.8M FY 2027 capital program was postponed. Outside that total are $15.3M of grant-dependent projects, $2.0M of Sheriff projects funded separately, and $10.25M of prior-funded tourism work that remains active. A $600,000 recreational-plat allocation and $300,000 sidewalk allocation await project selection. Future phases and costs shown as pending are not assumed funded.</p>
+    <p class="warn"><b>Deferred and Contingent Items</b>No project in the $43.8M funded FY 2027 capital program was deferred. Three groups of projects are tracked outside that total: $15.3M that will proceed only if grants are awarded, $2.0M budgeted by the Sheriff's Office, and $10.25M in tourism projects funded in prior years and still under way. A $600,000 recreation allocation and a $300,000 sidewalk allocation will be assigned to specific projects during the year. Future project phases are not funded in this budget.</p>
 
     <h2>Debt Payoff and Future Commitments</h2>
     <p class="body">The County's existing debt is scheduled to be paid off in FY 2030, reducing future debt-service commitments. See the Debt Ledger on page ${newPage(40)} for payment amounts and funding details.</p>
 
     <h2>The Five-Year Capital Outlook</h2>
-    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 project inventory, from the live site CIP spending trend</p>
-    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / Math.max(...outlook.capitalInventoryMillions) * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
-    <p class="trend">The site's broader project inventory moves from $71.3M in FY 2027 to $35.3M in FY 2031, with $46.2M scheduled in FY 2030. It includes grant-dependent, separately funded, and prior-funded work. The book's funded FY 2027 CIP remains $43.8M; these are different presentations of the project program.</p>
+    <p class="cip-chart-label" style="font-size:7pt;color:#68786f;margin:0 0 .04in;">FY 2027&ndash;FY 2031 funded capital plan</p>
+    <div class="cip-chart">${CIP.map(([y, v, peak]) => `<div class="cip-bar-col"><div class="amt">$${v.toFixed(1)}M</div><div class="cip-bar${peak ? " peak" : ""}" style="height:${(v / Math.max(...CAPITAL_PLAN) * 100).toFixed(0)}%"></div><div class="yr">${y}</div></div>`).join("")}</div>
+    <p class="trend">The funded five-year plan moves from $43.8M in FY 2027 to $35.3M in FY 2031, with a temporary rise to $43.2M in FY 2030 as major facility and infrastructure phases are scheduled. The $51.1M FY 2027 capital budget adds vehicles, machinery, and equipment to the $43.8M in funded projects. See the Capital Improvement Plan for project detail.</p>
 
-    <p class="warn"><b>Sensitivity and Forecast Accountability</b>The site scenario assumes continued revenue growth, spending limits, capital adjustments, and future transfer funding. Tax-law changes, weaker sales or tourism activity, grant delays, claims, and new operating costs can change the outcome. Review actual results annually and reconcile transfers across funds before using projected balances to support new commitments.</p>
+    <p class="warn"><b>Forecast Risks and Annual Updates</b>The forecast assumes continued revenue growth, controlled spending, and transfers between funds at planned levels. Changes in state tax law, slower sales or tourism activity, delayed grants, insurance claims, or new operating costs could change these results. The County updates the forecast each year with actual results before relying on projected balances for new commitments.</p>
 
     <footer><span>FY 2027 Final Budget</span><b>${startPage + 1}</b></footer>
   </section>

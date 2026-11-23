@@ -26,7 +26,18 @@ const POLICIES = [
   ["Capital Asset Policy", "Provides standards for the acquisition, capitalization, inventory, maintenance, and disposal of County assets.", "https://www.co.walton.fl.us/DocumentCenter/View/40294/Capital-Asset-Policy"],
   ["Anti-Fraud and Whistleblower Policies", "Promote ethical conduct and accountability by establishing procedures for reporting suspected fraud, waste, abuse, or misconduct.", "https://www.co.walton.fl.us/DocumentCenter/View/11655"],
   ["Investment Policy", "Establishes guidelines for investing County funds with emphasis on safety, liquidity, diversification, and yield while preserving principal.", "https://www.co.walton.fl.us/DocumentCenter/View/9816"],
-  ["Indirect Administrative Cost Allocation Policy", "Provides a methodology for allocating indirect administrative costs among County programs, ensuring equitable cost recovery.", "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy"]
+  ["Indirect Administrative Cost Allocation Policy", "Provides a methodology for allocating indirect administrative costs among County programs, ensuring equitable cost recovery.", "https://www.co.walton.fl.us/DocumentCenter/View/40347/Indirect-Administrative-Cost-Allocation-Policy"],
+  ["Purchasing Policies and Procedures", "Sets purchasing and competitive bidding rules and establishes the spending authority of County officials.", "https://www.mywaltonfl.gov/DocumentCenter/View/45011/Purchasing_Policies-and-Procedures-Manual-"],
+];
+// Purchasing Procedure PP-002, Spending Levels (revised May 9, 2023), in the
+// Purchasing Policies and Procedures Manual linked above.
+const SPENDING_AUTHORITY = [
+  ["County Administrator and Chief Financial Officer", "$100,000"],
+  ["Assistant County Administrator", "$25,000"],
+  ["Tourist Development Executive Director", "$25,000"],
+  ["County Attorney", "$25,000"],
+  ["Division Director", "$15,000"],
+  ["Supervisor", "$5,000"],
 ];
 const POLICY_QRS = await Promise.all(POLICIES.map(([, , url]) => QRCode.toDataURL(url, { margin: 4, width: 160, color: { dark: "#003f28", light: "#ffffff" } })));
 
@@ -182,6 +193,17 @@ const sharedCss = `
     letter-spacing:.02em;
     text-transform:uppercase;
   }
+  .policy-summary .policy-grid{ gap:.1in .26in; }
+  .policy-summary .policy-card{ padding:.1in .16in; }
+  .policy-summary .policy-card h3{ margin-bottom:.05in; }
+  .policy-summary .policy-card p{ margin:0; font-size:7.9pt; line-height:1.36; }
+  .policy-summary .policy-card-qr img{ width:.58in; height:.58in; }
+  .authority{ margin:.16in 0 0; padding:.14in .18in; border:1px solid #d1be78; border-radius:12px; background:#f9f8f2; }
+  .authority h3{ margin:0 0 .04in; color:#003f28; font:800 10.5pt/1.2 Georgia, serif; }
+  .authority > p{ margin:0 0 .08in; color:#33453c; font-size:8pt; line-height:1.4; }
+  .authority-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.06in .12in; }
+  .authority-grid div{ display:flex; justify-content:space-between; align-items:baseline; gap:.08in; padding:.05in .08in; border-bottom:1px solid #e4dcc0; font-size:7.8pt; color:#33453c; }
+  .authority-grid b{ color:#003f28; white-space:nowrap; }
   footer{
     position:absolute;
     left:.62in;
@@ -233,14 +255,20 @@ const page1 = `
 `;
 
 const page2 = `
-  <section>
+  <section class="policy-summary">
     ${pageHeader()}
     <small class="kicker">Budget Process</small>
     <h1>Summary of Financial Policies</h1>
-    <p class="intro">Nine adopted policies govern how Walton County safeguards, invests, allocates, and reports on public funds.</p>
+    <p class="intro">Ten adopted policies govern how Walton County safeguards, invests, allocates, and reports on public funds.</p>
 
     <div class="policy-grid">
       ${POLICIES.map(([title, desc], i) => `<div class="policy-card"><div class="policy-card-body"><h3>${title}</h3><p>${desc}</p></div><div class="policy-card-qr"><img src="${POLICY_QRS[i]}" alt="QR code linking to the ${title} document"><span>Scan to View</span></div></div>`).join("")}
+    </div>
+
+    <div class="authority">
+      <h3>Spending Authority</h3>
+      <p>The Purchasing Policies and Procedures Manual (Procedure PP-002, Spending Levels) sets how much each official may approve for a single purchase. Purchases above $100,000 go through formal competitive bidding.</p>
+      <div class="authority-grid">${SPENDING_AUTHORITY.map(([role, limit]) => `<div><span>${role}</span><b>Up to ${limit}</b></div>`).join("")}</div>
     </div>
 
     <footer><span>FY 2027 Final Budget</span><b>PAGE_B</b></footer>

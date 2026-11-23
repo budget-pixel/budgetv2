@@ -14,7 +14,7 @@
   const HISTORICAL_ACTUAL_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
   const currentScriptSrc = document.currentScript && document.currentScript.src;
   const assetBaseUrl = currentScriptSrc ? currentScriptSrc.replace(/[^/]+$/, "") : "assets/";
-  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=143dbde113";
+  const STATIC_BUDGET_URL = assetBaseUrl + "static-data/budget.json?v=ce0b00da95";
 
   // The published sheets use department names that differ slightly between
   // tabs (and from this site's page titles). These aliases map a page's
@@ -4923,6 +4923,8 @@
   function openInfoDialog(options) {
     const opts = options || {};
     const modal = ensureBudgetDetailModal();
+    // The shared dialog can switch offices without closing first.
+    modal.querySelectorAll(".wc-budget-detail-header-toggle, .wc-budget-detail-header-action").forEach((el) => el.remove());
     const title = modal.querySelector("#wc-budget-detail-title");
     const kicker = modal.querySelector(".wc-budget-detail-kicker");
     const body = modal.querySelector(".wc-budget-detail-body");
@@ -5006,7 +5008,7 @@
   }
 
   // A link marked data-info-popup-open-page inside an Info Popup (e.g. a
-  // department card's "Open Full Department") closes the card and opens
+  // department card's "Open Full Page") closes the card and opens
   // that page in the full page popup; Back there reopens the card via
   // infoPopupReopen.
   let infoPopupReopen = null;
@@ -19097,7 +19099,7 @@
         const changing = info.changing ? '<section><h3>What&rsquo;s Changing</h3><p class="wc-dept-info-text">' + escapeHtml(info.changing) + '</p></section>' : "";
         const services = info.services.length ? '<section><h3>Core Services</h3><ul class="wc-dept-info-services">' + info.services.map((item) => '<li>' + escapeHtml(item[0]) + '</li>').join("") + '</ul></section>' : "";
         const offices = info.offices ? '<section><h3>Offices</h3><div class="wc-dept-info-offices">' + info.offices.map((choice) => '<a href="' + escapeHtml(pageLinkBase + choice.href) + '" data-info-popup-open-page="' + escapeHtml(choice.name) + '">' + escapeHtml(choice.name) + ' <span aria-hidden="true">&rarr;</span></a>').join("") + '</div></section>' : "";
-        const action = info.offices || info.isProgram ? "" : '<div class="wc-personnel-dept-actions"><a class="wc-ledger-card-button" href="' + escapeHtml(pageLinkBase + info.href) + '" data-info-popup-open-page="' + escapeHtml(info.name) + '">' + (info.isOffice ? "Open Full Office" : "Open Full Department") + '</a></div>';
+        const action = info.offices || info.isProgram ? "" : '<div class="wc-personnel-dept-actions"><a class="wc-ledger-card-button" href="' + escapeHtml(pageLinkBase + info.href) + '" data-info-popup-open-page="' + escapeHtml(info.name) + '">Open Full Page</a></div>';
         const backToOffices = info.parentKey ? '<button type="button" class="wc-dept-info-back" data-dept-info-offices="' + escapeHtml(info.parentKey) + '">&larr; All ' + escapeHtml(info.parentName) + ' offices</button>' : "";
         return '<div class="wc-personnel-explainer-popup wc-personnel-dept-popup wc-dept-info-popup">' + summary + mix + changing + services + offices + backToOffices + action + '</div>';
       };

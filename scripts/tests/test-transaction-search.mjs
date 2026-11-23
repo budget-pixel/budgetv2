@@ -7,7 +7,7 @@ try {
     await page.route('**/*', async route => {
       const url = new URL(route.request().url());
       if (url.hostname !== '127.0.0.1') return route.abort();
-      if (!url.pathname.endsWith('/transaction-search.js')) return route.continue();
+      if (!/\/transaction-search(?:\.min)?\.js$/.test(url.pathname)) return route.continue();
       const response = await route.fetch();
       const stub = `window.WCSupabaseData={SEARCH_PAGE_SIZE:2,searchTransactions:async function(filters,page){
         window.lastSearch={filters,page};
@@ -21,23 +21,37 @@ try {
     await page.goto('http://127.0.0.1:8767/pages/transaction-search.html?embed=department-popup', { waitUntil: 'domcontentloaded' });
     assert.equal(await page.locator('.wc-txn-table').count(), 0);
     assert.equal(await page.locator('#txnResultsToolbar').isVisible(), false);
-    assert.equal(await page.locator('#txnMoreFilters').evaluate(d=>d.open), false);
+    assert.equal(await page.locator('#txnMoreFilters, #txnDateFrom, #txnDateTo, #txnAmountMin, #txnAmountMax, #txnKeyword').count(), 0);
+    assert.deepEqual(await page.locator('#txnYear option').allTextContents(), ['Select fiscal year', 'FY 2025', 'FY 2024', 'FY 2023', 'FY 2022', 'FY 2021', 'FY 2020']);
+    assert(await page.locator('#txnSearch').isDisabled());
+    assert(await page.locator('#txnYear').isDisabled());
+    assert(await page.locator('#txnDept').isDisabled());
+    assert(await page.locator('#txnAccount').isDisabled());
+    await page.locator('#txnType').selectOption('expense');
+    await page.locator('#txnYear').selectOption('2025');
+    await page.getByLabel('Department', {exact:true}).locator('option').filter({hasText:'Building Construction and Maintenance'}).waitFor({state:'attached'});
+    await page.getByLabel('Department', {exact:true}).selectOption({label:'Building Construction and Maintenance'});
+    assert(await page.locator('#txnSearch').isDisabled());
+    await page.locator('#txnAccount').selectOption('552000');
+    assert(await page.locator('#txnSearch').isEnabled());
     await page.getByRole('button', { name: 'Search transactions', exact: true }).click();
     await page.waitForSelector('.wc-txn-table');
     assert.equal(await page.locator('.wc-txn-table tbody tr').count(), 2);
+    assert.equal(await page.locator('.wc-txn-table th').count(), 6);
+    assert.equal(await page.locator('[data-label="Document #"]').count(), 0);
     await page.waitForFunction(()=>document.querySelector('[data-label="Department"]')?.textContent==='Building Construction and Maintenance');
     assert(!(await page.locator('#txnResults').innerText()).includes('00117020'));
     await page.locator('#txnResults').screenshot({path:'/private/tmp/transaction-results-'+width+'.png'});
     assert.equal(await page.locator('.wc-txn-type').allTextContents().then(t => t.join(',')), 'Expense,Revenue receipt');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     if (width < 700) assert.equal(await page.locator('.wc-txn-table tr').last().evaluate(e => getComputedStyle(e).display), 'block');
-    await page.waitForSelector('#txnAccount option[value="561000"]', {state:'attached'});
-    await page.locator('#txnAccount').selectOption('561000');
-    await page.locator('#txnKeyword').fill('supplier');
+    await page.waitForSelector('#txnAccount option[value="564000"]', {state:'attached'});
+    await page.locator('#txnAccount').selectOption('564000');
     await page.getByRole('button', { name: 'Search transactions', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('#txnResults').getAttribute('aria-busy') === 'false');
-    assert.equal(await page.evaluate(() => lastSearch.filters.keyword), 'supplier');
-    assert.equal(await page.evaluate(() => lastSearch.filters.accountCode), '561000');
+    assert.equal(await page.evaluate(() => Object.hasOwn(lastSearch.filters, 'keyword')), false);
+    assert.equal(await page.evaluate(() => lastSearch.filters.accountCode), '564000');
+    assert((await page.locator('#txnAccount option').evaluateAll(options => options.filter(o=>o.value).map(o=>o.value))).every(code=>code.startsWith('5')));
     await page.locator('#txnNext').click();
     await page.waitForFunction(() => document.querySelector('#txnPageLabel').textContent === 'Page 2');
     assert.equal(await page.evaluate(() => lastSearch.page), 1);
@@ -47,7 +61,15 @@ try {
     await page.evaluate(() => window.searchMode = 'empty');
     await page.locator('#txnReset').click();
     assert.equal(await page.locator('#txnResults').innerText(), '');
-    assert.equal(await page.locator('#txnKeyword').inputValue(), '');
+    assert.equal(await page.locator('#txnType').inputValue(), '');
+    assert(await page.locator('#txnSearch').isDisabled());
+    assert(await page.locator('#txnYear').isDisabled());
+    assert(await page.locator('#txnDept').isDisabled());
+    assert(await page.locator('#txnAccount').isDisabled());
+    await page.locator('#txnType').selectOption('expense');
+    await page.locator('#txnYear').selectOption('2025');
+    await page.getByLabel('Department', {exact:true}).selectOption({label:'Building Construction and Maintenance'});
+    await page.locator('#txnAccount').selectOption('552000');
     await page.getByRole('button', { name: 'Search transactions', exact: true }).click();
     await page.waitForSelector('.wc-txn-empty');
     assert.equal(await page.locator('#txnPagination').isVisible(), false);
@@ -56,12 +78,7 @@ try {
     await page.waitForFunction(() => document.querySelector('#txnStatus').textContent.includes('could not connect'));
     assert.equal(await page.locator('#txnDownload').isDisabled(), true);
     assert.equal(await page.locator('#txnResults').getAttribute('aria-busy'), 'false');
-    await page.locator('#txnMoreFilters summary').click();
-    await page.locator('#txnDateFrom').fill('2025-12-01');
-    await page.locator('#txnDateTo').fill('2025-01-01');
-    await page.getByRole('button', { name: 'Search transactions', exact: true }).click();
-    assert((await page.locator('#txnStatus').innerText()).includes('start date'));
-    console.log('PASS', width, 'results, labels, layout, filters, pagination, export, empty/error states, date validation');
+    console.log('PASS', width, 'results, labels, layout, filters, pagination, export, empty/error states, simplified filters and result columns');
     await page.close();
   }
 } finally { await browser.close(); }

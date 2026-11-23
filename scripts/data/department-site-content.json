@@ -1,7 +1,7 @@
 {
   "Building Construction and Maintenance": {
     "goal": "Provide safe, clean, and efficient public facilities for staff, citizens, and visitors",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Keeping aging County buildings, parks, and facilities safe and working while new construction projects and thousands of daily work orders compete for the same crews.",
     "services": [
       {
         "title": "Maintain public buildings",
@@ -41,7 +41,7 @@
   },
   "Building Department": {
     "goal": "Ensure safe, quality construction",
-    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "challenges": "Keeping inspections and plan reviews on schedule while construction stays busy, with FY 2027 operations funded from Building Fund reserves rather than current permit fees.",
     "services": [
       {
         "title": "Issue permits",
@@ -81,7 +81,7 @@
   },
   "Code Compliance": {
     "goal": "Promote voluntary compliance to maintain community standards and resolve code violations",
-    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "challenges": "Enforcing codes on both county streets and the beach, where peak-season crowds drive demand, while resolving most violations through voluntary compliance.",
     "services": [
       {
         "title": "Respond to code concerns",
@@ -121,7 +121,7 @@
   },
   "County Administration": {
     "goal": "Deliver effective and transparent administration to support County operations",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Carrying out Board direction across County departments while coordinating with Constitutional Officers, municipalities, and residents on competing priorities.",
     "services": [
       {
         "title": "Carry out Board direction",
@@ -172,7 +172,7 @@
   },
   "Eagle Springs Golf and Recreation Center": {
     "goal": "Provide high-quality and accessible recreational opportunities for all residents and visitors",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Keeping the course and facilities in good condition as play increases, while customer revenue continues to cover most of the operating cost.",
     "services": [
       {
         "title": "Operate the golf course",
@@ -252,7 +252,7 @@
   },
   "Emergency Management": {
     "goal": "Enhance community preparedness, readiness, and resilience through education, training, outreach, and volunteer engagement to effectively mitigate and respond to disasters",
-    "challenges": "Maintaining year-round readiness for unpredictable events, seasonal demand, severe weather, and competition for trained personnel and specialized equipment.",
+    "challenges": "Staying ready year-round for hurricanes and other emergencies with a small staff, while keeping residents and visitors informed and prepared.",
     "services": [
       {
         "title": "Prepare for emergencies",
@@ -292,7 +292,7 @@
   },
   "Engineering Department": {
     "goal": "Support infrastructure planning and delivery by maintaining and updating the Capital Improvement Plan (CIP), providing transparent reporting, and coordinating engineering support for County projects",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Designing and managing 30 funded transportation and infrastructure projects with two fewer positions, while construction costs and schedules stay tight.",
     "services": [
       {
         "title": "Design public infrastructure",
@@ -343,7 +343,7 @@
   },
   "Environmental Resources": {
     "goal": "Protect and enhance Walton County’s natural resources through proactive conservation, compliance, and restoration initiatives",
-    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "challenges": "Meeting state and federal environmental requirements and protecting water quality, dunes, and habitat as development grows near sensitive areas.",
     "services": [
       {
         "title": "Manage environmental projects",
@@ -383,7 +383,7 @@
   },
   "Extension Office": {
     "goal": "Provide relevant, research-based education and outreach to improve the quality of life for Walton County residents and visitors",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Meeting growing demand for agriculture, horticulture, youth, and family programs with a small staff shared with the University of Florida.",
     "services": [
       {
         "title": "Share research-based education",
@@ -434,7 +434,7 @@
   },
   "Geographic Info Systems": {
     "goal": "Provide accessible, accurate, and innovative GIS resources to support decision-making and improve customer service",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Keeping countywide maps, addresses, and parcel data current as new development adds roads and addresses and customer requests continue to rise.",
     "services": [
       {
         "title": "Maintain county map data",
@@ -485,7 +485,7 @@
   },
   "Housing & Urban Development": {
     "goal": "Provide safe, affordable housing opportunities and manage resources efficiently to assist low-income families",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Putting as many federal housing vouchers to use as possible when available rental housing is scarce and local rents are high.",
     "services": [
       {
         "title": "Support housing stability",
@@ -519,7 +519,7 @@
   },
   "Human Resources": {
     "goal": "Attract, develop, and support a qualified workforce by delivering effective HR services and ensuring timely personnel actions",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Recruiting and keeping qualified employees in a high-cost labor market, with Board turnover near 11% and about 260 new employees to onboard.",
     "services": [
       {
         "title": "Recruit and support employees",
@@ -559,7 +559,7 @@
   },
   "Libraries": {
     "goal": "Deliver high-quality library services, resources, and programs that foster learning, literacy, and community engagement",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Keeping four branches and a bookmobile open and current as visits and program demand have grown sharply since 2022.",
     "services": [
       {
         "title": "Provide books and information",
@@ -599,7 +599,7 @@
   },
   "Mosquito Control": {
     "goal": "Protect public health and enhance quality of life by managing mosquito populations through effective, innovative, and environmentally responsible practices",
-    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "challenges": "Covering a much larger treatment area with one fewer position, while rain and heat can cause sudden spikes in mosquito activity.",
     "services": [
       {
         "title": "Monitor mosquito activity",
@@ -639,7 +639,7 @@
   },
   "Mossy Head Wastewater Treatment Facility": {
     "goal": "Operate and maintain the wastewater treatment facility and sewer system to ensure reliable service, regulatory compliance, and readiness for future growth",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Running the treatment system for the Northwest Commerce Industrial Park with one County employee and a contracted operator while keeping it ready for future users.",
     "services": [
       {
         "title": "Maintain the treatment system",
@@ -662,7 +662,7 @@
   },
   "Office of Management and Budget": {
     "goal": "Maintain Walton County’s financial stability and integrity through effective planning, compliance, transparency, and innovation in budget management.",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Balancing the budget under a lower millage rate and new state budget requirements, while tracking grant spending and reporting.",
     "services": [
       {
         "title": "Build the annual budget",
@@ -730,7 +730,7 @@
   },
   "Office of the County Attorney": {
     "goal": "Provide effective legal services, contract support, and public records management to ensure compliance, accountability, and transparency",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Handling a steady volume of contract reviews, legal matters, and public-records requests with one fewer paralegal.",
     "services": [
       {
         "title": "Prepare and review legal documents",
@@ -775,7 +775,7 @@
   },
   "Planning": {
     "goal": "Provide timely, customer-focused planning and permitting services that promote sustainable growth, protect natural resources, and ensure compliance with County regulations",
-    "challenges": "Responding to growing workloads while providing timely service, maintaining consistent enforcement, and adapting to changing regulatory and environmental conditions.",
+    "challenges": "Reviewing a rising number of permits and enforcing short-term rental rules as growth changes how neighborhoods and corridors are used.",
     "services": [
       {
         "title": "Review development proposals",
@@ -809,7 +809,7 @@
   },
   "Probation": {
     "goal": "Ensure compliance with court-ordered probation conditions and provide effective supervision and support for probationers to promote accountability and rehabilitation.",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Supervising changing caseloads and attending court hearings with four officers, while keeping probationers in compliance with court orders.",
     "services": [
       {
         "title": "Report to the court",
@@ -832,7 +832,7 @@
   },
   "Public Works": {
     "goal": "Provide, maintain, and improve Walton County’s public infrastructure in a sustainable, innovative, and efficient manner to support safety, mobility, environmental stewardship, and economic development",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Maintaining 1,049 miles of paved and dirt roads and completing more capital projects as traffic and development increase.",
     "services": [
       {
         "title": "Maintain roads and rights-of-way",
@@ -872,7 +872,7 @@
   },
   "Purchasing": {
     "goal": "Enhance efficiency, transparency, and effectiveness of procurement operations to support County departments and deliver value to the community",
-    "challenges": "Supporting a growing organization while recruiting and retaining skilled staff, modernizing systems, meeting compliance requirements, and responding to competing priorities.",
+    "challenges": "Keeping purchases and formal bids moving quickly while meeting state, federal, and grant procurement rules.",
     "services": [
       {
         "title": "Run fair solicitations",
@@ -911,25 +911,13 @@
       {
         "title": "Maintain procurement records",
         "description": "Documents awards, contracts, vendor information, and purchasing compliance.",
-        "measures": [
-          {
-            "name": "Number of inventory issues processed per fiscal year",
-            "values": {
-              "2022": "4,731",
-              "2023": "5,149",
-              "2024": "1,317",
-              "2025": "3,000",
-              "FY27 Target": "3,300"
-            },
-            "note": ""
-          }
-        ]
+        "measures": []
       }
     ]
   },
   "Recreation": {
     "goal": "Provide diverse recreational programs that enhance community health, engagement, and quality of life",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Keeping fields, parks, and programs available as participation grows, with a small staff scheduling shared facilities.",
     "services": [
       {
         "title": "Provide recreation programs",
@@ -952,7 +940,7 @@
   },
   "Soil Conservation": {
     "goal": "Support sustainable land and water management practices by promoting soil conservation, protecting natural resources, and assisting landowners.",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Helping farmers and landowners apply for federal cost-share programs with two staff, while program rules and funding change from year to year.",
     "services": [
       {
         "title": "Support conservation planning",
@@ -992,7 +980,7 @@
   },
   "Solid Waste": {
     "goal": "Ensure regulatory compliance, operational efficiency, and protection of natural resources across all waste streams",
-    "challenges": "Keeping pace with growth while maintaining aging assets, managing construction costs, and scheduling work with limited staff and equipment.",
+    "challenges": "Handling more waste each year as the population grows, while extending landfill life and managing the $17M collection franchise.",
     "services": [
       {
         "title": "Operate waste facilities",
@@ -1054,7 +1042,7 @@
   },
   "Veteran Services": {
     "goal": "Deliver timely, effective, and informative assistance to veterans and their families",
-    "challenges": "Meeting changing community needs while managing caseloads, maintaining public access, and delivering reliable service with limited staffing and program capacity.",
+    "challenges": "Keeping up with a rising number of benefit claims so each veteran's application is filed accurately and on time.",
     "services": [
       {
         "title": "Help veterans navigate benefits",
@@ -1111,12 +1099,12 @@
   },
   "Tourism Administration": {
     "goal": "Steward visitor-funded resources and coordinate tourism programs that support a strong economy and community quality of life.",
-    "challenges": "Four positions oversee the $59.0M Tourist Development Fund, whose uses are restricted by state law to tourism-related purposes.",
+    "challenges": "Match competing tourism requests to eligible uses of lodging-tax revenue and document how each expense qualifies.",
     "services": []
   },
   "Sales and Visitors Center": {
     "goal": "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
-    "challenges": "Nine positions handle group sales for meetings, weddings, and travel, and staff the visitor center.",
+    "challenges": "Follow up on group sales leads while keeping the visitor center available for walk-in questions.",
     "services": [
       {
         "title": "Develop group business",
@@ -1167,7 +1155,7 @@
   },
   "Communications": {
     "goal": "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
-    "challenges": "Five positions manage media relations, press visits, and tourism communications, supported by a $114,000 public relations contract.",
+    "challenges": "Keep beach safety messages current as conditions change and respond promptly to media inquiries.",
     "services": [
       {
         "title": "Manage public relations",
@@ -1207,7 +1195,7 @@
   },
   "Marketing": {
     "goal": "Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
-    "challenges": "Four positions manage $12.5M in contracted advertising, research, and digital marketing services.",
+    "challenges": "Determine which paid campaigns bring visitors to local businesses so future advertising dollars go where they work best.",
     "services": [
       {
         "title": "Plan and place destination advertising",
@@ -1269,7 +1257,7 @@
   },
   "Beach Operations": {
     "goal": "Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
-    "challenges": "Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.",
+    "challenges": "Keep beach and bay access sites clean during peak season while completing repairs at heavily used facilities.",
     "services": [
       {
         "title": "Maintain public beach access",
@@ -1326,7 +1314,7 @@
   },
   "Beach Tram": {
     "goal": "Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
-    "challenges": "Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.",
+    "challenges": "Match shuttle frequency to peak demand so riders can reach the beach without long waits.",
     "services": [
       {
         "title": "Move visitors to the beach",

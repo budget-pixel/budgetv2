@@ -97,7 +97,7 @@ replacements = {}
 if not renumber_only:
     toc = PdfReader(ROOT / "tmp/pdfs/page-order-toc.pdf")
     guide = PdfReader(ROOT / "tmp/pdfs/page-order-capital-guide.pdf")
-    replacements = {5: toc.pages[0], 6: toc.pages[1], 7: toc.pages[2], 108: guide.pages[0]}
+    replacements = {5: toc.pages[0], 6: toc.pages[1], 108: guide.pages[0]}
 writer = PdfWriter()
 for number, old in enumerate(order, 1):
     page = replacements.get(number, source_pages[old-1])
@@ -124,7 +124,7 @@ copy_outline(reader.outline)
 # row is a small (6-8pt) title in one of the two columns followed by its page
 # number; cover the row with an internal link to that page. Earlier internal
 # links are removed first so re-running this script never stacks them.
-CONTENTS_PAGES = (5, 6, 7)
+CONTENTS_PAGES = (5, 6)
 CONTENTS_COLUMN_END = {"left": 300, "right": 571}
 
 
@@ -183,6 +183,7 @@ with temporary.open("wb") as handle:
 assert len(PdfReader(temporary).pages) == PUBLISHED_PAGES
 temporary.replace(BOOK)
 print(f"Updated {PUBLISHED_PAGES}-page budget book: grouped profiles, contents ({contents_links} links), guide, bookmarks, and footer numbers.")
+subprocess.run([sys.executable, str(ROOT / "scripts/print/write-closing-letter.py"), str(BOOK)], check=True)
 # Keep the web copy small: merged sections otherwise carry duplicate images
 # and fonts (see optimize-budget-book.py).
 subprocess.run([sys.executable, str(ROOT / "scripts/print/optimize-budget-book.py"), str(BOOK)], check=True)

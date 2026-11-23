@@ -134,7 +134,7 @@ const tdRows = [
   ["Operating expenses", `Six months of ${currency(RESERVE.tourism.operating)} operating expenses`, half(RESERVE.tourism.operating)],
   ["Beach renourishment", "Future beach renourishment projects", RESERVE.tourism.beach],
   { group: "Disaster relief and recovery", basis: "Costs after a disaster", children: [
-    ["Beach and facility recovery", "Recovery after a disaster, including uninsured assets", RESERVE.tourism.recovery, true],
+    ["Beach and facility recovery", "Recovery after a disaster, including reconstruction of uninsured assets", RESERVE.tourism.recovery, true],
     ["Insurance deductibles", "5% deductible on $8.3M of insured beach facilities", RESERVE.tourism.deductible, true]
   ] }
 ];

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Process — Walton County FY 2027 Budget</title>
-<link rel="stylesheet" href="../assets/style.min.css?v=685aa079fc">
+<link rel="stylesheet" href="../assets/style.min.css?v=ef05a6e1ec">
 <style>
   .bp-section{margin:0 0 40px;scroll-margin-top:24px}
   .bp-section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,1fr);gap:24px;align-items:start;margin-bottom:20px}
@@ -53,6 +53,37 @@
   .bp-resource-frame{display:block;width:100%;border:0;min-height:300px}
   .bp-resource-frame[hidden]{display:none!important}
   .bp-resource-status{color:var(--muted);font-size:var(--fs-body)}
+
+  .bp-flow{margin-top:32px;padding:24px;border:1px solid var(--border);border-radius:var(--radius-card);background:#fff}
+  .bp-section h3.bp-flow-title{margin:0 0 6px;font-size:var(--fs-lede)}
+  .bp-section p.bp-flow-intro{margin:0 0 20px}
+  .bp-flow-lanes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px}
+  .bp-flow-lane{position:relative;min-width:0}
+  .bp-flow-lane+.bp-flow-lane::before{content:"";position:absolute;left:-22px;top:9px;border:8px solid transparent;border-left:10px solid var(--gold)}
+  .bp-flow-lane header{margin-bottom:12px;padding-bottom:8px;border-bottom:3px solid var(--green);color:var(--navy);font:700 var(--fs-card-title)/1.3 Arial,Helvetica,sans-serif}
+  .bp-flow-lane header span{display:block;color:var(--green);font-size:var(--fs-small);letter-spacing:.06em;text-transform:uppercase}
+  .bp-flow-lane ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:22px}
+  .bp-flow-node,.bp-flow-decision{position:relative;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--light)}
+  .bp-flow-lane li+li::before{content:"";position:absolute;left:50%;top:-19px;height:12px;border-left:2px solid var(--gold)}
+  .bp-flow-lane li+li::after{content:"";position:absolute;left:calc(50% - 5px);top:-9px;border:5px solid transparent;border-top:6px solid var(--gold)}
+  .bp-flow-node time{display:block;color:var(--green);font:700 var(--fs-small)/1.4 Arial,Helvetica,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+  .bp-flow-node h4{margin:4px 0;color:var(--navy);font:700 var(--fs-row)/1.35 Arial,Helvetica,sans-serif}
+  .bp-section .bp-flow-node p{margin:0;font-size:var(--fs-small);line-height:1.5}
+  .bp-flow-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+  .bp-flow-meta small{color:var(--muted);font-size:var(--fs-small);font-weight:700}
+  .bp-flow-public{padding:1px 8px;border-radius:999px;background:var(--gold);color:var(--navy);font:700 .7rem/1.6 Arial,Helvetica,sans-serif;font-style:normal}
+  .bp-flow-tag-trim{padding:1px 8px;border-radius:999px;background:var(--navy);color:#fff;font:700 .7rem/1.6 Arial,Helvetica,sans-serif;font-style:normal}
+  .bp-flow-tag-req{padding:1px 8px;border-radius:999px;background:var(--green);color:#fff;font:700 .7rem/1.6 Arial,Helvetica,sans-serif;font-style:normal}
+  .bp-flow-decision{border:2px dashed var(--gold);background:#fffaf0}
+  .bp-flow-decision strong{display:block;margin-bottom:6px;color:var(--navy);font-size:var(--fs-row)}
+  .bp-flow-decision span{display:block;color:var(--text);font-size:var(--fs-small);line-height:1.5}
+  .bp-flow-decision span+span{margin-top:4px}
+  .bp-flow-cycle{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:12px;align-items:center;margin-top:24px;padding:14px 16px;border-radius:10px;background:var(--navy);color:#fff;font-size:var(--fs-small);line-height:1.5}
+  .bp-flow-cycle strong{white-space:nowrap}
+  .bp-flow-cycle span{padding-left:12px;border-left:2px solid var(--gold)}
+  .bp-section p.bp-flow-note{margin:12px 0 0;font-size:var(--fs-small)}
+  @media(max-width:1050px){.bp-flow-lanes{grid-template-columns:repeat(2,minmax(0,1fr))}.bp-flow-lane:nth-child(3)::before{display:none}.bp-flow-cycle{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){.bp-flow{padding:16px}.bp-flow-lanes{grid-template-columns:1fr;gap:34px}.bp-flow-lane+.bp-flow-lane::before{display:block;left:calc(50% - 8px);top:-26px;border:8px solid transparent;border-top:10px solid var(--gold)}.bp-flow-cycle{grid-template-columns:1fr}.bp-flow-cycle strong{white-space:normal}}
 </style>
 </head>
 <body>
@@ -80,6 +111,18 @@
       <article class="bp-phase"><span>Phase 2</span><h3>Review</h3><p>OMB and County Administration evaluate requests against revenue estimates, priorities, fund capacity, and policy guidance.</p><small>April–June</small></article>
       <article class="bp-phase"><span>Phase 3</span><h3>Workshops</h3><p>The proposed budget is reviewed publicly with the Board, including funding requests, service levels, and the proposed millage rate.</p><small>June–July</small></article>
       <article class="bp-phase"><span>Phase 4</span><h3>Adoption</h3><p>Required public hearings are held before the Board adopts the final millage rate and annual operating budget.</p><small>September</small></article>
+    </div>
+    <div class="bp-flow" aria-labelledby="bp-flow-title">
+      <h3 id="bp-flow-title" class="bp-flow-title">Budget flowchart</h3>
+      <p class="bp-flow-intro">Each step feeds the next. If the budget does not balance, requests and estimates are revised before the Board takes it to public workshops. Steps marked TRIM follow Florida&rsquo;s Truth in Millage deadlines (s. 200.065, F.S.).</p>
+      <div class="bp-flow-lanes">
+        <section class="bp-flow-lane" aria-label="Phase 1: Preparation"><header><span>Phase 1</span>Preparation</header><ol><li class="bp-flow-node"><time>Mar 12</time><h4>Request forms go out</h4><p>OMB distributes operating and capital request forms.</p><div class="bp-flow-meta"><small>OMB</small></div></li><li class="bp-flow-node"><time>Apr 6</time><h4>Department requests due</h4><p>Departments submit operating, staffing, and capital requests.</p><div class="bp-flow-meta"><small>Departments</small></div></li></ol></section>
+        <section class="bp-flow-lane" aria-label="Phase 2: Review"><header><span>Phase 2</span>Review</header><ol><li class="bp-flow-node"><time>May 1</time><h4>Revenue estimates</h4><p>Preliminary revenue and fund balance estimates are prepared.</p><div class="bp-flow-meta"><small>OMB</small></div></li><li class="bp-flow-node"><time>Jun 1</time><h4>Values and officer budgets</h4><p>Preliminary taxable value arrives; Constitutional Officer budgets are due.</p><div class="bp-flow-meta"><small>Property Appraiser · Officers</small></div></li><li class="bp-flow-node"><time>Jun 10–11</time><h4>Staff workshops</h4><p>Requests are weighed against revenue, priorities, and fund capacity.</p><div class="bp-flow-meta"><small>OMB · Administration</small></div></li><li class="bp-flow-decision"><strong>Is the budget balanced?</strong><span><b>No:</b> revise requests and estimates, then review again.</span><span><b>Yes:</b> the proposed budget goes to the Board.</span></li></ol></section>
+        <section class="bp-flow-lane" aria-label="Phase 3: Workshops and TRIM"><header><span>Phase 3</span>Workshops and TRIM</header><ol><li class="bp-flow-node"><time>Jul 1</time><h4>Taxable value certified</h4><p>The Property Appraiser certifies taxable value on Form DR-420, starting the TRIM timeline.</p><div class="bp-flow-meta"><small>Property Appraiser</small><em class="bp-flow-tag-trim">TRIM</em></div></li><li class="bp-flow-node"><time>Jul 7</time><h4>First public budget workshop</h4><p>The Board reviews the proposed budget, funding requests, and proposed millage rate.</p><div class="bp-flow-meta"><small>Board</small><em class="bp-flow-public">Public input</em></div></li><li class="bp-flow-node"><time>Jul 14–28</time><h4>Budget reduction workshop</h4><p>The Board performs the budget reduction exercise now required by state law, identifying ways the budget could be reduced.</p><div class="bp-flow-meta"><small>Board</small><em class="bp-flow-tag-req">Required</em><em class="bp-flow-public">Public input</em></div></li><li class="bp-flow-node"><time>Aug 4</time><h4>Proposed millage certified</h4><p>OMB returns Form DR-420 with the proposed millage rate and hearing dates.</p><div class="bp-flow-meta"><small>OMB</small><em class="bp-flow-tag-trim">TRIM</em></div></li></ol></section>
+        <section class="bp-flow-lane" aria-label="Phase 4: Adoption"><header><span>Phase 4</span>Adoption</header><ol><li class="bp-flow-node"><time>Aug 24</time><h4>TRIM notices mailed</h4><p>Property owners receive notice of proposed taxes and hearing dates.</p><div class="bp-flow-meta"><small>Property Appraiser</small><em class="bp-flow-tag-trim">TRIM</em></div></li><li class="bp-flow-node"><time>Sep 14</time><h4>First public hearing</h4><p>The Board adopts the tentative budget and millage rate.</p><div class="bp-flow-meta"><small>Board</small><em class="bp-flow-tag-trim">TRIM</em><em class="bp-flow-public">Public input</em></div></li><li class="bp-flow-node"><time>Sep 23</time><h4>Budget advertised</h4><p>The Notice of Budget Hearing and Budget Summary are advertised.</p><div class="bp-flow-meta"><small>OMB</small><em class="bp-flow-tag-trim">TRIM</em></div></li><li class="bp-flow-node"><time>Sep 28</time><h4>Final hearing and adoption</h4><p>The Board adopts the final millage rate and budget.</p><div class="bp-flow-meta"><small>Board</small><em class="bp-flow-tag-trim">TRIM</em><em class="bp-flow-public">Public input</em></div></li></ol></section>
+      </div>
+      <div class="bp-flow-cycle"><strong>After adoption</strong><span>Within 30 days, the County certifies TRIM compliance to the Florida Department of Revenue</span><span>Oct 1: the fiscal year begins; OMB and departments monitor spending</span><span>The Board amends the budget by resolution when needs change</span></div>
+      <p class="bp-flow-note">FY 2027 dates from the <a href="budget-calendar.html">Budget Calendar</a>; dates are planning estimates and may shift.</p>
     </div>
   </section>
 
@@ -133,7 +176,7 @@
   </section>
 </main></div>
 <script src="../assets/search-data.min.js?v=c0b881b570"></script>
-<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=193e14b588"></script>
+<script src="../assets/performance-context.min.js?v=8abc16a486"></script><script src="../assets/budget-data.min.js?v=690eb8fcf9"></script>
 <script src="../assets/nav.min.js?v=ed607a0c71"></script>
 <script src="../assets/budget-pdf.min.js?v=b23abf0acb"></script>
 <script src="../assets/budget-process-tabs.min.js?v=78ba9934ec"></script>

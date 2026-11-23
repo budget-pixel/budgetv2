@@ -21,6 +21,34 @@ const PHASES = [
   ["Phase 4", "Adoption", "Required public hearings are held before the Board adopts the final millage rate and annual operating budget.", "September"]
 ];
 
+
+// Budget flowchart (matches the flowchart on pages/budget-process.html).
+// Dates are the FY 2027 Budget Calendar dates; [date, step, who, publicInput].
+const FLOW = [
+  ["Phase 1", "Preparation", "February–April", [
+    ["Mar 12", "Request forms go out", "OMB"],
+    ["Apr 6", "Department operating, staffing, and capital requests due", "Departments"]]],
+  ["Phase 2", "Review", "April–June", [
+    ["May 1", "Revenue and fund balance estimates", "OMB"],
+    ["Jun 1", "Preliminary taxable value; Constitutional Officer budgets due", "Property Appraiser · Officers"],
+    ["Jun 10–11", "Staff workshops weigh requests against revenue and priorities", "OMB · Administration"]]],
+  ["Phase 3", "Workshops & TRIM", "July–August", [
+    ["Jul 1", "Taxable value certified (Form DR-420)", "Property Appraiser", ["TRIM"]],
+    ["Jul 7", "First public budget workshop", "Board", ["Public input"]],
+    ["Jul 14–28", "Budget reduction workshop required by state law", "Board", ["Required", "Public input"]],
+    ["Aug 4", "Proposed millage and hearing dates certified", "OMB", ["TRIM"]]]],
+  ["Phase 4", "Adoption", "August–September", [
+    ["Aug 24", "TRIM notices mailed to property owners", "Property Appraiser", ["TRIM"]],
+    ["Sep 14", "First public hearing adopts the tentative budget and millage", "Board", ["TRIM", "Public input"]],
+    ["Sep 23", "Notice of hearing and budget summary advertised", "OMB", ["TRIM"]],
+    ["Sep 28", "Final hearing adopts the millage rate and budget", "Board", ["TRIM", "Public input"]]]]
+];
+const TAG_CLASS = { "TRIM": "trim", "Public input": "pub", "Required": "req" };
+const flowNode = ([date, step, who, tags = []]) => `<li class="flow-node"><time>${date}</time><strong>${step}</strong><small>${who}${tags.map(t => `<em class="${TAG_CLASS[t]}">${t}</em>`).join("")}</small></li>`;
+const FLOW_HTML = `<div class="flow-lanes">${FLOW.map(([num, title, when, steps]) => `<div class="flow-lane"><div class="flow-head"><span>${num} &middot; ${when}</span>${title}</div><ol>${steps.map(flowNode).join("")}${title === "Review" ? `<li class="flow-decision"><strong>Is the budget balanced?</strong><span><b>No:</b> revise requests and estimates, then review again.</span><span><b>Yes:</b> the proposed budget goes to the Board.</span></li>` : ""}</ol></div>`).join("")}</div>
+<div class="flow-cycle"><strong>After adoption</strong><span>Within 30 days, TRIM compliance is certified to the Florida Department of Revenue</span><span>Oct 1: the fiscal year begins; spending is monitored</span><span>The Board amends the budget by resolution when needs change</span></div>
+<p class="flow-note">Steps marked TRIM follow Florida&rsquo;s Truth in Millage deadlines (s. 200.065, F.S.). Dates are from the FY 2027 Budget Calendar.</p>`;
+
 const ROLES = [
   ["Departments & Constitutional Offices", "Define service needs and submit operating, personnel, and capital requests."],
   ["Office of Management & Budget", "Coordinates the cycle, reviews submissions, balances resources, and prepares recommendations."],
@@ -136,6 +164,27 @@ const sharedCss = `
     text-transform:uppercase;
   }
   .section-block{ margin:0 0 .14in; }
+  .flow-lanes{ display:grid; grid-template-columns:repeat(4,1fr); gap:.2in; margin-top:.08in; }
+  .flow-lane{ position:relative; min-width:0; }
+  .flow-lane+.flow-lane::before{ content:""; position:absolute; left:-.15in; top:.06in; border:5px solid transparent; border-left:7px solid #d1be78; }
+  .flow-head{ margin-bottom:.07in; padding-bottom:.04in; border-bottom:2px solid #0b7741; color:#003f28; font-size:9.6pt; font-weight:800; }
+  .flow-head span{ display:block; color:#b89521; font-size:6.4pt; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+  .flow-lane ol{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.13in; }
+  .flow-node,.flow-decision{ position:relative; padding:.06in .08in; border:1px solid #e4ebe7; border-radius:8px; background:#fbfcfa; }
+  .flow-lane li+li::before{ content:""; position:absolute; left:50%; top:-.12in; height:.06in; border-left:1.5px solid #d1be78; }
+  .flow-lane li+li::after{ content:""; position:absolute; left:calc(50% - 3.5px); top:-.065in; border:3.5px solid transparent; border-top:4.5px solid #d1be78; }
+  .flow-node time{ display:block; color:#0b7741; font-size:6.6pt; font-weight:900; letter-spacing:.05em; text-transform:uppercase; }
+  .flow-node strong{ display:block; margin:.02in 0; color:#003f28; font-size:7.6pt; line-height:1.28; }
+  .flow-node small{ display:flex; flex-wrap:wrap; gap:4px; align-items:center; color:#68786f; font-size:6.4pt; font-weight:800; }
+  .flow-node em{ padding:0 5px; border-radius:99px; background:#d1be78; color:#003f28; font-style:normal; font-size:5.8pt; line-height:1.6; }
+  .flow-node em.trim{ background:#173229; color:#fff; }
+  .flow-node em.req{ background:#0b7741; color:#fff; }
+  .flow-note{ margin:.05in 0 0; color:#68786f; font-size:6.6pt; }
+  .flow-decision{ border:1.5px dashed #d1be78; background:#fffaf0; }
+  .flow-decision strong{ display:block; margin-bottom:.03in; color:#003f28; font-size:7.6pt; }
+  .flow-decision span{ display:block; color:#33453c; font-size:6.7pt; line-height:1.3; }
+  .flow-cycle{ display:grid; grid-template-columns:auto repeat(3,1fr); gap:.1in; align-items:center; margin-top:.14in; padding:.08in .12in; border-radius:8px; background:#003f28; color:#fff; font-size:7pt; line-height:1.3; }
+  .flow-cycle span{ padding-left:.08in; border-left:2px solid #d1be78; }
   .phase-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -379,10 +428,8 @@ const page1 = `
     <p class="intro">See how a department request becomes Walton County&rsquo;s FY 2027 final spending plan &mdash; and how residents can follow the decisions before final adoption.</p>
 
     <div class="section-block">
-      <h2><span>Four Phases</span>From Department Requests to Adoption</h2>
-      <div class="phase-grid">
-        ${PHASES.map(([num, title, desc, when]) => `<div class="phase-card"><span class="num">${num}</span><h3>${title}</h3><p>${desc}</p><small>${when}</small></div>`).join("")}
-      </div>
+      <h2><span>Budget Flowchart</span>From Department Requests to Adoption</h2>
+      ${FLOW_HTML}
     </div>
 
     <div class="section-block">

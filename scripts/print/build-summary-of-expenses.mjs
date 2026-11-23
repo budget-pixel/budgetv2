@@ -110,13 +110,17 @@ const DEPT_GROUPS = [
     ["Veteran Services", "$316,650"],
   ]],
   ["Human Services", [
-    ["Human Services", "$2,316,300"],
+    // The former "Human Services" line is listed as its four programs.
     ["Walton County Health Department", "$1,724,397"],
     ["Mosquito Control", "$1,426,937"],
+    ["Medicaid Services", "$1,284,516"],
+    ["DeFuniak Community Redevelopment Agency", "$726,897"],
     ["Non-Profit Funding Program", "$268,500"],
+    ["Opioid Settlement Programs", "$254,887"],
     ["Lakeview", "$175,000"],
     ["Gulf Coast Kid's House", "$98,100"],
     ["Mosquito Control State Aid", "$69,588"],
+    ["Health Care Response (HCRA)", "$50,000"],
     ["Indigent Cremation Program", "$50,000"],
   ]],
   ["Culture and Recreation", [
@@ -193,7 +197,12 @@ const FY2026_DEPARTMENT_BUDGETS = {
   "Economic Development Alliance": 271841,
   "North Walton Tourist Development Tax": 323000,
   "Veteran Services": 236100,
-  "Human Services": 2397802,
+  // FY 2026 program amounts from FY2026_Original_Budget; HCRA uses the
+  // $150,000 FY 2026 figure so the programs total the published $2,397,802.
+  "Medicaid Services": 1300687,
+  "Health Care Response (HCRA)": 150000,
+  "DeFuniak Community Redevelopment Agency": 711251,
+  "Opioid Settlement Programs": 235864,
   "Walton County Health Department": 1724397,
   "Mosquito Control": 1340000,
   "Non-Profit Funding Program": 477820,
@@ -250,11 +259,12 @@ const HUMAN_SERVICES_PROGRAMS = [
   ["Opioid Settlement Programs", row => String(row.Dept_Code) === "00102012" && /opioid settlement/i.test(row.Project_Name || "")]
 ].map(([name, matches]) => [name, humanServicesExpenseRows.filter(matches).reduce((sum, row) => sum + (Number(row.FY2027_Proposed) || 0), 0)]);
 assert.equal(HUMAN_SERVICES_PROGRAMS.reduce((sum, [, amount]) => sum + amount, 0), 2316300);
-const humanServicesBreakdown = '<div class="human-services-breakdown"><b>FY 2027 program breakdown</b>' +
-  HUMAN_SERVICES_PROGRAMS.map(([name, amount]) => '<div><span>' + name + '</span><strong>' + money(amount) + '</strong></div>').join('') + '</div>';
+// Each program row's FY 2027 amount must match the budget data.
+const humanServicesRows = DEPT_GROUPS.find(([name]) => name === "Human Services")[1];
+HUMAN_SERVICES_PROGRAMS.forEach(([name, amount]) => assert.equal(amountOf(humanServicesRows.find(([label]) => label === name)[1]), amount, name));
 
 function deptRow(cells, functionName) {
-  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${money(priorDepartmentBudget(functionName, cells[0]))}</div><div class="dnum">${cells[1]}</div></div>${functionName === "Human Services" && cells[0] === "Human Services" ? humanServicesBreakdown : ""}`;
+  return `<div class="drow"><div class="dlabel">${cells[0]}</div><div class="dnum">${money(priorDepartmentBudget(functionName, cells[0]))}</div><div class="dnum">${cells[1]}</div></div>`;
 }
 function buildDeptSections(groups) {
   return groups.map(([fn, rows]) => `

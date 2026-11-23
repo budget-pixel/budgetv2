@@ -214,13 +214,13 @@
     "beach-operations": {
       keepNarrative: true,
       goal: "Maintain clean, safe, reliable, and accessible beach and bay facilities for residents and visitors.",
-      workload: "Sixty-seven positions, up seven, target daily cleaning of 66 beach and bay access facilities in peak season and completion of 6,000 work orders.",
+      workload: "Keep beach and bay access sites clean during peak season while completing repairs at heavily used facilities.",
       staffing: "Tourism Beach Operations"
     },
     "beach-tram": {
       keepNarrative: true,
       goal: "Provide safe, reliable, and convenient beach transportation that improves access and reduces vehicle pressure in high-demand areas.",
-      workload: "Sixty positions, up six drivers and crew leaders, support a target of 250,000 riders, compared with 224,352 rides reported in 2025.",
+      workload: "Match shuttle frequency to peak demand so riders can reach the beach without long waits.",
       staffing: "Tourism Beach Tram"
     }
   };
@@ -231,7 +231,7 @@
     "tourism-administration": {
       "sof": "Tourism Administration provides executive leadership, financial stewardship, strategic coordination, and administrative support for Walton County Tourism. The office sustains the revenue base needed for visitor services and tourism-funded community investments while coordinating the work of marketing, communications, sales, visitor services, beach operations, and industry partners.",
       "goal": "Steward visitor-funded resources and coordinate tourism programs that support a strong economy and community quality of life.",
-      "workload": "Four positions oversee the $59.0M Tourist Development Fund, whose uses are restricted by state law to tourism-related purposes.",
+      "workload": "Match competing tourism requests to eligible uses of lodging-tax revenue and document how each expense qualifies.",
       "services": [
         [
           "Lead tourism strategy",
@@ -251,7 +251,7 @@
     "sales-and-visitor-center": {
       "sof": "The Group Sales team generates new business opportunities and builds awareness of Walton County for meetings and conventions, incentives, weddings, and consumer travel. Visitor Center staff provide trusted destination information and help connect guests with local places, services, and experiences.",
       "goal": "Generate qualified group business and provide accurate, welcoming visitor information that supports a positive Walton County experience.",
-      "workload": "Nine positions handle group sales for meetings, weddings, and travel, and staff the visitor center.",
+      "workload": "Follow up on group sales leads while keeping the visitor center available for walk-in questions.",
       "services": [
         [
           "Develop group business",
@@ -271,7 +271,7 @@
     "communications": {
       "sof": "The Communications Division supports Walton County Tourism through earned and owned media that inspire travel and inform visitors, residents, partners, and stakeholders. The division manages strategic communications, public relations, media activities, familiarization tours, press visits, industry relations, and community education about tourism's local value.",
       "goal": "Build informed, credible relationships that strengthen destination awareness and understanding of tourism's role in Walton County.",
-      "workload": "Five positions manage media relations, press visits, and tourism communications, supported by a $114,000 public relations contract.",
+      "workload": "Keep beach safety messages current as conditions change and respond promptly to media inquiries.",
       "services": [
         [
           "Manage public relations",
@@ -291,7 +291,7 @@
     "marketing": {
       "sof": "The Marketing Division uses research, creative campaigns, digital channels, social media, and travel-trade coordination to communicate Walton County's destination experiences to priority audiences. This work supports visitor spending, local employment, and a diversified tourism economy.",
       "goal": "Use research-led marketing to sustain high-value visitation and measurable economic benefit for Walton County.",
-      "workload": "Four positions manage $12.5M in contracted advertising, research, and digital marketing services.",
+      "workload": "Determine which paid campaigns bring visitors to local businesses so future advertising dollars go where they work best.",
       "services": [
         [
           "Plan and place destination advertising",

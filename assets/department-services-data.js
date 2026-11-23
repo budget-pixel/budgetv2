@@ -189,6 +189,42 @@
     }
   ];
 
+  // Each department's own challenge, checked before the shared groups below.
+  var DEPARTMENT_CHALLENGES = {
+    "building construction and maintenance": "Keeping aging County buildings, parks, and facilities safe and working while new construction projects and thousands of daily work orders compete for the same crews.",
+    "building department": "Keeping inspections and plan reviews on schedule while construction stays busy, with FY 2027 operations funded from Building Fund reserves rather than current permit fees.",
+    "code compliance": "Enforcing codes on both county streets and the beach, where peak-season crowds drive demand, while resolving most violations through voluntary compliance.",
+    "county administration": "Carrying out Board direction across County departments while coordinating with Constitutional Officers, municipalities, and residents on competing priorities.",
+    "eagle springs golf and recreation center": "Keeping the course and facilities in good condition as play increases, while customer revenue continues to cover most of the operating cost.",
+    "eagle springs grill": "Maintaining dependable customer service while managing food, supply, labor, and operating costs that can change quickly.",
+    "emergency management": "Staying ready year-round for hurricanes and other emergencies with a small staff, while keeping residents and visitors informed and prepared.",
+    "tourism lifeguard services and beach safety": "Providing enough trained lifeguards for peak-season crowds across the County's beaches through the purchased-service agreement with South Walton Fire District.",
+    "engineering department": "Designing and managing 30 funded transportation and infrastructure projects with two fewer positions, while construction costs and schedules stay tight.",
+    "environmental resources": "Meeting state and federal environmental requirements and protecting water quality, dunes, and habitat as development grows near sensitive areas.",
+    "extension office": "Meeting growing demand for agriculture, horticulture, youth, and family programs with a small staff shared with the University of Florida.",
+    "geographic info systems": "Keeping countywide maps, addresses, and parcel data current as new development adds roads and addresses and customer requests continue to rise.",
+    "housing and urban development": "Putting as many federal housing vouchers to use as possible when available rental housing is scarce and local rents are high.",
+    "human resources": "Recruiting and keeping qualified employees in a high-cost labor market, with Board turnover near 11% and about 260 new employees to onboard.",
+    "libraries": "Keeping four branches and a bookmobile open and current as visits and program demand have grown sharply since 2022.",
+    "mosquito control": "Covering a much larger treatment area with one fewer position, while rain and heat can cause sudden spikes in mosquito activity.",
+    "mossy head wastewater treatment facility": "Running the treatment system for the Northwest Commerce Industrial Park with one County employee and a contracted operator while keeping it ready for future users.",
+    "office of management and budget": "Balancing the budget under a lower millage rate and new state budget requirements, while tracking grant spending and reporting.",
+    "office of the county attorney": "Handling a steady volume of contract reviews, legal matters, and public-records requests with one fewer paralegal.",
+    "planning": "Reviewing a rising number of permits and enforcing short-term rental rules as growth changes how neighborhoods and corridors are used.",
+    "probation": "Supervising changing caseloads and attending court hearings with four officers, while keeping probationers in compliance with court orders.",
+    "public works": "Maintaining 1,049 miles of paved and dirt roads and completing more capital projects as traffic and development increase.",
+    "purchasing": "Keeping purchases and formal bids moving quickly while meeting state, federal, and grant procurement rules.",
+    "recreation": "Keeping fields, parks, and programs available as participation grows, with a small staff scheduling shared facilities.",
+    "soil conservation": "Helping farmers and landowners apply for federal cost-share programs with two staff, while program rules and funding change from year to year.",
+    "solid waste": "Handling more waste each year as the population grows, while extending landfill life and managing the $17M collection franchise.",
+    "veteran services": "Keeping up with a rising number of benefit claims so each veteran's application is filed accurately and on time.",
+    "tourism administration": "Balancing visitor demand with community impacts while making sure Tourist Development Tax dollars are spent only on uses state law allows.",
+    "tourism beach operations": "Keeping beach accesses clean, safe, and repaired in peak season, when daily crowds and storm damage put the most strain on facilities.",
+    "beach operations": "Keeping beach accesses clean, safe, and repaired in peak season, when daily crowds and storm damage put the most strain on facilities.",
+    "beach renourishment": "Protecting the County's beaches from erosion and storms, while large renourishment projects depend on permits, sand sources, and timing.",
+    "beach tram": "Hiring and keeping enough drivers to meet growing peak-season ridership while easing traffic and parking near the beach."
+  };
+
   var DEFAULT_CHALLENGE = "Maintaining reliable service while responding to growth, changing workloads, staffing capacity, rising costs, and evolving operational requirements.";
 
   function challengeForKeys(keys) {
@@ -197,6 +233,9 @@
     // against every group before moving to the next key -- the first key
     // that matches anything wins, rather than the first group in
     // CHALLENGE_GROUPS that happens to contain any of the keys.
+    for (var d = 0; d < keys.length; d++) {
+      if (DEPARTMENT_CHALLENGES[keys[d]]) return DEPARTMENT_CHALLENGES[keys[d]];
+    }
     for (var k = 0; k < keys.length; k++) {
       for (var g = 0; g < CHALLENGE_GROUPS.length; g++) {
         if (CHALLENGE_GROUPS[g].departments.indexOf(keys[k]) !== -1) return CHALLENGE_GROUPS[g].text;

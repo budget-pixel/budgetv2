@@ -22,7 +22,7 @@ import { newPage } from "./readers-guide.mjs"; // page references follow the boo
 // taxable value (not present in the dataset for FY 2027 at all).
 
 const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Transmittal Letter</title>
+<html lang="en"><head><meta charset="utf-8"><title>Transmittal Letter</title>
 <style>
   @page{ size:letter portrait; margin:0; }
   *{ box-sizing:border-box; }
@@ -90,6 +90,10 @@ const html = `<!doctype html>
     color:#33453c;
     font-size:10pt;
     line-height:1.5;
+  }
+  .col-main p, .col-main li, section > p{
+    text-align:justify;
+    hyphens:auto;
   }
   .salutation{
     font-weight:800;

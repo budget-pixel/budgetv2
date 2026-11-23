@@ -35,6 +35,8 @@ for (const [category, amount, label] of [
   window.testTypes.setRows([row]);
   window.testTypes.downloadCsv();
   assert(csv.startsWith('Date,Vendor/Payee,Description,Account,Type,'));
+  assert(!csv.includes('Document #'));
+  assert(!host.innerHTML.includes('Document #'));
   assert(csv.includes(',' + label + ','));
   assert(csv.includes(',Operating Supplies,'));
   assert(csv.endsWith(',' + amount));
