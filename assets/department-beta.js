@@ -789,6 +789,8 @@
       comparisonTemplate = null;
     }
     if (comparisonTemplate || comparisonData) tabs.splice(2, 0, ["comparison", "Comparison"]);
+    var stateAidMount = content.querySelector("#department-state-aid-tables");
+    if (stateAidMount) tabs.splice(2, 0, ["state-aid", "State Aid"]);
     var bar = document.createElement("div");
     bar.className = "wc-click-through-tabs wc-dept-beta-tabs";
     bar.setAttribute("role", "tablist");
@@ -808,6 +810,7 @@
     }
     var overview = panel("overview");
     var budget = panel("budget");
+    var stateAidPanel = panel("state-aid");
     var budgetGraph = panel("budget-graph");
     var revenue = panel("revenue");
     var staffing = panel("staffing");
@@ -1155,7 +1158,7 @@
         '</div>' +
         '<iframe class="wc-dept-beta-submitted-frame" src="' + pdfUrl + '#view=FitH" title="' + escapeHtml(departmentName) + ' submitted budget request" loading="lazy"></iframe>';
     }
-    var panels = { overview: overview, budget: budget, "budget-graph": budgetGraph, revenue: revenue, staffing: staffing, services: services, submitted: submitted, comparison: comparison };
+    var panels = { overview: overview, budget: budget, "state-aid": stateAidPanel, "budget-graph": budgetGraph, revenue: revenue, staffing: staffing, services: services, submitted: submitted, comparison: comparison };
     tabs = tabs.filter(function ([key]) {
       if (key === "submitted") return !!submittedDoc;
       if (key === "budget-graph") return budgetGraph.hasChildNodes();
@@ -1196,7 +1199,18 @@
       overview.appendChild(section);
     });
     var stateAid = content.querySelector("#department-state-aid-tables");
-    if (stateAid) budget.appendChild(stateAid);
+    if (stateAid) {
+      stateAid.querySelectorAll(".wc-budget-lines-detail").forEach(function (detail, index) {
+        var section = document.createElement("section");
+        var title = document.createElement("h2");
+        title.className = "wc-profile-section-title";
+        title.textContent = index === 0 ? "State Aid Expenditures" : "State Aid Revenue";
+        detail.hidden = false;
+        section.append(title, detail);
+        stateAidPanel.appendChild(section);
+      });
+      stateAid.remove();
+    }
     if (placeholder && !placeholder.textContent.trim()) placeholder.hidden = true;
 
     var buttons = Array.prototype.slice.call(bar.querySelectorAll("[data-dept-tab]"));
